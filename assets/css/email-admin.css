@@ -1,0 +1,606 @@
+/**
+ * Email Admin Styles
+ * 
+ * @package RealEstate_Booking_Suite
+ */
+
+/* Email Settings Container */
+.resbs-email-settings-container {
+    max-width: 1200px;
+}
+
+/* Settings Sections */
+.resbs-settings-section {
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    padding: 20px;
+}
+
+.resbs-settings-section h2 {
+    margin-top: 0;
+    color: #23282d;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+/* Email Templates */
+.resbs-email-templates {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.resbs-template-tabs {
+    display: flex;
+    background: #f1f1f1;
+    border-bottom: 1px solid #ddd;
+}
+
+.resbs-tab-button {
+    background: none;
+    border: none;
+    padding: 12px 20px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    color: #555;
+    border-right: 1px solid #ddd;
+    transition: all 0.3s ease;
+}
+
+.resbs-tab-button:last-child {
+    border-right: none;
+}
+
+.resbs-tab-button:hover {
+    background: #e0e0e0;
+    color: #333;
+}
+
+.resbs-tab-button.active {
+    background: #fff;
+    color: #0073aa;
+    border-bottom: 2px solid #0073aa;
+}
+
+.resbs-template-content {
+    background: #fff;
+    min-height: 400px;
+}
+
+.resbs-template-panel {
+    display: none;
+    padding: 20px;
+}
+
+.resbs-template-panel.active {
+    display: block;
+}
+
+.resbs-template-panel h3 {
+    margin-top: 0;
+    color: #23282d;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+/* Template Editor */
+.resbs-template-editor {
+    position: relative;
+}
+
+.resbs-template-toolbar {
+    margin-bottom: 10px;
+    display: flex;
+    gap: 10px;
+}
+
+.resbs-template-toolbar .button {
+    font-size: 12px;
+    padding: 5px 10px;
+    height: auto;
+}
+
+.resbs-template-editor textarea {
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    line-height: 1.4;
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 10px;
+}
+
+.resbs-template-editor textarea:focus {
+    border-color: #0073aa;
+    box-shadow: 0 0 0 1px #0073aa;
+}
+
+/* Placeholder Selector */
+.resbs-placeholder-selector {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    min-width: 200px;
+    max-height: 200px;
+    overflow-y: auto;
+    display: none;
+}
+
+.resbs-placeholder-selector.show {
+    display: block;
+}
+
+.resbs-placeholder-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 12px;
+    color: #555;
+}
+
+.resbs-placeholder-item:hover {
+    background: #f0f0f0;
+    color: #333;
+}
+
+.resbs-placeholder-item:last-child {
+    border-bottom: none;
+}
+
+/* Email Preview */
+.resbs-email-preview {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    z-index: 10000;
+    max-width: 600px;
+    max-height: 80vh;
+    overflow: auto;
+    display: none;
+}
+
+.resbs-email-preview.show {
+    display: block;
+}
+
+.resbs-email-preview-header {
+    background: #f1f1f1;
+    padding: 15px 20px;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.resbs-email-preview-header h3 {
+    margin: 0;
+    color: #23282d;
+}
+
+.resbs-email-preview-close {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #666;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.resbs-email-preview-close:hover {
+    color: #333;
+}
+
+.resbs-email-preview-content {
+    padding: 20px;
+    background: #fff;
+}
+
+/* SMTP Settings */
+.smtp-setting {
+    display: none;
+}
+
+.smtp-setting.show {
+    display: table-row;
+}
+
+/* Test Email */
+#resbs-send-test-email {
+    margin-left: 10px;
+}
+
+/* Form Table Improvements */
+.form-table th {
+    width: 200px;
+    vertical-align: top;
+    padding-top: 15px;
+}
+
+.form-table td {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.form-table .description {
+    font-style: italic;
+    color: #666;
+    margin-top: 5px;
+}
+
+/* Checkbox Styling */
+.form-table input[type="checkbox"] {
+    margin-right: 8px;
+}
+
+/* Input Styling */
+.form-table input[type="text"],
+.form-table input[type="email"],
+.form-table input[type="password"],
+.form-table input[type="number"],
+.form-table select,
+.form-table textarea {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 8px 12px;
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+}
+
+.form-table input[type="text"]:focus,
+.form-table input[type="email"]:focus,
+.form-table input[type="password"]:focus,
+.form-table input[type="number"]:focus,
+.form-table select:focus,
+.form-table textarea:focus {
+    border-color: #0073aa;
+    box-shadow: 0 0 0 1px #0073aa;
+    outline: none;
+}
+
+/* Large Text Inputs */
+.large-text {
+    width: 100%;
+    max-width: 600px;
+}
+
+.regular-text {
+    width: 100%;
+    max-width: 300px;
+}
+
+.small-text {
+    width: 80px;
+}
+
+/* Code Textarea */
+.code {
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+/* Loading States */
+.resbs-loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.resbs-loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 20px;
+    height: 20px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #0073aa;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Success/Error Messages */
+.resbs-message {
+    padding: 10px 15px;
+    border-radius: 4px;
+    margin: 10px 0;
+    font-weight: 500;
+}
+
+.resbs-message.success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.resbs-message.error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .resbs-email-settings-container {
+        margin: 0 -10px;
+    }
+    
+    .resbs-settings-section {
+        margin: 0 10px 20px;
+        padding: 15px;
+    }
+    
+    .resbs-template-tabs {
+        flex-wrap: wrap;
+    }
+    
+    .resbs-tab-button {
+        flex: 1;
+        min-width: 120px;
+        text-align: center;
+        font-size: 12px;
+        padding: 10px 8px;
+    }
+    
+    .resbs-template-panel {
+        padding: 15px;
+    }
+    
+    .form-table th,
+    .form-table td {
+        display: block;
+        width: 100%;
+        padding: 5px 0;
+    }
+    
+    .form-table th {
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+    
+    .large-text,
+    .regular-text {
+        max-width: 100%;
+    }
+    
+    .resbs-email-preview {
+        max-width: 95%;
+        max-height: 90vh;
+    }
+    
+    .resbs-template-toolbar {
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+    
+    .resbs-template-toolbar .button {
+        font-size: 11px;
+        padding: 4px 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    .resbs-settings-section {
+        margin: 0 5px 15px;
+        padding: 10px;
+    }
+    
+    .resbs-template-panel {
+        padding: 10px;
+    }
+    
+    .resbs-tab-button {
+        font-size: 11px;
+        padding: 8px 6px;
+        min-width: 100px;
+    }
+    
+    .resbs-template-editor textarea {
+        font-size: 12px;
+        padding: 8px;
+    }
+    
+    .form-table input[type="text"],
+    .form-table input[type="email"],
+    .form-table input[type="password"],
+    .form-table input[type="number"],
+    .form-table select,
+    .form-table textarea {
+        font-size: 13px;
+        padding: 6px 10px;
+    }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .resbs-settings-section {
+        background: #2c2c2c;
+        border-color: #3c434a;
+        color: #f0f0f1;
+    }
+    
+    .resbs-settings-section h2 {
+        color: #f0f0f1;
+        border-bottom-color: #3c434a;
+    }
+    
+    .resbs-template-tabs {
+        background: #1e1e1e;
+        border-bottom-color: #3c434a;
+    }
+    
+    .resbs-tab-button {
+        color: #a7aaad;
+        border-right-color: #3c434a;
+    }
+    
+    .resbs-tab-button:hover {
+        background: #3c434a;
+        color: #f0f0f1;
+    }
+    
+    .resbs-tab-button.active {
+        background: #2c2c2c;
+        color: #72aee6;
+        border-bottom-color: #72aee6;
+    }
+    
+    .resbs-template-content {
+        background: #2c2c2c;
+    }
+    
+    .resbs-template-panel h3 {
+        color: #f0f0f1;
+        border-bottom-color: #3c434a;
+    }
+    
+    .resbs-template-editor textarea {
+        background: #1e1e1e;
+        border-color: #3c434a;
+        color: #f0f0f1;
+    }
+    
+    .resbs-template-editor textarea:focus {
+        border-color: #72aee6;
+        box-shadow: 0 0 0 1px #72aee6;
+    }
+    
+    .resbs-placeholder-selector {
+        background: #2c2c2c;
+        border-color: #3c434a;
+    }
+    
+    .resbs-placeholder-item {
+        color: #a7aaad;
+        border-bottom-color: #3c434a;
+    }
+    
+    .resbs-placeholder-item:hover {
+        background: #3c434a;
+        color: #f0f0f1;
+    }
+    
+    .resbs-email-preview {
+        background: #2c2c2c;
+        border-color: #3c434a;
+    }
+    
+    .resbs-email-preview-header {
+        background: #1e1e1e;
+        border-bottom-color: #3c434a;
+    }
+    
+    .resbs-email-preview-header h3 {
+        color: #f0f0f1;
+    }
+    
+    .resbs-email-preview-close {
+        color: #a7aaad;
+    }
+    
+    .resbs-email-preview-close:hover {
+        color: #f0f0f1;
+    }
+    
+    .resbs-email-preview-content {
+        background: #2c2c2c;
+        color: #f0f0f1;
+    }
+    
+    .form-table input[type="text"],
+    .form-table input[type="email"],
+    .form-table input[type="password"],
+    .form-table input[type="number"],
+    .form-table select,
+    .form-table textarea {
+        background: #1e1e1e;
+        border-color: #3c434a;
+        color: #f0f0f1;
+    }
+    
+    .form-table input[type="text"]:focus,
+    .form-table input[type="email"]:focus,
+    .form-table input[type="password"]:focus,
+    .form-table input[type="number"]:focus,
+    .form-table select:focus,
+    .form-table textarea:focus {
+        border-color: #72aee6;
+        box-shadow: 0 0 0 1px #72aee6;
+    }
+    
+    .form-table .description {
+        color: #a7aaad;
+    }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+    .resbs-settings-section {
+        border-width: 2px;
+    }
+    
+    .resbs-template-tabs {
+        border-bottom-width: 2px;
+    }
+    
+    .resbs-tab-button {
+        border-right-width: 2px;
+    }
+    
+    .resbs-template-editor textarea {
+        border-width: 2px;
+    }
+    
+    .form-table input[type="text"],
+    .form-table input[type="email"],
+    .form-table input[type="password"],
+    .form-table input[type="number"],
+    .form-table select,
+    .form-table textarea {
+        border-width: 2px;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .resbs-template-tabs,
+    .resbs-template-toolbar,
+    .resbs-email-preview-header,
+    .resbs-email-preview-close {
+        display: none;
+    }
+    
+    .resbs-template-panel {
+        display: block !important;
+        page-break-inside: avoid;
+    }
+    
+    .resbs-settings-section {
+        page-break-inside: avoid;
+        border: 1px solid #000;
+    }
+}
+

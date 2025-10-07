@@ -1,0 +1,992 @@
+/**
+ * Google Maps Styles
+ * 
+ * @package RealEstate_Booking_Suite
+ */
+
+/* Map Container */
+.resbs-property-map-container {
+    position: relative;
+    width: 100%;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    background: #f5f5f5;
+}
+
+.resbs-property-map {
+    width: 100%;
+    height: 100%;
+    min-height: 300px;
+    border: none;
+    border-radius: 8px;
+}
+
+/* Map Controls */
+.resbs-map-controls {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+}
+
+.resbs-map-controls > * {
+    pointer-events: auto;
+}
+
+/* Map Search */
+.resbs-map-search {
+    display: flex;
+    background: #fff;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    max-width: 400px;
+}
+
+.resbs-map-search-input {
+    flex: 1;
+    padding: 12px 16px;
+    border: none;
+    outline: none;
+    font-size: 14px;
+    background: transparent;
+}
+
+.resbs-map-search-input::placeholder {
+    color: #999;
+}
+
+.resbs-map-search-btn {
+    padding: 12px 16px;
+    background: #007cba;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background 0.3s ease;
+    white-space: nowrap;
+}
+
+.resbs-map-search-btn:hover {
+    background: #005a87;
+}
+
+/* Map Filters */
+.resbs-map-filters {
+    background: #fff;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    padding: 15px;
+    max-width: 600px;
+}
+
+.resbs-map-filter-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+}
+
+.resbs-map-filter {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    background: #fff;
+    min-width: 120px;
+    outline: none;
+    transition: border-color 0.3s ease;
+}
+
+.resbs-map-filter:focus {
+    border-color: #007cba;
+    box-shadow: 0 0 0 2px rgba(0, 124, 186, 0.1);
+}
+
+.resbs-map-filter-btn,
+.resbs-map-reset-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.resbs-map-filter-btn {
+    background: #007cba;
+    color: #fff;
+}
+
+.resbs-map-filter-btn:hover {
+    background: #005a87;
+}
+
+.resbs-map-reset-btn {
+    background: #6c757d;
+    color: #fff;
+}
+
+.resbs-map-reset-btn:hover {
+    background: #545b62;
+}
+
+/* Map Widget */
+.resbs-property-map-widget {
+    margin-bottom: 20px;
+}
+
+.resbs-property-map-widget .resbs-property-map-container {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Single Property Map */
+.resbs-property-map-single {
+    margin: 20px 0;
+}
+
+.resbs-property-map-single h3 {
+    margin: 0 0 15px 0;
+    font-size: 18px;
+    color: #333;
+    font-weight: 600;
+}
+
+.resbs-property-map-single .resbs-property-map {
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Map Loading State */
+.resbs-map-loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255, 255, 255, 0.9);
+    padding: 20px;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 1000;
+}
+
+.resbs-map-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #007cba;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Map Error State */
+.resbs-map-error {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #fff;
+    padding: 20px;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    z-index: 1000;
+    max-width: 300px;
+}
+
+.resbs-map-error-icon {
+    font-size: 24px;
+    color: #dc3545;
+    margin-bottom: 10px;
+}
+
+.resbs-map-error-message {
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+.resbs-map-error-btn {
+    padding: 8px 16px;
+    background: #007cba;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.resbs-map-error-btn:hover {
+    background: #005a87;
+}
+
+/* Custom Map Styles */
+.resbs-map-style-default {
+    /* Default Google Maps style */
+}
+
+.resbs-map-style-satellite {
+    /* Satellite view styling */
+}
+
+.resbs-map-style-hybrid {
+    /* Hybrid view styling */
+}
+
+.resbs-map-style-terrain {
+    /* Terrain view styling */
+}
+
+/* Marker Clustering */
+.resbs-marker-cluster {
+    background: #007cba;
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 12px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    border: 2px solid #fff;
+}
+
+.resbs-marker-cluster-small {
+    width: 30px;
+    height: 30px;
+    font-size: 10px;
+}
+
+.resbs-marker-cluster-medium {
+    width: 40px;
+    height: 40px;
+    font-size: 12px;
+}
+
+.resbs-marker-cluster-large {
+    width: 50px;
+    height: 50px;
+    font-size: 14px;
+}
+
+/* Info Window Styling */
+.resbs-info-window {
+    max-width: 300px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.resbs-info-window-content {
+    padding: 0;
+}
+
+.resbs-info-window-image {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 6px 6px 0 0;
+}
+
+.resbs-info-window-body {
+    padding: 15px;
+}
+
+.resbs-info-window-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    margin: 0 0 8px 0;
+    line-height: 1.3;
+}
+
+.resbs-info-window-title a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.resbs-info-window-title a:hover {
+    color: #007cba;
+}
+
+.resbs-info-window-price {
+    font-size: 18px;
+    font-weight: 700;
+    color: #007cba;
+    margin: 0 0 8px 0;
+}
+
+.resbs-info-window-location {
+    display: flex;
+    align-items: center;
+    color: #666;
+    font-size: 14px;
+    margin: 0 0 10px 0;
+}
+
+.resbs-info-window-location .dashicons {
+    font-size: 16px;
+    margin-right: 5px;
+    color: #999;
+}
+
+.resbs-info-window-meta {
+    display: flex;
+    gap: 15px;
+    margin: 0 0 15px 0;
+    font-size: 14px;
+    color: #666;
+}
+
+.resbs-info-window-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.resbs-info-window-meta-item .dashicons {
+    font-size: 14px;
+    color: #999;
+}
+
+.resbs-info-window-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.resbs-info-window-btn {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+}
+
+.resbs-info-window-btn-primary {
+    background: #007cba;
+    color: #fff;
+}
+
+.resbs-info-window-btn-primary:hover {
+    background: #005a87;
+    color: #fff;
+}
+
+.resbs-info-window-btn-secondary {
+    background: #28a745;
+    color: #fff;
+}
+
+.resbs-info-window-btn-secondary:hover {
+    background: #1e7e34;
+    color: #fff;
+}
+
+.resbs-info-window-btn-outline {
+    background: transparent;
+    color: #007cba;
+    border: 1px solid #007cba;
+}
+
+.resbs-info-window-btn-outline:hover {
+    background: #007cba;
+    color: #fff;
+}
+
+.resbs-info-window-btn .dashicons {
+    font-size: 12px;
+}
+
+/* Map Badges */
+.resbs-map-badges {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    z-index: 100;
+}
+
+.resbs-map-badge {
+    background: rgba(255, 255, 255, 0.9);
+    color: #333;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(5px);
+}
+
+.resbs-map-badge-featured {
+    background: #ff6b35;
+    color: #fff;
+}
+
+.resbs-map-badge-new {
+    background: #28a745;
+    color: #fff;
+}
+
+.resbs-map-badge-sold {
+    background: #dc3545;
+    color: #fff;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .resbs-map-controls {
+        top: 5px;
+        left: 5px;
+        right: 5px;
+    }
+    
+    .resbs-map-search {
+        max-width: none;
+    }
+    
+    .resbs-map-filters {
+        max-width: none;
+        padding: 10px;
+    }
+    
+    .resbs-map-filter-form {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .resbs-map-filter {
+        min-width: auto;
+        width: 100%;
+    }
+    
+    .resbs-map-filter-btn,
+    .resbs-map-reset-btn {
+        width: 100%;
+    }
+    
+    .resbs-info-window {
+        max-width: 250px;
+    }
+    
+    .resbs-info-window-image {
+        height: 120px;
+    }
+    
+    .resbs-info-window-body {
+        padding: 12px;
+    }
+    
+    .resbs-info-window-title {
+        font-size: 14px;
+    }
+    
+    .resbs-info-window-price {
+        font-size: 16px;
+    }
+    
+    .resbs-info-window-meta {
+        gap: 10px;
+        font-size: 12px;
+    }
+    
+    .resbs-info-window-actions {
+        flex-direction: column;
+    }
+    
+    .resbs-info-window-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .resbs-map-controls {
+        gap: 5px;
+    }
+    
+    .resbs-map-search-input {
+        padding: 10px 12px;
+        font-size: 13px;
+    }
+    
+    .resbs-map-search-btn {
+        padding: 10px 12px;
+        font-size: 13px;
+    }
+    
+    .resbs-map-filters {
+        padding: 8px;
+    }
+    
+    .resbs-map-filter {
+        padding: 6px 10px;
+        font-size: 13px;
+    }
+    
+    .resbs-map-filter-btn,
+    .resbs-map-reset-btn {
+        padding: 6px 12px;
+        font-size: 13px;
+    }
+    
+    .resbs-info-window {
+        max-width: 200px;
+    }
+    
+    .resbs-info-window-image {
+        height: 100px;
+    }
+    
+    .resbs-info-window-body {
+        padding: 10px;
+    }
+    
+    .resbs-info-window-title {
+        font-size: 13px;
+    }
+    
+    .resbs-info-window-price {
+        font-size: 14px;
+    }
+    
+    .resbs-info-window-meta {
+        gap: 8px;
+        font-size: 11px;
+    }
+}
+
+/* Map Animation Classes */
+.resbs-map-fade-in {
+    animation: mapFadeIn 0.3s ease;
+}
+
+@keyframes mapFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.resbs-map-slide-up {
+    animation: mapSlideUp 0.3s ease;
+}
+
+@keyframes mapSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Map Widget Specific Styles */
+.resbs-property-map-widget .resbs-map-controls {
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    margin-bottom: 10px;
+}
+
+.resbs-property-map-widget .resbs-map-search {
+    max-width: none;
+}
+
+.resbs-property-map-widget .resbs-map-filters {
+    max-width: none;
+}
+
+/* Map Integration with Other Elements */
+.resbs-property-card .resbs-property-map {
+    height: 200px;
+    border-radius: 6px;
+    margin-top: 15px;
+}
+
+.resbs-property-grid .resbs-property-map {
+    height: 150px;
+    border-radius: 4px;
+    margin-top: 10px;
+}
+
+/* Map Loading Overlay */
+.resbs-map-loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+    border-radius: 8px;
+}
+
+/* Map Error Overlay */
+.resbs-map-error-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+    border-radius: 8px;
+    text-align: center;
+    padding: 20px;
+}
+
+/* Accessibility */
+.resbs-map-controls:focus-within {
+    outline: 2px solid #007cba;
+    outline-offset: 2px;
+}
+
+.resbs-map-filter:focus,
+.resbs-map-search-input:focus {
+    outline: 2px solid #007cba;
+    outline-offset: 2px;
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+    .resbs-map-controls {
+        border: 2px solid #000;
+    }
+    
+    .resbs-map-search,
+    .resbs-map-filters {
+        border: 1px solid #000;
+    }
+    
+    .resbs-map-filter {
+        border: 2px solid #000;
+    }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+    .resbs-map-fade-in,
+    .resbs-map-slide-up,
+    .resbs-map-spinner {
+        animation: none;
+    }
+    
+    .resbs-map-filter,
+    .resbs-map-search-btn,
+    .resbs-map-filter-btn,
+    .resbs-map-reset-btn,
+    .resbs-info-window-btn {
+        transition: none;
+    }
+}
+
+/* Enhanced Responsive Design */
+
+/* Large Desktop (1400px+) */
+@media (min-width: 1400px) {
+    .resbs-map-container {
+        height: 500px;
+    }
+    
+    .resbs-map-widget {
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+}
+
+/* Desktop (1200px - 1399px) */
+@media (max-width: 1399px) and (min-width: 1200px) {
+    .resbs-map-container {
+        height: 450px;
+    }
+}
+
+/* Large Tablet (992px - 1199px) */
+@media (max-width: 1199px) and (min-width: 992px) {
+    .resbs-map-container {
+        height: 400px;
+    }
+    
+    .resbs-map-controls {
+        gap: 15px;
+    }
+    
+    .resbs-map-search {
+        flex: 1;
+    }
+    
+    .resbs-map-filters {
+        flex: 1;
+    }
+}
+
+/* Tablet (768px - 991px) */
+@media (max-width: 991px) and (min-width: 768px) {
+    .resbs-map-container {
+        height: 350px;
+    }
+    
+    .resbs-map-controls {
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .resbs-map-search {
+        width: 100%;
+    }
+    
+    .resbs-map-filters {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+    
+    .resbs-map-filters select {
+        width: 100%;
+    }
+}
+
+/* Mobile Large (576px - 767px) */
+@media (max-width: 767px) and (min-width: 576px) {
+    .resbs-map-container {
+        height: 300px;
+    }
+    
+    .resbs-map-controls {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .resbs-map-search {
+        width: 100%;
+    }
+    
+    .resbs-map-filters {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+    
+    .resbs-map-filters select {
+        width: 100%;
+        padding: 10px;
+        font-size: 14px;
+    }
+    
+    .resbs-map-btn {
+        padding: 10px 16px;
+        font-size: 14px;
+    }
+}
+
+/* Mobile Medium (480px - 575px) */
+@media (max-width: 575px) and (min-width: 480px) {
+    .resbs-map-container {
+        height: 250px;
+    }
+    
+    .resbs-map-controls {
+        gap: 8px;
+    }
+    
+    .resbs-map-search input {
+        padding: 8px 12px;
+        font-size: 14px;
+    }
+    
+    .resbs-map-filters select {
+        padding: 8px 10px;
+        font-size: 13px;
+    }
+    
+    .resbs-map-btn {
+        padding: 8px 14px;
+        font-size: 13px;
+    }
+}
+
+/* Mobile Small (320px - 479px) */
+@media (max-width: 479px) {
+    .resbs-map-container {
+        height: 200px;
+    }
+    
+    .resbs-map-controls {
+        gap: 6px;
+    }
+    
+    .resbs-map-search input {
+        padding: 6px 10px;
+        font-size: 13px;
+    }
+    
+    .resbs-map-filters select {
+        padding: 6px 8px;
+        font-size: 12px;
+    }
+    
+    .resbs-map-btn {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+    
+    .resbs-map-info-window {
+        max-width: 250px;
+        font-size: 12px;
+    }
+    
+    .resbs-map-info-window h3 {
+        font-size: 14px;
+    }
+}
+
+/* Touch Device Optimizations */
+@media (hover: none) and (pointer: coarse) {
+    .resbs-map-btn {
+        min-height: 44px;
+        touch-action: manipulation;
+    }
+    
+    .resbs-map-search input {
+        min-height: 44px;
+        touch-action: manipulation;
+    }
+    
+    .resbs-map-filters select {
+        min-height: 44px;
+        touch-action: manipulation;
+    }
+    
+    .resbs-map-container {
+        touch-action: pan-x pan-y;
+    }
+}
+
+/* Landscape Orientation */
+@media (orientation: landscape) and (max-height: 500px) {
+    .resbs-map-container {
+        height: 250px;
+    }
+    
+    .resbs-map-controls {
+        flex-direction: row;
+        gap: 10px;
+    }
+    
+    .resbs-map-search {
+        flex: 1;
+    }
+    
+    .resbs-map-filters {
+        flex: 1;
+        display: flex;
+        gap: 8px;
+    }
+    
+    .resbs-map-filters select {
+        flex: 1;
+    }
+}
+
+/* High DPI Displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .resbs-map-marker {
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
+    }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .resbs-map-widget {
+        background: #2c2c2c;
+        color: #f0f0f1;
+    }
+    
+    .resbs-map-controls {
+        background: #1e1e1e;
+        border-color: #3c434a;
+    }
+    
+    .resbs-map-search input {
+        background: #3c434a;
+        color: #f0f0f1;
+        border-color: #3c434a;
+    }
+    
+    .resbs-map-search input::placeholder {
+        color: #a7aaad;
+    }
+    
+    .resbs-map-filters select {
+        background: #3c434a;
+        color: #f0f0f1;
+        border-color: #3c434a;
+    }
+    
+    .resbs-map-btn {
+        background: #0073aa;
+        color: #fff;
+    }
+    
+    .resbs-map-btn:hover {
+        background: #005a87;
+    }
+    
+    .resbs-map-info-window {
+        background: #2c2c2c;
+        color: #f0f0f1;
+        border-color: #3c434a;
+    }
+    
+    .resbs-map-info-window h3 {
+        color: #f0f0f1;
+    }
+    
+    .resbs-map-info-window p {
+        color: #a7aaad;
+    }
+}

@@ -18,6 +18,7 @@ class RESBS_CPT {
     public function __construct() {
         add_action('init', array($this, 'register_property_cpt'));
         add_action('init', array($this, 'register_property_taxonomies'));
+        add_filter('template_include', array($this, 'property_template_include'));
     }
     
     /**
@@ -25,30 +26,30 @@ class RESBS_CPT {
      */
     public function register_property_cpt() {
         $labels = array(
-            'name'                  => _x('Properties', 'Post type general name', 'realestate-booking-suite'),
-            'singular_name'         => _x('Property', 'Post type singular name', 'realestate-booking-suite'),
-            'menu_name'             => _x('Properties', 'Admin Menu text', 'realestate-booking-suite'),
-            'name_admin_bar'        => _x('Property', 'Add New on Toolbar', 'realestate-booking-suite'),
-            'add_new'               => __('Add New', 'realestate-booking-suite'),
-            'add_new_item'          => __('Add New Property', 'realestate-booking-suite'),
-            'new_item'              => __('New Property', 'realestate-booking-suite'),
-            'edit_item'             => __('Edit Property', 'realestate-booking-suite'),
-            'view_item'             => __('View Property', 'realestate-booking-suite'),
-            'all_items'             => __('All Properties', 'realestate-booking-suite'),
-            'search_items'          => __('Search Properties', 'realestate-booking-suite'),
-            'parent_item_colon'     => __('Parent Properties:', 'realestate-booking-suite'),
-            'not_found'             => __('No properties found.', 'realestate-booking-suite'),
-            'not_found_in_trash'    => __('No properties found in Trash.', 'realestate-booking-suite'),
-            'featured_image'        => _x('Property Image', 'Overrides the "Featured Image" phrase', 'realestate-booking-suite'),
-            'set_featured_image'    => _x('Set property image', 'Overrides the "Set featured image" phrase', 'realestate-booking-suite'),
-            'remove_featured_image' => _x('Remove property image', 'Overrides the "Remove featured image" phrase', 'realestate-booking-suite'),
-            'use_featured_image'    => _x('Use as property image', 'Overrides the "Use as featured image" phrase', 'realestate-booking-suite'),
-            'archives'              => _x('Property archives', 'The post type archive label', 'realestate-booking-suite'),
-            'insert_into_item'      => _x('Insert into property', 'Overrides the "Insert into post" phrase', 'realestate-booking-suite'),
-            'uploaded_to_this_item' => _x('Uploaded to this property', 'Overrides the "Uploaded to this post" phrase', 'realestate-booking-suite'),
-            'filter_items_list'     => _x('Filter properties list', 'Screen reader text for the filter links', 'realestate-booking-suite'),
-            'items_list_navigation' => _x('Properties list navigation', 'Screen reader text for the pagination', 'realestate-booking-suite'),
-            'items_list'            => _x('Properties list', 'Screen reader text for the items list', 'realestate-booking-suite'),
+            'name'                  => esc_html_x('Properties', 'Post type general name', 'realestate-booking-suite'),
+            'singular_name'         => esc_html_x('Property', 'Post type singular name', 'realestate-booking-suite'),
+            'menu_name'             => esc_html_x('RealEstate Booking Suite', 'Admin Menu text', 'realestate-booking-suite'),
+            'name_admin_bar'        => esc_html_x('Property', 'Add New on Toolbar', 'realestate-booking-suite'),
+            'add_new'               => esc_html__('Add New', 'realestate-booking-suite'),
+            'add_new_item'          => esc_html__('Add New Property', 'realestate-booking-suite'),
+            'new_item'              => esc_html__('New Property', 'realestate-booking-suite'),
+            'edit_item'             => esc_html__('Edit Property', 'realestate-booking-suite'),
+            'view_item'             => esc_html__('View Property', 'realestate-booking-suite'),
+            'all_items'             => esc_html__('All Properties', 'realestate-booking-suite'),
+            'search_items'          => esc_html__('Search Properties', 'realestate-booking-suite'),
+            'parent_item_colon'     => esc_html__('Parent Properties:', 'realestate-booking-suite'),
+            'not_found'             => esc_html__('No properties found.', 'realestate-booking-suite'),
+            'not_found_in_trash'    => esc_html__('No properties found in Trash.', 'realestate-booking-suite'),
+            'featured_image'        => esc_html_x('Property Image', 'Overrides the "Featured Image" phrase', 'realestate-booking-suite'),
+            'set_featured_image'    => esc_html_x('Set property image', 'Overrides the "Set featured image" phrase', 'realestate-booking-suite'),
+            'remove_featured_image' => esc_html_x('Remove property image', 'Overrides the "Remove featured image" phrase', 'realestate-booking-suite'),
+            'use_featured_image'    => esc_html_x('Use as property image', 'Overrides the "Use as featured image" phrase', 'realestate-booking-suite'),
+            'archives'              => esc_html_x('Property archives', 'The post type archive label', 'realestate-booking-suite'),
+            'insert_into_item'      => esc_html_x('Insert into property', 'Overrides the "Insert into post" phrase', 'realestate-booking-suite'),
+            'uploaded_to_this_item' => esc_html_x('Uploaded to this property', 'Overrides the "Uploaded to this post" phrase', 'realestate-booking-suite'),
+            'filter_items_list'     => esc_html_x('Filter properties list', 'Screen reader text for the filter links', 'realestate-booking-suite'),
+            'items_list_navigation' => esc_html_x('Properties list navigation', 'Screen reader text for the pagination', 'realestate-booking-suite'),
+            'items_list'            => esc_html_x('Properties list', 'Screen reader text for the items list', 'realestate-booking-suite'),
         );
 
         $args = array(
@@ -56,14 +57,14 @@ class RESBS_CPT {
             'public'             => true,
             'publicly_queryable' => true,
             'show_ui'            => true,
-            'show_in_menu'       => true,
+            'show_in_menu'       => 'resbs-main-menu',
             'query_var'          => true,
             'rewrite'            => array('slug' => 'property'),
             'capability_type'    => 'post',
             'has_archive'        => true,
             'hierarchical'       => false,
-            'menu_position'      => 5,
-            'menu_icon'          => 'dashicons-building',
+            'menu_position'      => null,
+            'menu_icon'          => null,
             'supports'           => array('title', 'editor', 'thumbnail', 'custom-fields'),
             'show_in_rest'       => true,
         );
@@ -77,17 +78,17 @@ class RESBS_CPT {
     public function register_property_taxonomies() {
         // Property Type Taxonomy
         $type_labels = array(
-            'name'              => _x('Property Types', 'taxonomy general name', 'realestate-booking-suite'),
-            'singular_name'     => _x('Property Type', 'taxonomy singular name', 'realestate-booking-suite'),
-            'search_items'      => __('Search Property Types', 'realestate-booking-suite'),
-            'all_items'         => __('All Property Types', 'realestate-booking-suite'),
-            'parent_item'       => __('Parent Property Type', 'realestate-booking-suite'),
-            'parent_item_colon' => __('Parent Property Type:', 'realestate-booking-suite'),
-            'edit_item'         => __('Edit Property Type', 'realestate-booking-suite'),
-            'update_item'       => __('Update Property Type', 'realestate-booking-suite'),
-            'add_new_item'      => __('Add New Property Type', 'realestate-booking-suite'),
-            'new_item_name'     => __('New Property Type Name', 'realestate-booking-suite'),
-            'menu_name'         => __('Property Types', 'realestate-booking-suite'),
+            'name'              => esc_html_x('Property Types', 'taxonomy general name', 'realestate-booking-suite'),
+            'singular_name'     => esc_html_x('Property Type', 'taxonomy singular name', 'realestate-booking-suite'),
+            'search_items'      => esc_html__('Search Property Types', 'realestate-booking-suite'),
+            'all_items'         => esc_html__('All Property Types', 'realestate-booking-suite'),
+            'parent_item'       => esc_html__('Parent Property Type', 'realestate-booking-suite'),
+            'parent_item_colon' => esc_html__('Parent Property Type:', 'realestate-booking-suite'),
+            'edit_item'         => esc_html__('Edit Property Type', 'realestate-booking-suite'),
+            'update_item'       => esc_html__('Update Property Type', 'realestate-booking-suite'),
+            'add_new_item'      => esc_html__('Add New Property Type', 'realestate-booking-suite'),
+            'new_item_name'     => esc_html__('New Property Type Name', 'realestate-booking-suite'),
+            'menu_name'         => esc_html__('Property Types', 'realestate-booking-suite'),
         );
 
         register_taxonomy('property_type', array('property'), array(
@@ -98,21 +99,22 @@ class RESBS_CPT {
             'query_var'         => true,
             'rewrite'           => array('slug' => 'property-type'),
             'show_in_rest'      => true,
+            'show_in_menu'      => 'resbs-main-menu',
         ));
 
         // Property Status Taxonomy
         $status_labels = array(
-            'name'              => _x('Property Status', 'taxonomy general name', 'realestate-booking-suite'),
-            'singular_name'     => _x('Property Status', 'taxonomy singular name', 'realestate-booking-suite'),
-            'search_items'      => __('Search Property Status', 'realestate-booking-suite'),
-            'all_items'         => __('All Property Status', 'realestate-booking-suite'),
-            'parent_item'       => __('Parent Property Status', 'realestate-booking-suite'),
-            'parent_item_colon' => __('Parent Property Status:', 'realestate-booking-suite'),
-            'edit_item'         => __('Edit Property Status', 'realestate-booking-suite'),
-            'update_item'       => __('Update Property Status', 'realestate-booking-suite'),
-            'add_new_item'      => __('Add New Property Status', 'realestate-booking-suite'),
-            'new_item_name'     => __('New Property Status Name', 'realestate-booking-suite'),
-            'menu_name'         => __('Property Status', 'realestate-booking-suite'),
+            'name'              => esc_html_x('Property Status', 'taxonomy general name', 'realestate-booking-suite'),
+            'singular_name'     => esc_html_x('Property Status', 'taxonomy singular name', 'realestate-booking-suite'),
+            'search_items'      => esc_html__('Search Property Status', 'realestate-booking-suite'),
+            'all_items'         => esc_html__('All Property Status', 'realestate-booking-suite'),
+            'parent_item'       => esc_html__('Parent Property Status', 'realestate-booking-suite'),
+            'parent_item_colon' => esc_html__('Parent Property Status:', 'realestate-booking-suite'),
+            'edit_item'         => esc_html__('Edit Property Status', 'realestate-booking-suite'),
+            'update_item'       => esc_html__('Update Property Status', 'realestate-booking-suite'),
+            'add_new_item'      => esc_html__('Add New Property Status', 'realestate-booking-suite'),
+            'new_item_name'     => esc_html__('New Property Status Name', 'realestate-booking-suite'),
+            'menu_name'         => esc_html__('Property Status', 'realestate-booking-suite'),
         );
 
         register_taxonomy('property_status', array('property'), array(
@@ -123,21 +125,22 @@ class RESBS_CPT {
             'query_var'         => true,
             'rewrite'           => array('slug' => 'property-status'),
             'show_in_rest'      => true,
+            'show_in_menu'      => 'resbs-main-menu',
         ));
 
         // Property Location Taxonomy
         $location_labels = array(
-            'name'              => _x('Property Locations', 'taxonomy general name', 'realestate-booking-suite'),
-            'singular_name'     => _x('Property Location', 'taxonomy singular name', 'realestate-booking-suite'),
-            'search_items'      => __('Search Property Locations', 'realestate-booking-suite'),
-            'all_items'         => __('All Property Locations', 'realestate-booking-suite'),
-            'parent_item'       => __('Parent Property Location', 'realestate-booking-suite'),
-            'parent_item_colon' => __('Parent Property Location:', 'realestate-booking-suite'),
-            'edit_item'         => __('Edit Property Location', 'realestate-booking-suite'),
-            'update_item'       => __('Update Property Location', 'realestate-booking-suite'),
-            'add_new_item'      => __('Add New Property Location', 'realestate-booking-suite'),
-            'new_item_name'     => __('New Property Location Name', 'realestate-booking-suite'),
-            'menu_name'         => __('Property Locations', 'realestate-booking-suite'),
+            'name'              => esc_html_x('Property Locations', 'taxonomy general name', 'realestate-booking-suite'),
+            'singular_name'     => esc_html_x('Property Location', 'taxonomy singular name', 'realestate-booking-suite'),
+            'search_items'      => esc_html__('Search Property Locations', 'realestate-booking-suite'),
+            'all_items'         => esc_html__('All Property Locations', 'realestate-booking-suite'),
+            'parent_item'       => esc_html__('Parent Property Location', 'realestate-booking-suite'),
+            'parent_item_colon' => esc_html__('Parent Property Location:', 'realestate-booking-suite'),
+            'edit_item'         => esc_html__('Edit Property Location', 'realestate-booking-suite'),
+            'update_item'       => esc_html__('Update Property Location', 'realestate-booking-suite'),
+            'add_new_item'      => esc_html__('Add New Property Location', 'realestate-booking-suite'),
+            'new_item_name'     => esc_html__('New Property Location Name', 'realestate-booking-suite'),
+            'menu_name'         => esc_html__('Property Locations', 'realestate-booking-suite'),
         );
 
         register_taxonomy('property_location', array('property'), array(
@@ -148,7 +151,21 @@ class RESBS_CPT {
             'query_var'         => true,
             'rewrite'           => array('slug' => 'property-location'),
             'show_in_rest'      => true,
+            'show_in_menu'      => 'resbs-main-menu',
         ));
+    }
+    
+    /**
+     * Include custom template for single property
+     */
+    public function property_template_include($template) {
+        if (is_singular('property')) {
+            $custom_template = RESBS_PATH . 'templates/single-property.php';
+            if (file_exists($custom_template)) {
+                return $custom_template;
+            }
+        }
+        return $template;
     }
 }
 

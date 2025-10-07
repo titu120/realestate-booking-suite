@@ -1,0 +1,370 @@
+/**
+ * Contact Settings Admin Styles
+ * 
+ * @package RealEstate_Booking_Suite
+ */
+
+/* Admin Page Container */
+.resbs-contact-settings {
+    max-width: 1200px;
+    margin: 20px 0;
+}
+
+/* Settings Sections */
+.resbs-settings-section {
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+}
+
+.resbs-settings-section h2 {
+    margin: 0;
+    padding: 15px 20px;
+    background: #f1f1f1;
+    border-bottom: 1px solid #ccd0d4;
+    font-size: 16px;
+    font-weight: 600;
+    color: #23282d;
+    border-radius: 4px 4px 0 0;
+}
+
+.resbs-settings-section .form-table {
+    margin: 0;
+    border: none;
+}
+
+.resbs-settings-section .form-table th {
+    padding: 20px 20px 20px 0;
+    width: 200px;
+    font-weight: 600;
+    color: #23282d;
+    vertical-align: top;
+}
+
+.resbs-settings-section .form-table td {
+    padding: 20px 20px 20px 0;
+    vertical-align: top;
+}
+
+.resbs-settings-section .form-table input[type="text"],
+.resbs-settings-section .form-table input[type="email"],
+.resbs-settings-section .form-table input[type="tel"],
+.resbs-settings-section .form-table input[type="url"],
+.resbs-settings-section .form-table select,
+.resbs-settings-section .form-table textarea {
+    width: 100%;
+    max-width: 400px;
+    padding: 8px 12px;
+    border: 1px solid #8c8f94;
+    border-radius: 4px;
+    font-size: 14px;
+    line-height: 1.4;
+    background: #fff;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.resbs-settings-section .form-table input[type="text"]:focus,
+.resbs-settings-section .form-table input[type="email"]:focus,
+.resbs-settings-section .form-table input[type="tel"]:focus,
+.resbs-settings-section .form-table input[type="url"]:focus,
+.resbs-settings-section .form-table select:focus,
+.resbs-settings-section .form-table textarea:focus {
+    border-color: #007cba;
+    box-shadow: 0 0 0 1px #007cba;
+    outline: none;
+}
+
+.resbs-settings-section .form-table .large-text {
+    max-width: 600px;
+}
+
+.resbs-settings-section .form-table .description {
+    margin-top: 8px;
+    font-size: 13px;
+    color: #646970;
+    line-height: 1.4;
+}
+
+.resbs-settings-section .form-table .description a {
+    color: #007cba;
+    text-decoration: none;
+}
+
+.resbs-settings-section .form-table .description a:hover {
+    color: #005a87;
+    text-decoration: underline;
+}
+
+/* Checkbox Fields */
+.resbs-settings-section .form-table fieldset {
+    margin: 0;
+    padding: 0;
+    border: none;
+}
+
+.resbs-settings-section .form-table fieldset label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 500;
+    color: #23282d;
+    cursor: pointer;
+}
+
+.resbs-settings-section .form-table fieldset input[type="checkbox"] {
+    margin-right: 8px;
+    margin-top: 0;
+    vertical-align: middle;
+}
+
+.resbs-settings-section .form-table fieldset .description {
+    margin-left: 24px;
+    margin-top: 4px;
+    font-size: 13px;
+    color: #646970;
+}
+
+/* Contact Information Section */
+.resbs-settings-section:first-child {
+    border-left: 4px solid #007cba;
+}
+
+.resbs-settings-section:first-child h2 {
+    background: #f0f6fc;
+    color: #007cba;
+}
+
+/* Business Information Section */
+.resbs-settings-section:nth-child(2) {
+    border-left: 4px solid #28a745;
+}
+
+.resbs-settings-section:nth-child(2) h2 {
+    background: #f0f8f0;
+    color: #28a745;
+}
+
+/* Social Media Section */
+.resbs-settings-section:nth-child(3) {
+    border-left: 4px solid #6f42c1;
+}
+
+.resbs-settings-section:nth-child(3) h2 {
+    background: #f8f5ff;
+    color: #6f42c1;
+}
+
+/* Display Options Section */
+.resbs-settings-section:nth-child(4) {
+    border-left: 4px solid #fd7e14;
+}
+
+.resbs-settings-section:nth-child(4) h2 {
+    background: #fff8f0;
+    color: #fd7e14;
+}
+
+/* Settings Notices */
+.resbs-settings-notice {
+    margin: 15px 0;
+    padding: 12px;
+    border-left: 4px solid #00a32a;
+    background: #f0f6fc;
+    border-radius: 0 4px 4px 0;
+}
+
+.resbs-settings-notice.error {
+    border-left-color: #d63638;
+    background: #fcf0f1;
+}
+
+.resbs-settings-notice.warning {
+    border-left-color: #dba617;
+    background: #fcf9e8;
+}
+
+.resbs-settings-notice p {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+/* Form Validation */
+.resbs-settings-section .form-table input.error {
+    border-color: #d63638;
+    box-shadow: 0 0 0 1px #d63638;
+}
+
+.resbs-settings-section .form-table .error-message {
+    color: #d63638;
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+/* Preview Section */
+.resbs-contact-preview {
+    margin-top: 20px;
+    padding: 20px;
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.resbs-contact-preview h3 {
+    margin: 0 0 15px 0;
+    font-size: 16px;
+    color: #23282d;
+}
+
+.resbs-contact-preview-content {
+    background: #fff;
+    padding: 15px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}
+
+/* Responsive Design */
+@media (max-width: 782px) {
+    .resbs-contact-settings {
+        margin: 10px 0;
+    }
+    
+    .resbs-settings-section {
+        margin-bottom: 15px;
+    }
+    
+    .resbs-settings-section h2 {
+        padding: 12px 15px;
+        font-size: 15px;
+    }
+    
+    .resbs-settings-section .form-table th,
+    .resbs-settings-section .form-table td {
+        padding: 15px 15px 15px 0;
+        display: block;
+        width: 100%;
+    }
+    
+    .resbs-settings-section .form-table th {
+        padding-bottom: 5px;
+        font-weight: 600;
+    }
+    
+    .resbs-settings-section .form-table input[type="text"],
+    .resbs-settings-section .form-table input[type="email"],
+    .resbs-settings-section .form-table input[type="tel"],
+    .resbs-settings-section .form-table input[type="url"],
+    .resbs-settings-section .form-table select,
+    .resbs-settings-section .form-table textarea {
+        max-width: 100%;
+    }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .resbs-settings-section {
+        background: #1e1e1e;
+        border-color: #3c434a;
+    }
+    
+    .resbs-settings-section h2 {
+        background: #2c2c2c;
+        border-color: #3c434a;
+        color: #f0f0f1;
+    }
+    
+    .resbs-settings-section .form-table th {
+        color: #f0f0f1;
+    }
+    
+    .resbs-settings-section .form-table input[type="text"],
+    .resbs-settings-section .form-table input[type="email"],
+    .resbs-settings-section .form-table input[type="tel"],
+    .resbs-settings-section .form-table input[type="url"],
+    .resbs-settings-section .form-table select,
+    .resbs-settings-section .form-table textarea {
+        background: #2c2c2c;
+        border-color: #3c434a;
+        color: #f0f0f1;
+    }
+    
+    .resbs-settings-section .form-table input[type="text"]:focus,
+    .resbs-settings-section .form-table input[type="email"]:focus,
+    .resbs-settings-section .form-table input[type="tel"]:focus,
+    .resbs-settings-section .form-table input[type="url"]:focus,
+    .resbs-settings-section .form-table select:focus,
+    .resbs-settings-section .form-table textarea:focus {
+        border-color: #007cba;
+        box-shadow: 0 0 0 1px #007cba;
+    }
+    
+    .resbs-settings-section .form-table .description {
+        color: #a7aaad;
+    }
+    
+    .resbs-settings-section .form-table fieldset label {
+        color: #f0f0f1;
+    }
+    
+    .resbs-contact-preview {
+        background: #2c2c2c;
+        border-color: #3c434a;
+    }
+    
+    .resbs-contact-preview h3 {
+        color: #f0f0f1;
+    }
+    
+    .resbs-contact-preview-content {
+        background: #1e1e1e;
+        border-color: #3c434a;
+    }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+    .resbs-settings-section {
+        border-width: 2px;
+    }
+    
+    .resbs-settings-section .form-table input[type="text"],
+    .resbs-settings-section .form-table input[type="email"],
+    .resbs-settings-section .form-table input[type="tel"],
+    .resbs-settings-section .form-table input[type="url"],
+    .resbs-settings-section .form-table select,
+    .resbs-settings-section .form-table textarea {
+        border-width: 2px;
+    }
+    
+    .resbs-settings-section .form-table input[type="text"]:focus,
+    .resbs-settings-section .form-table input[type="email"]:focus,
+    .resbs-settings-section .form-table input[type="tel"]:focus,
+    .resbs-settings-section .form-table input[type="url"]:focus,
+    .resbs-settings-section .form-table select:focus,
+    .resbs-settings-section .form-table textarea:focus {
+        border-width: 3px;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .resbs-contact-settings {
+        margin: 0;
+    }
+    
+    .resbs-settings-section {
+        break-inside: avoid;
+        box-shadow: none;
+        border: 1px solid #000;
+    }
+    
+    .resbs-settings-section h2 {
+        background: #f0f0f0;
+        border-bottom: 1px solid #000;
+    }
+    
+    .resbs-contact-preview {
+        display: none;
+    }
+}

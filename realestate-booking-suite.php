@@ -29,6 +29,38 @@ function resbs_enqueue_assets() {
         '1.0.0'
     );
     
+        // Enqueue Contact Widget CSS
+        wp_enqueue_style(
+            'resbs-contact-widget',
+            RESBS_URL . 'assets/css/contact-widget.css',
+            array(),
+            '1.0.0'
+        );
+        
+        // Enqueue Layout CSS
+        wp_enqueue_style(
+            'resbs-layouts',
+            RESBS_URL . 'assets/css/layouts.css',
+            array(),
+            '1.0.0'
+        );
+        
+        // Enqueue Single Property Responsive CSS
+        wp_enqueue_style(
+            'resbs-single-property-responsive',
+            RESBS_URL . 'assets/css/single-property-responsive.css',
+            array(),
+            '1.0.0'
+        );
+        
+        // Enqueue Shortcodes CSS
+        wp_enqueue_style(
+            'resbs-shortcodes',
+            RESBS_URL . 'assets/css/shortcodes.css',
+            array(),
+            '1.0.0'
+        );
+    
     // Enqueue JS
     wp_enqueue_script(
         'resbs-main',
@@ -37,6 +69,24 @@ function resbs_enqueue_assets() {
         '1.0.0',
         true
     );
+    
+        // Enqueue Layout JS
+        wp_enqueue_script(
+            'resbs-layouts',
+            RESBS_URL . 'assets/js/layouts.js',
+            array('jquery'),
+            '1.0.0',
+            true
+        );
+        
+        // Enqueue Shortcodes JS
+        wp_enqueue_script(
+            'resbs-shortcodes',
+            RESBS_URL . 'assets/js/shortcodes.js',
+            array('jquery'),
+            '1.0.0',
+            true
+        );
 }
 add_action('wp_enqueue_scripts', 'resbs_enqueue_assets');
 add_action('admin_enqueue_scripts', 'resbs_enqueue_assets');

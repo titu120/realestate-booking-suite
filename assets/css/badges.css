@@ -1,0 +1,431 @@
+/**
+ * Badge Styles
+ * 
+ * @package RealEstate_Booking_Suite
+ */
+
+/* Badge Container */
+.resbs-property-badges {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.resbs-badges-single {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.resbs-badges-carousel {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 10;
+}
+
+.resbs-badges-map {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    z-index: 10;
+}
+
+/* Base Badge Styles */
+.resbs-badge {
+    display: inline-block;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    text-align: center;
+    line-height: 1.2;
+}
+
+/* Badge Sizes */
+.resbs-badge-small {
+    font-size: 10px;
+    padding: 2px 6px;
+    min-width: 40px;
+}
+
+.resbs-badge-medium {
+    font-size: 12px;
+    padding: 4px 8px;
+    min-width: 50px;
+}
+
+.resbs-badge-large {
+    font-size: 14px;
+    padding: 6px 12px;
+    min-width: 60px;
+}
+
+/* Badge Positions */
+.resbs-badge-top-left {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+}
+
+.resbs-badge-top-right {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
+.resbs-badge-bottom-left {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+}
+
+.resbs-badge-bottom-right {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+}
+
+/* Badge Types - Default Colors */
+.resbs-badge-featured {
+    background-color: #ff6b35;
+    color: #ffffff;
+}
+
+.resbs-badge-new {
+    background-color: #28a745;
+    color: #ffffff;
+}
+
+.resbs-badge-sold {
+    background-color: #dc3545;
+    color: #ffffff;
+}
+
+/* Badge Hover Effects */
+.resbs-badge:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Badge Animations */
+@keyframes badgePulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.resbs-badge-new {
+    animation: badgePulse 2s infinite;
+}
+
+/* Badge on Different Contexts */
+
+/* Property Cards */
+.resbs-property-card .resbs-property-badges {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 10;
+}
+
+.resbs-property-card .resbs-badge-top-right {
+    top: 10px;
+    right: 10px;
+    left: auto;
+}
+
+.resbs-property-card .resbs-badge-bottom-left {
+    bottom: 10px;
+    left: 10px;
+    top: auto;
+}
+
+.resbs-property-card .resbs-badge-bottom-right {
+    bottom: 10px;
+    right: 10px;
+    top: auto;
+    left: auto;
+}
+
+/* Single Property Pages */
+.resbs-badges-single .resbs-badge {
+    position: relative;
+    display: inline-block;
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+
+/* Carousel */
+.resbs-carousel-slide .resbs-property-badges {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 10;
+}
+
+/* Map Markers */
+.resbs-map-marker .resbs-property-badges {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    z-index: 10;
+}
+
+/* Badge Stacking */
+.resbs-property-badges {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.resbs-property-badges.horizontal {
+    flex-direction: row;
+    gap: 5px;
+}
+
+/* Badge with Icons */
+.resbs-badge-with-icon {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.resbs-badge-with-icon .dashicons {
+    font-size: 12px;
+    width: 12px;
+    height: 12px;
+}
+
+/* Badge Text Overflow */
+.resbs-badge {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100px;
+}
+
+/* Badge Responsive Design */
+@media (max-width: 768px) {
+    .resbs-badge {
+        font-size: 10px;
+        padding: 2px 6px;
+    }
+    
+    .resbs-badge-large {
+        font-size: 12px;
+        padding: 4px 8px;
+    }
+    
+    .resbs-property-badges {
+        top: 5px;
+        left: 5px;
+    }
+    
+    .resbs-badge-top-right {
+        top: 5px;
+        right: 5px;
+    }
+    
+    .resbs-badge-bottom-left {
+        bottom: 5px;
+        left: 5px;
+    }
+    
+    .resbs-badge-bottom-right {
+        bottom: 5px;
+        right: 5px;
+    }
+}
+
+@media (max-width: 480px) {
+    .resbs-badge {
+        font-size: 9px;
+        padding: 1px 4px;
+        min-width: 30px;
+    }
+    
+    .resbs-badge-large {
+        font-size: 10px;
+        padding: 2px 6px;
+    }
+    
+    .resbs-property-badges {
+        gap: 3px;
+    }
+}
+
+/* Badge Loading State */
+.resbs-badge-loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+/* Badge Disabled State */
+.resbs-badge-disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Badge Success State */
+.resbs-badge-success {
+    background-color: #28a745;
+    color: #ffffff;
+}
+
+/* Badge Warning State */
+.resbs-badge-warning {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+/* Badge Info State */
+.resbs-badge-info {
+    background-color: #17a2b8;
+    color: #ffffff;
+}
+
+/* Badge Danger State */
+.resbs-badge-danger {
+    background-color: #dc3545;
+    color: #ffffff;
+}
+
+/* Badge Outline Style */
+.resbs-badge-outline {
+    background-color: transparent;
+    border: 2px solid currentColor;
+}
+
+/* Badge Rounded Style */
+.resbs-badge-rounded {
+    border-radius: 50px;
+}
+
+/* Badge Square Style */
+.resbs-badge-square {
+    border-radius: 0;
+}
+
+/* Badge with Shadow */
+.resbs-badge-shadow {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Badge with Glow */
+.resbs-badge-glow {
+    box-shadow: 0 0 10px rgba(255, 107, 53, 0.5);
+}
+
+/* Badge Animation Classes */
+.resbs-badge-bounce {
+    animation: badgeBounce 1s ease-in-out;
+}
+
+@keyframes badgeBounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-10px);
+    }
+    60% {
+        transform: translateY(-5px);
+    }
+}
+
+.resbs-badge-fade-in {
+    animation: badgeFadeIn 0.5s ease-in;
+}
+
+@keyframes badgeFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Badge Admin Styles */
+.resbs-badge-meta-box {
+    background: #f9f9f9;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.resbs-badge-meta-box p {
+    margin: 10px 0;
+}
+
+.resbs-badge-meta-box label {
+    font-weight: 600;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.resbs-badge-meta-box input[type="checkbox"] {
+    margin: 0;
+}
+
+/* Badge Settings Preview */
+.resbs-badge-preview {
+    display: inline-block;
+    margin-left: 10px;
+    vertical-align: middle;
+}
+
+/* Badge Settings Form */
+.resbs-badge-type-settings {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.resbs-badge-type-settings h2 {
+    margin-top: 0;
+    color: #333;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+.resbs-badge-type-settings .form-table th {
+    width: 200px;
+    font-weight: 600;
+}
+
+.resbs-badge-type-settings .color-picker {
+    width: 100px;
+}
+
+/* Badge Settings Description */
+.resbs-badge-settings .description {
+    font-style: italic;
+    color: #666;
+    margin-top: 5px;
+}
+
+/* Badge Settings Submit */
+.resbs-badge-settings .submit {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}

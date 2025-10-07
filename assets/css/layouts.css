@@ -1,0 +1,888 @@
+/**
+ * Layout Styles
+ * 
+ * @package RealEstate_Booking_Suite
+ */
+
+/* Base Layout Styles */
+.resbs-property-grid-widget {
+    position: relative;
+}
+
+.resbs-property-grid,
+.resbs-property-carousel {
+    margin: 20px 0;
+}
+
+/* Grid Layout */
+.resbs-layout-grid .resbs-property-grid {
+    display: grid;
+    gap: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.resbs-grid-1-cols {
+    grid-template-columns: 1fr;
+}
+
+.resbs-grid-2-cols {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.resbs-grid-3-cols {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.resbs-grid-4-cols {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+/* List Layout */
+.resbs-layout-list .resbs-property-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.resbs-layout-list .resbs-property-card {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.resbs-layout-list .resbs-property-card:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+.resbs-layout-list .resbs-property-image {
+    flex: 0 0 300px;
+    height: 200px;
+    overflow: hidden;
+}
+
+.resbs-layout-list .resbs-property-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.resbs-layout-list .resbs-property-card:hover .resbs-property-image img {
+    transform: scale(1.05);
+}
+
+.resbs-layout-list .resbs-property-content {
+    flex: 1;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.resbs-layout-list .resbs-property-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin: 10px 0;
+}
+
+.resbs-layout-list .resbs-property-actions {
+    margin-top: 15px;
+    display: flex;
+    gap: 10px;
+}
+
+/* Carousel Layout */
+.resbs-property-carousel {
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+.resbs-property-carousel.resbs-carousel-dragging {
+    cursor: grabbing;
+}
+
+.resbs-property-carousel.resbs-carousel-dragging .resbs-carousel-track {
+    transition: none;
+}
+
+.resbs-carousel-wrapper {
+    position: relative;
+    overflow: hidden;
+}
+
+.resbs-carousel-track {
+    display: flex;
+    transition: transform 0.5s ease;
+    gap: 20px;
+}
+
+.resbs-layout-carousel .resbs-property-card {
+    flex: 0 0 300px;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.resbs-layout-carousel .resbs-property-card:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+.resbs-layout-carousel .resbs-property-image {
+    height: 200px;
+    overflow: hidden;
+}
+
+.resbs-layout-carousel .resbs-property-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.resbs-layout-carousel .resbs-property-card:hover .resbs-property-image img {
+    transform: scale(1.05);
+}
+
+.resbs-layout-carousel .resbs-property-content {
+    padding: 15px;
+}
+
+/* Carousel Controls */
+.resbs-carousel-prev,
+.resbs-carousel-next {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+    cursor: pointer;
+    z-index: 10;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.resbs-carousel-prev:hover,
+.resbs-carousel-next:hover {
+    background: #fff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-50%) scale(1.1);
+}
+
+.resbs-carousel-prev {
+    left: 10px;
+}
+
+.resbs-carousel-next {
+    right: 10px;
+}
+
+/* Carousel Dots */
+.resbs-carousel-dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 20px;
+}
+
+.resbs-carousel-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #ccc;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.resbs-carousel-dot:hover,
+.resbs-carousel-dot.active {
+    background: #0073aa;
+    transform: scale(1.2);
+}
+
+/* Property Card Base Styles */
+.resbs-property-card {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.resbs-property-card:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+.resbs-property-image {
+    position: relative;
+    overflow: hidden;
+}
+
+.resbs-property-image img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.resbs-property-card:hover .resbs-property-image img {
+    transform: scale(1.05);
+}
+
+.resbs-property-content {
+    padding: 20px;
+}
+
+.resbs-property-title {
+    margin: 0 0 10px 0;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+.resbs-property-title a {
+    color: #333;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.resbs-property-title a:hover {
+    color: #0073aa;
+}
+
+.resbs-property-price {
+    font-size: 20px;
+    font-weight: 700;
+    color: #0073aa;
+    margin: 10px 0;
+}
+
+.resbs-property-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin: 15px 0;
+    font-size: 14px;
+    color: #666;
+}
+
+.resbs-property-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.resbs-property-meta-item .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+}
+
+.resbs-property-excerpt {
+    color: #666;
+    line-height: 1.5;
+    margin: 15px 0;
+}
+
+.resbs-property-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.resbs-property-btn {
+    flex: 1;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    text-align: center;
+    display: inline-block;
+}
+
+.resbs-property-btn.primary {
+    background: #0073aa;
+    color: #fff;
+}
+
+.resbs-property-btn.primary:hover {
+    background: #005a87;
+    color: #fff;
+}
+
+.resbs-property-btn.secondary {
+    background: #f0f0f0;
+    color: #333;
+}
+
+.resbs-property-btn.secondary:hover {
+    background: #e0e0e0;
+    color: #333;
+}
+
+.resbs-favorite-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 5;
+}
+
+.resbs-favorite-btn:hover {
+    background: #fff;
+    transform: scale(1.1);
+}
+
+.resbs-favorite-btn.active {
+    color: #dc3545;
+}
+
+.resbs-favorite-btn .dashicons {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+}
+
+/* Responsive Design */
+
+/* Large Desktop (1400px+) */
+@media (min-width: 1400px) {
+    .resbs-property-grid-widget {
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+    
+    .resbs-grid-4-cols {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 30px;
+    }
+    
+    .resbs-layout-list .resbs-property-card {
+        padding: 25px;
+    }
+    
+    .resbs-layout-list .resbs-property-image {
+        flex: 0 0 350px;
+        height: 220px;
+    }
+}
+
+/* Desktop (1200px - 1399px) */
+@media (max-width: 1399px) and (min-width: 1200px) {
+    .resbs-grid-4-cols {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 25px;
+    }
+    
+    .resbs-layout-list .resbs-property-image {
+        flex: 0 0 320px;
+        height: 200px;
+    }
+}
+
+/* Large Tablet (992px - 1199px) */
+@media (max-width: 1199px) and (min-width: 992px) {
+    .resbs-grid-3-cols,
+    .resbs-grid-4-cols {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+    
+    .resbs-layout-list .resbs-property-image {
+        flex: 0 0 280px;
+        height: 180px;
+    }
+    
+    .resbs-layout-list .resbs-property-content {
+        padding: 18px;
+    }
+    
+    .resbs-layout-carousel .resbs-property-card {
+        flex: 0 0 300px;
+    }
+    
+    .resbs-carousel-prev,
+    .resbs-carousel-next {
+        width: 42px;
+        height: 42px;
+        font-size: 18px;
+    }
+}
+
+/* Tablet (768px - 991px) */
+@media (max-width: 991px) and (min-width: 768px) {
+    .resbs-layout-grid .resbs-property-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 18px;
+    }
+    
+    .resbs-layout-list .resbs-property-card {
+        flex-direction: row;
+    }
+    
+    .resbs-layout-list .resbs-property-image {
+        flex: 0 0 250px;
+        height: 160px;
+    }
+    
+    .resbs-layout-list .resbs-property-content {
+        padding: 16px;
+    }
+    
+    .resbs-layout-carousel .resbs-property-card {
+        flex: 0 0 280px;
+    }
+    
+    .resbs-carousel-prev,
+    .resbs-carousel-next {
+        width: 40px;
+        height: 40px;
+        font-size: 17px;
+    }
+    
+    .resbs-property-title {
+        font-size: 17px;
+    }
+    
+    .resbs-property-price {
+        font-size: 19px;
+    }
+}
+
+/* Mobile Large (576px - 767px) */
+@media (max-width: 767px) and (min-width: 576px) {
+    .resbs-layout-grid .resbs-property-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    
+    .resbs-layout-list .resbs-property-card {
+        flex-direction: column;
+    }
+    
+    .resbs-layout-list .resbs-property-image {
+        flex: none;
+        height: 180px;
+    }
+    
+    .resbs-layout-list .resbs-property-content {
+        padding: 15px;
+    }
+    
+    .resbs-layout-carousel .resbs-property-card {
+        flex: 0 0 260px;
+    }
+    
+    .resbs-carousel-prev,
+    .resbs-carousel-next {
+        width: 38px;
+        height: 38px;
+        font-size: 16px;
+    }
+    
+    .resbs-carousel-prev {
+        left: 8px;
+    }
+    
+    .resbs-carousel-next {
+        right: 8px;
+    }
+    
+    .resbs-property-content {
+        padding: 16px;
+    }
+    
+    .resbs-property-title {
+        font-size: 16px;
+    }
+    
+    .resbs-property-price {
+        font-size: 18px;
+    }
+    
+    .resbs-property-meta {
+        gap: 12px;
+        font-size: 14px;
+    }
+}
+
+/* Mobile Medium (480px - 575px) */
+@media (max-width: 575px) and (min-width: 480px) {
+    .resbs-layout-grid .resbs-property-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .resbs-layout-list .resbs-property-image {
+        height: 160px;
+    }
+    
+    .resbs-layout-list .resbs-property-content {
+        padding: 14px;
+    }
+    
+    .resbs-layout-carousel .resbs-property-card {
+        flex: 0 0 240px;
+    }
+    
+    .resbs-carousel-prev,
+    .resbs-carousel-next {
+        width: 36px;
+        height: 36px;
+        font-size: 15px;
+    }
+    
+    .resbs-carousel-prev {
+        left: 6px;
+    }
+    
+    .resbs-carousel-next {
+        right: 6px;
+    }
+    
+    .resbs-property-content {
+        padding: 15px;
+    }
+    
+    .resbs-property-title {
+        font-size: 15px;
+    }
+    
+    .resbs-property-price {
+        font-size: 17px;
+    }
+    
+    .resbs-property-meta {
+        gap: 10px;
+        font-size: 13px;
+    }
+    
+    .resbs-property-actions {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .resbs-property-btn {
+        padding: 12px 16px;
+        font-size: 14px;
+    }
+}
+
+/* Mobile Small (320px - 479px) */
+@media (max-width: 479px) {
+    .resbs-layout-grid .resbs-property-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    .resbs-layout-list .resbs-property-image {
+        height: 140px;
+    }
+    
+    .resbs-layout-list .resbs-property-content {
+        padding: 12px;
+    }
+    
+    .resbs-layout-carousel .resbs-property-card {
+        flex: 0 0 200px;
+    }
+    
+    .resbs-carousel-prev,
+    .resbs-carousel-next {
+        width: 32px;
+        height: 32px;
+        font-size: 14px;
+    }
+    
+    .resbs-carousel-prev {
+        left: 4px;
+    }
+    
+    .resbs-carousel-next {
+        right: 4px;
+    }
+    
+    .resbs-property-content {
+        padding: 12px;
+    }
+    
+    .resbs-property-title {
+        font-size: 14px;
+        line-height: 1.2;
+    }
+    
+    .resbs-property-price {
+        font-size: 16px;
+    }
+    
+    .resbs-property-meta {
+        gap: 8px;
+        font-size: 12px;
+    }
+    
+    .resbs-property-meta-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 2px;
+    }
+    
+    .resbs-property-meta-item .dashicons {
+        font-size: 14px;
+        width: 14px;
+        height: 14px;
+    }
+    
+    .resbs-property-actions {
+        flex-direction: column;
+        gap: 6px;
+    }
+    
+    .resbs-property-btn {
+        padding: 10px 14px;
+        font-size: 13px;
+    }
+    
+    .resbs-favorite-btn {
+        width: 32px;
+        height: 32px;
+    }
+    
+    .resbs-favorite-btn .dashicons {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+    }
+}
+
+/* Touch Device Optimizations */
+@media (hover: none) and (pointer: coarse) {
+    .resbs-property-card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .resbs-property-card:active {
+        transform: scale(0.98);
+    }
+    
+    .resbs-carousel-prev,
+    .resbs-carousel-next {
+        min-width: 44px;
+        min-height: 44px;
+        touch-action: manipulation;
+    }
+    
+    .resbs-carousel-dot {
+        min-width: 44px;
+        min-height: 44px;
+        touch-action: manipulation;
+    }
+    
+    .resbs-property-btn {
+        min-height: 44px;
+        touch-action: manipulation;
+    }
+    
+    .resbs-favorite-btn {
+        min-width: 44px;
+        min-height: 44px;
+        touch-action: manipulation;
+    }
+}
+
+/* Landscape Orientation */
+@media (orientation: landscape) and (max-height: 500px) {
+    .resbs-layout-list .resbs-property-card {
+        flex-direction: row;
+    }
+    
+    .resbs-layout-list .resbs-property-image {
+        flex: 0 0 200px;
+        height: 120px;
+    }
+    
+    .resbs-layout-list .resbs-property-content {
+        padding: 12px;
+    }
+    
+    .resbs-carousel-prev,
+    .resbs-carousel-next {
+        width: 36px;
+        height: 36px;
+        font-size: 16px;
+    }
+}
+
+/* High DPI Displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .resbs-property-image img {
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
+    }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+    .resbs-property-card,
+    .resbs-carousel-track,
+    .resbs-carousel-prev,
+    .resbs-carousel-next,
+    .resbs-carousel-dot,
+    .resbs-property-btn,
+    .resbs-favorite-btn {
+        transition: none;
+        animation: none;
+    }
+    
+    .resbs-property-card:hover {
+        transform: none;
+    }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .resbs-layout-list .resbs-property-card,
+    .resbs-layout-carousel .resbs-property-card,
+    .resbs-property-card {
+        background: #2c2c2c;
+        border-color: #3c434a;
+        color: #f0f0f1;
+    }
+    
+    .resbs-property-title a {
+        color: #f0f0f1;
+    }
+    
+    .resbs-property-title a:hover {
+        color: #72aee6;
+    }
+    
+    .resbs-property-price {
+        color: #72aee6;
+    }
+    
+    .resbs-property-meta {
+        color: #a7aaad;
+    }
+    
+    .resbs-property-excerpt {
+        color: #a7aaad;
+    }
+    
+    .resbs-property-btn.secondary {
+        background: #3c434a;
+        color: #f0f0f1;
+    }
+    
+    .resbs-property-btn.secondary:hover {
+        background: #4a5157;
+        color: #f0f0f1;
+    }
+    
+    .resbs-favorite-btn {
+        background: rgba(44, 44, 44, 0.9);
+        color: #f0f0f1;
+    }
+    
+    .resbs-favorite-btn:hover {
+        background: #2c2c2c;
+    }
+    
+    .resbs-carousel-prev,
+    .resbs-carousel-next {
+        background: rgba(44, 44, 44, 0.9);
+        color: #f0f0f1;
+    }
+    
+    .resbs-carousel-prev:hover,
+    .resbs-carousel-next:hover {
+        background: #2c2c2c;
+    }
+    
+    .resbs-carousel-dot {
+        background: #3c434a;
+    }
+    
+    .resbs-carousel-dot:hover,
+    .resbs-carousel-dot.active {
+        background: #72aee6;
+    }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+    .resbs-property-card {
+        border-width: 2px;
+    }
+    
+    .resbs-carousel-prev,
+    .resbs-carousel-next {
+        border: 2px solid #000;
+    }
+    
+    .resbs-property-btn {
+        border: 2px solid #000;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .resbs-carousel-prev,
+    .resbs-carousel-next,
+    .resbs-carousel-dots,
+    .resbs-favorite-btn,
+    .resbs-property-actions {
+        display: none;
+    }
+    
+    .resbs-layout-carousel .resbs-carousel-track {
+        display: block;
+    }
+    
+    .resbs-layout-carousel .resbs-property-card {
+        break-inside: avoid;
+        margin-bottom: 20px;
+    }
+    
+    .resbs-property-card {
+        box-shadow: none;
+        border: 1px solid #000;
+    }
+}

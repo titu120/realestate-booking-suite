@@ -1,0 +1,570 @@
+/**
+ * Email Styles
+ * 
+ * @package RealEstate_Booking_Suite
+ */
+
+/* Email Container */
+.resbs-email-container {
+    max-width: 600px;
+    margin: 0 auto;
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background: #ffffff;
+}
+
+/* Email Header */
+.resbs-email-header {
+    background: #0073aa;
+    color: #ffffff;
+    padding: 20px;
+    text-align: center;
+    border-radius: 4px 4px 0 0;
+}
+
+.resbs-email-header h1 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 600;
+}
+
+/* Email Content */
+.resbs-email-content {
+    padding: 30px 20px;
+    background: #ffffff;
+}
+
+.resbs-email-content h2 {
+    color: #0073aa;
+    font-size: 20px;
+    margin: 0 0 15px 0;
+    font-weight: 600;
+}
+
+.resbs-email-content h3 {
+    color: #333;
+    font-size: 18px;
+    margin: 20px 0 10px 0;
+    font-weight: 600;
+}
+
+.resbs-email-content p {
+    margin: 0 0 15px 0;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.resbs-email-content ul,
+.resbs-email-content ol {
+    margin: 0 0 15px 0;
+    padding-left: 20px;
+}
+
+.resbs-email-content li {
+    margin: 0 0 5px 0;
+    font-size: 14px;
+}
+
+/* Property Details */
+.resbs-property-details {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+    padding: 20px;
+    margin: 20px 0;
+}
+
+.resbs-property-details h3 {
+    margin-top: 0;
+    color: #0073aa;
+    font-size: 16px;
+}
+
+.resbs-property-details .resbs-detail-row {
+    display: flex;
+    margin: 0 0 10px 0;
+    padding: 5px 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.resbs-property-details .resbs-detail-row:last-child {
+    border-bottom: none;
+}
+
+.resbs-property-details .resbs-detail-label {
+    font-weight: 600;
+    color: #333;
+    min-width: 120px;
+    font-size: 14px;
+}
+
+.resbs-property-details .resbs-detail-value {
+    color: #666;
+    font-size: 14px;
+    flex: 1;
+}
+
+/* Booking Details */
+.resbs-booking-details {
+    background: #e8f5e8;
+    border: 1px solid #c3e6c3;
+    border-radius: 4px;
+    padding: 20px;
+    margin: 20px 0;
+}
+
+.resbs-booking-details h3 {
+    margin-top: 0;
+    color: #2d5a2d;
+    font-size: 16px;
+}
+
+.resbs-booking-details .resbs-booking-row {
+    display: flex;
+    margin: 0 0 10px 0;
+    padding: 5px 0;
+    border-bottom: 1px solid #c3e6c3;
+}
+
+.resbs-booking-details .resbs-booking-row:last-child {
+    border-bottom: none;
+}
+
+.resbs-booking-details .resbs-booking-label {
+    font-weight: 600;
+    color: #2d5a2d;
+    min-width: 120px;
+    font-size: 14px;
+}
+
+.resbs-booking-details .resbs-booking-value {
+    color: #4a6b4a;
+    font-size: 14px;
+    flex: 1;
+}
+
+/* Search Alert */
+.resbs-search-alert {
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    border-radius: 4px;
+    padding: 20px;
+    margin: 20px 0;
+}
+
+.resbs-search-alert h3 {
+    margin-top: 0;
+    color: #856404;
+    font-size: 16px;
+}
+
+.resbs-search-alert .resbs-search-criteria {
+    background: #ffffff;
+    border: 1px solid #ffeaa7;
+    border-radius: 4px;
+    padding: 15px;
+    margin: 15px 0;
+}
+
+.resbs-search-alert .resbs-search-criteria h4 {
+    margin: 0 0 10px 0;
+    color: #856404;
+    font-size: 14px;
+}
+
+.resbs-search-alert .resbs-search-criteria p {
+    margin: 0;
+    color: #666;
+    font-size: 14px;
+}
+
+/* Properties List */
+.resbs-properties-list {
+    margin: 20px 0;
+}
+
+.resbs-property-item {
+    background: #ffffff;
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+    padding: 15px;
+    margin: 0 0 15px 0;
+}
+
+.resbs-property-item:last-child {
+    margin-bottom: 0;
+}
+
+.resbs-property-item h4 {
+    margin: 0 0 10px 0;
+    color: #0073aa;
+    font-size: 16px;
+}
+
+.resbs-property-item .resbs-property-meta {
+    color: #666;
+    font-size: 14px;
+    margin: 0 0 10px 0;
+}
+
+.resbs-property-item .resbs-property-price {
+    font-weight: 600;
+    color: #2d5a2d;
+    font-size: 16px;
+    margin: 0 0 10px 0;
+}
+
+.resbs-property-item .resbs-property-link {
+    display: inline-block;
+    background: #0073aa;
+    color: #ffffff;
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.resbs-property-item .resbs-property-link:hover {
+    background: #005a87;
+    color: #ffffff;
+}
+
+/* Buttons */
+.resbs-email-button {
+    display: inline-block;
+    background: #0073aa;
+    color: #ffffff;
+    text-decoration: none;
+    padding: 12px 24px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    margin: 10px 0;
+}
+
+.resbs-email-button:hover {
+    background: #005a87;
+    color: #ffffff;
+}
+
+.resbs-email-button.secondary {
+    background: #6c757d;
+}
+
+.resbs-email-button.secondary:hover {
+    background: #545b62;
+}
+
+.resbs-email-button.success {
+    background: #28a745;
+}
+
+.resbs-email-button.success:hover {
+    background: #1e7e34;
+}
+
+.resbs-email-button.danger {
+    background: #dc3545;
+}
+
+.resbs-email-button.danger:hover {
+    background: #c82333;
+}
+
+/* Links */
+.resbs-email-content a {
+    color: #0073aa;
+    text-decoration: none;
+}
+
+.resbs-email-content a:hover {
+    color: #005a87;
+    text-decoration: underline;
+}
+
+/* Email Footer */
+.resbs-email-footer {
+    background: #f8f9fa;
+    border-top: 1px solid #e9ecef;
+    padding: 20px;
+    text-align: center;
+    border-radius: 0 0 4px 4px;
+}
+
+.resbs-email-footer p {
+    margin: 0;
+    color: #666;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.resbs-email-footer a {
+    color: #0073aa;
+    text-decoration: none;
+}
+
+.resbs-email-footer a:hover {
+    color: #005a87;
+    text-decoration: underline;
+}
+
+/* Status Badges */
+.resbs-status-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.resbs-status-badge.success {
+    background: #d4edda;
+    color: #155724;
+}
+
+.resbs-status-badge.warning {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.resbs-status-badge.danger {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.resbs-status-badge.info {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+
+/* Responsive Design */
+@media only screen and (max-width: 600px) {
+    .resbs-email-container {
+        width: 100% !important;
+        margin: 0 !important;
+    }
+    
+    .resbs-email-header {
+        padding: 15px;
+    }
+    
+    .resbs-email-header h1 {
+        font-size: 20px;
+    }
+    
+    .resbs-email-content {
+        padding: 20px 15px;
+    }
+    
+    .resbs-email-content h2 {
+        font-size: 18px;
+    }
+    
+    .resbs-email-content h3 {
+        font-size: 16px;
+    }
+    
+    .resbs-property-details,
+    .resbs-booking-details,
+    .resbs-search-alert {
+        padding: 15px;
+    }
+    
+    .resbs-property-details .resbs-detail-row,
+    .resbs-booking-details .resbs-booking-row {
+        flex-direction: column;
+    }
+    
+    .resbs-property-details .resbs-detail-label,
+    .resbs-booking-details .resbs-booking-label {
+        min-width: auto;
+        margin-bottom: 5px;
+    }
+    
+    .resbs-property-item {
+        padding: 12px;
+    }
+    
+    .resbs-email-button {
+        display: block;
+        text-align: center;
+        margin: 15px 0;
+    }
+    
+    .resbs-email-footer {
+        padding: 15px;
+    }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .resbs-email-container {
+        background: #2c2c2c;
+        color: #f0f0f1;
+    }
+    
+    .resbs-email-header {
+        background: #72aee6;
+    }
+    
+    .resbs-email-content {
+        background: #2c2c2c;
+    }
+    
+    .resbs-email-content h2 {
+        color: #72aee6;
+    }
+    
+    .resbs-email-content h3 {
+        color: #f0f0f1;
+    }
+    
+    .resbs-property-details {
+        background: #1e1e1e;
+        border-color: #3c434a;
+    }
+    
+    .resbs-property-details h3 {
+        color: #72aee6;
+    }
+    
+    .resbs-property-details .resbs-detail-label {
+        color: #f0f0f1;
+    }
+    
+    .resbs-property-details .resbs-detail-value {
+        color: #a7aaad;
+    }
+    
+    .resbs-property-details .resbs-detail-row {
+        border-bottom-color: #3c434a;
+    }
+    
+    .resbs-booking-details {
+        background: #1e3a1e;
+        border-color: #2d5a2d;
+    }
+    
+    .resbs-booking-details h3 {
+        color: #72aee6;
+    }
+    
+    .resbs-booking-details .resbs-booking-label {
+        color: #f0f0f1;
+    }
+    
+    .resbs-booking-details .resbs-booking-value {
+        color: #a7aaad;
+    }
+    
+    .resbs-booking-details .resbs-booking-row {
+        border-bottom-color: #2d5a2d;
+    }
+    
+    .resbs-search-alert {
+        background: #3a3a1e;
+        border-color: #6b6b2d;
+    }
+    
+    .resbs-search-alert h3 {
+        color: #72aee6;
+    }
+    
+    .resbs-search-alert .resbs-search-criteria {
+        background: #2c2c2c;
+        border-color: #6b6b2d;
+    }
+    
+    .resbs-search-alert .resbs-search-criteria h4 {
+        color: #72aee6;
+    }
+    
+    .resbs-search-alert .resbs-search-criteria p {
+        color: #a7aaad;
+    }
+    
+    .resbs-property-item {
+        background: #1e1e1e;
+        border-color: #3c434a;
+    }
+    
+    .resbs-property-item h4 {
+        color: #72aee6;
+    }
+    
+    .resbs-property-item .resbs-property-meta {
+        color: #a7aaad;
+    }
+    
+    .resbs-property-item .resbs-property-price {
+        color: #72aee6;
+    }
+    
+    .resbs-email-button {
+        background: #72aee6;
+    }
+    
+    .resbs-email-button:hover {
+        background: #5a9bd4;
+    }
+    
+    .resbs-email-content a {
+        color: #72aee6;
+    }
+    
+    .resbs-email-content a:hover {
+        color: #5a9bd4;
+    }
+    
+    .resbs-email-footer {
+        background: #1e1e1e;
+        border-top-color: #3c434a;
+    }
+    
+    .resbs-email-footer p {
+        color: #a7aaad;
+    }
+    
+    .resbs-email-footer a {
+        color: #72aee6;
+    }
+    
+    .resbs-email-footer a:hover {
+        color: #5a9bd4;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .resbs-email-container {
+        max-width: none;
+        margin: 0;
+        box-shadow: none;
+    }
+    
+    .resbs-email-header {
+        background: #f0f0f0 !important;
+        color: #000 !important;
+    }
+    
+    .resbs-email-content {
+        background: #fff !important;
+        color: #000 !important;
+    }
+    
+    .resbs-email-button {
+        background: #f0f0f0 !important;
+        color: #000 !important;
+        border: 1px solid #000 !important;
+    }
+    
+    .resbs-email-footer {
+        background: #f0f0f0 !important;
+        color: #000 !important;
+    }
+}
+

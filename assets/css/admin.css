@@ -1,0 +1,470 @@
+/**
+ * Admin Styles
+ * 
+ * @package RealEstate_Booking_Suite
+ */
+
+/* Admin Dashboard Styles */
+.resbs-admin-wrap {
+    max-width: 1200px;
+    margin: 20px 0;
+}
+
+.resbs-admin-header {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.resbs-admin-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #333;
+    margin: 0 0 10px 0;
+}
+
+.resbs-admin-subtitle {
+    color: #666;
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+/* Admin Tabs */
+.resbs-admin-tabs {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.resbs-tab-nav {
+    display: flex;
+    background: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.resbs-tab-btn {
+    padding: 15px 25px;
+    background: none;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-bottom: 3px solid transparent;
+}
+
+.resbs-tab-btn:hover {
+    color: #0073aa;
+    background: #fff;
+}
+
+.resbs-tab-btn.active {
+    color: #0073aa;
+    background: #fff;
+    border-bottom-color: #0073aa;
+}
+
+.resbs-tab-content {
+    padding: 30px;
+}
+
+.resbs-tab-panel {
+    display: none;
+}
+
+.resbs-tab-panel.active {
+    display: block;
+}
+
+/* Form Styles */
+.resbs-form-section {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.resbs-form-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.resbs-form-section h3 {
+    margin: 0 0 20px 0;
+    color: #333;
+    font-size: 1.3rem;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #0073aa;
+}
+
+.resbs-form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.resbs-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.resbs-form-group label {
+    font-weight: 600;
+    color: #333;
+    font-size: 14px;
+}
+
+.resbs-form-group input,
+.resbs-form-group select,
+.resbs-form-group textarea {
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    background: #fff;
+    transition: border-color 0.3s ease;
+}
+
+.resbs-form-group input:focus,
+.resbs-form-group select:focus,
+.resbs-form-group textarea:focus {
+    outline: none;
+    border-color: #0073aa;
+    box-shadow: 0 0 0 2px rgba(0, 115, 170, 0.1);
+}
+
+.resbs-form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* Button Styles */
+.resbs-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+}
+
+.resbs-btn-primary {
+    background: #0073aa;
+    color: #fff;
+}
+
+.resbs-btn-primary:hover {
+    background: #005a87;
+    color: #fff;
+}
+
+.resbs-btn-secondary {
+    background: #6c757d;
+    color: #fff;
+}
+
+.resbs-btn-secondary:hover {
+    background: #545b62;
+    color: #fff;
+}
+
+.resbs-btn-success {
+    background: #28a745;
+    color: #fff;
+}
+
+.resbs-btn-success:hover {
+    background: #1e7e34;
+    color: #fff;
+}
+
+.resbs-btn-danger {
+    background: #dc3545;
+    color: #fff;
+}
+
+.resbs-btn-danger:hover {
+    background: #c82333;
+    color: #fff;
+}
+
+/* Card Styles */
+.resbs-card {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.resbs-card-header {
+    background: #f8f9fa;
+    padding: 20px;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.resbs-card-title {
+    margin: 0;
+    color: #333;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.resbs-card-body {
+    padding: 20px;
+}
+
+/* Stats Cards */
+.resbs-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.resbs-stat-card {
+    background: #fff;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.resbs-stat-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #0073aa;
+    margin: 0 0 10px 0;
+}
+
+.resbs-stat-label {
+    color: #666;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Table Styles */
+.resbs-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.resbs-table th,
+.resbs-table td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.resbs-table th {
+    background: #f8f9fa;
+    font-weight: 600;
+    color: #333;
+    font-size: 14px;
+}
+
+.resbs-table td {
+    color: #666;
+    font-size: 14px;
+}
+
+.resbs-table tr:hover {
+    background: #f8f9fa;
+}
+
+/* Status Badges */
+.resbs-status-badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.resbs-status-published {
+    background: #d4edda;
+    color: #155724;
+}
+
+.resbs-status-pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.resbs-status-draft {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.resbs-status-featured {
+    background: #cce5ff;
+    color: #004085;
+}
+
+/* Alert Styles */
+.resbs-alert {
+    padding: 15px 20px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    border-left: 4px solid;
+}
+
+.resbs-alert-success {
+    background: #d4edda;
+    color: #155724;
+    border-left-color: #28a745;
+}
+
+.resbs-alert-warning {
+    background: #fff3cd;
+    color: #856404;
+    border-left-color: #ffc107;
+}
+
+.resbs-alert-error {
+    background: #f8d7da;
+    color: #721c24;
+    border-left-color: #dc3545;
+}
+
+.resbs-alert-info {
+    background: #d1ecf1;
+    color: #0c5460;
+    border-left-color: #17a2b8;
+}
+
+/* Loading Spinner */
+.resbs-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #0073aa;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .resbs-admin-wrap {
+        margin: 10px;
+    }
+    
+    .resbs-tab-nav {
+        flex-direction: column;
+    }
+    
+    .resbs-tab-btn {
+        border-bottom: 1px solid #dee2e6;
+        border-right: none;
+    }
+    
+    .resbs-form-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .resbs-stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .resbs-table {
+        font-size: 12px;
+    }
+    
+    .resbs-table th,
+    .resbs-table td {
+        padding: 10px;
+    }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .resbs-admin-wrap {
+        color: #f0f0f1;
+    }
+    
+    .resbs-admin-header,
+    .resbs-admin-tabs,
+    .resbs-card,
+    .resbs-stat-card {
+        background: #2c2c2c;
+        color: #f0f0f1;
+    }
+    
+    .resbs-admin-title {
+        color: #f0f0f1;
+    }
+    
+    .resbs-admin-subtitle {
+        color: #a7aaad;
+    }
+    
+    .resbs-tab-nav {
+        background: #1e1e1e;
+        border-bottom-color: #3c434a;
+    }
+    
+    .resbs-tab-btn {
+        color: #a7aaad;
+    }
+    
+    .resbs-tab-btn:hover,
+    .resbs-tab-btn.active {
+        color: #72aee6;
+        background: #2c2c2c;
+        border-bottom-color: #72aee6;
+    }
+    
+    .resbs-form-group label {
+        color: #f0f0f1;
+    }
+    
+    .resbs-form-group input,
+    .resbs-form-group select,
+    .resbs-form-group textarea {
+        background: #3c434a;
+        color: #f0f0f1;
+        border-color: #3c434a;
+    }
+    
+    .resbs-form-group input:focus,
+    .resbs-form-group select:focus,
+    .resbs-form-group textarea:focus {
+        border-color: #72aee6;
+        box-shadow: 0 0 0 2px rgba(114, 174, 230, 0.1);
+    }
+    
+    .resbs-table th {
+        background: #1e1e1e;
+        color: #f0f0f1;
+    }
+    
+    .resbs-table td {
+        color: #a7aaad;
+    }
+    
+    .resbs-table tr:hover {
+        background: #1e1e1e;
+    }
+}

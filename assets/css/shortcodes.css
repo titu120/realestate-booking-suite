@@ -1,0 +1,800 @@
+/**
+ * Shortcodes Styles
+ * 
+ * @package RealEstate_Booking_Suite
+ */
+
+/* Shortcode Base Styles */
+.resbs-shortcode {
+    margin: 20px 0;
+    padding: 0;
+    font-family: inherit;
+}
+
+.resbs-shortcode .resbs-widget-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #0073aa;
+}
+
+/* Widget Filters */
+.resbs-widget-filters {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.resbs-filter-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.resbs-filter-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    align-items: end;
+}
+
+.resbs-filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.resbs-filter-group label {
+    font-weight: 600;
+    color: #333;
+    font-size: 14px;
+}
+
+.resbs-filter-group select,
+.resbs-filter-group input {
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    background: #fff;
+    transition: border-color 0.3s ease;
+}
+
+.resbs-filter-group select:focus,
+.resbs-filter-group input:focus {
+    outline: none;
+    border-color: #0073aa;
+    box-shadow: 0 0 0 2px rgba(0, 115, 170, 0.1);
+}
+
+.resbs-filter-btn {
+    padding: 10px 20px;
+    background: #0073aa;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    height: fit-content;
+}
+
+.resbs-filter-btn:hover {
+    background: #005a87;
+}
+
+/* Search Widget */
+.resbs-search-widget {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.resbs-search-filters {
+    background: #f8f9fa;
+    padding: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.resbs-search-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.resbs-search-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    align-items: end;
+}
+
+.resbs-search-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.resbs-search-group label {
+    font-weight: 600;
+    color: #333;
+    font-size: 14px;
+}
+
+.resbs-search-group input,
+.resbs-search-group select {
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    background: #fff;
+    transition: border-color 0.3s ease;
+}
+
+.resbs-search-group input:focus,
+.resbs-search-group select:focus {
+    outline: none;
+    border-color: #0073aa;
+    box-shadow: 0 0 0 2px rgba(0, 115, 170, 0.1);
+}
+
+.resbs-search-btn {
+    padding: 10px 20px;
+    background: #0073aa;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    height: fit-content;
+}
+
+.resbs-search-btn:hover {
+    background: #005a87;
+}
+
+.resbs-search-map {
+    border-bottom: 1px solid #eee;
+}
+
+.resbs-search-results {
+    padding: 20px;
+}
+
+.resbs-results-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.resbs-results-header h4 {
+    margin: 0;
+    color: #333;
+    font-size: 1.2rem;
+}
+
+.resbs-results-count {
+    color: #666;
+    font-size: 14px;
+}
+
+.resbs-results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+/* Dashboard Widget */
+.resbs-dashboard-widget {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.resbs-dashboard-tabs {
+    display: flex;
+    flex-direction: column;
+}
+
+.resbs-tab-nav {
+    display: flex;
+    background: #f8f9fa;
+    border-bottom: 1px solid #eee;
+    overflow-x: auto;
+}
+
+.resbs-tab-btn {
+    padding: 15px 20px;
+    background: none;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    border-bottom: 3px solid transparent;
+}
+
+.resbs-tab-btn:hover {
+    color: #0073aa;
+    background: #fff;
+}
+
+.resbs-tab-btn.active {
+    color: #0073aa;
+    background: #fff;
+    border-bottom-color: #0073aa;
+}
+
+.resbs-tab-content {
+    padding: 20px;
+}
+
+.resbs-tab-panel {
+    display: none;
+}
+
+.resbs-tab-panel.active {
+    display: block;
+}
+
+.resbs-dashboard-section h4 {
+    margin: 0 0 15px 0;
+    color: #333;
+    font-size: 1.1rem;
+}
+
+.resbs-user-properties,
+.resbs-favorites-list,
+.resbs-bookings-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.resbs-user-property-item {
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    border-left: 4px solid #0073aa;
+}
+
+.resbs-user-property-item h5 {
+    margin: 0 0 5px 0;
+    font-size: 1rem;
+}
+
+.resbs-user-property-item h5 a {
+    color: #0073aa;
+    text-decoration: none;
+}
+
+.resbs-user-property-item h5 a:hover {
+    text-decoration: underline;
+}
+
+.resbs-user-property-item p {
+    margin: 0;
+    color: #666;
+    font-size: 14px;
+}
+
+/* Profile Form */
+.resbs-profile-form {
+    max-width: 600px;
+}
+
+.resbs-profile-form .resbs-form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.resbs-profile-form .resbs-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.resbs-profile-form label {
+    font-weight: 600;
+    color: #333;
+    font-size: 14px;
+}
+
+.resbs-profile-form input {
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    background: #fff;
+    transition: border-color 0.3s ease;
+}
+
+.resbs-profile-form input:focus {
+    outline: none;
+    border-color: #0073aa;
+    box-shadow: 0 0 0 2px rgba(0, 115, 170, 0.1);
+}
+
+.resbs-update-profile-btn {
+    padding: 10px 20px;
+    background: #0073aa;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.resbs-update-profile-btn:hover {
+    background: #005a87;
+}
+
+/* Submit Property Widget */
+.resbs-submit-widget {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.resbs-submit-form {
+    padding: 20px;
+}
+
+.resbs-form-section {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.resbs-form-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.resbs-form-section h4 {
+    margin: 0 0 20px 0;
+    color: #333;
+    font-size: 1.2rem;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #0073aa;
+}
+
+.resbs-form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.resbs-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.resbs-form-group label {
+    font-weight: 600;
+    color: #333;
+    font-size: 14px;
+}
+
+.resbs-form-group label .required {
+    color: #dc3545;
+}
+
+.resbs-form-group input,
+.resbs-form-group select,
+.resbs-form-group textarea {
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    background: #fff;
+    transition: border-color 0.3s ease;
+    font-family: inherit;
+}
+
+.resbs-form-group input:focus,
+.resbs-form-group select:focus,
+.resbs-form-group textarea:focus {
+    outline: none;
+    border-color: #0073aa;
+    box-shadow: 0 0 0 2px rgba(0, 115, 170, 0.1);
+}
+
+.resbs-form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.resbs-gallery-upload {
+    border: 2px dashed #ddd;
+    border-radius: 6px;
+    padding: 20px;
+    text-align: center;
+    transition: border-color 0.3s ease;
+}
+
+.resbs-gallery-upload:hover {
+    border-color: #0073aa;
+}
+
+.resbs-gallery-input {
+    margin-bottom: 15px;
+}
+
+.resbs-gallery-preview {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.resbs-gallery-preview img {
+    width: 100%;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}
+
+.resbs-form-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: flex-start;
+    margin-top: 20px;
+}
+
+.resbs-submit-btn,
+.resbs-reset-btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.resbs-submit-btn {
+    background: #0073aa;
+    color: #fff;
+}
+
+.resbs-submit-btn:hover {
+    background: #005a87;
+}
+
+.resbs-reset-btn {
+    background: #6c757d;
+    color: #fff;
+}
+
+.resbs-reset-btn:hover {
+    background: #545b62;
+}
+
+/* Favorites Widget */
+.resbs-favorites-widget {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.resbs-favorites-actions {
+    padding: 20px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #eee;
+}
+
+.resbs-clear-favorites-btn {
+    padding: 8px 16px;
+    background: #dc3545;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.resbs-clear-favorites-btn:hover {
+    background: #c82333;
+}
+
+.resbs-favorites-grid {
+    padding: 20px;
+}
+
+.resbs-favorites-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: #666;
+}
+
+.resbs-favorites-empty p {
+    margin: 0 0 20px 0;
+    font-size: 16px;
+}
+
+.resbs-browse-btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background: #0073aa;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+}
+
+.resbs-browse-btn:hover {
+    background: #005a87;
+    color: #fff;
+}
+
+/* Login Required Messages */
+.resbs-dashboard-login-required,
+.resbs-submit-login-required,
+.resbs-favorites-login-required {
+    text-align: center;
+    padding: 40px 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+}
+
+.resbs-dashboard-login-required p,
+.resbs-submit-login-required p,
+.resbs-favorites-login-required p {
+    margin: 0 0 20px 0;
+    color: #666;
+    font-size: 16px;
+}
+
+.resbs-login-btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background: #0073aa;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+}
+
+.resbs-login-btn:hover {
+    background: #005a87;
+    color: #fff;
+}
+
+/* Loading States */
+.resbs-widget-loading,
+.resbs-results-loading,
+.resbs-submit-loading,
+.resbs-favorites-loading {
+    text-align: center;
+    padding: 40px 20px;
+    color: #666;
+}
+
+.resbs-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #0073aa;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 10px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* No Results */
+.resbs-widget-no-properties,
+.resbs-no-properties {
+    text-align: center;
+    padding: 40px 20px;
+    color: #666;
+    font-style: italic;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .resbs-filter-row,
+    .resbs-search-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .resbs-tab-nav {
+        flex-direction: column;
+    }
+    
+    .resbs-tab-btn {
+        border-bottom: 1px solid #eee;
+        border-right: none;
+    }
+    
+    .resbs-form-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .resbs-form-actions {
+        flex-direction: column;
+    }
+    
+    .resbs-results-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .resbs-results-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .resbs-shortcode {
+        margin: 10px 0;
+    }
+    
+    .resbs-widget-filters,
+    .resbs-search-filters,
+    .resbs-tab-content,
+    .resbs-submit-form,
+    .resbs-favorites-grid {
+        padding: 15px;
+    }
+    
+    .resbs-shortcode .resbs-widget-title {
+        font-size: 1.3rem;
+    }
+    
+    .resbs-form-section h4 {
+        font-size: 1.1rem;
+    }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .resbs-shortcode {
+        color: #f0f0f1;
+    }
+    
+    .resbs-shortcode .resbs-widget-title {
+        color: #f0f0f1;
+        border-bottom-color: #72aee6;
+    }
+    
+    .resbs-widget-filters,
+    .resbs-search-filters,
+    .resbs-dashboard-widget,
+    .resbs-submit-widget,
+    .resbs-favorites-widget {
+        background: #2c2c2c;
+        color: #f0f0f1;
+    }
+    
+    .resbs-filter-group label,
+    .resbs-search-group label,
+    .resbs-form-group label {
+        color: #f0f0f1;
+    }
+    
+    .resbs-filter-group input,
+    .resbs-filter-group select,
+    .resbs-search-group input,
+    .resbs-search-group select,
+    .resbs-form-group input,
+    .resbs-form-group select,
+    .resbs-form-group textarea {
+        background: #3c434a;
+        color: #f0f0f1;
+        border-color: #3c434a;
+    }
+    
+    .resbs-filter-group input:focus,
+    .resbs-filter-group select:focus,
+    .resbs-search-group input:focus,
+    .resbs-search-group select:focus,
+    .resbs-form-group input:focus,
+    .resbs-form-group select:focus,
+    .resbs-form-group textarea:focus {
+        border-color: #72aee6;
+        box-shadow: 0 0 0 2px rgba(114, 174, 230, 0.1);
+    }
+    
+    .resbs-tab-nav {
+        background: #1e1e1e;
+        border-bottom-color: #3c434a;
+    }
+    
+    .resbs-tab-btn {
+        color: #a7aaad;
+    }
+    
+    .resbs-tab-btn:hover,
+    .resbs-tab-btn.active {
+        color: #72aee6;
+        background: #2c2c2c;
+        border-bottom-color: #72aee6;
+    }
+    
+    .resbs-user-property-item {
+        background: #3c434a;
+        border-left-color: #72aee6;
+    }
+    
+    .resbs-user-property-item h5 a {
+        color: #72aee6;
+    }
+    
+    .resbs-user-property-item p {
+        color: #a7aaad;
+    }
+    
+    .resbs-gallery-upload {
+        border-color: #3c434a;
+    }
+    
+    .resbs-gallery-upload:hover {
+        border-color: #72aee6;
+    }
+    
+    .resbs-dashboard-login-required,
+    .resbs-submit-login-required,
+    .resbs-favorites-login-required {
+        background: #2c2c2c;
+        border-color: #3c434a;
+    }
+    
+    .resbs-dashboard-login-required p,
+    .resbs-submit-login-required p,
+    .resbs-favorites-login-required p {
+        color: #a7aaad;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .resbs-shortcode {
+        box-shadow: none;
+        border: 1px solid #000;
+    }
+    
+    .resbs-widget-filters,
+    .resbs-search-filters,
+    .resbs-tab-nav,
+    .resbs-form-actions,
+    .resbs-favorites-actions {
+        display: none;
+    }
+    
+    .resbs-tab-panel {
+        display: block !important;
+    }
+}

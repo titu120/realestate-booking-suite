@@ -1,0 +1,603 @@
+/**
+ * Search Alerts Styles
+ * 
+ * @package RealEstate_Booking_Suite
+ */
+
+/* Search Alerts Container */
+.resbs-search-alerts-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Search Alert Form */
+.resbs-search-alert-form {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 30px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.resbs-search-alert-form h3 {
+    margin: 0 0 20px 0;
+    color: #333;
+    font-size: 24px;
+    font-weight: 600;
+    border-bottom: 2px solid #0073aa;
+    padding-bottom: 10px;
+}
+
+/* Form Elements */
+.resbs-form-row {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.resbs-form-group {
+    flex: 1;
+    margin-bottom: 20px;
+}
+
+.resbs-form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #333;
+    font-size: 14px;
+}
+
+.resbs-form-group .required {
+    color: #dc3545;
+}
+
+.resbs-form-group input,
+.resbs-form-group select,
+.resbs-form-group textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    background: #fff;
+}
+
+.resbs-form-group input:focus,
+.resbs-form-group select:focus,
+.resbs-form-group textarea:focus {
+    outline: none;
+    border-color: #0073aa;
+    box-shadow: 0 0 0 2px rgba(0, 115, 170, 0.1);
+}
+
+.resbs-form-group input[type="email"] {
+    background-image: url('data:image/svg+xml;charset=utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>');
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+    padding-right: 40px;
+}
+
+/* Search Criteria */
+.resbs-search-criteria {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+    padding: 20px;
+    margin-top: 10px;
+}
+
+.resbs-search-criteria p {
+    margin: 0;
+    color: #666;
+    font-style: italic;
+    font-size: 14px;
+}
+
+/* Form Actions */
+.resbs-form-actions {
+    margin-top: 30px;
+    text-align: center;
+}
+
+.resbs-save-alert-btn {
+    background: #0073aa;
+    color: #fff;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.resbs-save-alert-btn:hover {
+    background: #005a87;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 115, 170, 0.3);
+}
+
+.resbs-save-alert-btn:active {
+    transform: translateY(0);
+}
+
+.resbs-save-alert-btn:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Search Alerts List */
+.resbs-search-alerts-list {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 30px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.resbs-search-alerts-list h3 {
+    margin: 0 0 20px 0;
+    color: #333;
+    font-size: 24px;
+    font-weight: 600;
+    border-bottom: 2px solid #28a745;
+    padding-bottom: 10px;
+}
+
+/* Alert Items */
+.resbs-alert-item {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    padding: 20px;
+    margin-bottom: 15px;
+    transition: all 0.3s ease;
+}
+
+.resbs-alert-item:hover {
+    border-color: #0073aa;
+    box-shadow: 0 2px 8px rgba(0, 115, 170, 0.1);
+}
+
+.resbs-alert-item:last-child {
+    margin-bottom: 0;
+}
+
+.resbs-alert-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 15px;
+}
+
+.resbs-alert-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+}
+
+.resbs-alert-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.resbs-alert-btn {
+    background: none;
+    border: 1px solid #ddd;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.resbs-alert-btn:hover {
+    background: #f8f9fa;
+    border-color: #0073aa;
+    color: #0073aa;
+}
+
+.resbs-alert-btn.delete {
+    border-color: #dc3545;
+    color: #dc3545;
+}
+
+.resbs-alert-btn.delete:hover {
+    background: #dc3545;
+    color: #fff;
+}
+
+.resbs-alert-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.resbs-alert-detail {
+    display: flex;
+    flex-direction: column;
+}
+
+.resbs-alert-detail-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+}
+
+.resbs-alert-detail-value {
+    font-size: 14px;
+    color: #333;
+    font-weight: 500;
+}
+
+.resbs-alert-criteria {
+    background: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+    padding: 15px;
+    margin-top: 10px;
+}
+
+.resbs-alert-criteria h4 {
+    margin: 0 0 10px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+}
+
+.resbs-alert-criteria p {
+    margin: 0;
+    color: #666;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+/* Empty State */
+.resbs-alerts-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: #666;
+}
+
+.resbs-alerts-empty-icon {
+    font-size: 48px;
+    color: #ddd;
+    margin-bottom: 20px;
+}
+
+.resbs-alerts-empty h4 {
+    margin: 0 0 10px 0;
+    color: #333;
+    font-size: 18px;
+}
+
+.resbs-alerts-empty p {
+    margin: 0;
+    font-size: 14px;
+}
+
+/* Loading States */
+.resbs-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    color: #666;
+}
+
+.resbs-loading-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #0073aa;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-right: 10px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Messages */
+.resbs-message {
+    padding: 12px 16px;
+    border-radius: 4px;
+    margin: 15px 0;
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.resbs-message.success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.resbs-message.error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.resbs-message.info {
+    background: #d1ecf1;
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+}
+
+.resbs-message.warning {
+    background: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeaa7;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .resbs-search-alerts-container {
+        padding: 15px;
+    }
+    
+    .resbs-search-alert-form,
+    .resbs-search-alerts-list {
+        padding: 20px;
+    }
+    
+    .resbs-form-row {
+        flex-direction: column;
+        gap: 0;
+    }
+    
+    .resbs-alert-header {
+        flex-direction: column;
+        gap: 15px;
+        align-items: stretch;
+    }
+    
+    .resbs-alert-actions {
+        justify-content: flex-start;
+    }
+    
+    .resbs-alert-details {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .resbs-save-alert-btn {
+        width: 100%;
+        padding: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .resbs-search-alerts-container {
+        padding: 10px;
+    }
+    
+    .resbs-search-alert-form,
+    .resbs-search-alerts-list {
+        padding: 15px;
+    }
+    
+    .resbs-search-alert-form h3,
+    .resbs-search-alerts-list h3 {
+        font-size: 20px;
+    }
+    
+    .resbs-form-group input,
+    .resbs-form-group select,
+    .resbs-form-group textarea {
+        padding: 10px 12px;
+        font-size: 13px;
+    }
+    
+    .resbs-alert-item {
+        padding: 15px;
+    }
+    
+    .resbs-alert-title {
+        font-size: 16px;
+    }
+    
+    .resbs-alert-btn {
+        padding: 5px 10px;
+        font-size: 11px;
+    }
+    
+    .resbs-alert-actions {
+        gap: 8px;
+    }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .resbs-search-alerts-container {
+        background: #2c2c2c;
+        color: #f0f0f1;
+    }
+    
+    .resbs-search-alert-form,
+    .resbs-search-alerts-list {
+        background: #2c2c2c;
+        border-color: #3c434a;
+    }
+    
+    .resbs-search-alert-form h3,
+    .resbs-search-alerts-list h3 {
+        color: #f0f0f1;
+        border-bottom-color: #72aee6;
+    }
+    
+    .resbs-form-group label {
+        color: #f0f0f1;
+    }
+    
+    .resbs-form-group input,
+    .resbs-form-group select,
+    .resbs-form-group textarea {
+        background: #1e1e1e;
+        border-color: #3c434a;
+        color: #f0f0f1;
+    }
+    
+    .resbs-form-group input:focus,
+    .resbs-form-group select:focus,
+    .resbs-form-group textarea:focus {
+        border-color: #72aee6;
+        box-shadow: 0 0 0 2px rgba(114, 174, 230, 0.1);
+    }
+    
+    .resbs-search-criteria {
+        background: #1e1e1e;
+        border-color: #3c434a;
+    }
+    
+    .resbs-search-criteria p {
+        color: #a7aaad;
+    }
+    
+    .resbs-save-alert-btn {
+        background: #72aee6;
+    }
+    
+    .resbs-save-alert-btn:hover {
+        background: #5a9bd4;
+    }
+    
+    .resbs-alert-item {
+        background: #1e1e1e;
+        border-color: #3c434a;
+    }
+    
+    .resbs-alert-item:hover {
+        border-color: #72aee6;
+        box-shadow: 0 2px 8px rgba(114, 174, 230, 0.1);
+    }
+    
+    .resbs-alert-title {
+        color: #f0f0f1;
+    }
+    
+    .resbs-alert-detail-label {
+        color: #a7aaad;
+    }
+    
+    .resbs-alert-detail-value {
+        color: #f0f0f1;
+    }
+    
+    .resbs-alert-criteria {
+        background: #2c2c2c;
+        border-color: #3c434a;
+    }
+    
+    .resbs-alert-criteria h4 {
+        color: #f0f0f1;
+    }
+    
+    .resbs-alert-criteria p {
+        color: #a7aaad;
+    }
+    
+    .resbs-alert-btn {
+        border-color: #3c434a;
+        color: #a7aaad;
+    }
+    
+    .resbs-alert-btn:hover {
+        background: #3c434a;
+        border-color: #72aee6;
+        color: #72aee6;
+    }
+    
+    .resbs-alert-btn.delete {
+        border-color: #dc3545;
+        color: #dc3545;
+    }
+    
+    .resbs-alert-btn.delete:hover {
+        background: #dc3545;
+        color: #fff;
+    }
+    
+    .resbs-alerts-empty h4 {
+        color: #f0f0f1;
+    }
+    
+    .resbs-alerts-empty p {
+        color: #a7aaad;
+    }
+    
+    .resbs-loading {
+        color: #a7aaad;
+    }
+    
+    .resbs-loading-spinner {
+        border-color: #3c434a;
+        border-top-color: #72aee6;
+    }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+    .resbs-search-alert-form,
+    .resbs-search-alerts-list {
+        border-width: 2px;
+    }
+    
+    .resbs-form-group input,
+    .resbs-form-group select,
+    .resbs-form-group textarea {
+        border-width: 2px;
+    }
+    
+    .resbs-save-alert-btn {
+        border: 2px solid #000;
+    }
+    
+    .resbs-alert-item {
+        border-width: 2px;
+    }
+    
+    .resbs-alert-btn {
+        border-width: 2px;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .resbs-search-alert-form,
+    .resbs-alert-actions,
+    .resbs-save-alert-btn {
+        display: none;
+    }
+    
+    .resbs-search-alerts-list {
+        box-shadow: none;
+        border: 1px solid #000;
+    }
+    
+    .resbs-alert-item {
+        break-inside: avoid;
+        box-shadow: none;
+        border: 1px solid #000;
+    }
+}
+

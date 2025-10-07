@@ -1,0 +1,1039 @@
+/* Elementor Widget Styles */
+
+/* Property Grid Widget */
+.resbs-elementor-property-grid {
+    width: 100%;
+}
+
+/* Filters */
+.resbs-filters {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    border: 1px solid #e9ecef;
+}
+
+.resbs-filter-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    align-items: end;
+}
+
+.resbs-filter-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.resbs-filter-group label {
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #333;
+    font-size: 14px;
+}
+
+.resbs-filter-group select,
+.resbs-filter-group input {
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    background: white;
+    transition: border-color 0.3s ease;
+}
+
+.resbs-filter-group select:focus,
+.resbs-filter-group input:focus {
+    outline: none;
+    border-color: #007cba;
+    box-shadow: 0 0 0 3px rgba(0, 124, 186, 0.1);
+}
+
+.resbs-filter-actions {
+    display: flex;
+    gap: 10px;
+    align-items: end;
+}
+
+.resbs-filter-btn,
+.resbs-reset-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.resbs-filter-btn {
+    background: #007cba;
+    color: white;
+}
+
+.resbs-filter-btn:hover {
+    background: #005a87;
+}
+
+.resbs-reset-btn {
+    background: #6c757d;
+    color: white;
+}
+
+.resbs-reset-btn:hover {
+    background: #5a6268;
+}
+
+/* Property Grid */
+.resbs-property-grid {
+    display: grid;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.resbs-grid-2-cols {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.resbs-grid-3-cols {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.resbs-grid-4-cols {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+/* Property Card */
+.resbs-property-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.resbs-property-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.resbs-property-image {
+    position: relative;
+    overflow: hidden;
+    height: 200px;
+}
+
+.resbs-property-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.resbs-property-card:hover .resbs-property-image img {
+    transform: scale(1.05);
+}
+
+.resbs-property-badges {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.resbs-badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: white;
+}
+
+.resbs-badge-featured {
+    background: #ffc107;
+    color: #212529;
+}
+
+.resbs-badge-new {
+    background: #28a745;
+}
+
+.resbs-badge-sold {
+    background: #dc3545;
+}
+
+.resbs-badge-rent {
+    background: #17a2b8;
+}
+
+.resbs-property-actions-overlay {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.resbs-property-card:hover .resbs-property-actions-overlay {
+    opacity: 1;
+}
+
+.resbs-favorite-btn,
+.resbs-book-btn {
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 16px;
+}
+
+.resbs-favorite-btn {
+    background: rgba(255, 255, 255, 0.9);
+    color: #dc3545;
+}
+
+.resbs-favorite-btn:hover {
+    background: #dc3545;
+    color: white;
+}
+
+.resbs-favorite-btn.active {
+    background: #dc3545;
+    color: white;
+}
+
+.resbs-book-btn {
+    background: rgba(0, 124, 186, 0.9);
+    color: white;
+}
+
+.resbs-book-btn:hover {
+    background: #005a87;
+}
+
+.resbs-property-content {
+    padding: 20px;
+}
+
+.resbs-property-title {
+    margin: 0 0 10px 0;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.resbs-property-title a {
+    color: #333;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.resbs-property-title a:hover {
+    color: #007cba;
+}
+
+.resbs-property-price {
+    font-size: 20px;
+    font-weight: 700;
+    color: #28a745;
+    margin-bottom: 15px;
+}
+
+.resbs-property-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 15px;
+    color: #6c757d;
+    font-size: 14px;
+}
+
+.resbs-property-meta span {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.resbs-property-meta .dashicons {
+    font-size: 16px;
+}
+
+.resbs-property-excerpt {
+    color: #6c757d;
+    font-size: 14px;
+    line-height: 1.5;
+    margin-bottom: 15px;
+}
+
+.resbs-property-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.resbs-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.resbs-btn-primary {
+    background: #007cba;
+    color: white;
+}
+
+.resbs-btn-primary:hover {
+    background: #005a87;
+    color: white;
+    text-decoration: none;
+}
+
+.resbs-btn-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.resbs-btn-secondary:hover {
+    background: #5a6268;
+    color: white;
+    text-decoration: none;
+}
+
+/* Pagination */
+.resbs-pagination-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+.resbs-pagination {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+.resbs-pagination-btn {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    text-decoration: none;
+    color: #6c757d;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.resbs-pagination-btn:hover {
+    background: #f8f9fa;
+    border-color: #007cba;
+    color: #007cba;
+    text-decoration: none;
+}
+
+.resbs-pagination-btn.active {
+    background: #007cba;
+    border-color: #007cba;
+    color: white;
+}
+
+.resbs-pagination-btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Infinite Scroll */
+.resbs-infinite-scroll-wrapper {
+    text-align: center;
+    margin-top: 30px;
+}
+
+.resbs-load-more-btn {
+    background: #007cba;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.resbs-load-more-btn:hover {
+    background: #005a87;
+}
+
+.resbs-load-more-btn:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+}
+
+/* Loading States */
+.resbs-loading {
+    text-align: center;
+    padding: 40px 20px;
+    color: #6c757d;
+}
+
+.resbs-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #007cba;
+    border-radius: 50%;
+    animation: resbs-spin 1s linear infinite;
+    margin: 0 auto 15px;
+}
+
+@keyframes resbs-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.resbs-no-properties {
+    text-align: center;
+    padding: 60px 20px;
+    color: #6c757d;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.resbs-no-properties p {
+    font-size: 18px;
+    margin: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .resbs-grid-4-cols {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 992px) {
+    .resbs-grid-4-cols,
+    .resbs-grid-3-cols {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .resbs-filter-row {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .resbs-grid-4-cols,
+    .resbs-grid-3-cols,
+    .resbs-grid-2-cols {
+        grid-template-columns: 1fr;
+    }
+    
+    .resbs-filter-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .resbs-filter-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .resbs-filter-btn,
+    .resbs-reset-btn {
+        width: 100%;
+    }
+    
+    .resbs-property-actions {
+        flex-direction: column;
+    }
+    
+    .resbs-btn {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .resbs-filters {
+        padding: 15px;
+    }
+    
+    .resbs-property-content {
+        padding: 15px;
+    }
+    
+    .resbs-property-image {
+        height: 180px;
+    }
+    
+    .resbs-property-title {
+        font-size: 16px;
+    }
+    
+    .resbs-property-price {
+        font-size: 18px;
+    }
+}
+
+/* Elementor Editor Styles */
+.elementor-editor .resbs-elementor-property-grid {
+    pointer-events: none;
+}
+
+.elementor-editor .resbs-elementor-property-grid .resbs-filter-btn,
+.elementor-editor .resbs-elementor-property-grid .resbs-reset-btn,
+.elementor-editor .resbs-elementor-property-grid .resbs-favorite-btn,
+.elementor-editor .resbs-elementor-property-grid .resbs-book-btn,
+.elementor-editor .resbs-elementor-property-grid .resbs-btn {
+    pointer-events: none;
+}
+
+/* Custom Elementor Controls */
+.elementor-control-resbs_heading .elementor-control-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #007cba;
+    border-bottom: 1px solid #e9ecef;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+/* Animation Classes */
+.resbs-fade-in {
+    animation: resbs-fadeIn 0.5s ease-in;
+}
+
+@keyframes resbs-fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.resbs-slide-up {
+    animation: resbs-slideUp 0.3s ease-out;
+}
+
+@keyframes resbs-slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* Property Carousel Widget */
+.resbs-elementor-property-carousel {
+    position: relative;
+    width: 100%;
+}
+
+.resbs-carousel-container {
+    position: relative;
+    overflow: hidden;
+    border-radius: 12px;
+}
+
+.resbs-carousel-track {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+    will-change: transform;
+}
+
+.resbs-carousel-slide {
+    flex: 0 0 auto;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Carousel Navigation Arrows */
+.resbs-carousel-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    color: #333;
+    font-size: 18px;
+}
+
+.resbs-carousel-arrow:hover {
+    background: #007cba;
+    color: white;
+    transform: translateY(-50%) scale(1.1);
+}
+
+.resbs-carousel-prev {
+    left: 15px;
+}
+
+.resbs-carousel-next {
+    right: 15px;
+}
+
+.resbs-carousel-arrow:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: translateY(-50%);
+}
+
+.resbs-carousel-arrow:disabled:hover {
+    background: rgba(255, 255, 255, 0.9);
+    color: #333;
+    transform: translateY(-50%);
+}
+
+/* Carousel Dots */
+.resbs-carousel-dots {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 20px;
+    padding: 0 20px;
+}
+
+.resbs-carousel-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #ddd;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    padding: 0;
+}
+
+.resbs-carousel-dot:hover {
+    background: #007cba;
+    transform: scale(1.2);
+}
+
+.resbs-carousel-dot.active {
+    background: #007cba;
+    transform: scale(1.3);
+}
+
+/* Carousel Property Cards */
+.resbs-elementor-property-carousel .resbs-property-card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.resbs-elementor-property-carousel .resbs-property-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.resbs-elementor-property-carousel .resbs-property-image {
+    height: 200px;
+    overflow: hidden;
+    position: relative;
+}
+
+.resbs-elementor-property-carousel .resbs-property-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.resbs-elementor-property-carousel .resbs-property-card:hover .resbs-property-image img {
+    transform: scale(1.05);
+}
+
+.resbs-elementor-property-carousel .resbs-property-content {
+    padding: 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.resbs-elementor-property-carousel .resbs-property-title {
+    margin: 0 0 10px 0;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.4;
+    flex-shrink: 0;
+}
+
+.resbs-elementor-property-carousel .resbs-property-title a {
+    color: #333;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.resbs-elementor-property-carousel .resbs-property-title a:hover {
+    color: #007cba;
+}
+
+.resbs-elementor-property-carousel .resbs-property-price {
+    font-size: 20px;
+    font-weight: 700;
+    color: #28a745;
+    margin-bottom: 15px;
+    flex-shrink: 0;
+}
+
+.resbs-elementor-property-carousel .resbs-property-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 15px;
+    color: #6c757d;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+.resbs-elementor-property-carousel .resbs-property-meta span {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.resbs-elementor-property-carousel .resbs-property-meta .dashicons {
+    font-size: 16px;
+}
+
+.resbs-elementor-property-carousel .resbs-property-excerpt {
+    color: #6c757d;
+    font-size: 14px;
+    line-height: 1.5;
+    margin-bottom: 15px;
+    flex: 1;
+}
+
+.resbs-elementor-property-carousel .resbs-property-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: auto;
+    flex-shrink: 0;
+}
+
+.resbs-elementor-property-carousel .resbs-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    flex: 1;
+    justify-content: center;
+}
+
+.resbs-elementor-property-carousel .resbs-btn-primary {
+    background: #007cba;
+    color: white;
+}
+
+.resbs-elementor-property-carousel .resbs-btn-primary:hover {
+    background: #005a87;
+    color: white;
+    text-decoration: none;
+}
+
+.resbs-elementor-property-carousel .resbs-btn-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.resbs-elementor-property-carousel .resbs-btn-secondary:hover {
+    background: #5a6268;
+    color: white;
+    text-decoration: none;
+}
+
+/* Carousel Badges */
+.resbs-elementor-property-carousel .resbs-property-badges {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    z-index: 5;
+}
+
+.resbs-elementor-property-carousel .resbs-badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: white;
+}
+
+.resbs-elementor-property-carousel .resbs-badge-featured {
+    background: #ffc107;
+    color: #212529;
+}
+
+.resbs-elementor-property-carousel .resbs-badge-new {
+    background: #28a745;
+}
+
+.resbs-elementor-property-carousel .resbs-badge-sold {
+    background: #dc3545;
+}
+
+.resbs-elementor-property-carousel .resbs-badge-rent {
+    background: #17a2b8;
+}
+
+/* Carousel Action Overlay */
+.resbs-elementor-property-carousel .resbs-property-actions-overlay {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 5;
+}
+
+.resbs-elementor-property-carousel .resbs-property-card:hover .resbs-property-actions-overlay {
+    opacity: 1;
+}
+
+.resbs-elementor-property-carousel .resbs-favorite-btn,
+.resbs-elementor-property-carousel .resbs-book-btn {
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 16px;
+}
+
+.resbs-elementor-property-carousel .resbs-favorite-btn {
+    background: rgba(255, 255, 255, 0.9);
+    color: #dc3545;
+}
+
+.resbs-elementor-property-carousel .resbs-favorite-btn:hover {
+    background: #dc3545;
+    color: white;
+}
+
+.resbs-elementor-property-carousel .resbs-favorite-btn.active {
+    background: #dc3545;
+    color: white;
+}
+
+.resbs-elementor-property-carousel .resbs-book-btn {
+    background: rgba(0, 124, 186, 0.9);
+    color: white;
+}
+
+.resbs-elementor-property-carousel .resbs-book-btn:hover {
+    background: #005a87;
+}
+
+/* Carousel Loading States */
+.resbs-elementor-property-carousel .resbs-loading {
+    text-align: center;
+    padding: 40px 20px;
+    color: #6c757d;
+}
+
+.resbs-elementor-property-carousel .resbs-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #007cba;
+    border-radius: 50%;
+    animation: resbs-spin 1s linear infinite;
+    margin: 0 auto 15px;
+}
+
+.resbs-elementor-property-carousel .resbs-no-properties {
+    text-align: center;
+    padding: 60px 20px;
+    color: #6c757d;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.resbs-elementor-property-carousel .resbs-no-properties p {
+    font-size: 18px;
+    margin: 0;
+}
+
+/* Carousel Responsive Design */
+@media (max-width: 1200px) {
+    .resbs-carousel-track[data-slides-to-show="4"] {
+        --slides-to-show: 3;
+    }
+}
+
+@media (max-width: 992px) {
+    .resbs-carousel-track[data-slides-to-show="4"],
+    .resbs-carousel-track[data-slides-to-show="3"] {
+        --slides-to-show: 2;
+    }
+    
+    .resbs-carousel-arrow {
+        width: 35px;
+        height: 35px;
+        font-size: 16px;
+    }
+    
+    .resbs-carousel-prev {
+        left: 10px;
+    }
+    
+    .resbs-carousel-next {
+        right: 10px;
+    }
+}
+
+@media (max-width: 768px) {
+    .resbs-carousel-track[data-slides-to-show="4"],
+    .resbs-carousel-track[data-slides-to-show="3"],
+    .resbs-carousel-track[data-slides-to-show="2"] {
+        --slides-to-show: 1;
+    }
+    
+    .resbs-carousel-arrow {
+        width: 30px;
+        height: 30px;
+        font-size: 14px;
+    }
+    
+    .resbs-carousel-prev {
+        left: 5px;
+    }
+    
+    .resbs-carousel-next {
+        right: 5px;
+    }
+    
+    .resbs-elementor-property-carousel .resbs-property-actions {
+        flex-direction: column;
+    }
+    
+    .resbs-elementor-property-carousel .resbs-btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .resbs-elementor-property-carousel .resbs-property-content {
+        padding: 15px;
+    }
+    
+    .resbs-elementor-property-carousel .resbs-property-image {
+        height: 180px;
+    }
+    
+    .resbs-elementor-property-carousel .resbs-property-title {
+        font-size: 16px;
+    }
+    
+    .resbs-elementor-property-carousel .resbs-property-price {
+        font-size: 18px;
+    }
+    
+    .resbs-carousel-dots {
+        margin-top: 15px;
+        gap: 6px;
+    }
+    
+    .resbs-carousel-dot {
+        width: 10px;
+        height: 10px;
+    }
+}
+
+/* Carousel Autoplay Pause on Hover */
+.resbs-elementor-property-carousel:hover .resbs-carousel-track {
+    animation-play-state: paused;
+}
+
+/* Carousel Touch/Swipe Support */
+.resbs-carousel-track {
+    touch-action: pan-y;
+    user-select: none;
+}
+
+.resbs-carousel-slide {
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+/* Carousel Accessibility */
+.resbs-carousel-arrow:focus {
+    outline: 2px solid #007cba;
+    outline-offset: 2px;
+}
+
+.resbs-carousel-dot:focus {
+    outline: 2px solid #007cba;
+    outline-offset: 2px;
+}
+
+/* Carousel Animation Classes */
+.resbs-carousel-slide-in {
+    animation: resbs-slideIn 0.5s ease-out;
+}
+
+@keyframes resbs-slideIn {
+    from { opacity: 0; transform: translateX(30px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+.resbs-carousel-slide-out {
+    animation: resbs-slideOut 0.5s ease-in;
+}
+
+@keyframes resbs-slideOut {
+    from { opacity: 1; transform: translateX(0); }
+    to { opacity: 0; transform: translateX(-30px); }
+}

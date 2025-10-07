@@ -27,7 +27,7 @@ class RESBS_Metabox {
     public function add_property_metabox() {
         add_meta_box(
             'resbs_property_details',
-            __('Property Details', 'realestate-booking-suite'),
+            esc_html__('Property Details', 'realestate-booking-suite'),
             array($this, 'property_metabox_callback'),
             'property',
             'normal',
@@ -76,17 +76,17 @@ class RESBS_Metabox {
         <table class="form-table">
             <tr>
                 <th scope="row">
-                    <label for="resbs_price"><?php _e('Price', 'realestate-booking-suite'); ?></label>
+                    <label for="resbs_price"><?php esc_html_e('Price', 'realestate-booking-suite'); ?></label>
                 </th>
                 <td>
                     <input type="number" id="resbs_price" name="resbs_price" value="<?php echo esc_attr($price); ?>" step="0.01" min="0" class="regular-text" />
-                    <p class="description"><?php _e('Property price in your currency', 'realestate-booking-suite'); ?></p>
+                    <p class="description"><?php esc_html_e('Property price in your currency', 'realestate-booking-suite'); ?></p>
                 </td>
             </tr>
             
             <tr>
                 <th scope="row">
-                    <label for="resbs_bedrooms"><?php _e('Bedrooms', 'realestate-booking-suite'); ?></label>
+                    <label for="resbs_bedrooms"><?php esc_html_e('Bedrooms', 'realestate-booking-suite'); ?></label>
                 </th>
                 <td>
                     <input type="number" id="resbs_bedrooms" name="resbs_bedrooms" value="<?php echo esc_attr($bedrooms); ?>" min="0" class="small-text" />
@@ -95,7 +95,7 @@ class RESBS_Metabox {
             
             <tr>
                 <th scope="row">
-                    <label for="resbs_bathrooms"><?php _e('Bathrooms', 'realestate-booking-suite'); ?></label>
+                    <label for="resbs_bathrooms"><?php esc_html_e('Bathrooms', 'realestate-booking-suite'); ?></label>
                 </th>
                 <td>
                     <input type="number" id="resbs_bathrooms" name="resbs_bathrooms" value="<?php echo esc_attr($bathrooms); ?>" min="0" step="0.5" class="small-text" />
@@ -104,7 +104,7 @@ class RESBS_Metabox {
             
             <tr>
                 <th scope="row">
-                    <label for="resbs_area"><?php _e('Area (sq ft)', 'realestate-booking-suite'); ?></label>
+                    <label for="resbs_area"><?php esc_html_e('Area (sq ft)', 'realestate-booking-suite'); ?></label>
                 </th>
                 <td>
                     <input type="number" id="resbs_area" name="resbs_area" value="<?php echo esc_attr($area); ?>" min="0" class="regular-text" />
@@ -113,7 +113,7 @@ class RESBS_Metabox {
             
             <tr>
                 <th scope="row">
-                    <label for="resbs_latitude"><?php _e('Latitude', 'realestate-booking-suite'); ?></label>
+                    <label for="resbs_latitude"><?php esc_html_e('Latitude', 'realestate-booking-suite'); ?></label>
                 </th>
                 <td>
                     <input type="text" id="resbs_latitude" name="resbs_latitude" value="<?php echo esc_attr($latitude); ?>" class="regular-text" />
@@ -122,17 +122,17 @@ class RESBS_Metabox {
             
             <tr>
                 <th scope="row">
-                    <label for="resbs_longitude"><?php _e('Longitude', 'realestate-booking-suite'); ?></label>
+                    <label for="resbs_longitude"><?php esc_html_e('Longitude', 'realestate-booking-suite'); ?></label>
                 </th>
                 <td>
                     <input type="text" id="resbs_longitude" name="resbs_longitude" value="<?php echo esc_attr($longitude); ?>" class="regular-text" />
-                    <p class="description"><?php _e('Coordinates for map display', 'realestate-booking-suite'); ?></p>
+                    <p class="description"><?php esc_html_e('Coordinates for map display', 'realestate-booking-suite'); ?></p>
                 </td>
             </tr>
             
             <tr>
                 <th scope="row">
-                    <label for="resbs_gallery"><?php _e('Gallery Images', 'realestate-booking-suite'); ?></label>
+                    <label for="resbs_gallery"><?php esc_html_e('Gallery Images', 'realestate-booking-suite'); ?></label>
                 </th>
                 <td>
                     <div id="resbs_gallery_container">
@@ -145,7 +145,7 @@ class RESBS_Metabox {
                                         if ($image_url) {
                                             echo '<li class="resbs-gallery-item" data-id="' . esc_attr($image_id) . '">';
                                             echo '<img src="' . esc_url($image_url) . '" alt="" />';
-                                            echo '<a href="#" class="resbs-remove-image">' . __('Remove', 'realestate-booking-suite') . '</a>';
+                                            echo '<a href="#" class="resbs-remove-image">' . esc_html__('Remove', 'realestate-booking-suite') . '</a>';
                                             echo '</li>';
                                         }
                                     }
@@ -154,114 +154,32 @@ class RESBS_Metabox {
                             ?>
                         </ul>
                         <input type="hidden" id="resbs_gallery" name="resbs_gallery" value="<?php echo esc_attr(implode(',', $gallery)); ?>" />
-                        <button type="button" id="resbs_add_gallery" class="button"><?php _e('Add Images', 'realestate-booking-suite'); ?></button>
+                        <button type="button" id="resbs_add_gallery" class="button"><?php esc_html_e('Add Images', 'realestate-booking-suite'); ?></button>
                     </div>
                 </td>
             </tr>
             
             <tr>
                 <th scope="row">
-                    <label for="resbs_video_url"><?php _e('Video URL', 'realestate-booking-suite'); ?></label>
+                    <label for="resbs_video_url"><?php esc_html_e('Video URL', 'realestate-booking-suite'); ?></label>
                 </th>
                 <td>
                     <input type="url" id="resbs_video_url" name="resbs_video_url" value="<?php echo esc_attr($video_url); ?>" class="regular-text" />
-                    <p class="description"><?php _e('YouTube or Vimeo URL', 'realestate-booking-suite'); ?></p>
+                    <p class="description"><?php esc_html_e('YouTube or Vimeo URL', 'realestate-booking-suite'); ?></p>
                 </td>
             </tr>
             
             <tr>
                 <th scope="row">
-                    <label for="resbs_description"><?php _e('Additional Description', 'realestate-booking-suite'); ?></label>
+                    <label for="resbs_description"><?php esc_html_e('Additional Description', 'realestate-booking-suite'); ?></label>
                 </th>
                 <td>
                     <textarea id="resbs_description" name="resbs_description" rows="5" cols="50" class="large-text"><?php echo esc_textarea($description); ?></textarea>
-                    <p class="description"><?php _e('Additional property details and features', 'realestate-booking-suite'); ?></p>
+                    <p class="description"><?php esc_html_e('Additional property details and features', 'realestate-booking-suite'); ?></p>
                 </td>
             </tr>
         </table>
         
-        <style>
-        .resbs-gallery-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin: 10px 0;
-        }
-        .resbs-gallery-item {
-            position: relative;
-            border: 1px solid #ddd;
-            padding: 5px;
-            background: #fff;
-        }
-        .resbs-gallery-item img {
-            width: 80px;
-            height: 80px;
-            object-fit: cover;
-        }
-        .resbs-remove-image {
-            position: absolute;
-            top: 0;
-            right: 0;
-            background: #dc3232;
-            color: #fff;
-            text-decoration: none;
-            padding: 2px 5px;
-            font-size: 11px;
-        }
-        </style>
-        
-        <script>
-        jQuery(document).ready(function($) {
-            var galleryFrame;
-            
-            $('#resbs_add_gallery').on('click', function(e) {
-                e.preventDefault();
-                
-                if (galleryFrame) {
-                    galleryFrame.open();
-                    return;
-                }
-                
-                galleryFrame = wp.media({
-                    title: '<?php _e("Select Gallery Images", "realestate-booking-suite"); ?>',
-                    button: {
-                        text: '<?php _e("Add to Gallery", "realestate-booking-suite"); ?>'
-                    },
-                    multiple: true
-                });
-                
-                galleryFrame.on('select', function() {
-                    var selection = galleryFrame.state().get('selection');
-                    var galleryIds = $('#resbs_gallery').val().split(',').filter(function(id) { return id !== ''; });
-                    
-                    selection.map(function(attachment) {
-                        var attachmentData = attachment.toJSON();
-                        galleryIds.push(attachmentData.id);
-                        
-                        var item = $('<li class="resbs-gallery-item" data-id="' + attachmentData.id + '">' +
-                            '<img src="' + attachmentData.sizes.thumbnail.url + '" alt="" />' +
-                            '<a href="#" class="resbs-remove-image"><?php _e("Remove", "realestate-booking-suite"); ?></a>' +
-                            '</li>');
-                        $('#resbs_gallery_list').append(item);
-                    });
-                    
-                    $('#resbs_gallery').val(galleryIds.join(','));
-                });
-                
-                galleryFrame.open();
-            });
-            
-            $(document).on('click', '.resbs-remove-image', function(e) {
-                e.preventDefault();
-                var item = $(this).closest('.resbs-gallery-item');
-                var imageId = item.data('id');
-                var galleryIds = $('#resbs_gallery').val().split(',').filter(function(id) { return id !== imageId && id !== ''; });
-                
-                item.remove();
-                $('#resbs_gallery').val(galleryIds.join(','));
-            });
-        });
-        </script>
         <?php
     }
     
