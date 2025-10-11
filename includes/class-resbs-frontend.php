@@ -31,6 +31,9 @@ class RESBS_Frontend {
         add_action('wp_ajax_nopriv_resbs_elementor_load_carousel_properties', array($this, 'handle_elementor_load_carousel_properties'));
         add_action('wp_ajax_resbs_toggle_favorite', array($this, 'handle_toggle_favorite'));
         add_action('wp_ajax_nopriv_resbs_toggle_favorite', array($this, 'handle_toggle_favorite'));
+        
+        // Add frontend display hooks
+        add_action('wp_head', array($this, 'add_frontend_styles'));
     }
     
     /**
@@ -1393,6 +1396,179 @@ class RESBS_Frontend {
         wp_send_json_success(array(
             'properties' => $properties
         ));
+    }
+    
+    /**
+     * Add frontend styles for property features
+     */
+    public function add_frontend_styles() {
+        if (is_singular('property')) {
+            ?>
+            <style>
+            /* Frontend Property Features Styles */
+            .resbs-property-features {
+                margin: 30px 0;
+                padding: 25px;
+                background: #f8f9fa;
+                border-radius: 12px;
+                border: 1px solid #e9ecef;
+            }
+            
+            .resbs-property-features h3 {
+                margin: 0 0 20px 0;
+                font-size: 20px;
+                font-weight: 600;
+                color: #333;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+            
+            .resbs-property-features h3::before {
+                content: '✓';
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                width: 24px;
+                height: 24px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 14px;
+                font-weight: bold;
+            }
+            
+            .resbs-features-list {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            
+            .resbs-feature-item {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                padding: 8px 16px;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                border-radius: 20px;
+                font-size: 14px;
+                font-weight: 500;
+                box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+                transition: all 0.3s ease;
+            }
+            
+            .resbs-feature-item:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            }
+            
+            .resbs-feature-item::before {
+                content: '✓';
+                font-weight: bold;
+                font-size: 12px;
+            }
+            
+            .resbs-no-features {
+                color: #6c757d;
+                font-style: italic;
+                text-align: center;
+                padding: 20px;
+                background: #fff;
+                border-radius: 8px;
+                border: 2px dashed #dee2e6;
+            }
+            </style>
+            <?php
+        }
+    }
+    
+    /**
+     * Display property features on frontend
+     */
+    public static function display_property_features($post_id = null) {
+        if (!$post_id) {
+            global $post;
+            $post_id = $post->ID;
+        }
+        
+        $features = get_post_meta($post_id, '_property_features', true);
+        
+        if (empty($features)) {
+            return '<div class="resbs-property-features">
+                        <h3>' . esc_html__('Property Features', 'realestate-booking-suite') . '</h3>
+                        <div class="resbs-no-features">' . esc_html__('No features listed for this property.', 'realestate-booking-suite') . '</div>
+                    </div>';
+        }
+        
+        // Sanitize and split features
+        $features_array = array_map('trim', explode(',', $features));
+        $features_array = array_filter($features_array, function($feature) {
+            return !empty($feature);
+        });
+        
+        if (empty($features_array)) {
+            return '<div class="resbs-property-features">
+                        <h3>' . esc_html__('Property Features', 'realestate-booking-suite') . '</h3>
+                        <div class="resbs-no-features">' . esc_html__('No features listed for this property.', 'realestate-booking-suite') . '</div>
+                    </div>';
+        }
+        
+        $output = '<div class="resbs-property-features">
+                        <h3>' . esc_html__('Property Features', 'realestate-booking-suite') . '</h3>
+                        <div class="resbs-features-list">';
+        
+        foreach ($features_array as $feature) {
+            $clean_feature = sanitize_text_field($feature);
+            if (!empty($clean_feature)) {
+                $output .= '<div class="resbs-feature-item">' . esc_html($clean_feature) . '</div>';
+            }
+        }
+        
+        $output .= '</div></div>';
+        
+        return $output;
+    }
+    
+    /**
+     * Display property amenities on frontend
+     */
+    public static function display_property_amenities($post_id = null) {
+        if (!$post_id) {
+            global $post;
+            $post_id = $post->ID;
+        }
+        
+        $amenities = get_post_meta($post_id, '_property_amenities', true);
+        
+        if (empty($amenities)) {
+            return '';
+        }
+        
+        // Sanitize and split amenities
+        $amenities_array = array_map('trim', explode(',', $amenities));
+        $amenities_array = array_filter($amenities_array, function($amenity) {
+            return !empty($amenity);
+        });
+        
+        if (empty($amenities_array)) {
+            return '';
+        }
+        
+        $output = '<div class="resbs-property-features">
+                        <h3>' . esc_html__('Property Amenities', 'realestate-booking-suite') . '</h3>
+                        <div class="resbs-features-list">';
+        
+        foreach ($amenities_array as $amenity) {
+            $clean_amenity = sanitize_text_field($amenity);
+            if (!empty($clean_amenity)) {
+                $output .= '<div class="resbs-feature-item">' . esc_html($clean_amenity) . '</div>';
+            }
+        }
+        
+        $output .= '</div></div>';
+        
+        return $output;
     }
 }
 

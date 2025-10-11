@@ -411,14 +411,6 @@
     font-family: inherit;
 }
 
-.resbs-form-group input:focus,
-.resbs-form-group select:focus,
-.resbs-form-group textarea:focus {
-    outline: none;
-    border-color: #0073aa;
-    box-shadow: 0 0 0 2px rgba(0, 115, 170, 0.1);
-}
-
 .resbs-form-group textarea {
     resize: vertical;
     min-height: 100px;

@@ -6,10 +6,8 @@
 
 /* Main Container */
 .resbs-stunning-metabox {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     border-radius: 20px;
     overflow: hidden;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
     margin: 20px 0;
     position: relative;
 }
@@ -111,16 +109,10 @@
     min-width: fit-content;
 }
 
-.resbs-tab-nav-btn:hover {
-    color: #667eea;
-    background: rgba(102, 126, 234, 0.1);
-    transform: translateY(-2px);
-}
+
 
 .resbs-tab-nav-btn.active {
     color: #667eea;
-    background: rgba(255, 255, 255, 0.9);
-    box-shadow: 0 -5px 20px rgba(102, 126, 234, 0.2);
     transform: translateY(-2px);
 }
 
@@ -200,45 +192,6 @@
     position: relative;
 }
 
-.resbs-content-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-}
-
-.resbs-content-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
-
-/* Card Variants */
-.resbs-card-primary::before {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
-
-.resbs-card-success::before {
-    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
-}
-
-.resbs-card-info::before {
-    background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
-}
-
-.resbs-card-warning::before {
-    background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
-}
-
-.resbs-card-secondary::before {
-    background: linear-gradient(135deg, #9f7aea 0%, #805ad5 100%);
-}
-
-.resbs-card-dark::before {
-    background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
-}
 
 /* Card Header */
 .resbs-card-header {
@@ -343,15 +296,7 @@
     color: #2d3748;
 }
 
-.resbs-stunning-input:focus,
-.resbs-stunning-select:focus,
-.resbs-stunning-textarea:focus {
-    outline: none;
-    border-color: #667eea;
-    background: rgba(255, 255, 255, 1);
-    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
-    transform: translateY(-1px);
-}
+
 
 .resbs-stunning-textarea {
     resize: vertical;
@@ -369,12 +314,10 @@
 .resbs-input-prefix,
 .resbs-input-suffix {
     position: absolute;
-    padding: 16px 15px;
-    background: #f7fafc;
+    padding: 5px;
     color: #718096;
     font-weight: 600;
     font-size: 15px;
-    border: 2px solid #e2e8f0;
     z-index: 1;
 }
 
@@ -382,6 +325,8 @@
     left: 0;
     border-right: none;
     border-radius: 12px 0 0 12px;
+    width: 50px;
+    text-align: center;
 }
 
 .resbs-input-suffix {
@@ -391,8 +336,23 @@
 }
 
 .resbs-input-group .resbs-stunning-input {
-    padding-left: 50px;
-    padding-right: 50px;
+    padding-left: 60px;
+    padding-right: 20px;
+    border: 1px solid #ddd;
+    background: #ffffff;
+    font-size: 16px;
+    color: #2d3748;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.resbs-input-group:focus-within {
+    border-color: #cbd5e0 !important;
+    box-shadow: none !important;
+}
+
+.resbs-input-group:focus-within .resbs-stunning-input {
+    border-color: #cbd5e0 !important;
 }
 
 /* Number Controls */
@@ -406,15 +366,10 @@
     transition: all 0.3s ease;
 }
 
-.resbs-number-control:focus-within {
-    border-color: #667eea;
-    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
-}
-
 .resbs-number-control .resbs-stunning-input {
     border: none;
     text-align: center;
-    padding: 16px 10px;
+    padding: 0;
     margin: 0;
     background: transparent;
 }
@@ -422,12 +377,13 @@
 .resbs-number-control .resbs-stunning-input:focus {
     box-shadow: none;
     transform: none;
+    border: none !important;
 }
 
 .resbs-number-btn {
     padding: 16px 20px;
-    background: #f7fafc;
-    border: none;
+    background: #fff;
+  
     font-size: 18px;
     font-weight: bold;
     color: #667eea;
@@ -439,11 +395,6 @@
     justify-content: center;
 }
 
-.resbs-number-btn:hover {
-    background: #667eea;
-    color: white;
-    transform: scale(1.05);
-}
 
 /* Stunning Checkboxes */
 .resbs-stunning-checkbox {
@@ -473,18 +424,32 @@
     justify-content: center;
 }
 
-.resbs-stunning-checkbox input[type="checkbox"]:checked + .resbs-checkbox-mark {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-color: #667eea;
-    transform: scale(1.1);
-}
+
 
 .resbs-stunning-checkbox input[type="checkbox"]:checked + .resbs-checkbox-mark::after {
     content: '✓';
     color: white;
+    font-size: 16px;
     font-weight: bold;
-    font-size: 14px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation: checkmarkAppear 0.3s ease-out;
 }
+
+@keyframes checkmarkAppear {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.5);
+    }
+    100% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+
 
 .resbs-checkbox-text {
     font-size: 15px;
@@ -517,6 +482,147 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 25px;
+}
+
+/* Enhanced Features Interface */
+.resbs-feature-suggestions {
+    margin-bottom: 25px;
+    padding: 20px;
+    background: rgba(247, 250, 252, 0.8);
+    border-radius: 12px;
+    border: 1px solid rgba(203, 213, 224, 0.5);
+}
+
+.resbs-feature-suggestions h4 {
+    margin: 0 0 15px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #2d3748;
+}
+
+.resbs-suggestion-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.resbs-suggestion-tag {
+    display: inline-block;
+    padding: 8px 16px;
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid rgba(203, 213, 224, 0.5);
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #4a5568;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    user-select: none;
+}
+
+.resbs-suggestion-tag:hover {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-color: #667eea;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.resbs-current-features {
+    margin-bottom: 25px;
+    padding: 20px;
+    background: rgba(247, 250, 252, 0.8);
+    border-radius: 12px;
+    border: 1px solid rgba(203, 213, 224, 0.5);
+}
+
+.resbs-current-features h4 {
+    margin: 0 0 15px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #2d3748;
+}
+
+.resbs-feature-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-height: 40px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 8px;
+    border: 1px solid rgba(203, 213, 224, 0.5);
+}
+
+.resbs-feature-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+}
+
+.resbs-feature-tag:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.resbs-feature-tag .remove-feature {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.resbs-feature-tag .remove-feature:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+}
+
+.resbs-manual-feature-input {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.resbs-manual-feature-input .resbs-stunning-input {
+    flex: 1;
+    margin: 0;
+}
+
+.resbs-manual-feature-input .resbs-btn-secondary {
+    white-space: nowrap;
+    padding: 12px 20px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* Empty state for features */
+.resbs-feature-tags:empty::before {
+    content: "No features added yet. Click on suggestions above or add custom features.";
+    color: #a0aec0;
+    font-style: italic;
+    font-size: 14px;
+    display: block;
+    padding: 20px;
+    text-align: center;
+    border: 2px dashed rgba(160, 174, 192, 0.5);
+    border-radius: 8px;
 }
 
 /* Media Sections */
@@ -564,6 +670,8 @@
     cursor: pointer;
     position: relative;
     overflow: hidden;
+    z-index: 10;
+    pointer-events: auto;
 }
 
 .resbs-upload-area::before {
@@ -626,6 +734,15 @@
     font-size: 14px !important;
     color: #a0aec0 !important;
     font-weight: 400 !important;
+}
+
+/* Hidden file input */
+.resbs-upload-area input[type="file"] {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+    opacity: 0;
+    pointer-events: none;
 }
 
 /* Gallery Grid */
@@ -763,16 +880,25 @@
 }
 
 .resbs-btn-secondary {
-    background: linear-gradient(135deg, #718096 0%, #4a5568 100%);
-    color: white;
-    box-shadow: 0 4px 15px rgba(113, 128, 150, 0.3);
+    background: #43B474;
+    border: none;
+    outline: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+
+}
+.resbs-btn-secondary:hover {
+    background: #fff;
+    border: none;
+    outline: none;
+    color: #43B474;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: none;
+    border: 1px solid #43B474;
+    transform: unset !important
 }
 
-.resbs-btn-secondary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(113, 128, 150, 0.4);
-    color: white;
-}
+
 
 /* Input Help Text */
 .resbs-input-help {

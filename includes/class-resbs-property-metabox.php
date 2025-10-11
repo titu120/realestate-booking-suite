@@ -21,6 +21,7 @@ class RESBS_Property_Metabox {
         add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_assets'));
         add_action('wp_ajax_resbs_upload_property_media', array($this, 'handle_media_upload'));
         add_action('wp_ajax_resbs_delete_property_media', array($this, 'handle_media_delete'));
+        add_action('wp_ajax_resbs_get_gallery', array($this, 'get_gallery_data'));
     }
 
     /**
@@ -522,14 +523,102 @@ class RESBS_Property_Metabox {
                             <div class="resbs-card-body">
                                 <div class="resbs-form-group">
                                     <label for="property_features"><?php esc_html_e('Features', 'realestate-booking-suite'); ?></label>
-                                    <input type="text" id="property_features" name="property_features" value="<?php echo esc_attr($features); ?>" class="resbs-stunning-input" placeholder="<?php esc_attr_e('e.g., Balcony, Fireplace, Hardwood Floors', 'realestate-booking-suite'); ?>">
-                                    <p class="resbs-input-help"><?php esc_html_e('Separate multiple features with commas', 'realestate-booking-suite'); ?></p>
+                                    
+                                    <!-- Feature Suggestions -->
+                                    <div class="resbs-feature-suggestions">
+                                        <h4><?php esc_html_e('Common Features', 'realestate-booking-suite'); ?></h4>
+                                        <div class="resbs-suggestion-tags">
+                                            <?php
+                                            $suggested_features = array(
+                                                'Balcony',
+                                                'Fireplace', 
+                                                'Hardwood Floors',
+                                                'Granite Countertops',
+                                                'Stainless Steel Appliances',
+                                                'Walk-in Closet',
+                                                'Crown Molding',
+                                                'High Ceilings',
+                                                'Bay Windows',
+                                                'Skylights',
+                                                'Built-in Shelves',
+                                                'Marble Bathroom'
+                                            );
+                                            
+                                            foreach ($suggested_features as $feature) {
+                                                echo '<span class="resbs-suggestion-tag" data-feature="' . esc_attr($feature) . '">' . esc_html($feature) . '</span>';
+                                            }
+                                            ?>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Current Features Display -->
+                                    <div class="resbs-current-features">
+                                        <h4><?php esc_html_e('Current Features', 'realestate-booking-suite'); ?></h4>
+                                        <div class="resbs-feature-tags" id="feature-tags-container">
+                                            <!-- Features will be populated here by JavaScript -->
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Manual Input -->
+                                    <div class="resbs-manual-feature-input">
+                                        <input type="text" id="property_features_input" class="resbs-stunning-input" placeholder="<?php esc_attr_e('Type a custom feature and press Enter', 'realestate-booking-suite'); ?>">
+                                        <button type="button" id="add-custom-feature" class="resbs-btn-secondary"><?php esc_html_e('Add Feature', 'realestate-booking-suite'); ?></button>
+                                    </div>
+                                    
+                                    <!-- Hidden field for form submission -->
+                                    <input type="hidden" id="property_features" name="property_features" value="<?php echo esc_attr($features); ?>">
+                                    
+                                    <p class="resbs-input-help"><?php esc_html_e('Click on suggested features to add them, or type custom features manually', 'realestate-booking-suite'); ?></p>
                                 </div>
 
                                 <div class="resbs-form-group">
                                     <label for="property_amenities"><?php esc_html_e('Amenities', 'realestate-booking-suite'); ?></label>
-                                    <input type="text" id="property_amenities" name="property_amenities" value="<?php echo esc_attr($amenities); ?>" class="resbs-stunning-input" placeholder="<?php esc_attr_e('e.g., Pool, Gym, Security', 'realestate-booking-suite'); ?>">
-                                    <p class="resbs-input-help"><?php esc_html_e('Separate multiple amenities with commas', 'realestate-booking-suite'); ?></p>
+                                    
+                                    <!-- Amenity Suggestions -->
+                                    <div class="resbs-feature-suggestions">
+                                        <h4><?php esc_html_e('Common Amenities', 'realestate-booking-suite'); ?></h4>
+                                        <div class="resbs-suggestion-tags">
+                                            <?php
+                                            $suggested_amenities = array(
+                                                'Pool',
+                                                'Gym',
+                                                'Security',
+                                                'Parking',
+                                                'Elevator',
+                                                'Concierge',
+                                                'Rooftop',
+                                                'Garden',
+                                                'Balcony',
+                                                'Terrace',
+                                                'Storage',
+                                                'Laundry'
+                                            );
+                                            
+                                            foreach ($suggested_amenities as $amenity) {
+                                                echo '<span class="resbs-suggestion-tag" data-amenity="' . esc_attr($amenity) . '">' . esc_html($amenity) . '</span>';
+                                            }
+                                            ?>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Current Amenities Display -->
+                                    <div class="resbs-current-features">
+                                        <h4><?php esc_html_e('Current Amenities', 'realestate-booking-suite'); ?></h4>
+                                        <div class="resbs-feature-tags" id="amenity-tags-container">
+                                            <!-- Amenities will be populated here by JavaScript -->
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Manual Input -->
+                                    <div class="resbs-manual-feature-input">
+                                        <input type="text" id="property_amenities_input" class="resbs-stunning-input" placeholder="<?php esc_attr_e('Type a custom amenity and press Enter', 'realestate-booking-suite'); ?>">
+                                        <button type="button" id="add-custom-amenity" class="resbs-btn-secondary"><?php esc_html_e('Add Amenity', 'realestate-booking-suite'); ?></button>
+                                    </div>
+                                    
+                                    <!-- Hidden field for form submission -->
+                                    <input type="hidden" id="property_amenities" name="property_amenities" value="<?php echo esc_attr($amenities); ?>">
+                                    
+                                    <p class="resbs-input-help"><?php esc_html_e('Click on suggested amenities to add them, or type custom amenities manually', 'realestate-booking-suite'); ?></p>
                                 </div>
 
                                 <div class="resbs-features-grid">
@@ -642,20 +731,27 @@ class RESBS_Property_Metabox {
                                 <div class="resbs-media-section">
                                     <h4><?php esc_html_e('Photo Gallery', 'realestate-booking-suite'); ?></h4>
                                     <div class="resbs-stunning-uploader">
-                                        <div class="resbs-upload-area" id="gallery-upload-area">
-                                            <div class="resbs-upload-content">
-                                                <div class="resbs-upload-icon">
-                                                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" stroke="currentColor" stroke-width="2"/>
-                                                        <circle cx="8.5" cy="8.5" r="1.5" stroke="currentColor" stroke-width="2"/>
-                                                        <polyline points="21,15 16,10 5,21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                                    </svg>
-                                                </div>
-                                                <h5><?php esc_html_e('Upload Property Photos', 'realestate-booking-suite'); ?></h5>
-                                                <p><?php esc_html_e('Drag and drop images here or click to browse', 'realestate-booking-suite'); ?></p>
-                                                <p class="resbs-upload-info"><?php esc_html_e('JPG, PNG, GIF up to 10MB each', 'realestate-booking-suite'); ?></p>
+                                        <div style="border: 3px solid #0073aa; padding: 30px; margin: 20px 0; background: #f0f8ff; border-radius: 15px;">
+                                            <h3 style="color: #0073aa; margin: 0 0 20px 0; font-size: 24px;">📸 Upload Property Photos</h3>
+                                            
+                                            <!-- WordPress Media Uploader Button -->
+                                            <div style="margin: 20px 0;">
+                                                <button type="button" id="upload-gallery-button" class="button button-primary" style="font-size: 16px; padding: 15px 30px;">
+                                                    📁 Select Images
+                                                </button>
+                                                <p style="margin: 10px 0; color: #666;">Click to open WordPress Media Library</p>
                                             </div>
-                                            <input type="file" id="gallery-upload" name="gallery_upload[]" multiple accept="image/*" style="display: none;">
+                                            
+                                            <!-- Hidden input for selected images -->
+                                            <input type="hidden" id="gallery-images" name="gallery_images" value="">
+                                            
+                                            <!-- Display selected images -->
+                                            <div id="gallery-preview" style="margin-top: 20px;">
+                                                <h4>Selected Images:</h4>
+                                                <div id="gallery-list" style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;">
+                                                    <!-- Images will be displayed here -->
+                                                </div>
+                                            </div>
                                         </div>
                                         <div class="resbs-gallery-grid" id="gallery-grid">
                                             <?php
@@ -789,6 +885,482 @@ class RESBS_Property_Metabox {
                 </div>
             </div>
         </div>
+        
+        <script>
+        // WordPress Media Uploader - Simple and Reliable
+        jQuery(document).ready(function($) {
+            console.log('📸 WordPress Media Uploader Starting...');
+            
+            var galleryImages = [];
+            
+            // WordPress Media Uploader
+            $('#upload-gallery-button').click(function(e) {
+                e.preventDefault();
+                console.log('📁 Opening WordPress Media Library...');
+                
+                var mediaUploader = wp.media({
+                    title: 'Select Property Images',
+                    button: {
+                        text: 'Add to Gallery'
+                    },
+                    multiple: true,
+                    library: {
+                        type: 'image'
+                    }
+                });
+                
+                mediaUploader.on('select', function() {
+                    var selection = mediaUploader.state().get('selection');
+                    console.log('📸 Selected images:', selection.length);
+                    
+                    selection.map(function(attachment) {
+                        var attachmentData = attachment.toJSON();
+                        galleryImages.push(attachmentData.id);
+                        console.log('➕ Added image:', attachmentData.id, attachmentData.filename);
+                    });
+                    
+                    // Update hidden input
+                    $('#gallery-images').val(galleryImages.join(','));
+                    
+                    // Display selected images
+                    displayGalleryImages();
+                    
+                    // Show success message
+                    alert('✅ Success! Added ' + selection.length + ' image(s) to gallery. Click "Update" to save.');
+                });
+                
+                mediaUploader.open();
+            });
+            
+            // Display selected images
+            function displayGalleryImages() {
+                var galleryList = $('#gallery-list');
+                galleryList.empty();
+                
+                if (galleryImages.length === 0) {
+                    galleryList.html('<p style="color: #666; font-style: italic;">No images selected</p>');
+                    return;
+                }
+                
+                galleryImages.forEach(function(imageId) {
+                    var imageUrl = wp.media.attachment(imageId).get('url');
+                    if (imageUrl) {
+                        var imageHtml = '<div style="position: relative; display: inline-block; margin: 5px;">' +
+                            '<img src="' + imageUrl + '" style="width: 100px; height: 100px; object-fit: cover; border-radius: 5px; border: 2px solid #0073aa;">' +
+                            '<button type="button" class="remove-image" data-id="' + imageId + '" style="position: absolute; top: -5px; right: -5px; background: #ff0000; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer;">×</button>' +
+                            '</div>';
+                        galleryList.append(imageHtml);
+                    }
+                });
+            }
+            
+            // Remove image
+            $(document).on('click', '.remove-image', function() {
+                var imageId = $(this).data('id');
+                galleryImages = galleryImages.filter(function(id) {
+                    return id != imageId;
+                });
+                $('#gallery-images').val(galleryImages.join(','));
+                displayGalleryImages();
+                console.log('➖ Removed image:', imageId);
+            });
+            
+            console.log('📸 WordPress Media Uploader Ready!');
+        });
+        
+        // User-friendly file upload with beautiful notifications
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('=== UPLOAD SYSTEM INITIALIZED ===');
+            
+            // Create notification container
+            var notificationContainer = document.createElement('div');
+            notificationContainer.id = 'resbs-notifications';
+            notificationContainer.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 999999; max-width: 400px;';
+            document.body.appendChild(notificationContainer);
+            
+            // Function to refresh galleries
+            function refreshGalleries() {
+                console.log('Refreshing galleries...');
+                
+                // Get current post ID from URL
+                var postId = window.location.search.match(/post=(\d+)/);
+                if (!postId) return;
+                postId = postId[1];
+                
+                // Make AJAX call to get updated gallery
+                fetch('<?php echo admin_url('admin-ajax.php'); ?>', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: 'action=resbs_get_gallery&post_id=' + postId + '&nonce=<?php echo wp_create_nonce('resbs_metabox_nonce'); ?>'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Gallery data received:', data);
+                    if (data.success) {
+                        // Update gallery grid
+                        var galleryGrid = document.getElementById('gallery-grid');
+                        if (galleryGrid && data.data.gallery) {
+                            console.log('Updating gallery with HTML:', data.data.gallery);
+                            galleryGrid.innerHTML = data.data.gallery;
+                            
+                            // Check if images are now visible
+                            var galleryItems = galleryGrid.querySelectorAll('.resbs-gallery-item');
+                            console.log('Gallery now has', galleryItems.length, 'items');
+                        }
+                        
+                        // Update floor plans grid
+                        var floorPlansGrid = document.getElementById('floor-plans-grid');
+                        if (floorPlansGrid && data.data.floor_plans) {
+                            console.log('Updating floor plans with HTML:', data.data.floor_plans);
+                            floorPlansGrid.innerHTML = data.data.floor_plans;
+                        }
+                        
+                        console.log('Galleries refreshed successfully');
+                    } else {
+                        console.error('Gallery refresh failed:', data);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error refreshing galleries:', error);
+                    // Fallback to page reload
+                    setTimeout(function() {
+                        window.location.reload();
+                    }, 1000);
+                });
+            }
+            
+            // Function to show image previews
+            function showImagePreviews(files, inputName) {
+                console.log('Showing previews for:', files.length, 'files');
+                
+                // Determine which gallery to use
+                var galleryId = inputName.includes('gallery') ? 'gallery-grid' : 'floor-plans-grid';
+                var gallery = document.getElementById(galleryId);
+                
+                if (!gallery) {
+                    console.error('Gallery not found:', galleryId);
+                    return;
+                }
+                
+                // Clear existing previews
+                var existingPreviews = gallery.querySelectorAll('.preview-item');
+                existingPreviews.forEach(function(preview) {
+                    preview.remove();
+                });
+                
+                // Add preview for each file
+                Array.from(files).forEach(function(file, index) {
+                    if (file.type.startsWith('image/')) {
+                        var reader = new FileReader();
+                        reader.onload = function(e) {
+                            var previewItem = document.createElement('div');
+                            previewItem.className = 'preview-item';
+                            previewItem.style.cssText = `
+                                display: inline-block;
+                                margin: 10px;
+                                border: 2px solid #0073aa;
+                                border-radius: 8px;
+                                overflow: hidden;
+                                background: white;
+                                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                                position: relative;
+                                animation: fadeIn 0.3s ease-in;
+                            `;
+                            
+                            previewItem.innerHTML = `
+                                <img src="${e.target.result}" style="
+                                    width: 150px;
+                                    height: 150px;
+                                    object-fit: cover;
+                                    display: block;
+                                ">
+                                <div style="
+                                    position: absolute;
+                                    top: 5px;
+                                    right: 5px;
+                                    background: rgba(0,115,170,0.9);
+                                    color: white;
+                                    padding: 2px 6px;
+                                    border-radius: 4px;
+                                    font-size: 12px;
+                                    font-weight: bold;
+                                ">${index + 1}</div>
+                                <div style="
+                                    position: absolute;
+                                    top: 5px;
+                                    left: 5px;
+                                    background: rgba(255,193,7,0.9);
+                                    color: #000;
+                                    padding: 2px 6px;
+                                    border-radius: 4px;
+                                    font-size: 10px;
+                                    font-weight: bold;
+                                ">PREVIEW</div>
+                                <div style="
+                                    padding: 8px;
+                                    background: #f8f9fa;
+                                    font-size: 12px;
+                                    color: #666;
+                                    text-align: center;
+                                    max-width: 150px;
+                                    overflow: hidden;
+                                    text-overflow: ellipsis;
+                                    white-space: nowrap;
+                                " title="${file.name}">${file.name}</div>
+                            `;
+                            
+                            gallery.appendChild(previewItem);
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
+            
+            // Function to show beautiful notification
+            function showNotification(message, type, duration) {
+                var notification = document.createElement('div');
+                notification.style.cssText = `
+                    background: ${type === 'success' ? '#d4edda' : '#f8d7da'};
+                    color: ${type === 'success' ? '#155724' : '#721c24'};
+                    border: 1px solid ${type === 'success' ? '#c3e6cb' : '#f5c6cb'};
+                    border-radius: 8px;
+                    padding: 15px 20px;
+                    margin-bottom: 10px;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                    font-size: 14px;
+                    line-height: 1.4;
+                    position: relative;
+                    animation: slideIn 0.3s ease-out;
+                `;
+                
+                notification.innerHTML = `
+                    <div style="display: flex; align-items: center;">
+                        <span style="font-size: 18px; margin-right: 10px;">${type === 'success' ? '✅' : '❌'}</span>
+                        <div style="flex: 1;">${message}</div>
+                        <button onclick="this.parentElement.parentElement.remove()" style="background: none; border: none; font-size: 18px; cursor: pointer; color: #666; margin-left: 10px;">×</button>
+                    </div>
+                `;
+                
+                notificationContainer.appendChild(notification);
+                
+                // Auto remove after duration
+                if (duration) {
+                    setTimeout(function() {
+                        if (notification.parentNode) {
+                            notification.style.animation = 'slideOut 0.3s ease-in';
+                            setTimeout(function() {
+                                if (notification.parentNode) {
+                                    notification.remove();
+                                }
+                            }, 300);
+                        }
+                    }, duration);
+                }
+            }
+            
+            // Add CSS animations
+            var style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideIn {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+                @keyframes slideOut {
+                    from { transform: translateX(0); opacity: 1; }
+                    to { transform: translateX(100%); opacity: 0; }
+                }
+                @keyframes fadeIn {
+                    from { opacity: 0; transform: scale(0.8); }
+                    to { opacity: 1; transform: scale(1); }
+                }
+                .preview-item {
+                    transition: all 0.3s ease;
+                }
+                .preview-item:hover {
+                    transform: scale(1.05);
+                    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+                }
+            `;
+            document.head.appendChild(style);
+            
+            // Handle file inputs
+            var fileInputs = document.querySelectorAll('input[type="file"]');
+            console.log('Found file inputs:', fileInputs.length);
+            
+            fileInputs.forEach(function(input, index) {
+                console.log('Setting up input ' + index + ':', input.name);
+                
+                input.addEventListener('change', function(e) {
+                    var files = e.target.files;
+                    console.log('File input changed:', e.target.name, files.length);
+                    console.log('Selected files:', Array.from(files).map(f => f.name));
+                    
+                    if (files.length > 0) {
+                        // Show beautiful notification
+                        var fileNames = Array.from(files).map(f => f.name).join(', ');
+                        var message = `Selected ${files.length} file(s): ${fileNames}`;
+                        showNotification(message, 'success', 5000);
+                        
+                        // Update the input area with visual feedback
+                        var container = input.closest('div');
+                        if (container) {
+                            container.style.borderColor = '#28a745';
+                            container.style.backgroundColor = '#f0fff4';
+                            
+                            // Add file count display
+                            var existingCount = container.querySelector('.file-count');
+                            if (existingCount) {
+                                existingCount.remove();
+                            }
+                            
+                            var countDiv = document.createElement('div');
+                            countDiv.className = 'file-count';
+                            countDiv.style.cssText = 'color: #28a745; font-weight: bold; margin-top: 10px; font-size: 14px;';
+                            countDiv.textContent = `📁 ${files.length} file(s) selected`;
+                            container.appendChild(countDiv);
+                        }
+                        
+                        // Show preview images immediately
+                        showImagePreviews(files, input.name);
+                        
+                        // Show upload ready message
+                        setTimeout(function() {
+                            showNotification('Images ready for upload! Click "Update" to save them.', 'success', 8000);
+                        }, 1000);
+                    }
+                });
+            });
+            
+            console.log('=== UPLOAD SYSTEM READY ===');
+            
+            // Debug: Check if gallery has any existing images
+            var existingGalleryItems = document.querySelectorAll('#gallery-grid .resbs-gallery-item');
+            console.log('Existing gallery items:', existingGalleryItems.length);
+            
+            if (existingGalleryItems.length > 0) {
+                console.log('Gallery already has images - upload system should work');
+            } else {
+                console.log('Gallery is empty - this is normal for new properties');
+            }
+            
+            // Check for upload success
+            var successNotice = document.querySelector('.notice-success');
+            if (successNotice && successNotice.textContent.includes('Images have been uploaded')) {
+                console.log('Upload success detected!');
+                
+                // Clear preview images
+                document.querySelectorAll('.preview-item').forEach(function(preview) {
+                    preview.remove();
+                });
+                
+                // Show success notification
+                showNotification('Images uploaded successfully! Check the gallery below.', 'success', 8000);
+                
+                // Simple approach: Just show the success message
+                // The images should now be visible in the gallery since the page has reloaded
+                console.log('Upload completed successfully');
+            }
+        });
+        
+        // Tab persistence system
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('=== TAB PERSISTENCE SYSTEM INITIALIZED ===');
+            
+            // Get active tab from URL parameter, localStorage, or default
+            var urlParams = new URLSearchParams(window.location.search);
+            var activeTab = urlParams.get('tab') || localStorage.getItem('resbs_active_tab') || 'overview';
+            
+            // Also check for WordPress admin notices that might indicate a tab
+            var adminNotice = document.querySelector('.notice');
+            if (adminNotice && adminNotice.textContent.includes('Location')) {
+                activeTab = 'location';
+            } else if (adminNotice && adminNotice.textContent.includes('Media')) {
+                activeTab = 'media';
+            }
+            
+            console.log('Active tab from URL/storage:', activeTab);
+            
+            // Function to activate a tab
+            function activateTab(tabId) {
+                console.log('Activating tab:', tabId);
+                
+                // Remove active class from all tabs and panels
+                document.querySelectorAll('.resbs-tab-nav-btn').forEach(function(btn) {
+                    btn.classList.remove('active');
+                });
+                document.querySelectorAll('.resbs-tab-panel').forEach(function(panel) {
+                    panel.classList.remove('active');
+                });
+                
+                // Activate the specific tab
+                var tabBtn = document.querySelector('[data-tab="' + tabId + '"]');
+                var tabPanel = document.getElementById(tabId);
+                
+                if (tabBtn && tabPanel) {
+                    tabBtn.classList.add('active');
+                    tabPanel.classList.add('active');
+                    console.log('Tab activated successfully:', tabId);
+                    
+                    // Scroll to the tab if it's not visible
+                    tabBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                } else {
+                    console.warn('Tab elements not found for:', tabId);
+                    // Fallback to overview tab
+                    var overviewBtn = document.querySelector('[data-tab="overview"]');
+                    var overviewPanel = document.getElementById('overview');
+                    if (overviewBtn && overviewPanel) {
+                        overviewBtn.classList.add('active');
+                        overviewPanel.classList.add('active');
+                        console.log('Fallback to overview tab');
+                    }
+                }
+            }
+            
+            // Activate the saved tab
+            activateTab(activeTab);
+            
+            // Save tab state when tabs are clicked
+            document.querySelectorAll('.resbs-tab-nav-btn').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    var tabId = this.getAttribute('data-tab');
+                    console.log('Tab clicked:', tabId);
+                    
+                    // Save to localStorage
+                    localStorage.setItem('resbs_active_tab', tabId);
+                    
+                    // Update URL without page reload
+                    var url = new URL(window.location);
+                    url.searchParams.set('tab', tabId);
+                    window.history.replaceState({}, '', url);
+                });
+            });
+            
+            // Add tab persistence to form submission
+            var form = document.querySelector('#post');
+            if (form) {
+                form.addEventListener('submit', function() {
+                    var activeTabBtn = document.querySelector('.resbs-tab-nav-btn.active');
+                    if (activeTabBtn) {
+                        var activeTabId = activeTabBtn.getAttribute('data-tab');
+                        console.log('Saving active tab before form submission:', activeTabId);
+                        localStorage.setItem('resbs_active_tab', activeTabId);
+                        
+                        // Add hidden input to preserve tab state
+                        var hiddenInput = document.createElement('input');
+                        hiddenInput.type = 'hidden';
+                        hiddenInput.name = 'resbs_active_tab';
+                        hiddenInput.value = activeTabId;
+                        form.appendChild(hiddenInput);
+                    }
+                });
+            }
+            
+            console.log('=== TAB PERSISTENCE SYSTEM READY ===');
+        });
+        </script>
         <?php
     }
 
@@ -1010,13 +1582,13 @@ class RESBS_Property_Metabox {
                         <div class="resbs-form-section">
                             <h3><?php esc_html_e('Property Photo Gallery', 'realestate-booking-suite'); ?></h3>
                             <div class="resbs-media-uploader">
-                                <div class="resbs-upload-area" id="gallery-upload-area">
+                                <div class="resbs-upload-area" id="gallery-upload-area" onclick="document.getElementById('gallery-upload').click();">
                                     <div class="resbs-upload-content">
                                         <span class="dashicons dashicons-camera"></span>
                                         <p><?php esc_html_e('Click to upload photos or drag and drop', 'realestate-booking-suite'); ?></p>
                                         <p class="resbs-upload-info"><?php esc_html_e('JPG, PNG, GIF up to 10MB each', 'realestate-booking-suite'); ?></p>
                                     </div>
-                                    <input type="file" id="gallery-upload" name="gallery_upload[]" multiple accept="image/*" style="display: none;">
+                                    <input type="file" id="gallery-upload" name="gallery_upload[]" multiple accept="image/*" style="position: absolute; top: -9999px; left: -9999px; opacity: 0; pointer-events: none;">
                                 </div>
                                 <div class="resbs-gallery-grid" id="gallery-grid">
                                     <?php
@@ -1042,13 +1614,32 @@ class RESBS_Property_Metabox {
                         <div class="resbs-form-section">
                             <h3><?php esc_html_e('Floor Plans', 'realestate-booking-suite'); ?></h3>
                             <div class="resbs-media-uploader">
-                                <div class="resbs-upload-area" id="floor-plans-upload-area">
-                                    <div class="resbs-upload-content">
-                                        <span class="dashicons dashicons-format-image"></span>
-                                        <p><?php esc_html_e('Click to upload floor plans or drag and drop', 'realestate-booking-suite'); ?></p>
-                                        <p class="resbs-upload-info"><?php esc_html_e('JPG, PNG, GIF up to 10MB each', 'realestate-booking-suite'); ?></p>
+                                <div style="border: 2px dashed #28a745; padding: 25px; margin: 15px 0; background: linear-gradient(135deg, #f0fff4 0%, #e6f7e6 100%); border-radius: 12px; transition: all 0.3s ease;">
+                                    <div style="text-align: center;">
+                                        <div style="font-size: 48px; margin-bottom: 15px;">🏠</div>
+                                        <h3 style="color: #28a745; margin: 0 0 10px 0; font-size: 20px;">Upload Floor Plans</h3>
+                                        <p style="color: #555; margin: 0 0 20px 0; font-size: 16px;">Select floor plan images to help buyers visualize the layout</p>
+                                        
+                                        <div style="position: relative; display: inline-block; width: 100%; max-width: 400px;">
+                                            <input type="file" name="floor_plans_upload[]" multiple accept="image/*" style="
+                                                font-size: 16px; 
+                                                padding: 15px 20px; 
+                                                border: 2px solid #28a745; 
+                                                background: white; 
+                                                cursor: pointer; 
+                                                width: 100%; 
+                                                border-radius: 8px;
+                                                transition: all 0.3s ease;
+                                                box-shadow: 0 2px 8px rgba(40,167,69,0.1);
+                                            " onmouseover="this.style.borderColor='#1e7e34'; this.style.boxShadow='0 4px 12px rgba(40,167,69,0.2)'" onmouseout="this.style.borderColor='#28a745'; this.style.boxShadow='0 2px 8px rgba(40,167,69,0.1)'">
+                                        </div>
+                                        
+                                        <div style="margin-top: 15px; color: #666; font-size: 14px;">
+                                            <p style="margin: 5px 0;">✅ Supported: JPG, PNG, GIF</p>
+                                            <p style="margin: 5px 0;">📏 Maximum: 10MB per file</p>
+                                            <p style="margin: 5px 0;">💾 Save page to upload files</p>
+                                        </div>
                                     </div>
-                                    <input type="file" id="floor-plans-upload" name="floor_plans_upload[]" multiple accept="image/*" style="display: none;">
                                 </div>
                                 <div class="resbs-gallery-grid" id="floor-plans-grid">
                                     <?php
@@ -1434,8 +2025,23 @@ class RESBS_Property_Metabox {
      * Save property metabox data
      */
     public function save_property_metabox($post_id) {
+        // Add debug message to show save function is being called
+        add_action('admin_notices', function() {
+            echo '<div class="notice notice-warning" style="border: 5px solid #ff6600; background: #fff3cd; padding: 30px; margin: 20px 0;">';
+            echo '<h1 style="color: #ff6600; margin: 0 0 20px 0; font-size: 28px;">🔧 SAVE FUNCTION CALLED 🔧</h1>';
+            echo '<p style="margin: 10px 0; font-size: 20px; color: #333;">The save function is being executed!</p>';
+            echo '<p style="margin: 10px 0; font-size: 20px; color: #333;">Post ID: ' . $post_id . '</p>';
+            echo '</div>';
+        });
+        
         // Check if our nonce is set and verify it
         if (!isset($_POST['resbs_property_metabox_nonce']) || !wp_verify_nonce($_POST['resbs_property_metabox_nonce'], 'resbs_property_metabox_nonce')) {
+            add_action('admin_notices', function() {
+                echo '<div class="notice notice-error" style="border: 5px solid #ff0000; background: #ffebee; padding: 30px; margin: 20px 0;">';
+                echo '<h1 style="color: #ff0000; margin: 0 0 20px 0; font-size: 28px;">❌ NONCE ERROR ❌</h1>';
+                echo '<p style="margin: 10px 0; font-size: 20px; color: #333;">Nonce verification failed!</p>';
+                echo '</div>';
+            });
             return;
         }
 
@@ -1473,10 +2079,51 @@ class RESBS_Property_Metabox {
         foreach ($fields as $field) {
             if (isset($_POST[str_replace('_property_', 'property_', $field)])) {
                 $value = sanitize_text_field($_POST[str_replace('_property_', 'property_', $field)]);
+                
+                // Special handling for features and amenities - sanitize each feature individually
+                if ($field === '_property_features' || $field === '_property_amenities') {
+                    $features = array_map('trim', explode(',', $value));
+                    $sanitized_features = array();
+                    foreach ($features as $feature) {
+                        $clean_feature = sanitize_text_field($feature);
+                        if (!empty($clean_feature)) {
+                            $sanitized_features[] = $clean_feature;
+                        }
+                    }
+                    $value = implode(', ', $sanitized_features);
+                }
+                
                 update_post_meta($post_id, $field, $value);
             } else {
                 delete_post_meta($post_id, $field);
             }
+        }
+
+        // Handle gallery images from WordPress Media Library
+        if (isset($_POST['gallery_images']) && !empty($_POST['gallery_images'])) {
+            $gallery_image_ids = explode(',', sanitize_text_field($_POST['gallery_images']));
+            $gallery_image_ids = array_map('intval', $gallery_image_ids);
+            $gallery_image_ids = array_filter($gallery_image_ids); // Remove empty values
+            
+            if (!empty($gallery_image_ids)) {
+                update_post_meta($post_id, '_property_gallery', $gallery_image_ids);
+                
+                add_action('admin_notices', function() use ($gallery_image_ids) {
+                    echo '<div class="notice notice-success is-dismissible" style="border: 5px solid #00a32a; background: #d1e7dd; padding: 30px; margin: 20px 0;">';
+                    echo '<h1 style="color: #00a32a; margin: 0 0 20px 0; font-size: 28px;">🎉 GALLERY UPDATED! 🎉</h1>';
+                    echo '<p style="margin: 10px 0; font-size: 20px; color: #333;">Successfully saved ' . count($gallery_image_ids) . ' image(s) to the gallery!</p>';
+                    echo '<p style="margin: 10px 0 0 0; color: #666; font-size: 18px;">Images are now available in your property gallery.</p>';
+                    echo '</div>';
+                });
+                
+                error_log('RESBS: Gallery updated with ' . count($gallery_image_ids) . ' images: ' . implode(',', $gallery_image_ids));
+            }
+        }
+
+        if (!empty($_FILES['floor_plans_upload']['name'][0])) {
+            error_log('RESBS: Processing floor plans upload - ' . count($_FILES['floor_plans_upload']['name']) . ' files');
+            $uploaded_ids = $this->handle_file_uploads($post_id, 'floor_plans_upload', '_property_floor_plans');
+            error_log('RESBS: Floor plans upload result - ' . print_r($uploaded_ids, true));
         }
 
         // Handle media uploads
@@ -1489,6 +2136,102 @@ class RESBS_Property_Metabox {
             $floor_plans = array_map('intval', $_POST['property_floor_plans']);
             update_post_meta($post_id, '_property_floor_plans', $floor_plans);
         }
+        
+        // Handle tab persistence redirect
+        if (isset($_POST['resbs_active_tab'])) {
+            $active_tab = sanitize_text_field($_POST['resbs_active_tab']);
+            $redirect_url = add_query_arg('tab', $active_tab, get_edit_post_link($post_id, 'raw'));
+            wp_redirect($redirect_url);
+            exit;
+        }
+        
+        // Add success message for file uploads
+        if (!empty($_FILES['gallery_upload']['name'][0]) || !empty($_FILES['floor_plans_upload']['name'][0])) {
+            add_action('admin_notices', function() {
+                echo '<div class="notice notice-success is-dismissible" style="border: 5px solid #00a32a; background: #d1e7dd; padding: 30px; margin: 20px 0;">';
+                echo '<h1 style="color: #00a32a; margin: 0 0 20px 0; font-size: 32px;">🎉 UPLOAD SUCCESS! 🎉</h1>';
+                echo '<p style="margin: 0; font-size: 24px; font-weight: bold;">Images have been uploaded successfully!</p>';
+                echo '<p style="margin: 10px 0 0 0; color: #666; font-size: 18px;">Check the gallery below to see your uploaded images.</p>';
+                echo '</div>';
+            });
+        }
+        
+        // Add debug message to show form is being processed
+        add_action('admin_notices', function() {
+            echo '<div class="notice notice-info" style="border: 5px solid #0073aa; background: #e6f3ff; padding: 30px; margin: 20px 0;">';
+            echo '<h1 style="color: #0073aa; margin: 0 0 20px 0; font-size: 28px;">🔧 FORM SUBMISSION DEBUG 🔧</h1>';
+            echo '<p style="margin: 10px 0; font-size: 20px; color: #333;">Form was submitted at: ' . date('Y-m-d H:i:s') . '</p>';
+            echo '<p style="margin: 10px 0; font-size: 20px; color: #333;">Files received: ' . (isset($_FILES['gallery_upload']) ? count($_FILES['gallery_upload']['name']) : '0') . '</p>';
+            echo '<p style="margin: 10px 0; font-size: 20px; color: #333;">Post ID: ' . $post_id . '</p>';
+            
+            // Show all $_FILES data
+            if (isset($_FILES['gallery_upload'])) {
+                echo '<p style="margin: 10px 0; font-size: 18px; color: #666;">Gallery files: ' . print_r($_FILES['gallery_upload'], true) . '</p>';
+            }
+            
+            echo '</div>';
+        });
+    }
+
+    /**
+     * Handle file uploads
+     */
+    private function handle_file_uploads($post_id, $field_name, $meta_key) {
+        error_log('RESBS: Starting file upload for ' . $field_name);
+        
+        require_once(ABSPATH . 'wp-admin/includes/image.php');
+        require_once(ABSPATH . 'wp-admin/includes/file.php');
+        require_once(ABSPATH . 'wp-admin/includes/media.php');
+        
+        $uploaded_ids = array();
+        
+        if (!empty($_FILES[$field_name]['name'])) {
+            $files = $_FILES[$field_name];
+            
+            // Handle multiple files
+            if (is_array($files['name'])) {
+                for ($i = 0; $i < count($files['name']); $i++) {
+                    if (!empty($files['name'][$i])) {
+                        $file = array(
+                            'name' => $files['name'][$i],
+                            'type' => $files['type'][$i],
+                            'tmp_name' => $files['tmp_name'][$i],
+                            'error' => $files['error'][$i],
+                            'size' => $files['size'][$i]
+                        );
+                        
+                        $attachment_id = media_handle_sideload($file, $post_id);
+                        
+                        if (!is_wp_error($attachment_id)) {
+                            $uploaded_ids[] = $attachment_id;
+                        }
+                    }
+                }
+            } else {
+                // Handle single file
+                $attachment_id = media_handle_sideload($files, $post_id);
+                
+                if (!is_wp_error($attachment_id)) {
+                    $uploaded_ids[] = $attachment_id;
+                }
+            }
+        }
+        
+        if (!empty($uploaded_ids)) {
+            // Get existing attachments
+            $existing = get_post_meta($post_id, $meta_key, true);
+            if (!is_array($existing)) {
+                $existing = array();
+            }
+            
+            // Merge with new uploads
+            $all_attachments = array_merge($existing, $uploaded_ids);
+            update_post_meta($post_id, $meta_key, $all_attachments);
+            
+            error_log('RESBS: Updated ' . $meta_key . ' with ' . count($all_attachments) . ' total attachments');
+        }
+        
+        return $uploaded_ids;
     }
 
     /**
@@ -1590,33 +2333,66 @@ class RESBS_Property_Metabox {
         check_ajax_referer('resbs_metabox_nonce', 'nonce');
         
         if (!current_user_can('upload_files')) {
-            wp_die(esc_html__('You do not have permission to upload files.', 'realestate-booking-suite'));
+            wp_send_json_error(esc_html__('You do not have permission to upload files.', 'realestate-booking-suite'));
         }
         
         $uploaded_files = array();
+        $errors = array();
         
         if (!empty($_FILES['files'])) {
             require_once(ABSPATH . 'wp-admin/includes/image.php');
             require_once(ABSPATH . 'wp-admin/includes/file.php');
             require_once(ABSPATH . 'wp-admin/includes/media.php');
             
-            foreach ($_FILES['files']['name'] as $key => $value) {
-                if ($_FILES['files']['name'][$key]) {
-                    $file = array(
-                        'name' => $_FILES['files']['name'][$key],
-                        'type' => $_FILES['files']['type'][$key],
-                        'tmp_name' => $_FILES['files']['tmp_name'][$key],
-                        'error' => $_FILES['files']['error'][$key],
-                        'size' => $_FILES['files']['size'][$key]
-                    );
-                    
-                    $attachment_id = media_handle_sideload($file, 0);
+            // Handle multiple files
+            if (is_array($_FILES['files']['name'])) {
+                foreach ($_FILES['files']['name'] as $key => $value) {
+                    if ($_FILES['files']['name'][$key]) {
+                        $file = array(
+                            'name' => $_FILES['files']['name'][$key],
+                            'type' => $_FILES['files']['type'][$key],
+                            'tmp_name' => $_FILES['files']['tmp_name'][$key],
+                            'error' => $_FILES['files']['error'][$key],
+                            'size' => $_FILES['files']['size'][$key]
+                        );
+                        
+                        $attachment_id = media_handle_sideload($file, 0);
+                        
+                        if (!is_wp_error($attachment_id)) {
+                            $uploaded_files[] = $attachment_id;
+                        } else {
+                            $errors[] = sprintf(
+                                esc_html__('Failed to upload %s: %s', 'realestate-booking-suite'),
+                                $file['name'],
+                                $attachment_id->get_error_message()
+                            );
+                        }
+                    }
+                }
+            } else {
+                // Handle single file
+                if ($_FILES['files']['name']) {
+                    $attachment_id = media_handle_sideload($_FILES['files'], 0);
                     
                     if (!is_wp_error($attachment_id)) {
                         $uploaded_files[] = $attachment_id;
+                    } else {
+                        $errors[] = sprintf(
+                            esc_html__('Failed to upload %s: %s', 'realestate-booking-suite'),
+                            $_FILES['files']['name'],
+                            $attachment_id->get_error_message()
+                        );
                     }
                 }
             }
+        }
+        
+        if (!empty($errors)) {
+            wp_send_json_error(array(
+                'message' => esc_html__('Some files failed to upload.', 'realestate-booking-suite'),
+                'errors' => $errors,
+                'uploaded_files' => $uploaded_files
+            ));
         }
         
         wp_send_json_success($uploaded_files);
@@ -1639,5 +2415,60 @@ class RESBS_Property_Metabox {
         } else {
             wp_send_json_error();
         }
+    }
+
+    /**
+     * Get gallery data via AJAX
+     */
+    public function get_gallery_data() {
+        check_ajax_referer('resbs_metabox_nonce', 'nonce');
+        
+        $post_id = intval($_POST['post_id']);
+        
+        if (!$post_id) {
+            wp_send_json_error('Invalid post ID');
+        }
+        
+        // Get gallery images
+        $gallery_images = get_post_meta($post_id, '_property_gallery', true);
+        $gallery_html = '';
+        
+        error_log('RESBS: Gallery images for post ' . $post_id . ': ' . print_r($gallery_images, true));
+        
+        if (!empty($gallery_images) && is_array($gallery_images)) {
+            foreach ($gallery_images as $image_id) {
+                $image_url = wp_get_attachment_image_url($image_id, 'thumbnail');
+                error_log('RESBS: Image ID ' . $image_id . ' URL: ' . $image_url);
+                if ($image_url) {
+                    $gallery_html .= '<div class="resbs-gallery-item" data-id="' . esc_attr($image_id) . '">';
+                    $gallery_html .= '<img src="' . esc_url($image_url) . '" alt="">';
+                    $gallery_html .= '<button type="button" class="resbs-remove-image" data-id="' . esc_attr($image_id) . '">×</button>';
+                    $gallery_html .= '</div>';
+                }
+            }
+        }
+        
+        error_log('RESBS: Gallery HTML: ' . $gallery_html);
+        
+        // Get floor plans
+        $floor_plans = get_post_meta($post_id, '_property_floor_plans', true);
+        $floor_plans_html = '';
+        
+        if (!empty($floor_plans) && is_array($floor_plans)) {
+            foreach ($floor_plans as $image_id) {
+                $image_url = wp_get_attachment_image_url($image_id, 'thumbnail');
+                if ($image_url) {
+                    $floor_plans_html .= '<div class="resbs-gallery-item" data-id="' . esc_attr($image_id) . '">';
+                    $floor_plans_html .= '<img src="' . esc_url($image_url) . '" alt="">';
+                    $floor_plans_html .= '<button type="button" class="resbs-remove-image" data-id="' . esc_attr($image_id) . '">×</button>';
+                    $floor_plans_html .= '</div>';
+                }
+            }
+        }
+        
+        wp_send_json_success(array(
+            'gallery' => $gallery_html,
+            'floor_plans' => $floor_plans_html
+        ));
     }
 }

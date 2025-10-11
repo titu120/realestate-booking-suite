@@ -11,6 +11,63 @@
     $(document).ready(function() {
         RESBS_Property_Metabox.init();
     });
+    
+    // Additional initialization for upload areas
+    $(document).ready(function() {
+        // Force click handler for upload areas
+        $('.resbs-upload-area').each(function() {
+            var $area = $(this);
+            var $input = $area.find('input[type="file"]');
+            
+            console.log('Setting up upload area:', {
+                area: $area.length,
+                input: $input.length,
+                areaId: $area.attr('id'),
+                inputId: $input.attr('id')
+            });
+            
+            // Remove any existing handlers
+            $area.off('click.upload');
+            
+            // Add new click handler
+            $area.on('click.upload', function(e) {
+                console.log('Upload area clicked directly!');
+                e.preventDefault();
+                e.stopPropagation();
+                
+                if ($input.length > 0) {
+                    $input.click();
+                } else {
+                    console.error('File input not found!');
+                }
+            });
+        });
+        
+        // Handle file input changes
+        $(document).on('change', 'input[type="file"][id*="upload"]', function() {
+            var files = this.files;
+            var inputId = $(this).attr('id');
+            var gridId = '';
+            
+            console.log('File input changed:', inputId, files.length);
+            
+            // Determine which grid to use based on input ID
+            if (inputId === 'gallery-upload') {
+                gridId = '#gallery-grid';
+            } else if (inputId === 'floor-plans-upload') {
+                gridId = '#floor-plans-grid';
+            }
+            
+            if (files.length > 0 && gridId) {
+                var $grid = $(gridId);
+                if (typeof RESBS_Property_Metabox !== 'undefined' && RESBS_Property_Metabox.uploadFiles) {
+                    RESBS_Property_Metabox.uploadFiles(files, $grid, 'gallery');
+                } else {
+                    console.error('RESBS_Property_Metabox.uploadFiles not available');
+                }
+            }
+        });
+    });
 
     // Property Metabox object
     window.RESBS_Property_Metabox = {
@@ -25,6 +82,7 @@
             this.initMapIntegration();
             this.initFormValidation();
             this.initAutoSave();
+            this.initEnhancedFeatures();
         },
 
     /**
@@ -145,6 +203,17 @@
             // Floor plans upload
             this.initMediaUpload('#floor-plans-upload-area', '#floor-plans-upload', '#floor-plans-grid', 'floor_plans');
             
+            // Fallback click handler using event delegation
+            $(document).on('click', '.resbs-upload-area', function(e) {
+                console.log('Fallback upload area clicked!', e);
+                e.preventDefault();
+                var $this = $(this);
+                var $input = $this.find('input[type="file"]');
+                if ($input.length > 0) {
+                    $input.click();
+                }
+            });
+            
             // Remove image functionality with enhanced animations
             $(document).on('click', '.resbs-remove-image', function(e) {
                 e.preventDefault();
@@ -193,8 +262,19 @@
             var $input = $(inputSelector);
             var $grid = $(gridSelector);
             
+            // Debug: Check if elements exist
+            console.log('Initializing media upload:', {
+                areaSelector: areaSelector,
+                inputSelector: inputSelector,
+                gridSelector: gridSelector,
+                areaExists: $area.length > 0,
+                inputExists: $input.length > 0,
+                gridExists: $grid.length > 0
+            });
+            
             // Click to upload with ripple effect
             $area.on('click', function(e) {
+                console.log('Upload area clicked!', e);
                 e.preventDefault();
                 RESBS_Property_Metabox.addRippleEffect($(this));
                 $input.click();
@@ -244,7 +324,7 @@
             var formData = new FormData();
             
             for (var i = 0; i < files.length; i++) {
-                formData.append('files[]', files[i]);
+                formData.append('files[' + i + ']', files[i]);
             }
             
             formData.append('action', 'resbs_upload_property_media');
@@ -291,11 +371,17 @@
                         RESBS_Property_Metabox.showNotification(resbs_metabox.strings.upload_error, 'error');
                     }
                 },
-                error: function() {
+                error: function(xhr, status, error) {
                     $loadingItem.fadeOut(300, function() {
                         $(this).remove();
                     });
-                    RESBS_Property_Metabox.showNotification(resbs_metabox.strings.upload_error, 'error');
+                    
+                    var errorMessage = resbs_metabox.strings.upload_error;
+                    if (xhr.responseJSON && xhr.responseJSON.data && xhr.responseJSON.data.message) {
+                        errorMessage = xhr.responseJSON.data.message;
+                    }
+                    
+                    RESBS_Property_Metabox.showNotification(errorMessage, 'error');
                 }
             });
         },
@@ -607,6 +693,282 @@
                 var pricePerSqft = price / area;
                 $('#property_price_per_sqft').val(pricePerSqft.toFixed(2));
             }
+        },
+
+        /**
+         * Initialize enhanced features functionality
+         */
+        initEnhancedFeatures: function() {
+            this.loadExistingFeatures();
+            this.loadExistingAmenities();
+            this.bindFeatureEvents();
+            this.bindAmenityEvents();
+        },
+
+        /**
+         * Load existing features from the hidden field
+         */
+        loadExistingFeatures: function() {
+            var featuresValue = $('#property_features').val();
+            if (featuresValue) {
+                var features = featuresValue.split(',').map(function(feature) {
+                    return feature.trim();
+                }).filter(function(feature) {
+                    return feature.length > 0;
+                });
+                
+                features.forEach(function(feature) {
+                    this.addFeatureTag(feature);
+                }.bind(this));
+            }
+        },
+
+        /**
+         * Load existing amenities from the hidden field
+         */
+        loadExistingAmenities: function() {
+            var amenitiesValue = $('#property_amenities').val();
+            if (amenitiesValue) {
+                var amenities = amenitiesValue.split(',').map(function(amenity) {
+                    return amenity.trim();
+                }).filter(function(amenity) {
+                    return amenity.length > 0;
+                });
+                
+                amenities.forEach(function(amenity) {
+                    this.addAmenityTag(amenity);
+                }.bind(this));
+            }
+        },
+
+        /**
+         * Bind events for feature management
+         */
+        bindFeatureEvents: function() {
+            var self = this;
+            
+            // Handle suggestion tag clicks
+            $(document).on('click', '.resbs-suggestion-tag', function() {
+                var feature = $(this).data('feature');
+                if (feature && !self.featureExists(feature)) {
+                    self.addFeatureTag(feature);
+                    self.updateHiddenField();
+                }
+            });
+            
+            // Handle manual feature input
+            $('#add-custom-feature').on('click', function() {
+                self.addCustomFeature();
+            });
+            
+            // Handle Enter key in manual input
+            $('#property_features_input').on('keypress', function(e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    self.addCustomFeature();
+                }
+            });
+            
+            // Handle feature tag removal
+            $(document).on('click', '.remove-feature', function(e) {
+                e.preventDefault();
+                $(this).closest('.resbs-feature-tag').remove();
+                self.updateHiddenField();
+            });
+        },
+
+        /**
+         * Bind events for amenity management
+         */
+        bindAmenityEvents: function() {
+            var self = this;
+            
+            // Handle amenity suggestion tag clicks
+            $(document).on('click', '.resbs-suggestion-tag[data-amenity]', function() {
+                var amenity = $(this).data('amenity');
+                if (amenity && !self.amenityExists(amenity)) {
+                    self.addAmenityTag(amenity);
+                    self.updateAmenityHiddenField();
+                }
+            });
+            
+            // Handle manual amenity input
+            $('#add-custom-amenity').on('click', function() {
+                self.addCustomAmenity();
+            });
+            
+            // Handle Enter key in manual amenity input
+            $('#property_amenities_input').on('keypress', function(e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    self.addCustomAmenity();
+                }
+            });
+            
+            // Handle amenity tag removal
+            $(document).on('click', '.remove-amenity', function(e) {
+                e.preventDefault();
+                $(this).closest('.resbs-feature-tag').remove();
+                self.updateAmenityHiddenField();
+            });
+        },
+
+        /**
+         * Add a feature tag to the container
+         */
+        addFeatureTag: function(feature) {
+            if (!feature || this.featureExists(feature)) {
+                return;
+            }
+            
+            var tagHtml = '<div class="resbs-feature-tag">' +
+                '<span>' + this.escapeHtml(feature) + '</span>' +
+                '<button type="button" class="remove-feature" title="Remove feature">×</button>' +
+                '</div>';
+            
+            $('#feature-tags-container').append(tagHtml);
+        },
+
+        /**
+         * Add custom feature from manual input
+         */
+        addCustomFeature: function() {
+            var input = $('#property_features_input');
+            var feature = this.sanitizeInput(input.val().trim());
+            
+            if (feature && !this.featureExists(feature)) {
+                this.addFeatureTag(feature);
+                this.updateHiddenField();
+                input.val('');
+            }
+        },
+
+        /**
+         * Add an amenity tag to the container
+         */
+        addAmenityTag: function(amenity) {
+            if (!amenity || this.amenityExists(amenity)) {
+                return;
+            }
+            
+            var tagHtml = '<div class="resbs-feature-tag">' +
+                '<span>' + this.escapeHtml(amenity) + '</span>' +
+                '<button type="button" class="remove-amenity" title="Remove amenity">×</button>' +
+                '</div>';
+            
+            $('#amenity-tags-container').append(tagHtml);
+        },
+
+        /**
+         * Add custom amenity from manual input
+         */
+        addCustomAmenity: function() {
+            var input = $('#property_amenities_input');
+            var amenity = this.sanitizeInput(input.val().trim());
+            
+            if (amenity && !this.amenityExists(amenity)) {
+                this.addAmenityTag(amenity);
+                this.updateAmenityHiddenField();
+                input.val('');
+            }
+        },
+
+        /**
+         * Check if amenity already exists
+         */
+        amenityExists: function(amenity) {
+            var exists = false;
+            $('#amenity-tags-container .resbs-feature-tag').each(function() {
+                var existingAmenity = $(this).find('span').text().trim();
+                if (existingAmenity.toLowerCase() === amenity.toLowerCase()) {
+                    exists = true;
+                    return false; // break the loop
+                }
+            });
+            return exists;
+        },
+
+        /**
+         * Update the hidden amenity field with current amenities
+         */
+        updateAmenityHiddenField: function() {
+            var amenities = [];
+            $('#amenity-tags-container .resbs-feature-tag').each(function() {
+                var amenity = $(this).find('span').text().trim();
+                if (amenity) {
+                    amenities.push(amenity);
+                }
+            });
+            $('#property_amenities').val(amenities.join(', '));
+        },
+
+        /**
+         * Check if feature already exists
+         */
+        featureExists: function(feature) {
+            var exists = false;
+            $('#feature-tags-container .resbs-feature-tag').each(function() {
+                var existingFeature = $(this).find('span').text().trim();
+                if (existingFeature.toLowerCase() === feature.toLowerCase()) {
+                    exists = true;
+                    return false; // break the loop
+                }
+            });
+            return exists;
+        },
+
+        /**
+         * Update the hidden field with current features
+         */
+        updateHiddenField: function() {
+            var features = [];
+            $('#feature-tags-container .resbs-feature-tag').each(function() {
+                var feature = $(this).find('span').text().trim();
+                if (feature) {
+                    features.push(feature);
+                }
+            });
+            $('#property_features').val(features.join(', '));
+        },
+
+        /**
+         * Sanitize user input to prevent XSS and unwanted characters
+         */
+        sanitizeInput: function(input) {
+            if (!input) return '';
+            
+            // Remove HTML tags
+            input = input.replace(/<[^>]*>/g, '');
+            
+            // Remove script tags and javascript: protocols
+            input = input.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+            input = input.replace(/javascript:/gi, '');
+            
+            // Remove potentially dangerous characters
+            input = input.replace(/[<>'"&]/g, '');
+            
+            // Limit length to prevent abuse
+            if (input.length > 100) {
+                input = input.substring(0, 100);
+            }
+            
+            return input.trim();
+        },
+
+        /**
+         * Escape HTML to prevent XSS
+         */
+        escapeHtml: function(text) {
+            if (!text) return '';
+            
+            var map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
         }
     };
 
