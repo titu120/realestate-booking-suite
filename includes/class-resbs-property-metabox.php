@@ -740,7 +740,7 @@ class RESBS_Property_Metabox {
                                                     📁 Select Images
                                                 </button>
                                                 <p style="margin: 10px 0; color: #666;">Click to open WordPress Media Library</p>
-                                            </div>
+                                                </div>
                                             
                                             <!-- Hidden input for selected images -->
                                             <input type="hidden" id="gallery-images" name="gallery_images" value="">
@@ -750,7 +750,7 @@ class RESBS_Property_Metabox {
                                                 <h4>Selected Images:</h4>
                                                 <div id="gallery-list" style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;">
                                                     <!-- Images will be displayed here -->
-                                                </div>
+                                            </div>
                                             </div>
                                         </div>
                                         <div class="resbs-gallery-grid" id="gallery-grid">
@@ -1632,7 +1632,7 @@ class RESBS_Property_Metabox {
                                                 transition: all 0.3s ease;
                                                 box-shadow: 0 2px 8px rgba(40,167,69,0.1);
                                             " onmouseover="this.style.borderColor='#1e7e34'; this.style.boxShadow='0 4px 12px rgba(40,167,69,0.2)'" onmouseout="this.style.borderColor='#28a745'; this.style.boxShadow='0 2px 8px rgba(40,167,69,0.1)'">
-                                        </div>
+                                    </div>
                                         
                                         <div style="margin-top: 15px; color: #666; font-size: 14px;">
                                             <p style="margin: 5px 0;">✅ Supported: JPG, PNG, GIF</p>
@@ -2346,20 +2346,20 @@ class RESBS_Property_Metabox {
             
             // Handle multiple files
             if (is_array($_FILES['files']['name'])) {
-                foreach ($_FILES['files']['name'] as $key => $value) {
-                    if ($_FILES['files']['name'][$key]) {
-                        $file = array(
-                            'name' => $_FILES['files']['name'][$key],
-                            'type' => $_FILES['files']['type'][$key],
-                            'tmp_name' => $_FILES['files']['tmp_name'][$key],
-                            'error' => $_FILES['files']['error'][$key],
-                            'size' => $_FILES['files']['size'][$key]
-                        );
-                        
-                        $attachment_id = media_handle_sideload($file, 0);
-                        
-                        if (!is_wp_error($attachment_id)) {
-                            $uploaded_files[] = $attachment_id;
+            foreach ($_FILES['files']['name'] as $key => $value) {
+                if ($_FILES['files']['name'][$key]) {
+                    $file = array(
+                        'name' => $_FILES['files']['name'][$key],
+                        'type' => $_FILES['files']['type'][$key],
+                        'tmp_name' => $_FILES['files']['tmp_name'][$key],
+                        'error' => $_FILES['files']['error'][$key],
+                        'size' => $_FILES['files']['size'][$key]
+                    );
+                    
+                    $attachment_id = media_handle_sideload($file, 0);
+                    
+                    if (!is_wp_error($attachment_id)) {
+                        $uploaded_files[] = $attachment_id;
                         } else {
                             $errors[] = sprintf(
                                 esc_html__('Failed to upload %s: %s', 'realestate-booking-suite'),
