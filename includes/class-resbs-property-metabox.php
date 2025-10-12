@@ -120,9 +120,68 @@ class RESBS_Property_Metabox {
             </div>
 
             <!-- Navigation Tabs -->
+            <script>
+            // Tab switching is now handled by admin-tabs.js
+            // This function is kept for backward compatibility with onclick handlers
+            function switchTab(tabId) {
+                console.log("Inline switchTab called for:", tabId);
+                
+                // Try to use the main tab handler first
+                if (window.switchToTab) {
+                    var result = window.switchToTab(tabId);
+                    if (result) {
+                        console.log("Tab switched successfully via main handler");
+                        return;
+                    }
+                }
+                
+                // Fallback: Direct tab switching
+                console.log("Using fallback tab switching for:", tabId);
+                
+                // Remove active from all buttons
+                document.querySelectorAll('.resbs-tab-nav-btn').forEach(function(btn) {
+                    btn.classList.remove('active');
+                });
+                
+                // Hide all tab content
+                document.querySelectorAll('.resbs-tab-content').forEach(function(content) {
+                    content.classList.remove('active');
+                    content.style.display = 'none';
+                });
+                
+                // Show selected tab
+                var targetTab = document.getElementById(tabId);
+                var targetBtn = document.querySelector('[data-tab="' + tabId + '"]');
+                
+                if (targetTab && targetBtn) {
+                    targetTab.classList.add('active');
+                    targetTab.style.display = 'block';
+                    targetBtn.classList.add('active');
+                    console.log("Fallback tab switched to:", tabId);
+                    
+                    // Debug content
+                    var content = targetTab.innerHTML.trim();
+                    console.log("Tab content length:", content.length);
+                    if (content.length < 100) {
+                        console.warn("Tab appears to have minimal content:", tabId);
+                    }
+                } else {
+                    console.error("Fallback: Tab not found:", tabId);
+                    console.error("Available tab IDs:", Array.from(document.querySelectorAll('.resbs-tab-content')).map(function(el) { return el.id; }));
+                }
+            }
+            </script>
+            <style>
+            .resbs-tab-content {
+                display: none !important;
+            }
+            .resbs-tab-content.active {
+                display: block !important;
+            }
+            </style>
             <div class="resbs-stunning-tabs">
                 <nav class="resbs-tab-navigation">
-                    <button type="button" class="resbs-tab-nav-btn active" data-tab="overview">
+                    <button type="button" class="resbs-tab-nav-btn active" data-tab="overview" onclick="switchTab('overview')">
                         <span class="resbs-tab-icon">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M3 9L12 2L21 9V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -130,7 +189,7 @@ class RESBS_Property_Metabox {
                         </span>
                         <span class="resbs-tab-text"><?php esc_html_e('Overview', 'realestate-booking-suite'); ?></span>
                     </button>
-                    <button type="button" class="resbs-tab-nav-btn" data-tab="pricing">
+                    <button type="button" class="resbs-tab-nav-btn" data-tab="pricing" onclick="switchTab('pricing')">
                         <span class="resbs-tab-icon">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <line x1="12" y1="1" x2="12" y2="23" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -139,7 +198,7 @@ class RESBS_Property_Metabox {
                         </span>
                         <span class="resbs-tab-text"><?php esc_html_e('Pricing', 'realestate-booking-suite'); ?></span>
                     </button>
-                    <button type="button" class="resbs-tab-nav-btn" data-tab="specifications">
+                    <button type="button" class="resbs-tab-nav-btn" data-tab="specifications" onclick="switchTab('specifications')">
                         <span class="resbs-tab-icon">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <rect x="3" y="3" width="18" height="18" rx="2" ry="2" stroke="currentColor" stroke-width="2"/>
@@ -149,7 +208,7 @@ class RESBS_Property_Metabox {
                         </span>
                         <span class="resbs-tab-text"><?php esc_html_e('Specifications', 'realestate-booking-suite'); ?></span>
                     </button>
-                    <button type="button" class="resbs-tab-nav-btn" data-tab="location">
+                    <button type="button" class="resbs-tab-nav-btn" data-tab="location" onclick="switchTab('location')">
                         <span class="resbs-tab-icon">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M21 10C21 17 12 23 12 23S3 17 3 10C3 7.61305 3.94821 5.32387 5.63604 3.63604C7.32387 1.94821 9.61305 1 12 1C14.3869 1 16.6761 1.94821 18.3639 3.63604C20.0518 5.32387 21 7.61305 21 10Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -158,7 +217,7 @@ class RESBS_Property_Metabox {
                         </span>
                         <span class="resbs-tab-text"><?php esc_html_e('Location', 'realestate-booking-suite'); ?></span>
                     </button>
-                    <button type="button" class="resbs-tab-nav-btn" data-tab="features">
+                    <button type="button" class="resbs-tab-nav-btn" data-tab="features" onclick="switchTab('features')">
                         <span class="resbs-tab-icon">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -167,7 +226,7 @@ class RESBS_Property_Metabox {
                         </span>
                         <span class="resbs-tab-text"><?php esc_html_e('Features', 'realestate-booking-suite'); ?></span>
                     </button>
-                    <button type="button" class="resbs-tab-nav-btn" data-tab="media">
+                    <button type="button" class="resbs-tab-nav-btn" data-tab="media" onclick="switchTab('media')">
                         <span class="resbs-tab-icon">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <rect x="3" y="3" width="18" height="18" rx="2" ry="2" stroke="currentColor" stroke-width="2"/>
@@ -177,7 +236,7 @@ class RESBS_Property_Metabox {
                         </span>
                         <span class="resbs-tab-text"><?php esc_html_e('Media', 'realestate-booking-suite'); ?></span>
                     </button>
-                    <button type="button" class="resbs-tab-nav-btn" data-tab="booking">
+                    <button type="button" class="resbs-tab-nav-btn" data-tab="booking" onclick="switchTab('booking')">
                         <span class="resbs-tab-icon">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M8 7V3M16 7V3M7 11H17M5 21H19C20.105 21 21 20.105 21 19V7C21 5.895 20.105 5 19 5H5C3.895 5 3 5.895 3 7V19C3 20.105 3.895 21 5 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -690,6 +749,8 @@ class RESBS_Property_Metabox {
                                             <option value="concrete" <?php selected($exterior_material, 'concrete'); ?>><?php esc_html_e('Concrete', 'realestate-booking-suite'); ?></option>
                                         </select>
                                     </div>
+
+                                    
 
                                     <div class="resbs-form-group">
                                         <label for="property_floor_covering"><?php esc_html_e('Floor Covering', 'realestate-booking-suite'); ?></label>
@@ -1265,100 +1326,10 @@ class RESBS_Property_Metabox {
             }
         });
         
-        // Tab persistence system
+        // Tab persistence is now handled by admin-tabs.js
+        // This script is kept for backward compatibility
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('=== TAB PERSISTENCE SYSTEM INITIALIZED ===');
-            
-            // Get active tab from URL parameter, localStorage, or default
-            var urlParams = new URLSearchParams(window.location.search);
-            var activeTab = urlParams.get('tab') || localStorage.getItem('resbs_active_tab') || 'overview';
-            
-            // Also check for WordPress admin notices that might indicate a tab
-            var adminNotice = document.querySelector('.notice');
-            if (adminNotice && adminNotice.textContent.includes('Location')) {
-                activeTab = 'location';
-            } else if (adminNotice && adminNotice.textContent.includes('Media')) {
-                activeTab = 'media';
-            }
-            
-            console.log('Active tab from URL/storage:', activeTab);
-            
-            // Function to activate a tab
-            function activateTab(tabId) {
-                console.log('Activating tab:', tabId);
-                
-                // Remove active class from all tabs and panels
-                document.querySelectorAll('.resbs-tab-nav-btn').forEach(function(btn) {
-                    btn.classList.remove('active');
-                });
-                document.querySelectorAll('.resbs-tab-panel').forEach(function(panel) {
-                    panel.classList.remove('active');
-                });
-                
-                // Activate the specific tab
-                var tabBtn = document.querySelector('[data-tab="' + tabId + '"]');
-                var tabPanel = document.getElementById(tabId);
-                
-                if (tabBtn && tabPanel) {
-                    tabBtn.classList.add('active');
-                    tabPanel.classList.add('active');
-                    console.log('Tab activated successfully:', tabId);
-                    
-                    // Scroll to the tab if it's not visible
-                    tabBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                } else {
-                    console.warn('Tab elements not found for:', tabId);
-                    // Fallback to overview tab
-                    var overviewBtn = document.querySelector('[data-tab="overview"]');
-                    var overviewPanel = document.getElementById('overview');
-                    if (overviewBtn && overviewPanel) {
-                        overviewBtn.classList.add('active');
-                        overviewPanel.classList.add('active');
-                        console.log('Fallback to overview tab');
-                    }
-                }
-            }
-            
-            // Activate the saved tab
-            activateTab(activeTab);
-            
-            // Save tab state when tabs are clicked
-            document.querySelectorAll('.resbs-tab-nav-btn').forEach(function(btn) {
-                btn.addEventListener('click', function() {
-                    var tabId = this.getAttribute('data-tab');
-                    console.log('Tab clicked:', tabId);
-                    
-                    // Save to localStorage
-                    localStorage.setItem('resbs_active_tab', tabId);
-                    
-                    // Update URL without page reload
-                    var url = new URL(window.location);
-                    url.searchParams.set('tab', tabId);
-                    window.history.replaceState({}, '', url);
-                });
-            });
-            
-            // Add tab persistence to form submission
-            var form = document.querySelector('#post');
-            if (form) {
-                form.addEventListener('submit', function() {
-                    var activeTabBtn = document.querySelector('.resbs-tab-nav-btn.active');
-                    if (activeTabBtn) {
-                        var activeTabId = activeTabBtn.getAttribute('data-tab');
-                        console.log('Saving active tab before form submission:', activeTabId);
-                        localStorage.setItem('resbs_active_tab', activeTabId);
-                        
-                        // Add hidden input to preserve tab state
-                        var hiddenInput = document.createElement('input');
-                        hiddenInput.type = 'hidden';
-                        hiddenInput.name = 'resbs_active_tab';
-                        hiddenInput.value = activeTabId;
-                        form.appendChild(hiddenInput);
-                    }
-                });
-            }
-            
-            console.log('=== TAB PERSISTENCE SYSTEM READY ===');
+            console.log('=== TAB PERSISTENCE: Delegating to admin-tabs.js ===');
         });
         </script>
         <?php
@@ -1391,61 +1362,7 @@ class RESBS_Property_Metabox {
         $property_condition = get_post_meta($post->ID, '_property_condition', true);
         
         ?>
-        <div class="resbs-metabox-container">
-            <div class="resbs-tabs">
-                <nav class="resbs-tab-nav">
-                    <button type="button" class="resbs-tab-btn active" data-tab="basic"><?php esc_html_e('Basic Info', 'realestate-booking-suite'); ?></button>
-                    <button type="button" class="resbs-tab-btn" data-tab="pricing"><?php esc_html_e('Pricing', 'realestate-booking-suite'); ?></button>
-                    <button type="button" class="resbs-tab-btn" data-tab="specifications"><?php esc_html_e('Specifications', 'realestate-booking-suite'); ?></button>
-                </nav>
-
-                <div class="resbs-tab-content">
-                    <!-- Basic Info Tab -->
-                    <div id="basic" class="resbs-tab-panel active">
-                        <div class="resbs-form-section">
-                            <h3><?php esc_html_e('Property Classification', 'realestate-booking-suite'); ?></h3>
-                            <div class="resbs-form-row">
-                                <div class="resbs-form-group">
-                                    <label for="property_type"><?php esc_html_e('Property Type', 'realestate-booking-suite'); ?></label>
-                                    <select id="property_type" name="property_type" class="resbs-select">
-                                        <option value=""><?php esc_html_e('Select Property Type', 'realestate-booking-suite'); ?></option>
-                                        <option value="house" <?php selected($property_type, 'house'); ?>><?php esc_html_e('House', 'realestate-booking-suite'); ?></option>
-                                        <option value="apartment" <?php selected($property_type, 'apartment'); ?>><?php esc_html_e('Apartment', 'realestate-booking-suite'); ?></option>
-                                        <option value="condo" <?php selected($property_type, 'condo'); ?>><?php esc_html_e('Condo', 'realestate-booking-suite'); ?></option>
-                                        <option value="townhouse" <?php selected($property_type, 'townhouse'); ?>><?php esc_html_e('Townhouse', 'realestate-booking-suite'); ?></option>
-                                        <option value="villa" <?php selected($property_type, 'villa'); ?>><?php esc_html_e('Villa', 'realestate-booking-suite'); ?></option>
-                                        <option value="commercial" <?php selected($property_type, 'commercial'); ?>><?php esc_html_e('Commercial', 'realestate-booking-suite'); ?></option>
-                                        <option value="land" <?php selected($property_type, 'land'); ?>><?php esc_html_e('Land', 'realestate-booking-suite'); ?></option>
-                                    </select>
-                                </div>
-                                <div class="resbs-form-group">
-                                    <label for="property_status"><?php esc_html_e('Property Status', 'realestate-booking-suite'); ?></label>
-                                    <select id="property_status" name="property_status" class="resbs-select">
-                                        <option value=""><?php esc_html_e('Select Status', 'realestate-booking-suite'); ?></option>
-                                        <option value="for-sale" <?php selected($property_status, 'for-sale'); ?>><?php esc_html_e('For Sale', 'realestate-booking-suite'); ?></option>
-                                        <option value="for-rent" <?php selected($property_status, 'for-rent'); ?>><?php esc_html_e('For Rent', 'realestate-booking-suite'); ?></option>
-                                        <option value="sold" <?php selected($property_status, 'sold'); ?>><?php esc_html_e('Sold', 'realestate-booking-suite'); ?></option>
-                                        <option value="rented" <?php selected($property_status, 'rented'); ?>><?php esc_html_e('Rented', 'realestate-booking-suite'); ?></option>
-                                        <option value="off-market" <?php selected($property_status, 'off-market'); ?>><?php esc_html_e('Off Market', 'realestate-booking-suite'); ?></option>
-                                    </select>
-                                </div>
-                                <div class="resbs-form-group">
-                                    <label for="property_condition"><?php esc_html_e('Property Condition', 'realestate-booking-suite'); ?></label>
-                                    <select id="property_condition" name="property_condition" class="resbs-select">
-                                        <option value=""><?php esc_html_e('Select Condition', 'realestate-booking-suite'); ?></option>
-                                        <option value="excellent" <?php selected($property_condition, 'excellent'); ?>><?php esc_html_e('Excellent', 'realestate-booking-suite'); ?></option>
-                                        <option value="very-good" <?php selected($property_condition, 'very-good'); ?>><?php esc_html_e('Very Good', 'realestate-booking-suite'); ?></option>
-                                        <option value="good" <?php selected($property_condition, 'good'); ?>><?php esc_html_e('Good', 'realestate-booking-suite'); ?></option>
-                                        <option value="fair" <?php selected($property_condition, 'fair'); ?>><?php esc_html_e('Fair', 'realestate-booking-suite'); ?></option>
-                                        <option value="needs-work" <?php selected($property_condition, 'needs-work'); ?>><?php esc_html_e('Needs Work', 'realestate-booking-suite'); ?></option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Pricing Tab -->
-                    <div id="pricing" class="resbs-tab-panel">
+        <!-- OLD TAB SYSTEM COMPLETELY REMOVED - Using new stunning tabs above -->
                         <div class="resbs-form-section">
                             <h3><?php esc_html_e('Property Pricing', 'realestate-booking-suite'); ?></h3>
                             <div class="resbs-form-row">
@@ -2026,11 +1943,12 @@ class RESBS_Property_Metabox {
      */
     public function save_property_metabox($post_id) {
         // Add debug message to show save function is being called
-        add_action('admin_notices', function() {
+        add_action('admin_notices', function() use ($post_id) {
             echo '<div class="notice notice-warning" style="border: 5px solid #ff6600; background: #fff3cd; padding: 30px; margin: 20px 0;">';
             echo '<h1 style="color: #ff6600; margin: 0 0 20px 0; font-size: 28px;">🔧 SAVE FUNCTION CALLED 🔧</h1>';
             echo '<p style="margin: 10px 0; font-size: 20px; color: #333;">The save function is being executed!</p>';
             echo '<p style="margin: 10px 0; font-size: 20px; color: #333;">Post ID: ' . $post_id . '</p>';
+            echo '<p style="margin: 10px 0; font-size: 20px; color: #333;">POST Data: ' . print_r($_POST, true) . '</p>';
             echo '</div>';
         });
         
@@ -2267,6 +2185,15 @@ class RESBS_Property_Metabox {
                 true
             );
             
+            // DISABLED: Admin tabs JS to prevent conflicts with onclick handlers
+            // wp_enqueue_script(
+            //     'resbs-admin-tabs',
+            //     RESBS_URL . 'assets/js/admin-tabs.js',
+            //     array('jquery'),
+            //     '1.0.0',
+            //     true
+            // );
+            
             wp_localize_script('resbs-property-metabox', 'resbs_metabox', array(
                 'ajax_url' => admin_url('admin-ajax.php'),
                 'nonce' => wp_create_nonce('resbs_metabox_nonce'),
@@ -2278,51 +2205,7 @@ class RESBS_Property_Metabox {
                 )
             ));
             
-            // Add inline script for tab functionality
-            wp_add_inline_script('resbs-property-metabox', '
-                jQuery(document).ready(function($) {
-                    // Handle stunning metabox tabs
-                    $(".resbs-tab-nav-btn").on("click", function() {
-                        var $btn = $(this);
-                        var tabId = $btn.data("tab");
-                        
-                        // Update active tab button
-                        $(".resbs-tab-nav-btn").removeClass("active");
-                        $btn.addClass("active");
-                        
-                        // Update active tab panel
-                        $(".resbs-tab-content").removeClass("active");
-                        $("#" + tabId).addClass("active");
-                        
-                        // Trigger resize for maps if present
-                        if (tabId === "location" && window.google && window.google.maps) {
-                            setTimeout(function() {
-                                google.maps.event.trigger(window.resbsMap, "resize");
-                            }, 100);
-                        }
-                    });
-                    
-                    // Handle number controls
-                    $(".resbs-number-btn").on("click", function() {
-                        var $btn = $(this);
-                        var $input = $("#" + $btn.data("target"));
-                        var action = $btn.data("action");
-                        var currentValue = parseInt($input.val()) || 0;
-                        var min = parseInt($input.attr("min")) || 0;
-                        var max = parseInt($input.attr("max")) || 999;
-                        
-                        if (action === "increase") {
-                            if (currentValue < max) {
-                                $input.val(currentValue + 1).trigger("change");
-                            }
-                        } else if (action === "decrease") {
-                            if (currentValue > min) {
-                                $input.val(currentValue - 1).trigger("change");
-                            }
-                        }
-                    });
-                });
-            ');
+            // Tab switching is now inline in the metabox HTML
         }
     }
 

@@ -155,13 +155,13 @@
 }
 
 .resbs-tab-content {
-    display: none;
+    display: none !important;
     padding: 40px;
     animation: fadeInUp 0.5s ease-out;
 }
 
 .resbs-tab-content.active {
-    display: block;
+    display: block !important;
 }
 
 @keyframes fadeInUp {

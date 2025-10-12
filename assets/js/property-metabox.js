@@ -7,10 +7,25 @@
 (function($) {
     'use strict';
 
-    // Initialize when document is ready
-    $(document).ready(function() {
-        RESBS_Property_Metabox.init();
-    });
+        // Initialize when document is ready
+        $(document).ready(function() {
+            // Tab initialization is handled by admin-tabs.js to prevent conflicts
+            console.log('🔧 DEBUG: Property metabox JS loaded - tabs handled by admin-tabs.js');
+            
+            RESBS_Property_Metabox.init();
+            
+            // Test if form submission works
+            $('form#post').on('submit', function(e) {
+                console.log('🔧 DEBUG: Form is being submitted!');
+                console.log('🔧 DEBUG: Form data:', $(this).serialize());
+            });
+            
+            // Test if Update button is clicked
+            $('input#publish, input#save-post').on('click', function() {
+                console.log('🔧 DEBUG: Update button clicked!');
+            });
+            
+        });
     
     // Additional initialization for upload areas
     $(document).ready(function() {
@@ -76,7 +91,7 @@
          * Initialize metabox functionality
          */
         init: function() {
-            this.initTabs();
+            // Tab initialization is handled by admin-tabs.js to prevent conflicts
             this.initNumberInputs();
             this.initMediaUploader();
             this.initMapIntegration();
@@ -89,50 +104,127 @@
      * Initialize tabs with enhanced animations
      */
     initTabs: function() {
+        console.log('🔧 DEBUG: Initializing tabs');
+        
+        // Find all tab buttons
+        var $tabButtons = $('.resbs-tab-btn, .resbs-tab-nav-btn');
+        console.log('🔧 DEBUG: Found tab buttons:', $tabButtons.length);
+        
+        if ($tabButtons.length === 0) {
+            console.log('🔧 DEBUG: No tab buttons found, trying again in 500ms');
+            setTimeout(function() {
+                RESBS_Property_Metabox.initTabs();
+            }, 500);
+            return;
+        }
+        
         // Handle both old and new tab systems
-        $('.resbs-tab-btn, .resbs-tab-nav-btn').on('click', function(e) {
+        $tabButtons.off('click.tabSwitch').on('click.tabSwitch', function(e) {
             e.preventDefault();
+            e.stopPropagation();
+            
             var $btn = $(this);
             var $container = $btn.closest('.resbs-tabs, .resbs-stunning-tabs');
             var tabId = $btn.data('tab');
             
+            console.log('🔧 DEBUG: Tab clicked:', tabId);
+            console.log('🔧 DEBUG: Button:', $btn);
+            console.log('🔧 DEBUG: Container:', $container);
+            
             // Don't switch if already active
             if ($btn.hasClass('active')) {
+                console.log('🔧 DEBUG: Tab already active, skipping');
                 return;
             }
             
-            // Add loading state
-            $btn.addClass('resbs-loading');
+            // Save tab immediately when clicked
+            localStorage.setItem('resbs_active_tab', tabId);
+            console.log('🔧 DEBUG: Tab saved immediately:', tabId);
             
-            // Update active tab button with animation
+            // SIMPLE APPROACH: Just hide all tabs and show the selected one
+            $container.find('.resbs-tab-content').removeClass('active').hide();
             $container.find('.resbs-tab-btn, .resbs-tab-nav-btn').removeClass('active');
-            $btn.addClass('active');
             
-            // Fade out current content
-            var $currentContent = $container.find('.resbs-tab-panel.active, .resbs-tab-content.active');
+            // Show the selected tab
             var $newContent = $container.find('#' + tabId);
-            
-            if ($currentContent.length) {
-                $currentContent.fadeOut(200, function() {
-                    $currentContent.removeClass('active');
-                    $newContent.addClass('active').hide().fadeIn(300);
-                    $btn.removeClass('resbs-loading');
-                    
-                    // Trigger resize for maps if present
-                    if (tabId === 'location' && window.google && window.google.maps) {
-                        setTimeout(function() {
-                            google.maps.event.trigger(window.resbsMap, 'resize');
-                        }, 100);
-                    }
-                });
+            if ($newContent.length) {
+                $newContent.addClass('active').show();
+                $btn.addClass('active');
+                console.log('🔧 DEBUG: Tab content shown:', tabId);
             } else {
-                $newContent.addClass('active').hide().fadeIn(300);
-                $btn.removeClass('resbs-loading');
+                console.error('🔧 DEBUG: Tab content not found for:', tabId);
+            }
+        });
+    },
+
+    /**
+     * Fix tab display on page load
+     */
+    fixTabDisplay: function() {
+        console.log('🔧 DEBUG: Fixing tab display');
+        
+        // Find all tab containers
+        $('.resbs-tabs, .resbs-stunning-tabs').each(function() {
+            var $container = $(this);
+            
+            // Check if there's already an active tab
+            var $activeTab = $container.find('.resbs-tab-content.active');
+            if ($activeTab.length > 0) {
+                console.log('🔧 DEBUG: Active tab already exists, keeping it');
+                return;
             }
             
-            // Add ripple effect
-            RESBS_Property_Metabox.addRippleEffect($btn);
+            // Try to use saved tab from localStorage
+            var savedTab = localStorage.getItem('resbs_active_tab');
+            console.log('🔧 DEBUG: Saved tab from localStorage:', savedTab);
+            
+            if (savedTab) {
+                console.log('🔧 DEBUG: Using saved tab:', savedTab);
+                
+                // Hide all tabs first
+                $container.find('.resbs-tab-content').removeClass('active').hide();
+                $container.find('.resbs-tab-btn, .resbs-tab-nav-btn').removeClass('active');
+                
+                // Show the saved tab
+                var $activeContent = $container.find('#' + savedTab);
+                var $activeBtn = $container.find('[data-tab="' + savedTab + '"]');
+                
+                if ($activeContent.length) {
+                    $activeContent.addClass('active').show();
+                    $activeBtn.addClass('active');
+                    console.log('🔧 DEBUG: Saved tab displayed:', savedTab);
+                } else {
+                    console.error('🔧 DEBUG: Saved tab content not found:', savedTab);
+                    // Fallback to overview tab
+                    this.showOverviewTab($container);
+                }
+            } else {
+                console.log('🔧 DEBUG: No saved tab, keeping current state');
+            }
         });
+    },
+
+    /**
+     * Show overview tab as fallback
+     */
+    showOverviewTab: function($container) {
+        console.log('🔧 DEBUG: Showing overview tab as fallback');
+        
+        // Hide all tabs first
+        $container.find('.resbs-tab-content').removeClass('active').hide();
+        $container.find('.resbs-tab-btn, .resbs-tab-nav-btn').removeClass('active');
+        
+        // Show overview tab
+        var $overviewContent = $container.find('#overview');
+        var $overviewBtn = $container.find('[data-tab="overview"]');
+        
+        if ($overviewContent.length) {
+            $overviewContent.addClass('active').show();
+            $overviewBtn.addClass('active');
+            console.log('🔧 DEBUG: Overview tab displayed');
+        } else {
+            console.error('🔧 DEBUG: Overview tab not found');
+        }
     },
 
         /**
