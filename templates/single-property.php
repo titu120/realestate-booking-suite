@@ -144,7 +144,26 @@ $debug_data = array(
 
         .tab-active {
             border-bottom: 3px solid #10b981;
+            color: #10b981 !important;
+            background-color: #f0fdf4;
+        }
+
+        .tab-button {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .tab-button:hover {
+            background-color: #f0fdf4;
             color: #10b981;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content:not(.hidden) {
+            display: block;
         }
 
         .smooth-scroll {
@@ -777,7 +796,7 @@ $debug_data = array(
 
                         <!-- Features Tab -->
                         <div id="features-tab" class="tab-content hidden">
-                            <h3 class="text-xl font-bold text-gray-800 mb-4">Amenities & Features</h3>
+                            <h3 class="text-xl font-bold text-gray-800 mb-4">Property Features & Amenities</h3>
                             
                             <!-- Filter Buttons -->
                             <div class="flex flex-wrap gap-2 mb-6 no-print">
@@ -785,26 +804,177 @@ $debug_data = array(
                                 <button onclick="filterAmenities('interior')" class="filter-btn px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-semibold text-sm hover:bg-gray-200 transition" data-filter="interior">Interior</button>
                                 <button onclick="filterAmenities('exterior')" class="filter-btn px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-semibold text-sm hover:bg-gray-200 transition" data-filter="exterior">Exterior</button>
                                 <button onclick="filterAmenities('building')" class="filter-btn px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-semibold text-sm hover:bg-gray-200 transition" data-filter="building">Building</button>
+                                <button onclick="filterAmenities('amenities')" class="filter-btn px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-semibold text-sm hover:bg-gray-200 transition" data-filter="amenities">Amenities</button>
                             </div>
 
-                            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4" id="amenitiesContainer">
-                                <?php if (!empty($features_list)): ?>
-                                    <?php foreach ($features_list as $feature): ?>
-                                    <div class="amenity-item p-4 bg-gray-50 rounded-lg" data-category="interior">
-                                        <i class="fas fa-check-circle text-emerald-500 mr-2"></i>
-                                        <span class="text-gray-700"><?php echo esc_html($feature); ?></span>
-                                    </div>
-                                    <?php endforeach; ?>
-                                <?php endif; ?>
+                            <!-- Property Features Section -->
+                            <div class="mb-8">
+                                <h4 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                                    <i class="fas fa-home text-emerald-500 mr-2"></i>Property Features
+                                </h4>
                                 
-                                <?php if (!empty($amenities_list)): ?>
-                                    <?php foreach ($amenities_list as $amenity): ?>
-                                    <div class="amenity-item p-4 bg-gray-50 rounded-lg" data-category="building">
+                                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4" id="featuresContainer">
+                                    <!-- Common Interior Features -->
+                                    <div class="amenity-item p-4 bg-gray-50 rounded-lg border-l-4 border-emerald-500" data-category="interior">
                                         <i class="fas fa-check-circle text-emerald-500 mr-2"></i>
-                                        <span class="text-gray-700"><?php echo esc_html($amenity); ?></span>
+                                        <span class="text-gray-700 font-medium">Hardwood Floors</span>
                                     </div>
-                                    <?php endforeach; ?>
-                                <?php endif; ?>
+                                    <div class="amenity-item p-4 bg-gray-50 rounded-lg border-l-4 border-emerald-500" data-category="interior">
+                                        <i class="fas fa-check-circle text-emerald-500 mr-2"></i>
+                                        <span class="text-gray-700 font-medium">Granite Countertops</span>
+                                    </div>
+                                    <div class="amenity-item p-4 bg-gray-50 rounded-lg border-l-4 border-emerald-500" data-category="interior">
+                                        <i class="fas fa-check-circle text-emerald-500 mr-2"></i>
+                                        <span class="text-gray-700 font-medium">Stainless Steel Appliances</span>
+                                    </div>
+                                    <div class="amenity-item p-4 bg-gray-50 rounded-lg border-l-4 border-emerald-500" data-category="interior">
+                                        <i class="fas fa-check-circle text-emerald-500 mr-2"></i>
+                                        <span class="text-gray-700 font-medium">Walk-in Closet</span>
+                                    </div>
+                                    <div class="amenity-item p-4 bg-gray-50 rounded-lg border-l-4 border-emerald-500" data-category="interior">
+                                        <i class="fas fa-check-circle text-emerald-500 mr-2"></i>
+                                        <span class="text-gray-700 font-medium">Crown Molding</span>
+                                    </div>
+                                    <div class="amenity-item p-4 bg-gray-50 rounded-lg border-l-4 border-emerald-500" data-category="interior">
+                                        <i class="fas fa-check-circle text-emerald-500 mr-2"></i>
+                                        <span class="text-gray-700 font-medium">High Ceilings</span>
+                                    </div>
+                                    <div class="amenity-item p-4 bg-gray-50 rounded-lg border-l-4 border-emerald-500" data-category="interior">
+                                        <i class="fas fa-check-circle text-emerald-500 mr-2"></i>
+                                        <span class="text-gray-700 font-medium">Built-in Shelves</span>
+                                    </div>
+                                    <div class="amenity-item p-4 bg-gray-50 rounded-lg border-l-4 border-emerald-500" data-category="interior">
+                                        <i class="fas fa-check-circle text-emerald-500 mr-2"></i>
+                                        <span class="text-gray-700 font-medium">Marble Bathroom</span>
+                                    </div>
+                                    
+                                    <!-- Common Exterior Features -->
+                                    <div class="amenity-item p-4 bg-gray-50 rounded-lg border-l-4 border-blue-500" data-category="exterior">
+                                        <i class="fas fa-check-circle text-blue-500 mr-2"></i>
+                                        <span class="text-gray-700 font-medium">Balcony</span>
+                                    </div>
+                                    <div class="amenity-item p-4 bg-gray-50 rounded-lg border-l-4 border-blue-500" data-category="exterior">
+                                        <i class="fas fa-check-circle text-blue-500 mr-2"></i>
+                                        <span class="text-gray-700 font-medium">Fireplace</span>
+                                    </div>
+                                    <div class="amenity-item p-4 bg-gray-50 rounded-lg border-l-4 border-blue-500" data-category="exterior">
+                                        <i class="fas fa-check-circle text-blue-500 mr-2"></i>
+                                        <span class="text-gray-700 font-medium">Bay Windows</span>
+                                    </div>
+                                    <div class="amenity-item p-4 bg-gray-50 rounded-lg border-l-4 border-blue-500" data-category="exterior">
+                                        <i class="fas fa-check-circle text-blue-500 mr-2"></i>
+                                        <span class="text-gray-700 font-medium">Skylights</span>
+                                    </div>
+                                    
+                                    <!-- Building Features -->
+                                    <div class="amenity-item p-4 bg-gray-50 rounded-lg border-l-4 border-purple-500" data-category="building">
+                                        <i class="fas fa-check-circle text-purple-500 mr-2"></i>
+                                        <span class="text-gray-700 font-medium">Central Air</span>
+                                    </div>
+                                    <div class="amenity-item p-4 bg-gray-50 rounded-lg border-l-4 border-purple-500" data-category="building">
+                                        <i class="fas fa-check-circle text-purple-500 mr-2"></i>
+                                        <span class="text-gray-700 font-medium">Gas Heating</span>
+                                    </div>
+                                    <div class="amenity-item p-4 bg-gray-50 rounded-lg border-l-4 border-purple-500" data-category="building">
+                                        <i class="fas fa-check-circle text-purple-500 mr-2"></i>
+                                        <span class="text-gray-700 font-medium">Driveway</span>
+                                    </div>
+                                    <div class="amenity-item p-4 bg-gray-50 rounded-lg border-l-4 border-purple-500" data-category="building">
+                                        <i class="fas fa-check-circle text-purple-500 mr-2"></i>
+                                        <span class="text-gray-700 font-medium">Unfinished Basement</span>
+                                    </div>
+                                    <div class="amenity-item p-4 bg-gray-50 rounded-lg border-l-4 border-purple-500" data-category="building">
+                                        <i class="fas fa-check-circle text-purple-500 mr-2"></i>
+                                        <span class="text-gray-700 font-medium">Asphalt Shingles</span>
+                                    </div>
+                                    <div class="amenity-item p-4 bg-gray-50 rounded-lg border-l-4 border-purple-500" data-category="building">
+                                        <i class="fas fa-check-circle text-purple-500 mr-2"></i>
+                                        <span class="text-gray-700 font-medium">Brick</span>
+                                    </div>
+                                    <div class="amenity-item p-4 bg-gray-50 rounded-lg border-l-4 border-purple-500" data-category="building">
+                                        <i class="fas fa-check-circle text-purple-500 mr-2"></i>
+                                        <span class="text-gray-700 font-medium">Carpet</span>
+                                    </div>
+                                    
+                                    <!-- Custom Features from Database -->
+                                    <?php if (!empty($features_list)): ?>
+                                        <?php foreach ($features_list as $feature): ?>
+                                        <div class="amenity-item p-4 bg-emerald-50 rounded-lg border-l-4 border-emerald-500" data-category="interior">
+                                            <i class="fas fa-star text-emerald-500 mr-2"></i>
+                                            <span class="text-gray-700 font-medium"><?php echo esc_html($feature); ?></span>
+                                        </div>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+
+                            <!-- Property Amenities Section -->
+                            <div class="mb-8">
+                                <h4 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                                    <i class="fas fa-concierge-bell text-emerald-500 mr-2"></i>Property Amenities
+                                </h4>
+                                
+                                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4" id="amenitiesContainer">
+                                    <!-- Common Amenities -->
+                                    <div class="amenity-item p-4 bg-gray-50 rounded-lg border-l-4 border-orange-500" data-category="amenities">
+                                        <i class="fas fa-swimming-pool text-orange-500 mr-2"></i>
+                                        <span class="text-gray-700 font-medium">Pool</span>
+                                    </div>
+                                    <div class="amenity-item p-4 bg-gray-50 rounded-lg border-l-4 border-orange-500" data-category="amenities">
+                                        <i class="fas fa-dumbbell text-orange-500 mr-2"></i>
+                                        <span class="text-gray-700 font-medium">Gym</span>
+                                    </div>
+                                    <div class="amenity-item p-4 bg-gray-50 rounded-lg border-l-4 border-orange-500" data-category="amenities">
+                                        <i class="fas fa-shield-alt text-orange-500 mr-2"></i>
+                                        <span class="text-gray-700 font-medium">Security</span>
+                                    </div>
+                                    <div class="amenity-item p-4 bg-gray-50 rounded-lg border-l-4 border-orange-500" data-category="amenities">
+                                        <i class="fas fa-car text-orange-500 mr-2"></i>
+                                        <span class="text-gray-700 font-medium">Parking</span>
+                                    </div>
+                                    <div class="amenity-item p-4 bg-gray-50 rounded-lg border-l-4 border-orange-500" data-category="amenities">
+                                        <i class="fas fa-elevator text-orange-500 mr-2"></i>
+                                        <span class="text-gray-700 font-medium">Elevator</span>
+                                    </div>
+                                    <div class="amenity-item p-4 bg-gray-50 rounded-lg border-l-4 border-orange-500" data-category="amenities">
+                                        <i class="fas fa-concierge-bell text-orange-500 mr-2"></i>
+                                        <span class="text-gray-700 font-medium">Concierge</span>
+                                    </div>
+                                    <div class="amenity-item p-4 bg-gray-50 rounded-lg border-l-4 border-orange-500" data-category="amenities">
+                                        <i class="fas fa-building text-orange-500 mr-2"></i>
+                                        <span class="text-gray-700 font-medium">Rooftop</span>
+                                    </div>
+                                    <div class="amenity-item p-4 bg-gray-50 rounded-lg border-l-4 border-orange-500" data-category="amenities">
+                                        <i class="fas fa-seedling text-orange-500 mr-2"></i>
+                                        <span class="text-gray-700 font-medium">Garden</span>
+                                    </div>
+                                    <div class="amenity-item p-4 bg-gray-50 rounded-lg border-l-4 border-orange-500" data-category="amenities">
+                                        <i class="fas fa-balcony text-orange-500 mr-2"></i>
+                                        <span class="text-gray-700 font-medium">Balcony</span>
+                                    </div>
+                                    <div class="amenity-item p-4 bg-gray-50 rounded-lg border-l-4 border-orange-500" data-category="amenities">
+                                        <i class="fas fa-umbrella text-orange-500 mr-2"></i>
+                                        <span class="text-gray-700 font-medium">Terrace</span>
+                                    </div>
+                                    <div class="amenity-item p-4 bg-gray-50 rounded-lg border-l-4 border-orange-500" data-category="amenities">
+                                        <i class="fas fa-box text-orange-500 mr-2"></i>
+                                        <span class="text-gray-700 font-medium">Storage</span>
+                                    </div>
+                                    <div class="amenity-item p-4 bg-gray-50 rounded-lg border-l-4 border-orange-500" data-category="amenities">
+                                        <i class="fas fa-tshirt text-orange-500 mr-2"></i>
+                                        <span class="text-gray-700 font-medium">Laundry</span>
+                                    </div>
+                                    
+                                    <!-- Custom Amenities from Database -->
+                                    <?php if (!empty($amenities_list)): ?>
+                                        <?php foreach ($amenities_list as $amenity): ?>
+                                        <div class="amenity-item p-4 bg-orange-50 rounded-lg border-l-4 border-orange-500" data-category="amenities">
+                                            <i class="fas fa-star text-orange-500 mr-2"></i>
+                                            <span class="text-gray-700 font-medium"><?php echo esc_html($amenity); ?></span>
+                                        </div>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
+                                </div>
                             </div>
                         </div>
 
@@ -1410,6 +1580,34 @@ $debug_data = array(
         const galleryImages = <?php echo json_encode($gallery_images); ?>;
         let currentImageIndex = 0;
 
+        // Initialize tab functionality when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add click event listeners to all tab buttons
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const tabName = this.getAttribute('data-tab');
+                    if (tabName) {
+                        switchTab(tabName);
+                    }
+                });
+            });
+            
+            // Initialize the first tab (Overview) as active
+            const firstTab = document.querySelector('.tab-button[data-tab="overview"]');
+            if (firstTab) {
+                firstTab.classList.add('tab-active');
+                firstTab.classList.remove('text-gray-600');
+            }
+            
+            // Show the first tab content
+            const firstTabContent = document.getElementById('overview-tab');
+            if (firstTabContent) {
+                firstTabContent.classList.remove('hidden');
+                firstTabContent.style.display = 'block';
+            }
+        });
+
         // Mobile Menu Toggle
         function toggleMobileMenu() {
             const menu = document.getElementById('mobileMenu');
@@ -1421,6 +1619,7 @@ $debug_data = array(
             // Hide all tab contents
             document.querySelectorAll('.tab-content').forEach(content => {
                 content.classList.add('hidden');
+                content.style.display = 'none';
             });
             
             // Remove active class from all buttons
@@ -1433,7 +1632,6 @@ $debug_data = array(
             const targetTab = document.getElementById(tabName + '-tab');
             if (targetTab) {
                 targetTab.classList.remove('hidden');
-                // Force display to ensure visibility
                 targetTab.style.display = 'block';
             }
             
