@@ -9,22 +9,14 @@
 
         // Initialize when document is ready
         $(document).ready(function() {
-            // Tab initialization is handled by admin-tabs.js to prevent conflicts
-            console.log('🔧 DEBUG: Property metabox JS loaded - tabs handled by admin-tabs.js');
+            console.log('🔧 DEBUG: Property metabox JS loaded');
             
-            RESBS_Property_Metabox.init();
+            // Initialize only essential features
+            this.initNumberInputs();
+            this.initMediaUploader();
             
-            // Test if form submission works
-            $('form#post').on('submit', function(e) {
-                console.log('🔧 DEBUG: Form is being submitted!');
-                console.log('🔧 DEBUG: Form data:', $(this).serialize());
-            });
-            
-            // Test if Update button is clicked
-            $('input#publish, input#save-post').on('click', function() {
-                console.log('🔧 DEBUG: Update button clicked!');
-            });
-            
+            // DO NOT interfere with form submission
+            console.log('🔧 DEBUG: Form submission handlers disabled to prevent conflicts');
         });
     
     // Additional initialization for upload areas

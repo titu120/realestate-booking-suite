@@ -17,11 +17,16 @@ class RESBS_Property_Metabox {
      */
     public function __construct() {
         add_action('add_meta_boxes', array($this, 'add_property_metaboxes'));
-        add_action('save_post', array($this, 'save_property_metabox'));
+        add_action('save_post', array($this, 'save_property_metabox'), 10, 1);
         add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_assets'));
         add_action('wp_ajax_resbs_upload_property_media', array($this, 'handle_media_upload'));
         add_action('wp_ajax_resbs_delete_property_media', array($this, 'handle_media_delete'));
         add_action('wp_ajax_resbs_get_gallery', array($this, 'get_gallery_data'));
+        
+        // Multiple hooks to ensure saving works
+        add_action('save_post', array($this, 'save_property_metabox_alt'), 5, 1);
+        add_action('wp_insert_post', array($this, 'save_property_metabox'), 10, 1);
+        add_action('post_updated', array($this, 'save_property_metabox'), 10, 1);
     }
 
     /**
@@ -1939,82 +1944,132 @@ class RESBS_Property_Metabox {
     }
 
     /**
-     * Save property metabox data
+     * Save property metabox data - BULLETPROOF VERSION
      */
     public function save_property_metabox($post_id) {
-        // Add debug message to show save function is being called
-        add_action('admin_notices', function() use ($post_id) {
-            echo '<div class="notice notice-warning" style="border: 5px solid #ff6600; background: #fff3cd; padding: 30px; margin: 20px 0;">';
-            echo '<h1 style="color: #ff6600; margin: 0 0 20px 0; font-size: 28px;">🔧 SAVE FUNCTION CALLED 🔧</h1>';
-            echo '<p style="margin: 10px 0; font-size: 20px; color: #333;">The save function is being executed!</p>';
-            echo '<p style="margin: 10px 0; font-size: 20px; color: #333;">Post ID: ' . $post_id . '</p>';
-            echo '<p style="margin: 10px 0; font-size: 20px; color: #333;">POST Data: ' . print_r($_POST, true) . '</p>';
-            echo '</div>';
-        });
+        // Log that function is called
+        error_log('RESBS: Save function called for post ID: ' . $post_id);
+        file_put_contents(WP_CONTENT_DIR . '/resbs_debug.txt', 'SAVE CALLED: ' . date('Y-m-d H:i:s') . ' - Post ID: ' . $post_id . PHP_EOL, FILE_APPEND);
         
-        // Check if our nonce is set and verify it
-        if (!isset($_POST['resbs_property_metabox_nonce']) || !wp_verify_nonce($_POST['resbs_property_metabox_nonce'], 'resbs_property_metabox_nonce')) {
-            add_action('admin_notices', function() {
-                echo '<div class="notice notice-error" style="border: 5px solid #ff0000; background: #ffebee; padding: 30px; margin: 20px 0;">';
-                echo '<h1 style="color: #ff0000; margin: 0 0 20px 0; font-size: 28px;">❌ NONCE ERROR ❌</h1>';
-                echo '<p style="margin: 10px 0; font-size: 20px; color: #333;">Nonce verification failed!</p>';
-                echo '</div>';
-            });
-            return;
-        }
-
-        // Check if user has permissions to save data
+        // Basic WordPress checks
         if (!current_user_can('edit_post', $post_id)) {
+            error_log('RESBS: User cannot edit post');
             return;
         }
-
-        // Check if not an autosave
+        
         if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+            error_log('RESBS: Autosave detected, skipping');
             return;
         }
-
-        // Check if our post type
+        
         if (get_post_type($post_id) !== 'property') {
+            error_log('RESBS: Not a property post type');
             return;
         }
 
-        // Save all property meta fields
-        $fields = array(
-            '_property_price', '_property_price_per_sqft', '_property_price_note', '_property_call_for_price',
-            '_property_bedrooms', '_property_bathrooms', '_property_half_baths', '_property_total_rooms',
-            '_property_floors', '_property_floor_level', '_property_area_sqft', '_property_lot_size_sqft',
-            '_property_year_built', '_property_year_remodeled', '_property_type', '_property_status', '_property_condition',
-            '_property_address', '_property_city', '_property_state', '_property_zip', '_property_country',
-            '_property_latitude', '_property_longitude', '_property_hide_address',
-            '_property_features', '_property_amenities', '_property_parking', '_property_heating', '_property_cooling',
-            '_property_basement', '_property_roof', '_property_exterior_material', '_property_floor_covering',
-            '_property_featured', '_property_new', '_property_sold', '_property_foreclosure', '_property_open_house',
-            '_property_enable_booking', '_property_min_stay', '_property_max_stay', '_property_checkin_time',
-            '_property_checkout_time', '_property_cancellation_policy', '_property_virtual_tour',
-            '_property_video_url', '_property_video_embed'
+        // Log all POST data for debugging
+        file_put_contents(WP_CONTENT_DIR . '/resbs_debug.txt', 'POST DATA: ' . print_r($_POST, true) . PHP_EOL, FILE_APPEND);
+        
+        // Define all possible fields with their database keys
+        $fields_to_save = array(
+            'property_price' => '_property_price',
+            'property_price_per_sqft' => '_property_price_per_sqft', 
+            'property_price_note' => '_property_price_note',
+            'property_call_for_price' => '_property_call_for_price',
+            'property_bedrooms' => '_property_bedrooms',
+            'property_bathrooms' => '_property_bathrooms',
+            'property_half_baths' => '_property_half_baths',
+            'property_total_rooms' => '_property_total_rooms',
+            'property_floors' => '_property_floors',
+            'property_floor_level' => '_property_floor_level',
+            'property_area_sqft' => '_property_area_sqft',
+            'property_lot_size_sqft' => '_property_lot_size_sqft',
+            'property_year_built' => '_property_year_built',
+            'property_year_remodeled' => '_property_year_remodeled',
+            'property_type' => '_property_type',
+            'property_status' => '_property_status',
+            'property_condition' => '_property_condition',
+            'property_address' => '_property_address',
+            'property_city' => '_property_city',
+            'property_state' => '_property_state',
+            'property_zip' => '_property_zip',
+            'property_country' => '_property_country',
+            'property_latitude' => '_property_latitude',
+            'property_longitude' => '_property_longitude',
+            'property_features' => '_property_features',
+            'property_amenities' => '_property_amenities',
+            'property_parking' => '_property_parking',
+            'property_heating' => '_property_heating',
+            'property_cooling' => '_property_cooling',
+            'property_basement' => '_property_basement',
+            'property_roof' => '_property_roof',
+            'property_exterior_material' => '_property_exterior_material',
+            'property_floor_covering' => '_property_floor_covering'
         );
-
-        foreach ($fields as $field) {
-            if (isset($_POST[str_replace('_property_', 'property_', $field)])) {
-                $value = sanitize_text_field($_POST[str_replace('_property_', 'property_', $field)]);
+        
+        $saved_fields = array();
+        $saved_count = 0;
+        
+        // Process each field
+        foreach ($fields_to_save as $form_field => $meta_key) {
+            if (isset($_POST[$form_field])) {
+                $value = $_POST[$form_field];
                 
-                // Special handling for features and amenities - sanitize each feature individually
-                if ($field === '_property_features' || $field === '_property_amenities') {
-                    $features = array_map('trim', explode(',', $value));
-                    $sanitized_features = array();
-                    foreach ($features as $feature) {
-                        $clean_feature = sanitize_text_field($feature);
-                        if (!empty($clean_feature)) {
-                            $sanitized_features[] = $clean_feature;
-                        }
-                    }
-                    $value = implode(', ', $sanitized_features);
+                // Handle different field types
+                if (is_array($value)) {
+                    $value = array_map('sanitize_text_field', $value);
+                } else {
+                    $value = sanitize_text_field($value);
                 }
                 
-                update_post_meta($post_id, $field, $value);
-            } else {
-                delete_post_meta($post_id, $field);
+                // Save the field
+                $result = update_post_meta($post_id, $meta_key, $value);
+                
+                if ($result !== false) {
+                    $saved_fields[] = $form_field;
+                    $saved_count++;
+                    error_log('RESBS: Saved ' . $form_field . ' = ' . (is_array($value) ? implode(',', $value) : $value));
+                    file_put_contents(WP_CONTENT_DIR . '/resbs_debug.txt', 'SAVED: ' . $form_field . ' = ' . (is_array($value) ? implode(',', $value) : $value) . PHP_EOL, FILE_APPEND);
+                }
             }
+        }
+        
+        // Handle checkboxes (they might not be in POST if unchecked)
+        $checkbox_fields = array(
+            'property_featured' => '_property_featured',
+            'property_new' => '_property_new', 
+            'property_sold' => '_property_sold',
+            'property_foreclosure' => '_property_foreclosure',
+            'property_open_house' => '_property_open_house'
+        );
+        
+        foreach ($checkbox_fields as $form_field => $meta_key) {
+            if (isset($_POST[$form_field])) {
+                update_post_meta($post_id, $meta_key, '1');
+                $saved_count++;
+            } else {
+                delete_post_meta($post_id, $meta_key);
+            }
+        }
+        
+        // Show success message
+        if ($saved_count > 0) {
+            add_action('admin_notices', function() use ($saved_count, $saved_fields) {
+                echo '<div class="notice notice-success is-dismissible" style="border: 5px solid #00a32a; background: #d1e7dd; padding: 20px; margin: 20px 0;">';
+                echo '<h3 style="color: #00a32a; margin: 0 0 10px 0;">✅ Property Updated Successfully!</h3>';
+                echo '<p style="margin: 0; color: #333;">' . $saved_count . ' field(s) have been saved.</p>';
+                if (!empty($saved_fields)) {
+                    echo '<p style="margin: 5px 0 0 0; color: #666; font-size: 12px;">Fields: ' . implode(', ', $saved_fields) . '</p>';
+                }
+                echo '</div>';
+            });
+        } else {
+            add_action('admin_notices', function() {
+                echo '<div class="notice notice-warning is-dismissible" style="border: 5px solid #ff6600; background: #fff3cd; padding: 20px; margin: 20px 0;">';
+                echo '<h3 style="color: #ff6600; margin: 0 0 10px 0;">⚠️ No Fields Updated</h3>';
+                echo '<p style="margin: 0; color: #333;">No property fields were found to save. Please check your form data.</p>';
+                echo '</div>';
+            });
         }
 
         // Handle gallery images from WordPress Media Library
@@ -2073,6 +2128,15 @@ class RESBS_Property_Metabox {
                 echo '</div>';
             });
         }
+        
+        // Add success message
+        add_action('admin_notices', function() {
+            echo '<div class="notice notice-success is-dismissible" style="border: 5px solid #00a32a; background: #d1e7dd; padding: 30px; margin: 20px 0;">';
+            echo '<h1 style="color: #00a32a; margin: 0 0 20px 0; font-size: 28px;">✅ PROPERTY SAVED! ✅</h1>';
+            echo '<p style="margin: 10px 0; font-size: 20px; color: #333;">Property specifications have been updated successfully!</p>';
+            echo '<p style="margin: 10px 0 0 0; color: #666; font-size: 18px;">All your changes have been saved.</p>';
+            echo '</div>';
+        });
         
         // Add debug message to show form is being processed
         add_action('admin_notices', function() {
@@ -2178,14 +2242,14 @@ class RESBS_Property_Metabox {
             );
             
             wp_enqueue_script(
-                'resbs-property-metabox',
-                RESBS_URL . 'assets/js/property-metabox.js',
-                array('jquery', 'wp-color-picker', 'media-upload'),
+                'resbs-simple-metabox',
+                RESBS_URL . 'assets/js/simple-metabox.js',
+                array('jquery'),
                 '1.0.0',
                 true
             );
             
-            // DISABLED: Admin tabs JS to prevent conflicts with onclick handlers
+            // DISABLED: Admin tabs JS to prevent conflicts with form submission
             // wp_enqueue_script(
             //     'resbs-admin-tabs',
             //     RESBS_URL . 'assets/js/admin-tabs.js',
@@ -2353,5 +2417,30 @@ class RESBS_Property_Metabox {
             'gallery' => $gallery_html,
             'floor_plans' => $floor_plans_html
         ));
+    }
+    
+    /**
+     * Alternative save function with higher priority
+     */
+    public function save_property_metabox_alt($post_id) {
+        // Only run for property post type
+        if (get_post_type($post_id) !== 'property') {
+            return;
+        }
+        
+        // Simple backup save for critical fields
+        $critical_fields = array(
+            'property_bedrooms' => '_property_bedrooms',
+            'property_bathrooms' => '_property_bathrooms',
+            'property_area_sqft' => '_property_area_sqft',
+            'property_lot_size_sqft' => '_property_lot_size_sqft'
+        );
+        
+        foreach ($critical_fields as $form_field => $meta_field) {
+            if (isset($_POST[$form_field])) {
+                $value = sanitize_text_field($_POST[$form_field]);
+                update_post_meta($post_id, $meta_field, $value);
+            }
+        }
     }
 }

@@ -383,6 +383,11 @@ $debug_data = array(
                             <?php if ($price_per_sqft_formatted): ?>
                             <p class="text-gray-500 text-sm"><?php echo esc_html($price_per_sqft_formatted); ?></p>
                             <?php endif; ?>
+                            <?php if ($price_note): ?>
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mt-2">
+                                <p class="text-blue-800 text-sm font-medium"><i class="fas fa-info-circle mr-2"></i>Price Note: <?php echo esc_html($price_note); ?></p>
+                            </div>
+                            <?php endif; ?>
                         </div>
                     </div>
                     
@@ -530,7 +535,8 @@ $debug_data = array(
                                     
                                     <?php if ($price_note): ?>
                                     <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
-                                        <p class="text-blue-800"><i class="fas fa-info-circle mr-2"></i><?php echo esc_html($price_note); ?></p>
+                                        <h5 class="text-blue-900 font-semibold mb-2"><i class="fas fa-info-circle mr-2"></i>Price Note</h5>
+                                        <p class="text-blue-800"><?php echo esc_html($price_note); ?></p>
                                     </div>
                                     <?php endif; ?>
                                     
