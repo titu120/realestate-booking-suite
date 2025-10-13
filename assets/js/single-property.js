@@ -14,6 +14,13 @@ function initializeGalleryImages() {
         console.error('Gallery images not available from window.galleryImages');
         console.log('window.galleryImages:', window.galleryImages);
         console.log('No gallery images available - check PHP gallery processing');
+        
+        // Try to get images from gallery elements on the page as fallback
+        const galleryImgs = document.querySelectorAll('.gallery-img');
+        if (galleryImgs.length > 0) {
+            galleryImages = Array.from(galleryImgs).map(img => img.src);
+            console.log('Fallback: Found gallery images from DOM:', galleryImages);
+        }
     }
 }
 
@@ -111,16 +118,22 @@ function filterAmenities(category) {
     });
 }
 
-// Image Viewer - Working Code from HTML
+// Image Viewer - Enhanced with fallback
 function openImageViewer(index) {
     console.log('Opening image viewer for index:', index);
     console.log('Gallery images available:', galleryImages);
     console.log('Gallery images length:', galleryImages ? galleryImages.length : 0);
     
+    // Try to get images from window.galleryImages if local array is empty
     if (!galleryImages || galleryImages.length === 0) {
-        console.error('No gallery images available!');
-        alert('No images available to display.');
-        return;
+        if (window.galleryImages && window.galleryImages.length > 0) {
+            galleryImages = window.galleryImages;
+            console.log('Using window.galleryImages:', galleryImages);
+        } else {
+            console.error('No gallery images available!');
+            alert('No images available to display.');
+            return;
+        }
     }
     
     if (index >= galleryImages.length) {
@@ -288,6 +301,63 @@ function submitBookingForm(e) {
     console.log('Thank you for your booking request! Our agent will contact you shortly to confirm your tour.');
 }
 
+// Simple Image Popup - Fallback solution
+function showImagePopup(imageSrc) {
+    // Create popup overlay
+    const overlay = document.createElement('div');
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.9);
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    `;
+    
+    // Create image element
+    const img = document.createElement('img');
+    img.src = imageSrc;
+    img.style.cssText = `
+        max-width: 90%;
+        max-height: 90%;
+        object-fit: contain;
+        border-radius: 8px;
+    `;
+    
+    // Create close button
+    const closeBtn = document.createElement('button');
+    closeBtn.innerHTML = '×';
+    closeBtn.style.cssText = `
+        position: absolute;
+        top: 20px;
+        right: 30px;
+        background: none;
+        border: none;
+        color: white;
+        font-size: 40px;
+        cursor: pointer;
+        z-index: 10000;
+    `;
+    
+    overlay.appendChild(img);
+    overlay.appendChild(closeBtn);
+    document.body.appendChild(overlay);
+    document.body.style.overflow = 'hidden';
+    
+    // Close on click
+    overlay.onclick = function(e) {
+        if (e.target === overlay || e.target === closeBtn) {
+            document.body.removeChild(overlay);
+            document.body.style.overflow = 'auto';
+        }
+    };
+}
+
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
     calculateMortgage();
@@ -303,6 +373,37 @@ document.addEventListener('DOMContentLoaded', function() {
         if (content.id !== 'overview-tab') {
             content.classList.add('hidden');
         }
+    });
+    
+    // Add click handlers to gallery images as fallback
+    document.querySelectorAll('.gallery-img').forEach((img, index) => {
+        img.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('Gallery image clicked, index:', index);
+            console.log('Image src:', img.src);
+            console.log('Gallery images available:', galleryImages);
+            console.log('Window gallery images:', window.galleryImages);
+            
+            // Try the main image viewer first
+            if (galleryImages && galleryImages.length > 0) {
+                console.log('Using main image viewer');
+                openImageViewer(index);
+            } else if (window.galleryImages && window.galleryImages.length > 0) {
+                console.log('Using window gallery images');
+                galleryImages = window.galleryImages;
+                openImageViewer(index);
+            } else {
+                console.log('Using fallback popup');
+                // Fallback to simple popup
+                showImagePopup(img.src);
+            }
+        });
+    });
+    
+    // Debug: Log all gallery images found
+    console.log('Total gallery images found:', document.querySelectorAll('.gallery-img').length);
+    document.querySelectorAll('.gallery-img').forEach((img, index) => {
+        console.log(`Gallery image ${index}:`, img.src);
     });
 });
 
