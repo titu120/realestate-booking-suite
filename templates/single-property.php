@@ -23,6 +23,81 @@ function resbs_safe_meta($value) {
     return array();
 }
 
+// Helper function to get similar properties
+function resbs_get_similar_properties($property_id, $limit = 4) {
+    // Get current property data
+    $property_type = get_post_meta($property_id, '_property_type', true) ?: 'Property';
+    $property_status = get_post_meta($property_id, '_property_status', true) ?: 'For Sale';
+    $city = get_post_meta($property_id, '_property_city', true);
+    $price = get_post_meta($property_id, '_property_price', true);
+    
+    // Build meta query for similar properties
+    $meta_query = array(
+        'relation' => 'OR',
+        // Same property type
+        array(
+            'key' => '_property_type',
+            'value' => $property_type,
+            'compare' => '='
+        ),
+        // Same city
+        array(
+            'key' => '_property_city',
+            'value' => $city,
+            'compare' => '='
+        ),
+        // Same status
+        array(
+            'key' => '_property_status',
+            'value' => $property_status,
+            'compare' => '='
+        )
+    );
+    
+    // Add price range if price is available and numeric
+    if ($price && is_numeric($price) && $price > 0) {
+        $meta_query[] = array(
+            'key' => '_property_price',
+            'value' => array(
+                floatval($price) * 0.8, // 20% less
+                floatval($price) * 1.2  // 20% more
+            ),
+            'compare' => 'BETWEEN',
+            'type' => 'NUMERIC'
+        );
+    }
+    
+    // Get similar properties with better criteria
+    $similar_properties = get_posts(array(
+        'post_type' => 'property',
+        'posts_per_page' => $limit,
+        'post__not_in' => array($property_id),
+        'meta_query' => $meta_query,
+        'orderby' => 'rand' // Randomize to show different properties
+    ));
+    
+    // If no similar properties found, get any other properties with better fallback
+    if (empty($similar_properties)) {
+        $similar_properties = get_posts(array(
+            'post_type' => 'property',
+            'posts_per_page' => $limit,
+            'post__not_in' => array($property_id),
+            'orderby' => 'rand'
+        ));
+    }
+    
+    // If still no properties, get any property including current one (as last resort)
+    if (empty($similar_properties)) {
+        $similar_properties = get_posts(array(
+            'post_type' => 'property',
+            'posts_per_page' => $limit,
+            'orderby' => 'rand'
+        ));
+    }
+    
+    return $similar_properties;
+}
+
 // Get all property meta fields with fallbacks
 $price = get_post_meta($property_id, '_property_price', true) ?: get_post_meta($property_id, '_resbs_price', true);
 $price_per_sqft = get_post_meta($property_id, '_property_price_per_sqft', true);
@@ -74,11 +149,69 @@ $agent_phone = get_post_meta($property_id, '_property_agent_phone', true);
 $agent_email = get_post_meta($property_id, '_property_agent_email', true);
 $agent_photo = get_post_meta($property_id, '_property_agent_photo', true);
 
-// Get gallery images
+// Get gallery images with proper URL conversion
+$gallery_images = array();
+
+// Debug gallery data
+error_log('Gallery raw data: ' . print_r($gallery, true));
+error_log('Gallery type: ' . gettype($gallery));
+error_log('Gallery empty: ' . (empty($gallery) ? 'YES' : 'NO'));
+
 if (is_array($gallery)) {
-    $gallery_images = array_filter($gallery);
+    $gallery_ids = array_filter($gallery);
+    error_log('Gallery as array, IDs: ' . print_r($gallery_ids, true));
+} elseif (is_string($gallery) && !empty($gallery)) {
+    $gallery_ids = array_filter(explode(',', $gallery));
+    error_log('Gallery as string, IDs: ' . print_r($gallery_ids, true));
 } else {
-    $gallery_images = array_filter(explode(',', $gallery));
+    $gallery_ids = array();
+    error_log('Gallery is empty or invalid');
+}
+
+// Convert attachment IDs to URLs
+foreach ($gallery_ids as $image_id) {
+    error_log('Processing image ID: ' . $image_id);
+    if (is_numeric($image_id)) {
+        $image_url = wp_get_attachment_image_url(intval($image_id), 'large');
+        error_log('Generated URL for ID ' . $image_id . ': ' . $image_url);
+        if ($image_url) {
+            $gallery_images[] = $image_url;
+        }
+    } elseif (filter_var($image_id, FILTER_VALIDATE_URL)) {
+        error_log('Using direct URL: ' . $image_id);
+        $gallery_images[] = $image_id;
+    }
+}
+
+// Fallback to featured image if no gallery images
+if (empty($gallery_images)) {
+    error_log('No gallery images found, trying featured image fallback');
+    $featured_image_id = get_post_thumbnail_id($property_id);
+    error_log('Featured image ID: ' . $featured_image_id);
+    if ($featured_image_id) {
+        $featured_image_url = wp_get_attachment_image_url($featured_image_id, 'large');
+        error_log('Featured image URL: ' . $featured_image_url);
+        if ($featured_image_url) {
+            $gallery_images[] = $featured_image_url;
+        }
+    }
+}
+
+// Final debug
+error_log('Final gallery images array: ' . print_r($gallery_images, true));
+error_log('Gallery images count: ' . count($gallery_images));
+
+// If still no images, add some test images for debugging
+if (empty($gallery_images)) {
+    error_log('No images found, adding test images');
+    $gallery_images = array(
+        'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200',
+        'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1200',
+        'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=1200',
+        'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200',
+        'https://images.unsplash.com/photo-1600573472550-8090b5e0745e?w=1200'
+    );
+    error_log('Added test images: ' . print_r($gallery_images, true));
 }
 
 // Get features and amenities
@@ -187,7 +320,15 @@ $debug_data = array(
 
     <div class="container mx-auto px-4 py-8">
         <!-- Debug Section - Remove in production -->
-
+        <?php if (current_user_can('manage_options')): ?>
+        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+            <h4 class="font-bold text-yellow-800 mb-2">Debug Information (Admin Only)</h4>
+            <p class="text-sm text-yellow-700"><strong>Gallery Meta:</strong> <?php echo esc_html(is_array($gallery) ? implode(',', $gallery) : $gallery); ?></p>
+            <p class="text-sm text-yellow-700"><strong>Gallery IDs:</strong> <?php echo esc_html(implode(',', $gallery_ids)); ?></p>
+            <p class="text-sm text-yellow-700"><strong>Gallery Images:</strong> <?php echo esc_html(implode(',', $gallery_images)); ?></p>
+            <p class="text-sm text-yellow-700"><strong>Featured Image ID:</strong> <?php echo esc_html(get_post_thumbnail_id($property_id)); ?></p>
+        </div>
+        <?php endif; ?>
         
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <!-- Main Content -->
@@ -334,7 +475,7 @@ $debug_data = array(
                             <i class="fas fa-map-marker-alt mr-2"></i>Location
                         </button>
                         <button onclick="switchTab('features')" class="tab-button px-6 py-4 font-semibold text-gray-600 hover:text-emerald-500 whitespace-nowrap" data-tab="features">
-                            <i class="fas fa-check mr-2"></i>Features
+                            <i class="fas fa-check-circle mr-2"></i>Features
                         </button>
                         <button onclick="switchTab('media')" class="tab-button px-6 py-4 font-semibold text-gray-600 hover:text-emerald-500 whitespace-nowrap" data-tab="media">
                             <i class="fas fa-image mr-2"></i>Media
@@ -491,7 +632,7 @@ $debug_data = array(
                                     <?php endif; ?>
                                     <?php if ($floors): ?>
                                     <div class="flex justify-between py-2 border-b">
-                                        <span class="text-gray-600">Stories:</span>
+                                        <span class="text-gray-600">Floors:</span>
                                         <span class="font-semibold text-gray-800"><?php echo esc_html($floors); ?></span>
                                     </div>
                                     <?php endif; ?>
@@ -656,8 +797,6 @@ $debug_data = array(
                             <div class="flex flex-wrap gap-2 mb-6 no-print">
                                 <button onclick="filterAmenities('all')" class="filter-btn filter-active px-4 py-2 rounded-lg font-semibold text-sm transition" data-filter="all">All</button>
                                 <button onclick="filterAmenities('interior')" class="filter-btn px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-semibold text-sm hover:bg-gray-200 transition" data-filter="interior">Interior</button>
-                                <button onclick="filterAmenities('exterior')" class="filter-btn px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-semibold text-sm hover:bg-gray-200 transition" data-filter="exterior">Exterior</button>
-                                <button onclick="filterAmenities('building')" class="filter-btn px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-semibold text-sm hover:bg-gray-200 transition" data-filter="building">Building</button>
                                 <button onclick="filterAmenities('amenities')" class="filter-btn px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-semibold text-sm hover:bg-gray-200 transition" data-filter="amenities">Amenities</button>
                             </div>
 
@@ -669,86 +808,7 @@ $debug_data = array(
                                 
                                 <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4" id="featuresContainer">
                                     <!-- Common Interior Features -->
-                                    <div class="amenity-item p-4 bg-gray-50 rounded-lg border-l-4 border-emerald-500" data-category="interior">
-                                        <i class="fas fa-check-circle text-emerald-500 mr-2"></i>
-                                        <span class="text-gray-700 font-medium">Hardwood Floors</span>
-                                    </div>
-                                    <div class="amenity-item p-4 bg-gray-50 rounded-lg border-l-4 border-emerald-500" data-category="interior">
-                                        <i class="fas fa-check-circle text-emerald-500 mr-2"></i>
-                                        <span class="text-gray-700 font-medium">Granite Countertops</span>
-                                    </div>
-                                    <div class="amenity-item p-4 bg-gray-50 rounded-lg border-l-4 border-emerald-500" data-category="interior">
-                                        <i class="fas fa-check-circle text-emerald-500 mr-2"></i>
-                                        <span class="text-gray-700 font-medium">Stainless Steel Appliances</span>
-                                    </div>
-                                    <div class="amenity-item p-4 bg-gray-50 rounded-lg border-l-4 border-emerald-500" data-category="interior">
-                                        <i class="fas fa-check-circle text-emerald-500 mr-2"></i>
-                                        <span class="text-gray-700 font-medium">Walk-in Closet</span>
-                                    </div>
-                                    <div class="amenity-item p-4 bg-gray-50 rounded-lg border-l-4 border-emerald-500" data-category="interior">
-                                        <i class="fas fa-check-circle text-emerald-500 mr-2"></i>
-                                        <span class="text-gray-700 font-medium">Crown Molding</span>
-                                    </div>
-                                    <div class="amenity-item p-4 bg-gray-50 rounded-lg border-l-4 border-emerald-500" data-category="interior">
-                                        <i class="fas fa-check-circle text-emerald-500 mr-2"></i>
-                                        <span class="text-gray-700 font-medium">High Ceilings</span>
-                                    </div>
-                                    <div class="amenity-item p-4 bg-gray-50 rounded-lg border-l-4 border-emerald-500" data-category="interior">
-                                        <i class="fas fa-check-circle text-emerald-500 mr-2"></i>
-                                        <span class="text-gray-700 font-medium">Built-in Shelves</span>
-                                    </div>
-                                    <div class="amenity-item p-4 bg-gray-50 rounded-lg border-l-4 border-emerald-500" data-category="interior">
-                                        <i class="fas fa-check-circle text-emerald-500 mr-2"></i>
-                                        <span class="text-gray-700 font-medium">Marble Bathroom</span>
-                                    </div>
-                                    
-                                    <!-- Common Exterior Features -->
-                                    <div class="amenity-item p-4 bg-gray-50 rounded-lg border-l-4 border-blue-500" data-category="exterior">
-                                        <i class="fas fa-check-circle text-blue-500 mr-2"></i>
-                                        <span class="text-gray-700 font-medium">Balcony</span>
-                                    </div>
-                                    <div class="amenity-item p-4 bg-gray-50 rounded-lg border-l-4 border-blue-500" data-category="exterior">
-                                        <i class="fas fa-check-circle text-blue-500 mr-2"></i>
-                                        <span class="text-gray-700 font-medium">Fireplace</span>
-                                    </div>
-                                    <div class="amenity-item p-4 bg-gray-50 rounded-lg border-l-4 border-blue-500" data-category="exterior">
-                                        <i class="fas fa-check-circle text-blue-500 mr-2"></i>
-                                        <span class="text-gray-700 font-medium">Bay Windows</span>
-                                    </div>
-                                    <div class="amenity-item p-4 bg-gray-50 rounded-lg border-l-4 border-blue-500" data-category="exterior">
-                                        <i class="fas fa-check-circle text-blue-500 mr-2"></i>
-                                        <span class="text-gray-700 font-medium">Skylights</span>
-                                    </div>
-                                    
-                                    <!-- Building Features -->
-                                    <div class="amenity-item p-4 bg-gray-50 rounded-lg border-l-4 border-purple-500" data-category="building">
-                                        <i class="fas fa-check-circle text-purple-500 mr-2"></i>
-                                        <span class="text-gray-700 font-medium">Central Air</span>
-                                    </div>
-                                    <div class="amenity-item p-4 bg-gray-50 rounded-lg border-l-4 border-purple-500" data-category="building">
-                                        <i class="fas fa-check-circle text-purple-500 mr-2"></i>
-                                        <span class="text-gray-700 font-medium">Gas Heating</span>
-                                    </div>
-                                    <div class="amenity-item p-4 bg-gray-50 rounded-lg border-l-4 border-purple-500" data-category="building">
-                                        <i class="fas fa-check-circle text-purple-500 mr-2"></i>
-                                        <span class="text-gray-700 font-medium">Driveway</span>
-                                    </div>
-                                    <div class="amenity-item p-4 bg-gray-50 rounded-lg border-l-4 border-purple-500" data-category="building">
-                                        <i class="fas fa-check-circle text-purple-500 mr-2"></i>
-                                        <span class="text-gray-700 font-medium">Unfinished Basement</span>
-                                    </div>
-                                    <div class="amenity-item p-4 bg-gray-50 rounded-lg border-l-4 border-purple-500" data-category="building">
-                                        <i class="fas fa-check-circle text-purple-500 mr-2"></i>
-                                        <span class="text-gray-700 font-medium">Asphalt Shingles</span>
-                                    </div>
-                                    <div class="amenity-item p-4 bg-gray-50 rounded-lg border-l-4 border-purple-500" data-category="building">
-                                        <i class="fas fa-check-circle text-purple-500 mr-2"></i>
-                                        <span class="text-gray-700 font-medium">Brick</span>
-                                    </div>
-                                    <div class="amenity-item p-4 bg-gray-50 rounded-lg border-l-4 border-purple-500" data-category="building">
-                                        <i class="fas fa-check-circle text-purple-500 mr-2"></i>
-                                        <span class="text-gray-700 font-medium">Carpet</span>
-                                    </div>
+
                                     
                                     <!-- Custom Features from Database -->
                                     <?php if (!empty($features_list)): ?>
@@ -770,54 +830,7 @@ $debug_data = array(
                                 
                                 <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4" id="amenitiesContainer">
                                     <!-- Common Amenities -->
-                                    <div class="amenity-item p-4 bg-gray-50 rounded-lg border-l-4 border-orange-500" data-category="amenities">
-                                        <i class="fas fa-swimming-pool text-orange-500 mr-2"></i>
-                                        <span class="text-gray-700 font-medium">Pool</span>
-                                    </div>
-                                    <div class="amenity-item p-4 bg-gray-50 rounded-lg border-l-4 border-orange-500" data-category="amenities">
-                                        <i class="fas fa-dumbbell text-orange-500 mr-2"></i>
-                                        <span class="text-gray-700 font-medium">Gym</span>
-                                    </div>
-                                    <div class="amenity-item p-4 bg-gray-50 rounded-lg border-l-4 border-orange-500" data-category="amenities">
-                                        <i class="fas fa-shield-alt text-orange-500 mr-2"></i>
-                                        <span class="text-gray-700 font-medium">Security</span>
-                                    </div>
-                                    <div class="amenity-item p-4 bg-gray-50 rounded-lg border-l-4 border-orange-500" data-category="amenities">
-                                        <i class="fas fa-car text-orange-500 mr-2"></i>
-                                        <span class="text-gray-700 font-medium">Parking</span>
-                                    </div>
-                                    <div class="amenity-item p-4 bg-gray-50 rounded-lg border-l-4 border-orange-500" data-category="amenities">
-                                        <i class="fas fa-elevator text-orange-500 mr-2"></i>
-                                        <span class="text-gray-700 font-medium">Elevator</span>
-                                    </div>
-                                    <div class="amenity-item p-4 bg-gray-50 rounded-lg border-l-4 border-orange-500" data-category="amenities">
-                                        <i class="fas fa-concierge-bell text-orange-500 mr-2"></i>
-                                        <span class="text-gray-700 font-medium">Concierge</span>
-                                    </div>
-                                    <div class="amenity-item p-4 bg-gray-50 rounded-lg border-l-4 border-orange-500" data-category="amenities">
-                                        <i class="fas fa-building text-orange-500 mr-2"></i>
-                                        <span class="text-gray-700 font-medium">Rooftop</span>
-                                    </div>
-                                    <div class="amenity-item p-4 bg-gray-50 rounded-lg border-l-4 border-orange-500" data-category="amenities">
-                                        <i class="fas fa-seedling text-orange-500 mr-2"></i>
-                                        <span class="text-gray-700 font-medium">Garden</span>
-                                    </div>
-                                    <div class="amenity-item p-4 bg-gray-50 rounded-lg border-l-4 border-orange-500" data-category="amenities">
-                                        <i class="fas fa-balcony text-orange-500 mr-2"></i>
-                                        <span class="text-gray-700 font-medium">Balcony</span>
-                                    </div>
-                                    <div class="amenity-item p-4 bg-gray-50 rounded-lg border-l-4 border-orange-500" data-category="amenities">
-                                        <i class="fas fa-umbrella text-orange-500 mr-2"></i>
-                                        <span class="text-gray-700 font-medium">Terrace</span>
-                                    </div>
-                                    <div class="amenity-item p-4 bg-gray-50 rounded-lg border-l-4 border-orange-500" data-category="amenities">
-                                        <i class="fas fa-box text-orange-500 mr-2"></i>
-                                        <span class="text-gray-700 font-medium">Storage</span>
-                                    </div>
-                                    <div class="amenity-item p-4 bg-gray-50 rounded-lg border-l-4 border-orange-500" data-category="amenities">
-                                        <i class="fas fa-tshirt text-orange-500 mr-2"></i>
-                                        <span class="text-gray-700 font-medium">Laundry</span>
-                                    </div>
+                                   
                                     
                                     <!-- Custom Amenities from Database -->
                                     <?php if (!empty($amenities_list)): ?>
@@ -830,6 +843,55 @@ $debug_data = array(
                                     <?php endif; ?>
                                 </div>
                             </div>
+                        </div>
+
+                        <!-- Features & Amenities Tab -->
+                        <div id="features-tab" class="tab-content hidden">
+                            <h3 class="text-xl font-bold text-gray-800 mb-6">Property Features & Amenities</h3>
+                            
+                            <!-- Features Section -->
+                            <?php if (!empty($features_list)): ?>
+                            <div class="mb-8">
+                                <h4 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                                    <i class="fas fa-home text-emerald-500 mr-2"></i>Property Features
+                                </h4>
+                                
+                                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    <?php foreach ($features_list as $feature): ?>
+                                    <div class="amenity-item p-4 bg-emerald-50 rounded-lg border-l-4 border-emerald-500 hover:bg-emerald-100 transition-colors">
+                                        <i class="fas fa-check-circle text-emerald-500 mr-2"></i>
+                                        <span class="text-gray-700 font-medium"><?php echo esc_html(trim($feature)); ?></span>
+                                    </div>
+                                    <?php endforeach; ?>
+                                </div>
+                            </div>
+                            <?php endif; ?>
+                            
+                            <!-- Amenities Section -->
+                            <?php if (!empty($amenities_list)): ?>
+                            <div class="mb-8">
+                                <h4 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                                    <i class="fas fa-concierge-bell text-orange-500 mr-2"></i>Property Amenities
+                                </h4>
+                                
+                                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    <?php foreach ($amenities_list as $amenity): ?>
+                                    <div class="amenity-item p-4 bg-orange-50 rounded-lg border-l-4 border-orange-500 hover:bg-orange-100 transition-colors">
+                                        <i class="fas fa-check-circle text-orange-500 mr-2"></i>
+                                        <span class="text-gray-700 font-medium"><?php echo esc_html(trim($amenity)); ?></span>
+                                    </div>
+                                    <?php endforeach; ?>
+                                </div>
+                            </div>
+                            <?php endif; ?>
+                            
+                            <!-- No Features/Amenities Message -->
+                            <?php if (empty($features_list) && empty($amenities_list)): ?>
+                            <div class="text-center py-12">
+                                <i class="fas fa-info-circle text-gray-400 text-4xl mb-4"></i>
+                                <p class="text-gray-500 text-lg">No features or amenities have been added to this property yet.</p>
+                            </div>
+                            <?php endif; ?>
                         </div>
 
                         <!-- Media Tab -->
@@ -1150,19 +1212,26 @@ $debug_data = array(
                     <h3 class="text-2xl font-bold text-gray-800 mb-6">Similar Properties</h3>
                     <div class="grid md:grid-cols-2 gap-6">
                         <?php
-                        // Get similar properties
-                        $similar_properties = get_posts(array(
-                            'post_type' => 'property',
-                            'posts_per_page' => 2,
-                            'post__not_in' => array($property_id),
-                            'meta_query' => array(
-                                array(
-                                    'key' => '_property_status',
-                                    'value' => $property_status,
-                                    'compare' => '='
-                                )
-                            )
-                        ));
+                        // Get similar properties using the helper function
+                        $similar_properties = resbs_get_similar_properties($property_id, 4);
+                        
+                        // Debug information (remove in production)
+                        if (current_user_can('manage_options')) {
+                            echo '<!-- Debug: Found ' . count($similar_properties) . ' similar properties -->';
+                            echo '<!-- Debug: Current property status: ' . $property_status . ' -->';
+                            echo '<!-- Debug: Current property type: ' . $property_type . ' -->';
+                            echo '<!-- Debug: Current property city: ' . $city . ' -->';
+                            echo '<!-- Debug: Current property price: ' . $price . ' -->';
+                            foreach ($similar_properties as $debug_prop) {
+                                echo '<!-- Debug Property: ' . $debug_prop->post_title . ' (ID: ' . $debug_prop->ID . ') -->';
+                                echo '<!-- Debug - Beds: ' . esc_html(get_post_meta($debug_prop->ID, '_property_bedrooms', true)) . ' -->';
+                                echo '<!-- Debug - Baths: ' . esc_html(get_post_meta($debug_prop->ID, '_property_bathrooms', true)) . ' -->';
+                                echo '<!-- Debug - Area: ' . esc_html(get_post_meta($debug_prop->ID, '_property_area_sqft', true)) . ' -->';
+                                $debug_gallery = get_post_meta($debug_prop->ID, '_property_gallery', true);
+                                $debug_gallery_str = is_array($debug_gallery) ? implode(',', $debug_gallery) : $debug_gallery;
+                                echo '<!-- Debug - Gallery: ' . esc_html($debug_gallery_str) . ' -->';
+                            }
+                        }
                         
                         if ($similar_properties):
                             foreach ($similar_properties as $similar):
@@ -1171,35 +1240,77 @@ $debug_data = array(
                                 $similar_bathrooms = get_post_meta($similar->ID, '_property_bathrooms', true);
                                 $similar_area = get_post_meta($similar->ID, '_property_area_sqft', true);
                                 $similar_gallery = get_post_meta($similar->ID, '_property_gallery', true);
-                                $similar_images = is_array($similar_gallery) ? $similar_gallery : explode(',', $similar_gallery);
-                                $similar_image = !empty($similar_images) ? $similar_images[0] : 'https://images.unsplash.com/photo-1600607687644-c7171b42498f?w=600';
+                                
+                                // Safely handle gallery data - could be array, string, or empty
+                                $similar_images = array();
+                                if (is_array($similar_gallery)) {
+                                    $similar_images = array_filter($similar_gallery);
+                                } elseif (is_string($similar_gallery) && !empty($similar_gallery)) {
+                                    $similar_images = array_filter(explode(',', $similar_gallery));
+                                }
+                                
+                                // Get the first image URL properly
+                                $similar_image = 'https://images.unsplash.com/photo-1600607687644-c7171b42498f?w=600'; // Default fallback
+                                
+                                // Try gallery images first
+                                if (!empty($similar_images) && is_array($similar_images)) {
+                                    $first_image = $similar_images[0];
+                                    if (is_numeric($first_image)) {
+                                        $first_image_id = intval($first_image);
+                                        if ($first_image_id > 0) {
+                                            $image_url = wp_get_attachment_image_url($first_image_id, 'medium');
+                                            if ($image_url) {
+                                                $similar_image = $image_url;
+                                            }
+                                        }
+                                    } elseif (is_string($first_image) && filter_var($first_image, FILTER_VALIDATE_URL)) {
+                                        $similar_image = $first_image;
+                                    }
+                                }
+                                
+                                // Fallback to featured image if no gallery
+                                if ($similar_image === 'https://images.unsplash.com/photo-1600607687644-c7171b42498f?w=600') {
+                                    $featured_image_id = get_post_thumbnail_id($similar->ID);
+                                    if ($featured_image_id) {
+                                        $featured_image_url = wp_get_attachment_image_url($featured_image_id, 'medium');
+                                        if ($featured_image_url) {
+                                            $similar_image = $featured_image_url;
+                                        }
+                                    }
+                                }
+                                
+                                // Safely format price with fallback
+                                $similar_price_formatted = 'Price on Request';
+                                if (!empty($similar_price) && is_numeric($similar_price)) {
+                                    $similar_price_formatted = '$' . number_format(floatval($similar_price));
+                                }
                         ?>
-                        <div class="property-card border rounded-lg overflow-hidden">
+                        <a href="<?php echo get_permalink($similar->ID); ?>" class="property-card border rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
                             <div class="relative">
                                 <img src="<?php echo esc_url($similar_image); ?>" alt="Property" class="w-full h-48 object-cover">
-                                <span class="absolute top-3 left-3 bg-emerald-500 text-white px-3 py-1 rounded-full text-sm font-semibold"><?php echo esc_html($property_status); ?></span>
+                                <span class="absolute top-3 left-3 bg-emerald-500 text-white px-3 py-1 rounded-full text-sm font-semibold"><?php echo esc_html(get_post_meta($similar->ID, '_property_status', true) ?: 'For Sale'); ?></span>
                             </div>
                             <div class="p-4">
-                                <h4 class="font-bold text-lg text-gray-800 mb-2"><?php echo esc_html($similar->post_title); ?></h4>
+                                <h4 class="font-bold text-lg text-gray-800 mb-2 hover:text-emerald-600 transition-colors"><?php echo esc_html($similar->post_title); ?></h4>
                                 <p class="text-gray-600 text-sm mb-3 flex items-center">
                                     <i class="fas fa-map-marker-alt text-emerald-500 mr-2"></i>
                                     <?php echo esc_html(get_post_meta($similar->ID, '_property_address', true)); ?>
                                 </p>
                                 <div class="flex items-center justify-between mb-3">
-                                    <span class="text-2xl font-bold text-emerald-500">$<?php echo esc_html(number_format($similar_price)); ?></span>
+                                    <span class="text-2xl font-bold text-emerald-500"><?php echo esc_html($similar_price_formatted); ?></span>
                                 </div>
                                 <div class="flex items-center space-x-4 text-sm text-gray-600 border-t pt-3">
-                                    <span><i class="fas fa-bed mr-1"></i><?php echo esc_html($similar_bedrooms ?: '0'); ?> Beds</span>
-                                    <span><i class="fas fa-bath mr-1"></i><?php echo esc_html($similar_bathrooms ?: '0'); ?> Bath</span>
-                                    <span><i class="fas fa-ruler-combined mr-1"></i><?php echo esc_html($similar_area ?: '0'); ?> sqft</span>
+                                    <span class="flex items-center"><i class="fas fa-bed mr-1 text-emerald-500"></i><?php echo esc_html($similar_bedrooms ?: '0'); ?> Beds</span>
+                                    <span class="flex items-center"><i class="fas fa-bath mr-1 text-emerald-500"></i><?php echo esc_html($similar_bathrooms ?: '0'); ?> Bath</span>
+                                    <span class="flex items-center"><i class="fas fa-ruler-combined mr-1 text-emerald-500"></i><?php echo esc_html($similar_area ?: '0'); ?> sqft</span>
                                 </div>
                             </div>
-                        </div>
+                        </a>
                         <?php
                             endforeach;
                         else:
                         ?>
-                        <div class="col-span-2 text-center py-8">
+                        <div class="col-span-4 text-center py-8">
                             <i class="fas fa-home text-gray-300 text-4xl mb-4"></i>
                             <p class="text-gray-500">No similar properties found</p>
                         </div>
@@ -1436,5 +1547,12 @@ $debug_data = array(
         window.propertyLongitude = <?php echo $longitude ? esc_js($longitude) : 'null'; ?>;
         window.propertyTitle = <?php echo esc_js($property_title); ?>;
         window.propertyAddress = <?php echo esc_js($full_address); ?>;
+        
+        // Debug gallery images
+        console.log('Gallery Images from PHP:', window.galleryImages);
+        console.log('Gallery Images Length:', window.galleryImages ? window.galleryImages.length : 0);
+        if (window.galleryImages && window.galleryImages.length > 0) {
+            console.log('First image URL:', window.galleryImages[0]);
+        }
     </script>
 </div>

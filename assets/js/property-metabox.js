@@ -326,12 +326,12 @@
                                 });
                             } else {
                                 $item.removeClass('resbs-loading');
-                                alert('Error deleting image. Please try again.');
+                                console.log('Error deleting image. Please try again.');
                             }
                         },
                         error: function() {
                             $item.removeClass('resbs-loading');
-                            alert('Error deleting image. Please try again.');
+                            console.log('Error deleting image. Please try again.');
                         }
                     });
                 }
@@ -603,7 +603,7 @@
                     
                     RESBS_Property_Metabox.initMap(lat, lng);
                 } else {
-                    alert(resbs_metabox.strings.geocoding_error);
+                    console.log(resbs_metabox.strings.geocoding_error);
                 }
             });
         },
@@ -665,7 +665,7 @@
                 
                 if (!isValid) {
                     e.preventDefault();
-                    alert('Please fill in all required fields.');
+                    console.log('Please fill in all required fields.');
                 }
             });
         },

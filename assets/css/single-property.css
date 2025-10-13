@@ -89,6 +89,12 @@
     display: flex;
 }
 
+.image-viewer img {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+}
+
 @media print {
     .no-print {
         display: none;
@@ -138,4 +144,8 @@
     white-space: nowrap;
     font-size: 12px;
     z-index: 1000;
+}
+
+a.property-card.border.rounded-lg.overflow-hidden.hover\:shadow-lg.transition-shadow {
+    transition: all .3s ease-in-out;
 }

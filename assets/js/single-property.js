@@ -1,8 +1,58 @@
 // Single Property JavaScript Functions
 
 // Gallery images from PHP - will be populated by PHP
-let galleryImages = window.galleryImages || [];
+let galleryImages = [];
 let currentImageIndex = 0;
+
+// Wait for window.galleryImages to be available
+function initializeGalleryImages() {
+    if (window.galleryImages && Array.isArray(window.galleryImages) && window.galleryImages.length > 0) {
+        galleryImages = window.galleryImages;
+        console.log('Gallery images initialized:', galleryImages.length);
+        console.log('Gallery images:', galleryImages);
+    } else {
+        console.error('Gallery images not available from window.galleryImages');
+        console.log('window.galleryImages:', window.galleryImages);
+        console.log('No gallery images available - check PHP gallery processing');
+    }
+}
+
+// Debug: Log when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize gallery images
+    initializeGalleryImages();
+    
+    // Test if imageViewer modal exists
+    const imageViewer = document.getElementById('imageViewer');
+    if (imageViewer) {
+        console.log('Image viewer modal found');
+    } else {
+        console.error('Image viewer modal NOT found');
+    }
+    
+    // Test if viewerImage element exists
+    const viewerImage = document.getElementById('viewerImage');
+    if (viewerImage) {
+        console.log('Viewer image element found');
+    } else {
+        console.error('Viewer image element NOT found');
+    }
+    
+    // Test function for debugging
+    window.testImageViewer = function() {
+        console.log('Testing image viewer...');
+        console.log('Gallery images:', galleryImages);
+        console.log('Gallery images length:', galleryImages ? galleryImages.length : 0);
+        
+        if (galleryImages && galleryImages.length > 0) {
+            console.log('Opening first image for testing...');
+            openImageViewer(0);
+        } else {
+            console.error('No gallery images available for testing');
+            alert('No gallery images available. Check console for details.');
+        }
+    };
+});
 
 // WORKING TAB FUNCTION - COPIED FROM YOUR WORKING HTML
 function switchTab(tabName) {
@@ -61,13 +111,34 @@ function filterAmenities(category) {
     });
 }
 
-// Image Viewer
+// Image Viewer - Working Code from HTML
 function openImageViewer(index) {
+    console.log('Opening image viewer for index:', index);
+    console.log('Gallery images available:', galleryImages);
+    console.log('Gallery images length:', galleryImages ? galleryImages.length : 0);
+    
+    if (!galleryImages || galleryImages.length === 0) {
+        console.error('No gallery images available!');
+        alert('No images available to display.');
+        return;
+    }
+    
+    if (index >= galleryImages.length) {
+        console.error('Image index out of range:', index, 'Max:', galleryImages.length - 1);
+        return;
+    }
+    
+    const imageUrl = galleryImages[index];
+    console.log('Setting image URL:', imageUrl);
+    
     currentImageIndex = index;
-    document.getElementById('viewerImage').src = galleryImages[index];
+    document.getElementById('viewerImage').src = imageUrl;
     document.getElementById('imageViewer').classList.add('active');
     document.body.style.overflow = 'hidden';
+    
+    console.log('Image viewer opened successfully');
 }
+
 
 function closeImageViewer() {
     document.getElementById('imageViewer').classList.remove('active');
@@ -108,7 +179,7 @@ function closeContactModal() {
 
 function submitContactForm(e) {
     e.preventDefault();
-    alert('Thank you for your message! The agent will contact you shortly.');
+    console.log('Thank you for your message! The agent will contact you shortly.');
     closeContactModal();
 }
 
@@ -165,13 +236,13 @@ function shareProperty() {
             url: window.location.href
         });
     } else {
-        alert('Share link copied to clipboard!');
+        console.log('Share link copied to clipboard!');
         navigator.clipboard.writeText(window.location.href);
     }
 }
 
 function saveFavorite() {
-    alert('Property saved to your favorites!');
+    console.log('Property saved to your favorites!');
 }
 
 function printPage() {
@@ -179,24 +250,24 @@ function printPage() {
 }
 
 function exportPDF() {
-    alert('PDF export will be downloaded shortly...');
+    console.log('PDF export will be downloaded shortly...');
 }
 
 function downloadFloorPlan() {
-    alert('Floor plan downloading...');
+    console.log('Floor plan downloading...');
 }
 
 function requestCustomPlan() {
-    alert('Request sent! Our team will contact you shortly.');
+    console.log('Request sent! Our team will contact you shortly.');
 }
 
 function scheduleTour() {
-    alert('Tour scheduling form will open...');
+    console.log('Tour scheduling form will open...');
 }
 
 // New functions for additional tabs
 function downloadAllImages() {
-    alert('Downloading all property images...');
+    console.log('Downloading all property images...');
 }
 
 function shareMedia() {
@@ -207,14 +278,14 @@ function shareMedia() {
             url: window.location.href
         });
     } else {
-        alert('Media share link copied to clipboard!');
+        console.log('Media share link copied to clipboard!');
         navigator.clipboard.writeText(window.location.href);
     }
 }
 
 function submitBookingForm(e) {
     e.preventDefault();
-    alert('Thank you for your booking request! Our agent will contact you shortly to confirm your tour.');
+    console.log('Thank you for your booking request! Our agent will contact you shortly to confirm your tour.');
 }
 
 // Initialize on page load

@@ -22,11 +22,6 @@ class RESBS_Property_Metabox {
         add_action('wp_ajax_resbs_upload_property_media', array($this, 'handle_media_upload'));
         add_action('wp_ajax_resbs_delete_property_media', array($this, 'handle_media_delete'));
         add_action('wp_ajax_resbs_get_gallery', array($this, 'get_gallery_data'));
-        
-        // Multiple hooks to ensure saving works
-        add_action('save_post', array($this, 'save_property_metabox_alt'), 5, 1);
-        add_action('wp_insert_post', array($this, 'save_property_metabox'), 10, 1);
-        add_action('post_updated', array($this, 'save_property_metabox'), 10, 1);
     }
 
     /**
@@ -991,8 +986,8 @@ class RESBS_Property_Metabox {
                     // Display selected images
                     displayGalleryImages();
                     
-                    // Show success message
-                    alert('✅ Success! Added ' + selection.length + ' image(s) to gallery. Click "Update" to save.');
+                    // Silent success - no alert to prevent interruption
+                    console.log('✅ Success! Added ' + selection.length + ' image(s) to gallery. Click "Update" to save.');
                 });
                 
                 mediaUploader.open();
@@ -1034,15 +1029,11 @@ class RESBS_Property_Metabox {
             console.log('📸 WordPress Media Uploader Ready!');
         });
         
-        // User-friendly file upload with beautiful notifications
+        // Disabled notification system to prevent alert issues
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('=== UPLOAD SYSTEM INITIALIZED ===');
+            console.log('=== UPLOAD SYSTEM INITIALIZED (Notifications Disabled) ===');
             
-            // Create notification container
-            var notificationContainer = document.createElement('div');
-            notificationContainer.id = 'resbs-notifications';
-            notificationContainer.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 999999; max-width: 400px;';
-            document.body.appendChild(notificationContainer);
+            // Notification system disabled to prevent alert conflicts
             
             // Function to refresh galleries
             function refreshGalleries() {
@@ -1184,47 +1175,10 @@ class RESBS_Property_Metabox {
                 });
             }
             
-            // Function to show beautiful notification
+            // Notification system disabled to prevent alert issues
             function showNotification(message, type, duration) {
-                var notification = document.createElement('div');
-                notification.style.cssText = `
-                    background: ${type === 'success' ? '#d4edda' : '#f8d7da'};
-                    color: ${type === 'success' ? '#155724' : '#721c24'};
-                    border: 1px solid ${type === 'success' ? '#c3e6cb' : '#f5c6cb'};
-                    border-radius: 8px;
-                    padding: 15px 20px;
-                    margin-bottom: 10px;
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-                    font-size: 14px;
-                    line-height: 1.4;
-                    position: relative;
-                    animation: slideIn 0.3s ease-out;
-                `;
-                
-                notification.innerHTML = `
-                    <div style="display: flex; align-items: center;">
-                        <span style="font-size: 18px; margin-right: 10px;">${type === 'success' ? '✅' : '❌'}</span>
-                        <div style="flex: 1;">${message}</div>
-                        <button onclick="this.parentElement.parentElement.remove()" style="background: none; border: none; font-size: 18px; cursor: pointer; color: #666; margin-left: 10px;">×</button>
-                    </div>
-                `;
-                
-                notificationContainer.appendChild(notification);
-                
-                // Auto remove after duration
-                if (duration) {
-                    setTimeout(function() {
-                        if (notification.parentNode) {
-                            notification.style.animation = 'slideOut 0.3s ease-in';
-                            setTimeout(function() {
-                                if (notification.parentNode) {
-                                    notification.remove();
-                                }
-                            }, 300);
-                        }
-                    }, duration);
-                }
+                // Silent - no notifications shown to prevent alert conflicts
+                console.log('Notification disabled:', message);
             }
             
             // Add CSS animations
@@ -1265,10 +1219,10 @@ class RESBS_Property_Metabox {
                     console.log('Selected files:', Array.from(files).map(f => f.name));
                     
                     if (files.length > 0) {
-                        // Show beautiful notification
+                        // Notification disabled to prevent alert issues
                         var fileNames = Array.from(files).map(f => f.name).join(', ');
                         var message = `Selected ${files.length} file(s): ${fileNames}`;
-                        showNotification(message, 'success', 5000);
+                        console.log('Files selected:', message);
                         
                         // Update the input area with visual feedback
                         var container = input.closest('div');
@@ -1292,60 +1246,37 @@ class RESBS_Property_Metabox {
                         // Show preview images immediately
                         showImagePreviews(files, input.name);
                         
-                        // Show upload ready message
+                        // Upload ready - no notification to prevent alert issues
                         setTimeout(function() {
-                            showNotification('Images ready for upload! Click "Update" to save them.', 'success', 8000);
+                            console.log('Images ready for upload! Click "Update" to save them.');
                         }, 1000);
                     }
                 });
             });
             
-            console.log('=== UPLOAD SYSTEM READY ===');
-            
-            // Debug: Check if gallery has any existing images
-            var existingGalleryItems = document.querySelectorAll('#gallery-grid .resbs-gallery-item');
-            console.log('Existing gallery items:', existingGalleryItems.length);
-            
-            if (existingGalleryItems.length > 0) {
-                console.log('Gallery already has images - upload system should work');
-            } else {
-                console.log('Gallery is empty - this is normal for new properties');
-            }
+            // Upload system ready
             
             // Check for upload success
             var successNotice = document.querySelector('.notice-success');
             if (successNotice && successNotice.textContent.includes('Images have been uploaded')) {
-                console.log('Upload success detected!');
-                
                 // Clear preview images
                 document.querySelectorAll('.preview-item').forEach(function(preview) {
                     preview.remove();
                 });
                 
-                // Show success notification
-                showNotification('Images uploaded successfully! Check the gallery below.', 'success', 8000);
-                
-                // Simple approach: Just show the success message
-                // The images should now be visible in the gallery since the page has reloaded
-                console.log('Upload completed successfully');
+                // Success - no notification to prevent alert issues
+                console.log('Images uploaded successfully! Check the gallery below.');
             }
         });
         
         // Tab persistence is now handled by admin-tabs.js
-        // This script is kept for backward compatibility
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('=== TAB PERSISTENCE: Delegating to admin-tabs.js ===');
-        });
         
         // Simple plus/minus button functionality
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('🔧 DEBUG: Initializing plus/minus buttons');
-            
             // Handle plus/minus button clicks
             document.addEventListener('click', function(e) {
                 if (e.target.classList.contains('resbs-number-btn')) {
                     e.preventDefault();
-                    console.log('Plus/minus button clicked:', e.target);
                     
                     var button = e.target;
                     var action = button.getAttribute('data-action');
@@ -1359,10 +1290,8 @@ class RESBS_Property_Metabox {
                         
                         if (action === 'increase' && currentValue < max) {
                             input.value = currentValue + 1;
-                            console.log('Increased to:', input.value);
                         } else if (action === 'decrease' && currentValue > min) {
                             input.value = currentValue - 1;
-                            console.log('Decreased to:', input.value);
                         }
                         
                         // Trigger change event
@@ -1370,6 +1299,184 @@ class RESBS_Property_Metabox {
                     }
                 }
             });
+            
+            // FEATURES & AMENITIES FUNCTIONALITY
+            // Initialize features and amenities
+            initFeaturesAndAmenities();
+            
+            function initFeaturesAndAmenities() {
+                // Load existing features and amenities
+                loadExistingFeatures();
+                loadExistingAmenities();
+                
+                // Setup feature suggestion clicks
+                document.addEventListener('click', function(e) {
+                    if (e.target.classList.contains('resbs-suggestion-tag') && e.target.hasAttribute('data-feature')) {
+                        addFeature(e.target.getAttribute('data-feature'));
+                    }
+                    if (e.target.classList.contains('resbs-suggestion-tag') && e.target.hasAttribute('data-amenity')) {
+                        addAmenity(e.target.getAttribute('data-amenity'));
+                    }
+                });
+                
+                // Setup custom feature input
+                var featureInput = document.getElementById('property_features_input');
+                var addFeatureBtn = document.getElementById('add-custom-feature');
+                if (featureInput && addFeatureBtn) {
+                    addFeatureBtn.addEventListener('click', function() {
+                        var customFeature = featureInput.value.trim();
+                        if (customFeature) {
+                            addFeature(customFeature);
+                            featureInput.value = '';
+                        }
+                    });
+                    
+                    featureInput.addEventListener('keypress', function(e) {
+                        if (e.key === 'Enter') {
+                            var customFeature = featureInput.value.trim();
+                            if (customFeature) {
+                                addFeature(customFeature);
+                                featureInput.value = '';
+                            }
+                        }
+                    });
+                }
+                
+                // Setup custom amenity input
+                var amenityInput = document.getElementById('property_amenities_input');
+                var addAmenityBtn = document.getElementById('add-custom-amenity');
+                if (amenityInput && addAmenityBtn) {
+                    addAmenityBtn.addEventListener('click', function() {
+                        var customAmenity = amenityInput.value.trim();
+                        if (customAmenity) {
+                            addAmenity(customAmenity);
+                            amenityInput.value = '';
+                        }
+                    });
+                    
+                    amenityInput.addEventListener('keypress', function(e) {
+                        if (e.key === 'Enter') {
+                            var customAmenity = amenityInput.value.trim();
+                            if (customAmenity) {
+                                addAmenity(customAmenity);
+                                amenityInput.value = '';
+                            }
+                        }
+                    });
+                }
+            }
+            
+            function loadExistingFeatures() {
+                var featuresField = document.getElementById('property_features');
+                var container = document.getElementById('feature-tags-container');
+                if (featuresField && container) {
+                    var features = featuresField.value ? featuresField.value.split(',') : [];
+                    container.innerHTML = '';
+                    features.forEach(function(feature) {
+                        if (feature.trim()) {
+                            addFeatureTag(feature.trim());
+                        }
+                    });
+                }
+            }
+            
+            function loadExistingAmenities() {
+                var amenitiesField = document.getElementById('property_amenities');
+                var container = document.getElementById('amenity-tags-container');
+                if (amenitiesField && container) {
+                    var amenities = amenitiesField.value ? amenitiesField.value.split(',') : [];
+                    container.innerHTML = '';
+                    amenities.forEach(function(amenity) {
+                        if (amenity.trim()) {
+                            addAmenityTag(amenity.trim());
+                        }
+                    });
+                }
+            }
+            
+            function addFeature(feature) {
+                var featuresField = document.getElementById('property_features');
+                var container = document.getElementById('feature-tags-container');
+                
+                if (featuresField && container) {
+                    var currentFeatures = featuresField.value ? featuresField.value.split(',') : [];
+                    if (!currentFeatures.includes(feature)) {
+                        currentFeatures.push(feature);
+                        featuresField.value = currentFeatures.join(',');
+                        addFeatureTag(feature);
+                    }
+                }
+            }
+            
+            function addAmenity(amenity) {
+                var amenitiesField = document.getElementById('property_amenities');
+                var container = document.getElementById('amenity-tags-container');
+                
+                if (amenitiesField && container) {
+                    var currentAmenities = amenitiesField.value ? amenitiesField.value.split(',') : [];
+                    if (!currentAmenities.includes(amenity)) {
+                        currentAmenities.push(amenity);
+                        amenitiesField.value = currentAmenities.join(',');
+                        addAmenityTag(amenity);
+                    }
+                }
+            }
+            
+            function addFeatureTag(feature) {
+                var container = document.getElementById('feature-tags-container');
+                if (container) {
+                    var tag = document.createElement('span');
+                    tag.className = 'resbs-feature-tag';
+                    tag.innerHTML = feature + ' <button type="button" class="remove-tag" data-feature="' + feature + '">×</button>';
+                    container.appendChild(tag);
+                    
+                    // Add remove functionality
+                    tag.querySelector('.remove-tag').addEventListener('click', function() {
+                        removeFeature(feature);
+                        tag.remove();
+                    });
+                }
+            }
+            
+            function addAmenityTag(amenity) {
+                var container = document.getElementById('amenity-tags-container');
+                if (container) {
+                    var tag = document.createElement('span');
+                    tag.className = 'resbs-feature-tag';
+                    tag.innerHTML = amenity + ' <button type="button" class="remove-tag" data-amenity="' + amenity + '">×</button>';
+                    container.appendChild(tag);
+                    
+                    // Add remove functionality
+                    tag.querySelector('.remove-tag').addEventListener('click', function() {
+                        removeAmenity(amenity);
+                        tag.remove();
+                    });
+                }
+            }
+            
+            function removeFeature(feature) {
+                var featuresField = document.getElementById('property_features');
+                if (featuresField) {
+                    var currentFeatures = featuresField.value ? featuresField.value.split(',') : [];
+                    var index = currentFeatures.indexOf(feature);
+                    if (index > -1) {
+                        currentFeatures.splice(index, 1);
+                        featuresField.value = currentFeatures.join(',');
+                    }
+                }
+            }
+            
+            function removeAmenity(amenity) {
+                var amenitiesField = document.getElementById('property_amenities');
+                if (amenitiesField) {
+                    var currentAmenities = amenitiesField.value ? amenitiesField.value.split(',') : [];
+                    var index = currentAmenities.indexOf(amenity);
+                    if (index > -1) {
+                        currentAmenities.splice(index, 1);
+                        amenitiesField.value = currentAmenities.join(',');
+                    }
+                }
+            }
         });
         </script>
         <?php
@@ -1979,38 +2086,25 @@ class RESBS_Property_Metabox {
     }
 
     /**
-     * Save property metabox data - BULLETPROOF VERSION
+     * Save property metabox data
      */
     public function save_property_metabox($post_id) {
-        // Log that function is called
-        error_log('RESBS: Save function called for post ID: ' . $post_id);
-        file_put_contents(WP_CONTENT_DIR . '/resbs_debug.txt', 'SAVE CALLED: ' . date('Y-m-d H:i:s') . ' - Post ID: ' . $post_id . PHP_EOL, FILE_APPEND);
-        
         // Basic WordPress checks
-        if (!current_user_can('edit_post', $post_id)) {
-            error_log('RESBS: User cannot edit post');
+        if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
+        if (!current_user_can('edit_post', $post_id)) return;
+        if (get_post_type($post_id) !== 'property') return;
+        
+        // Verify nonce
+        if (!isset($_POST['resbs_property_metabox_nonce']) || !wp_verify_nonce($_POST['resbs_property_metabox_nonce'], 'resbs_property_metabox_nonce')) {
             return;
         }
         
-        if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
-            error_log('RESBS: Autosave detected, skipping');
-            return;
-        }
-        
-        if (get_post_type($post_id) !== 'property') {
-            error_log('RESBS: Not a property post type');
-            return;
-        }
-
-        // Log all POST data for debugging
-        file_put_contents(WP_CONTENT_DIR . '/resbs_debug.txt', 'POST DATA: ' . print_r($_POST, true) . PHP_EOL, FILE_APPEND);
-        
-        // Define all possible fields with their database keys
+        // Save property metabox data
+        // Define fields to save
         $fields_to_save = array(
             'property_price' => '_property_price',
             'property_price_per_sqft' => '_property_price_per_sqft', 
             'property_price_note' => '_property_price_note',
-            'property_call_for_price' => '_property_call_for_price',
             'property_bedrooms' => '_property_bedrooms',
             'property_bathrooms' => '_property_bathrooms',
             'property_half_baths' => '_property_half_baths',
@@ -2032,39 +2126,21 @@ class RESBS_Property_Metabox {
             'property_latitude' => '_property_latitude',
             'property_longitude' => '_property_longitude',
             'property_features' => '_property_features',
-            'property_amenities' => '_property_amenities',
-            'property_parking' => '_property_parking',
-            'property_heating' => '_property_heating',
-            'property_cooling' => '_property_cooling',
-            'property_basement' => '_property_basement',
-            'property_roof' => '_property_roof',
-            'property_exterior_material' => '_property_exterior_material',
-            'property_floor_covering' => '_property_floor_covering'
+            'property_amenities' => '_property_amenities'
         );
         
-        $saved_fields = array();
         $saved_count = 0;
         
-        // Process each field
+        // Save all fields with better error handling
         foreach ($fields_to_save as $form_field => $meta_key) {
-            if (isset($_POST[$form_field])) {
-                $value = $_POST[$form_field];
-                
-                // Handle different field types
-                if (is_array($value)) {
-                    $value = array_map('sanitize_text_field', $value);
-                } else {
-                    $value = sanitize_text_field($value);
-                }
-                
-                // Save the field
+            $value = isset($_POST[$form_field]) ? sanitize_text_field($_POST[$form_field]) : '';
+            
+            // Only update if value is different or if it's a new field
+            $existing_value = get_post_meta($post_id, $meta_key, true);
+            if ($value !== $existing_value) {
                 $result = update_post_meta($post_id, $meta_key, $value);
-                
                 if ($result !== false) {
-                    $saved_fields[] = $form_field;
                     $saved_count++;
-                    error_log('RESBS: Saved ' . $form_field . ' = ' . (is_array($value) ? implode(',', $value) : $value));
-                    file_put_contents(WP_CONTENT_DIR . '/resbs_debug.txt', 'SAVED: ' . $form_field . ' = ' . (is_array($value) ? implode(',', $value) : $value) . PHP_EOL, FILE_APPEND);
                 }
             }
         }
@@ -2081,50 +2157,32 @@ class RESBS_Property_Metabox {
         
         foreach ($checkbox_fields as $form_field => $meta_key) {
             if (isset($_POST[$form_field])) {
-                update_post_meta($post_id, $meta_key, '1');
-                $saved_count++;
+                $result = update_post_meta($post_id, $meta_key, '1');
+                if ($result !== false) {
+                    $saved_count++;
+                }
             } else {
-                delete_post_meta($post_id, $meta_key);
+                $result = delete_post_meta($post_id, $meta_key);
+                if ($result !== false) {
+                    $saved_count++;
+                }
             }
         }
         
-        // Show success message
-        if ($saved_count > 0) {
-            add_action('admin_notices', function() use ($saved_count, $saved_fields) {
-                echo '<div class="notice notice-success is-dismissible" style="border: 5px solid #00a32a; background: #d1e7dd; padding: 20px; margin: 20px 0;">';
-                echo '<h3 style="color: #00a32a; margin: 0 0 10px 0;">✅ Property Updated Successfully!</h3>';
-                echo '<p style="margin: 0; color: #333;">' . $saved_count . ' field(s) have been saved.</p>';
-                if (!empty($saved_fields)) {
-                    echo '<p style="margin: 5px 0 0 0; color: #666; font-size: 12px;">Fields: ' . implode(', ', $saved_fields) . '</p>';
-                }
-                echo '</div>';
-            });
-        } else {
-            add_action('admin_notices', function() {
-                echo '<div class="notice notice-warning is-dismissible" style="border: 5px solid #ff6600; background: #fff3cd; padding: 20px; margin: 20px 0;">';
-                echo '<h3 style="color: #ff6600; margin: 0 0 10px 0;">⚠️ No Fields Updated</h3>';
-                echo '<p style="margin: 0; color: #333;">No property fields were found to save. Please check your form data.</p>';
-                echo '</div>';
-            });
-        }
+        // Silent update - no success messages
+        // Removed success message to prevent alert issues
 
-        // Handle gallery images from WordPress Media Library
+        // Handle gallery images from WordPress Media Library with better error handling
         if (isset($_POST['gallery_images']) && !empty($_POST['gallery_images'])) {
             $gallery_image_ids = explode(',', sanitize_text_field($_POST['gallery_images']));
             $gallery_image_ids = array_map('intval', $gallery_image_ids);
             $gallery_image_ids = array_filter($gallery_image_ids); // Remove empty values
             
             if (!empty($gallery_image_ids)) {
-                update_post_meta($post_id, '_property_gallery', $gallery_image_ids);
-                
-                add_action('admin_notices', function() use ($gallery_image_ids) {
-                    echo '<div class="notice notice-success is-dismissible" style="border: 5px solid #00a32a; background: #d1e7dd; padding: 30px; margin: 20px 0;">';
-                    echo '<h1 style="color: #00a32a; margin: 0 0 20px 0; font-size: 28px;">🎉 GALLERY UPDATED! 🎉</h1>';
-                    echo '<p style="margin: 10px 0; font-size: 20px; color: #333;">Successfully saved ' . count($gallery_image_ids) . ' image(s) to the gallery!</p>';
-                    echo '<p style="margin: 10px 0 0 0; color: #666; font-size: 18px;">Images are now available in your property gallery.</p>';
-                    echo '</div>';
-                });
-                
+                $result = update_post_meta($post_id, '_property_gallery', $gallery_image_ids);
+                if ($result !== false) {
+                    $saved_count++;
+                }
                 error_log('RESBS: Gallery updated with ' . count($gallery_image_ids) . ' images: ' . implode(',', $gallery_image_ids));
             }
         }
@@ -2135,15 +2193,21 @@ class RESBS_Property_Metabox {
             error_log('RESBS: Floor plans upload result - ' . print_r($uploaded_ids, true));
         }
 
-        // Handle media uploads
+        // Handle media uploads with better error handling
         if (isset($_POST['property_gallery'])) {
             $gallery = array_map('intval', $_POST['property_gallery']);
-            update_post_meta($post_id, '_property_gallery', $gallery);
+            $result = update_post_meta($post_id, '_property_gallery', $gallery);
+            if ($result !== false) {
+                $saved_count++;
+            }
         }
 
         if (isset($_POST['property_floor_plans'])) {
             $floor_plans = array_map('intval', $_POST['property_floor_plans']);
-            update_post_meta($post_id, '_property_floor_plans', $floor_plans);
+            $result = update_post_meta($post_id, '_property_floor_plans', $floor_plans);
+            if ($result !== false) {
+                $saved_count++;
+            }
         }
         
         // Handle tab persistence redirect
@@ -2154,41 +2218,10 @@ class RESBS_Property_Metabox {
             exit;
         }
         
-        // Add success message for file uploads
-        if (!empty($_FILES['gallery_upload']['name'][0]) || !empty($_FILES['floor_plans_upload']['name'][0])) {
-            add_action('admin_notices', function() {
-                echo '<div class="notice notice-success is-dismissible" style="border: 5px solid #00a32a; background: #d1e7dd; padding: 30px; margin: 20px 0;">';
-                echo '<h1 style="color: #00a32a; margin: 0 0 20px 0; font-size: 32px;">🎉 UPLOAD SUCCESS! 🎉</h1>';
-                echo '<p style="margin: 0; font-size: 24px; font-weight: bold;">Images have been uploaded successfully!</p>';
-                echo '<p style="margin: 10px 0 0 0; color: #666; font-size: 18px;">Check the gallery below to see your uploaded images.</p>';
-                echo '</div>';
-            });
-        }
+        // Silent file uploads - no success messages
+        // Removed upload success messages to prevent alert issues
         
-        // Add success message
-        add_action('admin_notices', function() {
-            echo '<div class="notice notice-success is-dismissible" style="border: 5px solid #00a32a; background: #d1e7dd; padding: 30px; margin: 20px 0;">';
-            echo '<h1 style="color: #00a32a; margin: 0 0 20px 0; font-size: 28px;">✅ PROPERTY SAVED! ✅</h1>';
-            echo '<p style="margin: 10px 0; font-size: 20px; color: #333;">Property specifications have been updated successfully!</p>';
-            echo '<p style="margin: 10px 0 0 0; color: #666; font-size: 18px;">All your changes have been saved.</p>';
-            echo '</div>';
-        });
         
-        // Add debug message to show form is being processed
-        add_action('admin_notices', function() {
-            echo '<div class="notice notice-info" style="border: 5px solid #0073aa; background: #e6f3ff; padding: 30px; margin: 20px 0;">';
-            echo '<h1 style="color: #0073aa; margin: 0 0 20px 0; font-size: 28px;">🔧 FORM SUBMISSION DEBUG 🔧</h1>';
-            echo '<p style="margin: 10px 0; font-size: 20px; color: #333;">Form was submitted at: ' . date('Y-m-d H:i:s') . '</p>';
-            echo '<p style="margin: 10px 0; font-size: 20px; color: #333;">Files received: ' . (isset($_FILES['gallery_upload']) ? count($_FILES['gallery_upload']['name']) : '0') . '</p>';
-            echo '<p style="margin: 10px 0; font-size: 20px; color: #333;">Post ID: ' . $post_id . '</p>';
-            
-            // Show all $_FILES data
-            if (isset($_FILES['gallery_upload'])) {
-                echo '<p style="margin: 10px 0; font-size: 18px; color: #666;">Gallery files: ' . print_r($_FILES['gallery_upload'], true) . '</p>';
-            }
-            
-            echo '</div>';
-        });
     }
 
     /**
