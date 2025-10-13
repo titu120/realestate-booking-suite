@@ -61,32 +61,32 @@ function resbs_enqueue_assets() {
             '1.0.0'
         );
     
-    // Enqueue JS
-    wp_enqueue_script(
-        'resbs-main',
-        RESBS_URL . 'assets/js/main.js',
-        array('jquery'),
-        '1.0.0',
-        true
-    );
+    // DISABLED: Main JS to prevent conflicts with tabs
+    // wp_enqueue_script(
+    //     'resbs-main',
+    //     RESBS_URL . 'assets/js/main.js',
+    //     array('jquery'),
+    //     '1.0.0',
+    //     true
+    // );
     
-        // Enqueue Layout JS
-        wp_enqueue_script(
-            'resbs-layouts',
-            RESBS_URL . 'assets/js/layouts.js',
-            array('jquery'),
-            '1.0.0',
-            true
-        );
+        // DISABLED: Layout JS to prevent conflicts with tabs
+        // wp_enqueue_script(
+        //     'resbs-layouts',
+        //     RESBS_URL . 'assets/js/layouts.js',
+        //     array('jquery'),
+        //     '1.0.0',
+        //     true
+        // );
         
-        // Enqueue Shortcodes JS
-        wp_enqueue_script(
-            'resbs-shortcodes',
-            RESBS_URL . 'assets/js/shortcodes.js',
-            array('jquery'),
-            '1.0.0',
-            true
-        );
+        // DISABLED: Shortcodes JS to prevent conflicts with tabs
+        // wp_enqueue_script(
+        //     'resbs-shortcodes',
+        //     RESBS_URL . 'assets/js/shortcodes.js',
+        //     array('jquery'),
+        //     '1.0.0',
+        //     true
+        // );
 }
 add_action('wp_enqueue_scripts', 'resbs_enqueue_assets');
 add_action('admin_enqueue_scripts', 'resbs_enqueue_assets');

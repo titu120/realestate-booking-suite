@@ -2241,13 +2241,14 @@ class RESBS_Property_Metabox {
                 '1.0.0'
             );
             
-            wp_enqueue_script(
-                'resbs-simple-metabox',
-                RESBS_URL . 'assets/js/simple-metabox.js',
-                array('jquery'),
-                '1.0.0',
-                true
-            );
+            // DISABLED: Simple metabox JS to prevent conflicts
+            // wp_enqueue_script(
+            //     'resbs-simple-metabox',
+            //     RESBS_URL . 'assets/js/simple-metabox.js',
+            //     array('jquery'),
+            //     '1.0.0',
+            //     true
+            // );
             
             // DISABLED: Admin tabs JS to prevent conflicts with form submission
             // wp_enqueue_script(

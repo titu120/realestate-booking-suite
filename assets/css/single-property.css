@@ -1,0 +1,141 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+* {
+    font-family: 'Inter', sans-serif;
+}
+
+.gallery-img {
+    transition: transform 0.3s ease;
+}
+
+.gallery-img:hover {
+    transform: scale(1.05);
+}
+
+.tab-active {
+    border-bottom: 3px solid #10b981;
+    color: #10b981 !important;
+    background-color: #f0fdf4;
+}
+
+.tab-button {
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.tab-button:hover {
+    background-color: #f0fdf4;
+    color: #10b981;
+}
+
+.tab-content {
+    display: none !important;
+}
+
+.tab-content:not(.hidden) {
+    display: block !important;
+}
+
+.smooth-scroll {
+    scroll-behavior: smooth;
+}
+
+#map {
+    height: 400px;
+    width: 100%;
+}
+
+.amenity-item {
+    transition: all 0.3s ease;
+}
+
+.amenity-item:hover {
+    background-color: #f0fdf4;
+    transform: translateY(-2px);
+}
+
+.property-card {
+    transition: all 0.3s ease;
+}
+
+.property-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.rating-star {
+    color: #fbbf24;
+}
+
+.filter-active {
+    background-color: #10b981;
+    color: white;
+}
+
+.image-viewer {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+}
+
+.image-viewer.active {
+    display: flex;
+}
+
+@media print {
+    .no-print {
+        display: none;
+    }
+}
+
+.badge {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: .8;
+    }
+}
+
+.skeleton {
+    animation: skeleton-loading 1s linear infinite alternate;
+}
+
+@keyframes skeleton-loading {
+    0% {
+        background-color: hsl(200, 20%, 80%);
+    }
+    100% {
+        background-color: hsl(200, 20%, 95%);
+    }
+}
+
+.tooltip {
+    position: relative;
+}
+
+.tooltip:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1f2937;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    white-space: nowrap;
+    font-size: 12px;
+    z-index: 1000;
+}
