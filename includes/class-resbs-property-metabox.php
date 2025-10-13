@@ -1336,6 +1336,41 @@ class RESBS_Property_Metabox {
         document.addEventListener('DOMContentLoaded', function() {
             console.log('=== TAB PERSISTENCE: Delegating to admin-tabs.js ===');
         });
+        
+        // Simple plus/minus button functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🔧 DEBUG: Initializing plus/minus buttons');
+            
+            // Handle plus/minus button clicks
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('resbs-number-btn')) {
+                    e.preventDefault();
+                    console.log('Plus/minus button clicked:', e.target);
+                    
+                    var button = e.target;
+                    var action = button.getAttribute('data-action');
+                    var targetId = button.getAttribute('data-target');
+                    var input = document.getElementById(targetId);
+                    
+                    if (input) {
+                        var currentValue = parseInt(input.value) || 0;
+                        var min = parseInt(input.getAttribute('min')) || 0;
+                        var max = parseInt(input.getAttribute('max')) || 999;
+                        
+                        if (action === 'increase' && currentValue < max) {
+                            input.value = currentValue + 1;
+                            console.log('Increased to:', input.value);
+                        } else if (action === 'decrease' && currentValue > min) {
+                            input.value = currentValue - 1;
+                            console.log('Decreased to:', input.value);
+                        }
+                        
+                        // Trigger change event
+                        input.dispatchEvent(new Event('change'));
+                    }
+                }
+            });
+        });
         </script>
         <?php
     }
@@ -2040,7 +2075,8 @@ class RESBS_Property_Metabox {
             'property_new' => '_property_new', 
             'property_sold' => '_property_sold',
             'property_foreclosure' => '_property_foreclosure',
-            'property_open_house' => '_property_open_house'
+            'property_open_house' => '_property_open_house',
+            'property_call_for_price' => '_property_call_for_price'
         );
         
         foreach ($checkbox_fields as $form_field => $meta_key) {
@@ -2241,23 +2277,14 @@ class RESBS_Property_Metabox {
                 '1.0.0'
             );
             
-            // DISABLED: Simple metabox JS to prevent conflicts
-            // wp_enqueue_script(
-            //     'resbs-simple-metabox',
-            //     RESBS_URL . 'assets/js/simple-metabox.js',
-            //     array('jquery'),
-            //     '1.0.0',
-            //     true
-            // );
-            
-            // DISABLED: Admin tabs JS to prevent conflicts with form submission
-            // wp_enqueue_script(
-            //     'resbs-admin-tabs',
-            //     RESBS_URL . 'assets/js/admin-tabs.js',
-            //     array('jquery'),
-            //     '1.0.0',
-            //     true
-            // );
+            // Enqueue property metabox JavaScript for plus/minus buttons
+            wp_enqueue_script(
+                'resbs-property-metabox',
+                RESBS_URL . 'assets/js/property-metabox.js',
+                array('jquery'),
+                '1.0.0',
+                true
+            );
             
             wp_localize_script('resbs-property-metabox', 'resbs_metabox', array(
                 'ajax_url' => admin_url('admin-ajax.php'),

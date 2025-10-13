@@ -187,20 +187,7 @@ $debug_data = array(
 
     <div class="container mx-auto px-4 py-8">
         <!-- Debug Section - Remove in production -->
-        <div class="bg-yellow-100 border border-yellow-400 rounded-lg p-4 mb-6">
-            <h3 class="text-lg font-bold text-yellow-800 mb-2">🔧 DEBUG: Specification Values</h3>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                <div><strong>Bedrooms:</strong> <?php echo esc_html($bedrooms ?: 'NOT SET'); ?></div>
-                <div><strong>Bathrooms:</strong> <?php echo esc_html($bathrooms ?: 'NOT SET'); ?></div>
-                <div><strong>Half Baths:</strong> <?php echo esc_html($half_baths ?: 'NOT SET'); ?></div>
-                <div><strong>Total Rooms:</strong> <?php echo esc_html($total_rooms ?: 'NOT SET'); ?></div>
-                <div><strong>Floors:</strong> <?php echo esc_html($floors ?: 'NOT SET'); ?></div>
-                <div><strong>Floor Level:</strong> <?php echo esc_html($floor_level ?: 'NOT SET'); ?></div>
-                <div><strong>Area:</strong> <?php echo esc_html($area ?: 'NOT SET'); ?></div>
-                <div><strong>Lot Size:</strong> <?php echo esc_html($lot_size ?: 'NOT SET'); ?></div>
-            </div>
-            <p class="text-xs text-yellow-700 mt-2">If values show "NOT SET", the meta fields aren't being saved properly in the admin.</p>
-        </div>
+
         
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <!-- Main Content -->
@@ -236,6 +223,19 @@ $debug_data = array(
                             <p class="text-4xl font-bold text-emerald-500"><?php echo esc_html($formatted_price); ?></p>
                             <?php if ($price_per_sqft_formatted): ?>
                             <p class="text-gray-500 text-sm"><?php echo esc_html($price_per_sqft_formatted); ?></p>
+                            <?php endif; ?>
+                            
+                            <!-- Price Note and Call for Price at bottom -->
+                            <?php if ($price_note): ?>
+                            <div class="bg-blue-50 border-l-4 border-blue-500 p-3 rounded mt-3">
+                                <p class="text-blue-800 text-sm"><i class="fas fa-info-circle mr-2"></i><?php echo esc_html($price_note); ?></p>
+                            </div>
+                            <?php endif; ?>
+                            
+                            <?php if ($call_for_price): ?>
+                            <div class="bg-orange-50 border-l-4 border-orange-500 p-3 rounded mt-3">
+                                <p class="text-orange-800 text-sm"><i class="fas fa-phone mr-2"></i>Call for pricing information</p>
+                            </div>
                             <?php endif; ?>
                         </div>
                     </div>

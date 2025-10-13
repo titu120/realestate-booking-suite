@@ -12,8 +12,8 @@
             console.log('🔧 DEBUG: Property metabox JS loaded');
             
             // Initialize only essential features
-            this.initNumberInputs();
-            this.initMediaUploader();
+            RESBS_Property_Metabox.initNumberInputs();
+            RESBS_Property_Metabox.initMediaUploader();
             
             // DO NOT interfere with form submission
             console.log('🔧 DEBUG: Form submission handlers disabled to prevent conflicts');
