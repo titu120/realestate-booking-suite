@@ -118,9 +118,9 @@ $longitude = get_post_meta($property_id, '_property_longitude', true) ?: get_pos
 $gallery = get_post_meta($property_id, '_property_gallery', true) ?: get_post_meta($property_id, '_resbs_gallery', true);
 $floor_plans = get_post_meta($property_id, '_property_floor_plans', true);
 $virtual_tour = get_post_meta($property_id, '_property_virtual_tour', true);
-$virtual_tour_title = get_post_meta($property_id, '_property_virtual_tour_title', true) ?: '3D Virtual Walkthrough';
-$virtual_tour_description = get_post_meta($property_id, '_property_virtual_tour_description', true) ?: 'Experience this property from anywhere with our interactive 3D tour.';
-$virtual_tour_button_text = get_post_meta($property_id, '_property_virtual_tour_button_text', true) ?: 'Start Tour';
+$virtual_tour_title = get_post_meta($property_id, '_property_virtual_tour_title', true);
+$virtual_tour_description = get_post_meta($property_id, '_property_virtual_tour_description', true);
+$virtual_tour_button_text = get_post_meta($property_id, '_property_virtual_tour_button_text', true);
 $video_url = get_post_meta($property_id, '_property_video_url', true) ?: get_post_meta($property_id, '_resbs_video_url', true);
 $video_embed = get_post_meta($property_id, '_property_video_embed', true);
 $map_iframe = get_post_meta($property_id, '_property_map_iframe', true) ?: get_post_meta($property_id, '_resbs_map_iframe', true);
@@ -149,9 +149,9 @@ $exterior_material = get_post_meta($property_id, '_property_exterior_material', 
 $floor_covering = get_post_meta($property_id, '_property_floor_covering', true);
 
 // Get property status, type, and condition
-$property_status = get_post_meta($property_id, '_property_status', true) ?: 'For Sale';
-$property_type = get_post_meta($property_id, '_property_type', true) ?: 'Property';
-$property_condition = get_post_meta($property_id, '_property_condition', true) ?: 'Good';
+$property_status = get_post_meta($property_id, '_property_status', true);
+$property_type = get_post_meta($property_id, '_property_type', true);
+$property_condition = get_post_meta($property_id, '_property_condition', true);
 
 // Get location data
 $address = get_post_meta($property_id, '_property_address', true) ?: get_post_meta($property_id, '_resbs_address', true);
@@ -165,34 +165,49 @@ $agent_name = get_post_meta($property_id, '_property_agent_name', true);
 $agent_phone = get_post_meta($property_id, '_property_agent_phone', true);
 $agent_email = get_post_meta($property_id, '_property_agent_email', true);
 $agent_photo = get_post_meta($property_id, '_property_agent_photo', true);
-$agent_properties_sold = get_post_meta($property_id, '_property_agent_properties_sold', true) ?: '100+';
-$agent_experience = get_post_meta($property_id, '_property_agent_experience', true) ?: '5+ Years';
-$agent_response_time = get_post_meta($property_id, '_property_agent_response_time', true) ?: '< 1 Hour';
-$agent_rating = get_post_meta($property_id, '_property_agent_rating', true) ?: '5';
-$agent_reviews = get_post_meta($property_id, '_property_agent_reviews', true) ?: 'reviews';
-$agent_send_message_text = get_post_meta($property_id, '_property_agent_send_message_text', true) ?: 'Send Message';
+$agent_properties_sold = get_post_meta($property_id, '_property_agent_properties_sold', true);
+$agent_experience = get_post_meta($property_id, '_property_agent_experience', true);
+$agent_response_time = get_post_meta($property_id, '_property_agent_response_time', true);
+$agent_rating = get_post_meta($property_id, '_property_agent_rating', true);
+$agent_reviews = get_post_meta($property_id, '_property_agent_reviews', true);
+$agent_send_message_text = get_post_meta($property_id, '_property_agent_send_message_text', true);
 
 // Contact Form Dynamic Fields
-$contact_form_title = get_post_meta($property_id, '_property_contact_form_title', true) ?: 'Contact Agent';
-$contact_name_label = get_post_meta($property_id, '_property_contact_name_label', true) ?: 'Your Name';
-$contact_email_label = get_post_meta($property_id, '_property_contact_email_label', true) ?: 'Email';
-$contact_phone_label = get_post_meta($property_id, '_property_contact_phone_label', true) ?: 'Phone';
-$contact_message_label = get_post_meta($property_id, '_property_contact_message_label', true) ?: 'Message';
-$contact_success_message = get_post_meta($property_id, '_property_contact_success_message', true) ?: 'Thank you! Your message has been sent to the agent.';
-$contact_submit_text = get_post_meta($property_id, '_property_contact_submit_text', true) ?: 'Send Message';
+$contact_form_title = get_post_meta($property_id, '_property_contact_form_title', true);
+$contact_name_label = get_post_meta($property_id, '_property_contact_name_label', true);
+$contact_email_label = get_post_meta($property_id, '_property_contact_email_label', true);
+$contact_phone_label = get_post_meta($property_id, '_property_contact_phone_label', true);
+$contact_message_label = get_post_meta($property_id, '_property_contact_message_label', true);
+$contact_success_message = get_post_meta($property_id, '_property_contact_success_message', true);
+$contact_submit_text = get_post_meta($property_id, '_property_contact_submit_text', true);
 
 // Mortgage Calculator Dynamic Fields
-$mortgage_calculator_title = get_post_meta($property_id, '_property_mortgage_calculator_title', true) ?: 'Mortgage Calculator';
-$mortgage_property_price_label = get_post_meta($property_id, '_property_mortgage_property_price_label', true) ?: 'Property Price';
-$mortgage_down_payment_label = get_post_meta($property_id, '_property_mortgage_down_payment_label', true) ?: 'Down Payment (%)';
-$mortgage_interest_rate_label = get_post_meta($property_id, '_property_mortgage_interest_rate_label', true) ?: 'Interest Rate (%)';
-$mortgage_loan_term_label = get_post_meta($property_id, '_property_mortgage_loan_term_label', true) ?: 'Loan Term (Years)';
-$mortgage_monthly_payment_label = get_post_meta($property_id, '_property_mortgage_monthly_payment_label', true) ?: 'Estimated Monthly Payment';
-$mortgage_default_down_payment = get_post_meta($property_id, '_property_mortgage_default_down_payment', true) ?: '20';
-$mortgage_default_interest_rate = get_post_meta($property_id, '_property_mortgage_default_interest_rate', true) ?: '6.5';
-$mortgage_default_loan_term = get_post_meta($property_id, '_property_mortgage_default_loan_term', true) ?: '30';
-$mortgage_loan_terms = get_post_meta($property_id, '_property_mortgage_loan_terms', true) ?: "15\n20\n30";
-$mortgage_disclaimer_text = get_post_meta($property_id, '_property_mortgage_disclaimer_text', true) ?: '*Principal & Interest only';
+$mortgage_calculator_title = get_post_meta($property_id, '_property_mortgage_calculator_title', true);
+$mortgage_property_price_label = get_post_meta($property_id, '_property_mortgage_property_price_label', true);
+$mortgage_down_payment_label = get_post_meta($property_id, '_property_mortgage_down_payment_label', true);
+$mortgage_interest_rate_label = get_post_meta($property_id, '_property_mortgage_interest_rate_label', true);
+$mortgage_loan_term_label = get_post_meta($property_id, '_property_mortgage_loan_term_label', true);
+$mortgage_monthly_payment_label = get_post_meta($property_id, '_property_mortgage_monthly_payment_label', true);
+$mortgage_default_down_payment = get_post_meta($property_id, '_property_mortgage_default_down_payment', true);
+$mortgage_default_interest_rate = get_post_meta($property_id, '_property_mortgage_default_interest_rate', true);
+$mortgage_default_loan_term = get_post_meta($property_id, '_property_mortgage_default_loan_term', true);
+$mortgage_loan_terms = get_post_meta($property_id, '_property_mortgage_loan_terms', true);
+$mortgage_disclaimer_text = get_post_meta($property_id, '_property_mortgage_disclaimer_text', true);
+
+// Contact Agent Dynamic Fields
+$contact_agent_title = get_post_meta($property_id, '_property_contact_agent_title', true);
+$contact_agent_name = get_post_meta($property_id, '_property_contact_agent_name', true);
+$contact_agent_phone = get_post_meta($property_id, '_property_contact_agent_phone', true);
+$contact_agent_email = get_post_meta($property_id, '_property_contact_agent_email', true);
+
+// Tour Information Dynamic Fields
+$tour_info_title = get_post_meta($property_id, '_property_tour_info_title', true);
+$tour_duration_label = get_post_meta($property_id, '_property_tour_duration_label', true);
+$tour_duration_value = get_post_meta($property_id, '_property_tour_duration_value', true);
+$tour_group_size_label = get_post_meta($property_id, '_property_tour_group_size_label', true);
+$tour_group_size_value = get_post_meta($property_id, '_property_tour_group_size_value', true);
+$tour_safety_label = get_post_meta($property_id, '_property_tour_safety_label', true);
+$tour_safety_value = get_post_meta($property_id, '_property_tour_safety_value', true);
 
 // Get gallery images with proper URL conversion
 $gallery_images = array();
@@ -981,17 +996,21 @@ $property_title = get_the_title() ?: 'Property Details';
                             <?php endif; ?>
                             
                             <!-- Virtual Tour -->
-                            <?php if ($virtual_tour): ?>
+                            <?php if ($virtual_tour && (!empty($virtual_tour_title) || !empty($virtual_tour_description) || !empty($virtual_tour_button_text))): ?>
                             <div class="mb-8">
-                                <h4 class="text-lg font-semibold text-gray-800 mb-4">Virtual Tour</h4>
+                                <h4 class="text-lg font-semibold text-gray-800 mb-4"><?php echo esc_html($virtual_tour_title ?: 'Virtual Tour'); ?></h4>
                                 <div class="bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-lg p-6">
                                     <div class="flex items-center justify-between">
                                         <div>
+                                            <?php if (!empty($virtual_tour_title)): ?>
                                             <h5 class="text-xl font-bold mb-2"><?php echo esc_html($virtual_tour_title); ?></h5>
+                                            <?php endif; ?>
+                                            <?php if (!empty($virtual_tour_description)): ?>
                                             <p class="text-emerald-100"><?php echo esc_html($virtual_tour_description); ?></p>
+                                            <?php endif; ?>
                                         </div>
                                         <a href="<?php echo esc_url($virtual_tour); ?>" target="_blank" class="bg-white text-emerald-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition">
-                                            <i class="fas fa-play mr-2"></i><?php echo esc_html($virtual_tour_button_text); ?>
+                                            <i class="fas fa-play mr-2"></i><?php echo esc_html($virtual_tour_button_text ?: 'Start Tour'); ?>
                                         </a>
                                     </div>
                                 </div>
@@ -1212,7 +1231,7 @@ $property_title = get_the_title() ?: 'Property Details';
                                 <div class="space-y-6">
                                     <!-- Agent Contact -->
                                     <div class="bg-emerald-50 rounded-lg p-6">
-                                        <h4 class="text-lg font-semibold text-gray-800 mb-4">Contact Agent</h4>
+                                        <h4 class="text-lg font-semibold text-gray-800 mb-4"><?php echo esc_html($contact_agent_title ?: 'Contact Agent'); ?></h4>
                                         <div class="space-y-3">
                                             <div class="flex items-center">
                                                 <i class="fas fa-user text-emerald-500 mr-3"></i>
@@ -1235,27 +1254,27 @@ $property_title = get_the_title() ?: 'Property Details';
                                     
                                     <!-- Tour Information -->
                                     <div class="bg-blue-50 rounded-lg p-6">
-                                        <h4 class="text-lg font-semibold text-gray-800 mb-4">Tour Information</h4>
+                                        <h4 class="text-lg font-semibold text-gray-800 mb-4"><?php echo esc_html($tour_info_title); ?></h4>
                                         <div class="space-y-3 text-sm">
                                             <div class="flex items-start">
                                                 <i class="fas fa-clock text-blue-500 mr-3 mt-1"></i>
                                                 <div>
-                                                    <p class="font-semibold text-gray-800">Duration</p>
-                                                    <p class="text-gray-600">Approximately 30-45 minutes</p>
+                                                    <p class="font-semibold text-gray-800"><?php echo esc_html($tour_duration_label); ?></p>
+                                                    <p class="text-gray-600"><?php echo esc_html($tour_duration_value); ?></p>
                                                 </div>
                                             </div>
                                             <div class="flex items-start">
                                                 <i class="fas fa-users text-blue-500 mr-3 mt-1"></i>
                                                 <div>
-                                                    <p class="font-semibold text-gray-800">Group Size</p>
-                                                    <p class="text-gray-600">Maximum 4 people per tour</p>
+                                                    <p class="font-semibold text-gray-800"><?php echo esc_html($tour_group_size_label); ?></p>
+                                                    <p class="text-gray-600"><?php echo esc_html($tour_group_size_value); ?></p>
                                                 </div>
                                             </div>
                                             <div class="flex items-start">
                                                 <i class="fas fa-shield-alt text-blue-500 mr-3 mt-1"></i>
                                                 <div>
-                                                    <p class="font-semibold text-gray-800">Safety</p>
-                                                    <p class="text-gray-600">All safety protocols followed</p>
+                                                    <p class="font-semibold text-gray-800"><?php echo esc_html($tour_safety_label); ?></p>
+                                                    <p class="text-gray-600"><?php echo esc_html($tour_safety_value); ?></p>
                                                 </div>
                                             </div>
                                         </div>
@@ -1568,8 +1587,8 @@ $property_title = get_the_title() ?: 'Property Details';
                             <p class="text-sm text-gray-600 mb-1"><?php echo esc_html($mortgage_monthly_payment_label); ?></p>
                             <p class="text-3xl font-bold text-emerald-600" id="monthlyPayment">$0</p>
                             <p class="text-xs text-gray-500 mt-2"><?php echo esc_html($mortgage_disclaimer_text); ?></p>
-                        </div>
-                        
+                </div>
+
                         <!-- Calculate Button -->
                         <div class="mt-4">
                             <button type="button" onclick="
@@ -1618,8 +1637,8 @@ $property_title = get_the_title() ?: 'Property Details';
                                 <i class="fas fa-calculator mr-2"></i>Calculate Mortgage
                             </button>
                         </div>
-                    </div>
-                </div>
+                        </div>
+                        </div>
 
             </div>
         </div>

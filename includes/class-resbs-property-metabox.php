@@ -72,9 +72,9 @@ class RESBS_Property_Metabox {
         $year_built = get_post_meta($post->ID, '_property_year_built', true);
         $year_remodeled = get_post_meta($post->ID, '_property_year_remodeled', true);
         
-        $property_type = get_post_meta($post->ID, '_property_type', true);
-        $property_status = get_post_meta($post->ID, '_property_status', true);
-        $property_condition = get_post_meta($post->ID, '_property_condition', true);
+        $property_type = get_post_meta($post->ID, '_property_type', true) ?: 'Property';
+        $property_status = get_post_meta($post->ID, '_property_status', true) ?: 'For Sale';
+        $property_condition = get_post_meta($post->ID, '_property_condition', true) ?: 'Good';
         
         $address = get_post_meta($post->ID, '_property_address', true);
         $city = get_post_meta($post->ID, '_property_city', true);
@@ -104,45 +104,60 @@ class RESBS_Property_Metabox {
         $gallery_images = get_post_meta($post->ID, '_property_gallery', true);
         $floor_plans = get_post_meta($post->ID, '_property_floor_plans', true);
         $virtual_tour = get_post_meta($post->ID, '_property_virtual_tour', true);
-        $virtual_tour_title = get_post_meta($post->ID, '_property_virtual_tour_title', true);
-        $virtual_tour_description = get_post_meta($post->ID, '_property_virtual_tour_description', true);
-        $virtual_tour_button_text = get_post_meta($post->ID, '_property_virtual_tour_button_text', true);
+        $virtual_tour_title = get_post_meta($post->ID, '_property_virtual_tour_title', true) ?: '3D Virtual Walkthrough';
+        $virtual_tour_description = get_post_meta($post->ID, '_property_virtual_tour_description', true) ?: 'Experience this property from anywhere with our interactive 3D tour.';
+        $virtual_tour_button_text = get_post_meta($post->ID, '_property_virtual_tour_button_text', true) ?: 'Start Tour';
         $video_url = get_post_meta($post->ID, '_property_video_url', true);
         $video_embed = get_post_meta($post->ID, '_property_video_embed', true);
         
         // Agent data
-        $agent_name = get_post_meta($post->ID, '_property_agent_name', true);
-        $agent_phone = get_post_meta($post->ID, '_property_agent_phone', true);
-        $agent_email = get_post_meta($post->ID, '_property_agent_email', true);
+        $agent_name = get_post_meta($post->ID, '_property_agent_name', true) ?: 'Agent Name';
+        $agent_phone = get_post_meta($post->ID, '_property_agent_phone', true) ?: 'Phone Number';
+        $agent_email = get_post_meta($post->ID, '_property_agent_email', true) ?: 'Email Address';
         $agent_photo = get_post_meta($post->ID, '_property_agent_photo', true);
-        $agent_properties_sold = get_post_meta($post->ID, '_property_agent_properties_sold', true);
-        $agent_experience = get_post_meta($post->ID, '_property_agent_experience', true);
-        $agent_response_time = get_post_meta($post->ID, '_property_agent_response_time', true);
-        $agent_rating = get_post_meta($post->ID, '_property_agent_rating', true);
-        $agent_reviews = get_post_meta($post->ID, '_property_agent_reviews', true);
-        $agent_send_message_text = get_post_meta($post->ID, '_property_agent_send_message_text', true);
+        $agent_properties_sold = get_post_meta($post->ID, '_property_agent_properties_sold', true) ?: '100+';
+        $agent_experience = get_post_meta($post->ID, '_property_agent_experience', true) ?: '5+ Years';
+        $agent_response_time = get_post_meta($post->ID, '_property_agent_response_time', true) ?: '< 1 Hour';
+        $agent_rating = get_post_meta($post->ID, '_property_agent_rating', true) ?: '5';
+        $agent_reviews = get_post_meta($post->ID, '_property_agent_reviews', true) ?: 'reviews';
+        $agent_send_message_text = get_post_meta($post->ID, '_property_agent_send_message_text', true) ?: 'Send Message';
         
         // Contact Form Dynamic Fields
-        $contact_form_title = get_post_meta($post->ID, '_property_contact_form_title', true);
-        $contact_name_label = get_post_meta($post->ID, '_property_contact_name_label', true);
-        $contact_email_label = get_post_meta($post->ID, '_property_contact_email_label', true);
-        $contact_phone_label = get_post_meta($post->ID, '_property_contact_phone_label', true);
-        $contact_message_label = get_post_meta($post->ID, '_property_contact_message_label', true);
-        $contact_success_message = get_post_meta($post->ID, '_property_contact_success_message', true);
-        $contact_submit_text = get_post_meta($post->ID, '_property_contact_submit_text', true);
+        $contact_form_title = get_post_meta($post->ID, '_property_contact_form_title', true) ?: 'Contact Agent';
+        $contact_name_label = get_post_meta($post->ID, '_property_contact_name_label', true) ?: 'Your Name';
+        $contact_email_label = get_post_meta($post->ID, '_property_contact_email_label', true) ?: 'Email';
+        $contact_phone_label = get_post_meta($post->ID, '_property_contact_phone_label', true) ?: 'Phone';
+        $contact_message_label = get_post_meta($post->ID, '_property_contact_message_label', true) ?: 'Message';
+        $contact_success_message = get_post_meta($post->ID, '_property_contact_success_message', true) ?: 'Thank you! Your message has been sent to the agent.';
+        $contact_submit_text = get_post_meta($post->ID, '_property_contact_submit_text', true) ?: 'Send Message';
         
         // Mortgage Calculator Dynamic Fields
-        $mortgage_calculator_title = get_post_meta($post->ID, '_property_mortgage_calculator_title', true);
-        $mortgage_property_price_label = get_post_meta($post->ID, '_property_mortgage_property_price_label', true);
-        $mortgage_down_payment_label = get_post_meta($post->ID, '_property_mortgage_down_payment_label', true);
-        $mortgage_interest_rate_label = get_post_meta($post->ID, '_property_mortgage_interest_rate_label', true);
-        $mortgage_loan_term_label = get_post_meta($post->ID, '_property_mortgage_loan_term_label', true);
-        $mortgage_monthly_payment_label = get_post_meta($post->ID, '_property_mortgage_monthly_payment_label', true);
-        $mortgage_default_down_payment = get_post_meta($post->ID, '_property_mortgage_default_down_payment', true);
-        $mortgage_default_interest_rate = get_post_meta($post->ID, '_property_mortgage_default_interest_rate', true);
-        $mortgage_default_loan_term = get_post_meta($post->ID, '_property_mortgage_default_loan_term', true);
+        $mortgage_calculator_title = get_post_meta($post->ID, '_property_mortgage_calculator_title', true) ?: 'Mortgage Calculator';
+        $mortgage_property_price_label = get_post_meta($post->ID, '_property_mortgage_property_price_label', true) ?: 'Property Price';
+        $mortgage_down_payment_label = get_post_meta($post->ID, '_property_mortgage_down_payment_label', true) ?: 'Down Payment (%)';
+        $mortgage_interest_rate_label = get_post_meta($post->ID, '_property_mortgage_interest_rate_label', true) ?: 'Interest Rate (%)';
+        $mortgage_loan_term_label = get_post_meta($post->ID, '_property_mortgage_loan_term_label', true) ?: 'Loan Term (Years)';
+        $mortgage_monthly_payment_label = get_post_meta($post->ID, '_property_mortgage_monthly_payment_label', true) ?: 'Estimated Monthly Payment';
+        $mortgage_default_down_payment = get_post_meta($post->ID, '_property_mortgage_default_down_payment', true) ?: '20';
+        $mortgage_default_interest_rate = get_post_meta($post->ID, '_property_mortgage_default_interest_rate', true) ?: '6.5';
+        $mortgage_default_loan_term = get_post_meta($post->ID, '_property_mortgage_default_loan_term', true) ?: '30';
         $mortgage_loan_terms = get_post_meta($post->ID, '_property_mortgage_loan_terms', true);
-        $mortgage_disclaimer_text = get_post_meta($post->ID, '_property_mortgage_disclaimer_text', true);
+        $mortgage_disclaimer_text = get_post_meta($post->ID, '_property_mortgage_disclaimer_text', true) ?: 'This is an estimate only. Actual rates and terms may vary.';
+        
+        // Contact Agent Dynamic Fields
+        $contact_agent_title = get_post_meta($post->ID, '_property_contact_agent_title', true) ?: 'Contact Agent';
+        $contact_agent_name = get_post_meta($post->ID, '_property_contact_agent_name', true) ?: 'Agent Name';
+        $contact_agent_phone = get_post_meta($post->ID, '_property_contact_agent_phone', true) ?: 'Phone Number';
+        $contact_agent_email = get_post_meta($post->ID, '_property_contact_agent_email', true) ?: 'Email Address';
+        
+        // Tour Information Dynamic Fields
+        $tour_info_title = get_post_meta($post->ID, '_property_tour_info_title', true) ?: 'Tour Information';
+        $tour_duration_label = get_post_meta($post->ID, '_property_tour_duration_label', true) ?: 'Duration';
+        $tour_duration_value = get_post_meta($post->ID, '_property_tour_duration_value', true) ?: 'Approximately 30-45 minutes';
+        $tour_group_size_label = get_post_meta($post->ID, '_property_tour_group_size_label', true) ?: 'Group Size';
+        $tour_group_size_value = get_post_meta($post->ID, '_property_tour_group_size_value', true) ?: 'Maximum 4 people per tour';
+        $tour_safety_label = get_post_meta($post->ID, '_property_tour_safety_label', true) ?: 'Safety';
+        $tour_safety_value = get_post_meta($post->ID, '_property_tour_safety_value', true) ?: 'All safety protocols followed';
         
         ?>
         <div class="resbs-stunning-metabox">
@@ -336,7 +351,7 @@ class RESBS_Property_Metabox {
                                         <label for="property_status"><?php esc_html_e('Property Status', 'realestate-booking-suite'); ?></label>
                                         <select id="property_status" name="property_status" class="resbs-stunning-select">
                                             <option value=""><?php esc_html_e('Select Status', 'realestate-booking-suite'); ?></option>
-                                            <option value="for-sale" <?php selected($property_status, 'for-sale'); ?>><?php esc_html_e('For Sale', 'realestate-booking-suite'); ?></option>
+                                            <option value="for-sale" <?php selected($property_status ?: 'For Sale', 'for-sale'); ?>><?php esc_html_e('For Sale', 'realestate-booking-suite'); ?></option>
                                             <option value="for-rent" <?php selected($property_status, 'for-rent'); ?>><?php esc_html_e('For Rent', 'realestate-booking-suite'); ?></option>
                                             <option value="sold" <?php selected($property_status, 'sold'); ?>><?php esc_html_e('Sold', 'realestate-booking-suite'); ?></option>
                                             <option value="rented" <?php selected($property_status, 'rented'); ?>><?php esc_html_e('Rented', 'realestate-booking-suite'); ?></option>
@@ -863,12 +878,12 @@ class RESBS_Property_Metabox {
                                 <div class="resbs-media-section">
                                     <h4><?php esc_html_e('Photo Gallery', 'realestate-booking-suite'); ?></h4>
                                     <div class="resbs-stunning-uploader">
-                                        <div style="border: 3px solid #0073aa; padding: 30px; margin: 20px 0; background: #f0f8ff; border-radius: 15px;">
-                                            <h3 style="color: #0073aa; margin: 0 0 20px 0; font-size: 24px;">📸 Upload Property Photos</h3>
+                                        <div>
+                                            <h3 style="color: #0073aa; margin: 0 0 20px 0; font-size: 18px;">📸 Upload Property Photos</h3>
                                             
                                             <!-- WordPress Media Uploader Button -->
                                             <div style="margin: 20px 0;">
-                                                <button type="button" id="upload-gallery-button" class="button button-primary" style="font-size: 16px; padding: 15px 30px;">
+                                                <button type="button" id="upload-gallery-button" class="button button-primary" style="font-size: 16px;">
                                                     📁 Select Images
                                                 </button>
                                                 <p style="margin: 10px 0; color: #666;">Click to open WordPress Media Library</p>
@@ -915,19 +930,19 @@ class RESBS_Property_Metabox {
                                     <!-- Virtual Tour Customization -->
                                     <div class="resbs-form-group">
                                         <label for="property_virtual_tour_title"><?php esc_html_e('Virtual Tour Title', 'realestate-booking-suite'); ?></label>
-                                        <input type="text" id="property_virtual_tour_title" name="property_virtual_tour_title" value="<?php echo esc_attr($virtual_tour_title); ?>" class="resbs-stunning-input" placeholder="3D Virtual Walkthrough">
+                                        <input type="text" id="property_virtual_tour_title" name="property_virtual_tour_title" value="<?php echo esc_attr($virtual_tour_title ?: '3D Virtual Walkthrough'); ?>" class="resbs-stunning-input" placeholder="3D Virtual Walkthrough">
                                         <p class="resbs-input-help"><?php esc_html_e('Customize the title displayed in the virtual tour section', 'realestate-booking-suite'); ?></p>
                                     </div>
                                     
                                     <div class="resbs-form-group">
                                         <label for="property_virtual_tour_description"><?php esc_html_e('Virtual Tour Description', 'realestate-booking-suite'); ?></label>
-                                        <textarea id="property_virtual_tour_description" name="property_virtual_tour_description" class="resbs-stunning-input" rows="3" placeholder="Experience this property from anywhere with our interactive 3D tour."><?php echo esc_textarea($virtual_tour_description); ?></textarea>
+                                        <textarea id="property_virtual_tour_description" name="property_virtual_tour_description" class="resbs-stunning-input" rows="3" placeholder="Experience this property from anywhere with our interactive 3D tour."><?php echo esc_textarea($virtual_tour_description ?: 'Experience this property from anywhere with our interactive 3D tour.'); ?></textarea>
                                         <p class="resbs-input-help"><?php esc_html_e('Customize the description text for the virtual tour', 'realestate-booking-suite'); ?></p>
                                     </div>
                                     
                                     <div class="resbs-form-group">
                                         <label for="property_virtual_tour_button_text"><?php esc_html_e('Button Text', 'realestate-booking-suite'); ?></label>
-                                        <input type="text" id="property_virtual_tour_button_text" name="property_virtual_tour_button_text" value="<?php echo esc_attr($virtual_tour_button_text); ?>" class="resbs-stunning-input" placeholder="Start Tour">
+                                        <input type="text" id="property_virtual_tour_button_text" name="property_virtual_tour_button_text" value="<?php echo esc_attr($virtual_tour_button_text ?: 'Start Tour'); ?>" class="resbs-stunning-input" placeholder="Start Tour">
                                         <p class="resbs-input-help"><?php esc_html_e('Customize the button text for the virtual tour', 'realestate-booking-suite'); ?></p>
                                     </div>
                                 </div>
@@ -1063,98 +1078,98 @@ class RESBS_Property_Metabox {
                                 
                                 <div class="resbs-form-group">
                                     <label for="property_agent_send_message_text"><?php esc_html_e('Send Message Button Text', 'realestate-booking-suite'); ?></label>
-                                    <input type="text" id="property_agent_send_message_text" name="property_agent_send_message_text" value="<?php echo esc_attr($agent_send_message_text); ?>" class="resbs-stunning-input" placeholder="Send Message">
+                                    <input type="text" id="property_agent_send_message_text" name="property_agent_send_message_text" value="<?php echo esc_attr($agent_send_message_text ?: 'Send Message'); ?>" class="resbs-stunning-input" placeholder="Send Message">
                                     <p class="resbs-input-help"><?php esc_html_e('Customize the send message button text', 'realestate-booking-suite'); ?></p>
                                 </div>
                                 
                                 <!-- Contact Form Settings -->
                                 <div class="resbs-form-group">
                                     <label for="property_contact_form_title"><?php esc_html_e('Contact Form Title', 'realestate-booking-suite'); ?></label>
-                                    <input type="text" id="property_contact_form_title" name="property_contact_form_title" value="<?php echo esc_attr($contact_form_title); ?>" class="resbs-stunning-input" placeholder="Contact Agent">
+                                    <input type="text" id="property_contact_form_title" name="property_contact_form_title" value="<?php echo esc_attr($contact_form_title ?: 'Contact Agent'); ?>" class="resbs-stunning-input" placeholder="Contact Agent">
                                     <p class="resbs-input-help"><?php esc_html_e('Title displayed at the top of the contact form', 'realestate-booking-suite'); ?></p>
                                 </div>
 
                                 <div class="resbs-form-row">
                                     <div class="resbs-form-group">
                                         <label for="property_contact_name_label"><?php esc_html_e('Name Field Label', 'realestate-booking-suite'); ?></label>
-                                        <input type="text" id="property_contact_name_label" name="property_contact_name_label" value="<?php echo esc_attr($contact_name_label); ?>" class="resbs-stunning-input" placeholder="Your Name">
+                                        <input type="text" id="property_contact_name_label" name="property_contact_name_label" value="<?php echo esc_attr($contact_name_label ?: 'Your Name'); ?>" class="resbs-stunning-input" placeholder="Your Name">
                                     </div>
                                     <div class="resbs-form-group">
                                         <label for="property_contact_email_label"><?php esc_html_e('Email Field Label', 'realestate-booking-suite'); ?></label>
-                                        <input type="text" id="property_contact_email_label" name="property_contact_email_label" value="<?php echo esc_attr($contact_email_label); ?>" class="resbs-stunning-input" placeholder="Email">
+                                        <input type="text" id="property_contact_email_label" name="property_contact_email_label" value="<?php echo esc_attr($contact_email_label ?: 'Email'); ?>" class="resbs-stunning-input" placeholder="Email">
                                     </div>
                                 </div>
 
                                 <div class="resbs-form-row">
                                     <div class="resbs-form-group">
                                         <label for="property_contact_phone_label"><?php esc_html_e('Phone Field Label', 'realestate-booking-suite'); ?></label>
-                                        <input type="text" id="property_contact_phone_label" name="property_contact_phone_label" value="<?php echo esc_attr($contact_phone_label); ?>" class="resbs-stunning-input" placeholder="Phone">
+                                        <input type="text" id="property_contact_phone_label" name="property_contact_phone_label" value="<?php echo esc_attr($contact_phone_label ?: 'Phone'); ?>" class="resbs-stunning-input" placeholder="Phone">
                                     </div>
                                     <div class="resbs-form-group">
                                         <label for="property_contact_message_label"><?php esc_html_e('Message Field Label', 'realestate-booking-suite'); ?></label>
-                                        <input type="text" id="property_contact_message_label" name="property_contact_message_label" value="<?php echo esc_attr($contact_message_label); ?>" class="resbs-stunning-input" placeholder="Message">
+                                        <input type="text" id="property_contact_message_label" name="property_contact_message_label" value="<?php echo esc_attr($contact_message_label ?: 'Message'); ?>" class="resbs-stunning-input" placeholder="Message">
                                     </div>
                                 </div>
 
                                 <div class="resbs-form-group">
                                     <label for="property_contact_success_message"><?php esc_html_e('Success Message', 'realestate-booking-suite'); ?></label>
-                                    <textarea id="property_contact_success_message" name="property_contact_success_message" class="resbs-stunning-textarea" rows="3" placeholder="Thank you! Your message has been sent to the agent."><?php echo esc_textarea($contact_success_message); ?></textarea>
+                                    <textarea id="property_contact_success_message" name="property_contact_success_message" class="resbs-stunning-textarea" rows="3" placeholder="Thank you! Your message has been sent to the agent."><?php echo esc_textarea($contact_success_message ?: 'Thank you! Your message has been sent to the agent.'); ?></textarea>
                                     <p class="resbs-input-help"><?php esc_html_e('Message shown after successful contact form submission', 'realestate-booking-suite'); ?></p>
                                 </div>
 
                                 <div class="resbs-form-group">
                                     <label for="property_contact_submit_text"><?php esc_html_e('Submit Button Text', 'realestate-booking-suite'); ?></label>
-                                    <input type="text" id="property_contact_submit_text" name="property_contact_submit_text" value="<?php echo esc_attr($contact_submit_text); ?>" class="resbs-stunning-input" placeholder="Send Message">
+                                    <input type="text" id="property_contact_submit_text" name="property_contact_submit_text" value="<?php echo esc_attr($contact_submit_text ?: 'Send Message'); ?>" class="resbs-stunning-input" placeholder="Send Message">
                                 </div>
                                 
                                 <!-- Mortgage Calculator Settings -->
                                 <div class="resbs-form-group">
                                     <label for="property_mortgage_calculator_title"><?php esc_html_e('Mortgage Calculator Title', 'realestate-booking-suite'); ?></label>
-                                    <input type="text" id="property_mortgage_calculator_title" name="property_mortgage_calculator_title" value="<?php echo esc_attr($mortgage_calculator_title); ?>" class="resbs-stunning-input" placeholder="Mortgage Calculator">
+                                    <input type="text" id="property_mortgage_calculator_title" name="property_mortgage_calculator_title" value="<?php echo esc_attr($mortgage_calculator_title ?: 'Mortgage Calculator'); ?>" class="resbs-stunning-input" placeholder="Mortgage Calculator">
                                     <p class="resbs-input-help"><?php esc_html_e('Title displayed at the top of the mortgage calculator', 'realestate-booking-suite'); ?></p>
                                 </div>
 
                                 <div class="resbs-form-row">
                                     <div class="resbs-form-group">
                                         <label for="property_mortgage_property_price_label"><?php esc_html_e('Property Price Label', 'realestate-booking-suite'); ?></label>
-                                        <input type="text" id="property_mortgage_property_price_label" name="property_mortgage_property_price_label" value="<?php echo esc_attr($mortgage_property_price_label); ?>" class="resbs-stunning-input" placeholder="Property Price">
+                                        <input type="text" id="property_mortgage_property_price_label" name="property_mortgage_property_price_label" value="<?php echo esc_attr($mortgage_property_price_label ?: 'Property Price'); ?>" class="resbs-stunning-input" placeholder="Property Price">
                                     </div>
                                     <div class="resbs-form-group">
                                         <label for="property_mortgage_down_payment_label"><?php esc_html_e('Down Payment Label', 'realestate-booking-suite'); ?></label>
-                                        <input type="text" id="property_mortgage_down_payment_label" name="property_mortgage_down_payment_label" value="<?php echo esc_attr($mortgage_down_payment_label); ?>" class="resbs-stunning-input" placeholder="Down Payment (%)">
+                                        <input type="text" id="property_mortgage_down_payment_label" name="property_mortgage_down_payment_label" value="<?php echo esc_attr($mortgage_down_payment_label ?: 'Down Payment (%)'); ?>" class="resbs-stunning-input" placeholder="Down Payment (%)">
                                     </div>
                                 </div>
 
                                 <div class="resbs-form-row">
                                     <div class="resbs-form-group">
                                         <label for="property_mortgage_interest_rate_label"><?php esc_html_e('Interest Rate Label', 'realestate-booking-suite'); ?></label>
-                                        <input type="text" id="property_mortgage_interest_rate_label" name="property_mortgage_interest_rate_label" value="<?php echo esc_attr($mortgage_interest_rate_label); ?>" class="resbs-stunning-input" placeholder="Interest Rate (%)">
+                                        <input type="text" id="property_mortgage_interest_rate_label" name="property_mortgage_interest_rate_label" value="<?php echo esc_attr($mortgage_interest_rate_label ?: 'Interest Rate (%)'); ?>" class="resbs-stunning-input" placeholder="Interest Rate (%)">
                                     </div>
                                     <div class="resbs-form-group">
                                         <label for="property_mortgage_loan_term_label"><?php esc_html_e('Loan Term Label', 'realestate-booking-suite'); ?></label>
-                                        <input type="text" id="property_mortgage_loan_term_label" name="property_mortgage_loan_term_label" value="<?php echo esc_attr($mortgage_loan_term_label); ?>" class="resbs-stunning-input" placeholder="Loan Term (Years)">
+                                        <input type="text" id="property_mortgage_loan_term_label" name="property_mortgage_loan_term_label" value="<?php echo esc_attr($mortgage_loan_term_label ?: 'Loan Term (Years)'); ?>" class="resbs-stunning-input" placeholder="Loan Term (Years)">
                                     </div>
                                 </div>
 
                                 <div class="resbs-form-group">
                                     <label for="property_mortgage_monthly_payment_label"><?php esc_html_e('Monthly Payment Label', 'realestate-booking-suite'); ?></label>
-                                    <input type="text" id="property_mortgage_monthly_payment_label" name="property_mortgage_monthly_payment_label" value="<?php echo esc_attr($mortgage_monthly_payment_label); ?>" class="resbs-stunning-input" placeholder="Estimated Monthly Payment">
+                                    <input type="text" id="property_mortgage_monthly_payment_label" name="property_mortgage_monthly_payment_label" value="<?php echo esc_attr($mortgage_monthly_payment_label ?: 'Estimated Monthly Payment'); ?>" class="resbs-stunning-input" placeholder="Estimated Monthly Payment">
                                 </div>
 
                                 <div class="resbs-form-row">
                                     <div class="resbs-form-group">
                                         <label for="property_mortgage_default_down_payment"><?php esc_html_e('Default Down Payment (%)', 'realestate-booking-suite'); ?></label>
-                                        <input type="number" id="property_mortgage_default_down_payment" name="property_mortgage_default_down_payment" value="<?php echo esc_attr($mortgage_default_down_payment); ?>" class="resbs-stunning-input" placeholder="20" min="0" max="100">
+                                        <input type="number" id="property_mortgage_default_down_payment" name="property_mortgage_default_down_payment" value="<?php echo esc_attr($mortgage_default_down_payment ?: '20'); ?>" class="resbs-stunning-input" placeholder="20" min="0" max="100">
                                     </div>
                                     <div class="resbs-form-group">
                                         <label for="property_mortgage_default_interest_rate"><?php esc_html_e('Default Interest Rate (%)', 'realestate-booking-suite'); ?></label>
-                                        <input type="number" id="property_mortgage_default_interest_rate" name="property_mortgage_default_interest_rate" value="<?php echo esc_attr($mortgage_default_interest_rate); ?>" class="resbs-stunning-input" placeholder="6.5" step="0.1" min="0" max="50">
+                                        <input type="number" id="property_mortgage_default_interest_rate" name="property_mortgage_default_interest_rate" value="<?php echo esc_attr($mortgage_default_interest_rate ?: '6.5'); ?>" class="resbs-stunning-input" placeholder="6.5" step="0.1" min="0" max="50">
                                     </div>
                                 </div>
 
                                 <div class="resbs-form-group">
                                     <label for="property_mortgage_default_loan_term"><?php esc_html_e('Default Loan Term (Years)', 'realestate-booking-suite'); ?></label>
-                                    <input type="number" id="property_mortgage_default_loan_term" name="property_mortgage_default_loan_term" value="<?php echo esc_attr($mortgage_default_loan_term); ?>" class="resbs-stunning-input" placeholder="30" min="1" max="50">
+                                    <input type="number" id="property_mortgage_default_loan_term" name="property_mortgage_default_loan_term" value="<?php echo esc_attr($mortgage_default_loan_term ?: '30'); ?>" class="resbs-stunning-input" placeholder="30" min="1" max="50">
                                 </div>
 
                                 <div class="resbs-form-group">
@@ -1165,8 +1180,109 @@ class RESBS_Property_Metabox {
 
                                 <div class="resbs-form-group">
                                     <label for="property_mortgage_disclaimer_text"><?php esc_html_e('Disclaimer Text', 'realestate-booking-suite'); ?></label>
-                                    <textarea id="property_mortgage_disclaimer_text" name="property_mortgage_disclaimer_text" class="resbs-stunning-textarea" rows="2" placeholder="*Principal & Interest only"><?php echo esc_textarea($mortgage_disclaimer_text); ?></textarea>
+                                    <textarea id="property_mortgage_disclaimer_text" name="property_mortgage_disclaimer_text" class="resbs-stunning-textarea" rows="2" placeholder="*Principal & Interest only"><?php echo esc_textarea($mortgage_disclaimer_text ?: 'This is an estimate only. Actual rates and terms may vary.'); ?></textarea>
                                     <p class="resbs-input-help"><?php esc_html_e('Disclaimer text shown below the monthly payment', 'realestate-booking-suite'); ?></p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Contact Agent Card -->
+                        <div class="resbs-content-card resbs-card-secondary">
+                            <div class="resbs-card-header">
+                                <div class="resbs-card-icon">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                                <div class="resbs-card-title">
+                                    <h3><?php esc_html_e('Contact Agent', 'realestate-booking-suite'); ?></h3>
+                                    <p><?php esc_html_e('Customize contact agent information display', 'realestate-booking-suite'); ?></p>
+                                </div>
+                            </div>
+                            <div class="resbs-card-body">
+                                <div class="resbs-form-group">
+                                    <label for="property_contact_agent_title"><?php esc_html_e('Contact Agent Title', 'realestate-booking-suite'); ?></label>
+                                    <input type="text" id="property_contact_agent_title" name="property_contact_agent_title" class="resbs-stunning-input" value="<?php echo esc_attr($contact_agent_title ?: 'Contact Agent'); ?>" placeholder="Contact Agent">
+                                    <p class="resbs-input-help"><?php esc_html_e('Title for the contact agent section', 'realestate-booking-suite'); ?></p>
+                                </div>
+
+                                <div class="resbs-form-group">
+                                    <label for="property_contact_agent_name"><?php esc_html_e('Agent Name', 'realestate-booking-suite'); ?></label>
+                                    <input type="text" id="property_contact_agent_name" name="property_contact_agent_name" class="resbs-stunning-input" value="<?php echo esc_attr($contact_agent_name ?: 'Agent Name'); ?>" placeholder="Agent Name">
+                                    <p class="resbs-input-help"><?php esc_html_e('Name of the contact agent', 'realestate-booking-suite'); ?></p>
+                                </div>
+
+                                <div class="resbs-form-group">
+                                    <label for="property_contact_agent_phone"><?php esc_html_e('Agent Phone', 'realestate-booking-suite'); ?></label>
+                                    <input type="text" id="property_contact_agent_phone" name="property_contact_agent_phone" class="resbs-stunning-input" value="<?php echo esc_attr($contact_agent_phone ?: 'Phone Number'); ?>" placeholder="Phone Number">
+                                    <p class="resbs-input-help"><?php esc_html_e('Phone number of the contact agent', 'realestate-booking-suite'); ?></p>
+                                </div>
+
+                                <div class="resbs-form-group">
+                                    <label for="property_contact_agent_email"><?php esc_html_e('Agent Email', 'realestate-booking-suite'); ?></label>
+                                    <input type="email" id="property_contact_agent_email" name="property_contact_agent_email" class="resbs-stunning-input" value="<?php echo esc_attr($contact_agent_email ?: 'Email Address'); ?>" placeholder="Email Address">
+                                    <p class="resbs-input-help"><?php esc_html_e('Email address of the contact agent', 'realestate-booking-suite'); ?></p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Tour Information Card -->
+                        <div class="resbs-content-card resbs-card-secondary">
+                            <div class="resbs-card-header">
+                                <div class="resbs-card-icon">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                                <div class="resbs-card-title">
+                                    <h3><?php esc_html_e('Tour Information', 'realestate-booking-suite'); ?></h3>
+                                    <p><?php esc_html_e('Customize tour information display', 'realestate-booking-suite'); ?></p>
+                                </div>
+                            </div>
+                            <div class="resbs-card-body">
+                                <div class="resbs-form-group">
+                                    <label for="property_tour_info_title"><?php esc_html_e('Tour Information Title', 'realestate-booking-suite'); ?></label>
+                                    <input type="text" id="property_tour_info_title" name="property_tour_info_title" class="resbs-stunning-input" value="<?php echo esc_attr($tour_info_title ?: 'Tour Information'); ?>" placeholder="Tour Information">
+                                    <p class="resbs-input-help"><?php esc_html_e('Title for the tour information section (leave empty to hide section)', 'realestate-booking-suite'); ?></p>
+                                </div>
+
+                                <div class="resbs-form-group">
+                                    <label for="property_tour_duration_label"><?php esc_html_e('Duration Label', 'realestate-booking-suite'); ?></label>
+                                    <input type="text" id="property_tour_duration_label" name="property_tour_duration_label" class="resbs-stunning-input" value="<?php echo esc_attr($tour_duration_label ?: 'Duration'); ?>" placeholder="Duration">
+                                    <p class="resbs-input-help"><?php esc_html_e('Label for tour duration', 'realestate-booking-suite'); ?></p>
+                                </div>
+
+                                <div class="resbs-form-group">
+                                    <label for="property_tour_duration_value"><?php esc_html_e('Duration Value', 'realestate-booking-suite'); ?></label>
+                                    <input type="text" id="property_tour_duration_value" name="property_tour_duration_value" class="resbs-stunning-input" value="<?php echo esc_attr($tour_duration_value ?: 'Approximately 30-45 minutes'); ?>" placeholder="Approximately 30-45 minutes">
+                                    <p class="resbs-input-help"><?php esc_html_e('Description for tour duration (leave empty to hide this item)', 'realestate-booking-suite'); ?></p>
+                                </div>
+
+                                <div class="resbs-form-group">
+                                    <label for="property_tour_group_size_label"><?php esc_html_e('Group Size Label', 'realestate-booking-suite'); ?></label>
+                                    <input type="text" id="property_tour_group_size_label" name="property_tour_group_size_label" class="resbs-stunning-input" value="<?php echo esc_attr($tour_group_size_label ?: 'Group Size'); ?>" placeholder="Group Size">
+                                    <p class="resbs-input-help"><?php esc_html_e('Label for group size', 'realestate-booking-suite'); ?></p>
+                                </div>
+
+                                <div class="resbs-form-group">
+                                    <label for="property_tour_group_size_value"><?php esc_html_e('Group Size Value', 'realestate-booking-suite'); ?></label>
+                                    <input type="text" id="property_tour_group_size_value" name="property_tour_group_size_value" class="resbs-stunning-input" value="<?php echo esc_attr($tour_group_size_value ?: 'Maximum 4 people per tour'); ?>" placeholder="Maximum 4 people per tour">
+                                    <p class="resbs-input-help"><?php esc_html_e('Description for group size (leave empty to hide this item)', 'realestate-booking-suite'); ?></p>
+                                </div>
+
+                                <div class="resbs-form-group">
+                                    <label for="property_tour_safety_label"><?php esc_html_e('Safety Label', 'realestate-booking-suite'); ?></label>
+                                    <input type="text" id="property_tour_safety_label" name="property_tour_safety_label" class="resbs-stunning-input" value="<?php echo esc_attr($tour_safety_label ?: 'Safety'); ?>" placeholder="Safety">
+                                    <p class="resbs-input-help"><?php esc_html_e('Label for safety information', 'realestate-booking-suite'); ?></p>
+                                </div>
+
+                                <div class="resbs-form-group">
+                                    <label for="property_tour_safety_value"><?php esc_html_e('Safety Value', 'realestate-booking-suite'); ?></label>
+                                    <input type="text" id="property_tour_safety_value" name="property_tour_safety_value" class="resbs-stunning-input" value="<?php echo esc_attr($tour_safety_value ?: 'All safety protocols followed'); ?>" placeholder="All safety protocols followed">
+                                    <p class="resbs-input-help"><?php esc_html_e('Description for safety information (leave empty to hide this item)', 'realestate-booking-suite'); ?></p>
                                 </div>
                             </div>
                         </div>
@@ -2528,6 +2644,17 @@ class RESBS_Property_Metabox {
             'property_mortgage_default_loan_term' => '_property_mortgage_default_loan_term',
             'property_mortgage_loan_terms' => '_property_mortgage_loan_terms',
             'property_mortgage_disclaimer_text' => '_property_mortgage_disclaimer_text',
+            'property_contact_agent_title' => '_property_contact_agent_title',
+            'property_contact_agent_name' => '_property_contact_agent_name',
+            'property_contact_agent_phone' => '_property_contact_agent_phone',
+            'property_contact_agent_email' => '_property_contact_agent_email',
+            'property_tour_info_title' => '_property_tour_info_title',
+            'property_tour_duration_label' => '_property_tour_duration_label',
+            'property_tour_duration_value' => '_property_tour_duration_value',
+            'property_tour_group_size_label' => '_property_tour_group_size_label',
+            'property_tour_group_size_value' => '_property_tour_group_size_value',
+            'property_tour_safety_label' => '_property_tour_safety_label',
+            'property_tour_safety_value' => '_property_tour_safety_value',
             'property_video_url' => '_property_video_url',
             'property_video_embed' => '_property_video_embed'
         );
