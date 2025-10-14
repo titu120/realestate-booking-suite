@@ -93,3 +93,9 @@ add_action('admin_enqueue_scripts', 'resbs_enqueue_assets');
 
 // Load main functionality
 require_once RESBS_PATH . 'includes/functions.php';
+
+// Load contact messages functionality
+require_once RESBS_PATH . 'includes/class-resbs-contact-messages.php';
+
+// Load admin contact messages functionality
+require_once RESBS_PATH . 'includes/class-resbs-admin-contact-messages.php';

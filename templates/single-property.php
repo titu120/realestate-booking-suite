@@ -170,6 +170,29 @@ $agent_experience = get_post_meta($property_id, '_property_agent_experience', tr
 $agent_response_time = get_post_meta($property_id, '_property_agent_response_time', true) ?: '< 1 Hour';
 $agent_rating = get_post_meta($property_id, '_property_agent_rating', true) ?: '5';
 $agent_reviews = get_post_meta($property_id, '_property_agent_reviews', true) ?: 'reviews';
+$agent_send_message_text = get_post_meta($property_id, '_property_agent_send_message_text', true) ?: 'Send Message';
+
+// Contact Form Dynamic Fields
+$contact_form_title = get_post_meta($property_id, '_property_contact_form_title', true) ?: 'Contact Agent';
+$contact_name_label = get_post_meta($property_id, '_property_contact_name_label', true) ?: 'Your Name';
+$contact_email_label = get_post_meta($property_id, '_property_contact_email_label', true) ?: 'Email';
+$contact_phone_label = get_post_meta($property_id, '_property_contact_phone_label', true) ?: 'Phone';
+$contact_message_label = get_post_meta($property_id, '_property_contact_message_label', true) ?: 'Message';
+$contact_success_message = get_post_meta($property_id, '_property_contact_success_message', true) ?: 'Thank you! Your message has been sent to the agent.';
+$contact_submit_text = get_post_meta($property_id, '_property_contact_submit_text', true) ?: 'Send Message';
+
+// Mortgage Calculator Dynamic Fields
+$mortgage_calculator_title = get_post_meta($property_id, '_property_mortgage_calculator_title', true) ?: 'Mortgage Calculator';
+$mortgage_property_price_label = get_post_meta($property_id, '_property_mortgage_property_price_label', true) ?: 'Property Price';
+$mortgage_down_payment_label = get_post_meta($property_id, '_property_mortgage_down_payment_label', true) ?: 'Down Payment (%)';
+$mortgage_interest_rate_label = get_post_meta($property_id, '_property_mortgage_interest_rate_label', true) ?: 'Interest Rate (%)';
+$mortgage_loan_term_label = get_post_meta($property_id, '_property_mortgage_loan_term_label', true) ?: 'Loan Term (Years)';
+$mortgage_monthly_payment_label = get_post_meta($property_id, '_property_mortgage_monthly_payment_label', true) ?: 'Estimated Monthly Payment';
+$mortgage_default_down_payment = get_post_meta($property_id, '_property_mortgage_default_down_payment', true) ?: '20';
+$mortgage_default_interest_rate = get_post_meta($property_id, '_property_mortgage_default_interest_rate', true) ?: '6.5';
+$mortgage_default_loan_term = get_post_meta($property_id, '_property_mortgage_default_loan_term', true) ?: '30';
+$mortgage_loan_terms = get_post_meta($property_id, '_property_mortgage_loan_terms', true) ?: "15\n20\n30";
+$mortgage_disclaimer_text = get_post_meta($property_id, '_property_mortgage_disclaimer_text', true) ?: '*Principal & Interest only';
 
 // Get gallery images with proper URL conversion
 $gallery_images = array();
@@ -1402,11 +1425,7 @@ $property_title = get_the_title() ?: 'Property Details';
                         <?php endif; ?>
                         <button onclick="openContactModal()" class="w-full flex items-center justify-center px-4 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-800 transition">
                             <i class="fas fa-envelope mr-2"></i>
-                            <span>Send Message</span>
-                        </button>
-                        <button onclick="scheduleTour()" class="w-full flex items-center justify-center px-4 py-3 border-2 border-emerald-500 text-emerald-500 rounded-lg hover:bg-emerald-50 transition">
-                            <i class="fas fa-calendar-alt mr-2"></i>
-                            <span>Schedule Tour</span>
+                            <span><?php echo esc_html($agent_send_message_text); ?></span>
                         </button>
                     </div>
 
@@ -1428,71 +1447,180 @@ $property_title = get_the_title() ?: 'Property Details';
 
                 <!-- Mortgage Calculator -->
                 <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
-                    <h3 class="text-xl font-bold text-gray-800 mb-4">Mortgage Calculator</h3>
+                    <h3 class="text-xl font-bold text-gray-800 mb-4"><?php echo esc_html($mortgage_calculator_title); ?></h3>
                     <div class="space-y-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Property Price</label>
-                            <input type="text" id="propertyPrice" value="<?php echo esc_attr($formatted_price); ?>" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" onkeyup="calculateMortgage()">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Down Payment (%)</label>
-                            <input type="range" id="downPayment" min="0" max="100" value="20" class="w-full" oninput="updateDownPayment(this.value); calculateMortgage()">
-                            <div class="flex justify-between text-sm text-gray-600">
-                                <span>0%</span>
-                                <span id="downPaymentValue" class="font-semibold">20%</span>
-                                <span>100%</span>
+                            <label class="block text-sm font-medium text-gray-700 mb-2"><?php echo esc_html($mortgage_property_price_label); ?></label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span class="text-gray-500 sm:text-sm">$</span>
+                                </div>
+                                <input type="number" id="propertyPrice" value="<?php echo esc_attr($price ?: '500000'); ?>" class="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" onkeyup="
+                                    console.log('Property price changed to:', this.value);
+                                    
+                                    // Get all values
+                                    var price = this.value;
+                                    var downPayment = document.getElementById('downPayment').value;
+                                    var interestRate = document.getElementById('interestRate').value;
+                                    var loanTerm = document.getElementById('loanTerm').value;
+                                    
+                                    // Convert to numbers
+                                    price = parseFloat(price) || 0;
+                                    downPayment = parseFloat(downPayment) || 0;
+                                    interestRate = parseFloat(interestRate) || 0;
+                                    loanTerm = parseFloat(loanTerm) || 30;
+                                    
+                                    // Handle very low property prices
+                                    if (price < 1000) {
+                                        console.log('Property price too low for realistic calculation:', price);
+                                        document.getElementById('monthlyPayment').textContent = '$0';
+                                        return;
+                                    }
+                                    
+                                    // Calculate
+                                    var downPaymentAmount = (price * downPayment) / 100;
+                                    var loanAmount = price - downPaymentAmount;
+                                    var monthlyRate = interestRate / 100 / 12;
+                                    var numberOfPayments = loanTerm * 12;
+                                    
+                                    var monthlyPayment = 0;
+                                    if (monthlyRate > 0 && loanAmount > 0) {
+                                        monthlyPayment = loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, numberOfPayments)) / (Math.pow(1 + monthlyRate, numberOfPayments) - 1);
+                                    } else if (loanAmount > 0) {
+                                        monthlyPayment = loanAmount / numberOfPayments;
+                                    }
+                                    
+                                    console.log('Auto calculation result:', monthlyPayment);
+                                    
+                                    // Display result
+                                    document.getElementById('monthlyPayment').textContent = '$' + Math.round(monthlyPayment).toLocaleString();
+                                " onchange="
+                                    console.log('Property price changed to:', this.value);
+                                    
+                                    // Get all values
+                                    var price = this.value;
+                                    var downPayment = document.getElementById('downPayment').value;
+                                    var interestRate = document.getElementById('interestRate').value;
+                                    var loanTerm = document.getElementById('loanTerm').value;
+                                    
+                                    // Convert to numbers
+                                    price = parseFloat(price) || 0;
+                                    downPayment = parseFloat(downPayment) || 0;
+                                    interestRate = parseFloat(interestRate) || 0;
+                                    loanTerm = parseFloat(loanTerm) || 30;
+                                    
+                                    // Handle very low property prices
+                                    if (price < 1000) {
+                                        console.log('Property price too low for realistic calculation:', price);
+                                        document.getElementById('monthlyPayment').textContent = '$0';
+                                        return;
+                                    }
+                                    
+                                    // Calculate
+                                    var downPaymentAmount = (price * downPayment) / 100;
+                                    var loanAmount = price - downPaymentAmount;
+                                    var monthlyRate = interestRate / 100 / 12;
+                                    var numberOfPayments = loanTerm * 12;
+                                    
+                                    var monthlyPayment = 0;
+                                    if (monthlyRate > 0 && loanAmount > 0) {
+                                        monthlyPayment = loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, numberOfPayments)) / (Math.pow(1 + monthlyRate, numberOfPayments) - 1);
+                                    } else if (loanAmount > 0) {
+                                        monthlyPayment = loanAmount / numberOfPayments;
+                                    }
+                                    
+                                    console.log('Auto calculation result:', monthlyPayment);
+                                    
+                                    // Display result
+                                    document.getElementById('monthlyPayment').textContent = '$' + Math.round(monthlyPayment).toLocaleString();
+                                " placeholder="500000" min="0" step="1000">
                             </div>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Interest Rate (%)</label>
-                            <input type="number" id="interestRate" value="6.5" step="0.1" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" onkeyup="calculateMortgage()">
+                            <label class="block text-sm font-medium text-gray-700 mb-2"><?php echo esc_html($mortgage_down_payment_label); ?></label>
+                            <input type="range" id="downPayment" min="0" max="100" value="<?php echo esc_attr($mortgage_default_down_payment); ?>" class="w-full" oninput="document.getElementById('downPaymentValue').textContent = this.value + '%'; calculateMortgageNow();">
+                            <div class="flex justify-between text-sm text-gray-600">
+                                <span>0%</span>
+                                <span id="downPaymentValue" class="font-semibold text-emerald-600"><?php echo esc_html($mortgage_default_down_payment); ?>%</span>
+                                <span>100%</span>
+                            </div>
+                        </div>
+                        <div></div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2"><?php echo esc_html($mortgage_interest_rate_label); ?></label>
+                            <input type="number" id="interestRate" value="<?php echo esc_attr($mortgage_default_interest_rate); ?>" step="0.1" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" onkeyup="calculateMortgageNow()" onchange="calculateMortgageNow()">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Loan Term (Years)</label>
-                            <select id="loanTerm" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" onchange="calculateMortgage()">
-                                <option value="15">15 Years</option>
-                                <option value="20">20 Years</option>
-                                <option value="30" selected>30 Years</option>
+                            <label class="block text-sm font-medium text-gray-700 mb-2"><?php echo esc_html($mortgage_loan_term_label); ?></label>
+                            <select id="loanTerm" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" onchange="calculateMortgageNow()">
+                                <?php 
+                                $loan_terms_array = explode("\n", $mortgage_loan_terms);
+                                foreach ($loan_terms_array as $term) {
+                                    $term = trim($term);
+                                    if (!empty($term)) {
+                                        $selected = ($term == $mortgage_default_loan_term) ? 'selected' : '';
+                                        echo '<option value="' . esc_attr($term) . '" ' . $selected . '>' . esc_html($term) . ' Years</option>';
+                                    }
+                                }
+                                ?>
                             </select>
                         </div>
                         <div class="bg-emerald-50 rounded-lg p-4 mt-4">
-                            <p class="text-sm text-gray-600 mb-1">Estimated Monthly Payment</p>
+                            <p class="text-sm text-gray-600 mb-1"><?php echo esc_html($mortgage_monthly_payment_label); ?></p>
                             <p class="text-3xl font-bold text-emerald-600" id="monthlyPayment">$0</p>
-                            <p class="text-xs text-gray-500 mt-2">*Principal & Interest only</p>
+                            <p class="text-xs text-gray-500 mt-2"><?php echo esc_html($mortgage_disclaimer_text); ?></p>
+                        </div>
+                        
+                        <!-- Calculate Button -->
+                        <div class="mt-4">
+                            <button type="button" onclick="
+                                console.log('Button clicked!');
+                                
+                                // Get values
+                                var price = document.getElementById('propertyPrice').value;
+                                var downPayment = document.getElementById('downPayment').value;
+                                var interestRate = document.getElementById('interestRate').value;
+                                var loanTerm = document.getElementById('loanTerm').value;
+                                
+                                console.log('Input values:', {price: price, downPayment: downPayment, interestRate: interestRate, loanTerm: loanTerm});
+                                
+                                // Convert to numbers
+                                price = parseFloat(price) || 0;
+                                downPayment = parseFloat(downPayment) || 0;
+                                interestRate = parseFloat(interestRate) || 0;
+                                loanTerm = parseFloat(loanTerm) || 30;
+                                
+                                // Handle very low property prices
+                                if (price < 1000) {
+                                    console.log('Property price too low for realistic calculation:', price);
+                                    document.getElementById('monthlyPayment').textContent = '$0';
+                                    return;
+                                }
+                                
+                                // Calculate
+                                var downPaymentAmount = (price * downPayment) / 100;
+                                var loanAmount = price - downPaymentAmount;
+                                var monthlyRate = interestRate / 100 / 12;
+                                var numberOfPayments = loanTerm * 12;
+                                
+                                var monthlyPayment = 0;
+                                if (monthlyRate > 0 && loanAmount > 0) {
+                                    monthlyPayment = loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, numberOfPayments)) / (Math.pow(1 + monthlyRate, numberOfPayments) - 1);
+                                } else if (loanAmount > 0) {
+                                    monthlyPayment = loanAmount / numberOfPayments;
+                                }
+                                
+                                console.log('Calculation result:', monthlyPayment);
+                                
+                                // Display result
+                                document.getElementById('monthlyPayment').textContent = '$' + Math.round(monthlyPayment).toLocaleString();
+                                console.log('Display updated to:', document.getElementById('monthlyPayment').textContent);
+                            " class="w-full bg-emerald-500 text-white py-3 px-4 rounded-lg hover:bg-emerald-600 transition font-semibold">
+                                <i class="fas fa-calculator mr-2"></i>Calculate Mortgage
+                            </button>
                         </div>
                     </div>
                 </div>
 
-                <!-- Quick Stats -->
-                <div class="bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl shadow-sm p-6 text-white">
-                    <h3 class="text-xl font-bold mb-4">Property Insights</h3>
-                    <div class="space-y-4">
-                        <div class="flex items-center justify-between">
-                            <span class="flex items-center">
-                                <i class="fas fa-eye mr-2"></i>Views
-                            </span>
-                            <span class="font-bold"><?php echo get_post_meta($property_id, '_property_views', true) ?: '0'; ?></span>
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <span class="flex items-center">
-                                <i class="fas fa-heart mr-2"></i>Favorites
-                            </span>
-                            <span class="font-bold"><?php echo get_post_meta($property_id, '_property_favorites', true) ?: '0'; ?></span>
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <span class="flex items-center">
-                                <i class="fas fa-share-alt mr-2"></i>Shares
-                            </span>
-                            <span class="font-bold"><?php echo get_post_meta($property_id, '_property_shares', true) ?: '0'; ?></span>
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <span class="flex items-center">
-                                <i class="fas fa-clock mr-2"></i>Listed
-                            </span>
-                            <span class="font-bold"><?php echo human_time_diff(get_the_time('U'), current_time('timestamp')); ?> ago</span>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -1561,30 +1689,30 @@ $property_title = get_the_title() ?: 'Property Details';
     <div id="contactModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
         <div class="bg-white rounded-xl max-w-md w-full p-6">
             <div class="flex items-center justify-between mb-4">
-                <h3 class="text-2xl font-bold text-gray-800">Contact Agent</h3>
+                <h3 class="text-2xl font-bold text-gray-800"><?php echo esc_html($contact_form_title); ?></h3>
                 <button onclick="closeContactModal()" class="text-gray-500 hover:text-gray-700">
                     <i class="fas fa-times text-xl"></i>
                 </button>
             </div>
             <form onsubmit="submitContactForm(event)" class="space-y-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Your Name</label>
-                    <input type="text" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    <label class="block text-sm font-medium text-gray-700 mb-2"><?php echo esc_html($contact_name_label); ?></label>
+                    <input type="text" name="contact_name" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                    <input type="email" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    <label class="block text-sm font-medium text-gray-700 mb-2"><?php echo esc_html($contact_email_label); ?></label>
+                    <input type="email" name="contact_email" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Phone</label>
-                    <input type="tel" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    <label class="block text-sm font-medium text-gray-700 mb-2"><?php echo esc_html($contact_phone_label); ?></label>
+                    <input type="tel" name="contact_phone" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Message</label>
-                    <textarea rows="4" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"></textarea>
+                    <label class="block text-sm font-medium text-gray-700 mb-2"><?php echo esc_html($contact_message_label); ?></label>
+                    <textarea name="contact_message" rows="4" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"></textarea>
                 </div>
                 <button type="submit" class="w-full bg-emerald-500 text-white py-3 rounded-lg hover:bg-emerald-600 transition font-semibold">
-                    Send Message
+                    <?php echo esc_html($contact_submit_text); ?>
                 </button>
             </form>
         </div>
@@ -1598,6 +1726,25 @@ $property_title = get_the_title() ?: 'Property Details';
         window.videoUrl = <?php echo esc_js($video_url ?: ''); ?>;
         window.virtualTour = <?php echo esc_js($virtual_tour ?: ''); ?>;
         window.floorPlans = <?php echo esc_js($floor_plans ?: ''); ?>;
+        window.contactSuccessMessage = <?php echo esc_js($contact_success_message); ?>;
+        window.mortgageDefaultDownPayment = <?php echo esc_js($mortgage_default_down_payment); ?>;
+        window.mortgageDefaultInterestRate = <?php echo esc_js($mortgage_default_interest_rate); ?>;
+        window.mortgageDefaultLoanTerm = <?php echo esc_js($mortgage_default_loan_term); ?>;
+        
+        // Debug mortgage calculator variables
+        console.log('PHP Mortgage Variables:', {
+            title: <?php echo esc_js($mortgage_calculator_title); ?>,
+            propertyPriceLabel: <?php echo esc_js($mortgage_property_price_label); ?>,
+            downPaymentLabel: <?php echo esc_js($mortgage_down_payment_label); ?>,
+            interestRateLabel: <?php echo esc_js($mortgage_interest_rate_label); ?>,
+            loanTermLabel: <?php echo esc_js($mortgage_loan_term_label); ?>,
+            monthlyPaymentLabel: <?php echo esc_js($mortgage_monthly_payment_label); ?>,
+            defaultDownPayment: <?php echo esc_js($mortgage_default_down_payment); ?>,
+            defaultInterestRate: <?php echo esc_js($mortgage_default_interest_rate); ?>,
+            defaultLoanTerm: <?php echo esc_js($mortgage_default_loan_term); ?>,
+            loanTerms: <?php echo esc_js($mortgage_loan_terms); ?>,
+            disclaimerText: <?php echo esc_js($mortgage_disclaimer_text); ?>
+        });
         
         // Enhanced Media Actions Functions
         function downloadAllImages() {
@@ -1773,6 +1920,262 @@ $property_title = get_the_title() ?: 'Property Details';
             printWindow.document.close();
             printWindow.print();
         }
+        
+        // Modal Functions
+        function openContactModal() {
+            document.getElementById('contactModal').classList.remove('hidden');
+            document.getElementById('contactModal').classList.add('flex');
+        }
+        
+        function closeContactModal() {
+            document.getElementById('contactModal').classList.add('hidden');
+            document.getElementById('contactModal').classList.remove('flex');
+        }
+        
+        // Form Submission Functions
+        function submitContactForm(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            
+            // Add property ID and nonce
+            formData.append('property_id', <?php echo $property_id; ?>);
+            formData.append('action', 'submit_contact_message');
+            formData.append('nonce', '<?php echo wp_create_nonce('contact_message_nonce'); ?>');
+            
+            // Show loading state
+            const submitButton = event.target.querySelector('button[type="submit"]');
+            const originalText = submitButton.innerHTML;
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Sending...';
+            submitButton.disabled = true;
+            
+            // Submit via AJAX
+            fetch('<?php echo admin_url('admin-ajax.php'); ?>', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Use dynamic success message
+                    let successMessage = data.data.message || window.contactSuccessMessage || 'Thank you! Your message has been sent to the agent.';
+                    alert(successMessage);
+                    closeContactModal();
+                    event.target.reset(); // Reset form
+                } else {
+                    alert('Error: ' + (data.data || 'Failed to send message'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error: Failed to send message. Please try again.');
+            })
+            .finally(() => {
+                // Reset button state
+                submitButton.innerHTML = originalText;
+                submitButton.disabled = false;
+            });
+        }
+        
+        // Main mortgage calculation function
+        function calculateMortgageNow() {
+            console.log('calculateMortgageNow() called');
+            try {
+                // Get all input values
+                var price = document.getElementById('propertyPrice').value;
+                var downPayment = document.getElementById('downPayment').value;
+                var interestRate = document.getElementById('interestRate').value;
+                var loanTerm = document.getElementById('loanTerm').value;
+                
+                console.log('Raw values:', {
+                    price: document.getElementById('propertyPrice').value,
+                    downPayment: downPayment,
+                    interestRate: interestRate,
+                    loanTerm: loanTerm
+                });
+                
+                // Convert to numbers
+                price = parseFloat(price) || 0;
+                downPayment = parseFloat(downPayment) || 0;
+                interestRate = parseFloat(interestRate) || 0;
+                loanTerm = parseFloat(loanTerm) || 30;
+                
+                console.log('Parsed values:', {
+                    price: price,
+                    downPayment: downPayment,
+                    interestRate: interestRate,
+                    loanTerm: loanTerm
+                });
+                
+                // If property price is too low, use default
+                if (price < 1000) {
+                    price = 500000;
+                    document.getElementById('propertyPrice').value = '$500,000';
+                    console.log('Property price too low, using default: $500,000');
+                }
+                
+                console.log('Using these values for calculation:', {
+                    price: price,
+                    downPayment: downPayment,
+                    interestRate: interestRate,
+                    loanTerm: loanTerm
+                });
+                
+                // Calculate mortgage
+                var downPaymentAmount = (price * downPayment) / 100;
+                var loanAmount = price - downPaymentAmount;
+                var monthlyRate = interestRate / 100 / 12;
+                var numberOfPayments = loanTerm * 12;
+                
+                console.log('Calculation values:', {
+                    downPaymentAmount: downPaymentAmount,
+                    loanAmount: loanAmount,
+                    monthlyRate: monthlyRate,
+                    numberOfPayments: numberOfPayments
+                });
+                
+                var monthlyPayment = 0;
+                
+                // Check if we have valid values
+                if (loanAmount <= 0) {
+                    console.log('Invalid loan amount:', loanAmount);
+                    monthlyPayment = 0;
+                } else if (monthlyRate > 0 && loanAmount > 0) {
+                    monthlyPayment = loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, numberOfPayments)) / (Math.pow(1 + monthlyRate, numberOfPayments) - 1);
+                    console.log('Using interest rate formula');
+                } else if (loanAmount > 0) {
+                    monthlyPayment = loanAmount / numberOfPayments;
+                    console.log('Using simple division formula');
+                }
+                
+                // Ensure minimum payment display
+                if (monthlyPayment < 1 && loanAmount > 0) {
+                    monthlyPayment = loanAmount / numberOfPayments;
+                    console.log('Payment too small, using simple division');
+                }
+                
+                console.log('Final monthly payment:', monthlyPayment);
+                
+                // Display result
+                var formattedPayment = '$' + Math.round(monthlyPayment).toLocaleString();
+                document.getElementById('monthlyPayment').textContent = formattedPayment;
+                console.log('Display updated to:', formattedPayment);
+                
+                // Force update to make sure it changes
+                setTimeout(function() {
+                    document.getElementById('monthlyPayment').textContent = formattedPayment;
+                    console.log('Forced update to:', formattedPayment);
+                }, 50);
+                
+                console.log('Mortgage calculated:', {
+                    price: price,
+                    downPayment: downPayment,
+                    interestRate: interestRate,
+                    loanTerm: loanTerm,
+                    monthlyPayment: monthlyPayment
+                });
+                
+            } catch (error) {
+                console.error('Error calculating mortgage:', error);
+                document.getElementById('monthlyPayment').textContent = 'ERROR';
+            }
+        }
+        
+        // Mortgage Calculator Functions
+        function calculateMortgage() {
+            console.log('calculateMortgage() called');
+            
+            try {
+                // Get elements
+                const propertyPriceElement = document.getElementById('propertyPrice');
+                const downPaymentElement = document.getElementById('downPayment');
+                const interestRateElement = document.getElementById('interestRate');
+                const loanTermElement = document.getElementById('loanTerm');
+                const monthlyPaymentElement = document.getElementById('monthlyPayment');
+                
+                if (!monthlyPaymentElement) {
+                    console.error('Monthly payment element not found');
+                    return;
+                }
+                
+                // Simple calculation for testing
+                const propertyPrice = 500000; // Default price
+                const downPaymentPercent = 20; // Default 20%
+                const interestRate = 6.5; // Default 6.5%
+                const loanTerm = 30; // Default 30 years
+                
+                // Calculate monthly payment
+                const downPaymentAmount = (propertyPrice * downPaymentPercent) / 100;
+                const loanAmount = propertyPrice - downPaymentAmount;
+                const monthlyRate = interestRate / 100 / 12;
+                const numberOfPayments = loanTerm * 12;
+                
+                const monthlyPayment = loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, numberOfPayments)) / (Math.pow(1 + monthlyRate, numberOfPayments) - 1);
+                
+                // Display result
+                monthlyPaymentElement.textContent = '$' + Math.round(monthlyPayment).toLocaleString();
+                console.log('Monthly payment calculated:', monthlyPayment);
+                
+            } catch (error) {
+                console.error('Error in calculateMortgage:', error);
+                document.getElementById('monthlyPayment').textContent = 'ERROR';
+            }
+        }
+        
+        function updateDownPayment(value) {
+            document.getElementById('downPaymentValue').textContent = value + '%';
+        }
+        
+        // Initialize mortgage calculator with dynamic values
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Mortgage Calculator Initializing...');
+            console.log('Default Down Payment:', window.mortgageDefaultDownPayment);
+            console.log('Default Interest Rate:', window.mortgageDefaultInterestRate);
+            console.log('Default Loan Term:', window.mortgageDefaultLoanTerm);
+            
+            // Set initial down payment value
+            const downPaymentSlider = document.getElementById('downPayment');
+            if (downPaymentSlider) {
+                const downPaymentValue = window.mortgageDefaultDownPayment || 20;
+                downPaymentSlider.value = downPaymentValue;
+                updateDownPayment(downPaymentValue);
+                console.log('Set down payment to:', downPaymentValue);
+            }
+            
+            // Set initial interest rate
+            const interestRateInput = document.getElementById('interestRate');
+            if (interestRateInput) {
+                const interestRateValue = window.mortgageDefaultInterestRate || 6.5;
+                interestRateInput.value = interestRateValue;
+                console.log('Set interest rate to:', interestRateValue);
+            }
+            
+            // Set initial loan term
+            const loanTermSelect = document.getElementById('loanTerm');
+            if (loanTermSelect) {
+                const loanTermValue = window.mortgageDefaultLoanTerm || 30;
+                loanTermSelect.value = loanTermValue;
+                console.log('Set loan term to:', loanTermValue);
+            }
+            
+            // Calculate initial mortgage
+            setTimeout(function() {
+                console.log('Triggering initial calculation...');
+                calculateMortgageNow();
+                console.log('Initial mortgage calculation completed');
+            }, 100);
+            
+            // Also trigger calculation on window load as backup
+            window.addEventListener('load', function() {
+                console.log('Window loaded, triggering calculation...');
+                setTimeout(calculateMortgageNow, 200);
+            });
+            
+            // Force calculation after a longer delay as final backup
+            setTimeout(function() {
+                console.log('Final backup calculation...');
+                calculateMortgageNow();
+            }, 1000);
+        });
         
         // Load JSZip library for zip functionality
         if (!window.JSZip) {
