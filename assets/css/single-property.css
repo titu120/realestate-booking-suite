@@ -149,3 +149,42 @@
 a.property-card.border.rounded-lg.overflow-hidden.hover\:shadow-lg.transition-shadow {
     transition: all .3s ease-in-out;
 }
+
+#location-tab iframe{
+    width: 100% !important;
+}
+
+/* Nearby Features Styles */
+.resbs-nearby-features {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+.resbs-nearby-features h4 {
+    color: #374151;
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.resbs-form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+.resbs-nearby-features .resbs-form-group {
+    margin-bottom: 0;
+}
+
+.resbs-nearby-features .resbs-stunning-input {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.aspect-video iframe{
+    width: 100% !important;
+    height: 100% !important;
+}

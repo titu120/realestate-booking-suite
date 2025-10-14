@@ -118,8 +118,25 @@ $longitude = get_post_meta($property_id, '_property_longitude', true) ?: get_pos
 $gallery = get_post_meta($property_id, '_property_gallery', true) ?: get_post_meta($property_id, '_resbs_gallery', true);
 $floor_plans = get_post_meta($property_id, '_property_floor_plans', true);
 $virtual_tour = get_post_meta($property_id, '_property_virtual_tour', true);
+$virtual_tour_title = get_post_meta($property_id, '_property_virtual_tour_title', true) ?: '3D Virtual Walkthrough';
+$virtual_tour_description = get_post_meta($property_id, '_property_virtual_tour_description', true) ?: 'Experience this property from anywhere with our interactive 3D tour.';
+$virtual_tour_button_text = get_post_meta($property_id, '_property_virtual_tour_button_text', true) ?: 'Start Tour';
 $video_url = get_post_meta($property_id, '_property_video_url', true) ?: get_post_meta($property_id, '_resbs_video_url', true);
 $video_embed = get_post_meta($property_id, '_property_video_embed', true);
+$map_iframe = get_post_meta($property_id, '_property_map_iframe', true) ?: get_post_meta($property_id, '_resbs_map_iframe', true);
+
+// Get nearby features
+$nearby_schools = get_post_meta($property_id, '_property_nearby_schools', true);
+$nearby_shopping = get_post_meta($property_id, '_property_nearby_shopping', true);
+$nearby_restaurants = get_post_meta($property_id, '_property_nearby_restaurants', true);
+
+// Debug: Log video and virtual tour data
+if (current_user_can('manage_options')) {
+    error_log('Map iframe data: ' . ($map_iframe ? substr($map_iframe, 0, 100) . '...' : 'EMPTY'));
+    error_log('Video URL: ' . ($video_url ? $video_url : 'EMPTY'));
+    error_log('Video embed: ' . ($video_embed ? substr($video_embed, 0, 100) . '...' : 'EMPTY'));
+    error_log('Virtual tour: ' . ($virtual_tour ? $virtual_tour : 'EMPTY'));
+}
 $description = get_post_meta($property_id, '_property_description', true) ?: get_post_meta($property_id, '_resbs_description', true);
 $features = get_post_meta($property_id, '_property_features', true) ?: get_post_meta($property_id, '_resbs_features', true);
 $amenities = get_post_meta($property_id, '_property_amenities', true) ?: get_post_meta($property_id, '_resbs_amenities', true);
@@ -148,70 +165,44 @@ $agent_name = get_post_meta($property_id, '_property_agent_name', true);
 $agent_phone = get_post_meta($property_id, '_property_agent_phone', true);
 $agent_email = get_post_meta($property_id, '_property_agent_email', true);
 $agent_photo = get_post_meta($property_id, '_property_agent_photo', true);
+$agent_properties_sold = get_post_meta($property_id, '_property_agent_properties_sold', true) ?: '100+';
+$agent_experience = get_post_meta($property_id, '_property_agent_experience', true) ?: '5+ Years';
+$agent_response_time = get_post_meta($property_id, '_property_agent_response_time', true) ?: '< 1 Hour';
+$agent_rating = get_post_meta($property_id, '_property_agent_rating', true) ?: '5';
+$agent_reviews = get_post_meta($property_id, '_property_agent_reviews', true) ?: 'reviews';
 
 // Get gallery images with proper URL conversion
 $gallery_images = array();
 
-// Debug gallery data
-error_log('Gallery raw data: ' . print_r($gallery, true));
-error_log('Gallery type: ' . gettype($gallery));
-error_log('Gallery empty: ' . (empty($gallery) ? 'YES' : 'NO'));
-
 if (is_array($gallery)) {
     $gallery_ids = array_filter($gallery);
-    error_log('Gallery as array, IDs: ' . print_r($gallery_ids, true));
 } elseif (is_string($gallery) && !empty($gallery)) {
     $gallery_ids = array_filter(explode(',', $gallery));
-    error_log('Gallery as string, IDs: ' . print_r($gallery_ids, true));
 } else {
     $gallery_ids = array();
-    error_log('Gallery is empty or invalid');
 }
 
 // Convert attachment IDs to URLs
 foreach ($gallery_ids as $image_id) {
-    error_log('Processing image ID: ' . $image_id);
     if (is_numeric($image_id)) {
         $image_url = wp_get_attachment_image_url(intval($image_id), 'large');
-        error_log('Generated URL for ID ' . $image_id . ': ' . $image_url);
         if ($image_url) {
             $gallery_images[] = $image_url;
         }
     } elseif (filter_var($image_id, FILTER_VALIDATE_URL)) {
-        error_log('Using direct URL: ' . $image_id);
         $gallery_images[] = $image_id;
     }
 }
 
 // Fallback to featured image if no gallery images
 if (empty($gallery_images)) {
-    error_log('No gallery images found, trying featured image fallback');
     $featured_image_id = get_post_thumbnail_id($property_id);
-    error_log('Featured image ID: ' . $featured_image_id);
     if ($featured_image_id) {
         $featured_image_url = wp_get_attachment_image_url($featured_image_id, 'large');
-        error_log('Featured image URL: ' . $featured_image_url);
         if ($featured_image_url) {
             $gallery_images[] = $featured_image_url;
         }
     }
-}
-
-// Final debug
-error_log('Final gallery images array: ' . print_r($gallery_images, true));
-error_log('Gallery images count: ' . count($gallery_images));
-
-// If still no images, add some test images for debugging
-if (empty($gallery_images)) {
-    error_log('No images found, adding test images');
-    $gallery_images = array(
-        'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200',
-        'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1200',
-        'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=1200',
-        'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200',
-        'https://images.unsplash.com/photo-1600573472550-8090b5e0745e?w=1200'
-    );
-    error_log('Added test images: ' . print_r($gallery_images, true));
 }
 
 // Get features and amenities
@@ -236,18 +227,6 @@ $full_address = trim($address . ', ' . $city . ', ' . $state . ' ' . $zip, ', ')
 
 // Get property title
 $property_title = get_the_title() ?: 'Property Details';
-
-// Debug section - Remove in production
-$debug_data = array(
-    'bedrooms' => $bedrooms,
-    'bathrooms' => $bathrooms,
-    'half_baths' => $half_baths,
-    'total_rooms' => $total_rooms,
-    'floors' => $floors,
-    'floor_level' => $floor_level,
-    'area' => $area,
-    'lot_size' => $lot_size
-);
 ?>
 
 <!-- External CSS and JS -->
@@ -319,16 +298,6 @@ $debug_data = array(
     </div>
 
     <div class="container mx-auto px-4 py-8">
-        <!-- Debug Section - Remove in production -->
-        <?php if (current_user_can('manage_options')): ?>
-        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
-            <h4 class="font-bold text-yellow-800 mb-2">Debug Information (Admin Only)</h4>
-            <p class="text-sm text-yellow-700"><strong>Gallery Meta:</strong> <?php echo esc_html(is_array($gallery) ? implode(',', $gallery) : $gallery); ?></p>
-            <p class="text-sm text-yellow-700"><strong>Gallery IDs:</strong> <?php echo esc_html(implode(',', $gallery_ids)); ?></p>
-            <p class="text-sm text-yellow-700"><strong>Gallery Images:</strong> <?php echo esc_html(implode(',', $gallery_images)); ?></p>
-            <p class="text-sm text-yellow-700"><strong>Featured Image ID:</strong> <?php echo esc_html(get_post_thumbnail_id($property_id)); ?></p>
-        </div>
-        <?php endif; ?>
         
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <!-- Main Content -->
@@ -496,7 +465,12 @@ $debug_data = array(
                         <div id="overview-tab" class="tab-content">
                             <h3 class="text-xl font-bold text-gray-800 mb-4">Property Description</h3>
                             <div class="text-gray-600 space-y-4 leading-relaxed">
-                                <?php if ($description): ?>
+                                <?php 
+                                // Get the post content (main description from editor)
+                                $post_content = get_post_field('post_content', $property_id);
+                                if ($post_content): ?>
+                                    <?php echo wp_kses_post(wpautop($post_content)); ?>
+                                <?php elseif ($description): ?>
                                     <?php echo wp_kses_post(wpautop($description)); ?>
                                 <?php else: ?>
                                     <p>Welcome to this stunning property. This exceptional property offers a perfect blend of luxury, comfort, and modern design.</p>
@@ -927,7 +901,23 @@ $debug_data = array(
                                 <div class="bg-gray-100 rounded-lg p-6">
                                     <?php if ($video_embed): ?>
                                         <div class="aspect-video">
-                                            <?php echo wp_kses_post($video_embed); ?>
+                                            <?php 
+                                            // Allow iframe tags with specific attributes for video embeds
+                                            $allowed_html = array(
+                                                'iframe' => array(
+                                                    'src' => array(),
+                                                    'width' => array(),
+                                                    'height' => array(),
+                                                    'style' => array(),
+                                                    'allowfullscreen' => array(),
+                                                    'loading' => array(),
+                                                    'referrerpolicy' => array(),
+                                                    'frameborder' => array(),
+                                                    'scrolling' => array()
+                                                )
+                                            );
+                                            echo wp_kses($video_embed, $allowed_html); 
+                                            ?>
                                         </div>
                                     <?php elseif ($video_url): ?>
                                         <div class="aspect-video">
@@ -937,16 +927,26 @@ $debug_data = array(
                                                 $video_id = '';
                                                 if (strpos($video_url, 'youtu.be') !== false) {
                                                     $video_id = substr($video_url, strpos($video_url, 'youtu.be/') + 9);
+                                                    // Remove any query parameters
+                                                    $video_id = strtok($video_id, '?');
                                                 } elseif (strpos($video_url, 'youtube.com') !== false) {
                                                     parse_str(parse_url($video_url, PHP_URL_QUERY), $query);
                                                     $video_id = $query['v'] ?? '';
                                                 }
                                                 if ($video_id) {
-                                                    echo '<iframe width="100%" height="100%" src="https://www.youtube.com/embed/' . esc_attr($video_id) . '" frameborder="0" allowfullscreen></iframe>';
+                                                    echo '<iframe width="100%" height="100%" src="https://www.youtube.com/embed/' . esc_attr($video_id) . '?rel=0&modestbranding=1" frameborder="0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>';
+                                                } else {
+                                                    echo '<div class="flex items-center justify-center h-full bg-gray-200 rounded-lg"><p class="text-gray-600">Invalid YouTube URL</p></div>';
                                                 }
                                             } elseif (strpos($video_url, 'vimeo.com') !== false) {
                                                 $video_id = substr($video_url, strrpos($video_url, '/') + 1);
-                                                echo '<iframe width="100%" height="100%" src="https://player.vimeo.com/video/' . esc_attr($video_id) . '" frameborder="0" allowfullscreen></iframe>';
+                                                // Remove any query parameters
+                                                $video_id = strtok($video_id, '?');
+                                                if ($video_id) {
+                                                    echo '<iframe width="100%" height="100%" src="https://player.vimeo.com/video/' . esc_attr($video_id) . '?title=0&byline=0&portrait=0" frameborder="0" allowfullscreen allow="autoplay; fullscreen; picture-in-picture"></iframe>';
+                                                } else {
+                                                    echo '<div class="flex items-center justify-center h-full bg-gray-200 rounded-lg"><p class="text-gray-600">Invalid Vimeo URL</p></div>';
+                                                }
                                             } else {
                                                 echo '<video controls class="w-full h-full rounded-lg"><source src="' . esc_url($video_url) . '" type="video/mp4">Your browser does not support the video tag.</video>';
                                             }
@@ -964,11 +964,11 @@ $debug_data = array(
                                 <div class="bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-lg p-6">
                                     <div class="flex items-center justify-between">
                                         <div>
-                                            <h5 class="text-xl font-bold mb-2">3D Virtual Walkthrough</h5>
-                                            <p class="text-emerald-100">Experience this property from anywhere with our interactive 3D tour.</p>
+                                            <h5 class="text-xl font-bold mb-2"><?php echo esc_html($virtual_tour_title); ?></h5>
+                                            <p class="text-emerald-100"><?php echo esc_html($virtual_tour_description); ?></p>
                                         </div>
                                         <a href="<?php echo esc_url($virtual_tour); ?>" target="_blank" class="bg-white text-emerald-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition">
-                                            <i class="fas fa-play mr-2"></i>Start Tour
+                                            <i class="fas fa-play mr-2"></i><?php echo esc_html($virtual_tour_button_text); ?>
                                         </a>
                                     </div>
                                 </div>
@@ -993,18 +993,6 @@ $debug_data = array(
                             </div>
                             <?php endif; ?>
                             
-                            <!-- Media Actions -->
-                            <div class="bg-gray-50 rounded-lg p-6">
-                                <h4 class="text-lg font-semibold text-gray-800 mb-4">Media Actions</h4>
-                                <div class="grid md:grid-cols-2 gap-4">
-                                    <button onclick="downloadAllImages()" class="flex items-center justify-center px-4 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">
-                                        <i class="fas fa-download mr-2"></i>Download All Images
-                                    </button>
-                                    <button onclick="shareMedia()" class="flex items-center justify-center px-4 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition">
-                                        <i class="fas fa-share-alt mr-2"></i>Share Media
-                                    </button>
-                                </div>
-                            </div>
                         </div>
 
                         <!-- Floor Plan Tab -->
@@ -1028,26 +1016,87 @@ $debug_data = array(
                         <!-- Location Tab -->
                         <div id="location-tab" class="tab-content hidden">
                             <h3 class="text-xl font-bold text-gray-800 mb-4">Location & Nearby</h3>
-                            <?php if ($latitude && $longitude): ?>
-                            <div id="map" class="rounded-lg mb-6"></div>
+                            
+
+                            
+                            <?php if ($map_iframe): ?>
+                            <!-- Custom Map Iframe -->
+                            <div class="rounded-lg mb-6 overflow-hidden" style="height: 400px; width: 100%;">
+                                <?php 
+                                // Allow iframe tags with specific attributes for maps
+                                $allowed_html = array(
+                                    'iframe' => array(
+                                        'src' => array(),
+                                        'width' => array(),
+                                        'height' => array(),
+                                        'style' => array(),
+                                        'allowfullscreen' => array(),
+                                        'loading' => array(),
+                                        'referrerpolicy' => array(),
+                                        'frameborder' => array(),
+                                        'scrolling' => array()
+                                    )
+                                );
+                                echo wp_kses($map_iframe, $allowed_html); 
+                                ?>
+                            </div>
+                            <?php elseif ($full_address): ?>
+                            <!-- Fallback: Show address and Google Maps link -->
+                            <div class="bg-gray-100 rounded-lg p-6 mb-6">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <h4 class="font-semibold text-gray-800 mb-2">Property Location</h4>
+                                        <p class="text-gray-600 mb-3"><?php echo esc_html($full_address); ?></p>
+                                        <a href="https://www.google.com/maps/search/<?php echo urlencode($full_address); ?>" 
+                                           target="_blank" 
+                                           class="inline-flex items-center px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition">
+                                            <i class="fas fa-map-marker-alt mr-2"></i>
+                                            View on Google Maps
+                                        </a>
+                                    </div>
+                                    <i class="fas fa-map-marker-alt text-emerald-500 text-4xl"></i>
+                                </div>
+                            </div>
+                            <?php else: ?>
+                            <div class="bg-gray-100 rounded-lg p-8 text-center mb-6">
+                                <i class="fas fa-map-marker-alt text-gray-400 text-4xl mb-4"></i>
+                                <p class="text-gray-600">Location information not available</p>
+                                <p class="text-sm text-gray-500 mt-2">Please add a map iframe or address to display location</p>
+                            </div>
                             <?php endif; ?>
                             
                             <div class="grid md:grid-cols-3 gap-4">
+                                <?php if ($nearby_schools): ?>
                                 <div class="p-4 bg-blue-50 rounded-lg">
                                     <i class="fas fa-graduation-cap text-blue-500 text-2xl mb-2"></i>
                                     <h4 class="font-semibold text-gray-800 mb-1">Schools</h4>
-                                    <p class="text-sm text-gray-600">Nearby schools</p>
+                                    <p class="text-sm text-gray-600"><?php echo esc_html($nearby_schools); ?></p>
                                 </div>
+                                <?php endif; ?>
+                                
+                                <?php if ($nearby_shopping): ?>
                                 <div class="p-4 bg-green-50 rounded-lg">
                                     <i class="fas fa-shopping-cart text-green-500 text-2xl mb-2"></i>
                                     <h4 class="font-semibold text-gray-800 mb-1">Shopping</h4>
-                                    <p class="text-sm text-gray-600">Shopping centers nearby</p>
+                                    <p class="text-sm text-gray-600"><?php echo esc_html($nearby_shopping); ?></p>
                                 </div>
+                                <?php endif; ?>
+                                
+                                <?php if ($nearby_restaurants): ?>
                                 <div class="p-4 bg-purple-50 rounded-lg">
                                     <i class="fas fa-utensils text-purple-500 text-2xl mb-2"></i>
                                     <h4 class="font-semibold text-gray-800 mb-1">Restaurants</h4>
-                                    <p class="text-sm text-gray-600">Dining options nearby</p>
+                                    <p class="text-sm text-gray-600"><?php echo esc_html($nearby_restaurants); ?></p>
                                 </div>
+                                <?php endif; ?>
+                                
+                                <?php if (!$nearby_schools && !$nearby_shopping && !$nearby_restaurants): ?>
+                                <div class="col-span-3 p-8 text-center bg-gray-50 rounded-lg">
+                                    <i class="fas fa-map-marker-alt text-gray-400 text-4xl mb-4"></i>
+                                    <p class="text-gray-600">No nearby features configured</p>
+                                    <p class="text-sm text-gray-500 mt-2">Add nearby schools, shopping, and restaurants in the Features section</p>
+                                </div>
+                                <?php endif; ?>
                             </div>
                         </div>
 
@@ -1334,12 +1383,13 @@ $debug_data = array(
                         <h3 class="text-xl font-bold text-gray-800"><?php echo esc_html($agent_name ?: 'Property Agent'); ?></h3>
                         <p class="text-gray-600 text-sm">Real Estate Agent</p>
                         <div class="flex items-center justify-center mt-2">
-                            <i class="fas fa-star rating-star text-sm"></i>
-                            <i class="fas fa-star rating-star text-sm"></i>
-                            <i class="fas fa-star rating-star text-sm"></i>
-                            <i class="fas fa-star rating-star text-sm"></i>
-                            <i class="fas fa-star rating-star text-sm"></i>
-                            <span class="text-sm text-gray-600 ml-2">(reviews)</span>
+                            <?php 
+                            $rating = intval($agent_rating);
+                            for ($i = 1; $i <= 5; $i++): 
+                            ?>
+                                <i class="fas fa-star rating-star text-sm <?php echo $i <= $rating ? 'text-yellow-400' : 'text-gray-300'; ?>"></i>
+                            <?php endfor; ?>
+                            <span class="text-sm text-gray-600 ml-2">(<?php echo esc_html($agent_reviews); ?>)</span>
                         </div>
                     </div>
 
@@ -1363,15 +1413,15 @@ $debug_data = array(
                     <div class="border-t pt-4">
                         <div class="flex items-center justify-between text-sm mb-2">
                             <span class="text-gray-600">Properties Sold:</span>
-                            <span class="font-semibold text-gray-800">100+</span>
+                            <span class="font-semibold text-gray-800"><?php echo esc_html($agent_properties_sold); ?></span>
                         </div>
                         <div class="flex items-center justify-between text-sm mb-2">
                             <span class="text-gray-600">Experience:</span>
-                            <span class="font-semibold text-gray-800">5+ Years</span>
+                            <span class="font-semibold text-gray-800"><?php echo esc_html($agent_experience); ?></span>
                         </div>
                         <div class="flex items-center justify-between text-sm">
                             <span class="text-gray-600">Response Time:</span>
-                            <span class="font-semibold text-gray-800">< 1 Hour</span>
+                            <span class="font-semibold text-gray-800"><?php echo esc_html($agent_response_time); ?></span>
                         </div>
                     </div>
                 </div>
@@ -1543,16 +1593,192 @@ $debug_data = array(
     <script>
         // Pass PHP variables to JavaScript
         window.galleryImages = <?php echo json_encode($gallery_images); ?>;
-        window.propertyLatitude = <?php echo $latitude ? esc_js($latitude) : 'null'; ?>;
-        window.propertyLongitude = <?php echo $longitude ? esc_js($longitude) : 'null'; ?>;
         window.propertyTitle = <?php echo esc_js($property_title); ?>;
         window.propertyAddress = <?php echo esc_js($full_address); ?>;
+        window.videoUrl = <?php echo esc_js($video_url ?: ''); ?>;
+        window.virtualTour = <?php echo esc_js($virtual_tour ?: ''); ?>;
+        window.floorPlans = <?php echo esc_js($floor_plans ?: ''); ?>;
         
-        // Debug gallery images
-        console.log('Gallery Images from PHP:', window.galleryImages);
-        console.log('Gallery Images Length:', window.galleryImages ? window.galleryImages.length : 0);
-        if (window.galleryImages && window.galleryImages.length > 0) {
-            console.log('First image URL:', window.galleryImages[0]);
+        // Enhanced Media Actions Functions
+        function downloadAllImages() {
+            if (window.galleryImages && window.galleryImages.length > 0) {
+                // Create a zip file with all images
+                const zip = new JSZip();
+                let loadedImages = 0;
+                
+                window.galleryImages.forEach((imageUrl, index) => {
+                    fetch(imageUrl)
+                        .then(response => response.blob())
+                        .then(blob => {
+                            const fileName = `property_image_${index + 1}.jpg`;
+                            zip.file(fileName, blob);
+                            loadedImages++;
+                            
+                            if (loadedImages === window.galleryImages.length) {
+                                zip.generateAsync({type: "blob"}).then(function(content) {
+                                    const link = document.createElement('a');
+                                    link.href = URL.createObjectURL(content);
+                                    link.download = `${window.propertyTitle.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_images.zip`;
+                                    link.click();
+                                });
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error downloading image:', error);
+                            // Fallback: open image in new tab
+                            window.open(imageUrl, '_blank');
+                        });
+                });
+            } else {
+                alert('No images available for download.');
+            }
+        }
+        
+        function downloadVideo() {
+            if (window.videoUrl) {
+                const link = document.createElement('a');
+                link.href = window.videoUrl;
+                link.download = `${window.propertyTitle.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_video.mp4`;
+                link.click();
+            } else {
+                alert('No video available for download.');
+            }
+        }
+        
+        function downloadFloorPlan() {
+            if (window.floorPlans) {
+                const link = document.createElement('a');
+                link.href = window.floorPlans;
+                link.download = `${window.propertyTitle.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_floor_plan.jpg`;
+                link.click();
+            } else {
+                alert('No floor plan available for download.');
+            }
+        }
+        
+        function shareMedia() {
+            const shareData = {
+                title: window.propertyTitle,
+                text: `Check out this property: ${window.propertyTitle}`,
+                url: window.location.href
+            };
+            
+            if (navigator.share) {
+                navigator.share(shareData);
+            } else {
+                // Fallback: copy to clipboard
+                navigator.clipboard.writeText(shareData.url).then(() => {
+                    alert('Property link copied to clipboard!');
+                });
+            }
+        }
+        
+        function shareVirtualTour() {
+            if (window.virtualTour) {
+                const shareData = {
+                    title: `${window.propertyTitle} - Virtual Tour`,
+                    text: `Take a virtual tour of this property: ${window.propertyTitle}`,
+                    url: window.virtualTour
+                };
+                
+                if (navigator.share) {
+                    navigator.share(shareData);
+                } else {
+                    navigator.clipboard.writeText(window.virtualTour).then(() => {
+                        alert('Virtual tour link copied to clipboard!');
+                    });
+                }
+            } else {
+                alert('No virtual tour available.');
+            }
+        }
+        
+        function printMedia() {
+            // Create a print-friendly version of the media
+            const printWindow = window.open('', '_blank');
+            const mediaContent = `
+                <html>
+                <head>
+                    <title>${window.propertyTitle} - Media</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; margin: 20px; }
+                        .header { text-align: center; margin-bottom: 30px; }
+                        .media-section { margin-bottom: 20px; }
+                        .image-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+                        .image-item { text-align: center; }
+                        .image-item img { max-width: 100%; height: auto; }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1>${window.propertyTitle}</h1>
+                        <p>${window.propertyAddress}</p>
+                    </div>
+                    ${window.galleryImages.map((img, index) => 
+                        `<div class="image-item">
+                            <img src="${img}" alt="Property Image ${index + 1}">
+                            <p>Image ${index + 1}</p>
+                        </div>`
+                    ).join('')}
+                </body>
+                </html>
+            `;
+            
+            printWindow.document.write(mediaContent);
+            printWindow.document.close();
+            printWindow.print();
+        }
+        
+        // Existing functions (keeping for compatibility)
+        function shareProperty() {
+            shareMedia();
+        }
+        
+        function saveFavorite() {
+            // Add to favorites functionality
+            const favorites = JSON.parse(localStorage.getItem('property_favorites') || '[]');
+            const propertyId = <?php echo $property_id; ?>;
+            
+            if (!favorites.includes(propertyId)) {
+                favorites.push(propertyId);
+                localStorage.setItem('property_favorites', JSON.stringify(favorites));
+                alert('Property added to favorites!');
+            } else {
+                alert('Property is already in your favorites!');
+            }
+        }
+        
+        function printPage() {
+            window.print();
+        }
+        
+        function exportPDF() {
+            // Enhanced PDF export with media
+            const printContent = document.querySelector('.property-details');
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>${window.propertyTitle}</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; margin: 20px; }
+                        .no-print { display: none; }
+                    </style>
+                </head>
+                <body>
+                    ${printContent.outerHTML}
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
+        }
+        
+        // Load JSZip library for zip functionality
+        if (!window.JSZip) {
+            const script = document.createElement('script');
+            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+            document.head.appendChild(script);
         }
     </script>
 </div>

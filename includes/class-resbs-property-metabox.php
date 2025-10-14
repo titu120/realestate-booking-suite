@@ -83,6 +83,7 @@ class RESBS_Property_Metabox {
         $country = get_post_meta($post->ID, '_property_country', true);
         $latitude = get_post_meta($post->ID, '_property_latitude', true);
         $longitude = get_post_meta($post->ID, '_property_longitude', true);
+        $map_iframe = get_post_meta($post->ID, '_property_map_iframe', true);
         $hide_address = get_post_meta($post->ID, '_property_hide_address', true);
         
         $features = get_post_meta($post->ID, '_property_features', true);
@@ -95,11 +96,30 @@ class RESBS_Property_Metabox {
         $exterior_material = get_post_meta($post->ID, '_property_exterior_material', true);
         $floor_covering = get_post_meta($post->ID, '_property_floor_covering', true);
         
+        // Nearby features
+        $nearby_schools = get_post_meta($post->ID, '_property_nearby_schools', true);
+        $nearby_shopping = get_post_meta($post->ID, '_property_nearby_shopping', true);
+        $nearby_restaurants = get_post_meta($post->ID, '_property_nearby_restaurants', true);
+        
         $gallery_images = get_post_meta($post->ID, '_property_gallery', true);
         $floor_plans = get_post_meta($post->ID, '_property_floor_plans', true);
         $virtual_tour = get_post_meta($post->ID, '_property_virtual_tour', true);
+        $virtual_tour_title = get_post_meta($post->ID, '_property_virtual_tour_title', true);
+        $virtual_tour_description = get_post_meta($post->ID, '_property_virtual_tour_description', true);
+        $virtual_tour_button_text = get_post_meta($post->ID, '_property_virtual_tour_button_text', true);
         $video_url = get_post_meta($post->ID, '_property_video_url', true);
         $video_embed = get_post_meta($post->ID, '_property_video_embed', true);
+        
+        // Agent data
+        $agent_name = get_post_meta($post->ID, '_property_agent_name', true);
+        $agent_phone = get_post_meta($post->ID, '_property_agent_phone', true);
+        $agent_email = get_post_meta($post->ID, '_property_agent_email', true);
+        $agent_photo = get_post_meta($post->ID, '_property_agent_photo', true);
+        $agent_properties_sold = get_post_meta($post->ID, '_property_agent_properties_sold', true);
+        $agent_experience = get_post_meta($post->ID, '_property_agent_experience', true);
+        $agent_response_time = get_post_meta($post->ID, '_property_agent_response_time', true);
+        $agent_rating = get_post_meta($post->ID, '_property_agent_rating', true);
+        $agent_reviews = get_post_meta($post->ID, '_property_agent_reviews', true);
         
         ?>
         <div class="resbs-stunning-metabox">
@@ -235,6 +255,15 @@ class RESBS_Property_Metabox {
                             </svg>
                         </span>
                         <span class="resbs-tab-text"><?php esc_html_e('Media', 'realestate-booking-suite'); ?></span>
+                    </button>
+                    <button type="button" class="resbs-tab-nav-btn" data-tab="agent" onclick="switchTab('agent')">
+                        <span class="resbs-tab-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </span>
+                        <span class="resbs-tab-text"><?php esc_html_e('Agent', 'realestate-booking-suite'); ?></span>
                     </button>
                     <button type="button" class="resbs-tab-nav-btn" data-tab="booking" onclick="switchTab('booking')">
                         <span class="resbs-tab-icon">
@@ -535,15 +564,11 @@ class RESBS_Property_Metabox {
                                     </select>
                                 </div>
 
-                                <div class="resbs-form-row">
-                                    <div class="resbs-form-group">
-                                        <label for="property_latitude"><?php esc_html_e('Latitude', 'realestate-booking-suite'); ?></label>
-                                        <input type="text" id="property_latitude" name="property_latitude" value="<?php echo esc_attr($latitude); ?>" class="resbs-stunning-input" placeholder="40.7128">
-                                    </div>
-                                    <div class="resbs-form-group">
-                                        <label for="property_longitude"><?php esc_html_e('Longitude', 'realestate-booking-suite'); ?></label>
-                                        <input type="text" id="property_longitude" name="property_longitude" value="<?php echo esc_attr($longitude); ?>" class="resbs-stunning-input" placeholder="-74.0060">
-                                    </div>
+
+                                <div class="resbs-form-group">
+                                    <label for="property_map_iframe"><?php esc_html_e('Custom Map Iframe', 'realestate-booking-suite'); ?></label>
+                                    <textarea id="property_map_iframe" name="property_map_iframe" class="resbs-stunning-input" rows="4" placeholder="<iframe src=&quot;https://www.google.com/maps/embed?pb=...&quot; width=&quot;100%&quot; height=&quot;400&quot; style=&quot;border:0;&quot; allowfullscreen=&quot;&quot; loading=&quot;lazy&quot; referrerpolicy=&quot;no-referrer-when-downgrade&quot;></iframe>"><?php echo esc_textarea($map_iframe); ?></textarea>
+                                    <p class="resbs-help-text"><?php esc_html_e('Paste your Google Maps embed iframe code here. This will display a custom map on the property page.', 'realestate-booking-suite'); ?></p>
                                 </div>
 
                                 <?php if (get_option('resbs_map_api_key')): ?>
@@ -765,6 +790,29 @@ class RESBS_Property_Metabox {
                                         </select>
                                     </div>
                                 </div>
+                                
+                                <!-- Nearby Features Section -->
+                                <div class="resbs-nearby-features">
+                                    <h4><?php esc_html_e('Nearby Features', 'realestate-booking-suite'); ?></h4>
+                                    <p class="resbs-input-help"><?php esc_html_e('Add information about nearby schools, shopping, and restaurants', 'realestate-booking-suite'); ?></p>
+                                    
+                                    <div class="resbs-form-row">
+                                        <div class="resbs-form-group">
+                                            <label for="property_nearby_schools"><?php esc_html_e('Nearby Schools', 'realestate-booking-suite'); ?></label>
+                                            <textarea id="property_nearby_schools" name="property_nearby_schools" class="resbs-stunning-input" rows="3" placeholder="<?php esc_attr_e('e.g., Dhaka University, North South University, American International School'); ?>"><?php echo esc_textarea($nearby_schools); ?></textarea>
+                                        </div>
+                                        
+                                        <div class="resbs-form-group">
+                                            <label for="property_nearby_shopping"><?php esc_html_e('Nearby Shopping', 'realestate-booking-suite'); ?></label>
+                                            <textarea id="property_nearby_shopping" name="property_nearby_shopping" class="resbs-stunning-input" rows="3" placeholder="<?php esc_attr_e('e.g., Bashundhara City, Jamuna Future Park, New Market'); ?>"><?php echo esc_textarea($nearby_shopping); ?></textarea>
+                                        </div>
+                                        
+                                        <div class="resbs-form-group">
+                                            <label for="property_nearby_restaurants"><?php esc_html_e('Nearby Restaurants', 'realestate-booking-suite'); ?></label>
+                                            <textarea id="property_nearby_restaurants" name="property_nearby_restaurants" class="resbs-stunning-input" rows="3" placeholder="<?php esc_attr_e('e.g., Pizza Hut, KFC, Local Bangladeshi restaurants'); ?>"><?php echo esc_textarea($nearby_restaurants); ?></textarea>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -840,6 +888,25 @@ class RESBS_Property_Metabox {
                                         <input type="url" id="property_virtual_tour" name="property_virtual_tour" value="<?php echo esc_attr($virtual_tour); ?>" class="resbs-stunning-input" placeholder="https://example.com/virtual-tour">
                                         <p class="resbs-input-help"><?php esc_html_e('Enter the URL for your virtual tour (360° photos, Matterport, etc.)', 'realestate-booking-suite'); ?></p>
                                     </div>
+                                    
+                                    <!-- Virtual Tour Customization -->
+                                    <div class="resbs-form-group">
+                                        <label for="property_virtual_tour_title"><?php esc_html_e('Virtual Tour Title', 'realestate-booking-suite'); ?></label>
+                                        <input type="text" id="property_virtual_tour_title" name="property_virtual_tour_title" value="<?php echo esc_attr($virtual_tour_title); ?>" class="resbs-stunning-input" placeholder="3D Virtual Walkthrough">
+                                        <p class="resbs-input-help"><?php esc_html_e('Customize the title displayed in the virtual tour section', 'realestate-booking-suite'); ?></p>
+                                    </div>
+                                    
+                                    <div class="resbs-form-group">
+                                        <label for="property_virtual_tour_description"><?php esc_html_e('Virtual Tour Description', 'realestate-booking-suite'); ?></label>
+                                        <textarea id="property_virtual_tour_description" name="property_virtual_tour_description" class="resbs-stunning-input" rows="3" placeholder="Experience this property from anywhere with our interactive 3D tour."><?php echo esc_textarea($virtual_tour_description); ?></textarea>
+                                        <p class="resbs-input-help"><?php esc_html_e('Customize the description text for the virtual tour', 'realestate-booking-suite'); ?></p>
+                                    </div>
+                                    
+                                    <div class="resbs-form-group">
+                                        <label for="property_virtual_tour_button_text"><?php esc_html_e('Button Text', 'realestate-booking-suite'); ?></label>
+                                        <input type="text" id="property_virtual_tour_button_text" name="property_virtual_tour_button_text" value="<?php echo esc_attr($virtual_tour_button_text); ?>" class="resbs-stunning-input" placeholder="Start Tour">
+                                        <p class="resbs-input-help"><?php esc_html_e('Customize the button text for the virtual tour', 'realestate-booking-suite'); ?></p>
+                                    </div>
                                 </div>
 
                                 <!-- Video -->
@@ -855,6 +922,90 @@ class RESBS_Property_Metabox {
                                         <textarea id="property_video_embed" name="property_video_embed" class="resbs-stunning-textarea" rows="4" placeholder="<?php esc_attr_e('Paste your video embed code here...', 'realestate-booking-suite'); ?>"><?php echo esc_textarea($video_embed); ?></textarea>
                                         <p class="resbs-input-help"><?php esc_html_e('Alternative: Paste embed code directly', 'realestate-booking-suite'); ?></p>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Agent Tab -->
+                <div id="agent" class="resbs-tab-content">
+                    <div class="resbs-content-grid">
+                        <div class="resbs-content-card resbs-card-primary">
+                            <div class="resbs-card-header">
+                                <div class="resbs-card-icon">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                                <div class="resbs-card-title">
+                                    <h3><?php esc_html_e('Property Agent', 'realestate-booking-suite'); ?></h3>
+                                    <p><?php esc_html_e('Agent information and contact details', 'realestate-booking-suite'); ?></p>
+                                </div>
+                            </div>
+                            <div class="resbs-card-body">
+                                <div class="resbs-form-row">
+                                    <div class="resbs-form-group">
+                                        <label for="property_agent_name"><?php esc_html_e('Agent Name', 'realestate-booking-suite'); ?></label>
+                                        <input type="text" id="property_agent_name" name="property_agent_name" value="<?php echo esc_attr($agent_name); ?>" class="resbs-stunning-input" placeholder="John Smith">
+                                        <p class="resbs-input-help"><?php esc_html_e('Full name of the property agent', 'realestate-booking-suite'); ?></p>
+                                    </div>
+                                    <div class="resbs-form-group">
+                                        <label for="property_agent_phone"><?php esc_html_e('Phone Number', 'realestate-booking-suite'); ?></label>
+                                        <input type="tel" id="property_agent_phone" name="property_agent_phone" value="<?php echo esc_attr($agent_phone); ?>" class="resbs-stunning-input" placeholder="+1 (555) 123-4567">
+                                        <p class="resbs-input-help"><?php esc_html_e('Agent contact phone number', 'realestate-booking-suite'); ?></p>
+                                    </div>
+                                </div>
+                                
+                                <div class="resbs-form-group">
+                                    <label for="property_agent_email"><?php esc_html_e('Email Address', 'realestate-booking-suite'); ?></label>
+                                    <input type="email" id="property_agent_email" name="property_agent_email" value="<?php echo esc_attr($agent_email); ?>" class="resbs-stunning-input" placeholder="agent@example.com">
+                                    <p class="resbs-input-help"><?php esc_html_e('Agent email address for inquiries', 'realestate-booking-suite'); ?></p>
+                                </div>
+                                
+                                <div class="resbs-form-group">
+                                    <label for="property_agent_photo"><?php esc_html_e('Agent Photo', 'realestate-booking-suite'); ?></label>
+                                    <input type="url" id="property_agent_photo" name="property_agent_photo" value="<?php echo esc_attr($agent_photo); ?>" class="resbs-stunning-input" placeholder="https://example.com/agent-photo.jpg">
+                                    <p class="resbs-input-help"><?php esc_html_e('URL to agent profile photo', 'realestate-booking-suite'); ?></p>
+                                </div>
+                                
+                                <div class="resbs-form-row">
+                                    <div class="resbs-form-group">
+                                        <label for="property_agent_properties_sold"><?php esc_html_e('Properties Sold', 'realestate-booking-suite'); ?></label>
+                                        <input type="text" id="property_agent_properties_sold" name="property_agent_properties_sold" value="<?php echo esc_attr($agent_properties_sold); ?>" class="resbs-stunning-input" placeholder="100+">
+                                        <p class="resbs-input-help"><?php esc_html_e('Number of properties sold (e.g., 100+)', 'realestate-booking-suite'); ?></p>
+                                    </div>
+                                    <div class="resbs-form-group">
+                                        <label for="property_agent_experience"><?php esc_html_e('Experience', 'realestate-booking-suite'); ?></label>
+                                        <input type="text" id="property_agent_experience" name="property_agent_experience" value="<?php echo esc_attr($agent_experience); ?>" class="resbs-stunning-input" placeholder="5+ Years">
+                                        <p class="resbs-input-help"><?php esc_html_e('Years of experience (e.g., 5+ Years)', 'realestate-booking-suite'); ?></p>
+                                    </div>
+                                </div>
+                                
+                                <div class="resbs-form-row">
+                                    <div class="resbs-form-group">
+                                        <label for="property_agent_response_time"><?php esc_html_e('Response Time', 'realestate-booking-suite'); ?></label>
+                                        <input type="text" id="property_agent_response_time" name="property_agent_response_time" value="<?php echo esc_attr($agent_response_time); ?>" class="resbs-stunning-input" placeholder="< 1 Hour">
+                                        <p class="resbs-input-help"><?php esc_html_e('Average response time (e.g., < 1 Hour)', 'realestate-booking-suite'); ?></p>
+                                    </div>
+                                    <div class="resbs-form-group">
+                                        <label for="property_agent_rating"><?php esc_html_e('Rating', 'realestate-booking-suite'); ?></label>
+                                        <select id="property_agent_rating" name="property_agent_rating" class="resbs-stunning-select">
+                                            <option value="1" <?php selected($agent_rating, '1'); ?>>1 Star</option>
+                                            <option value="2" <?php selected($agent_rating, '2'); ?>>2 Stars</option>
+                                            <option value="3" <?php selected($agent_rating, '3'); ?>>3 Stars</option>
+                                            <option value="4" <?php selected($agent_rating, '4'); ?>>4 Stars</option>
+                                            <option value="5" <?php selected($agent_rating, '5'); ?>>5 Stars</option>
+                                        </select>
+                                        <p class="resbs-input-help"><?php esc_html_e('Agent rating out of 5 stars', 'realestate-booking-suite'); ?></p>
+                                    </div>
+                                </div>
+                                
+                                <div class="resbs-form-group">
+                                    <label for="property_agent_reviews"><?php esc_html_e('Reviews Text', 'realestate-booking-suite'); ?></label>
+                                    <input type="text" id="property_agent_reviews" name="property_agent_reviews" value="<?php echo esc_attr($agent_reviews); ?>" class="resbs-stunning-input" placeholder="reviews">
+                                    <p class="resbs-input-help"><?php esc_html_e('Text to display after rating (e.g., reviews, testimonials)', 'realestate-booking-suite'); ?></p>
                                 </div>
                             </div>
                         </div>
@@ -2123,17 +2274,76 @@ class RESBS_Property_Metabox {
             'property_state' => '_property_state',
             'property_zip' => '_property_zip',
             'property_country' => '_property_country',
-            'property_latitude' => '_property_latitude',
-            'property_longitude' => '_property_longitude',
+            'property_map_iframe' => '_property_map_iframe',
             'property_features' => '_property_features',
-            'property_amenities' => '_property_amenities'
+            'property_amenities' => '_property_amenities',
+            'property_nearby_schools' => '_property_nearby_schools',
+            'property_nearby_shopping' => '_property_nearby_shopping',
+            'property_nearby_restaurants' => '_property_nearby_restaurants',
+            'property_virtual_tour' => '_property_virtual_tour',
+            'property_virtual_tour_title' => '_property_virtual_tour_title',
+            'property_virtual_tour_description' => '_property_virtual_tour_description',
+            'property_virtual_tour_button_text' => '_property_virtual_tour_button_text',
+            'property_agent_name' => '_property_agent_name',
+            'property_agent_phone' => '_property_agent_phone',
+            'property_agent_email' => '_property_agent_email',
+            'property_agent_photo' => '_property_agent_photo',
+            'property_agent_properties_sold' => '_property_agent_properties_sold',
+            'property_agent_experience' => '_property_agent_experience',
+            'property_agent_response_time' => '_property_agent_response_time',
+            'property_agent_rating' => '_property_agent_rating',
+            'property_agent_reviews' => '_property_agent_reviews',
+            'property_video_url' => '_property_video_url',
+            'property_video_embed' => '_property_video_embed'
         );
         
         $saved_count = 0;
         
         // Save all fields with better error handling
         foreach ($fields_to_save as $form_field => $meta_key) {
-            $value = isset($_POST[$form_field]) ? sanitize_text_field($_POST[$form_field]) : '';
+            // Special handling for HTML fields (iframe and video embed)
+            if ($form_field === 'property_map_iframe') {
+                // Allow iframe tags with specific attributes for maps
+                $allowed_html = array(
+                    'iframe' => array(
+                        'src' => array(),
+                        'width' => array(),
+                        'height' => array(),
+                        'style' => array(),
+                        'allowfullscreen' => array(),
+                        'loading' => array(),
+                        'referrerpolicy' => array(),
+                        'frameborder' => array(),
+                        'scrolling' => array()
+                    )
+                );
+                $value = isset($_POST[$form_field]) ? wp_kses($_POST[$form_field], $allowed_html) : '';
+                // Debug: Log iframe field saving
+                error_log('Saving iframe field: ' . $form_field . ' = ' . substr($value, 0, 100) . '...');
+            } elseif ($form_field === 'property_video_embed') {
+                // Allow iframe tags with specific attributes for video embeds
+                $allowed_html = array(
+                    'iframe' => array(
+                        'src' => array(),
+                        'width' => array(),
+                        'height' => array(),
+                        'style' => array(),
+                        'allowfullscreen' => array(),
+                        'loading' => array(),
+                        'referrerpolicy' => array(),
+                        'frameborder' => array(),
+                        'scrolling' => array()
+                    )
+                );
+                $value = isset($_POST[$form_field]) ? wp_kses($_POST[$form_field], $allowed_html) : '';
+                // Debug: Log video embed field saving
+                error_log('Saving video embed field: ' . $form_field . ' = ' . substr($value, 0, 100) . '...');
+            } elseif ($form_field === 'property_virtual_tour_description') {
+                // Special handling for textarea fields
+                $value = isset($_POST[$form_field]) ? sanitize_textarea_field($_POST[$form_field]) : '';
+            } else {
+                $value = isset($_POST[$form_field]) ? sanitize_text_field($_POST[$form_field]) : '';
+            }
             
             // Only update if value is different or if it's a new field
             $existing_value = get_post_meta($post_id, $meta_key, true);
@@ -2141,7 +2351,41 @@ class RESBS_Property_Metabox {
                 $result = update_post_meta($post_id, $meta_key, $value);
                 if ($result !== false) {
                     $saved_count++;
+                    // Debug: Log successful save
+                    if ($form_field === 'property_map_iframe') {
+                        error_log('Iframe field saved successfully');
+                    }
+                } else {
+                    // Debug: Log save failure
+                    if ($form_field === 'property_map_iframe') {
+                        error_log('Failed to save iframe field');
+                    }
                 }
+            }
+        }
+        
+        // Direct save for iframe field to ensure it's saved
+        if (isset($_POST['property_map_iframe'])) {
+            // Allow iframe tags with specific attributes for maps
+            $allowed_html = array(
+                'iframe' => array(
+                    'src' => array(),
+                    'width' => array(),
+                    'height' => array(),
+                    'style' => array(),
+                    'allowfullscreen' => array(),
+                    'loading' => array(),
+                    'referrerpolicy' => array(),
+                    'frameborder' => array(),
+                    'scrolling' => array()
+                )
+            );
+            $iframe_value = wp_kses($_POST['property_map_iframe'], $allowed_html);
+            $result = update_post_meta($post_id, '_property_map_iframe', $iframe_value);
+            if ($result !== false) {
+                error_log('Iframe field saved directly: ' . substr($iframe_value, 0, 100) . '...');
+            } else {
+                error_log('Failed to save iframe field directly');
             }
         }
         

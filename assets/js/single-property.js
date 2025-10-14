@@ -8,57 +8,19 @@ let currentImageIndex = 0;
 function initializeGalleryImages() {
     if (window.galleryImages && Array.isArray(window.galleryImages) && window.galleryImages.length > 0) {
         galleryImages = window.galleryImages;
-        console.log('Gallery images initialized:', galleryImages.length);
-        console.log('Gallery images:', galleryImages);
     } else {
-        console.error('Gallery images not available from window.galleryImages');
-        console.log('window.galleryImages:', window.galleryImages);
-        console.log('No gallery images available - check PHP gallery processing');
-        
         // Try to get images from gallery elements on the page as fallback
         const galleryImgs = document.querySelectorAll('.gallery-img');
         if (galleryImgs.length > 0) {
             galleryImages = Array.from(galleryImgs).map(img => img.src);
-            console.log('Fallback: Found gallery images from DOM:', galleryImages);
         }
     }
 }
 
-// Debug: Log when page loads
+// Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize gallery images
     initializeGalleryImages();
-    
-    // Test if imageViewer modal exists
-    const imageViewer = document.getElementById('imageViewer');
-    if (imageViewer) {
-        console.log('Image viewer modal found');
-    } else {
-        console.error('Image viewer modal NOT found');
-    }
-    
-    // Test if viewerImage element exists
-    const viewerImage = document.getElementById('viewerImage');
-    if (viewerImage) {
-        console.log('Viewer image element found');
-    } else {
-        console.error('Viewer image element NOT found');
-    }
-    
-    // Test function for debugging
-    window.testImageViewer = function() {
-        console.log('Testing image viewer...');
-        console.log('Gallery images:', galleryImages);
-        console.log('Gallery images length:', galleryImages ? galleryImages.length : 0);
-        
-        if (galleryImages && galleryImages.length > 0) {
-            console.log('Opening first image for testing...');
-            openImageViewer(0);
-        } else {
-            console.error('No gallery images available for testing');
-            alert('No gallery images available. Check console for details.');
-        }
-    };
 });
 
 // WORKING TAB FUNCTION - COPIED FROM YOUR WORKING HTML
@@ -82,9 +44,9 @@ function switchTab(tabName) {
     activeButton.classList.add('tab-active');
     activeButton.classList.remove('text-gray-600');
 
-    // Initialize map if location tab is opened
-    if (tabName === 'location' && !window.mapInitialized) {
-        initMap();
+    // Location tab functionality (no map initialization needed)
+    if (tabName === 'location') {
+        console.log('Location tab clicked');
     }
 }
 
@@ -120,36 +82,25 @@ function filterAmenities(category) {
 
 // Image Viewer - Enhanced with fallback
 function openImageViewer(index) {
-    console.log('Opening image viewer for index:', index);
-    console.log('Gallery images available:', galleryImages);
-    console.log('Gallery images length:', galleryImages ? galleryImages.length : 0);
-    
     // Try to get images from window.galleryImages if local array is empty
     if (!galleryImages || galleryImages.length === 0) {
         if (window.galleryImages && window.galleryImages.length > 0) {
             galleryImages = window.galleryImages;
-            console.log('Using window.galleryImages:', galleryImages);
         } else {
-            console.error('No gallery images available!');
             alert('No images available to display.');
             return;
         }
     }
     
     if (index >= galleryImages.length) {
-        console.error('Image index out of range:', index, 'Max:', galleryImages.length - 1);
         return;
     }
     
     const imageUrl = galleryImages[index];
-    console.log('Setting image URL:', imageUrl);
-    
     currentImageIndex = index;
     document.getElementById('viewerImage').src = imageUrl;
     document.getElementById('imageViewer').classList.add('active');
     document.body.style.overflow = 'hidden';
-    
-    console.log('Image viewer opened successfully');
 }
 
 
@@ -220,25 +171,7 @@ function calculateMortgage() {
         '$' + monthlyPayment.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
 
-// Initialize map
-let map;
-function initMap() {
-    if (window.mapInitialized) return;
-    
-    // Map initialization will be handled by PHP variables
-    if (window.propertyLatitude && window.propertyLongitude) {
-        map = L.map('map').setView([window.propertyLatitude, window.propertyLongitude], 14);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
-        }).addTo(map);
-        
-        L.marker([window.propertyLatitude, window.propertyLongitude]).addTo(map)
-            .bindPopup('<b>' + window.propertyTitle + '</b><br>' + window.propertyAddress)
-            .openPopup();
-    }
-    
-    window.mapInitialized = true;
-}
+// Map functionality removed - using iframe maps only
 
 // Utility Functions
 function shareProperty() {
@@ -379,31 +312,18 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.gallery-img').forEach((img, index) => {
         img.addEventListener('click', function(e) {
             e.preventDefault();
-            console.log('Gallery image clicked, index:', index);
-            console.log('Image src:', img.src);
-            console.log('Gallery images available:', galleryImages);
-            console.log('Window gallery images:', window.galleryImages);
             
             // Try the main image viewer first
             if (galleryImages && galleryImages.length > 0) {
-                console.log('Using main image viewer');
                 openImageViewer(index);
             } else if (window.galleryImages && window.galleryImages.length > 0) {
-                console.log('Using window gallery images');
                 galleryImages = window.galleryImages;
                 openImageViewer(index);
             } else {
-                console.log('Using fallback popup');
                 // Fallback to simple popup
                 showImagePopup(img.src);
             }
         });
-    });
-    
-    // Debug: Log all gallery images found
-    console.log('Total gallery images found:', document.querySelectorAll('.gallery-img').length);
-    document.querySelectorAll('.gallery-img').forEach((img, index) => {
-        console.log(`Gallery image ${index}:`, img.src);
     });
 });
 
