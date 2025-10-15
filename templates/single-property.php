@@ -194,6 +194,11 @@ $mortgage_default_loan_term = get_post_meta($property_id, '_property_mortgage_de
 $mortgage_loan_terms = get_post_meta($property_id, '_property_mortgage_loan_terms', true);
 $mortgage_disclaimer_text = get_post_meta($property_id, '_property_mortgage_disclaimer_text', true);
 
+// Tour Information Fields
+$tour_duration = get_post_meta($property_id, '_property_tour_duration', true);
+$tour_group_size = get_post_meta($property_id, '_property_tour_group_size', true);
+$tour_safety = get_post_meta($property_id, '_property_tour_safety', true);
+
 // Get gallery images with proper URL conversion
 $gallery_images = array();
 
@@ -1241,21 +1246,21 @@ $property_title = get_the_title();
                                                 <i class="fas fa-clock text-blue-500 mr-3 mt-1"></i>
                                                 <div>
                                                     <p class="font-semibold text-gray-800">Duration</p>
-                                                    <p class="text-gray-600">Approximately 30-45 minutes</p>
+                                                    <p class="text-gray-600"><?php echo esc_html($tour_duration ?: 'Approximately 30-45 minutes'); ?></p>
                                                 </div>
                                             </div>
                                             <div class="flex items-start">
                                                 <i class="fas fa-users text-blue-500 mr-3 mt-1"></i>
                                                 <div>
                                                     <p class="font-semibold text-gray-800">Group Size</p>
-                                                    <p class="text-gray-600">Maximum 4 people per tour</p>
+                                                    <p class="text-gray-600"><?php echo esc_html($tour_group_size ?: 'Maximum 4 people per tour'); ?></p>
                                                 </div>
                                             </div>
                                             <div class="flex items-start">
                                                 <i class="fas fa-shield-alt text-blue-500 mr-3 mt-1"></i>
                                                 <div>
                                                     <p class="font-semibold text-gray-800">Safety</p>
-                                                    <p class="text-gray-600">All safety protocols followed</p>
+                                                    <p class="text-gray-600"><?php echo esc_html($tour_safety ?: 'All safety protocols followed'); ?></p>
                                                 </div>
                                             </div>
                                         </div>

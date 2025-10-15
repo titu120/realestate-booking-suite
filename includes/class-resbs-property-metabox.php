@@ -144,6 +144,11 @@ class RESBS_Property_Metabox {
         $mortgage_loan_terms = get_post_meta($post->ID, '_property_mortgage_loan_terms', true);
         $mortgage_disclaimer_text = get_post_meta($post->ID, '_property_mortgage_disclaimer_text', true);
         
+        // Tour Information Fields
+        $tour_duration = get_post_meta($post->ID, '_property_tour_duration', true);
+        $tour_group_size = get_post_meta($post->ID, '_property_tour_group_size', true);
+        $tour_safety = get_post_meta($post->ID, '_property_tour_safety', true);
+        
         ?>
         <div class="resbs-stunning-metabox">
             <!-- Header Section -->
@@ -382,7 +387,7 @@ class RESBS_Property_Metabox {
                                         <label for="property_price"><?php esc_html_e('Price', 'realestate-booking-suite'); ?></label>
                                         <div class="resbs-input-group">
                                             <span class="resbs-input-prefix">$</span>
-                                            <input type="number" id="property_price" name="property_price" value="<?php echo esc_attr($price); ?>" class="resbs-stunning-input" placeholder="0">
+                                            <input type="number" id="property_price" name="property_price" value="<?php echo esc_attr($price); ?>" class="resbs-stunning-input" placeholder="0" step="0.01">
                                         </div>
                                         <p class="resbs-input-help"><?php esc_html_e('Enter the property price', 'realestate-booking-suite'); ?></p>
                                     </div>
@@ -390,7 +395,7 @@ class RESBS_Property_Metabox {
                                         <label for="property_price_per_sqft"><?php esc_html_e('Price per Sq Ft', 'realestate-booking-suite'); ?></label>
                                         <div class="resbs-input-group">
                                             <span class="resbs-input-prefix">$</span>
-                                            <input type="number" id="property_price_per_sqft" name="property_price_per_sqft" value="<?php echo esc_attr($price_per_sqft); ?>" class="resbs-stunning-input" placeholder="0">
+                                            <input type="number" id="property_price_per_sqft" name="property_price_per_sqft" value="<?php echo esc_attr($price_per_sqft); ?>" class="resbs-stunning-input" placeholder="0" step="0.01">
                                         </div>
                                     </div>
                                     <div class="resbs-form-group">
@@ -863,12 +868,12 @@ class RESBS_Property_Metabox {
                                 <div class="resbs-media-section">
                                     <h4><?php esc_html_e('Photo Gallery', 'realestate-booking-suite'); ?></h4>
                                     <div class="resbs-stunning-uploader">
-                                        <div style="border: 3px solid #0073aa; padding: 30px; margin: 20px 0; background: #f0f8ff; border-radius: 15px;">
-                                            <h3 style="color: #0073aa; margin: 0 0 20px 0; font-size: 24px;">📸 Upload Property Photos</h3>
+                                        <div>
+                                            <h3 style="color: #0073aa; margin: 0 0 20px 0; font-size: 18px;">📸 Upload Property Photos</h3>
                                             
                                             <!-- WordPress Media Uploader Button -->
                                             <div style="margin: 20px 0;">
-                                                <button type="button" id="upload-gallery-button" class="button button-primary" style="font-size: 16px; padding: 15px 30px;">
+                                                <button type="button" id="upload-gallery-button" class="button button-primary" style="font-size: 16px;">
                                                     📁 Select Images
                                                 </button>
                                                 <p style="margin: 10px 0; color: #666;">Click to open WordPress Media Library</p>
@@ -1252,6 +1257,30 @@ class RESBS_Property_Metabox {
                                         <option value="super_strict" <?php selected($cancellation_policy, 'super_strict'); ?>><?php esc_html_e('Super Strict - No refunds for cancellations', 'realestate-booking-suite'); ?></option>
                                     </select>
                                     <p class="resbs-input-help"><?php esc_html_e('Choose the cancellation policy for this property', 'realestate-booking-suite'); ?></p>
+                                </div>
+
+                                <!-- Tour Information Section -->
+                                <div class="resbs-form-section">
+                                    <h4><?php esc_html_e('Tour Information', 'realestate-booking-suite'); ?></h4>
+                                    <p class="resbs-input-help"><?php esc_html_e('Customize the tour information displayed to visitors', 'realestate-booking-suite'); ?></p>
+                                    
+                                    <div class="resbs-form-group">
+                                        <label for="property_tour_duration"><?php esc_html_e('Tour Duration', 'realestate-booking-suite'); ?></label>
+                                        <input type="text" id="property_tour_duration" name="property_tour_duration" value="<?php echo esc_attr($tour_duration ?: 'Approximately 30-45 minutes'); ?>" class="resbs-stunning-input" placeholder="Approximately 30-45 minutes">
+                                        <p class="resbs-input-help"><?php esc_html_e('Duration of the property tour (e.g., 30-45 minutes)', 'realestate-booking-suite'); ?></p>
+                                    </div>
+                                    
+                                    <div class="resbs-form-group">
+                                        <label for="property_tour_group_size"><?php esc_html_e('Group Size', 'realestate-booking-suite'); ?></label>
+                                        <input type="text" id="property_tour_group_size" name="property_tour_group_size" value="<?php echo esc_attr($tour_group_size ?: 'Maximum 4 people per tour'); ?>" class="resbs-stunning-input" placeholder="Maximum 4 people per tour">
+                                        <p class="resbs-input-help"><?php esc_html_e('Maximum number of people allowed per tour', 'realestate-booking-suite'); ?></p>
+                                    </div>
+                                    
+                                    <div class="resbs-form-group">
+                                        <label for="property_tour_safety"><?php esc_html_e('Safety Information', 'realestate-booking-suite'); ?></label>
+                                        <input type="text" id="property_tour_safety" name="property_tour_safety" value="<?php echo esc_attr($tour_safety ?: 'All safety protocols followed'); ?>" class="resbs-stunning-input" placeholder="All safety protocols followed">
+                                        <p class="resbs-input-help"><?php esc_html_e('Safety information for the tour', 'realestate-booking-suite'); ?></p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1962,11 +1991,11 @@ class RESBS_Property_Metabox {
                             <div class="resbs-form-row">
                                 <div class="resbs-form-group">
                                     <label for="property_area_sqft"><?php esc_html_e('Area (Sq Ft)', 'realestate-booking-suite'); ?></label>
-                                    <input type="number" id="property_area_sqft" name="property_area_sqft" value="<?php echo esc_attr($area_sqft); ?>" class="resbs-input" placeholder="0">
+                                    <input type="number" id="property_area_sqft" name="property_area_sqft" value="<?php echo esc_attr($area_sqft); ?>" class="resbs-input" placeholder="0" step="0.01">
                                 </div>
                                 <div class="resbs-form-group">
                                     <label for="property_lot_size_sqft"><?php esc_html_e('Lot Size (Sq Ft)', 'realestate-booking-suite'); ?></label>
-                                    <input type="number" id="property_lot_size_sqft" name="property_lot_size_sqft" value="<?php echo esc_attr($lot_size_sqft); ?>" class="resbs-input" placeholder="0">
+                                    <input type="number" id="property_lot_size_sqft" name="property_lot_size_sqft" value="<?php echo esc_attr($lot_size_sqft); ?>" class="resbs-input" placeholder="0" step="0.01">
                                 </div>
                             </div>
                             <div class="resbs-form-row">
@@ -2529,7 +2558,10 @@ class RESBS_Property_Metabox {
             'property_mortgage_loan_terms' => '_property_mortgage_loan_terms',
             'property_mortgage_disclaimer_text' => '_property_mortgage_disclaimer_text',
             'property_video_url' => '_property_video_url',
-            'property_video_embed' => '_property_video_embed'
+            'property_video_embed' => '_property_video_embed',
+            'property_tour_duration' => '_property_tour_duration',
+            'property_tour_group_size' => '_property_tour_group_size',
+            'property_tour_safety' => '_property_tour_safety'
         );
         
         $saved_count = 0;
