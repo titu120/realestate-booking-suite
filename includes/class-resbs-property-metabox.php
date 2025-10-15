@@ -1188,9 +1188,15 @@ class RESBS_Property_Metabox {
                                 $enable_booking = get_post_meta($post->ID, '_property_enable_booking', true);
                                 $min_stay = get_post_meta($post->ID, '_property_min_stay', true);
                                 $max_stay = get_post_meta($post->ID, '_property_max_stay', true);
-                                $checkin_time = get_post_meta($post->ID, '_property_checkin_time', true);
-                                $checkout_time = get_post_meta($post->ID, '_property_checkout_time', true);
-                                $cancellation_policy = get_post_meta($post->ID, '_property_cancellation_policy', true);
+        $checkin_time = get_post_meta($post->ID, '_property_checkin_time', true);
+        $checkout_time = get_post_meta($post->ID, '_property_checkout_time', true);
+        $cancellation_policy = get_post_meta($post->ID, '_property_cancellation_policy', true);
+        
+        // Tour configuration
+        $tour_duration = get_post_meta($post->ID, '_property_tour_duration', true);
+        $tour_group_size = get_post_meta($post->ID, '_property_tour_group_size', true);
+        $tour_safety = get_post_meta($post->ID, '_property_tour_safety', true);
+        $available_times = get_post_meta($post->ID, '_property_available_times', true);
                                 ?>
                                 
                                 <div class="resbs-form-group">
@@ -1246,6 +1252,36 @@ class RESBS_Property_Metabox {
                                         <option value="super_strict" <?php selected($cancellation_policy, 'super_strict'); ?>><?php esc_html_e('Super Strict - No refunds for cancellations', 'realestate-booking-suite'); ?></option>
                                     </select>
                                     <p class="resbs-input-help"><?php esc_html_e('Choose the cancellation policy for this property', 'realestate-booking-suite'); ?></p>
+                                </div>
+
+                                <!-- Tour Configuration -->
+                                <div class="resbs-form-group">
+                                    <h4><?php esc_html_e('Tour Configuration', 'realestate-booking-suite'); ?></h4>
+                                    <p class="resbs-input-help"><?php esc_html_e('Configure tour details for property viewings', 'realestate-booking-suite'); ?></p>
+                                </div>
+
+                                <div class="resbs-form-group">
+                                    <label for="property_tour_duration"><?php esc_html_e('Tour Duration', 'realestate-booking-suite'); ?></label>
+                                    <input type="text" id="property_tour_duration" name="property_tour_duration" value="<?php echo esc_attr($tour_duration); ?>" class="resbs-stunning-input" placeholder="<?php esc_attr_e('e.g., Approximately 30-45 minutes', 'realestate-booking-suite'); ?>">
+                                    <p class="resbs-input-help"><?php esc_html_e('Expected duration of property tours', 'realestate-booking-suite'); ?></p>
+                                </div>
+
+                                <div class="resbs-form-group">
+                                    <label for="property_tour_group_size"><?php esc_html_e('Maximum Group Size', 'realestate-booking-suite'); ?></label>
+                                    <input type="text" id="property_tour_group_size" name="property_tour_group_size" value="<?php echo esc_attr($tour_group_size); ?>" class="resbs-stunning-input" placeholder="<?php esc_attr_e('e.g., Maximum 4 people per tour', 'realestate-booking-suite'); ?>">
+                                    <p class="resbs-input-help"><?php esc_html_e('Maximum number of people allowed per tour', 'realestate-booking-suite'); ?></p>
+                                </div>
+
+                                <div class="resbs-form-group">
+                                    <label for="property_tour_safety"><?php esc_html_e('Safety Information', 'realestate-booking-suite'); ?></label>
+                                    <input type="text" id="property_tour_safety" name="property_tour_safety" value="<?php echo esc_attr($tour_safety); ?>" class="resbs-stunning-input" placeholder="<?php esc_attr_e('e.g., All safety protocols followed', 'realestate-booking-suite'); ?>">
+                                    <p class="resbs-input-help"><?php esc_html_e('Safety information for tour participants', 'realestate-booking-suite'); ?></p>
+                                </div>
+
+                                <div class="resbs-form-group">
+                                    <label for="property_available_times"><?php esc_html_e('Available Time Slots', 'realestate-booking-suite'); ?></label>
+                                    <textarea id="property_available_times" name="property_available_times" class="resbs-stunning-input" rows="3" placeholder="<?php esc_attr_e('Enter time slots in format: 09:00=>9:00 AM,10:00=>10:00 AM (one per line)', 'realestate-booking-suite'); ?>"><?php echo esc_textarea($available_times); ?></textarea>
+                                    <p class="resbs-input-help"><?php esc_html_e('Available time slots for tours (format: time=>label, one per line)', 'realestate-booking-suite'); ?></p>
                                 </div>
 
                                 <!-- Tour Information Section -->
@@ -2539,7 +2575,8 @@ class RESBS_Property_Metabox {
             'property_video_embed' => '_property_video_embed',
             'property_tour_duration' => '_property_tour_duration',
             'property_tour_group_size' => '_property_tour_group_size',
-            'property_tour_safety' => '_property_tour_safety'
+            'property_tour_safety' => '_property_tour_safety',
+            'property_available_times' => '_property_available_times'
         );
         
         $saved_count = 0;

@@ -167,6 +167,12 @@ $agent_email = get_post_meta($property_id, '_property_agent_email', true);
 $agent_photo = get_post_meta($property_id, '_property_agent_photo', true);
 $agent_properties_sold = get_post_meta($property_id, '_property_agent_properties_sold', true);
 $agent_experience = get_post_meta($property_id, '_property_agent_experience', true);
+
+// Get tour/booking data
+$tour_duration = get_post_meta($property_id, '_property_tour_duration', true);
+$tour_group_size = get_post_meta($property_id, '_property_tour_group_size', true);
+$tour_safety = get_post_meta($property_id, '_property_tour_safety', true);
+$available_times = get_post_meta($property_id, '_property_available_times', true);
 $agent_response_time = get_post_meta($property_id, '_property_agent_response_time', true);
 $agent_rating = get_post_meta($property_id, '_property_agent_rating', true);
 $agent_reviews = get_post_meta($property_id, '_property_agent_reviews', true);
@@ -1157,51 +1163,81 @@ $property_title = get_the_title();
                                 <!-- Booking Form -->
                                 <div class="bg-white border rounded-lg p-6">
                                     <h4 class="text-lg font-semibold text-gray-800 mb-4">Book a Property Tour</h4>
-                                    <form onsubmit="submitBookingForm(event)" class="space-y-4">
+                                    <form id="booking-form" onsubmit="submitBookingForm(event)" class="space-y-4">
                                         <div class="grid md:grid-cols-2 gap-4">
                                             <div>
                                                 <label class="block text-sm font-medium text-gray-700 mb-2">First Name</label>
-                                                <input type="text" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="Enter your first name">
+                                                <input type="text" name="first_name" id="booking_first_name" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="Enter your first name">
                                             </div>
                                             <div>
                                                 <label class="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
-                                                <input type="text" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="Enter your last name">
+                                                <input type="text" name="last_name" id="booking_last_name" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="Enter your last name">
                                             </div>
                                         </div>
                                         <div>
                                             <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                                            <input type="email" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="your.email@example.com">
+                                            <input type="email" name="email" id="booking_email" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="your.email@example.com">
                                         </div>
                                         <div>
                                             <label class="block text-sm font-medium text-gray-700 mb-2">Phone</label>
-                                            <input type="tel" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="(555) 123-4567">
+                                            <input type="tel" name="phone" id="booking_phone" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="(555) 123-4567">
                                         </div>
                                         <div class="grid md:grid-cols-2 gap-4">
                                             <div>
-                                                <label class="block text-sm font-medium text-gray-700 mb-2">Preferred Date</label>
-                                                <input type="date" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">Preferred Date <span class="text-gray-400">(Optional)</span></label>
+                                                <input type="date" name="preferred_date" id="booking_date" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500">
                                             </div>
                                             <div>
-                                                <label class="block text-sm font-medium text-gray-700 mb-2">Preferred Time</label>
-                                                <select required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">Preferred Time <span class="text-gray-400">(Optional)</span></label>
+                                                <select name="preferred_time" id="booking_time" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500">
                                                     <option value="">Select Time</option>
-                                                    <option value="09:00">9:00 AM</option>
-                                                    <option value="10:00">10:00 AM</option>
-                                                    <option value="11:00">11:00 AM</option>
-                                                    <option value="12:00">12:00 PM</option>
-                                                    <option value="13:00">1:00 PM</option>
-                                                    <option value="14:00">2:00 PM</option>
-                                                    <option value="15:00">3:00 PM</option>
-                                                    <option value="16:00">4:00 PM</option>
-                                                    <option value="17:00">5:00 PM</option>
+                                                    <?php
+                                                    // Default 24-hour time slots
+                                                    $default_times = array(
+                                                        '00:00' => '12:00 AM',
+                                                        '01:00' => '1:00 AM',
+                                                        '02:00' => '2:00 AM',
+                                                        '03:00' => '3:00 AM',
+                                                        '04:00' => '4:00 AM',
+                                                        '05:00' => '5:00 AM',
+                                                        '06:00' => '6:00 AM',
+                                                        '07:00' => '7:00 AM',
+                                                        '08:00' => '8:00 AM',
+                                                        '09:00' => '9:00 AM',
+                                                        '10:00' => '10:00 AM',
+                                                        '11:00' => '11:00 AM',
+                                                        '12:00' => '12:00 PM',
+                                                        '13:00' => '1:00 PM',
+                                                        '14:00' => '2:00 PM',
+                                                        '15:00' => '3:00 PM',
+                                                        '16:00' => '4:00 PM',
+                                                        '17:00' => '5:00 PM',
+                                                        '18:00' => '6:00 PM',
+                                                        '19:00' => '7:00 PM',
+                                                        '20:00' => '8:00 PM',
+                                                        '21:00' => '9:00 PM',
+                                                        '22:00' => '10:00 PM',
+                                                        '23:00' => '11:00 PM'
+                                                    );
+                                                    
+                                                    // Use configured times or defaults
+                                                    $times_to_use = $available_times ?: $default_times;
+                                                    
+                                                    foreach ($times_to_use as $time_value => $time_label) {
+                                                        echo '<option value="' . esc_attr($time_value) . '">' . esc_html($time_label) . '</option>';
+                                                    }
+                                                    ?>
                                                 </select>
                                             </div>
                                         </div>
                                         <div>
                                             <label class="block text-sm font-medium text-gray-700 mb-2">Message (Optional)</label>
-                                            <textarea rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="Any specific questions or requirements..."></textarea>
+                                            <textarea name="message" id="booking_message" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="Any specific questions or requirements..."></textarea>
                                         </div>
-                                        <button type="submit" class="w-full bg-emerald-500 text-white py-3 rounded-lg hover:bg-emerald-600 transition font-semibold">
+                                        <input type="hidden" name="property_id" value="<?php echo esc_attr($property_id); ?>">
+                                        <input type="hidden" name="action" value="resbs_submit_booking">
+                                        <?php wp_nonce_field('resbs_booking_nonce', '_wpnonce'); ?>
+                                        <button type="submit" id="booking-submit-btn" class="w-full bg-emerald-500 text-white py-3 rounded-lg hover:bg-emerald-600 transition font-semibold">
                                             <i class="fas fa-calendar-check mr-2"></i>Schedule Tour
                                         </button>
                                     </form>
@@ -2213,6 +2249,74 @@ $property_title = get_the_title();
             const script = document.createElement('script');
             script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
             document.head.appendChild(script);
+        }
+        
+        // Booking Form Submission
+        function submitBookingForm(event) {
+            event.preventDefault();
+            
+            const form = document.getElementById('booking-form');
+            const submitBtn = document.getElementById('booking-submit-btn');
+            const formData = new FormData(form);
+            
+            // Show loading state
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Submitting...';
+            submitBtn.disabled = true;
+            
+            // Submit via AJAX
+            fetch('<?php echo admin_url('admin-ajax.php'); ?>', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Show success message
+                    showBookingMessage('success', 'Tour scheduled successfully! We will contact you soon to confirm your appointment.');
+                    form.reset();
+                } else {
+                    // Show error message
+                    showBookingMessage('error', data.message || 'Something went wrong. Please try again.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showBookingMessage('error', 'Network error. Please check your connection and try again.');
+            })
+            .finally(() => {
+                // Reset button
+                submitBtn.innerHTML = '<i class="fas fa-calendar-check mr-2"></i>Schedule Tour';
+                submitBtn.disabled = false;
+            });
+        }
+        
+        function showBookingMessage(type, message) {
+            // Remove existing messages
+            const existingMessage = document.querySelector('.booking-message');
+            if (existingMessage) {
+                existingMessage.remove();
+            }
+            
+            // Create new message
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `booking-message p-4 rounded-lg mb-4 ${type === 'success' ? 'bg-green-100 text-green-800 border border-green-200' : 'bg-red-100 text-red-800 border border-red-200'}`;
+            messageDiv.innerHTML = `
+                <div class="flex items-center">
+                    <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'} mr-2"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            // Insert after form
+            const form = document.getElementById('booking-form');
+            form.parentNode.insertBefore(messageDiv, form.nextSibling);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (messageDiv.parentNode) {
+                    messageDiv.remove();
+                }
+            }, 5000);
         }
     </script>
 </div>
