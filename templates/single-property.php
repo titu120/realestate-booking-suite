@@ -389,17 +389,9 @@ $property_title = get_the_title();
                             <i class="fas fa-share-alt text-gray-600"></i>
                             <span class="text-gray-700">Share</span>
                         </button>
-                        <button onclick="saveFavorite()" class="tooltip flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition" data-tooltip="Save to Favorites">
-                            <i class="far fa-heart text-gray-600"></i>
-                            <span class="text-gray-700">Save</span>
-                        </button>
                         <button onclick="printPage()" class="tooltip flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition" data-tooltip="Print Details">
                             <i class="fas fa-print text-gray-600"></i>
                             <span class="text-gray-700">Print</span>
-                        </button>
-                        <button onclick="exportPDF()" class="tooltip flex items-center space-x-2 px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition" data-tooltip="Export as PDF">
-                            <i class="fas fa-download"></i>
-                            <span>Export PDF</span>
                         </button>
                     </div>
                 </div>
@@ -1237,7 +1229,7 @@ $property_title = get_the_title();
                                         <input type="hidden" name="property_id" value="<?php echo esc_attr($property_id); ?>">
                                         <input type="hidden" name="action" value="resbs_submit_booking">
                                         <?php wp_nonce_field('resbs_booking_nonce', '_wpnonce'); ?>
-                                        <button type="submit" id="booking-submit-btn" class="w-full bg-emerald-500 text-white py-3 rounded-lg hover:bg-emerald-600 transition font-semibold">
+                                        <button type="submit" id="booking-submit-btn" onclick="console.log('Button clicked via onclick'); window.submitBookingForm(event); return false;" class="w-full bg-emerald-500 text-white py-3 rounded-lg hover:bg-emerald-600 transition font-semibold">
                                             <i class="fas fa-calendar-check mr-2"></i>Schedule Tour
                                         </button>
                                     </form>
@@ -1948,44 +1940,57 @@ $property_title = get_the_title();
             shareMedia();
         }
         
-        function saveFavorite() {
-            // Add to favorites functionality
-            const favorites = JSON.parse(localStorage.getItem('property_favorites') || '[]');
-            const propertyId = <?php echo $property_id; ?>;
-            
-            if (!favorites.includes(propertyId)) {
-                favorites.push(propertyId);
-                localStorage.setItem('property_favorites', JSON.stringify(favorites));
-                alert('Property added to favorites!');
-            } else {
-                alert('Property is already in your favorites!');
-            }
-        }
         
         function printPage() {
             window.print();
         }
         
-        function exportPDF() {
-            // Enhanced PDF export with media
-            const printContent = document.querySelector('.property-details');
-            const printWindow = window.open('', '_blank');
-            printWindow.document.write(`
-                <html>
-                <head>
-                    <title>${window.propertyTitle}</title>
-                    <style>
-                        body { font-family: Arial, sans-serif; margin: 20px; }
-                        .no-print { display: none; }
-                    </style>
-                </head>
-                <body>
-                    ${printContent.outerHTML}
-                </body>
-                </html>
-            `);
-            printWindow.document.close();
-            printWindow.print();
+        
+        // Notification function for user feedback
+        function showNotification(message, type = 'info') {
+            // Remove existing notifications
+            const existingNotification = document.querySelector('.notification');
+            if (existingNotification) {
+                existingNotification.remove();
+            }
+            
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `notification fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg transition-all duration-300 transform translate-x-full`;
+            
+            // Set colors based on type
+            const colors = {
+                success: 'bg-green-500 text-white',
+                error: 'bg-red-500 text-white',
+                info: 'bg-blue-500 text-white',
+                warning: 'bg-yellow-500 text-black'
+            };
+            
+            notification.className += ` ${colors[type] || colors.info}`;
+            notification.innerHTML = `
+                <div class="flex items-center space-x-2">
+                    <span>${message}</span>
+                    <button onclick="this.parentElement.parentElement.remove()" class="ml-2 text-white hover:text-gray-200">×</button>
+                </div>
+            `;
+            
+            // Add to page
+            document.body.appendChild(notification);
+            
+            // Animate in
+            setTimeout(() => {
+                notification.classList.remove('translate-x-full');
+            }, 100);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.classList.add('translate-x-full');
+                    setTimeout(() => {
+                        notification.remove();
+                    }, 300);
+                }
+            }, 5000);
         }
         
         // Modal Functions
@@ -2251,25 +2256,38 @@ $property_title = get_the_title();
             document.head.appendChild(script);
         }
         
-        // Booking Form Submission
-        function submitBookingForm(event) {
+        // Booking Form Submission - Make it global
+        window.submitBookingForm = function(event) {
+            console.log('submitBookingForm called');
             event.preventDefault();
             
             const form = document.getElementById('booking-form');
             const submitBtn = document.getElementById('booking-submit-btn');
+            
+            if (!form || !submitBtn) {
+                console.error('Form or submit button not found');
+                return;
+            }
+            
             const formData = new FormData(form);
             
             // Show loading state
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Submitting...';
             submitBtn.disabled = true;
             
+            console.log('Submitting booking form...');
+            
             // Submit via AJAX
             fetch('<?php echo admin_url('admin-ajax.php'); ?>', {
                 method: 'POST',
                 body: formData
             })
-            .then(response => response.json())
+            .then(response => {
+                console.log('Response received:', response);
+                return response.json();
+            })
             .then(data => {
+                console.log('Response data:', data);
                 if (data.success) {
                     // Show success message
                     showBookingMessage('success', 'Tour scheduled successfully! We will contact you soon to confirm your appointment.');
@@ -2289,6 +2307,28 @@ $property_title = get_the_title();
                 submitBtn.disabled = false;
             });
         }
+        
+        // Alternative click handler for the button
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, looking for booking button...');
+            const submitBtn = document.getElementById('booking-submit-btn');
+            if (submitBtn) {
+                console.log('Booking button found, adding click listener');
+                submitBtn.addEventListener('click', function(e) {
+                    console.log('Button clicked directly');
+                    e.preventDefault();
+                    window.submitBookingForm(e);
+                });
+            } else {
+                console.error('Booking button not found!');
+            }
+        });
+        
+        // Simple test function
+        window.testBooking = function() {
+            console.log('Test function called');
+            alert('JavaScript is working!');
+        };
         
         function showBookingMessage(type, message) {
             // Remove existing messages
