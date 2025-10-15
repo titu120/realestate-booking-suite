@@ -578,18 +578,7 @@ class RESBS_Property_Metabox {
 
                                 <div class="resbs-form-group">
                                     <label for="property_country"><?php esc_html_e('Country', 'realestate-booking-suite'); ?></label>
-                                    <select id="property_country" name="property_country" class="resbs-stunning-select">
-                                        <option value=""><?php esc_html_e('Select Country', 'realestate-booking-suite'); ?></option>
-                                        <option value="US" <?php selected($country, 'US'); ?>><?php esc_html_e('United States', 'realestate-booking-suite'); ?></option>
-                                        <option value="CA" <?php selected($country, 'CA'); ?>><?php esc_html_e('Canada', 'realestate-booking-suite'); ?></option>
-                                        <option value="GB" <?php selected($country, 'GB'); ?>><?php esc_html_e('United Kingdom', 'realestate-booking-suite'); ?></option>
-                                        <option value="AU" <?php selected($country, 'AU'); ?>><?php esc_html_e('Australia', 'realestate-booking-suite'); ?></option>
-                                        <option value="DE" <?php selected($country, 'DE'); ?>><?php esc_html_e('Germany', 'realestate-booking-suite'); ?></option>
-                                        <option value="FR" <?php selected($country, 'FR'); ?>><?php esc_html_e('France', 'realestate-booking-suite'); ?></option>
-                                        <option value="IT" <?php selected($country, 'IT'); ?>><?php esc_html_e('Italy', 'realestate-booking-suite'); ?></option>
-                                        <option value="ES" <?php selected($country, 'ES'); ?>><?php esc_html_e('Spain', 'realestate-booking-suite'); ?></option>
-                                        <option value="BD" <?php selected($country, 'BD'); ?>><?php esc_html_e('Bangladesh', 'realestate-booking-suite'); ?></option>
-                                    </select>
+                                    <input type="text" id="property_country" name="property_country" value="<?php echo esc_attr($country); ?>" class="resbs-stunning-input" placeholder="<?php esc_attr_e('Enter country name', 'realestate-booking-suite'); ?>">
                                 </div>
 
 
@@ -611,6 +600,29 @@ class RESBS_Property_Metabox {
                                     <div id="resbs-map-preview" style="height: 300px; margin-top: 15px; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);"></div>
                                 </div>
                                 <?php endif; ?>
+
+                                <!-- Nearby Features Section -->
+                                <div class="resbs-nearby-features">
+                                    <h4><?php esc_html_e('Nearby Features', 'realestate-booking-suite'); ?></h4>
+                                  
+                                    
+                                    <div class="resbs-form-row">
+                                        <div class="resbs-form-group">
+                                            <label for="property_nearby_schools"><?php esc_html_e('Nearby Schools', 'realestate-booking-suite'); ?></label>
+                                            <textarea id="property_nearby_schools" name="property_nearby_schools" class="resbs-stunning-input" rows="3" placeholder="<?php esc_attr_e('e.g., Dhaka University, North South University, American International School'); ?>"><?php echo esc_textarea($nearby_schools); ?></textarea>
+                                        </div>
+                                        
+                                        <div class="resbs-form-group">
+                                            <label for="property_nearby_shopping"><?php esc_html_e('Nearby Shopping', 'realestate-booking-suite'); ?></label>
+                                            <textarea id="property_nearby_shopping" name="property_nearby_shopping" class="resbs-stunning-input" rows="3" placeholder="<?php esc_attr_e('e.g., Bashundhara City, Jamuna Future Park, New Market'); ?>"><?php echo esc_textarea($nearby_shopping); ?></textarea>
+                                        </div>
+                                        
+                                        <div class="resbs-form-group">
+                                            <label for="property_nearby_restaurants"><?php esc_html_e('Nearby Restaurants', 'realestate-booking-suite'); ?></label>
+                                            <textarea id="property_nearby_restaurants" name="property_nearby_restaurants" class="resbs-stunning-input" rows="3" placeholder="<?php esc_attr_e('e.g., Pizza Hut, KFC, Local Bangladeshi restaurants'); ?>"><?php echo esc_textarea($nearby_restaurants); ?></textarea>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -816,29 +828,6 @@ class RESBS_Property_Metabox {
                                             <option value="vinyl" <?php selected($floor_covering, 'vinyl'); ?>><?php esc_html_e('Vinyl', 'realestate-booking-suite'); ?></option>
                                             <option value="concrete" <?php selected($floor_covering, 'concrete'); ?>><?php esc_html_e('Concrete', 'realestate-booking-suite'); ?></option>
                                         </select>
-                                    </div>
-                                </div>
-                                
-                                <!-- Nearby Features Section -->
-                                <div class="resbs-nearby-features">
-                                    <h4><?php esc_html_e('Nearby Features', 'realestate-booking-suite'); ?></h4>
-                                    <p class="resbs-input-help"><?php esc_html_e('Add information about nearby schools, shopping, and restaurants', 'realestate-booking-suite'); ?></p>
-                                    
-                                    <div class="resbs-form-row">
-                                        <div class="resbs-form-group">
-                                            <label for="property_nearby_schools"><?php esc_html_e('Nearby Schools', 'realestate-booking-suite'); ?></label>
-                                            <textarea id="property_nearby_schools" name="property_nearby_schools" class="resbs-stunning-input" rows="3" placeholder="<?php esc_attr_e('e.g., Dhaka University, North South University, American International School'); ?>"><?php echo esc_textarea($nearby_schools); ?></textarea>
-                                        </div>
-                                        
-                                        <div class="resbs-form-group">
-                                            <label for="property_nearby_shopping"><?php esc_html_e('Nearby Shopping', 'realestate-booking-suite'); ?></label>
-                                            <textarea id="property_nearby_shopping" name="property_nearby_shopping" class="resbs-stunning-input" rows="3" placeholder="<?php esc_attr_e('e.g., Bashundhara City, Jamuna Future Park, New Market'); ?>"><?php echo esc_textarea($nearby_shopping); ?></textarea>
-                                        </div>
-                                        
-                                        <div class="resbs-form-group">
-                                            <label for="property_nearby_restaurants"><?php esc_html_e('Nearby Restaurants', 'realestate-booking-suite'); ?></label>
-                                            <textarea id="property_nearby_restaurants" name="property_nearby_restaurants" class="resbs-stunning-input" rows="3" placeholder="<?php esc_attr_e('e.g., Pizza Hut, KFC, Local Bangladeshi restaurants'); ?>"><?php echo esc_textarea($nearby_restaurants); ?></textarea>
-                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -2211,18 +2200,7 @@ class RESBS_Property_Metabox {
                 <div class="resbs-form-row">
                     <div class="resbs-form-group">
                         <label for="property_country"><?php esc_html_e('Country', 'realestate-booking-suite'); ?></label>
-                        <select id="property_country" name="property_country" class="resbs-select">
-                            <option value=""><?php esc_html_e('Select Country', 'realestate-booking-suite'); ?></option>
-                            <option value="US" <?php selected($country, 'US'); ?>><?php esc_html_e('United States', 'realestate-booking-suite'); ?></option>
-                            <option value="CA" <?php selected($country, 'CA'); ?>><?php esc_html_e('Canada', 'realestate-booking-suite'); ?></option>
-                            <option value="GB" <?php selected($country, 'GB'); ?>><?php esc_html_e('United Kingdom', 'realestate-booking-suite'); ?></option>
-                            <option value="AU" <?php selected($country, 'AU'); ?>><?php esc_html_e('Australia', 'realestate-booking-suite'); ?></option>
-                            <option value="DE" <?php selected($country, 'DE'); ?>><?php esc_html_e('Germany', 'realestate-booking-suite'); ?></option>
-                            <option value="FR" <?php selected($country, 'FR'); ?>><?php esc_html_e('France', 'realestate-booking-suite'); ?></option>
-                            <option value="IT" <?php selected($country, 'IT'); ?>><?php esc_html_e('Italy', 'realestate-booking-suite'); ?></option>
-                            <option value="ES" <?php selected($country, 'ES'); ?>><?php esc_html_e('Spain', 'realestate-booking-suite'); ?></option>
-                            <option value="BD" <?php selected($country, 'BD'); ?>><?php esc_html_e('Bangladesh', 'realestate-booking-suite'); ?></option>
-                        </select>
+                        <input type="text" id="property_country" name="property_country" value="<?php echo esc_attr($country); ?>" class="resbs-input" placeholder="<?php esc_attr_e('Enter country name', 'realestate-booking-suite'); ?>">
                     </div>
                 </div>
 

@@ -563,13 +563,7 @@ $property_title = get_the_title();
                                         </div>
                                     </div>
                                     
-                                    <div class="bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-lg p-4">
-                                        <h5 class="font-semibold mb-2">Interested in this property?</h5>
-                                        <p class="text-sm mb-3">Contact our agent for more pricing details and financing options.</p>
-                                        <button onclick="openContactModal()" class="bg-white text-emerald-600 px-4 py-2 rounded-lg font-semibold hover:bg-gray-100 transition">
-                                            Get Pricing Info
-                                        </button>
-                                    </div>
+
                                 </div>
                             </div>
                         </div>
@@ -1122,7 +1116,7 @@ $property_title = get_the_title();
                                 <div class="col-span-3 p-8 text-center bg-gray-50 rounded-lg">
                                     <i class="fas fa-map-marker-alt text-gray-400 text-4xl mb-4"></i>
                                     <p class="text-gray-600">No nearby features configured</p>
-                                    <p class="text-sm text-gray-500 mt-2">Add nearby schools, shopping, and restaurants in the Features section</p>
+                                    <p class="text-sm text-gray-500 mt-2">Add nearby schools, shopping, and restaurants in the Location section</p>
                                 </div>
                                 <?php endif; ?>
                             </div>
