@@ -26,8 +26,8 @@ function resbs_safe_meta($value) {
 // Helper function to get similar properties
 function resbs_get_similar_properties($property_id, $limit = 4) {
     // Get current property data
-    $property_type = get_post_meta($property_id, '_property_type', true) ?: 'Property';
-    $property_status = get_post_meta($property_id, '_property_status', true) ?: 'For Sale';
+    $property_type = get_post_meta($property_id, '_property_type', true);
+    $property_status = get_post_meta($property_id, '_property_status', true);
     $city = get_post_meta($property_id, '_property_city', true);
     $price = get_post_meta($property_id, '_property_price', true);
     
@@ -99,31 +99,31 @@ function resbs_get_similar_properties($property_id, $limit = 4) {
 }
 
 // Get all property meta fields with fallbacks
-$price = get_post_meta($property_id, '_property_price', true) ?: get_post_meta($property_id, '_resbs_price', true);
+$price = get_post_meta($property_id, '_property_price', true);
 $price_per_sqft = get_post_meta($property_id, '_property_price_per_sqft', true);
 $price_note = get_post_meta($property_id, '_property_price_note', true);
 $call_for_price = get_post_meta($property_id, '_property_call_for_price', true);
-$bedrooms = get_post_meta($property_id, '_property_bedrooms', true) ?: get_post_meta($property_id, '_resbs_bedrooms', true);
-$bathrooms = get_post_meta($property_id, '_property_bathrooms', true) ?: get_post_meta($property_id, '_resbs_bathrooms', true);
+$bedrooms = get_post_meta($property_id, '_property_bedrooms', true);
+$bathrooms = get_post_meta($property_id, '_property_bathrooms', true);
 $half_baths = get_post_meta($property_id, '_property_half_baths', true);
 $total_rooms = get_post_meta($property_id, '_property_total_rooms', true);
 $floors = get_post_meta($property_id, '_property_floors', true);
 $floor_level = get_post_meta($property_id, '_property_floor_level', true);
-$area = get_post_meta($property_id, '_property_area_sqft', true) ?: get_post_meta($property_id, '_resbs_area', true);
+$area = get_post_meta($property_id, '_property_area_sqft', true);
 $lot_size = get_post_meta($property_id, '_property_lot_size_sqft', true);
 $year_built = get_post_meta($property_id, '_property_year_built', true);
 $year_remodeled = get_post_meta($property_id, '_property_year_remodeled', true);
-$latitude = get_post_meta($property_id, '_property_latitude', true) ?: get_post_meta($property_id, '_resbs_latitude', true);
-$longitude = get_post_meta($property_id, '_property_longitude', true) ?: get_post_meta($property_id, '_resbs_longitude', true);
-$gallery = get_post_meta($property_id, '_property_gallery', true) ?: get_post_meta($property_id, '_resbs_gallery', true);
+$latitude = get_post_meta($property_id, '_property_latitude', true);
+$longitude = get_post_meta($property_id, '_property_longitude', true);
+$gallery = get_post_meta($property_id, '_property_gallery', true);
 $floor_plans = get_post_meta($property_id, '_property_floor_plans', true);
 $virtual_tour = get_post_meta($property_id, '_property_virtual_tour', true);
 $virtual_tour_title = get_post_meta($property_id, '_property_virtual_tour_title', true);
 $virtual_tour_description = get_post_meta($property_id, '_property_virtual_tour_description', true);
 $virtual_tour_button_text = get_post_meta($property_id, '_property_virtual_tour_button_text', true);
-$video_url = get_post_meta($property_id, '_property_video_url', true) ?: get_post_meta($property_id, '_resbs_video_url', true);
+$video_url = get_post_meta($property_id, '_property_video_url', true);
 $video_embed = get_post_meta($property_id, '_property_video_embed', true);
-$map_iframe = get_post_meta($property_id, '_property_map_iframe', true) ?: get_post_meta($property_id, '_resbs_map_iframe', true);
+$map_iframe = get_post_meta($property_id, '_property_map_iframe', true);
 
 // Get nearby features
 $nearby_schools = get_post_meta($property_id, '_property_nearby_schools', true);
@@ -137,9 +137,9 @@ if (current_user_can('manage_options')) {
     error_log('Video embed: ' . ($video_embed ? substr($video_embed, 0, 100) . '...' : 'EMPTY'));
     error_log('Virtual tour: ' . ($virtual_tour ? $virtual_tour : 'EMPTY'));
 }
-$description = get_post_meta($property_id, '_property_description', true) ?: get_post_meta($property_id, '_resbs_description', true);
-$features = get_post_meta($property_id, '_property_features', true) ?: get_post_meta($property_id, '_resbs_features', true);
-$amenities = get_post_meta($property_id, '_property_amenities', true) ?: get_post_meta($property_id, '_resbs_amenities', true);
+$description = get_post_meta($property_id, '_property_description', true);
+$features = get_post_meta($property_id, '_property_features', true);
+$amenities = get_post_meta($property_id, '_property_amenities', true);
 $parking = get_post_meta($property_id, '_property_parking', true);
 $heating = get_post_meta($property_id, '_property_heating', true);
 $cooling = get_post_meta($property_id, '_property_cooling', true);
@@ -154,10 +154,10 @@ $property_type = get_post_meta($property_id, '_property_type', true);
 $property_condition = get_post_meta($property_id, '_property_condition', true);
 
 // Get location data
-$address = get_post_meta($property_id, '_property_address', true) ?: get_post_meta($property_id, '_resbs_address', true);
-$city = get_post_meta($property_id, '_property_city', true) ?: get_post_meta($property_id, '_resbs_city', true);
-$state = get_post_meta($property_id, '_property_state', true) ?: get_post_meta($property_id, '_resbs_state', true);
-$zip = get_post_meta($property_id, '_property_zip', true) ?: get_post_meta($property_id, '_resbs_zip', true);
+$address = get_post_meta($property_id, '_property_address', true);
+$city = get_post_meta($property_id, '_property_city', true);
+$state = get_post_meta($property_id, '_property_state', true);
+$zip = get_post_meta($property_id, '_property_zip', true);
 
 // Get agent data
 $agent_id = get_post_meta($property_id, '_property_agent', true);
@@ -193,21 +193,6 @@ $mortgage_default_interest_rate = get_post_meta($property_id, '_property_mortgag
 $mortgage_default_loan_term = get_post_meta($property_id, '_property_mortgage_default_loan_term', true);
 $mortgage_loan_terms = get_post_meta($property_id, '_property_mortgage_loan_terms', true);
 $mortgage_disclaimer_text = get_post_meta($property_id, '_property_mortgage_disclaimer_text', true);
-
-// Contact Agent Dynamic Fields
-$contact_agent_title = get_post_meta($property_id, '_property_contact_agent_title', true);
-$contact_agent_name = get_post_meta($property_id, '_property_contact_agent_name', true);
-$contact_agent_phone = get_post_meta($property_id, '_property_contact_agent_phone', true);
-$contact_agent_email = get_post_meta($property_id, '_property_contact_agent_email', true);
-
-// Tour Information Dynamic Fields
-$tour_info_title = get_post_meta($property_id, '_property_tour_info_title', true);
-$tour_duration_label = get_post_meta($property_id, '_property_tour_duration_label', true);
-$tour_duration_value = get_post_meta($property_id, '_property_tour_duration_value', true);
-$tour_group_size_label = get_post_meta($property_id, '_property_tour_group_size_label', true);
-$tour_group_size_value = get_post_meta($property_id, '_property_tour_group_size_value', true);
-$tour_safety_label = get_post_meta($property_id, '_property_tour_safety_label', true);
-$tour_safety_value = get_post_meta($property_id, '_property_tour_safety_value', true);
 
 // Get gallery images with proper URL conversion
 $gallery_images = array();
@@ -264,7 +249,7 @@ $price_per_sqft_formatted = $price_per_sqft ? '$' . number_format($price_per_sqf
 $full_address = trim($address . ', ' . $city . ', ' . $state . ' ' . $zip, ', ');
 
 // Get property title
-$property_title = get_the_title() ?: 'Property Details';
+$property_title = get_the_title();
 ?>
 
 <!-- External CSS and JS -->
@@ -996,18 +981,14 @@ $property_title = get_the_title() ?: 'Property Details';
                             <?php endif; ?>
                             
                             <!-- Virtual Tour -->
-                            <?php if ($virtual_tour && (!empty($virtual_tour_title) || !empty($virtual_tour_description) || !empty($virtual_tour_button_text))): ?>
+                            <?php if ($virtual_tour): ?>
                             <div class="mb-8">
-                                <h4 class="text-lg font-semibold text-gray-800 mb-4"><?php echo esc_html($virtual_tour_title ?: 'Virtual Tour'); ?></h4>
+                                <h4 class="text-lg font-semibold text-gray-800 mb-4">Virtual Tour</h4>
                                 <div class="bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-lg p-6">
                                     <div class="flex items-center justify-between">
                                         <div>
-                                            <?php if (!empty($virtual_tour_title)): ?>
-                                            <h5 class="text-xl font-bold mb-2"><?php echo esc_html($virtual_tour_title); ?></h5>
-                                            <?php endif; ?>
-                                            <?php if (!empty($virtual_tour_description)): ?>
-                                            <p class="text-emerald-100"><?php echo esc_html($virtual_tour_description); ?></p>
-                                            <?php endif; ?>
+                                            <h5 class="text-xl font-bold mb-2"><?php echo esc_html($virtual_tour_title ?: '3D Virtual Walkthrough'); ?></h5>
+                                            <p class="text-emerald-100"><?php echo esc_html($virtual_tour_description ?: 'Experience this property from anywhere with our interactive 3D tour.'); ?></p>
                                         </div>
                                         <a href="<?php echo esc_url($virtual_tour); ?>" target="_blank" class="bg-white text-emerald-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition">
                                             <i class="fas fa-play mr-2"></i><?php echo esc_html($virtual_tour_button_text ?: 'Start Tour'); ?>
@@ -1181,20 +1162,20 @@ $property_title = get_the_title() ?: 'Property Details';
                                         <div class="grid md:grid-cols-2 gap-4">
                                             <div>
                                                 <label class="block text-sm font-medium text-gray-700 mb-2">First Name</label>
-                                                <input type="text" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                                <input type="text" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="Enter your first name">
                                             </div>
                                             <div>
                                                 <label class="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
-                                                <input type="text" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                                <input type="text" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="Enter your last name">
                                             </div>
                                         </div>
                                         <div>
                                             <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                                            <input type="email" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                            <input type="email" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="your.email@example.com">
                                         </div>
                                         <div>
                                             <label class="block text-sm font-medium text-gray-700 mb-2">Phone</label>
-                                            <input type="tel" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                            <input type="tel" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="(555) 123-4567">
                                         </div>
                                         <div class="grid md:grid-cols-2 gap-4">
                                             <div>
@@ -1231,7 +1212,7 @@ $property_title = get_the_title() ?: 'Property Details';
                                 <div class="space-y-6">
                                     <!-- Agent Contact -->
                                     <div class="bg-emerald-50 rounded-lg p-6">
-                                        <h4 class="text-lg font-semibold text-gray-800 mb-4"><?php echo esc_html($contact_agent_title ?: 'Contact Agent'); ?></h4>
+                                        <h4 class="text-lg font-semibold text-gray-800 mb-4">Contact Agent</h4>
                                         <div class="space-y-3">
                                             <div class="flex items-center">
                                                 <i class="fas fa-user text-emerald-500 mr-3"></i>
@@ -1254,27 +1235,27 @@ $property_title = get_the_title() ?: 'Property Details';
                                     
                                     <!-- Tour Information -->
                                     <div class="bg-blue-50 rounded-lg p-6">
-                                        <h4 class="text-lg font-semibold text-gray-800 mb-4"><?php echo esc_html($tour_info_title); ?></h4>
+                                        <h4 class="text-lg font-semibold text-gray-800 mb-4">Tour Information</h4>
                                         <div class="space-y-3 text-sm">
                                             <div class="flex items-start">
                                                 <i class="fas fa-clock text-blue-500 mr-3 mt-1"></i>
                                                 <div>
-                                                    <p class="font-semibold text-gray-800"><?php echo esc_html($tour_duration_label); ?></p>
-                                                    <p class="text-gray-600"><?php echo esc_html($tour_duration_value); ?></p>
+                                                    <p class="font-semibold text-gray-800">Duration</p>
+                                                    <p class="text-gray-600">Approximately 30-45 minutes</p>
                                                 </div>
                                             </div>
                                             <div class="flex items-start">
                                                 <i class="fas fa-users text-blue-500 mr-3 mt-1"></i>
                                                 <div>
-                                                    <p class="font-semibold text-gray-800"><?php echo esc_html($tour_group_size_label); ?></p>
-                                                    <p class="text-gray-600"><?php echo esc_html($tour_group_size_value); ?></p>
+                                                    <p class="font-semibold text-gray-800">Group Size</p>
+                                                    <p class="text-gray-600">Maximum 4 people per tour</p>
                                                 </div>
                                             </div>
                                             <div class="flex items-start">
                                                 <i class="fas fa-shield-alt text-blue-500 mr-3 mt-1"></i>
                                                 <div>
-                                                    <p class="font-semibold text-gray-800"><?php echo esc_html($tour_safety_label); ?></p>
-                                                    <p class="text-gray-600"><?php echo esc_html($tour_safety_value); ?></p>
+                                                    <p class="font-semibold text-gray-800">Safety</p>
+                                                    <p class="text-gray-600">All safety protocols followed</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -1426,12 +1407,12 @@ $property_title = get_the_title() ?: 'Property Details';
                         <p class="text-gray-600 text-sm">Real Estate Agent</p>
                         <div class="flex items-center justify-center mt-2">
                             <?php 
-                            $rating = intval($agent_rating);
+                            $rating = intval($agent_rating ?: 5);
                             for ($i = 1; $i <= 5; $i++): 
                             ?>
                                 <i class="fas fa-star rating-star text-sm <?php echo $i <= $rating ? 'text-yellow-400' : 'text-gray-300'; ?>"></i>
                             <?php endfor; ?>
-                            <span class="text-sm text-gray-600 ml-2">(<?php echo esc_html($agent_reviews); ?>)</span>
+                            <span class="text-sm text-gray-600 ml-2">(<?php echo esc_html($agent_reviews ?: 'reviews'); ?>)</span>
                         </div>
                     </div>
 
@@ -1444,37 +1425,37 @@ $property_title = get_the_title() ?: 'Property Details';
                         <?php endif; ?>
                         <button onclick="openContactModal()" class="w-full flex items-center justify-center px-4 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-800 transition">
                             <i class="fas fa-envelope mr-2"></i>
-                            <span><?php echo esc_html($agent_send_message_text); ?></span>
+                            <span><?php echo esc_html($agent_send_message_text ?: 'Send Message'); ?></span>
                         </button>
                     </div>
 
                     <div class="border-t pt-4">
                         <div class="flex items-center justify-between text-sm mb-2">
                             <span class="text-gray-600">Properties Sold:</span>
-                            <span class="font-semibold text-gray-800"><?php echo esc_html($agent_properties_sold); ?></span>
+                            <span class="font-semibold text-gray-800"><?php echo esc_html($agent_properties_sold ?: '100+'); ?></span>
                         </div>
                         <div class="flex items-center justify-between text-sm mb-2">
                             <span class="text-gray-600">Experience:</span>
-                            <span class="font-semibold text-gray-800"><?php echo esc_html($agent_experience); ?></span>
+                            <span class="font-semibold text-gray-800"><?php echo esc_html($agent_experience ?: '5+ Years'); ?></span>
                         </div>
                         <div class="flex items-center justify-between text-sm">
                             <span class="text-gray-600">Response Time:</span>
-                            <span class="font-semibold text-gray-800"><?php echo esc_html($agent_response_time); ?></span>
+                            <span class="font-semibold text-gray-800"><?php echo esc_html($agent_response_time ?: '< 1 Hour'); ?></span>
                         </div>
                     </div>
                 </div>
 
                 <!-- Mortgage Calculator -->
                 <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
-                    <h3 class="text-xl font-bold text-gray-800 mb-4"><?php echo esc_html($mortgage_calculator_title); ?></h3>
+                    <h3 class="text-xl font-bold text-gray-800 mb-4"><?php echo esc_html($mortgage_calculator_title ?: 'Mortgage Calculator'); ?></h3>
                     <div class="space-y-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2"><?php echo esc_html($mortgage_property_price_label); ?></label>
+                            <label class="block text-sm font-medium text-gray-700 mb-2"><?php echo esc_html($mortgage_property_price_label ?: 'Property Price'); ?></label>
                             <div class="relative">
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <span class="text-gray-500 sm:text-sm">$</span>
                                 </div>
-                                <input type="number" id="propertyPrice" value="<?php echo esc_attr($price ?: '500000'); ?>" class="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" onkeyup="
+                                <input type="number" id="propertyPrice" value="<?php echo esc_attr($price ?: '500000'); ?>" class="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="500000" onkeyup="
                                     console.log('Property price changed to:', this.value);
                                     
                                     // Get all values
@@ -1556,27 +1537,27 @@ $property_title = get_the_title() ?: 'Property Details';
                             </div>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2"><?php echo esc_html($mortgage_down_payment_label); ?></label>
-                            <input type="range" id="downPayment" min="0" max="100" value="<?php echo esc_attr($mortgage_default_down_payment); ?>" class="w-full" oninput="document.getElementById('downPaymentValue').textContent = this.value + '%'; calculateMortgageNow();">
+                            <label class="block text-sm font-medium text-gray-700 mb-2"><?php echo esc_html($mortgage_down_payment_label ?: 'Down Payment (%)'); ?></label>
+                            <input type="range" id="downPayment" min="0" max="100" value="<?php echo esc_attr($mortgage_default_down_payment ?: '20'); ?>" class="w-full" oninput="document.getElementById('downPaymentValue').textContent = this.value + '%'; calculateMortgageNow();">
                             <div class="flex justify-between text-sm text-gray-600">
                                 <span>0%</span>
-                                <span id="downPaymentValue" class="font-semibold text-emerald-600"><?php echo esc_html($mortgage_default_down_payment); ?>%</span>
+                                <span id="downPaymentValue" class="font-semibold text-emerald-600"><?php echo esc_html($mortgage_default_down_payment ?: '20'); ?>%</span>
                                 <span>100%</span>
                             </div>
                         </div>
-                        <div></div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2"><?php echo esc_html($mortgage_interest_rate_label); ?></label>
-                            <input type="number" id="interestRate" value="<?php echo esc_attr($mortgage_default_interest_rate); ?>" step="0.1" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" onkeyup="calculateMortgageNow()" onchange="calculateMortgageNow()">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2"><?php echo esc_html($mortgage_interest_rate_label ?: 'Interest Rate (%)'); ?></label>
+                            <input type="number" id="interestRate" value="<?php echo esc_attr($mortgage_default_interest_rate ?: '6.5'); ?>" step="0.1" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="6.5" onkeyup="calculateMortgageNow()" onchange="calculateMortgageNow()">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2"><?php echo esc_html($mortgage_loan_term_label); ?></label>
+                            <label class="block text-sm font-medium text-gray-700 mb-2"><?php echo esc_html($mortgage_loan_term_label ?: 'Loan Term (Years)'); ?></label>
                             <select id="loanTerm" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" onchange="calculateMortgageNow()">
                                 <?php 
-                                $loan_terms_array = explode("\n", $mortgage_loan_terms);
+                                $loan_terms_array = explode("\n", $mortgage_loan_terms ?: "15\n20\n30");
                                 foreach ($loan_terms_array as $term) {
                                     $term = trim($term);
                                     if (!empty($term)) {
-                                        $selected = ($term == $mortgage_default_loan_term) ? 'selected' : '';
+                                        $selected = ($term == ($mortgage_default_loan_term ?: '30')) ? 'selected' : '';
                                         echo '<option value="' . esc_attr($term) . '" ' . $selected . '>' . esc_html($term) . ' Years</option>';
                                     }
                                 }
@@ -1584,11 +1565,11 @@ $property_title = get_the_title() ?: 'Property Details';
                             </select>
                         </div>
                         <div class="bg-emerald-50 rounded-lg p-4 mt-4">
-                            <p class="text-sm text-gray-600 mb-1"><?php echo esc_html($mortgage_monthly_payment_label); ?></p>
+                            <p class="text-sm text-gray-600 mb-1"><?php echo esc_html($mortgage_monthly_payment_label ?: 'Estimated Monthly Payment'); ?></p>
                             <p class="text-3xl font-bold text-emerald-600" id="monthlyPayment">$0</p>
-                            <p class="text-xs text-gray-500 mt-2"><?php echo esc_html($mortgage_disclaimer_text); ?></p>
-                </div>
-
+                            <p class="text-xs text-gray-500 mt-2"><?php echo esc_html($mortgage_disclaimer_text ?: '*Principal & Interest only'); ?></p>
+                        </div>
+                        
                         <!-- Calculate Button -->
                         <div class="mt-4">
                             <button type="button" onclick="
@@ -1637,8 +1618,8 @@ $property_title = get_the_title() ?: 'Property Details';
                                 <i class="fas fa-calculator mr-2"></i>Calculate Mortgage
                             </button>
                         </div>
-                        </div>
-                        </div>
+                    </div>
+                </div>
 
             </div>
         </div>
@@ -1708,30 +1689,30 @@ $property_title = get_the_title() ?: 'Property Details';
     <div id="contactModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
         <div class="bg-white rounded-xl max-w-md w-full p-6">
             <div class="flex items-center justify-between mb-4">
-                <h3 class="text-2xl font-bold text-gray-800"><?php echo esc_html($contact_form_title); ?></h3>
+                <h3 class="text-2xl font-bold text-gray-800"><?php echo esc_html($contact_form_title ?: 'Contact Agent'); ?></h3>
                 <button onclick="closeContactModal()" class="text-gray-500 hover:text-gray-700">
                     <i class="fas fa-times text-xl"></i>
                 </button>
             </div>
             <form onsubmit="submitContactForm(event)" class="space-y-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2"><?php echo esc_html($contact_name_label); ?></label>
-                    <input type="text" name="contact_name" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    <label class="block text-sm font-medium text-gray-700 mb-2"><?php echo esc_html($contact_name_label ?: 'Your Name'); ?></label>
+                    <input type="text" name="contact_name" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="Enter your full name">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2"><?php echo esc_html($contact_email_label); ?></label>
-                    <input type="email" name="contact_email" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    <label class="block text-sm font-medium text-gray-700 mb-2"><?php echo esc_html($contact_email_label ?: 'Email'); ?></label>
+                    <input type="email" name="contact_email" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="your.email@example.com">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2"><?php echo esc_html($contact_phone_label); ?></label>
-                    <input type="tel" name="contact_phone" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    <label class="block text-sm font-medium text-gray-700 mb-2"><?php echo esc_html($contact_phone_label ?: 'Phone'); ?></label>
+                    <input type="tel" name="contact_phone" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="(555) 123-4567">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2"><?php echo esc_html($contact_message_label); ?></label>
-                    <textarea name="contact_message" rows="4" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"></textarea>
+                    <label class="block text-sm font-medium text-gray-700 mb-2"><?php echo esc_html($contact_message_label ?: 'Message'); ?></label>
+                    <textarea name="contact_message" rows="4" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="Tell us about your interest in this property..."></textarea>
                 </div>
                 <button type="submit" class="w-full bg-emerald-500 text-white py-3 rounded-lg hover:bg-emerald-600 transition font-semibold">
-                    <?php echo esc_html($contact_submit_text); ?>
+                    <?php echo esc_html($contact_submit_text ?: 'Send Message'); ?>
                 </button>
             </form>
         </div>
