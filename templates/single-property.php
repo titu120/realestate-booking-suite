@@ -1264,12 +1264,44 @@ $property_title = get_the_title();
                                     <div class="bg-gray-50 rounded-lg p-6">
                                         <h4 class="text-lg font-semibold text-gray-800 mb-4">Quick Actions</h4>
                                         <div class="space-y-3">
-                                            <button onclick="openContactModal()" class="w-full flex items-center justify-center px-4 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-800 transition">
-                                                <i class="fas fa-envelope mr-2"></i>Send Message
-                                            </button>
-                                            <button onclick="shareProperty()" class="w-full flex items-center justify-center px-4 py-3 border-2 border-emerald-500 text-emerald-500 rounded-lg hover:bg-emerald-50 transition">
-                                                <i class="fas fa-share-alt mr-2"></i>Share Property
-                                            </button>
+                                            <?php
+                                            // Get dynamic quick actions from settings
+                                            $quick_actions = get_option('resbs_quick_actions', array());
+                                            
+                                            // Default actions if none configured
+                                            if (empty($quick_actions)) {
+                                                $quick_actions = array(
+                                                    array(
+                                                        'title' => 'Send Message',
+                                                        'icon' => 'fas fa-envelope',
+                                                        'action' => 'openContactModal()',
+                                                        'style' => 'bg-gray-700 text-white hover:bg-gray-800',
+                                                        'enabled' => true
+                                                    ),
+                                                    array(
+                                                        'title' => 'Share Property',
+                                                        'icon' => 'fas fa-share-alt',
+                                                        'action' => 'shareProperty()',
+                                                        'style' => 'border-2 border-emerald-500 text-emerald-500 hover:bg-emerald-50',
+                                                        'enabled' => true
+                                                    )
+                                                );
+                                            }
+                                            
+                                            // Display configured actions
+                                            foreach ($quick_actions as $action) {
+                                                if (isset($action['enabled']) && $action['enabled']) {
+                                                    $icon = isset($action['icon']) ? $action['icon'] : 'fas fa-circle';
+                                                    $title = isset($action['title']) ? $action['title'] : 'Action';
+                                                    $onclick = isset($action['action']) ? $action['action'] : '';
+                                                    $style = isset($action['style']) ? $action['style'] : 'bg-gray-700 text-white hover:bg-gray-800';
+                                                    
+                                                    echo '<button onclick="' . esc_attr($onclick) . '" class="w-full flex items-center justify-center px-4 py-3 ' . esc_attr($style) . ' rounded-lg transition">';
+                                                    echo '<i class="' . esc_attr($icon) . ' mr-2"></i>' . esc_html($title);
+                                                    echo '</button>';
+                                                }
+                                            }
+                                            ?>
                                         </div>
                                     </div>
                                 </div>

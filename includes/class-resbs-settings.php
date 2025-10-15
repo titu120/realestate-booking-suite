@@ -104,6 +104,16 @@ class RESBS_Settings {
             'resbs-appearance-settings',
             array($this, 'appearance_settings_callback')
         );
+        
+        // Quick Actions Settings
+        add_submenu_page(
+            'resbs-main-menu',
+            esc_html__('Quick Actions', 'realestate-booking-suite'),
+            esc_html__('Quick Actions', 'realestate-booking-suite'),
+            'manage_options',
+            'resbs-quick-actions-settings',
+            array($this, 'quick_actions_settings_callback')
+        );
     }
     
     /**
@@ -139,6 +149,9 @@ class RESBS_Settings {
         register_setting('resbs_appearance_settings', 'resbs_property_card_color');
         register_setting('resbs_appearance_settings', 'resbs_button_color');
         register_setting('resbs_appearance_settings', 'resbs_primary_color');
+        
+        // Quick Actions Settings
+        register_setting('resbs_quick_actions_settings', 'resbs_quick_actions');
     }
     
     /**
@@ -529,6 +542,184 @@ class RESBS_Settings {
                 <?php submit_button(); ?>
             </form>
         </div>
+        <?php
+    }
+    
+    /**
+     * Quick Actions Settings callback
+     */
+    public function quick_actions_settings_callback() {
+        // Handle form submission
+        if (isset($_POST['submit'])) {
+            if (isset($_POST['resbs_quick_actions'])) {
+                $actions = array();
+                foreach ($_POST['resbs_quick_actions'] as $index => $action) {
+                    if (!empty($action['title'])) {
+                        $actions[] = array(
+                            'title' => sanitize_text_field($action['title']),
+                            'icon' => sanitize_text_field($action['icon']),
+                            'action' => sanitize_text_field($action['action']),
+                            'style' => sanitize_text_field($action['style']),
+                            'enabled' => isset($action['enabled']) ? 1 : 0
+                        );
+                    }
+                }
+                update_option('resbs_quick_actions', $actions);
+                echo '<div class="notice notice-success"><p>' . esc_html__('Quick Actions settings saved successfully!', 'realestate-booking-suite') . '</p></div>';
+            }
+        }
+        
+        $quick_actions = get_option('resbs_quick_actions', array());
+        if (empty($quick_actions)) {
+            $quick_actions = array(
+                array(
+                    'title' => 'Send Message',
+                    'icon' => 'fas fa-envelope',
+                    'action' => 'openContactModal()',
+                    'style' => 'bg-gray-700 text-white hover:bg-gray-800',
+                    'enabled' => 1
+                ),
+                array(
+                    'title' => 'Share Property',
+                    'icon' => 'fas fa-share-alt',
+                    'action' => 'shareProperty()',
+                    'style' => 'border-2 border-emerald-500 text-emerald-500 hover:bg-emerald-50',
+                    'enabled' => 1
+                )
+            );
+        }
+        ?>
+        <div class="wrap resbs-admin-wrap">
+            <h1><?php esc_html_e('Quick Actions Settings', 'realestate-booking-suite'); ?></h1>
+            <p><?php esc_html_e('Configure the quick action buttons that appear on property pages.', 'realestate-booking-suite'); ?></p>
+            
+            <form method="post" action="">
+                <?php wp_nonce_field('resbs_quick_actions_settings', 'resbs_quick_actions_nonce'); ?>
+                
+                <div class="resbs-settings-section">
+                    <h2><?php esc_html_e('Quick Actions Configuration', 'realestate-booking-suite'); ?></h2>
+                    
+                    <div id="quick-actions-container">
+                        <?php foreach ($quick_actions as $index => $action): ?>
+                        <div class="quick-action-item" data-index="<?php echo esc_attr($index); ?>">
+                            <div class="resbs-form-group">
+                                <label><?php esc_html_e('Action Title', 'realestate-booking-suite'); ?></label>
+                                <input type="text" name="resbs_quick_actions[<?php echo esc_attr($index); ?>][title]" value="<?php echo esc_attr($action['title']); ?>" placeholder="e.g., Send Message" />
+                            </div>
+                            
+                            <div class="resbs-form-group">
+                                <label><?php esc_html_e('Icon Class', 'realestate-booking-suite'); ?></label>
+                                <input type="text" name="resbs_quick_actions[<?php echo esc_attr($index); ?>][icon]" value="<?php echo esc_attr($action['icon']); ?>" placeholder="e.g., fas fa-envelope" />
+                                <p class="description"><?php esc_html_e('FontAwesome icon class (e.g., fas fa-envelope, fas fa-share-alt)', 'realestate-booking-suite'); ?></p>
+                            </div>
+                            
+                            <div class="resbs-form-group">
+                                <label><?php esc_html_e('JavaScript Action', 'realestate-booking-suite'); ?></label>
+                                <input type="text" name="resbs_quick_actions[<?php echo esc_attr($index); ?>][action]" value="<?php echo esc_attr($action['action']); ?>" placeholder="e.g., openContactModal()" />
+                                <p class="description"><?php esc_html_e('JavaScript function to call when clicked', 'realestate-booking-suite'); ?></p>
+                            </div>
+                            
+                            <div class="resbs-form-group">
+                                <label><?php esc_html_e('Button Style Classes', 'realestate-booking-suite'); ?></label>
+                                <input type="text" name="resbs_quick_actions[<?php echo esc_attr($index); ?>][style]" value="<?php echo esc_attr($action['style']); ?>" placeholder="e.g., bg-gray-700 text-white hover:bg-gray-800" />
+                                <p class="description"><?php esc_html_e('Tailwind CSS classes for button styling', 'realestate-booking-suite'); ?></p>
+                            </div>
+                            
+                            <div class="resbs-form-group">
+                                <label>
+                                    <input type="checkbox" name="resbs_quick_actions[<?php echo esc_attr($index); ?>][enabled]" value="1" <?php checked($action['enabled'], 1); ?> />
+                                    <?php esc_html_e('Enable this action', 'realestate-booking-suite'); ?>
+                                </label>
+                            </div>
+                            
+                            <button type="button" class="button remove-action"><?php esc_html_e('Remove Action', 'realestate-booking-suite'); ?></button>
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
+                    
+                    <button type="button" id="add-quick-action" class="button button-secondary"><?php esc_html_e('Add New Action', 'realestate-booking-suite'); ?></button>
+                </div>
+                
+                <?php submit_button(); ?>
+            </form>
+        </div>
+        
+        <script>
+        jQuery(document).ready(function($) {
+            let actionIndex = <?php echo count($quick_actions); ?>;
+            
+            $('#add-quick-action').click(function() {
+                let newAction = `
+                    <div class="quick-action-item" data-index="${actionIndex}">
+                        <div class="resbs-form-group">
+                            <label><?php esc_html_e('Action Title', 'realestate-booking-suite'); ?></label>
+                            <input type="text" name="resbs_quick_actions[${actionIndex}][title]" placeholder="e.g., Send Message" />
+                        </div>
+                        
+                        <div class="resbs-form-group">
+                            <label><?php esc_html_e('Icon Class', 'realestate-booking-suite'); ?></label>
+                            <input type="text" name="resbs_quick_actions[${actionIndex}][icon]" placeholder="e.g., fas fa-envelope" />
+                            <p class="description"><?php esc_html_e('FontAwesome icon class (e.g., fas fa-envelope, fas fa-share-alt)', 'realestate-booking-suite'); ?></p>
+                        </div>
+                        
+                        <div class="resbs-form-group">
+                            <label><?php esc_html_e('JavaScript Action', 'realestate-booking-suite'); ?></label>
+                            <input type="text" name="resbs_quick_actions[${actionIndex}][action]" placeholder="e.g., openContactModal()" />
+                            <p class="description"><?php esc_html_e('JavaScript function to call when clicked', 'realestate-booking-suite'); ?></p>
+                        </div>
+                        
+                        <div class="resbs-form-group">
+                            <label><?php esc_html_e('Button Style Classes', 'realestate-booking-suite'); ?></label>
+                            <input type="text" name="resbs_quick_actions[${actionIndex}][style]" placeholder="e.g., bg-gray-700 text-white hover:bg-gray-800" />
+                            <p class="description"><?php esc_html_e('Tailwind CSS classes for button styling', 'realestate-booking-suite'); ?></p>
+                        </div>
+                        
+                        <div class="resbs-form-group">
+                            <label>
+                                <input type="checkbox" name="resbs_quick_actions[${actionIndex}][enabled]" value="1" checked />
+                                <?php esc_html_e('Enable this action', 'realestate-booking-suite'); ?>
+                            </label>
+                        </div>
+                        
+                        <button type="button" class="button remove-action"><?php esc_html_e('Remove Action', 'realestate-booking-suite'); ?></button>
+                    </div>
+                `;
+                $('#quick-actions-container').append(newAction);
+                actionIndex++;
+            });
+            
+            $(document).on('click', '.remove-action', function() {
+                $(this).closest('.quick-action-item').remove();
+            });
+        });
+        </script>
+        
+        <style>
+        .quick-action-item {
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+            background: #f9f9f9;
+        }
+        .resbs-form-group {
+            margin-bottom: 15px;
+        }
+        .resbs-form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .resbs-form-group input[type="text"] {
+            width: 100%;
+            max-width: 400px;
+        }
+        .description {
+            font-style: italic;
+            color: #666;
+            font-size: 12px;
+        }
+        </style>
         <?php
     }
 }
