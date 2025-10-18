@@ -98,6 +98,10 @@ new RESBS_Email_Manager();
 require_once RESBS_PATH . 'includes/class-resbs-search-alerts.php';
 new RESBS_Search_Alerts_Manager();
 
+// Load Booking Manager
+require_once RESBS_PATH . 'includes/class-resbs-booking-manager.php';
+new RESBS_Booking_Manager();
+
 // Load Quick View Manager
 require_once RESBS_PATH . 'includes/class-resbs-quickview.php';
 new RESBS_QuickView_Manager();

@@ -1061,6 +1061,15 @@ class RESBS_Property_Metabox {
                                     <p class="resbs-input-help"><?php esc_html_e('Customize the send message button text', 'realestate-booking-suite'); ?></p>
                                 </div>
                                 
+                                <!-- Section Title: Contact Form Settings -->
+                                <div class="resbs-section-title">
+                                    <h2 class="resbs-section-heading" style="font-size: 24px;font-weight: 600;padding: 10px 0; border-bottom:1px solid #ddd">
+                                        <i class="fas fa-envelope"></i>
+                                        <?php esc_html_e('Contact Form Settings', 'realestate-booking-suite'); ?>
+                                    </h2>
+                                    <p class="resbs-section-description"><?php esc_html_e('Configure contact form labels and messages for user interaction', 'realestate-booking-suite'); ?></p>
+                                </div>
+                                
                                 <!-- Contact Form Settings -->
                                 <div class="resbs-form-group">
                                     <label for="property_contact_form_title"><?php esc_html_e('Contact Form Title', 'realestate-booking-suite'); ?></label>
@@ -1099,6 +1108,15 @@ class RESBS_Property_Metabox {
                                 <div class="resbs-form-group">
                                     <label for="property_contact_submit_text"><?php esc_html_e('Submit Button Text', 'realestate-booking-suite'); ?></label>
                                     <input type="text" id="property_contact_submit_text" name="property_contact_submit_text" value="<?php echo esc_attr($contact_submit_text ?: 'Send Message'); ?>" class="resbs-stunning-input" placeholder="Send Message">
+                                </div>
+                                
+                                <!-- Section Title: Mortgage Calculator Settings -->
+                                <div class="resbs-section-title">
+                                    <h2 class="resbs-section-heading" style="font-size: 24px;font-weight: 600;padding: 10px 0;border-bottom:1px solid #ddd">
+                                        <i class="fas fa-calculator"></i>
+                                        <?php esc_html_e('Mortgage Calculator Settings', 'realestate-booking-suite'); ?>
+                                    </h2>
+                                    <p class="resbs-section-description"><?php esc_html_e('Configure mortgage calculator labels, defaults, and display options', 'realestate-booking-suite'); ?></p>
                                 </div>
                                 
                                 <!-- Mortgage Calculator Settings -->

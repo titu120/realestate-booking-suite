@@ -4,12 +4,6 @@
  * Converts static HTML to dynamic WordPress content
  */
 
-
-
-
-
- 
-
 // Get the current property ID
 $property_id = get_the_ID();
 
@@ -273,7 +267,7 @@ $property_title = get_the_title();
 
 <div class="bg-gray-50">
     <!-- Header -->
-    <header class="bg-white shadow-md sticky top-0 z-50 no-print">
+    <header class="bg-white shadow-md sticky top-0 z-50 no-print"></header>
         <div class="container mx-auto px-4 py-4">
             <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-8">
@@ -1155,7 +1149,7 @@ $property_title = get_the_title();
                                 <!-- Booking Form -->
                                 <div class="bg-white border rounded-lg p-6">
                                     <h4 class="text-lg font-semibold text-gray-800 mb-4">Book a Property Tour</h4>
-                                    <form id="booking-form" onsubmit="submitBookingForm(event)" class="space-y-4">
+                                    <form id="booking-form" class="space-y-4">
                                         <div class="grid md:grid-cols-2 gap-4">
                                             <div>
                                                 <label class="block text-sm font-medium text-gray-700 mb-2">First Name</label>
@@ -1229,7 +1223,7 @@ $property_title = get_the_title();
                                         <input type="hidden" name="property_id" value="<?php echo esc_attr($property_id); ?>">
                                         <input type="hidden" name="action" value="resbs_submit_booking">
                                         <?php wp_nonce_field('resbs_booking_nonce', '_wpnonce'); ?>
-                                        <button type="submit" id="booking-submit-btn" onclick="console.log('Button clicked via onclick'); window.submitBookingForm(event); return false;" class="w-full bg-emerald-500 text-white py-3 rounded-lg hover:bg-emerald-600 transition font-semibold">
+                                        <button type="button" id="booking-submit-btn" onclick="handleScheduleTourClick(event);" class="w-full bg-emerald-500 text-white py-3 rounded-lg hover:bg-emerald-600 transition font-semibold">
                                             <i class="fas fa-calendar-check mr-2"></i>Schedule Tour
                                         </button>
                                     </form>
@@ -2310,17 +2304,51 @@ $property_title = get_the_title();
         
         // Alternative click handler for the button
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('=== BOOKING BUTTON DEBUG ===');
             console.log('DOM loaded, looking for booking button...');
+            
+            // Try multiple ways to find the button
             const submitBtn = document.getElementById('booking-submit-btn');
+            console.log('Button found by ID:', submitBtn);
+            
             if (submitBtn) {
-                console.log('Booking button found, adding click listener');
+                console.log('Booking button found!');
+                console.log('Button type:', submitBtn.type);
+                console.log('Button class:', submitBtn.className);
+                console.log('Button onclick attribute:', submitBtn.getAttribute('onclick'));
+                
+                // Remove any existing onclick attribute to avoid conflicts
+                submitBtn.removeAttribute('onclick');
+                console.log('Removed onclick attribute');
+                
+                // Add multiple event listeners to test
                 submitBtn.addEventListener('click', function(e) {
-                    console.log('Button clicked directly');
+                    console.log('=== BUTTON CLICKED ===');
+                    console.log('Button clicked via event listener');
                     e.preventDefault();
+                    e.stopPropagation();
                     window.submitBookingForm(e);
                 });
+                
+                // Also add a simple test click handler
+                submitBtn.addEventListener('click', function(e) {
+                    console.log('Test: Button was definitely clicked!');
+                });
+                
+                // Add mousedown event for extra debugging
+                submitBtn.addEventListener('mousedown', function(e) {
+                    console.log('Button mousedown detected');
+                });
+                
+                console.log('Event listeners added successfully');
+                
             } else {
                 console.error('Booking button not found!');
+                console.log('Available buttons on page:');
+                const allButtons = document.querySelectorAll('button');
+                allButtons.forEach((btn, index) => {
+                    console.log(`Button ${index}:`, btn.id, btn.className, btn.textContent.trim());
+                });
             }
         });
         
@@ -2329,6 +2357,60 @@ $property_title = get_the_title();
             console.log('Test function called');
             alert('JavaScript is working!');
         };
+        
+        // Clean button click handler
+        window.handleScheduleTourClick = function(event) {
+            console.log('=== SCHEDULE TOUR BUTTON CLICKED ===');
+            event.preventDefault();
+            event.stopPropagation();
+            
+            try {
+                console.log('Calling submitBookingForm...');
+                if (typeof window.submitBookingForm === 'function') {
+                    window.submitBookingForm(event);
+                } else {
+                    console.error('submitBookingForm function not found!');
+                    alert('Error: Booking function not available. Please refresh the page.');
+                }
+            } catch (error) {
+                console.error('Error in handleScheduleTourClick:', error);
+                alert('Error: ' + error.message);
+            }
+        };
+        
+        // Test if submitBookingForm function exists
+        window.testSubmitFunction = function() {
+            console.log('Testing submitBookingForm function...');
+            if (typeof window.submitBookingForm === 'function') {
+                console.log('submitBookingForm function exists!');
+                alert('submitBookingForm function is available!');
+            } else {
+                console.error('submitBookingForm function does NOT exist!');
+                alert('ERROR: submitBookingForm function is missing!');
+            }
+        };
+        
+        // Add a simple test button click handler
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, testing booking functionality...');
+            
+            // Test if the booking form exists
+            const bookingForm = document.getElementById('booking-form');
+            const submitBtn = document.getElementById('booking-submit-btn');
+            
+            if (bookingForm) {
+                console.log('Booking form found!');
+            } else {
+                console.error('Booking form NOT found!');
+            }
+            
+            if (submitBtn) {
+                console.log('Submit button found!');
+                console.log('Button onclick attribute:', submitBtn.getAttribute('onclick'));
+            } else {
+                console.error('Submit button NOT found!');
+            }
+        });
         
         function showBookingMessage(type, message) {
             // Remove existing messages

@@ -78,9 +78,15 @@ class RESBS_Booking_Manager {
      * Handle booking form submission
      */
     public function handle_booking_submission() {
+        // Debug logging
+        error_log('RESBS: Booking submission received');
+        error_log('RESBS: POST data: ' . print_r($_POST, true));
+        
         // Verify nonce
         if (!wp_verify_nonce($_POST['_wpnonce'], 'resbs_booking_nonce')) {
-            wp_die('Security check failed');
+            error_log('RESBS: Nonce verification failed');
+            wp_send_json_error(array('message' => 'Security check failed. Please refresh the page and try again.'));
+            return;
         }
 
         // Sanitize and validate data
@@ -133,13 +139,17 @@ class RESBS_Booking_Manager {
         $booking_id = wp_insert_post($booking_data);
 
         if (is_wp_error($booking_id)) {
+            error_log('RESBS: Failed to create booking post: ' . $booking_id->get_error_message());
             wp_send_json_error(array('message' => 'Failed to create booking. Please try again.'));
             return;
         }
 
+        error_log('RESBS: Booking created successfully with ID: ' . $booking_id);
+
         // Send notification emails
         $this->send_booking_notifications($booking_id, $property_id, $first_name, $last_name, $email, $phone, $preferred_date, $preferred_time, $message);
 
+        error_log('RESBS: Booking submission completed successfully');
         wp_send_json_success(array('message' => 'Booking submitted successfully!'));
     }
 

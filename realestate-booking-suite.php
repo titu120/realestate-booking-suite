@@ -100,5 +100,5 @@ require_once RESBS_PATH . 'includes/class-resbs-contact-messages.php';
 // Load admin contact messages functionality
 require_once RESBS_PATH . 'includes/class-resbs-admin-contact-messages.php';
 
-// Load booking manager functionality
-require_once RESBS_PATH . 'includes/class-resbs-booking-manager.php';
+// Load booking manager functionality (moved to functions.php to avoid double loading)
+// require_once RESBS_PATH . 'includes/class-resbs-booking-manager.php';
