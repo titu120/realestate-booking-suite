@@ -4,6 +4,10 @@
  * Converts static HTML to dynamic WordPress content
  */
 
+
+// get_header();
+
+
 // Get the current property ID
 $property_id = get_the_ID();
 
@@ -247,8 +251,8 @@ if (is_array($amenities)) {
 }
 
 // Format price
-$formatted_price = $price ? '$' . number_format($price) : 'Price on Request';
-$price_per_sqft_formatted = $price_per_sqft ? '$' . number_format($price_per_sqft) . '/sq ft' : '';
+$formatted_price = $price ? '$' . number_format($price) : __('Price on Request', 'realestate-booking-suite');
+$price_per_sqft_formatted = $price_per_sqft ? '$' . number_format($price_per_sqft) . ' ' . __('/sq ft', 'realestate-booking-suite') : '';
 
 // Format location
 $full_address = trim($address . ', ' . $city . ', ' . $state . ' ' . $zip, ', ');
@@ -265,65 +269,11 @@ $property_title = get_the_title();
 <link rel="stylesheet" href="<?php echo plugin_dir_url(__FILE__) . '../assets/css/single-property.css'; ?>">
 <script src="<?php echo plugin_dir_url(__FILE__) . '../assets/js/single-property.js'; ?>"></script>
 
+
+
 <div class="bg-gray-50">
-    <!-- Header -->
-    <header class="bg-white shadow-md sticky top-0 z-50 no-print"></header>
-        <div class="container mx-auto px-4 py-4">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-8">
-                    <a href="<?php echo home_url(); ?>" class="flex items-center space-x-2">
-                        <div class="w-10 h-10 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-home text-white text-xl"></i>
-                        </div>
-                        <span class="text-2xl font-bold text-gray-800"><?php echo get_bloginfo('name'); ?></span>
-                    </a>
-                    <nav class="hidden md:flex space-x-6">
-                        <a href="<?php echo home_url('/properties'); ?>" class="text-gray-600 hover:text-emerald-500 transition">Properties</a>
-                        <a href="<?php echo home_url('/agents'); ?>" class="text-gray-600 hover:text-emerald-500 transition">Agents</a>
-                        <a href="<?php echo home_url('/about'); ?>" class="text-gray-600 hover:text-emerald-500 transition">About</a>
-                        <a href="<?php echo home_url('/contact'); ?>" class="text-gray-600 hover:text-emerald-500 transition">Contact</a>
-                    </nav>
-                </div>
-                <div class="flex items-center space-x-4">
-                    <button class="hidden md:block text-gray-600 hover:text-emerald-500">
-                        <i class="fas fa-search"></i>
-                    </button>
-                    <button class="hidden md:block text-gray-600 hover:text-emerald-500">
-                        <i class="fas fa-heart"></i>
-                    </button>
-                    <a href="<?php echo wp_login_url(); ?>" class="bg-emerald-500 text-white px-6 py-2 rounded-lg hover:bg-emerald-600 transition">
-                        Sign In
-                    </a>
-                    <button class="md:hidden text-gray-600" onclick="toggleMobileMenu()">
-                        <i class="fas fa-bars text-xl"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </header>
 
-    <!-- Mobile Menu -->
-    <div id="mobileMenu" class="hidden md:hidden bg-white shadow-lg no-print">
-        <nav class="container mx-auto px-4 py-4 space-y-3">
-            <a href="<?php echo home_url('/properties'); ?>" class="block text-gray-600 hover:text-emerald-500">Properties</a>
-            <a href="<?php echo home_url('/agents'); ?>" class="block text-gray-600 hover:text-emerald-500">Agents</a>
-            <a href="<?php echo home_url('/about'); ?>" class="block text-gray-600 hover:text-emerald-500">About</a>
-            <a href="<?php echo home_url('/contact'); ?>" class="block text-gray-600 hover:text-emerald-500">Contact</a>
-        </nav>
-    </div>
 
-    <!-- Breadcrumb -->
-    <div class="bg-white border-b no-print">
-        <div class="container mx-auto px-4 py-3">
-            <div class="flex items-center space-x-2 text-sm">
-                <a href="<?php echo home_url(); ?>" class="text-gray-500 hover:text-emerald-500">Home</a>
-                <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
-                <a href="<?php echo home_url('/properties'); ?>" class="text-gray-500 hover:text-emerald-500">Properties</a>
-                <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
-                <span class="text-gray-800 font-medium"><?php echo esc_html($property_title); ?></span>
-            </div>
-        </div>
-    </div>
 
     <div class="container mx-auto px-4 py-8">
         
@@ -337,17 +287,17 @@ $property_title = get_the_title();
                             <div class="flex items-center space-x-2 mb-2">
                                 <span class="bg-emerald-500 text-white px-3 py-1 rounded-full text-sm font-semibold badge"><?php echo esc_html($property_status); ?></span>
                                 <?php if (get_post_meta($property_id, '_property_featured', true)): ?>
-                                <span class="bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-semibold">Featured</span>
+                                <span class="bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-semibold"><?php esc_html_e('Featured', 'realestate-booking-suite'); ?></span>
                                 <?php endif; ?>
                                 <?php if (get_post_meta($property_id, '_property_hot_deal', true)): ?>
-                                <span class="bg-orange-500 text-white px-3 py-1 rounded-full text-sm font-semibold">Hot Deal</span>
+                                <span class="bg-orange-500 text-white px-3 py-1 rounded-full text-sm font-semibold"><?php esc_html_e('Hot Deal', 'realestate-booking-suite'); ?></span>
                                 <?php endif; ?>
                             </div>
                             <h1 class="text-3xl md:text-4xl font-bold text-gray-800 mb-2"><?php echo esc_html($property_title); ?></h1>
                             <div class="flex flex-wrap items-center gap-4 mb-2">
                                 <p class="text-gray-600 flex items-center">
                                     <i class="fas fa-map-marker-alt text-emerald-500 mr-2"></i>
-                                    <?php echo esc_html($full_address ?: 'Location not specified'); ?>
+                                    <?php echo esc_html($full_address ?: __('Location not specified', 'realestate-booking-suite')); ?>
                                 </p>
                                 <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
                                     <i class="fas fa-home mr-1"></i><?php echo esc_html($property_type); ?>
@@ -372,20 +322,20 @@ $property_title = get_the_title();
                             
                             <?php if ($call_for_price): ?>
                             <div class="bg-orange-50 border-l-4 border-orange-500 p-3 rounded mt-3">
-                                <p class="text-orange-800 text-sm"><i class="fas fa-phone mr-2"></i>Call for pricing information</p>
+                                <p class="text-orange-800 text-sm"><i class="fas fa-phone mr-2"></i><?php esc_html_e('Call for pricing information', 'realestate-booking-suite'); ?></p>
                             </div>
                             <?php endif; ?>
                         </div>
                     </div>
                     
                     <div class="flex flex-wrap gap-3 no-print">
-                        <button onclick="shareProperty()" class="tooltip flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition" data-tooltip="Share Property">
+                        <button onclick="shareProperty()" class="tooltip flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition" data-tooltip="<?php esc_attr_e('Share Property', 'realestate-booking-suite'); ?>">
                             <i class="fas fa-share-alt text-gray-600"></i>
-                            <span class="text-gray-700">Share</span>
+                            <span class="text-gray-700"><?php esc_html_e('Share', 'realestate-booking-suite'); ?></span>
                         </button>
-                        <button onclick="printPage()" class="tooltip flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition" data-tooltip="Print Details">
+                        <button onclick="printPage()" class="tooltip flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition" data-tooltip="<?php esc_attr_e('Print Details', 'realestate-booking-suite'); ?>">
                             <i class="fas fa-print text-gray-600"></i>
-                            <span class="text-gray-700">Print</span>
+                            <span class="text-gray-700"><?php esc_html_e('Print', 'realestate-booking-suite'); ?></span>
                         </button>
                     </div>
                 </div>
@@ -416,34 +366,34 @@ $property_title = get_the_title();
                     <?php else: ?>
                     <div class="text-center py-12">
                         <i class="fas fa-image text-gray-300 text-6xl mb-4"></i>
-                        <p class="text-gray-500">No images available for this property</p>
+                        <p class="text-gray-500"><?php esc_html_e('No images available for this property', 'realestate-booking-suite'); ?></p>
                     </div>
                     <?php endif; ?>
                 </div>
 
                 <!-- Key Features -->
                 <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-4">Key Features</h2>
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4"><?php esc_html_e('Key Features', 'realestate-booking-suite'); ?></h2>
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <div class="text-center p-4 bg-gray-50 rounded-lg">
                             <i class="fas fa-bed text-3xl text-emerald-500 mb-2"></i>
                             <p class="text-2xl font-bold text-gray-800"><?php echo esc_html($bedrooms ?: '0'); ?></p>
-                            <p class="text-gray-600 text-sm">Bedrooms</p>
+                            <p class="text-gray-600 text-sm"><?php esc_html_e('Bedrooms', 'realestate-booking-suite'); ?></p>
                         </div>
                         <div class="text-center p-4 bg-gray-50 rounded-lg">
                             <i class="fas fa-bath text-3xl text-emerald-500 mb-2"></i>
                             <p class="text-2xl font-bold text-gray-800"><?php echo esc_html($bathrooms ?: '0'); ?></p>
-                            <p class="text-gray-600 text-sm">Bathrooms</p>
+                            <p class="text-gray-600 text-sm"><?php esc_html_e('Bathrooms', 'realestate-booking-suite'); ?></p>
                         </div>
                         <div class="text-center p-4 bg-gray-50 rounded-lg">
                             <i class="fas fa-ruler-combined text-3xl text-emerald-500 mb-2"></i>
                             <p class="text-2xl font-bold text-gray-800"><?php echo esc_html($area ?: '0'); ?></p>
-                            <p class="text-gray-600 text-sm">Sq Ft</p>
+                            <p class="text-gray-600 text-sm"><?php esc_html_e('Sq Ft', 'realestate-booking-suite'); ?></p>
                         </div>
                         <div class="text-center p-4 bg-gray-50 rounded-lg">
                             <i class="fas fa-car text-3xl text-emerald-500 mb-2"></i>
                             <p class="text-2xl font-bold text-gray-800"><?php echo esc_html($parking ?: '0'); ?></p>
-                            <p class="text-gray-600 text-sm">Parking</p>
+                            <p class="text-gray-600 text-sm"><?php esc_html_e('Parking', 'realestate-booking-suite'); ?></p>
                         </div>
                     </div>
                 </div>
@@ -452,30 +402,30 @@ $property_title = get_the_title();
                 <div class="bg-white rounded-xl shadow-sm mb-6 no-print">
                     <div class="flex overflow-x-auto border-b">
                         <button onclick="switchTab('overview')" class="tab-button tab-active px-6 py-4 font-semibold whitespace-nowrap" data-tab="overview">
-                            <i class="fas fa-home mr-2"></i>Overview
+                            <i class="fas fa-home mr-2"></i><?php esc_html_e('Overview', 'realestate-booking-suite'); ?>
                         </button>
                         <button onclick="switchTab('pricing')" class="tab-button px-6 py-4 font-semibold text-gray-600 hover:text-emerald-500 whitespace-nowrap" data-tab="pricing">
-                            <i class="fas fa-dollar-sign mr-2"></i>Pricing
+                            <i class="fas fa-dollar-sign mr-2"></i><?php esc_html_e('Pricing', 'realestate-booking-suite'); ?>
                         </button>
                         <button onclick="switchTab('specifications')" class="tab-button px-6 py-4 font-semibold text-gray-600 hover:text-emerald-500 whitespace-nowrap" data-tab="specifications">
-                            <i class="fas fa-list mr-2"></i>Specifications
+                            <i class="fas fa-list mr-2"></i><?php esc_html_e('Specifications', 'realestate-booking-suite'); ?>
                         </button>
                         <button onclick="switchTab('location')" class="tab-button px-6 py-4 font-semibold text-gray-600 hover:text-emerald-500 whitespace-nowrap" data-tab="location">
-                            <i class="fas fa-map-marker-alt mr-2"></i>Location
+                            <i class="fas fa-map-marker-alt mr-2"></i><?php esc_html_e('Location', 'realestate-booking-suite'); ?>
                         </button>
                         <button onclick="switchTab('features')" class="tab-button px-6 py-4 font-semibold text-gray-600 hover:text-emerald-500 whitespace-nowrap" data-tab="features">
-                            <i class="fas fa-check-circle mr-2"></i>Features
+                            <i class="fas fa-check-circle mr-2"></i><?php esc_html_e('Features', 'realestate-booking-suite'); ?>
                         </button>
                         <button onclick="switchTab('media')" class="tab-button px-6 py-4 font-semibold text-gray-600 hover:text-emerald-500 whitespace-nowrap" data-tab="media">
-                            <i class="fas fa-image mr-2"></i>Media
+                            <i class="fas fa-image mr-2"></i><?php esc_html_e('Media', 'realestate-booking-suite'); ?>
                         </button>
                         <?php if (!empty($floor_plans)): ?>
                         <button onclick="switchTab('floorplan')" class="tab-button px-6 py-4 font-semibold text-gray-600 hover:text-emerald-500 whitespace-nowrap" data-tab="floorplan">
-                            <i class="fas fa-vector-square mr-2"></i>Floor Plan
+                            <i class="fas fa-vector-square mr-2"></i><?php esc_html_e('Floor Plan', 'realestate-booking-suite'); ?>
                         </button>
                         <?php endif; ?>
                         <button onclick="switchTab('booking')" class="tab-button px-6 py-4 font-semibold text-gray-600 hover:text-emerald-500 whitespace-nowrap" data-tab="booking">
-                            <i class="fas fa-calendar mr-2"></i>Booking
+                            <i class="fas fa-calendar mr-2"></i><?php esc_html_e('Booking', 'realestate-booking-suite'); ?>
                         </button>
                     </div>
 
@@ -483,7 +433,7 @@ $property_title = get_the_title();
                     <div class="p-6">
                         <!-- Overview Tab -->
                         <div id="overview-tab" class="tab-content">
-                            <h3 class="text-xl font-bold text-gray-800 mb-4">Property Description</h3>
+                            <h3 class="text-xl font-bold text-gray-800 mb-4"><?php esc_html_e('Property Description', 'realestate-booking-suite'); ?></h3>
                             <div class="text-gray-600 space-y-4 leading-relaxed">
                                 <?php 
                                 // Get the post content (main description from editor)
@@ -493,20 +443,20 @@ $property_title = get_the_title();
                                 <?php elseif ($description): ?>
                                     <?php echo wp_kses_post(wpautop($description)); ?>
                                 <?php else: ?>
-                                    <p>Welcome to this stunning property. This exceptional property offers a perfect blend of luxury, comfort, and modern design.</p>
+                                    <p><?php esc_html_e('Welcome to this stunning property. This exceptional property offers a perfect blend of luxury, comfort, and modern design.', 'realestate-booking-suite'); ?></p>
                                 <?php endif; ?>
                             </div>
 
                             <?php if ($virtual_tour): ?>
                             <div class="mt-6 p-4 bg-emerald-50 border-l-4 border-emerald-500 rounded">
-                                <p class="text-emerald-800"><i class="fas fa-info-circle mr-2"></i><strong>Virtual Tour Available:</strong> <a href="<?php echo esc_url($virtual_tour); ?>" target="_blank" class="underline">Schedule a 3D virtual walkthrough</a> of this property at your convenience.</p>
+                                <p class="text-emerald-800"><i class="fas fa-info-circle mr-2"></i><strong><?php esc_html_e('Virtual Tour Available:', 'realestate-booking-suite'); ?></strong> <a href="<?php echo esc_url($virtual_tour); ?>" target="_blank" class="underline"><?php esc_html_e('Schedule a 3D virtual walkthrough', 'realestate-booking-suite'); ?></a> <?php esc_html_e('of this property at your convenience.', 'realestate-booking-suite'); ?></p>
                             </div>
                             <?php endif; ?>
                         </div>
 
                         <!-- Pricing Tab -->
                         <div id="pricing-tab" class="tab-content hidden">
-                            <h3 class="text-xl font-bold text-gray-800 mb-4">Pricing Information</h3>
+                            <h3 class="text-xl font-bold text-gray-800 mb-4"><?php esc_html_e('Pricing Information', 'realestate-booking-suite'); ?></h3>
                             <div class="grid md:grid-cols-2 gap-6">
                                 <div class="space-y-4">
                                     <div class="bg-emerald-50 rounded-lg p-6">
@@ -525,31 +475,31 @@ $property_title = get_the_title();
                                     
                                     <?php if ($call_for_price): ?>
                                     <div class="bg-orange-50 border-l-4 border-orange-500 p-4 rounded">
-                                        <p class="text-orange-800"><i class="fas fa-phone mr-2"></i>Call for pricing information</p>
+                                        <p class="text-orange-800"><i class="fas fa-phone mr-2"></i><?php esc_html_e('Call for pricing information', 'realestate-booking-suite'); ?></p>
                                     </div>
                                     <?php endif; ?>
                                 </div>
                                 
                                 <div class="space-y-4">
                                     <div class="bg-gray-50 rounded-lg p-4">
-                                        <h5 class="font-semibold text-gray-800 mb-3">Price Breakdown</h5>
+                                        <h5 class="font-semibold text-gray-800 mb-3"><?php esc_html_e('Price Breakdown', 'realestate-booking-suite'); ?></h5>
                                         <div class="space-y-2 text-sm">
                                             <div class="flex justify-between">
-                                                <span class="text-gray-600">List Price:</span>
+                                                <span class="text-gray-600"><?php esc_html_e('List Price:', 'realestate-booking-suite'); ?></span>
                                                 <span class="font-semibold"><?php echo esc_html($formatted_price); ?></span>
                                             </div>
                                             <?php if ($price_per_sqft_formatted): ?>
                                             <div class="flex justify-between">
-                                                <span class="text-gray-600">Price per sq ft:</span>
+                                                <span class="text-gray-600"><?php esc_html_e('Price per sq ft:', 'realestate-booking-suite'); ?></span>
                                                 <span class="font-semibold"><?php echo esc_html($price_per_sqft_formatted); ?></span>
                                             </div>
                                             <?php endif; ?>
                                             <div class="flex justify-between">
-                                                <span class="text-gray-600">Property Type:</span>
+                                                <span class="text-gray-600"><?php esc_html_e('Property Type:', 'realestate-booking-suite'); ?></span>
                                                 <span class="font-semibold"><?php echo esc_html($property_type); ?></span>
                                             </div>
                                             <div class="flex justify-between">
-                                                <span class="text-gray-600">Status:</span>
+                                                <span class="text-gray-600"><?php esc_html_e('Status:', 'realestate-booking-suite'); ?></span>
                                                 <span class="font-semibold text-emerald-600"><?php echo esc_html($property_status); ?></span>
                                             </div>
                                         </div>
@@ -562,71 +512,71 @@ $property_title = get_the_title();
 
                         <!-- Specifications Tab -->
                         <div id="specifications-tab" class="tab-content hidden">
-                            <h3 class="text-xl font-bold text-gray-800 mb-4">Property Specifications</h3>
+                            <h3 class="text-xl font-bold text-gray-800 mb-4"><?php esc_html_e('Property Specifications', 'realestate-booking-suite'); ?></h3>
                             <div class="grid md:grid-cols-2 gap-6">
                                 <div class="space-y-3">
-                                    <h4 class="font-semibold text-gray-800 mb-3">Basic Information</h4>
+                                    <h4 class="font-semibold text-gray-800 mb-3"><?php esc_html_e('Basic Information', 'realestate-booking-suite'); ?></h4>
                                     <div class="flex justify-between py-2 border-b">
-                                        <span class="text-gray-600">Property ID:</span>
+                                        <span class="text-gray-600"><?php esc_html_e('Property ID:', 'realestate-booking-suite'); ?></span>
                                         <span class="font-semibold text-gray-800"><?php echo esc_html($property_id); ?></span>
                                     </div>
                                     <div class="flex justify-between py-2 border-b">
-                                        <span class="text-gray-600">Property Type:</span>
+                                        <span class="text-gray-600"><?php esc_html_e('Property Type:', 'realestate-booking-suite'); ?></span>
                                         <span class="font-semibold text-gray-800"><?php echo esc_html($property_type); ?></span>
                                     </div>
                                     <div class="flex justify-between py-2 border-b">
-                                        <span class="text-gray-600">Property Condition:</span>
+                                        <span class="text-gray-600"><?php esc_html_e('Property Condition:', 'realestate-booking-suite'); ?></span>
                                         <span class="font-semibold text-gray-800"><?php echo esc_html($property_condition); ?></span>
                                     </div>
                                     <div class="flex justify-between py-2 border-b">
-                                        <span class="text-gray-600">Status:</span>
+                                        <span class="text-gray-600"><?php esc_html_e('Status:', 'realestate-booking-suite'); ?></span>
                                         <span class="font-semibold text-emerald-600"><?php echo esc_html($property_status); ?></span>
                                     </div>
                                     <?php if ($year_built): ?>
                                     <div class="flex justify-between py-2 border-b">
-                                        <span class="text-gray-600">Year Built:</span>
+                                        <span class="text-gray-600"><?php esc_html_e('Year Built:', 'realestate-booking-suite'); ?></span>
                                         <span class="font-semibold text-gray-800"><?php echo esc_html($year_built); ?></span>
                                     </div>
                                     <?php endif; ?>
                                     <?php if ($year_remodeled): ?>
                                     <div class="flex justify-between py-2 border-b">
-                                        <span class="text-gray-600">Year Remodeled:</span>
+                                        <span class="text-gray-600"><?php esc_html_e('Year Remodeled:', 'realestate-booking-suite'); ?></span>
                                         <span class="font-semibold text-gray-800"><?php echo esc_html($year_remodeled); ?></span>
                                     </div>
                                     <?php endif; ?>
                                 </div>
                                 
                                 <div class="space-y-3">
-                                    <h4 class="font-semibold text-gray-800 mb-3">Room Details</h4>
+                                    <h4 class="font-semibold text-gray-800 mb-3"><?php esc_html_e('Room Details', 'realestate-booking-suite'); ?></h4>
                                     <div class="flex justify-between py-2 border-b">
-                                        <span class="text-gray-600">Bedrooms:</span>
+                                        <span class="text-gray-600"><?php esc_html_e('Bedrooms:', 'realestate-booking-suite'); ?></span>
                                         <span class="font-semibold text-gray-800"><?php echo esc_html($bedrooms ?: '0'); ?></span>
                                     </div>
                                     <div class="flex justify-between py-2 border-b">
-                                        <span class="text-gray-600">Bathrooms:</span>
+                                        <span class="text-gray-600"><?php esc_html_e('Bathrooms:', 'realestate-booking-suite'); ?></span>
                                         <span class="font-semibold text-gray-800"><?php echo esc_html($bathrooms ?: '0'); ?></span>
                                     </div>
                                     <?php if ($half_baths): ?>
                                     <div class="flex justify-between py-2 border-b">
-                                        <span class="text-gray-600">Half Baths:</span>
+                                        <span class="text-gray-600"><?php esc_html_e('Half Baths:', 'realestate-booking-suite'); ?></span>
                                         <span class="font-semibold text-gray-800"><?php echo esc_html($half_baths); ?></span>
                                     </div>
                                     <?php endif; ?>
                                     <?php if ($total_rooms): ?>
                                     <div class="flex justify-between py-2 border-b">
-                                        <span class="text-gray-600">Total Rooms:</span>
+                                        <span class="text-gray-600"><?php esc_html_e('Total Rooms:', 'realestate-booking-suite'); ?></span>
                                         <span class="font-semibold text-gray-800"><?php echo esc_html($total_rooms); ?></span>
                                     </div>
                                     <?php endif; ?>
                                     <?php if ($floors): ?>
                                     <div class="flex justify-between py-2 border-b">
-                                        <span class="text-gray-600">Floors:</span>
+                                        <span class="text-gray-600"><?php esc_html_e('Floors:', 'realestate-booking-suite'); ?></span>
                                         <span class="font-semibold text-gray-800"><?php echo esc_html($floors); ?></span>
                                     </div>
                                     <?php endif; ?>
                                     <?php if ($floor_level): ?>
                                     <div class="flex justify-between py-2 border-b">
-                                        <span class="text-gray-600">Floor Level:</span>
+                                        <span class="text-gray-600"><?php esc_html_e('Floor Level:', 'realestate-booking-suite'); ?></span>
                                         <span class="font-semibold text-gray-800"><?php echo esc_html($floor_level); ?></span>
                                     </div>
                                     <?php endif; ?>
@@ -635,60 +585,60 @@ $property_title = get_the_title();
                             
                             <div class="mt-6 grid md:grid-cols-2 gap-6">
                                 <div class="space-y-3">
-                                    <h4 class="font-semibold text-gray-800 mb-3">Size & Area</h4>
+                                    <h4 class="font-semibold text-gray-800 mb-3"><?php esc_html_e('Size & Area', 'realestate-booking-suite'); ?></h4>
                                     <div class="flex justify-between py-2 border-b">
-                                        <span class="text-gray-600">Area:</span>
+                                        <span class="text-gray-600"><?php esc_html_e('Area:', 'realestate-booking-suite'); ?></span>
                                         <span class="font-semibold text-gray-800"><?php echo esc_html($area ?: '0'); ?> sq ft</span>
                                     </div>
                                     <?php if ($lot_size): ?>
                                     <div class="flex justify-between py-2 border-b">
-                                        <span class="text-gray-600">Lot Size:</span>
+                                        <span class="text-gray-600"><?php esc_html_e('Lot Size:', 'realestate-booking-suite'); ?></span>
                                         <span class="font-semibold text-gray-800"><?php echo esc_html($lot_size); ?> sq ft</span>
                                     </div>
                                     <?php endif; ?>
                                 </div>
                                 
                                 <div class="space-y-3">
-                                    <h4 class="font-semibold text-gray-800 mb-3">Building Features</h4>
+                                    <h4 class="font-semibold text-gray-800 mb-3"><?php esc_html_e('Building Features', 'realestate-booking-suite'); ?></h4>
                                     <?php if ($heating): ?>
                                     <div class="flex justify-between py-2 border-b">
-                                        <span class="text-gray-600">Heating:</span>
+                                        <span class="text-gray-600"><?php esc_html_e('Heating:', 'realestate-booking-suite'); ?></span>
                                         <span class="font-semibold text-gray-800"><?php echo esc_html($heating); ?></span>
                                     </div>
                                     <?php endif; ?>
                                     <?php if ($cooling): ?>
                                     <div class="flex justify-between py-2 border-b">
-                                        <span class="text-gray-600">Cooling:</span>
+                                        <span class="text-gray-600"><?php esc_html_e('Cooling:', 'realestate-booking-suite'); ?></span>
                                         <span class="font-semibold text-gray-800"><?php echo esc_html($cooling); ?></span>
                                     </div>
                                     <?php endif; ?>
                                     <?php if ($roof): ?>
                                     <div class="flex justify-between py-2 border-b">
-                                        <span class="text-gray-600">Roof:</span>
+                                        <span class="text-gray-600"><?php esc_html_e('Roof:', 'realestate-booking-suite'); ?></span>
                                         <span class="font-semibold text-gray-800"><?php echo esc_html($roof); ?></span>
                                     </div>
                                     <?php endif; ?>
                                     <?php if ($exterior_material): ?>
                                     <div class="flex justify-between py-2 border-b">
-                                        <span class="text-gray-600">Exterior:</span>
+                                        <span class="text-gray-600"><?php esc_html_e('Exterior:', 'realestate-booking-suite'); ?></span>
                                         <span class="font-semibold text-gray-800"><?php echo esc_html($exterior_material); ?></span>
                                     </div>
                                     <?php endif; ?>
                                     <?php if ($floor_covering): ?>
                                     <div class="flex justify-between py-2 border-b">
-                                        <span class="text-gray-600">Flooring:</span>
+                                        <span class="text-gray-600"><?php esc_html_e('Flooring:', 'realestate-booking-suite'); ?></span>
                                         <span class="font-semibold text-gray-800"><?php echo esc_html($floor_covering); ?></span>
                                     </div>
                                     <?php endif; ?>
                                     <?php if ($basement): ?>
                                     <div class="flex justify-between py-2 border-b">
-                                        <span class="text-gray-600">Basement:</span>
+                                        <span class="text-gray-600"><?php esc_html_e('Basement:', 'realestate-booking-suite'); ?></span>
                                         <span class="font-semibold text-gray-800"><?php echo esc_html($basement); ?></span>
                                     </div>
                                     <?php endif; ?>
                                     <?php if ($parking): ?>
                                     <div class="flex justify-between py-2 border-b">
-                                        <span class="text-gray-600">Parking:</span>
+                                        <span class="text-gray-600"><?php esc_html_e('Parking:', 'realestate-booking-suite'); ?></span>
                                         <span class="font-semibold text-gray-800"><?php echo esc_html($parking); ?></span>
                                     </div>
                                     <?php endif; ?>
@@ -698,78 +648,78 @@ $property_title = get_the_title();
 
                         <!-- Details Tab -->
                         <div id="details-tab" class="tab-content hidden">
-                            <h3 class="text-xl font-bold text-gray-800 mb-4">Property Details</h3>
+                            <h3 class="text-xl font-bold text-gray-800 mb-4"><?php esc_html_e('Property Details', 'realestate-booking-suite'); ?></h3>
                             <div class="grid md:grid-cols-2 gap-6">
                                 <div class="space-y-3">
                                     <div class="flex justify-between py-2 border-b">
-                                        <span class="text-gray-600">Property ID:</span>
+                                        <span class="text-gray-600"><?php esc_html_e('Property ID:', 'realestate-booking-suite'); ?></span>
                                         <span class="font-semibold text-gray-800"><?php echo esc_html($property_id); ?></span>
                                     </div>
                                     <div class="flex justify-between py-2 border-b">
-                                        <span class="text-gray-600">Property Type:</span>
+                                        <span class="text-gray-600"><?php esc_html_e('Property Type:', 'realestate-booking-suite'); ?></span>
                                         <span class="font-semibold text-gray-800"><?php echo esc_html($property_type); ?></span>
                                     </div>
                                     <div class="flex justify-between py-2 border-b">
-                                        <span class="text-gray-600">Property Condition:</span>
+                                        <span class="text-gray-600"><?php esc_html_e('Property Condition:', 'realestate-booking-suite'); ?></span>
                                         <span class="font-semibold text-gray-800"><?php echo esc_html($property_condition); ?></span>
                                     </div>
                                     <?php if ($half_baths): ?>
                                     <div class="flex justify-between py-2 border-b">
-                                        <span class="text-gray-600">Half Baths:</span>
+                                        <span class="text-gray-600"><?php esc_html_e('Half Baths:', 'realestate-booking-suite'); ?></span>
                                         <span class="font-semibold text-gray-800"><?php echo esc_html($half_baths); ?></span>
                                     </div>
                                     <?php endif; ?>
                                     <?php if ($total_rooms): ?>
                                     <div class="flex justify-between py-2 border-b">
-                                        <span class="text-gray-600">Total Rooms:</span>
+                                        <span class="text-gray-600"><?php esc_html_e('Total Rooms:', 'realestate-booking-suite'); ?></span>
                                         <span class="font-semibold text-gray-800"><?php echo esc_html($total_rooms); ?></span>
                                     </div>
                                     <?php endif; ?>
                                     <?php if ($year_built): ?>
                                     <div class="flex justify-between py-2 border-b">
-                                        <span class="text-gray-600">Year Built:</span>
+                                        <span class="text-gray-600"><?php esc_html_e('Year Built:', 'realestate-booking-suite'); ?></span>
                                         <span class="font-semibold text-gray-800"><?php echo esc_html($year_built); ?></span>
                                     </div>
                                     <?php endif; ?>
                                     <?php if ($lot_size): ?>
                                     <div class="flex justify-between py-2 border-b">
-                                        <span class="text-gray-600">Lot Size:</span>
+                                        <span class="text-gray-600"><?php esc_html_e('Lot Size:', 'realestate-booking-suite'); ?></span>
                                         <span class="font-semibold text-gray-800"><?php echo esc_html($lot_size); ?> sq ft</span>
                                     </div>
                                     <?php endif; ?>
                                     <?php if ($floors): ?>
                                     <div class="flex justify-between py-2 border-b">
-                                        <span class="text-gray-600">Stories:</span>
+                                        <span class="text-gray-600"><?php esc_html_e('Stories:', 'realestate-booking-suite'); ?></span>
                                         <span class="font-semibold text-gray-800"><?php echo esc_html($floors); ?></span>
                                     </div>
                                     <?php endif; ?>
                                     <?php if ($floor_level): ?>
                                     <div class="flex justify-between py-2 border-b">
-                                        <span class="text-gray-600">Floor Level:</span>
+                                        <span class="text-gray-600"><?php esc_html_e('Floor Level:', 'realestate-booking-suite'); ?></span>
                                         <span class="font-semibold text-gray-800"><?php echo esc_html($floor_level); ?></span>
                                     </div>
                                     <?php endif; ?>
                                 </div>
                                 <div class="space-y-3">
                                     <div class="flex justify-between py-2 border-b">
-                                        <span class="text-gray-600">Status:</span>
+                                        <span class="text-gray-600"><?php esc_html_e('Status:', 'realestate-booking-suite'); ?></span>
                                         <span class="font-semibold text-emerald-600"><?php echo esc_html($property_status); ?></span>
                                     </div>
                                     <?php if ($heating): ?>
                                     <div class="flex justify-between py-2 border-b">
-                                        <span class="text-gray-600">Heating:</span>
+                                        <span class="text-gray-600"><?php esc_html_e('Heating:', 'realestate-booking-suite'); ?></span>
                                         <span class="font-semibold text-gray-800"><?php echo esc_html($heating); ?></span>
                                     </div>
                                     <?php endif; ?>
                                     <?php if ($cooling): ?>
                                     <div class="flex justify-between py-2 border-b">
-                                        <span class="text-gray-600">Cooling:</span>
+                                        <span class="text-gray-600"><?php esc_html_e('Cooling:', 'realestate-booking-suite'); ?></span>
                                         <span class="font-semibold text-gray-800"><?php echo esc_html($cooling); ?></span>
                                     </div>
                                     <?php endif; ?>
                                     <?php if ($roof): ?>
                                     <div class="flex justify-between py-2 border-b">
-                                        <span class="text-gray-600">Roof:</span>
+                                        <span class="text-gray-600"><?php esc_html_e('Roof:', 'realestate-booking-suite'); ?></span>
                                         <span class="font-semibold text-gray-800"><?php echo esc_html($roof); ?></span>
                                     </div>
                                     <?php endif; ?>
@@ -779,19 +729,19 @@ $property_title = get_the_title();
 
                         <!-- Features Tab -->
                         <div id="features-tab" class="tab-content hidden">
-                            <h3 class="text-xl font-bold text-gray-800 mb-4">Property Features & Amenities</h3>
+                            <h3 class="text-xl font-bold text-gray-800 mb-4"><?php esc_html_e('Property Features & Amenities', 'realestate-booking-suite'); ?></h3>
                             
                             <!-- Filter Buttons -->
                             <div class="flex flex-wrap gap-2 mb-6 no-print">
-                                <button onclick="filterAmenities('all')" class="filter-btn filter-active px-4 py-2 rounded-lg font-semibold text-sm transition" data-filter="all">All</button>
-                                <button onclick="filterAmenities('interior')" class="filter-btn px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-semibold text-sm hover:bg-gray-200 transition" data-filter="interior">Interior</button>
-                                <button onclick="filterAmenities('amenities')" class="filter-btn px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-semibold text-sm hover:bg-gray-200 transition" data-filter="amenities">Amenities</button>
+                                <button onclick="filterAmenities('all')" class="filter-btn filter-active px-4 py-2 rounded-lg font-semibold text-sm transition" data-filter="all"><?php esc_html_e('All', 'realestate-booking-suite'); ?></button>
+                                <button onclick="filterAmenities('interior')" class="filter-btn px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-semibold text-sm hover:bg-gray-200 transition" data-filter="interior"><?php esc_html_e('Interior', 'realestate-booking-suite'); ?></button>
+                                <button onclick="filterAmenities('amenities')" class="filter-btn px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-semibold text-sm hover:bg-gray-200 transition" data-filter="amenities"><?php esc_html_e('Amenities', 'realestate-booking-suite'); ?></button>
                             </div>
 
-                            <!-- Property Features Section -->
+                            <!-- <?php esc_html_e('Property Features', 'realestate-booking-suite'); ?> Section -->
                             <div class="mb-8">
                                 <h4 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                                    <i class="fas fa-home text-emerald-500 mr-2"></i>Property Features
+                                    <i class="fas fa-home text-emerald-500 mr-2"></i><?php esc_html_e('Property Features', 'realestate-booking-suite'); ?>
                                 </h4>
                                 
                                 <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4" id="featuresContainer">
@@ -810,10 +760,10 @@ $property_title = get_the_title();
                                 </div>
                             </div>
 
-                            <!-- Property Amenities Section -->
+                            <!-- <?php esc_html_e('Property Amenities', 'realestate-booking-suite'); ?> Section -->
                             <div class="mb-8">
                                 <h4 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                                    <i class="fas fa-concierge-bell text-emerald-500 mr-2"></i>Property Amenities
+                                    <i class="fas fa-concierge-bell text-emerald-500 mr-2"></i><?php esc_html_e('Property Amenities', 'realestate-booking-suite'); ?>
                                 </h4>
                                 
                                 <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4" id="amenitiesContainer">
@@ -835,13 +785,13 @@ $property_title = get_the_title();
 
                         <!-- Features & Amenities Tab -->
                         <div id="features-tab" class="tab-content hidden">
-                            <h3 class="text-xl font-bold text-gray-800 mb-6">Property Features & Amenities</h3>
+                            <h3 class="text-xl font-bold text-gray-800 mb-6"><?php esc_html_e('Property Features', 'realestate-booking-suite'); ?> & Amenities</h3>
                             
                             <!-- Features Section -->
                             <?php if (!empty($features_list)): ?>
                             <div class="mb-8">
                                 <h4 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                                    <i class="fas fa-home text-emerald-500 mr-2"></i>Property Features
+                                    <i class="fas fa-home text-emerald-500 mr-2"></i><?php esc_html_e('Property Features', 'realestate-booking-suite'); ?>
                                 </h4>
                                 
                                 <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -859,7 +809,7 @@ $property_title = get_the_title();
                             <?php if (!empty($amenities_list)): ?>
                             <div class="mb-8">
                                 <h4 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                                    <i class="fas fa-concierge-bell text-orange-500 mr-2"></i>Property Amenities
+                                    <i class="fas fa-concierge-bell text-orange-500 mr-2"></i><?php esc_html_e('Property Amenities', 'realestate-booking-suite'); ?>
                                 </h4>
                                 
                                 <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -877,19 +827,19 @@ $property_title = get_the_title();
                             <?php if (empty($features_list) && empty($amenities_list)): ?>
                             <div class="text-center py-12">
                                 <i class="fas fa-info-circle text-gray-400 text-4xl mb-4"></i>
-                                <p class="text-gray-500 text-lg">No features or amenities have been added to this property yet.</p>
+                                <p class="text-gray-500 text-lg"><?php esc_html_e('No features or amenities have been added to this property yet.', 'realestate-booking-suite'); ?></p>
                             </div>
                             <?php endif; ?>
                         </div>
 
                         <!-- Media Tab -->
                         <div id="media-tab" class="tab-content hidden">
-                            <h3 class="text-xl font-bold text-gray-800 mb-4">Property Media</h3>
+                            <h3 class="text-xl font-bold text-gray-800 mb-4"><?php esc_html_e('Property Media', 'realestate-booking-suite'); ?></h3>
                             
                             <!-- Image Gallery -->
                             <?php if (!empty($gallery_images)): ?>
                             <div class="mb-8">
-                                <h4 class="text-lg font-semibold text-gray-800 mb-4">Photo Gallery</h4>
+                                <h4 class="text-lg font-semibold text-gray-800 mb-4"><?php esc_html_e('Photo Gallery', 'realestate-booking-suite'); ?></h4>
                                 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                                     <?php foreach ($gallery_images as $index => $image_url): ?>
                                     <div class="relative group cursor-pointer" onclick="openImageViewer(<?php echo $index; ?>)">
@@ -904,14 +854,14 @@ $property_title = get_the_title();
                             <?php else: ?>
                             <div class="text-center py-12 bg-gray-50 rounded-lg">
                                 <i class="fas fa-image text-gray-300 text-6xl mb-4"></i>
-                                <p class="text-gray-500 text-lg">No images available for this property</p>
+                                <p class="text-gray-500 text-lg"><?php esc_html_e('No images available for this property', 'realestate-booking-suite'); ?></p>
                             </div>
                             <?php endif; ?>
                             
                             <!-- Video Section -->
                             <?php if ($video_url || $video_embed): ?>
                             <div class="mb-8">
-                                <h4 class="text-lg font-semibold text-gray-800 mb-4">Property Video</h4>
+                                <h4 class="text-lg font-semibold text-gray-800 mb-4"><?php esc_html_e('Property Video', 'realestate-booking-suite'); ?></h4>
                                 <div class="bg-gray-100 rounded-lg p-6">
                                     <?php if ($video_embed): ?>
                                         <div class="aspect-video">
@@ -950,7 +900,7 @@ $property_title = get_the_title();
                                                 if ($video_id) {
                                                     echo '<iframe width="100%" height="100%" src="https://www.youtube.com/embed/' . esc_attr($video_id) . '?rel=0&modestbranding=1" frameborder="0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>';
                                                 } else {
-                                                    echo '<div class="flex items-center justify-center h-full bg-gray-200 rounded-lg"><p class="text-gray-600">Invalid YouTube URL</p></div>';
+                                                    echo '<div class="flex items-center justify-center h-full bg-gray-200 rounded-lg"><p class="text-gray-600">' . esc_html__('Invalid YouTube URL', 'realestate-booking-suite') . '</p></div>';
                                                 }
                                             } elseif (strpos($video_url, 'vimeo.com') !== false) {
                                                 $video_id = substr($video_url, strrpos($video_url, '/') + 1);
@@ -959,10 +909,10 @@ $property_title = get_the_title();
                                                 if ($video_id) {
                                                     echo '<iframe width="100%" height="100%" src="https://player.vimeo.com/video/' . esc_attr($video_id) . '?title=0&byline=0&portrait=0" frameborder="0" allowfullscreen allow="autoplay; fullscreen; picture-in-picture"></iframe>';
                                                 } else {
-                                                    echo '<div class="flex items-center justify-center h-full bg-gray-200 rounded-lg"><p class="text-gray-600">Invalid Vimeo URL</p></div>';
+                                                    echo '<div class="flex items-center justify-center h-full bg-gray-200 rounded-lg"><p class="text-gray-600">' . esc_html__('Invalid Vimeo URL', 'realestate-booking-suite') . '</p></div>';
                                                 }
                                             } else {
-                                                echo '<video controls class="w-full h-full rounded-lg"><source src="' . esc_url($video_url) . '" type="video/mp4">Your browser does not support the video tag.</video>';
+                                                echo '<video controls class="w-full h-full rounded-lg"><source src="' . esc_url($video_url) . '" type="video/mp4">' . esc_html__('Your browser does not support the video tag.', 'realestate-booking-suite') . '</video>';
                                             }
                                             ?>
                                         </div>
@@ -974,15 +924,15 @@ $property_title = get_the_title();
                             <!-- Virtual Tour -->
                             <?php if ($virtual_tour): ?>
                             <div class="mb-8">
-                                <h4 class="text-lg font-semibold text-gray-800 mb-4">Virtual Tour</h4>
+                                <h4 class="text-lg font-semibold text-gray-800 mb-4"><?php esc_html_e('Virtual Tour', 'realestate-booking-suite'); ?></h4>
                                 <div class="bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-lg p-6">
                                     <div class="flex items-center justify-between">
                                         <div>
-                                            <h5 class="text-xl font-bold mb-2"><?php echo esc_html($virtual_tour_title ?: '3D Virtual Walkthrough'); ?></h5>
-                                            <p class="text-emerald-100"><?php echo esc_html($virtual_tour_description ?: 'Experience this property from anywhere with our interactive 3D tour.'); ?></p>
+                                            <h5 class="text-xl font-bold mb-2"><?php echo esc_html($virtual_tour_title ?: __('3D Virtual Walkthrough', 'realestate-booking-suite')); ?></h5>
+                                            <p class="text-emerald-100"><?php echo esc_html($virtual_tour_description ?: __('Experience this property from anywhere with our interactive 3D tour.', 'realestate-booking-suite')); ?></p>
                                         </div>
                                         <a href="<?php echo esc_url($virtual_tour); ?>" target="_blank" class="bg-white text-emerald-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition">
-                                            <i class="fas fa-play mr-2"></i><?php echo esc_html($virtual_tour_button_text ?: 'Start Tour'); ?>
+                                            <i class="fas fa-play mr-2"></i><?php echo esc_html($virtual_tour_button_text ?: __('Start Tour', 'realestate-booking-suite')); ?>
                                         </a>
                                     </div>
                                 </div>
@@ -992,15 +942,15 @@ $property_title = get_the_title();
                             <!-- Floor Plans -->
                             <?php if (!empty($floor_plans)): ?>
                             <div class="mb-8">
-                                <h4 class="text-lg font-semibold text-gray-800 mb-4">Floor Plans</h4>
+                                <h4 class="text-lg font-semibold text-gray-800 mb-4"><?php esc_html_e('Floor Plans', 'realestate-booking-suite'); ?></h4>
                                 <div class="bg-gray-100 rounded-lg p-6">
                                     <img src="<?php echo esc_url($floor_plans); ?>" alt="Floor Plan" class="w-full max-w-2xl mx-auto rounded-lg shadow-lg">
                                     <div class="mt-4 flex justify-center gap-4">
                                         <button onclick="downloadFloorPlan()" class="px-6 py-3 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition">
-                                            <i class="fas fa-download mr-2"></i>Download Floor Plan
+                                            <i class="fas fa-download mr-2"></i><?php esc_html_e('Download Floor Plan', 'realestate-booking-suite'); ?>
                                         </button>
                                         <button onclick="requestCustomPlan()" class="px-6 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-800 transition">
-                                            <i class="fas fa-envelope mr-2"></i>Request Custom Plan
+                                            <i class="fas fa-envelope mr-2"></i><?php esc_html_e('Request Custom Plan', 'realestate-booking-suite'); ?>
                                         </button>
                                     </div>
                                 </div>
@@ -1012,15 +962,15 @@ $property_title = get_the_title();
                         <!-- Floor Plan Tab -->
                         <?php if (!empty($floor_plans)): ?>
                         <div id="floorplan-tab" class="tab-content hidden">
-                            <h3 class="text-xl font-bold text-gray-800 mb-4">Floor Plan</h3>
+                            <h3 class="text-xl font-bold text-gray-800 mb-4"><?php esc_html_e('Floor Plan', 'realestate-booking-suite'); ?></h3>
                             <div class="bg-gray-100 rounded-lg p-8 text-center">
-                                <img src="<?php echo esc_url($floor_plans); ?>" alt="Floor Plan" class="w-full max-w-3xl mx-auto rounded-lg shadow-lg">
+                                <img src="<?php echo esc_url($floor_plans); ?>" alt="<?php esc_attr_e('Floor Plan', 'realestate-booking-suite'); ?>" class="w-full max-w-3xl mx-auto rounded-lg shadow-lg">
                                 <div class="mt-4 flex justify-center gap-4 no-print">
                                     <button onclick="downloadFloorPlan()" class="px-6 py-3 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition">
-                                        <i class="fas fa-download mr-2"></i>Download Floor Plan
+                                        <i class="fas fa-download mr-2"></i><?php esc_html_e('Download Floor Plan', 'realestate-booking-suite'); ?>
                                     </button>
                                     <button onclick="requestCustomPlan()" class="px-6 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-800 transition">
-                                        <i class="fas fa-envelope mr-2"></i>Request Custom Plan
+                                        <i class="fas fa-envelope mr-2"></i><?php esc_html_e('Request Custom Plan', 'realestate-booking-suite'); ?>
                                     </button>
                                 </div>
                             </div>
@@ -1029,7 +979,7 @@ $property_title = get_the_title();
 
                         <!-- Location Tab -->
                         <div id="location-tab" class="tab-content hidden">
-                            <h3 class="text-xl font-bold text-gray-800 mb-4">Location & Nearby</h3>
+                            <h3 class="text-xl font-bold text-gray-800 mb-4"><?php esc_html_e('Location & Nearby', 'realestate-booking-suite'); ?></h3>
                             
 
                             
@@ -1059,13 +1009,13 @@ $property_title = get_the_title();
                             <div class="bg-gray-100 rounded-lg p-6 mb-6">
                                 <div class="flex items-center justify-between">
                                     <div>
-                                        <h4 class="font-semibold text-gray-800 mb-2">Property Location</h4>
+                                        <h4 class="font-semibold text-gray-800 mb-2"><?php esc_html_e('Property Location', 'realestate-booking-suite'); ?></h4>
                                         <p class="text-gray-600 mb-3"><?php echo esc_html($full_address); ?></p>
                                         <a href="https://www.google.com/maps/search/<?php echo urlencode($full_address); ?>" 
                                            target="_blank" 
                                            class="inline-flex items-center px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition">
                                             <i class="fas fa-map-marker-alt mr-2"></i>
-                                            View on Google Maps
+                                            <?php esc_html_e('View on Google Maps', 'realestate-booking-suite'); ?>
                                         </a>
                                     </div>
                                     <i class="fas fa-map-marker-alt text-emerald-500 text-4xl"></i>
@@ -1074,8 +1024,8 @@ $property_title = get_the_title();
                             <?php else: ?>
                             <div class="bg-gray-100 rounded-lg p-8 text-center mb-6">
                                 <i class="fas fa-map-marker-alt text-gray-400 text-4xl mb-4"></i>
-                                <p class="text-gray-600">Location information not available</p>
-                                <p class="text-sm text-gray-500 mt-2">Please add a map iframe or address to display location</p>
+                                <p class="text-gray-600"><?php esc_html_e('Location information not available', 'realestate-booking-suite'); ?></p>
+                                <p class="text-sm text-gray-500 mt-2"><?php esc_html_e('Please add a map iframe or address to display location', 'realestate-booking-suite'); ?></p>
                             </div>
                             <?php endif; ?>
                             
@@ -1083,7 +1033,7 @@ $property_title = get_the_title();
                                 <?php if ($nearby_schools): ?>
                                 <div class="p-4 bg-blue-50 rounded-lg">
                                     <i class="fas fa-graduation-cap text-blue-500 text-2xl mb-2"></i>
-                                    <h4 class="font-semibold text-gray-800 mb-1">Schools</h4>
+                                    <h4 class="font-semibold text-gray-800 mb-1"><?php esc_html_e('Schools', 'realestate-booking-suite'); ?></h4>
                                     <p class="text-sm text-gray-600"><?php echo esc_html($nearby_schools); ?></p>
                                 </div>
                                 <?php endif; ?>
@@ -1091,7 +1041,7 @@ $property_title = get_the_title();
                                 <?php if ($nearby_shopping): ?>
                                 <div class="p-4 bg-green-50 rounded-lg">
                                     <i class="fas fa-shopping-cart text-green-500 text-2xl mb-2"></i>
-                                    <h4 class="font-semibold text-gray-800 mb-1">Shopping</h4>
+                                    <h4 class="font-semibold text-gray-800 mb-1"><?php esc_html_e('Shopping', 'realestate-booking-suite'); ?></h4>
                                     <p class="text-sm text-gray-600"><?php echo esc_html($nearby_shopping); ?></p>
                                 </div>
                                 <?php endif; ?>
@@ -1099,7 +1049,7 @@ $property_title = get_the_title();
                                 <?php if ($nearby_restaurants): ?>
                                 <div class="p-4 bg-purple-50 rounded-lg">
                                     <i class="fas fa-utensils text-purple-500 text-2xl mb-2"></i>
-                                    <h4 class="font-semibold text-gray-800 mb-1">Restaurants</h4>
+                                    <h4 class="font-semibold text-gray-800 mb-1"><?php esc_html_e('Restaurants', 'realestate-booking-suite'); ?></h4>
                                     <p class="text-sm text-gray-600"><?php echo esc_html($nearby_restaurants); ?></p>
                                 </div>
                                 <?php endif; ?>
@@ -1107,8 +1057,8 @@ $property_title = get_the_title();
                                 <?php if (!$nearby_schools && !$nearby_shopping && !$nearby_restaurants): ?>
                                 <div class="col-span-3 p-8 text-center bg-gray-50 rounded-lg">
                                     <i class="fas fa-map-marker-alt text-gray-400 text-4xl mb-4"></i>
-                                    <p class="text-gray-600">No nearby features configured</p>
-                                    <p class="text-sm text-gray-500 mt-2">Add nearby schools, shopping, and restaurants in the Location section</p>
+                                    <p class="text-gray-600"><?php esc_html_e('No nearby features configured', 'realestate-booking-suite'); ?></p>
+                                    <p class="text-sm text-gray-500 mt-2"><?php esc_html_e('Add nearby schools, shopping, and restaurants in the Location section', 'realestate-booking-suite'); ?></p>
                                 </div>
                                 <?php endif; ?>
                             </div>
@@ -1116,7 +1066,7 @@ $property_title = get_the_title();
 
                         <!-- Reviews Tab -->
                         <div id="reviews-tab" class="tab-content hidden">
-                            <h3 class="text-xl font-bold text-gray-800 mb-4">Property Reviews & Ratings</h3>
+                            <h3 class="text-xl font-bold text-gray-800 mb-4"><?php esc_html_e('Property Reviews & Ratings', 'realestate-booking-suite'); ?></h3>
                             
                             <!-- Overall Rating -->
                             <div class="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-lg p-6 mb-6">
@@ -1130,53 +1080,53 @@ $property_title = get_the_title();
                                             <i class="fas fa-star rating-star"></i>
                                             <i class="fas fa-star-half-alt rating-star"></i>
                                         </div>
-                                        <p class="text-gray-600">Based on reviews</p>
+                                        <p class="text-gray-600"><?php esc_html_e('Based on reviews', 'realestate-booking-suite'); ?></p>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="text-center py-8">
                                 <i class="fas fa-comments text-gray-300 text-4xl mb-4"></i>
-                                <p class="text-gray-500">No reviews yet. Be the first to review this property!</p>
+                                <p class="text-gray-500"><?php esc_html_e('No reviews yet. Be the first to review this property!', 'realestate-booking-suite'); ?></p>
                             </div>
                         </div>
 
                         <!-- Booking Tab -->
                         <div id="booking-tab" class="tab-content hidden">
-                            <h3 class="text-xl font-bold text-gray-800 mb-4">Schedule a Viewing</h3>
+                            <h3 class="text-xl font-bold text-gray-800 mb-4"><?php esc_html_e('Schedule a Viewing', 'realestate-booking-suite'); ?></h3>
                             
                             <div class="grid md:grid-cols-2 gap-8">
                                 <!-- Booking Form -->
                                 <div class="bg-white border rounded-lg p-6">
-                                    <h4 class="text-lg font-semibold text-gray-800 mb-4">Book a Property Tour</h4>
+                                    <h4 class="text-lg font-semibold text-gray-800 mb-4"><?php esc_html_e('Book a Property Tour', 'realestate-booking-suite'); ?></h4>
                                     <form id="booking-form" class="space-y-4">
                                         <div class="grid md:grid-cols-2 gap-4">
                                             <div>
-                                                <label class="block text-sm font-medium text-gray-700 mb-2">First Name</label>
+                                                <label class="block text-sm font-medium text-gray-700 mb-2"><?php esc_html_e('First Name', 'realestate-booking-suite'); ?></label>
                                                 <input type="text" name="first_name" id="booking_first_name" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="Enter your first name">
                                             </div>
                                             <div>
-                                                <label class="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
+                                                <label class="block text-sm font-medium text-gray-700 mb-2"><?php esc_html_e('Last Name', 'realestate-booking-suite'); ?></label>
                                                 <input type="text" name="last_name" id="booking_last_name" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="Enter your last name">
                                             </div>
                                         </div>
                                         <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2"><?php esc_html_e('Email', 'realestate-booking-suite'); ?></label>
                                             <input type="email" name="email" id="booking_email" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="your.email@example.com">
                                         </div>
                                         <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2"><?php esc_html_e('Phone', 'realestate-booking-suite'); ?></label>
                                             <input type="tel" name="phone" id="booking_phone" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="(555) 123-4567">
                                         </div>
                                         <div class="grid md:grid-cols-2 gap-4">
                                             <div>
-                                                <label class="block text-sm font-medium text-gray-700 mb-2">Preferred Date <span class="text-gray-400">(Optional)</span></label>
+                                                <label class="block text-sm font-medium text-gray-700 mb-2"><?php esc_html_e('Preferred Date', 'realestate-booking-suite'); ?> <span class="text-gray-400">(<?php esc_html_e('Optional', 'realestate-booking-suite'); ?>)</span></label>
                                                 <input type="date" name="preferred_date" id="booking_date" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500">
                                             </div>
                                             <div>
-                                                <label class="block text-sm font-medium text-gray-700 mb-2">Preferred Time <span class="text-gray-400">(Optional)</span></label>
+                                                <label class="block text-sm font-medium text-gray-700 mb-2"><?php esc_html_e('Preferred Time', 'realestate-booking-suite'); ?> <span class="text-gray-400">(<?php esc_html_e('Optional', 'realestate-booking-suite'); ?>)</span></label>
                                                 <select name="preferred_time" id="booking_time" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                                                    <option value="">Select Time</option>
+                                                    <option value=""><?php esc_html_e('Select Time', 'realestate-booking-suite'); ?></option>
                                                     <?php
                                                     // Default 24-hour time slots
                                                     $default_times = array(
@@ -1217,14 +1167,14 @@ $property_title = get_the_title();
                                             </div>
                                         </div>
                                         <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-2">Message (Optional)</label>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2"><?php esc_html_e('Message', 'realestate-booking-suite'); ?> (<?php esc_html_e('Optional', 'realestate-booking-suite'); ?>)</label>
                                             <textarea name="message" id="booking_message" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="Any specific questions or requirements..."></textarea>
                                         </div>
                                         <input type="hidden" name="property_id" value="<?php echo esc_attr($property_id); ?>">
                                         <input type="hidden" name="action" value="resbs_submit_booking">
                                         <?php wp_nonce_field('resbs_booking_nonce', '_wpnonce'); ?>
                                         <button type="button" id="booking-submit-btn" onclick="handleScheduleTourClick(event);" class="w-full bg-emerald-500 text-white py-3 rounded-lg hover:bg-emerald-600 transition font-semibold">
-                                            <i class="fas fa-calendar-check mr-2"></i>Schedule Tour
+                                            <i class="fas fa-calendar-check mr-2"></i><?php esc_html_e('Schedule Tour', 'realestate-booking-suite'); ?>
                                         </button>
                                     </form>
                                 </div>
@@ -1233,11 +1183,11 @@ $property_title = get_the_title();
                                 <div class="space-y-6">
                                     <!-- Agent Contact -->
                                     <div class="bg-emerald-50 rounded-lg p-6">
-                                        <h4 class="text-lg font-semibold text-gray-800 mb-4">Contact Agent</h4>
+                                        <h4 class="text-lg font-semibold text-gray-800 mb-4"><?php esc_html_e('Contact Agent', 'realestate-booking-suite'); ?></h4>
                                         <div class="space-y-3">
                                             <div class="flex items-center">
                                                 <i class="fas fa-user text-emerald-500 mr-3"></i>
-                                                <span class="text-gray-700"><?php echo esc_html($agent_name ?: 'Property Agent'); ?></span>
+                                                <span class="text-gray-700"><?php echo esc_html($agent_name ?: __('Property Agent', 'realestate-booking-suite')); ?></span>
                                             </div>
                                             <?php if ($agent_phone): ?>
                                             <div class="flex items-center">
@@ -1256,27 +1206,27 @@ $property_title = get_the_title();
                                     
                                     <!-- Tour Information -->
                                     <div class="bg-blue-50 rounded-lg p-6">
-                                        <h4 class="text-lg font-semibold text-gray-800 mb-4">Tour Information</h4>
+                                        <h4 class="text-lg font-semibold text-gray-800 mb-4"><?php esc_html_e('Tour Information', 'realestate-booking-suite'); ?></h4>
                                         <div class="space-y-3 text-sm">
                                             <div class="flex items-start">
                                                 <i class="fas fa-clock text-blue-500 mr-3 mt-1"></i>
                                                 <div>
-                                                    <p class="font-semibold text-gray-800">Duration</p>
-                                                    <p class="text-gray-600"><?php echo esc_html($tour_duration ?: 'Approximately 30-45 minutes'); ?></p>
+                                                    <p class="font-semibold text-gray-800"><?php esc_html_e('Duration', 'realestate-booking-suite'); ?></p>
+                                                    <p class="text-gray-600"><?php echo esc_html($tour_duration ?: __('Approximately 30-45 minutes', 'realestate-booking-suite')); ?></p>
                                                 </div>
                                             </div>
                                             <div class="flex items-start">
                                                 <i class="fas fa-users text-blue-500 mr-3 mt-1"></i>
                                                 <div>
-                                                    <p class="font-semibold text-gray-800">Group Size</p>
-                                                    <p class="text-gray-600"><?php echo esc_html($tour_group_size ?: 'Maximum 4 people per tour'); ?></p>
+                                                    <p class="font-semibold text-gray-800"><?php esc_html_e('Group Size', 'realestate-booking-suite'); ?></p>
+                                                    <p class="text-gray-600"><?php echo esc_html($tour_group_size ?: __('Maximum 4 people per tour', 'realestate-booking-suite')); ?></p>
                                                 </div>
                                             </div>
                                             <div class="flex items-start">
                                                 <i class="fas fa-shield-alt text-blue-500 mr-3 mt-1"></i>
                                                 <div>
-                                                    <p class="font-semibold text-gray-800">Safety</p>
-                                                    <p class="text-gray-600"><?php echo esc_html($tour_safety ?: 'All safety protocols followed'); ?></p>
+                                                    <p class="font-semibold text-gray-800"><?php esc_html_e('Safety', 'realestate-booking-suite'); ?></p>
+                                                    <p class="text-gray-600"><?php echo esc_html($tour_safety ?: __('All safety protocols followed', 'realestate-booking-suite')); ?></p>
                                                 </div>
                                             </div>
                                         </div>
@@ -1284,7 +1234,7 @@ $property_title = get_the_title();
                                     
                                     <!-- Quick Actions -->
                                     <div class="bg-gray-50 rounded-lg p-6">
-                                        <h4 class="text-lg font-semibold text-gray-800 mb-4">Quick Actions</h4>
+                                        <h4 class="text-lg font-semibold text-gray-800 mb-4"><?php esc_html_e('Quick Actions', 'realestate-booking-suite'); ?></h4>
                                         <div class="space-y-3">
                                             <?php
                                             // Get dynamic quick actions from settings
@@ -1678,51 +1628,7 @@ $property_title = get_the_title();
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="bg-gray-900 text-white mt-16 no-print">
-        <div class="container mx-auto px-4 py-12">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-                <div>
-                    <div class="flex items-center space-x-2 mb-4">
-                        <div class="w-10 h-10 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-home text-white text-xl"></i>
-                        </div>
-                        <span class="text-2xl font-bold"><?php echo get_bloginfo('name'); ?></span>
-                    </div>
-                    <p class="text-gray-400 text-sm"><?php echo get_bloginfo('description'); ?></p>
-                </div>
-                <div>
-                    <h4 class="font-bold mb-4">Quick Links</h4>
-                    <ul class="space-y-2 text-sm text-gray-400">
-                        <li><a href="<?php echo home_url('/properties'); ?>" class="hover:text-emerald-400">Properties</a></li>
-                        <li><a href="<?php echo home_url('/agents'); ?>" class="hover:text-emerald-400">Agents</a></li>
-                        <li><a href="<?php echo home_url('/about'); ?>" class="hover:text-emerald-400">About Us</a></li>
-                        <li><a href="<?php echo home_url('/contact'); ?>" class="hover:text-emerald-400">Contact</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="font-bold mb-4">Services</h4>
-                    <ul class="space-y-2 text-sm text-gray-400">
-                        <li><a href="<?php echo home_url('/buy'); ?>" class="hover:text-emerald-400">Buy Property</a></li>
-                        <li><a href="<?php echo home_url('/sell'); ?>" class="hover:text-emerald-400">Sell Property</a></li>
-                        <li><a href="<?php echo home_url('/rent'); ?>" class="hover:text-emerald-400">Rent Property</a></li>
-                        <li><a href="<?php echo home_url('/management'); ?>" class="hover:text-emerald-400">Property Management</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="font-bold mb-4">Contact Info</h4>
-                    <ul class="space-y-2 text-sm text-gray-400">
-                        <li class="flex items-center"><i class="fas fa-phone mr-2 text-emerald-400"></i><?php echo get_option('phone', '+1 (555) 123-4567'); ?></li>
-                        <li class="flex items-center"><i class="fas fa-envelope mr-2 text-emerald-400"></i><?php echo get_option('admin_email'); ?></li>
-                        <li class="flex items-center"><i class="fas fa-map-marker-alt mr-2 text-emerald-400"></i><?php echo get_option('address', '123 Main St, LA, CA'); ?></li>
-                    </ul>
-                </div>
-            </div>
-            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-400">
-                <p>&copy; <?php echo date('Y'); ?> <?php echo get_bloginfo('name'); ?>. All rights reserved.</p>
-            </div>
-        </div>
-    </footer>
+
 
     <!-- Image Viewer Modal -->
     <div id="imageViewer" class="image-viewer">
@@ -1735,7 +1641,7 @@ $property_title = get_the_title();
         <button onclick="nextImage()" class="absolute right-4 text-white text-3xl z-10 hover:text-emerald-400">
             <i class="fas fa-chevron-right"></i>
         </button>
-        <img id="viewerImage" src="" alt="Property" class="max-w-full max-h-full">
+        <img id="viewerImage" src="" alt="<?php esc_attr_e('Property', 'realestate-booking-suite'); ?>" class="max-w-full max-h-full">
     </div>
 
     <!-- Contact Modal -->
@@ -1750,19 +1656,19 @@ $property_title = get_the_title();
             <form onsubmit="submitContactForm(event)" class="space-y-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2"><?php echo esc_html($contact_name_label ?: 'Your Name'); ?></label>
-                    <input type="text" name="contact_name" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="Enter your full name">
+                    <input type="text" name="contact_name" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="<?php esc_attr_e('Enter your full name', 'realestate-booking-suite'); ?>">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2"><?php echo esc_html($contact_email_label ?: 'Email'); ?></label>
-                    <input type="email" name="contact_email" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="your.email@example.com">
+                    <input type="email" name="contact_email" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="<?php esc_attr_e('your.email@example.com', 'realestate-booking-suite'); ?>">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2"><?php echo esc_html($contact_phone_label ?: 'Phone'); ?></label>
-                    <input type="tel" name="contact_phone" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="(555) 123-4567">
+                    <input type="tel" name="contact_phone" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="<?php esc_attr_e('(555) 123-4567', 'realestate-booking-suite'); ?>">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2"><?php echo esc_html($contact_message_label ?: 'Message'); ?></label>
-                    <textarea name="contact_message" rows="4" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="Tell us about your interest in this property..."></textarea>
+                    <textarea name="contact_message" rows="4" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="<?php esc_attr_e('Tell us about your interest in this property...', 'realestate-booking-suite'); ?>"></textarea>
                 </div>
                 <button type="submit" class="w-full bg-emerald-500 text-white py-3 rounded-lg hover:bg-emerald-600 transition font-semibold">
                     <?php echo esc_html($contact_submit_text ?: 'Send Message'); ?>
@@ -2004,18 +1910,18 @@ $property_title = get_the_title();
             const formData = new FormData(event.target);
             
             // Add property ID and nonce
-            formData.append('property_id', <?php echo $property_id; ?>);
+            formData.append('property_id', <?php echo esc_js($property_id); ?>);
             formData.append('action', 'submit_contact_message');
-            formData.append('nonce', '<?php echo wp_create_nonce('contact_message_nonce'); ?>');
+            formData.append('nonce', '<?php echo esc_js(wp_create_nonce('contact_message_nonce')); ?>');
             
             // Show loading state
             const submitButton = event.target.querySelector('button[type="submit"]');
             const originalText = submitButton.innerHTML;
-            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Sending...';
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i><?php esc_js(__('Sending...', 'realestate-booking-suite')); ?>';
             submitButton.disabled = true;
             
             // Submit via AJAX
-            fetch('<?php echo admin_url('admin-ajax.php'); ?>', {
+            fetch('<?php echo esc_url(admin_url('admin-ajax.php')); ?>', {
                 method: 'POST',
                 body: formData
             })
@@ -2023,17 +1929,17 @@ $property_title = get_the_title();
             .then(data => {
                 if (data.success) {
                     // Use dynamic success message
-                    let successMessage = data.data.message || window.contactSuccessMessage || 'Thank you! Your message has been sent to the agent.';
+                    let successMessage = data.data.message || window.contactSuccessMessage || '<?php esc_js(__('Thank you! Your message has been sent to the agent.', 'realestate-booking-suite')); ?>';
                     alert(successMessage);
                     closeContactModal();
                     event.target.reset(); // Reset form
                 } else {
-                    alert('Error: ' + (data.data || 'Failed to send message'));
+                    alert('<?php esc_js(__('Error:', 'realestate-booking-suite')); ?> ' + (data.data || '<?php esc_js(__('Failed to send message', 'realestate-booking-suite')); ?>'));
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Error: Failed to send message. Please try again.');
+                alert('<?php esc_js(__('Error: Failed to send message. Please try again.', 'realestate-booking-suite')); ?>');
             })
             .finally(() => {
                 // Reset button state
@@ -2272,7 +2178,7 @@ $property_title = get_the_title();
             console.log('Submitting booking form...');
             
             // Submit via AJAX
-            fetch('<?php echo admin_url('admin-ajax.php'); ?>', {
+            fetch('<?php echo esc_url(admin_url('admin-ajax.php')); ?>', {
                 method: 'POST',
                 body: formData
             })
@@ -2442,3 +2348,7 @@ $property_title = get_the_title();
         }
     </script>
 </div>
+
+
+
+

@@ -12,6 +12,18 @@ if (!defined('ABSPATH')) {
 
 // Check if Elementor is active
 if (!did_action('elementor/loaded')) {
+    add_action('admin_notices', function() {
+        if (current_user_can('manage_options')) {
+            echo '<div class="notice notice-warning is-dismissible"><p>';
+            echo esc_html__('RealEstate Booking Suite: Elementor plugin is required for Elementor widgets to work properly.', 'realestate-booking-suite');
+            echo '</p></div>';
+        }
+    });
+    return;
+}
+
+// Check if Elementor classes exist
+if (!class_exists('\Elementor\Widget_Base')) {
     return;
 }
 
@@ -87,13 +99,16 @@ class RESBS_Elementor_Widgets {
     }
 }
 
-// Initialize Elementor widgets
-new RESBS_Elementor_Widgets();
+// Initialize Elementor widgets only if Elementor is available
+if (class_exists('\Elementor\Widget_Base')) {
+    new RESBS_Elementor_Widgets();
+}
 
 /**
  * Property Grid Elementor Widget
  */
-class RESBS_Property_Grid_Widget extends \Elementor\Widget_Base {
+if (class_exists('\Elementor\Widget_Base')) {
+    class RESBS_Property_Grid_Widget extends \Elementor\Widget_Base {
 
     /**
      * Get widget name
@@ -921,12 +936,14 @@ class RESBS_Property_Grid_Widget extends \Elementor\Widget_Base {
         </div>
         <?php
     }
+    }
 }
 
 /**
  * Property Carousel Elementor Widget
  */
-class RESBS_Property_Carousel_Widget extends \Elementor\Widget_Base {
+if (class_exists('\Elementor\Widget_Base')) {
+    class RESBS_Property_Carousel_Widget extends \Elementor\Widget_Base {
 
     /**
      * Get widget name
@@ -1764,5 +1781,6 @@ class RESBS_Property_Carousel_Widget extends \Elementor\Widget_Base {
             </div>
         </div>
         <?php
+    }
     }
 }

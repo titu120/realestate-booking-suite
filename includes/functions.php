@@ -51,9 +51,11 @@ require_once RESBS_PATH . 'includes/class-resbs-woocommerce.php';
 // Initialize WooCommerce Integration
 new RESBS_WooCommerce();
 
-// Load Elementor Integration
-require_once RESBS_PATH . 'includes/class-resbs-elementor.php';
-new RESBS_Elementor_Widgets();
+// Load Elementor Integration (only if Elementor is active)
+if (did_action('elementor/loaded') && class_exists('\Elementor\Widget_Base')) {
+    require_once RESBS_PATH . 'includes/class-resbs-elementor.php';
+    new RESBS_Elementor_Widgets();
+}
 
 // Load WordPress Widgets
 require_once RESBS_PATH . 'includes/class-resbs-widgets.php';
