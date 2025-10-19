@@ -331,11 +331,11 @@
                     </div>
 
                     <div class="tw:flex tw:flex-wrap tw:gap-3 no-print">
-                        <button onclick="shareProperty()" class="tooltip tw:flex tw:items-center tw:space-x-2 tw:px-4 tw:py-2 tw:border tw:border-gray-300 tw:rounded-lg hover:tw:bg-gray-50 tw:transition" data-tooltip="<?php esc_attr_e('Share Property', 'realestate-booking-suite'); ?>">
+                        <button onclick="shareProperty()" class=" tw:flex tw:items-center tw:space-x-2 tw:px-4 tw:py-2 tw:border tw:border-gray-300 tw:rounded-lg hover:tw:bg-gray-50 tw:transition" data-tooltip="<?php esc_attr_e('Share Property', 'realestate-booking-suite'); ?>">
                             <i class="fas fa-share-alt tw:text-gray-600"></i>
                             <span class="tw:text-gray-700"><?php esc_html_e('Share', 'realestate-booking-suite'); ?></span>
                         </button>
-                        <button onclick="printPage()" class="tooltip tw:flex tw:items-center tw:space-x-2 tw:px-4 tw:py-2 tw:border tw:border-gray-300 tw:rounded-lg hover:tw:bg-gray-50 tw:transition" data-tooltip="<?php esc_attr_e('Print Details', 'realestate-booking-suite'); ?>">
+                        <button onclick="printPage()" class=" tw:flex tw:items-center tw:space-x-2 tw:px-4 tw:py-2 tw:border tw:border-gray-300 tw:rounded-lg hover:tw:bg-gray-50 tw:transition" data-tooltip="<?php esc_attr_e('Print Details', 'realestate-booking-suite'); ?>">
                             <i class="fas fa-print tw:text-gray-600"></i>
                             <span class="tw:text-gray-700"><?php esc_html_e('Print', 'realestate-booking-suite'); ?></span>
                         </button>
