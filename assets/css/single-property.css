@@ -12,27 +12,27 @@
     transform: scale(1.05);
 }
 
-.tab-active {
+.tw-tab-active {
     border-bottom: 3px solid #10b981;
     color: #10b981 !important;
     background-color: #f0fdf4;
 }
 
-.tab-button {
+.tw-tab-button {
     transition: all 0.3s ease;
     cursor: pointer;
 }
 
-.tab-button:hover {
+.tw-tab-button:hover {
     background-color: #f0fdf4;
     color: #10b981;
 }
 
-.tab-content {
+.tw-tab-content {
     display: none !important;
 }
 
-.tab-content:not(.hidden) {
+.tw-tab-content:not(.hidden) {
     display: block !important;
 }
 

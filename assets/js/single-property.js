@@ -26,13 +26,13 @@ document.addEventListener('DOMContentLoaded', function() {
 // WORKING TAB FUNCTION - COPIED FROM YOUR WORKING HTML
 function switchTab(tabName) {
     // Hide all tab contents
-    document.querySelectorAll('.tab-content').forEach(content => {
+    document.querySelectorAll('.tw-tab-content').forEach(content => {
         content.classList.add('hidden');
     });
     
     // Remove active class from all buttons
-    document.querySelectorAll('.tab-button').forEach(button => {
-        button.classList.remove('tab-active');
+    document.querySelectorAll('.tw-tab-button').forEach(button => {
+        button.classList.remove('tw-tab-active');
         button.classList.add('text-gray-600');
     });
     
@@ -41,7 +41,7 @@ function switchTab(tabName) {
     
     // Add active class to clicked button
     const activeButton = document.querySelector(`[data-tab="${tabName}"]`);
-    activeButton.classList.add('tab-active');
+    activeButton.classList.add('tw-tab-active');
     activeButton.classList.remove('text-gray-600');
 
     // Location tab functionality (no map initialization needed)

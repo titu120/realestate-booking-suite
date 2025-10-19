@@ -402,31 +402,31 @@
 
                 <!-- Tabs Navigation -->
                 <div class="tw:bg-white tw:rounded-xl tw:shadow-sm tw:mb-6 no-print">
-                    <div class="tw:flex tw:overflow-x-auto tw:border-b tw:border-gray-200  tw:border-gray-200">
-                        <button onclick="switchTab('overview')" class="tab-button tab-active tw:px-6 tw:py-4 tw:font-semibold tw:whitespace-nowrap" data-tab="overview">
+                    <div class="tw:flex tw:overflow-x-auto tw:border-b tw:border-gray-200">
+                        <button onclick="switchTab('overview')" class="tw-tab-button tw-tab-active tw:px-6 tw:py-4 tw:font-semibold tw:whitespace-nowrap" data-tab="overview">
                             <i class="fas fa-home tw:mr-2"></i><?php esc_html_e('Overview', 'realestate-booking-suite'); ?>
                         </button>
-                        <button onclick="switchTab('pricing')" class="tab-button tw:px-6 tw:py-4 tw:font-semibold tw:text-gray-600 hover:tw:text-emerald-500 tw:whitespace-nowrap" data-tab="pricing">
+                        <button onclick="switchTab('pricing')" class="tw-tab-button tw:px-6 tw:py-4 tw:font-semibold tw:text-gray-600 hover:tw:text-emerald-500 tw:whitespace-nowrap" data-tab="pricing">
                             <i class="fas fa-dollar-sign tw:mr-2"></i><?php esc_html_e('Pricing', 'realestate-booking-suite'); ?>
                         </button>
-                        <button onclick="switchTab('specifications')" class="tab-button tw:px-6 tw:py-4 tw:font-semibold tw:text-gray-600 hover:tw:text-emerald-500 tw:whitespace-nowrap" data-tab="specifications">
+                        <button onclick="switchTab('specifications')" class="tw-tab-button tw:px-6 tw:py-4 tw:font-semibold tw:text-gray-600 hover:tw:text-emerald-500 tw:whitespace-nowrap" data-tab="specifications">
                             <i class="fas fa-list tw:mr-2"></i><?php esc_html_e('Specifications', 'realestate-booking-suite'); ?>
                         </button>
-                        <button onclick="switchTab('location')" class="tab-button tw:px-6 tw:py-4 tw:font-semibold tw:text-gray-600 hover:tw:text-emerald-500 tw:whitespace-nowrap" data-tab="location">
+                        <button onclick="switchTab('location')" class="tw-tab-button tw:px-6 tw:py-4 tw:font-semibold tw:text-gray-600 hover:tw:text-emerald-500 tw:whitespace-nowrap" data-tab="location">
                             <i class="fas fa-map-marker-alt tw:mr-2"></i><?php esc_html_e('Location', 'realestate-booking-suite'); ?>
                         </button>
-                        <button onclick="switchTab('features')" class="tab-button tw:px-6 tw:py-4 tw:font-semibold tw:text-gray-600 hover:tw:text-emerald-500 tw:whitespace-nowrap" data-tab="features">
+                        <button onclick="switchTab('features')" class="tw-tab-button tw:px-6 tw:py-4 tw:font-semibold tw:text-gray-600 hover:tw:text-emerald-500 tw:whitespace-nowrap" data-tab="features">
                             <i class="fas fa-check-circle tw:mr-2"></i><?php esc_html_e('Features', 'realestate-booking-suite'); ?>
                         </button>
-                        <button onclick="switchTab('media')" class="tab-button tw:px-6 tw:py-4 tw:font-semibold tw:text-gray-600 hover:tw:text-emerald-500 tw:whitespace-nowrap" data-tab="media">
+                        <button onclick="switchTab('media')" class="tw-tab-button tw:px-6 tw:py-4 tw:font-semibold tw:text-gray-600 hover:tw:text-emerald-500 tw:whitespace-nowrap" data-tab="media">
                             <i class="fas fa-image tw:mr-2"></i><?php esc_html_e('Media', 'realestate-booking-suite'); ?>
                         </button>
                         <?php if (! empty($floor_plans)): ?>
-                        <button onclick="switchTab('floorplan')" class="tab-button tw:px-6 tw:py-4 tw:font-semibold tw:text-gray-600 hover:tw:text-emerald-500 tw:whitespace-nowrap" data-tab="floorplan">
+                        <button onclick="switchTab('floorplan')" class="tw-tab-button tw:px-6 tw:py-4 tw:font-semibold tw:text-gray-600 hover:tw:text-emerald-500 tw:whitespace-nowrap" data-tab="floorplan">
                             <i class="fas fa-vector-square tw:mr-2"></i><?php esc_html_e('Floor Plan', 'realestate-booking-suite'); ?>
                         </button>
                         <?php endif; ?>
-                        <button onclick="switchTab('booking')" class="tab-button tw:px-6 tw:py-4 tw:font-semibold tw:text-gray-600 hover:tw:text-emerald-500 tw:whitespace-nowrap" data-tab="booking">
+                        <button onclick="switchTab('booking')" class="tw-tab-button tw:px-6 tw:py-4 tw:font-semibold tw:text-gray-600 hover:tw:text-emerald-500 tw:whitespace-nowrap" data-tab="booking">
                             <i class="fas fa-calendar tw:mr-2"></i><?php esc_html_e('Booking', 'realestate-booking-suite'); ?>
                         </button>
                     </div>
@@ -434,7 +434,7 @@
                     <!-- Tab Contents -->
                     <div class="tw:p-6">
                         <!-- Overview Tab -->
-                        <div id="overview-tab" class="tab-content">
+                        <div id="overview-tab" class="tw-tab-content">
                             <h3 class="tw:text-xl tw:font-bold tw:text-gray-800 tw:mb-4"><?php esc_html_e('Property Description', 'realestate-booking-suite'); ?></h3>
                             <div class="tw:text-gray-600 tw:space-y-4 tw:leading-relaxed">
                                 <?php
@@ -457,7 +457,7 @@
                         </div>
 
                         <!-- Pricing Tab -->
-                        <div id="pricing-tab" class="tab-content hidden">
+                        <div id="pricing-tab" class="tw-tab-content hidden">
                             <h3 class="tw:text-xl tw:font-bold tw:text-gray-800 tw:mb-4"><?php esc_html_e('Pricing Information', 'realestate-booking-suite'); ?></h3>
                             <div class="tw:grid tw:md:grid-cols-2 tw:gap-6">
                                 <div class="tw:space-y-4">
@@ -513,7 +513,7 @@
                         </div>
 
                         <!-- Specifications Tab -->
-                        <div id="specifications-tab" class="tab-content hidden">
+                        <div id="specifications-tab" class="tw-tab-content hidden">
                             <h3 class="tw:text-xl tw:font-bold tw:text-gray-800 tw:mb-4"><?php esc_html_e('Property Specifications', 'realestate-booking-suite'); ?></h3>
                             <div class="tw:grid tw:md:grid-cols-2 tw:gap-6">
                                 <div class="tw:space-y-3">
@@ -649,7 +649,7 @@
                         </div>
 
                         <!-- Details Tab -->
-                        <div id="details-tab" class="tab-content hidden">
+                        <div id="details-tab" class="tw-tab-content hidden">
                             <h3 class="tw:text-xl tw:font-bold tw:text-gray-800 tw:mb-4"><?php esc_html_e('Property Details', 'realestate-booking-suite'); ?></h3>
                             <div class="tw:grid tw:md:grid-cols-2 tw:gap-6">
                                 <div class="tw:space-y-3">
@@ -730,7 +730,7 @@
                         </div>
 
                         <!-- Features Tab -->
-                        <div id="features-tab" class="tab-content hidden">
+                        <div id="features-tab" class="tw-tab-content hidden">
                             <h3 class="tw:text-xl tw:font-bold tw:text-gray-800 tw:mb-4"><?php esc_html_e('Property Features & Amenities', 'realestate-booking-suite'); ?></h3>
 
                             <!-- Filter Buttons -->
@@ -835,7 +835,7 @@
                         </div>
 
                         <!-- Media Tab -->
-                        <div id="media-tab" class="tab-content hidden">
+                        <div id="media-tab" class="tw-tab-content hidden">
                             <h3 class="tw:text-xl tw:font-bold tw:text-gray-800 tw:mb-4"><?php esc_html_e('Property Media', 'realestate-booking-suite'); ?></h3>
 
                             <!-- Image Gallery -->
@@ -980,7 +980,7 @@
                         <?php endif; ?>
 
                         <!-- Location Tab -->
-                        <div id="location-tab" class="tab-content hidden">
+                        <div id="location-tab" class="tw-tab-content hidden">
                             <h3 class="tw:text-xl tw:font-bold tw:text-gray-800 tw:mb-4"><?php esc_html_e('Location & Nearby', 'realestate-booking-suite'); ?></h3>
 
 
@@ -1067,7 +1067,7 @@
                         </div>
 
                         <!-- Reviews Tab -->
-                        <div id="reviews-tab" class="tab-content hidden">
+                        <div id="reviews-tab" class="tw-tab-content hidden">
                             <h3 class="tw:text-xl tw:font-bold tw:text-gray-800 tw:mb-4"><?php esc_html_e('Property Reviews & Ratings', 'realestate-booking-suite'); ?></h3>
 
                             <!-- Overall Rating -->
@@ -1094,7 +1094,7 @@
                         </div>
 
                         <!-- Booking Tab -->
-                        <div id="booking-tab" class="tab-content hidden">
+                        <div id="booking-tab" class="tw-tab-content hidden">
                             <h3 class="tw:text-xl tw:font-bold tw:text-gray-800 tw:mb-4"><?php esc_html_e('Schedule a Viewing', 'realestate-booking-suite'); ?></h3>
 
                             <div class="tw:grid tw:md:grid-cols-2 tw:gap-8">
