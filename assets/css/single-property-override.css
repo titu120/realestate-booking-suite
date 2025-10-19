@@ -1,0 +1,92 @@
+/* Single Property Page - CSS Override for Theme Conflicts */
+
+/* Target specific elements that might conflict with theme */
+.single-property-container h1,
+.single-property-container h2,
+.single-property-container h3,
+.single-property-container h4,
+.single-property-container h5,
+.single-property-container h6 {
+  margin: 0 !important;
+  padding: 0 !important;
+  font-weight: inherit !important;
+  line-height: inherit !important;
+  color: inherit !important;
+}
+
+.single-property-container p {
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: inherit !important;
+}
+
+.single-property-container div {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.single-property-container span {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.single-property-container button {
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  background: none !important;
+  font: inherit !important;
+  cursor: pointer !important;
+}
+
+.single-property-container input,
+.single-property-container textarea {
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  background: none !important;
+  font: inherit !important;
+  outline: none !important;
+}
+
+/* Override common theme button styles */
+.single-property-container .btn,
+.single-property-container button[class*="btn"] {
+  all: unset !important;
+  display: inline-block !important;
+  cursor: pointer !important;
+}
+
+/* Override common theme form styles */
+.single-property-container .form-control,
+.single-property-container input[class*="form"] {
+  all: unset !important;
+  display: block !important;
+}
+
+/* Override common theme card styles */
+.single-property-container .card,
+.single-property-container [class*="card"] {
+  all: unset !important;
+  display: block !important;
+}
+
+/* Override common theme container styles */
+.single-property-container .container,
+.single-property-container [class*="container"] {
+  all: unset !important;
+  display: block !important;
+}
+
+/* Override common theme row/col styles */
+.single-property-container .row,
+.single-property-container .col,
+.single-property-container [class*="col-"] {
+  all: unset !important;
+  display: block !important;
+}
+
+/* Ensure Tailwind classes work */
+.single-property-container [class*="tw:"] {
+  /* Let Tailwind handle these */
+}

@@ -269,6 +269,7 @@
 <link rel="stylesheet" href="<?php echo plugin_dir_url(__FILE__) . '../assets/css/single-property.css'; ?>">
 <script src="<?php echo plugin_dir_url(__FILE__) . '../assets/js/single-property.js'; ?>"></script>
 <link rel="stylesheet" href="<?php echo plugin_dir_url(__FILE__) . '../assets/css/tailwind.css'; ?>">
+<link rel="stylesheet" href="<?php echo plugin_dir_url(__FILE__) . '../assets/css/single-property-override.css'; ?>">
 
 
 <div class="single-property-container tw:bg-gray-50">
