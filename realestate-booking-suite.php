@@ -60,8 +60,66 @@ function resbs_enqueue_assets() {
             array(),
             '1.0.0'
         );
+        
+        // Enqueue Single Property CSS
+        wp_enqueue_style(
+            'resbs-single-property',
+            RESBS_URL . 'assets/css/single-property.css',
+            array(),
+            '1.0.0'
+        );
+        
+        // Enqueue Tailwind CSS
+        wp_enqueue_style(
+            'resbs-tailwind',
+            RESBS_URL . 'assets/css/tailwind.css',
+            array(),
+            '1.0.0'
+        );
+        
+        // Enqueue Single Property Override CSS
+        wp_enqueue_style(
+            'resbs-single-property-override',
+            RESBS_URL . 'assets/css/single-property-override.css',
+            array(),
+            '1.0.0'
+        );
+    
+        // Enqueue Single Property Override CSS
+        wp_enqueue_style(
+            'fontawesome-minfied-css',
+            RESBS_URL . 'assets/css/all.min.css',
+            array(),
+            '1.0.0'
+        );
+        // Enqueue Single Property Override CSS
+        wp_enqueue_style(
+            'leaflet-css',
+            RESBS_URL . 'assets/css/leaflet.css',
+            array(),
+            '1.0.0'
+        );
     
 
+        
+        // Enqueue Single Property JS
+        wp_enqueue_script(
+            'leaflet-js',
+            RESBS_URL . 'assets/js/leaflet.js',
+            array('jquery'),
+            '1.0.0',
+            true
+        );
+
+        
+        // Enqueue Single Property JS
+        wp_enqueue_script(
+            'resbs-single-property',
+            RESBS_URL . 'assets/js/single-property.js',
+            array('jquery'),
+            '1.0.0',
+            true
+        );
         
         // Enqueue Enhanced Single Property JS
         wp_enqueue_script(
@@ -109,6 +167,7 @@ function resbs_enqueue_assets() {
                 'nonce' => wp_create_nonce('contact_message_nonce')
             );
             
+            wp_localize_script('resbs-single-property', 'resbsPropertyData', $script_data);
             wp_localize_script('resbs-single-property-enhanced', 'resbsPropertyData', $script_data);
         }
 }

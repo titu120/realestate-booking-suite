@@ -261,22 +261,12 @@
     $property_title = get_the_title();
 ?>
 
-<!-- External CSS and JS -->
-<!-- <script src="https://cdn.tailwindcss.com"></script> -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<link rel="stylesheet" href="<?php echo plugin_dir_url(__FILE__) . '../assets/css/single-property.css'; ?>">
-<script src="<?php echo plugin_dir_url(__FILE__) . '../assets/js/single-property.js'; ?>"></script>
-<link rel="stylesheet" href="<?php echo plugin_dir_url(__FILE__) . '../assets/css/tailwind.css'; ?>">
-<link rel="stylesheet" href="<?php echo plugin_dir_url(__FILE__) . '../assets/css/single-property-override.css'; ?>">
 
-
-<div class="single-property-container tw:bg-gray-50">
 
 
 
 
+<div class="single-property-container tw:bg-gray-50">
     <div class="tw:container tw:mx-auto tw:px-4 tw:py-8">
 
         <div class="tw:grid tw:grid-cols-1 tw:lg:grid-cols-3 tw:gap-8">
@@ -1583,11 +1573,7 @@
                         </div>
                     </div>
                 </div>
-
             </div>
-
-
-
         </div>
     </div>
 
@@ -1640,7 +1626,7 @@
         </div>
     </div>
 
-    <!-- PHP variables are now passed via wp_localize_script in the main plugin file -->
-
-
 </div>
+
+
+<?php get_footer(); ?>
