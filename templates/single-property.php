@@ -4,7 +4,7 @@
      * Converts static HTML to dynamic WordPress content
      */
 
-     get_header();
+    get_header();
 
     // Get the current property ID
     $property_id = get_the_ID();
@@ -263,9 +263,6 @@
 
 
 
-
-
-
 <div class="single-property-container tw:bg-gray-50">
     <div class="tw:container tw:mx-auto tw:px-4 tw:py-8">
 
@@ -339,17 +336,17 @@
                         <?php foreach ($gallery_images as $index => $image_url): ?>
                             <?php if ($index === 0): ?>
                             <div class="tw:col-span-4 tw:md:col-span-2 tw:md:row-span-2">
-                                <img src="<?php echo esc_url($image_url); ?>" alt="Property Main" class="tw:w-full tw:h-full tw:object-cover tw:rounded-lg tw:cursor-pointer gallery-img" onclick="openImageViewer(<?php echo $index; ?>)">
+                                <img src="<?php echo esc_url($image_url); ?>" alt="<?php esc_attr_e('Property Main', 'realestate-booking-suite'); ?>" class="tw:w-full tw:h-full tw:object-cover tw:rounded-lg tw:cursor-pointer gallery-img" onclick="openImageViewer(<?php echo $index; ?>)">
                             </div>
                             <?php elseif ($index < 5): ?>
                             <div class="tw:col-span-2 tw:md:col-span-1">
-                                <img src="<?php echo esc_url($image_url); ?>" alt="Property" class="tw:w-full tw:h-full tw:object-cover tw:rounded-lg tw:cursor-pointer gallery-img" onclick="openImageViewer(<?php echo $index; ?>)">
+                                <img src="<?php echo esc_url($image_url); ?>" alt="<?php esc_attr_e('Property', 'realestate-booking-suite'); ?>" class="tw:w-full tw:h-full tw:object-cover tw:rounded-lg tw:cursor-pointer gallery-img" onclick="openImageViewer(<?php echo $index; ?>)">
                             </div>
                             <?php elseif ($index === 5): ?>
                             <div class="tw:col-span-2 tw:md:col-span-1 tw:relative">
-                                <img src="<?php echo esc_url($image_url); ?>" alt="Property" class="tw:w-full tw:h-full tw:object-cover tw:rounded-lg tw:cursor-pointer gallery-img" onclick="openImageViewer(<?php echo $index; ?>)">
+                                <img src="<?php echo esc_url($image_url); ?>" alt="<?php esc_attr_e('Property', 'realestate-booking-suite'); ?>" class="tw:w-full tw:h-full tw:object-cover tw:rounded-lg tw:cursor-pointer gallery-img" onclick="openImageViewer(<?php echo $index; ?>)">
                                 <div class="tw:absolute tw:inset-0 tw:bg-black tw:bg-opacity-50 tw:rounded-lg tw:flex tw:items-center tw:justify-center tw:cursor-pointer" onclick="openImageViewer(<?php echo $index; ?>)">
-                                    <span class="tw:text-white tw:text-xl tw:font-semibold">+<?php echo count($gallery_images) - 5; ?> More</span>
+                                    <span class="tw:text-white tw:text-xl tw:font-semibold">+<?php echo count($gallery_images) - 5; ?> <?php esc_html_e('More', 'realestate-booking-suite'); ?></span>
                                 </div>
                             </div>
                             <?php endif; ?>
@@ -496,8 +493,6 @@
                                             </div>
                                         </div>
                                     </div>
-
-
                                 </div>
                             </div>
                         </div>
@@ -730,14 +725,14 @@
                                 <button onclick="filterAmenities('amenities')" class="filter-btn tw:px-4 tw:py-2 tw:bg-gray-100 tw:text-gray-700 tw:rounded-lg tw:font-semibold tw:text-sm hover:tw:bg-gray-200 tw:transition" data-filter="amenities"><?php esc_html_e('Amenities', 'realestate-booking-suite'); ?></button>
                             </div>
 
-                  
+
                             <div class="tw:mb-8" data-category="interior">
                                 <h4 class="tw:text-lg tw:font-semibold tw:text-gray-800 tw:mb-4 tw:flex tw:items-center">
                                     <i class="fas fa-home tw:text-emerald-500 tw:mr-2"></i><?php esc_html_e('Property Features', 'realestate-booking-suite'); ?>
                                 </h4>
 
                                 <div class="tw:grid tw:md:grid-cols-2 tw:lg:grid-cols-3 tw:gap-4" id="featuresContainer">
-                                  
+
 
 
                                     <!-- Custom Features from Database -->
@@ -752,7 +747,7 @@
                                 </div>
                             </div>
 
-                            <!--                                 <?php esc_html_e('Property Amenities', 'realestate-booking-suite'); ?> Section -->
+                                                       <?php esc_html_e('Property Amenities', 'realestate-booking-suite'); ?>
                             <div class="tw:mb-8" data-category="amenities">
                                 <h4 class="tw:text-lg tw:font-semibold tw:text-gray-800 tw:mb-4 tw:flex tw:items-center">
                                     <i class="fas fa-concierge-bell tw:text-emerald-500 tw:mr-2"></i><?php esc_html_e('Property Amenities', 'realestate-booking-suite'); ?>
@@ -1095,20 +1090,20 @@
                                         <div class="tw:grid tw:md:grid-cols-2 tw:gap-4">
                                             <div>
                                                 <label class="tw:block tw:text-sm tw:font-medium tw:text-gray-700 tw:mb-2"><?php esc_html_e('First Name', 'realestate-booking-suite'); ?></label>
-                                                <input type="text" name="first_name" id="booking_first_name" required class="tw:w-full tw:px-4 tw:py-2 tw:border tw:border-gray-300 tw:rounded-lg focus:tw:outline-none focus:tw:ring-2 focus:tw:ring-emerald-500" placeholder="Enter your first name">
+                                                <input type="text" name="first_name" id="booking_first_name" required class="tw:w-full tw:px-4 tw:py-2 tw:border tw:border-gray-300 tw:rounded-lg focus:tw:outline-none focus:tw:ring-2 focus:tw:ring-emerald-500" placeholder="<?php esc_attr_e('Enter your first name', 'realestate-booking-suite'); ?>">
                                             </div>
                                             <div>
                                                 <label class="tw:block tw:text-sm tw:font-medium tw:text-gray-700 tw:mb-2"><?php esc_html_e('Last Name', 'realestate-booking-suite'); ?></label>
-                                                <input type="text" name="last_name" id="booking_last_name" required class="tw:w-full tw:px-4 tw:py-2 tw:border tw:border-gray-300 tw:rounded-lg focus:tw:outline-none focus:tw:ring-2 focus:tw:ring-emerald-500" placeholder="Enter your last name">
+                                                <input type="text" name="last_name" id="booking_last_name" required class="tw:w-full tw:px-4 tw:py-2 tw:border tw:border-gray-300 tw:rounded-lg focus:tw:outline-none focus:tw:ring-2 focus:tw:ring-emerald-500" placeholder="<?php esc_attr_e('Enter your last name', 'realestate-booking-suite'); ?>">
                                             </div>
                                         </div>
                                         <div>
                                             <label class="tw:block tw:text-sm tw:font-medium tw:text-gray-700 tw:mb-2"><?php esc_html_e('Email', 'realestate-booking-suite'); ?></label>
-                                            <input type="email" name="email" id="booking_email" required class="tw:w-full tw:px-4 tw:py-2 tw:border tw:border-gray-300 tw:rounded-lg focus:tw:outline-none focus:tw:ring-2 focus:tw:ring-emerald-500" placeholder="your.email@example.com">
+                                            <input type="email" name="email" id="booking_email" required class="tw:w-full tw:px-4 tw:py-2 tw:border tw:border-gray-300 tw:rounded-lg focus:tw:outline-none focus:tw:ring-2 focus:tw:ring-emerald-500" placeholder="<?php esc_attr_e('your.email@example.com', 'realestate-booking-suite'); ?>">
                                         </div>
                                         <div>
                                             <label class="tw:block tw:text-sm tw:font-medium tw:text-gray-700 tw:mb-2"><?php esc_html_e('Phone', 'realestate-booking-suite'); ?></label>
-                                            <input type="tel" name="phone" id="booking_phone" required class="tw:w-full tw:px-4 tw:py-2 tw:border tw:border-gray-300 tw:rounded-lg focus:tw:outline-none focus:tw:ring-2 focus:tw:ring-emerald-500" placeholder="(555) 123-4567">
+                                            <input type="tel" name="phone" id="booking_phone" required class="tw:w-full tw:px-4 tw:py-2 tw:border tw:border-gray-300 tw:rounded-lg focus:tw:outline-none focus:tw:ring-2 focus:tw:ring-emerald-500" placeholder="<?php esc_attr_e('(555) 123-4567', 'realestate-booking-suite'); ?>">
                                         </div>
                                         <div class="tw:grid tw:md:grid-cols-2 tw:gap-4">
                                             <div>
@@ -1160,7 +1155,7 @@
                                         </div>
                                         <div>
                                             <label class="tw:block tw:text-sm tw:font-medium tw:text-gray-700 tw:mb-2"><?php esc_html_e('Message', 'realestate-booking-suite'); ?> (<?php esc_html_e('Optional', 'realestate-booking-suite'); ?>)</label>
-                                            <textarea name="message" id="booking_message" rows="3" class="tw:w-full tw:px-4 tw:py-2 tw:border tw:border-gray-300 tw:rounded-lg focus:tw:outline-none focus:tw:ring-2 focus:tw:ring-emerald-500" placeholder="Any specific questions or requirements..."></textarea>
+                                            <textarea name="message" id="booking_message" rows="3" class="tw:w-full tw:px-4 tw:py-2 tw:border tw:border-gray-300 tw:rounded-lg focus:tw:outline-none focus:tw:ring-2 focus:tw:ring-emerald-500" placeholder="<?php esc_attr_e('Any specific questions or requirements...', 'realestate-booking-suite'); ?>"></textarea>
                                         </div>
                                         <input type="hidden" name="property_id" value="<?php echo esc_attr($property_id); ?>">
                                         <input type="hidden" name="action" value="resbs_submit_booking">
@@ -1224,7 +1219,7 @@
                                         </div>
                                     </div>
 
- 
+
                                 </div>
                             </div>
                         </div>
@@ -1490,20 +1485,20 @@
                             </div>
                         </div>
                         <div>
-                            <label class="tw:block tw:text-sm tw:font-medium tw:text-gray-700 tw:mb-2"><?php echo esc_html($mortgage_down_payment_label ?: 'Down Payment (%)'); ?></label>
+                            <label class="tw:block tw:text-sm tw:font-medium tw:text-gray-700 tw:mb-2"><?php echo esc_html($mortgage_down_payment_label ?: __('Down Payment (%)', 'realestate-booking-suite')); ?></label>
                             <input type="range" id="downPayment" min="0" max="100" value="<?php echo esc_attr($mortgage_default_down_payment ?: '20'); ?>" class="tw:w-full" oninput="document.getElementById('downPaymentValue').textContent = this.value + '%'; calculateMortgageNow();">
                             <div class="tw:flex tw:justify-between tw:text-sm tw:text-gray-600">
-                                <span>0%</span>
+                                <span><?php esc_html_e('0%', 'realestate-booking-suite'); ?></span>
                                 <span id="downPaymentValue" class="tw:font-semibold tw:text-emerald-600"><?php echo esc_html($mortgage_default_down_payment ?: '20'); ?>%</span>
-                                <span>100%</span>
+                                <span><?php esc_html_e('100%', 'realestate-booking-suite'); ?></span>
                             </div>
                         </div>
                         <div>
-                            <label class="tw:block tw:text-sm tw:font-medium tw:text-gray-700 tw:mb-2"><?php echo esc_html($mortgage_interest_rate_label ?: 'Interest Rate (%)'); ?></label>
+                            <label class="tw:block tw:text-sm tw:font-medium tw:text-gray-700 tw:mb-2"><?php echo esc_html($mortgage_interest_rate_label ?: __('Interest Rate (%)', 'realestate-booking-suite')); ?></label>
                             <input type="number" id="interestRate" value="<?php echo esc_attr($mortgage_default_interest_rate ?: '6.5'); ?>" step="0.1" class="tw:w-full tw:px-4 tw:py-2 tw:border tw:border-gray-300 tw:rounded-lg focus:tw:outline-none focus:tw:ring-2 focus:tw:ring-emerald-500" placeholder="<?php echo esc_attr('6.5'); ?>" onkeyup="calculateMortgageNow()" onchange="calculateMortgageNow()">
                         </div>
                         <div>
-                            <label class="tw:block tw:text-sm tw:font-medium tw:text-gray-700 tw:mb-2"><?php echo esc_html($mortgage_loan_term_label ?: 'Loan Term (Years)'); ?></label>
+                            <label class="tw:block tw:text-sm tw:font-medium tw:text-gray-700 tw:mb-2"><?php echo esc_html($mortgage_loan_term_label ?: __('Loan Term (Years)', 'realestate-booking-suite')); ?></label>
                             <select id="loanTerm" class="tw:w-full tw:px-4 tw:py-2 tw:border tw:border-gray-300 tw:rounded-lg focus:tw:outline-none focus:tw:ring-2 focus:tw:ring-emerald-500" onchange="calculateMortgageNow()">
                                 <?php
                                     $loan_terms_array = explode("\n", $mortgage_loan_terms ?: "15\n20\n30");
@@ -1511,64 +1506,22 @@
                                         $term = trim($term);
                                         if (! empty($term)) {
                                             $selected = ($term == ($mortgage_default_loan_term ?: '30')) ? 'selected' : '';
-                                            echo '<option value="' . esc_attr($term) . '" ' . $selected . '>' . esc_html($term) . ' Years</option>';
+                                            echo '<option value="' . esc_attr($term) . '" ' . $selected . '>' . esc_html($term) . ' ' . esc_html__('Years', 'realestate-booking-suite') . '</option>';
                                         }
                                     }
                                 ?>
                             </select>
                         </div>
                         <div class="tw:bg-emerald-50 tw:rounded-lg tw:p-4 tw:mt-4">
-                            <p class="tw:text-sm tw:text-gray-600 tw:mb-1"><?php echo esc_html($mortgage_monthly_payment_label ?: 'Estimated Monthly Payment'); ?></p>
+                            <p class="tw:text-sm tw:text-gray-600 tw:mb-1"><?php echo esc_html($mortgage_monthly_payment_label ?: __('Estimated Monthly Payment', 'realestate-booking-suite')); ?></p>
                             <p class="tw:text-3xl tw:font-bold tw:text-emerald-600" id="monthlyPayment">$0</p>
-                            <p class="tw:text-xs tw:text-gray-500 tw:mt-2"><?php echo esc_html($mortgage_disclaimer_text ?: '*Principal & Interest only'); ?></p>
+                            <p class="tw:text-xs tw:text-gray-500 tw:mt-2"><?php echo esc_html($mortgage_disclaimer_text ?: __('*Principal & Interest only', 'realestate-booking-suite')); ?></p>
                         </div>
 
                         <!-- Calculate Button -->
                         <div class="tw:mt-4">
-                            <button type="button" onclick="
-                                console.log('Button clicked!');
-
-                                // Get values
-                                var price = document.getElementById('propertyPrice').value;
-                                var downPayment = document.getElementById('downPayment').value;
-                                var interestRate = document.getElementById('interestRate').value;
-                                var loanTerm = document.getElementById('loanTerm').value;
-
-                                console.log('Input values:', {price: price, downPayment: downPayment, interestRate: interestRate, loanTerm: loanTerm});
-
-                                // Convert to numbers
-                                price = parseFloat(price) || 0;
-                                downPayment = parseFloat(downPayment) || 0;
-                                interestRate = parseFloat(interestRate) || 0;
-                                loanTerm = parseFloat(loanTerm) || 30;
-
-                                // Handle very low property prices
-                                if (price < 1000) {
-                                    console.log('Property price too low for realistic calculation:', price);
-                                    document.getElementById('monthlyPayment').textContent = '$0';
-                                    return;
-                                }
-
-                                // Calculate
-                                var downPaymentAmount = (price * downPayment) / 100;
-                                var loanAmount = price - downPaymentAmount;
-                                var monthlyRate = interestRate / 100 / 12;
-                                var numberOfPayments = loanTerm * 12;
-
-                                var monthlyPayment = 0;
-                                if (monthlyRate > 0 && loanAmount > 0) {
-                                    monthlyPayment = loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, numberOfPayments)) / (Math.pow(1 + monthlyRate, numberOfPayments) - 1);
-                                } else if (loanAmount > 0) {
-                                    monthlyPayment = loanAmount / numberOfPayments;
-                                }
-
-                                console.log('Calculation result:', monthlyPayment);
-
-                                // Display result
-                                document.getElementById('monthlyPayment').textContent = '$' + Math.round(monthlyPayment).toLocaleString();
-                                console.log('Display updated to:', document.getElementById('monthlyPayment').textContent);
-                            " class="tw:w-full tw:bg-emerald-500 tw:text-white tw:py-3 tw:px-4 tw:rounded-lg hover:tw:bg-emerald-600 tw:transition tw:font-semibold">
-                                <i class="fas fa-calculator tw:mr-2"></i>Calculate Mortgage
+                            <button type="button" onclick="calculateMortgagePayment()" class="tw:w-full tw:bg-emerald-500 tw:text-white tw:py-3 tw:px-4 tw:rounded-lg hover:tw:bg-emerald-600 tw:transition tw:font-semibold">
+                                <i class="fas fa-calculator tw:mr-2"></i><?php esc_html_e('Calculate Mortgage', 'realestate-booking-suite'); ?>
                             </button>
                         </div>
                     </div>
@@ -1604,23 +1557,23 @@
             </div>
             <form onsubmit="submitContactForm(event)" class="tw:space-y-4">
                 <div>
-                    <label class="tw:block tw:text-sm tw:font-medium tw:text-gray-700 tw:mb-2"><?php echo esc_html($contact_name_label ?: 'Your Name'); ?></label>
+                    <label class="tw:block tw:text-sm tw:font-medium tw:text-gray-700 tw:mb-2"><?php echo esc_html($contact_name_label ?: __('Your Name', 'realestate-booking-suite')); ?></label>
                     <input type="text" name="contact_name" required class="tw:w-full tw:px-4 tw:py-2 tw:border tw:border-gray-300 tw:rounded-lg focus:tw:outline-none focus:tw:ring-2 focus:tw:ring-emerald-500" placeholder="<?php esc_attr_e('Enter your full name', 'realestate-booking-suite'); ?>">
                 </div>
                 <div>
-                    <label class="tw:block tw:text-sm tw:font-medium tw:text-gray-700 tw:mb-2"><?php echo esc_html($contact_email_label ?: 'Email'); ?></label>
+                    <label class="tw:block tw:text-sm tw:font-medium tw:text-gray-700 tw:mb-2"><?php echo esc_html($contact_email_label ?: __('Email', 'realestate-booking-suite')); ?></label>
                     <input type="email" name="contact_email" required class="tw:w-full tw:px-4 tw:py-2 tw:border tw:border-gray-300 tw:rounded-lg focus:tw:outline-none focus:tw:ring-2 focus:tw:ring-emerald-500" placeholder="<?php esc_attr_e('your.email@example.com', 'realestate-booking-suite'); ?>">
                 </div>
                 <div>
-                    <label class="tw:block tw:text-sm tw:font-medium tw:text-gray-700 tw:mb-2"><?php echo esc_html($contact_phone_label ?: 'Phone'); ?></label>
+                    <label class="tw:block tw:text-sm tw:font-medium tw:text-gray-700 tw:mb-2"><?php echo esc_html($contact_phone_label ?: __('Phone', 'realestate-booking-suite')); ?></label>
                     <input type="tel" name="contact_phone" required class="tw:w-full tw:px-4 tw:py-2 tw:border tw:border-gray-300 tw:rounded-lg focus:tw:outline-none focus:tw:ring-2 focus:tw:ring-emerald-500" placeholder="<?php esc_attr_e('(555) 123-4567', 'realestate-booking-suite'); ?>">
                 </div>
                 <div>
-                    <label class="tw:block tw:text-sm tw:font-medium tw:text-gray-700 tw:mb-2"><?php echo esc_html($contact_message_label ?: 'Message'); ?></label>
+                    <label class="tw:block tw:text-sm tw:font-medium tw:text-gray-700 tw:mb-2"><?php echo esc_html($contact_message_label ?: __('Message', 'realestate-booking-suite')); ?></label>
                     <textarea name="contact_message" rows="4" required class="tw:w-full tw:px-4 tw:py-2 tw:border tw:border-gray-300 tw:rounded-lg focus:tw:outline-none focus:tw:ring-2 focus:tw:ring-emerald-500" placeholder="<?php esc_attr_e('Tell us about your interest in this property...', 'realestate-booking-suite'); ?>"></textarea>
                 </div>
                 <button type="submit" class="tw:w-full tw:bg-emerald-500 tw:text-white tw:py-3 tw:rounded-lg hover:tw:bg-emerald-600 tw:transition tw:font-semibold">
-                    <?php echo esc_html($contact_submit_text ?: 'Send Message'); ?>
+                    <?php echo esc_html($contact_submit_text ?: __('Send Message', 'realestate-booking-suite')); ?>
                 </button>
             </form>
         </div>

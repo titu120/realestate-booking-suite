@@ -130,6 +130,15 @@ function resbs_enqueue_assets() {
             true
         );
         
+        // Enqueue Mortgage Calculator JS
+        wp_enqueue_script(
+            'resbs-mortgage-calculator',
+            RESBS_URL . 'assets/js/mortgage-calculator.js',
+            array('jquery'),
+            '1.0.0',
+            true
+        );
+        
         // Localize script for single property template
         if (is_singular('property') || (isset($_GET['property_id']) && $_GET['property_id'])) {
             // Get property data for localization

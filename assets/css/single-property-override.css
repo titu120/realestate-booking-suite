@@ -67,6 +67,7 @@
 .single-property-container [class*="card"] {
   all: unset !important;
   display: block !important;
+  cursor: pointer !important;
 }
 
 /* Override common theme container styles */
