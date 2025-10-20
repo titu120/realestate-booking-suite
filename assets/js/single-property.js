@@ -59,6 +59,7 @@ function toggleMobileMenu() {
 // Filter Amenities
 function filterAmenities(category) {
     const items = document.querySelectorAll('.amenity-item');
+    const sections = document.querySelectorAll('[data-category]');
     const buttons = document.querySelectorAll('.filter-btn');
     
     // Update button styles
@@ -76,6 +77,15 @@ function filterAmenities(category) {
             item.style.display = 'block';
         } else {
             item.style.display = 'none';
+        }
+    });
+    
+    // Filter section titles
+    sections.forEach(section => {
+        if (category === 'all' || section.dataset.category === category) {
+            section.style.display = 'block';
+        } else {
+            section.style.display = 'none';
         }
     });
 }

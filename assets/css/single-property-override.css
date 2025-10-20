@@ -33,8 +33,6 @@
 .single-property-container button {
   margin: 0 !important;
   padding: 0 !important;
-  border: none !important;
-  background: none !important;
   font: inherit !important;
   cursor: pointer !important;
 }

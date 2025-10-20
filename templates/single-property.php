@@ -740,8 +740,8 @@
                                 <button onclick="filterAmenities('amenities')" class="filter-btn tw:px-4 tw:py-2 tw:bg-gray-100 tw:text-gray-700 tw:rounded-lg tw:font-semibold tw:text-sm hover:tw:bg-gray-200 tw:transition" data-filter="amenities"><?php esc_html_e('Amenities', 'realestate-booking-suite'); ?></button>
                             </div>
 
-                            <?php esc_html_e('Property Features', 'realestate-booking-suite'); ?>
-                            <div class="tw:mb-8">
+                  
+                            <div class="tw:mb-8" data-category="interior">
                                 <h4 class="tw:text-lg tw:font-semibold tw:text-gray-800 tw:mb-4 tw:flex tw:items-center">
                                     <i class="fas fa-home tw:text-emerald-500 tw:mr-2"></i><?php esc_html_e('Property Features', 'realestate-booking-suite'); ?>
                                 </h4>
@@ -763,7 +763,7 @@
                             </div>
 
                             <!--                                 <?php esc_html_e('Property Amenities', 'realestate-booking-suite'); ?> Section -->
-                            <div class="tw:mb-8">
+                            <div class="tw:mb-8" data-category="amenities">
                                 <h4 class="tw:text-lg tw:font-semibold tw:text-gray-800 tw:mb-4 tw:flex tw:items-center">
                                     <i class="fas fa-concierge-bell tw:text-emerald-500 tw:mr-2"></i><?php esc_html_e('Property Amenities', 'realestate-booking-suite'); ?>
                                 </h4>
@@ -1234,50 +1234,7 @@
                                         </div>
                                     </div>
 
-                                    <!-- Quick Actions -->
-                                    <div class="tw:bg-gray-50 tw:rounded-lg tw:p-6">
-                                        <h4 class="tw:text-lg tw:font-semibold tw:text-gray-800 tw:mb-4"><?php esc_html_e('Quick Actions', 'realestate-booking-suite'); ?></h4>
-                                        <div class="tw:space-y-3">
-                                            <?php
-                                                // Get dynamic quick actions from settings
-                                                $quick_actions = get_option('resbs_quick_actions', []);
-
-                                                // Default actions if none configured
-                                                if (empty($quick_actions)) {
-                                                    $quick_actions = [
-                                                        [
-                                                            'title'   => 'Send Message',
-                                                            'icon'    => 'fas fa-envelope',
-                                                            'action'  => 'openContactModal()',
-                                                            'style'   => 'bg-gray-700 text-white hover:bg-gray-800',
-                                                            'enabled' => true,
-                                                        ],
-                                                        [
-                                                            'title'   => 'Share Property',
-                                                            'icon'    => 'fas fa-share-alt',
-                                                            'action'  => 'shareProperty()',
-                                                            'style'   => 'border-2 border-emerald-500 text-emerald-500 hover:bg-emerald-50',
-                                                            'enabled' => true,
-                                                        ],
-                                                    ];
-                                                }
-
-                                                // Display configured actions
-                                                foreach ($quick_actions as $action) {
-                                                    if (isset($action['enabled']) && $action['enabled']) {
-                                                        $icon    = isset($action['icon']) ? $action['icon'] : 'fas fa-circle';
-                                                        $title   = isset($action['title']) ? $action['title'] : 'Action';
-                                                        $onclick = isset($action['action']) ? $action['action'] : '';
-                                                        $style   = isset($action['style']) ? $action['style'] : 'bg-gray-700 text-white hover:bg-gray-800';
-
-                                                        echo '<button onclick="' . esc_attr($onclick) . '" class="tw:w-full tw:flex tw:items-center tw:justify-center tw:px-4 tw:py-3 ' . esc_attr($style) . ' tw:rounded-lg tw:transition">';
-                                                        echo '<i class="' . esc_attr($icon) . ' tw:mr-2"></i>' . esc_html($title);
-                                                        echo '</button>';
-                                                    }
-                                                }
-                                            ?>
-                                        </div>
-                                    </div>
+ 
                                 </div>
                             </div>
                         </div>
@@ -1461,7 +1418,7 @@
                                 <div class="tw:absolute tw:inset-y-0 tw:left-0 tw:pl-3 tw:flex tw:items-center tw:pointer-events-none">
                                     <span class="tw:text-gray-500 tw:sm:text-sm">$</span>
                                 </div>
-                                <input type="number" id="propertyPrice" value="<?php echo esc_attr($price ?: '500000'); ?>" class="tw:w-full tw:pl-8 tw:pr-4 tw:py-2 tw:border tw:border-gray-300 tw:rounded-lg focus:tw:outline-none focus:tw:ring-2 focus:tw:ring-emerald-500" placeholder="500000" onkeyup="
+                                <input type="number" id="propertyPrice" value="<?php echo esc_attr($price ?: '500000'); ?>" class="tw:w-full tw:pl-8 tw:pr-4 tw:py-2 tw:border tw:border-gray-300 tw:rounded-lg focus:tw:outline-none focus:tw:ring-2 focus:tw:ring-emerald-500" placeholder="<?php echo esc_attr('500000'); ?>" onkeyup="
                                     console.log('Property price changed to:', this.value);
 
                                     // Get all values
@@ -1553,7 +1510,7 @@
                         </div>
                         <div>
                             <label class="tw:block tw:text-sm tw:font-medium tw:text-gray-700 tw:mb-2"><?php echo esc_html($mortgage_interest_rate_label ?: 'Interest Rate (%)'); ?></label>
-                            <input type="number" id="interestRate" value="<?php echo esc_attr($mortgage_default_interest_rate ?: '6.5'); ?>" step="0.1" class="tw:w-full tw:px-4 tw:py-2 tw:border tw:border-gray-300 tw:rounded-lg focus:tw:outline-none focus:tw:ring-2 focus:tw:ring-emerald-500" placeholder="6.5" onkeyup="calculateMortgageNow()" onchange="calculateMortgageNow()">
+                            <input type="number" id="interestRate" value="<?php echo esc_attr($mortgage_default_interest_rate ?: '6.5'); ?>" step="0.1" class="tw:w-full tw:px-4 tw:py-2 tw:border tw:border-gray-300 tw:rounded-lg focus:tw:outline-none focus:tw:ring-2 focus:tw:ring-emerald-500" placeholder="<?php echo esc_attr('6.5'); ?>" onkeyup="calculateMortgageNow()" onchange="calculateMortgageNow()">
                         </div>
                         <div>
                             <label class="tw:block tw:text-sm tw:font-medium tw:text-gray-700 tw:mb-2"><?php echo esc_html($mortgage_loan_term_label ?: 'Loan Term (Years)'); ?></label>
