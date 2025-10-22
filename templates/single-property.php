@@ -298,11 +298,13 @@
     line-height: 1.6;
 }
 
-/* Layout */
+/* Layout - Simple Background */
 .single-property .main-single-container {
     max-width: 1536px;
     margin: 0 auto;
     padding: 0 1rem;
+    background: #f9fafb;
+    min-height: 100vh;
 }
 
 .single-property .grid {
@@ -330,7 +332,7 @@
 
 @media (min-width: 1024px) {
     .single-property .lg-grid-cols-3 {
-        grid-template-columns: 2fr 1fr;
+        grid-template-columns: 1fr 1fr 1fr;
     }
 }
 
@@ -525,13 +527,14 @@
     padding: 2rem 0;
 }
 
-/* Cards */
+/* Cards - Simple Background */
 .single-property .card {
-    background-color: var(--rebs-white);
-    border-radius: var(--rebs-radius-lg);
-    box-shadow: var(--rebs-shadow);
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     padding: 1.5rem;
     margin-bottom: 1.5rem;
+    border: 1px solid #e5e7eb;
 }
 
 /* Property Header */
@@ -736,40 +739,57 @@
 
 /* Tabs */
 .single-property .tabs {
-    background-color: var(--rebs-white);
-    border-radius: var(--rebs-radius-lg);
-    box-shadow: var(--rebs-shadow);
-    margin-bottom: 1.5rem;
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    border-radius: 16px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
 }
 
 .single-property .tabs-header {
     display: flex;
     overflow-x: auto;
-    border-bottom: 1px solid var(--rebs-medium-gray);
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    border-bottom: 1px solid #e2e8f0;
 }
 
 .single-property .tab-button {
-    padding: 1rem 1.5rem;
-    font-weight: 600;
-    white-space: nowrap;
     background: none;
     border: none;
+    padding: 1.25rem 1.5rem;
     cursor: pointer;
-    transition: all 0.3s;
-    color: var(--rebs-dark-gray);
+    font-weight: 600;
+    color: #64748b;
+    transition: all 0.3s ease;
+    border-bottom: 3px solid transparent;
+    white-space: nowrap;
+    position: relative;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .single-property .tab-button:hover {
-    color: var(--rebs-primary-color);
+    color: #10b981;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%);
+    transform: translateY(-1px);
 }
 
 .single-property .tab-button.active {
-    border-bottom: 3px solid var(--rebs-primary-color);
-    color: var(--rebs-primary-color);
+    color: #10b981;
+    border-bottom-color: #10b981;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%);
+    box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+}
+
+.single-property .tab-button i {
+    margin-right: 0.5rem;
+    font-size: 1rem;
 }
 
 .single-property .tabs-content {
-    padding: 1.5rem;
+    padding: 2rem;
 }
 
 .single-property .tab-content {
@@ -2270,9 +2290,23 @@
 }
 
 .single-property .section-title {
-    color: var(--rebs-text-dark);
-    font-weight: 700;
-    margin-bottom: 1rem;
+    color: #1e293b;
+    font-weight: 800;
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+    padding-bottom: 0.75rem;
+}
+
+.single-property .section-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 50px;
+    height: 3px;
+    background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+    border-radius: 2px;
 }
 
 .single-property .text-gray-600 {
@@ -2312,8 +2346,8 @@
 .single-property .specifications-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
-    margin-bottom: 1.5rem;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
 }
 
 @media (min-width: 768px) {
@@ -2335,25 +2369,63 @@
 }
 
 .single-property .specifications-grid > div {
-    background-color: var(--rebs-light-gray);
-    padding: 1rem;
-    border-radius: var(--rebs-radius);
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    padding: 1.5rem 1rem;
+    border-radius: 12px;
     text-align: center;
-    transition: transform 0.2s ease;
+    border: 1px solid #e2e8f0;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    position: relative;
+    overflow: hidden;
+}
+
+.single-property .specifications-grid > div::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
 }
 
 .single-property .specifications-grid > div:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--rebs-shadow);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    border-color: #10b981;
 }
 
-/* Pricing Container */
+.single-property .specifications-grid > div:hover::before {
+    transform: scaleX(1);
+}
+
+.single-property .specifications-grid > div label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+}
+
+.single-property .specifications-grid > div p {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+    line-height: 1.2;
+}
+
+/* Pricing Container - Compact Design */
 .single-property .pricing-container {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 0.75rem;
     max-width: 500px;
-    margin: 0 auto;
 }
 
 @media (min-width: 768px) {
@@ -2364,75 +2436,348 @@
 }
 
 .single-property .pricing-card {
-    background-color: var(--rebs-light-gray);
-    padding: 1.5rem;
-    border-radius: var(--rebs-radius);
+    background: #ffffff;
+    padding: 1rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
     text-align: center;
     flex: 1;
-    min-width: 200px;
 }
 
 .single-property .pricing-card.main-price {
-    background-color: var(--rebs-primary-light);
-    border: 2px solid var(--rebs-primary-color);
+    background: #f9fafb;
+    border-color: #d1d5db;
 }
 
 .single-property .pricing-label {
     display: block;
-    font-size: 0.875rem;
+    font-size: 0.75rem;
     font-weight: 500;
-    color: var(--rebs-text-light);
-    margin-bottom: 0.5rem;
+    color: #6b7280;
+    margin-bottom: 0.25rem;
 }
 
 .single-property .pricing-value {
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--rebs-text-dark);
-    margin-bottom: 0.5rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 0.25rem;
 }
 
 .single-property .pricing-value-small {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--rebs-text-dark);
-    margin-bottom: 0.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 0.25rem;
 }
 
 .single-property .pricing-note {
-    font-size: 0.875rem;
-    color: var(--rebs-text-light);
-    margin-top: 0.5rem;
+    font-size: 0.75rem;
+    color: #6b7280;
+    margin-top: 0.25rem;
 }
 
-/* Classification Container */
+/* Classification Container - Compact Design */
 .single-property .classification-container {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
     gap: 0.75rem;
     max-width: 600px;
 }
 
 .single-property .classification-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.75rem 1rem;
-    background-color: var(--rebs-light-gray);
-    border-radius: var(--rebs-radius);
-    border-left: 4px solid var(--rebs-primary-color);
+    background: #ffffff;
+    padding: 0.75rem;
+    border-radius: 4px;
+    border: 1px solid #e5e7eb;
+    text-align: center;
 }
 
 .single-property .classification-label {
-    font-size: 0.875rem;
+    font-size: 0.75rem;
     font-weight: 500;
-    color: var(--rebs-text-light);
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.25rem;
 }
 
 .single-property .classification-value {
-    font-size: 1rem;
+    font-size: 0.875rem;
     font-weight: 600;
-    color: var(--rebs-text-dark);
+    color: #111827;
+    margin: 0;
+}
+
+/* Nearby Features Grid */
+.single-property .nearby-features-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+}
+
+@media (min-width: 768px) {
+    .single-property .nearby-features-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.single-property .location-feature {
+    padding: 1.5rem;
+    border-radius: 12px;
+    text-align: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e2e8f0;
+}
+
+.single-property .location-feature:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.single-property .location-feature i {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.single-property .location-feature h4 {
+    font-size: 1.125rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: #1e293b;
+}
+
+.single-property .location-feature p {
+    font-size: 0.875rem;
+    color: #64748b;
+    margin: 0;
+}
+
+.single-property .location-feature-blue {
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    border-color: #3b82f6;
+}
+
+.single-property .location-feature-blue i {
+    color: #3b82f6;
+}
+
+.single-property .location-feature-green {
+    background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+    border-color: #10b981;
+}
+
+.single-property .location-feature-green i {
+    color: #10b981;
+}
+
+.single-property .location-feature-purple {
+    background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
+    border-color: #8b5cf6;
+}
+
+.single-property .location-feature-purple i {
+    color: #8b5cf6;
+}
+
+/* Address Card - Minimal Design */
+.single-property .address-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.single-property .address-header {
+    background: transparent;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    border: none;
+}
+
+.single-property .address-icon {
+    font-size: 1rem;
+    color: #6b7280;
+}
+
+.single-property .address-title {
+    color: #374151;
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.single-property .address-content {
+    padding: 0;
+}
+
+.single-property .address-main {
+    font-size: 1rem;
+    font-weight: 400;
+    color: #111827;
+    margin-bottom: 0.75rem;
+    line-height: 1.5;
+}
+
+.single-property .address-placeholder {
+    font-size: 1rem;
+    color: #9ca3af;
+    font-style: italic;
+    margin-bottom: 0.75rem;
+}
+
+.single-property .address-details {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+    align-items: center;
+}
+
+.single-property .address-detail-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0;
+    background: transparent;
+    border-radius: 0;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+    border: none;
+    white-space: nowrap;
+}
+
+.single-property .address-detail-item i {
+    color: #6b7280;
+    font-size: 0.875rem;
+}
+
+.single-property .address-country {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0;
+    background: transparent;
+    border-radius: 0;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+    border: none;
+    white-space: nowrap;
+}
+
+.single-property .address-country i {
+    color: #6b7280;
+    font-size: 0.875rem;
+}
+
+/* Media Gallery Row Layout (for Media Tab only) */
+.single-property .media-gallery-row {
+    display: flex;
+    gap: 0.75rem;
+    overflow-x: auto;
+    padding: 0.5rem 0;
+    scrollbar-width: thin;
+    scrollbar-color: #d1d5db #f3f4f6;
+}
+
+.single-property .media-gallery-row::-webkit-scrollbar {
+    height: 6px;
+}
+
+.single-property .media-gallery-row::-webkit-scrollbar-track {
+    background: #f3f4f6;
+    border-radius: 3px;
+}
+
+.single-property .media-gallery-row::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 3px;
+}
+
+.single-property .media-gallery-row::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+}
+
+.single-property .media-gallery-item {
+    flex-shrink: 0;
+    width: 200px;
+    height: 150px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+    transition: transform 0.2s ease;
+}
+
+.single-property .media-gallery-item:hover {
+    transform: scale(1.02);
+}
+
+.single-property .media-gallery-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: opacity 0.2s ease;
+}
+
+.single-property .media-gallery-item:hover .media-gallery-image {
+    opacity: 0.9;
+}
+
+/* Virtual Tour & Property Video - Clean Design */
+.single-property .virtual-tour-container,
+.single-property .property-video-container {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 1.5rem;
+    text-align: center;
+}
+
+.single-property .virtual-tour-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 0.75rem;
+}
+
+.single-property .virtual-tour-description {
+    color: #6b7280;
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+}
+
+.single-property .virtual-tour-button,
+.single-property .property-video-button {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.75rem 1.5rem;
+    background-color: #10b981;
+    color: #ffffff;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: 600;
+    transition: background-color 0.2s ease;
+}
+
+.single-property .virtual-tour-button:hover,
+.single-property .property-video-button:hover {
+    background-color: #059669;
+    color: #ffffff;
+    text-decoration: none;
+}
+
+.test-class {
+grid-column: 1 / 3 !important;
 }
     </style>
 </head>
@@ -2446,7 +2791,7 @@
     <div class="main-single-container container main-content ">
         <div class="grid grid-cols-1 lg-grid-cols-3">
             <!-- Main Content -->
-            <div class="lg-col-span-2">
+            <div class="lg-col-span-2 test-class" > 
                 <!-- Property Header -->
                 <div class="card">
                     <div class="property-header">
@@ -2925,27 +3270,49 @@
                             
                             <!-- Address Information -->
                             <div class="mb-6">
-                                <h4 class="text-lg font-semibold mb-4">Address</h4>
-                                <div class="bg-gray-50 p-4 rounded-lg">
-                                    <?php if ($full_address): ?>
-                                        <p class="text-lg font-medium text-gray-900"><?php echo esc_html($full_address); ?></p>
-                                    <?php else: ?>
-                                        <p class="text-gray-500">Address not specified</p>
-                                    <?php endif; ?>
-                                    
-                                    <?php if ($city || $state || $zip): ?>
-                                        <div class="mt-2 text-sm text-gray-600">
-                                            <?php if ($city): ?><span><?php echo esc_html($city); ?></span><?php endif; ?>
-                                            <?php if ($state): ?><span><?php echo esc_html($state); ?></span><?php endif; ?>
-                                            <?php if ($zip): ?><span><?php echo esc_html($zip); ?></span><?php endif; ?>
-                                        </div>
-                                    <?php endif; ?>
-                                    
-                                    <?php if ($country): ?>
-                                        <div class="mt-1 text-sm text-gray-600">
-                                            <span><?php echo esc_html($country); ?></span>
-                                        </div>
-                                    <?php endif; ?>
+                                <h4 class="text-lg font-semibold mb-4">Property Address</h4>
+                                <div class="address-card">
+                                    <div class="address-header">
+                                        <i class="fas fa-map-marker-alt address-icon"></i>
+                                        <h5 class="address-title">Full Address</h5>
+                                    </div>
+                                    <div class="address-content">
+                                        <?php if ($full_address): ?>
+                                            <p class="address-main"><?php echo esc_html($full_address); ?></p>
+                                        <?php else: ?>
+                                            <p class="address-placeholder">Address not specified</p>
+                                        <?php endif; ?>
+                                        
+                                        <?php if ($city || $state || $zip): ?>
+                                            <div class="address-details">
+                                                <?php if ($city): ?>
+                                                    <div class="address-detail-item">
+                                                        <i class="fas fa-city"></i>
+                                                        <span><?php echo esc_html($city); ?></span>
+                                                    </div>
+                                                <?php endif; ?>
+                                                <?php if ($state): ?>
+                                                    <div class="address-detail-item">
+                                                        <i class="fas fa-flag"></i>
+                                                        <span><?php echo esc_html($state); ?></span>
+                                                    </div>
+                                                <?php endif; ?>
+                                                <?php if ($zip): ?>
+                                                    <div class="address-detail-item">
+                                                        <i class="fas fa-mail-bulk"></i>
+                                                        <span><?php echo esc_html($zip); ?></span>
+                                                    </div>
+                                                <?php endif; ?>
+                                            </div>
+                                        <?php endif; ?>
+                                        
+                                        <?php if ($country): ?>
+                                            <div class="address-country">
+                                                <i class="fas fa-globe"></i>
+                                                <span><?php echo esc_html($country); ?></span>
+                                            </div>
+                                        <?php endif; ?>
+                                    </div>
                                 </div>
                             </div>
                             
@@ -2960,7 +3327,7 @@
                             <!-- Nearby Features -->
                             <div class="mb-6">
                                 <h4 class="text-lg font-semibold mb-4">Nearby Features</h4>
-                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                <div class="nearby-features-grid">
                                     <?php if ($nearby_schools): ?>
                                     <div class="location-feature location-feature-blue">
                                         <i class="fas fa-graduation-cap"></i>
@@ -3098,6 +3465,208 @@
                                 </div>
                             <?php endif; ?>
                         </div>
+
+                        <!-- Media Tab -->
+                        <div id="media-tab" class="tab-content">
+                            <h3 class="section-title">Property Media</h3>
+                            <p class="text-gray-600 mb-6">Photos, videos, and virtual tours</p>
+                            
+                            <!-- Photo Gallery -->
+                            <div class="mb-8">
+                                <h4 class="text-lg font-semibold mb-4">Photo Gallery</h4>
+                                <?php if (!empty($gallery_urls)): ?>
+                                    <div class="media-gallery-row">
+                                        <?php foreach ($gallery_urls as $index => $image_url): ?>
+                                            <div class="media-gallery-item cursor-pointer" onclick="openImageViewer(<?php echo $index; ?>)">
+                                                <img src="<?php echo esc_url($image_url); ?>" alt="Property Image" class="media-gallery-image">
+                                            </div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                <?php else: ?>
+                                    <div class="text-center py-8 bg-gray-50 rounded-lg">
+                                        <i class="fas fa-images text-gray-400 text-4xl mb-4"></i>
+                                        <p class="text-gray-500">No photos available for this property</p>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                            
+                            <!-- Virtual Tour -->
+                            <?php if ($virtual_tour): ?>
+                            <div class="mb-8">
+                                <h4 class="text-lg font-semibold mb-4">Virtual Tour</h4>
+                                <div class="virtual-tour-container">
+                                    <h5 class="virtual-tour-title"><?php echo esc_html($virtual_tour_title ? $virtual_tour_title : 'Virtual Tour'); ?></h5>
+                                    <p class="virtual-tour-description"><?php echo esc_html($virtual_tour_description ? $virtual_tour_description : 'Experience this property from anywhere with our interactive 3D tour.'); ?></p>
+                                    <a href="<?php echo esc_url($virtual_tour); ?>" target="_blank" class="virtual-tour-button">
+                                        <i class="fas fa-play mr-2"></i>
+                                        <?php echo esc_html($virtual_tour_button_text ? $virtual_tour_button_text : 'Start Virtual Tour'); ?>
+                                    </a>
+                                </div>
+                            </div>
+                            <?php endif; ?>
+                            
+                            <!-- Property Video -->
+                            <?php if ($video_url || $video_embed): ?>
+                            <div class="mb-8">
+                                <h4 class="text-lg font-semibold mb-4">Property Video</h4>
+                                <div class="property-video-container">
+                                    <?php if ($video_embed): ?>
+                                        <div class="video-embed">
+                                            <?php echo wp_kses_post($video_embed); ?>
+                                        </div>
+                                    <?php elseif ($video_url): ?>
+                                        <div class="video-link">
+                                            <a href="<?php echo esc_url($video_url); ?>" target="_blank" class="property-video-button">
+                                                <i class="fas fa-play mr-2"></i>Watch Property Video
+                                            </a>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                            <?php endif; ?>
+                        </div>
+
+                        <!-- Agent Tab -->
+                        <div id="agent-tab" class="tab-content">
+                            <h3 class="section-title">Property Agent</h3>
+                            <p class="text-gray-600 mb-6">Contact information and agent details</p>
+                            
+                            <!-- Agent Information -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                                <div class="bg-gray-50 p-6 rounded-lg">
+                                    <h4 class="text-lg font-semibold mb-4">Agent Details</h4>
+                                    <div class="space-y-3">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700">Agent Name</label>
+                                            <p class="text-lg font-semibold text-gray-900"><?php echo esc_html($agent_name ? $agent_name : 'Not specified'); ?></p>
+                                        </div>
+                                        
+                                        <?php if ($agent_phone): ?>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700">Phone Number</label>
+                                            <p class="text-lg text-gray-900"><?php echo esc_html($agent_phone); ?></p>
+                                        </div>
+                                        <?php endif; ?>
+                                        
+                                        <?php if ($agent_email): ?>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700">Email Address</label>
+                                            <p class="text-lg text-gray-900"><?php echo esc_html($agent_email); ?></p>
+                                        </div>
+                                        <?php endif; ?>
+                                        
+                                        <?php if ($agent_properties_sold): ?>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700">Properties Sold</label>
+                                            <p class="text-lg text-gray-900"><?php echo esc_html($agent_properties_sold); ?></p>
+                                        </div>
+                                        <?php endif; ?>
+                                        
+                                        <?php if ($agent_experience): ?>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700">Experience</label>
+                                            <p class="text-lg text-gray-900"><?php echo esc_html($agent_experience); ?></p>
+                                        </div>
+                                        <?php endif; ?>
+                                        
+                                        <?php if ($agent_response_time): ?>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700">Response Time</label>
+                                            <p class="text-lg text-gray-900"><?php echo esc_html($agent_response_time); ?></p>
+                                        </div>
+                                        <?php endif; ?>
+                                        
+                                        <?php if ($agent_rating): ?>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700">Rating</label>
+                                            <div class="flex items-center">
+                                                <div class="flex">
+                                                    <?php
+                                                    $rating = intval($agent_rating);
+                                                    for ($i = 1; $i <= 5; $i++):
+                                                    ?>
+                                                        <i class="fas fa-star text-yellow-400 text-sm"></i>
+                                                    <?php endfor; ?>
+                                                </div>
+                                                <span class="ml-2 text-sm text-gray-600">(<?php echo esc_html($agent_reviews); ?> reviews)</span>
+                                            </div>
+                                        </div>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                                
+                                <!-- Agent Photo -->
+                                <div class="bg-gray-50 p-6 rounded-lg">
+                                    <h4 class="text-lg font-semibold mb-4">Agent Photo</h4>
+                                    <?php if ($agent_photo): ?>
+                                        <img src="<?php echo esc_url($agent_photo); ?>" alt="<?php echo esc_attr($agent_name); ?>" class="w-32 h-32 object-cover rounded-lg mx-auto">
+                                    <?php else: ?>
+                                        <div class="w-32 h-32 bg-gray-300 rounded-lg mx-auto flex items-center justify-center">
+                                            <i class="fas fa-user text-gray-500 text-4xl"></i>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                            
+                            <!-- Contact Form -->
+                            <div class="bg-gray-50 p-6 rounded-lg">
+                                <h4 class="text-lg font-semibold mb-4"><?php echo esc_html($contact_form_title ? $contact_form_title : 'Contact Agent'); ?></h4>
+                                <form class="space-y-4">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2"><?php echo esc_html($contact_name_label ? $contact_name_label : 'Your Name'); ?></label>
+                                            <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2"><?php echo esc_html($contact_email_label ? $contact_email_label : 'Email'); ?></label>
+                                            <input type="email" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2"><?php echo esc_html($contact_phone_label ? $contact_phone_label : 'Phone'); ?></label>
+                                        <input type="tel" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2"><?php echo esc_html($contact_message_label ? $contact_message_label : 'Message'); ?></label>
+                                        <textarea rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required></textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary w-full">
+                                        <i class="fas fa-paper-plane mr-2"></i>
+                                        <?php echo esc_html($contact_submit_text ? $contact_submit_text : 'Send Message'); ?>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Booking Tab -->
+                        <div id="booking-tab" class="tab-content">
+                            <h3 class="section-title">Property Booking</h3>
+                            <p class="text-gray-600 mb-6">Schedule a viewing or book this property</p>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="bg-gray-50 p-6 rounded-lg">
+                                    <h4 class="text-lg font-semibold mb-4">Schedule Viewing</h4>
+                                    <p class="text-gray-600 mb-4">Book a time to visit this property in person</p>
+                                    <button onclick="scheduleViewing()" class="btn btn-primary w-full">
+                                        <i class="fas fa-calendar-alt mr-2"></i>Schedule Viewing
+                                    </button>
+                                </div>
+                                
+                                <div class="bg-gray-50 p-6 rounded-lg">
+                                    <h4 class="text-lg font-semibold mb-4">Virtual Tour</h4>
+                                    <p class="text-gray-600 mb-4">Take a virtual tour of this property</p>
+                                    <?php if ($virtual_tour): ?>
+                                        <a href="<?php echo esc_url($virtual_tour); ?>" target="_blank" class="btn btn-secondary w-full">
+                                            <i class="fas fa-play mr-2"></i>Start Virtual Tour
+                                        </a>
+                                    <?php else: ?>
+                                        <button onclick="requestVirtualTour()" class="btn btn-secondary w-full">
+                                            <i class="fas fa-video mr-2"></i>Request Virtual Tour
+                                        </button>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -3193,207 +3762,6 @@
                     <?php endif; ?>
                 </div>
 
-                <!-- Media Tab -->
-                <div id="media-tab" class="tab-content">
-                    <h3 class="section-title">Property Media</h3>
-                    <p class="text-gray-600 mb-6">Photos, videos, and virtual tours</p>
-                    
-                    <!-- Photo Gallery -->
-                    <div class="mb-8">
-                        <h4 class="text-lg font-semibold mb-4">Photo Gallery</h4>
-                        <?php if (!empty($gallery_urls)): ?>
-                            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                                <?php foreach ($gallery_urls as $index => $image_url): ?>
-                                    <div class="gallery-item cursor-pointer" onclick="openImageViewer(<?php echo $index; ?>)">
-                                        <img src="<?php echo esc_url($image_url); ?>" alt="Property Image" class="w-full h-32 object-cover rounded-lg hover:opacity-90 transition-opacity">
-                                    </div>
-                                <?php endforeach; ?>
-                            </div>
-                        <?php else: ?>
-                            <div class="text-center py-8 bg-gray-50 rounded-lg">
-                                <i class="fas fa-images text-gray-400 text-4xl mb-4"></i>
-                                <p class="text-gray-500">No photos available for this property</p>
-                            </div>
-                        <?php endif; ?>
-                    </div>
-                    
-                    <!-- Virtual Tour -->
-                    <?php if ($virtual_tour): ?>
-                    <div class="mb-8">
-                        <h4 class="text-lg font-semibold mb-4">Virtual Tour</h4>
-                        <div class="bg-gray-50 p-6 rounded-lg">
-                            <h5 class="font-medium text-lg mb-2"><?php echo esc_html($virtual_tour_title ? $virtual_tour_title : 'Virtual Tour'); ?></h5>
-                            <p class="text-gray-600 mb-4"><?php echo esc_html($virtual_tour_description ? $virtual_tour_description : 'Experience this property from anywhere with our interactive 3D tour.'); ?></p>
-                            <a href="<?php echo esc_url($virtual_tour); ?>" target="_blank" class="btn btn-primary">
-                                <i class="fas fa-play mr-2"></i>
-                                <?php echo esc_html($virtual_tour_button_text ? $virtual_tour_button_text : 'Start Virtual Tour'); ?>
-                            </a>
-                        </div>
-                    </div>
-                    <?php endif; ?>
-                    
-                    <!-- Property Video -->
-                    <?php if ($video_url || $video_embed): ?>
-                    <div class="mb-8">
-                        <h4 class="text-lg font-semibold mb-4">Property Video</h4>
-                        <div class="bg-gray-50 p-6 rounded-lg">
-                            <?php if ($video_embed): ?>
-                                <div class="video-embed">
-                                    <?php echo wp_kses_post($video_embed); ?>
-                                </div>
-                            <?php elseif ($video_url): ?>
-                                <div class="video-link">
-                                    <a href="<?php echo esc_url($video_url); ?>" target="_blank" class="btn btn-primary">
-                                        <i class="fas fa-play mr-2"></i>Watch Property Video
-                                    </a>
-                                </div>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                    <?php endif; ?>
-                </div>
-
-                <!-- Agent Tab -->
-                <div id="agent-tab" class="tab-content">
-                    <h3 class="section-title">Property Agent</h3>
-                    <p class="text-gray-600 mb-6">Contact information and agent details</p>
-                    
-                    <!-- Agent Information -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                        <div class="bg-gray-50 p-6 rounded-lg">
-                            <h4 class="text-lg font-semibold mb-4">Agent Details</h4>
-                            <div class="space-y-3">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">Agent Name</label>
-                                    <p class="text-lg font-semibold text-gray-900"><?php echo esc_html($agent_name ? $agent_name : 'Not specified'); ?></p>
-                                </div>
-                                
-                                <?php if ($agent_phone): ?>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">Phone Number</label>
-                                    <p class="text-lg text-gray-900"><?php echo esc_html($agent_phone); ?></p>
-                                </div>
-                                <?php endif; ?>
-                                
-                                <?php if ($agent_email): ?>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">Email Address</label>
-                                    <p class="text-lg text-gray-900"><?php echo esc_html($agent_email); ?></p>
-                                </div>
-                                <?php endif; ?>
-                                
-                                <?php if ($agent_properties_sold): ?>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">Properties Sold</label>
-                                    <p class="text-lg text-gray-900"><?php echo esc_html($agent_properties_sold); ?></p>
-                                </div>
-                                <?php endif; ?>
-                                
-                                <?php if ($agent_experience): ?>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">Experience</label>
-                                    <p class="text-lg text-gray-900"><?php echo esc_html($agent_experience); ?></p>
-                                </div>
-                                <?php endif; ?>
-                                
-                                <?php if ($agent_response_time): ?>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">Response Time</label>
-                                    <p class="text-lg text-gray-900"><?php echo esc_html($agent_response_time); ?></p>
-                                </div>
-                                <?php endif; ?>
-                                
-                                <?php if ($agent_rating): ?>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">Rating</label>
-                                    <div class="flex items-center">
-                                        <div class="flex">
-                                            <?php
-                                            $rating = intval($agent_rating);
-                                            for ($i = 1; $i <= 5; $i++):
-                                            ?>
-                                                <i class="fas fa-star text-yellow-400 text-sm"></i>
-                                            <?php endfor; ?>
-                                        </div>
-                                        <span class="ml-2 text-sm text-gray-600">(<?php echo esc_html($agent_reviews); ?> reviews)</span>
-                                    </div>
-                                </div>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-                        
-                        <!-- Agent Photo -->
-                        <div class="bg-gray-50 p-6 rounded-lg">
-                            <h4 class="text-lg font-semibold mb-4">Agent Photo</h4>
-                            <?php if ($agent_photo): ?>
-                                <img src="<?php echo esc_url($agent_photo); ?>" alt="<?php echo esc_attr($agent_name); ?>" class="w-32 h-32 object-cover rounded-lg mx-auto">
-                            <?php else: ?>
-                                <div class="w-32 h-32 bg-gray-300 rounded-lg mx-auto flex items-center justify-center">
-                                    <i class="fas fa-user text-gray-500 text-4xl"></i>
-                                </div>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                    
-                    <!-- Contact Form -->
-                    <div class="bg-gray-50 p-6 rounded-lg">
-                        <h4 class="text-lg font-semibold mb-4"><?php echo esc_html($contact_form_title ? $contact_form_title : 'Contact Agent'); ?></h4>
-                        <form class="space-y-4">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2"><?php echo esc_html($contact_name_label ? $contact_name_label : 'Your Name'); ?></label>
-                                    <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2"><?php echo esc_html($contact_email_label ? $contact_email_label : 'Email'); ?></label>
-                                    <input type="email" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
-                                </div>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2"><?php echo esc_html($contact_phone_label ? $contact_phone_label : 'Phone'); ?></label>
-                                <input type="tel" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2"><?php echo esc_html($contact_message_label ? $contact_message_label : 'Message'); ?></label>
-                                <textarea rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required></textarea>
-                            </div>
-                            <button type="submit" class="btn btn-primary w-full">
-                                <i class="fas fa-paper-plane mr-2"></i>
-                                <?php echo esc_html($contact_submit_text ? $contact_submit_text : 'Send Message'); ?>
-                            </button>
-                        </form>
-                    </div>
-                </div>
-
-                <!-- Booking Tab -->
-                <div id="booking-tab" class="tab-content">
-                    <h3 class="section-title">Property Booking</h3>
-                    <p class="text-gray-600 mb-6">Schedule a viewing or book this property</p>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="bg-gray-50 p-6 rounded-lg">
-                            <h4 class="text-lg font-semibold mb-4">Schedule Viewing</h4>
-                            <p class="text-gray-600 mb-4">Book a time to visit this property in person</p>
-                            <button onclick="scheduleViewing()" class="btn btn-primary w-full">
-                                <i class="fas fa-calendar-alt mr-2"></i>Schedule Viewing
-                            </button>
-                        </div>
-                        
-                        <div class="bg-gray-50 p-6 rounded-lg">
-                            <h4 class="text-lg font-semibold mb-4">Virtual Tour</h4>
-                            <p class="text-gray-600 mb-4">Take a virtual tour of this property</p>
-                            <?php if ($virtual_tour): ?>
-                                <a href="<?php echo esc_url($virtual_tour); ?>" target="_blank" class="btn btn-secondary w-full">
-                                    <i class="fas fa-play mr-2"></i>Start Virtual Tour
-                                </a>
-                            <?php else: ?>
-                                <button onclick="requestVirtualTour()" class="btn btn-secondary w-full">
-                                    <i class="fas fa-video mr-2"></i>Request Virtual Tour
-                                </button>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                </div>
             </div>
 
             <!-- Sidebar -->
@@ -3819,7 +4187,141 @@
         }
 
         function scheduleTour() {
-            alert('Tour scheduling form will open...');
+            // Create a modal for tour scheduling
+            const modal = document.createElement('div');
+            modal.id = 'tourModal';
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 1000;
+            `;
+            
+            modal.innerHTML = `
+                <div style="
+                    background: white;
+                    padding: 2rem;
+                    border-radius: 12px;
+                    max-width: 500px;
+                    width: 90%;
+                    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+                ">
+                    <h3 style="margin-bottom: 1.5rem; color: #1e293b; font-size: 1.5rem;">Schedule Property Tour</h3>
+                    <form id="tourForm">
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #374151;">Your Name</label>
+                            <input type="text" required style="
+                                width: 100%;
+                                padding: 0.75rem;
+                                border: 1px solid #d1d5db;
+                                border-radius: 8px;
+                                font-size: 1rem;
+                            ">
+                        </div>
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #374151;">Email</label>
+                            <input type="email" required style="
+                                width: 100%;
+                                padding: 0.75rem;
+                                border: 1px solid #d1d5db;
+                                border-radius: 8px;
+                                font-size: 1rem;
+                            ">
+                        </div>
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #374151;">Phone</label>
+                            <input type="tel" style="
+                                width: 100%;
+                                padding: 0.75rem;
+                                border: 1px solid #d1d5db;
+                                border-radius: 8px;
+                                font-size: 1rem;
+                            ">
+                        </div>
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #374151;">Preferred Date</label>
+                            <input type="date" required style="
+                                width: 100%;
+                                padding: 0.75rem;
+                                border: 1px solid #d1d5db;
+                                border-radius: 8px;
+                                font-size: 1rem;
+                            ">
+                        </div>
+                        <div style="margin-bottom: 1.5rem;">
+                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #374151;">Preferred Time</label>
+                            <select required style="
+                                width: 100%;
+                                padding: 0.75rem;
+                                border: 1px solid #d1d5db;
+                                border-radius: 8px;
+                                font-size: 1rem;
+                            ">
+                                <option value="">Select Time</option>
+                                <option value="9:00 AM">9:00 AM</option>
+                                <option value="10:00 AM">10:00 AM</option>
+                                <option value="11:00 AM">11:00 AM</option>
+                                <option value="12:00 PM">12:00 PM</option>
+                                <option value="1:00 PM">1:00 PM</option>
+                                <option value="2:00 PM">2:00 PM</option>
+                                <option value="3:00 PM">3:00 PM</option>
+                                <option value="4:00 PM">4:00 PM</option>
+                                <option value="5:00 PM">5:00 PM</option>
+                            </select>
+                        </div>
+                        <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                            <button type="button" onclick="closeTourModal()" style="
+                                padding: 0.75rem 1.5rem;
+                                border: 1px solid #d1d5db;
+                                background: white;
+                                color: #374151;
+                                border-radius: 8px;
+                                cursor: pointer;
+                                font-weight: 600;
+                            ">Cancel</button>
+                            <button type="submit" style="
+                                padding: 0.75rem 1.5rem;
+                                background: #10b981;
+                                color: white;
+                                border: none;
+                                border-radius: 8px;
+                                cursor: pointer;
+                                font-weight: 600;
+                            ">Schedule Tour</button>
+                        </div>
+                    </form>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // Handle form submission
+            document.getElementById('tourForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                alert('Tour scheduled successfully! We will contact you to confirm the appointment.');
+                closeTourModal();
+            });
+        }
+        
+        function closeTourModal() {
+            const modal = document.getElementById('tourModal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+        
+        function scheduleViewing() {
+            scheduleTour(); // Use the same function
+        }
+        
+        function requestVirtualTour() {
+            alert('Virtual tour request sent! We will contact you shortly to arrange your virtual tour.');
         }
 
         // Initialize on page load
@@ -3830,8 +4332,12 @@
         // Close modals when clicking outside
         window.onclick = function(event) {
             const contactModal = document.getElementById('contactModal');
+            const tourModal = document.getElementById('tourModal');
             if (event.target === contactModal) {
                 closeContactModal();
+            }
+            if (event.target === tourModal) {
+                closeTourModal();
             }
         }
     </script>
