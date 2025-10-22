@@ -45,6 +45,16 @@
     $latitude     = get_post_meta($post->ID, '_property_latitude', true);
     $longitude    = get_post_meta($post->ID, '_property_longitude', true);
     $map_iframe   = get_post_meta($post->ID, '_property_map_iframe', true);
+    // Try alternative field names
+    if (!$map_iframe) {
+        $map_iframe = get_post_meta($post->ID, '_property_custom_map_iframe', true);
+    }
+    if (!$map_iframe) {
+        $map_iframe = get_post_meta($post->ID, '_property_map_embed', true);
+    }
+    if (!$map_iframe) {
+        $map_iframe = get_post_meta($post->ID, '_property_google_map_iframe', true);
+    }
     $hide_address = get_post_meta($post->ID, '_property_hide_address', true);
 
     $features          = get_post_meta($post->ID, '_property_features', true);
@@ -181,6 +191,11 @@
             $full_address .= ', ' . $country;
         }
 
+    }
+    
+    // Ensure addresses are properly formatted with country if missing
+    if ($country && strpos(strtolower($full_address), strtolower($country)) === false) {
+        $full_address .= ', ' . $country;
     }
 
     // Parse features and amenities
@@ -2495,7 +2510,7 @@
 
 .single-property .classification-item {
     background: #ffffff;
-    padding: 0.75rem;
+    padding: 30px;
     border-radius: 4px;
     border: 1px solid #e5e7eb;
     text-align: center;
@@ -2508,13 +2523,14 @@
     text-transform: uppercase;
     letter-spacing: 0.5px;
     margin-bottom: 0.25rem;
+    white-space: nowrap;
 }
 
 .single-property .classification-value {
     font-size: 0.875rem;
     font-weight: 600;
     color: #111827;
-    margin: 0;
+    margin-top: 10px;
 }
 
 /* Nearby Features Grid */
@@ -2911,6 +2927,38 @@
     color: #111827;
 }
 
+/* Map Container */
+.single-property .map-container {
+    width: 100%;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.single-property .map-container iframe {
+    width: 100%;
+    height: 400px;
+    border: none;
+    border-radius: 8px;
+}
+
+/* Map Placeholder */
+.single-property .map-placeholder {
+    width: 100%;
+    height: 300px;
+    background: #f8fafc;
+    border: 2px dashed #cbd5e1;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.single-property .map-placeholder-content {
+    text-align: center;
+    padding: 2rem;
+}
+
 .test-class {
 grid-column: 1 / 3 !important;
 }
@@ -2996,20 +3044,18 @@ grid-column: 1 / 3 !important;
                                 <img src="<?php echo esc_url($all_images[0]); ?>" alt="<?php echo esc_attr(get_the_title()); ?>" class="gallery-img" onclick="openImageViewer(0)">
                             </div>
 
-                            <?php for ($i = 1; $i < min(5, $total_images); $i++): ?>
-                                <div class="gallery-item">
-                                    <img src="<?php echo esc_url($all_images[$i]); ?>" alt="<?php echo esc_attr(get_the_title()); ?>" class="gallery-img" onclick="openImageViewer(<?php echo $i; ?>)">
-                                </div>
-                            <?php endfor; ?>
-
-                                <?php if ($total_images > 5): ?>
-                                    <div class="gallery-item gallery-more">
-                                        <img src="<?php echo esc_url($all_images[5]); ?>" alt="<?php echo esc_attr(get_the_title()); ?>" class="gallery-img" onclick="openImageViewer(5)">
-                                        <div class="gallery-overlay" onclick="openImageViewer(5)">
-                                            <span>+<?php echo($total_images - 5); ?> More</span>
-                                        </div>
+                            <?php for ($i = 1; $i < 5; $i++): ?>
+                                <?php if ($i < $total_images): ?>
+                                    <div class="gallery-item <?php echo ($i == 4 && $total_images > 5) ? 'gallery-more' : ''; ?>">
+                                        <img src="<?php echo esc_url($all_images[$i]); ?>" alt="<?php echo esc_attr(get_the_title()); ?>" class="gallery-img" onclick="openImageViewer(<?php echo $i; ?>)">
+                                        <?php if ($i == 4 && $total_images > 5): ?>
+                                            <div class="gallery-overlay" onclick="openImageViewer(4)">
+                                                <span>+<?php echo($total_images - 5); ?> More</span>
+                                            </div>
+                                        <?php endif; ?>
                                     </div>
                                 <?php endif; ?>
+                            <?php endfor; ?>
                             <?php else: ?>
                                 <div class="gallery-item gallery-main">
                                     <img src="<?php echo esc_url(get_template_directory_uri() . '/assets/images/placeholder-property.jpg'); ?>" alt="No image available" class="gallery-img">
@@ -3450,10 +3496,36 @@ grid-column: 1 / 3 !important;
                             </div>
                             
                             <!-- Map -->
-                            <?php if ($latitude && $longitude): ?>
+                            <?php if ($map_iframe): ?>
                             <div class="mb-6">
                                 <h4 class="text-lg font-semibold mb-4">Map Location</h4>
-                                <div id="map" class="w-full h-64 bg-gray-200 rounded-lg"></div>
+                                <div class="map-container" style="width: 100%; height: 400px; border-radius: 8px; overflow: hidden;">
+                                    <?php 
+                                    // Allow iframe tags for maps
+                                    $allowed_html = array(
+                                        'iframe' => array(
+                                            'src' => array(),
+                                            'width' => array(),
+                                            'height' => array(),
+                                            'frameborder' => array(),
+                                            'allowfullscreen' => array(),
+                                            'loading' => array(),
+                                            'referrerpolicy' => array(),
+                                            'style' => array(),
+                                            'class' => array(),
+                                            'id' => array()
+                                        )
+                                    );
+                                    
+                                    // Ensure iframe has proper styling
+                                    $styled_iframe = $map_iframe;
+                                    if (strpos($styled_iframe, 'style=') === false) {
+                                        $styled_iframe = str_replace('<iframe', '<iframe style="width: 100%; height: 100%; border: none;"', $styled_iframe);
+                                    }
+                                    
+                                    echo wp_kses($styled_iframe, $allowed_html);
+                                    ?>
+                                </div>
                             </div>
                             <?php endif; ?>
                             
@@ -3623,21 +3695,6 @@ grid-column: 1 / 3 !important;
                                 <?php endif; ?>
                             </div>
                             
-                            <!-- Virtual Tour -->
-                            <?php if ($virtual_tour): ?>
-                            <div class="mb-8">
-                                <h4 class="text-lg font-semibold mb-4">Virtual Tour</h4>
-                                <div class="virtual-tour-container">
-                                    <h5 class="virtual-tour-title"><?php echo esc_html($virtual_tour_title ? $virtual_tour_title : 'Virtual Tour'); ?></h5>
-                                    <p class="virtual-tour-description"><?php echo esc_html($virtual_tour_description ? $virtual_tour_description : 'Experience this property from anywhere with our interactive 3D tour.'); ?></p>
-                                    <a href="<?php echo esc_url($virtual_tour); ?>" target="_blank" class="virtual-tour-button">
-                                        <i class="fas fa-play mr-2"></i>
-                                        <?php echo esc_html($virtual_tour_button_text ? $virtual_tour_button_text : 'Start Virtual Tour'); ?>
-                                    </a>
-                                </div>
-                            </div>
-                            <?php endif; ?>
-                            
                             <!-- Property Video -->
                             <?php if ($video_url || $video_embed): ?>
                             <div class="mb-8">
@@ -3728,6 +3785,21 @@ grid-column: 1 / 3 !important;
                                             </div>
                                         <?php endif; ?>
                                     <?php endif; ?>
+                                </div>
+                            </div>
+                            <?php endif; ?>
+                            
+                            <!-- Virtual Tour -->
+                            <?php if ($virtual_tour): ?>
+                            <div class="mb-8">
+                                <h4 class="text-lg font-semibold mb-4">Virtual Tour</h4>
+                                <div class="virtual-tour-container">
+                                    <h5 class="virtual-tour-title"><?php echo esc_html($virtual_tour_title ? $virtual_tour_title : 'Virtual Tour'); ?></h5>
+                                    <p class="virtual-tour-description"><?php echo esc_html($virtual_tour_description ? $virtual_tour_description : 'Experience this property from anywhere with our interactive 3D tour.'); ?></p>
+                                    <a href="<?php echo esc_url($virtual_tour); ?>" target="_blank" class="virtual-tour-button">
+                                        <i class="fas fa-play mr-2"></i>
+                                        <?php echo esc_html($virtual_tour_button_text ? $virtual_tour_button_text : 'Start Virtual Tour'); ?>
+                                    </a>
                                 </div>
                             </div>
                             <?php endif; ?>
@@ -4307,33 +4379,7 @@ grid-column: 1 / 3 !important;
                 '$' + monthlyPayment.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
         }
 
-        // Initialize map
-        let map;
-        function initMap() {
-            if (window.mapInitialized) return;
-
-            <?php if ($latitude && $longitude): ?>
-            map = L.map('map').setView([<?php echo esc_js($latitude); ?>,<?php echo esc_js($longitude); ?>], 14);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors'
-            }).addTo(map);
-
-            L.marker([<?php echo esc_js($latitude); ?>,<?php echo esc_js($longitude); ?>]).addTo(map)
-                .bindPopup('<b><?php echo esc_js(get_the_title()); ?></b><br><?php echo esc_js($full_address); ?>')
-                .openPopup();
-            <?php else: ?>
-            map = L.map('map').setView([34.0928, -118.3287], 14);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors'
-            }).addTo(map);
-
-            L.marker([34.0928, -118.3287]).addTo(map)
-                .bindPopup('<b><?php echo esc_js(get_the_title()); ?></b><br>Location not specified')
-                .openPopup();
-            <?php endif; ?>
-
-            window.mapInitialized = true;
-        }
+        // Map initialization removed - only using iframes now
 
         // Search Reviews
         function searchReviews() {
