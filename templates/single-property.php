@@ -1,713 +1,2852 @@
 <?php
     /**
      * Single Property Template - Dynamic Version
-     * Converts static HTML to dynamic WordPress content
+     *
+     * @package RealEstate_Booking_Suite
      */
 
-    get_header();
-
-    // Get the current property ID
-    $property_id = get_the_ID();
-
-    // Helper function to safely handle meta fields
-    function resbs_safe_meta($value)
-    {
-        if (is_array($value)) {
-            return array_filter($value);
-        } elseif (is_string($value)) {
-            return array_filter(explode(',', $value));
-        }
-        return [];
+    // Prevent direct access
+    if (! defined('ABSPATH')) {
+        exit;
     }
 
-    // Helper function to get similar properties
-    function resbs_get_similar_properties($property_id, $limit = 4)
-    {
-        // Get current property data
-        $property_type   = get_post_meta($property_id, '_property_type', true);
-        $property_status = get_post_meta($property_id, '_property_status', true);
-        $city            = get_post_meta($property_id, '_property_city', true);
-        $price           = get_post_meta($property_id, '_property_price', true);
-
-        // Build meta query for similar properties
-        $meta_query = [
-            'relation' => 'OR',
-            // Same property type
-            [
-                'key'     => '_property_type',
-                'value'   => $property_type,
-                'compare' => '=',
-            ],
-            // Same city
-            [
-                'key'     => '_property_city',
-                'value'   => $city,
-                'compare' => '=',
-            ],
-            // Same status
-            [
-                'key'     => '_property_status',
-                'value'   => $property_status,
-                'compare' => '=',
-            ],
-        ];
-
-        // Add price range if price is available and numeric
-        if ($price && is_numeric($price) && $price > 0) {
-            $meta_query[] = [
-                'key'     => '_property_price',
-                'value'   => [
-                    floatval($price) * 0.8, // 20% less
-                    floatval($price) * 1.2, // 20% more
-                ],
-                'compare' => 'BETWEEN',
-                'type'    => 'NUMERIC',
-            ];
-        }
-
-        // Get similar properties with better criteria
-        $similar_properties = get_posts([
-            'post_type'      => 'property',
-            'posts_per_page' => $limit,
-            'post__not_in'   => [$property_id],
-            'meta_query'     => $meta_query,
-            'orderby'        => 'rand', // Randomize to show different properties
-        ]);
-
-        // If no similar properties found, get any other properties with better fallback
-        if (empty($similar_properties)) {
-            $similar_properties = get_posts([
-                'post_type'      => 'property',
-                'posts_per_page' => $limit,
-                'post__not_in'   => [$property_id],
-                'orderby'        => 'rand',
-            ]);
-        }
-
-        // If still no properties, get any property including current one (as last resort)
-        if (empty($similar_properties)) {
-            $similar_properties = get_posts([
-                'post_type'      => 'property',
-                'posts_per_page' => $limit,
-                'orderby'        => 'rand',
-            ]);
-        }
-
-        return $similar_properties;
+    // Get the current post
+    global $post;
+    if (! $post) {
+        return;
     }
 
-    // Get all property meta fields with fallbacks
-    $price                    = get_post_meta($property_id, '_property_price', true);
-    $price_per_sqft           = get_post_meta($property_id, '_property_price_per_sqft', true);
-    $price_note               = get_post_meta($property_id, '_property_price_note', true);
-    $call_for_price           = get_post_meta($property_id, '_property_call_for_price', true);
-    $bedrooms                 = get_post_meta($property_id, '_property_bedrooms', true);
-    $bathrooms                = get_post_meta($property_id, '_property_bathrooms', true);
-    $half_baths               = get_post_meta($property_id, '_property_half_baths', true);
-    $total_rooms              = get_post_meta($property_id, '_property_total_rooms', true);
-    $floors                   = get_post_meta($property_id, '_property_floors', true);
-    $floor_level              = get_post_meta($property_id, '_property_floor_level', true);
-    $area                     = get_post_meta($property_id, '_property_area_sqft', true);
-    $lot_size                 = get_post_meta($property_id, '_property_lot_size_sqft', true);
-    $year_built               = get_post_meta($property_id, '_property_year_built', true);
-    $year_remodeled           = get_post_meta($property_id, '_property_year_remodeled', true);
-    $latitude                 = get_post_meta($property_id, '_property_latitude', true);
-    $longitude                = get_post_meta($property_id, '_property_longitude', true);
-    $gallery                  = get_post_meta($property_id, '_property_gallery', true);
-    $floor_plans              = get_post_meta($property_id, '_property_floor_plans', true);
-    $virtual_tour             = get_post_meta($property_id, '_property_virtual_tour', true);
-    $virtual_tour_title       = get_post_meta($property_id, '_property_virtual_tour_title', true);
-    $virtual_tour_description = get_post_meta($property_id, '_property_virtual_tour_description', true);
-    $virtual_tour_button_text = get_post_meta($property_id, '_property_virtual_tour_button_text', true);
-    $video_url                = get_post_meta($property_id, '_property_video_url', true);
-    $video_embed              = get_post_meta($property_id, '_property_video_embed', true);
-    $map_iframe               = get_post_meta($property_id, '_property_map_iframe', true);
+    // Get all property data
+    $price          = get_post_meta($post->ID, '_property_price', true);
+    $price_per_sqft = get_post_meta($post->ID, '_property_price_per_sqft', true);
+    $price_note     = get_post_meta($post->ID, '_property_price_note', true);
+    $call_for_price = get_post_meta($post->ID, '_property_call_for_price', true);
 
-    // Get nearby features
-    $nearby_schools     = get_post_meta($property_id, '_property_nearby_schools', true);
-    $nearby_shopping    = get_post_meta($property_id, '_property_nearby_shopping', true);
-    $nearby_restaurants = get_post_meta($property_id, '_property_nearby_restaurants', true);
+    $bedrooms       = get_post_meta($post->ID, '_property_bedrooms', true);
+    $bathrooms      = get_post_meta($post->ID, '_property_bathrooms', true);
+    $half_baths     = get_post_meta($post->ID, '_property_half_baths', true);
+    $total_rooms    = get_post_meta($post->ID, '_property_total_rooms', true);
+    $floors         = get_post_meta($post->ID, '_property_floors', true);
+    $floor_level    = get_post_meta($post->ID, '_property_floor_level', true);
+    $area_sqft      = get_post_meta($post->ID, '_property_area_sqft', true);
+    $lot_size_sqft  = get_post_meta($post->ID, '_property_lot_size_sqft', true);
+    $year_built     = get_post_meta($post->ID, '_property_year_built', true);
+    $year_remodeled = get_post_meta($post->ID, '_property_year_remodeled', true);
 
-    // Debug: Log video and virtual tour data
-    if (current_user_can('manage_options')) {
-        error_log('Map iframe data: ' . ($map_iframe ? substr($map_iframe, 0, 100) . '...' : 'EMPTY'));
-        error_log('Video URL: ' . ($video_url ? $video_url : 'EMPTY'));
-        error_log('Video embed: ' . ($video_embed ? substr($video_embed, 0, 100) . '...' : 'EMPTY'));
-        error_log('Virtual tour: ' . ($virtual_tour ? $virtual_tour : 'EMPTY'));
+    $property_type      = get_post_meta($post->ID, '_property_type', true);
+    $property_status    = get_post_meta($post->ID, '_property_status', true);
+    $property_condition = get_post_meta($post->ID, '_property_condition', true);
+
+    $address      = get_post_meta($post->ID, '_property_address', true);
+    $city         = get_post_meta($post->ID, '_property_city', true);
+    $state        = get_post_meta($post->ID, '_property_state', true);
+    $zip          = get_post_meta($post->ID, '_property_zip', true);
+    $country      = get_post_meta($post->ID, '_property_country', true);
+    $latitude     = get_post_meta($post->ID, '_property_latitude', true);
+    $longitude    = get_post_meta($post->ID, '_property_longitude', true);
+    $map_iframe   = get_post_meta($post->ID, '_property_map_iframe', true);
+    $hide_address = get_post_meta($post->ID, '_property_hide_address', true);
+
+    $features          = get_post_meta($post->ID, '_property_features', true);
+    $amenities         = get_post_meta($post->ID, '_property_amenities', true);
+    $parking           = get_post_meta($post->ID, '_property_parking', true);
+    $heating           = get_post_meta($post->ID, '_property_heating', true);
+    $cooling           = get_post_meta($post->ID, '_property_cooling', true);
+    $basement          = get_post_meta($post->ID, '_property_basement', true);
+    $roof              = get_post_meta($post->ID, '_property_roof', true);
+    $exterior_material = get_post_meta($post->ID, '_property_exterior_material', true);
+    $floor_covering    = get_post_meta($post->ID, '_property_floor_covering', true);
+
+    // Nearby features
+    $nearby_schools     = get_post_meta($post->ID, '_property_nearby_schools', true);
+    $nearby_shopping    = get_post_meta($post->ID, '_property_nearby_shopping', true);
+    $nearby_restaurants = get_post_meta($post->ID, '_property_nearby_restaurants', true);
+
+    $gallery_images           = get_post_meta($post->ID, '_property_gallery', true);
+    
+    // Convert gallery attachment IDs to URLs
+    $gallery_urls = [];
+    if (!empty($gallery_images) && is_array($gallery_images)) {
+        foreach ($gallery_images as $image_id) {
+            $image_url = wp_get_attachment_image_url($image_id, 'full');
+            if ($image_url) {
+                $gallery_urls[] = $image_url;
+            }
+        }
     }
-    $description       = get_post_meta($property_id, '_property_description', true);
-    $features          = get_post_meta($property_id, '_property_features', true);
-    $amenities         = get_post_meta($property_id, '_property_amenities', true);
-    $parking           = get_post_meta($property_id, '_property_parking', true);
-    $heating           = get_post_meta($property_id, '_property_heating', true);
-    $cooling           = get_post_meta($property_id, '_property_cooling', true);
-    $basement          = get_post_meta($property_id, '_property_basement', true);
-    $roof              = get_post_meta($property_id, '_property_roof', true);
-    $exterior_material = get_post_meta($property_id, '_property_exterior_material', true);
-    $floor_covering    = get_post_meta($property_id, '_property_floor_covering', true);
+    $floor_plans              = get_post_meta($post->ID, '_property_floor_plans', true);
+    $virtual_tour             = get_post_meta($post->ID, '_property_virtual_tour', true);
+    $virtual_tour_title       = get_post_meta($post->ID, '_property_virtual_tour_title', true);
+    $virtual_tour_description = get_post_meta($post->ID, '_property_virtual_tour_description', true);
+    $virtual_tour_button_text = get_post_meta($post->ID, '_property_virtual_tour_button_text', true);
+    $video_url                = get_post_meta($post->ID, '_property_video_url', true);
+    $video_embed              = get_post_meta($post->ID, '_property_video_embed', true);
 
-    // Get property status, type, and condition
-    $property_status    = get_post_meta($property_id, '_property_status', true);
-    $property_type      = get_post_meta($property_id, '_property_type', true);
-    $property_condition = get_post_meta($property_id, '_property_condition', true);
-
-    // Get location data
-    $address = get_post_meta($property_id, '_property_address', true);
-    $city    = get_post_meta($property_id, '_property_city', true);
-    $state   = get_post_meta($property_id, '_property_state', true);
-    $zip     = get_post_meta($property_id, '_property_zip', true);
-
-    // Get agent data
-    $agent_id              = get_post_meta($property_id, '_property_agent', true);
-    $agent_name            = get_post_meta($property_id, '_property_agent_name', true);
-    $agent_phone           = get_post_meta($property_id, '_property_agent_phone', true);
-    $agent_email           = get_post_meta($property_id, '_property_agent_email', true);
-    $agent_photo           = get_post_meta($property_id, '_property_agent_photo', true);
-    $agent_properties_sold = get_post_meta($property_id, '_property_agent_properties_sold', true);
-    $agent_experience      = get_post_meta($property_id, '_property_agent_experience', true);
-
-    // Get tour/booking data
-    $tour_duration           = get_post_meta($property_id, '_property_tour_duration', true);
-    $tour_group_size         = get_post_meta($property_id, '_property_tour_group_size', true);
-    $tour_safety             = get_post_meta($property_id, '_property_tour_safety', true);
-    $available_times         = get_post_meta($property_id, '_property_available_times', true);
-    $agent_response_time     = get_post_meta($property_id, '_property_agent_response_time', true);
-    $agent_rating            = get_post_meta($property_id, '_property_agent_rating', true);
-    $agent_reviews           = get_post_meta($property_id, '_property_agent_reviews', true);
-    $agent_send_message_text = get_post_meta($property_id, '_property_agent_send_message_text', true);
+    // Agent data
+    $agent_name              = get_post_meta($post->ID, '_property_agent_name', true);
+    $agent_phone             = get_post_meta($post->ID, '_property_agent_phone', true);
+    $agent_email             = get_post_meta($post->ID, '_property_agent_email', true);
+    $agent_photo             = get_post_meta($post->ID, '_property_agent_photo', true);
+    $agent_properties_sold   = get_post_meta($post->ID, '_property_agent_properties_sold', true);
+    $agent_experience        = get_post_meta($post->ID, '_property_agent_experience', true);
+    $agent_response_time     = get_post_meta($post->ID, '_property_agent_response_time', true);
+    $agent_rating            = get_post_meta($post->ID, '_property_agent_rating', true);
+    $agent_reviews           = get_post_meta($post->ID, '_property_agent_reviews', true);
+    $agent_send_message_text = get_post_meta($post->ID, '_property_agent_send_message_text', true);
 
     // Contact Form Dynamic Fields
-    $contact_form_title      = get_post_meta($property_id, '_property_contact_form_title', true);
-    $contact_name_label      = get_post_meta($property_id, '_property_contact_name_label', true);
-    $contact_email_label     = get_post_meta($property_id, '_property_contact_email_label', true);
-    $contact_phone_label     = get_post_meta($property_id, '_property_contact_phone_label', true);
-    $contact_message_label   = get_post_meta($property_id, '_property_contact_message_label', true);
-    $contact_success_message = get_post_meta($property_id, '_property_contact_success_message', true);
-    $contact_submit_text     = get_post_meta($property_id, '_property_contact_submit_text', true);
+    $contact_form_title      = get_post_meta($post->ID, '_property_contact_form_title', true);
+    $contact_name_label      = get_post_meta($post->ID, '_property_contact_name_label', true);
+    $contact_email_label     = get_post_meta($post->ID, '_property_contact_email_label', true);
+    $contact_phone_label     = get_post_meta($post->ID, '_property_contact_phone_label', true);
+    $contact_message_label   = get_post_meta($post->ID, '_property_contact_message_label', true);
+    $contact_success_message = get_post_meta($post->ID, '_property_contact_success_message', true);
+    $contact_submit_text     = get_post_meta($post->ID, '_property_contact_submit_text', true);
 
     // Mortgage Calculator Dynamic Fields
-    $mortgage_calculator_title      = get_post_meta($property_id, '_property_mortgage_calculator_title', true);
-    $mortgage_property_price_label  = get_post_meta($property_id, '_property_mortgage_property_price_label', true);
-    $mortgage_down_payment_label    = get_post_meta($property_id, '_property_mortgage_down_payment_label', true);
-    $mortgage_interest_rate_label   = get_post_meta($property_id, '_property_mortgage_interest_rate_label', true);
-    $mortgage_loan_term_label       = get_post_meta($property_id, '_property_mortgage_loan_term_label', true);
-    $mortgage_monthly_payment_label = get_post_meta($property_id, '_property_mortgage_monthly_payment_label', true);
-    $mortgage_default_down_payment  = get_post_meta($property_id, '_property_mortgage_default_down_payment', true);
-    $mortgage_default_interest_rate = get_post_meta($property_id, '_property_mortgage_default_interest_rate', true);
-    $mortgage_default_loan_term     = get_post_meta($property_id, '_property_mortgage_default_loan_term', true);
-    $mortgage_loan_terms            = get_post_meta($property_id, '_property_mortgage_loan_terms', true);
-    $mortgage_disclaimer_text       = get_post_meta($property_id, '_property_mortgage_disclaimer_text', true);
+    $mortgage_calculator_title      = get_post_meta($post->ID, '_property_mortgage_calculator_title', true);
+    $mortgage_property_price_label  = get_post_meta($post->ID, '_property_mortgage_property_price_label', true);
+    $mortgage_down_payment_label    = get_post_meta($post->ID, '_property_mortgage_down_payment_label', true);
+    $mortgage_interest_rate_label   = get_post_meta($post->ID, '_property_mortgage_interest_rate_label', true);
+    $mortgage_loan_term_label       = get_post_meta($post->ID, '_property_mortgage_loan_term_label', true);
+    $mortgage_monthly_payment_label = get_post_meta($post->ID, '_property_mortgage_monthly_payment_label', true);
+    $mortgage_default_down_payment  = get_post_meta($post->ID, '_property_mortgage_default_down_payment', true);
+    $mortgage_default_interest_rate = get_post_meta($post->ID, '_property_mortgage_default_interest_rate', true);
+    $mortgage_default_loan_term     = get_post_meta($post->ID, '_property_mortgage_default_loan_term', true);
+    $mortgage_loan_terms            = get_post_meta($post->ID, '_property_mortgage_loan_terms', true);
+    $mortgage_disclaimer_text       = get_post_meta($post->ID, '_property_mortgage_disclaimer_text', true);
 
     // Tour Information Fields
-    $tour_duration   = get_post_meta($property_id, '_property_tour_duration', true);
-    $tour_group_size = get_post_meta($property_id, '_property_tour_group_size', true);
-    $tour_safety     = get_post_meta($property_id, '_property_tour_safety', true);
+    $tour_duration   = get_post_meta($post->ID, '_property_tour_duration', true);
+    $tour_group_size = get_post_meta($post->ID, '_property_tour_group_size', true);
+    $tour_safety     = get_post_meta($post->ID, '_property_tour_safety', true);
 
-    // Get gallery images with proper URL conversion
-    $gallery_images = [];
-
-    if (is_array($gallery)) {
-        $gallery_ids = array_filter($gallery);
-    } elseif (is_string($gallery) && ! empty($gallery)) {
-        $gallery_ids = array_filter(explode(',', $gallery));
-    } else {
-        $gallery_ids = [];
+    // Get property badges
+    $property_badges = get_post_meta($post->ID, '_property_badges', true);
+    if (! is_array($property_badges)) {
+        $property_badges = [];
     }
 
-    // Convert attachment IDs to URLs
-    foreach ($gallery_ids as $image_id) {
-        if (is_numeric($image_id)) {
-            $image_url = wp_get_attachment_image_url(intval($image_id), 'large');
-            if ($image_url) {
-                $gallery_images[] = $image_url;
-            }
-        } elseif (filter_var($image_id, FILTER_VALIDATE_URL)) {
-            $gallery_images[] = $image_id;
-        }
-    }
+    // Get property taxonomies
+    $property_types     = get_the_terms($post->ID, 'property_type');
+    $property_statuses  = get_the_terms($post->ID, 'property_status');
+    $property_locations = get_the_terms($post->ID, 'property_location');
 
-    // Fallback to featured image if no gallery images
-    if (empty($gallery_images)) {
-        $featured_image_id = get_post_thumbnail_id($property_id);
-        if ($featured_image_id) {
-            $featured_image_url = wp_get_attachment_image_url($featured_image_id, 'large');
-            if ($featured_image_url) {
-                $gallery_images[] = $featured_image_url;
-            }
-        }
-    }
-
-    // Get features and amenities
-    if (is_array($features)) {
-        $features_list = array_filter(array_map('trim', $features));
-    } else {
-        $features_list = array_filter(array_map('trim', explode(',', $features)));
-    }
-
-    if (is_array($amenities)) {
-        $amenities_list = array_filter(array_map('trim', $amenities));
-    } else {
-        $amenities_list = array_filter(array_map('trim', explode(',', $amenities)));
-    }
+    // Get featured image
+    $featured_image = get_the_post_thumbnail_url($post->ID, 'large');
 
     // Format price
-    $formatted_price          = $price ? '$' . number_format($price) : __('Price on Request', 'realestate-booking-suite');
-    $price_per_sqft_formatted = $price_per_sqft ? '$' . number_format($price_per_sqft) . ' ' . __('/sq ft', 'realestate-booking-suite') : '';
+    $formatted_price = '';
+    if ($price && ! $call_for_price) {
+        $formatted_price = '$' . number_format($price);
+    } elseif ($call_for_price) {
+        $formatted_price = 'Call for Price';
+    }
 
-    // Format location
-    $full_address = trim($address . ', ' . $city . ', ' . $state . ' ' . $zip, ', ');
+    // Format price per sqft
+    $formatted_price_per_sqft = '';
+    if ($price_per_sqft) {
+        $formatted_price_per_sqft = '$' . number_format($price_per_sqft) . '/sq ft';
+    }
 
-    // Get property title
-    $property_title = get_the_title();
+    // Format area
+    $formatted_area = '';
+    if ($area_sqft) {
+        $formatted_area = number_format($area_sqft) . ' sq ft';
+    }
+
+    // Format lot size
+    $formatted_lot_size = '';
+    if ($lot_size_sqft) {
+        $formatted_lot_size = number_format($lot_size_sqft) . ' sq ft';
+    }
+
+    // Format full address
+    $full_address = '';
+    if ($address) {
+        $full_address = $address;
+        if ($city) {
+            $full_address .= ', ' . $city;
+        }
+
+        if ($state) {
+            $full_address .= ', ' . $state;
+        }
+
+        if ($zip) {
+            $full_address .= ' ' . $zip;
+        }
+
+        if ($country) {
+            $full_address .= ', ' . $country;
+        }
+
+    }
+
+    // Parse features and amenities
+    $features_array = [];
+    if ($features && is_string($features)) {
+        $features_array = explode(',', $features);
+        $features_array = array_map('trim', $features_array);
+    }
+
+    $amenities_array = [];
+    if ($amenities && is_string($amenities)) {
+        $amenities_array = explode(',', $amenities);
+        $amenities_array = array_map('trim', $amenities_array);
+    }
+
+    // Parse gallery images
+    $gallery_array = [];
+    if ($gallery_images && is_string($gallery_images)) {
+        $gallery_array = explode(',', $gallery_images);
+        $gallery_array = array_map('trim', $gallery_array);
+    }
+
+    // Default values for missing data
+    $default_values = [
+        'price'                 => '$0',
+        'price_per_sqft'        => '$0/sq ft',
+        'bedrooms'              => '0',
+        'bathrooms'             => '0',
+        'area_sqft'             => '0 sq ft',
+        'property_type'         => 'Property',
+        'property_status'       => 'Available',
+        'property_condition'    => 'Good',
+        'agent_name'            => 'Contact Agent',
+        'agent_phone'           => 'N/A',
+        'agent_email'           => 'N/A',
+        'agent_rating'          => '5',
+        'agent_reviews'         => '0',
+        'agent_experience'      => 'N/A',
+        'agent_response_time'   => 'N/A',
+        'agent_properties_sold' => '0',
+    ];
+
+    // Apply defaults
+    foreach ($default_values as $key => $default_value) {
+        if (empty($$key)) {
+            $$key = $default_value;
+        }
+    }
 ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?php echo esc_html(get_the_title()); ?> - Property Details</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+        :root {
+    --rebs-primary-color: #10b981;
+    --rebs-primary-dark: #059669;
+    --rebs-primary-light: #d1fae5;
+    --rebs-secondary-color: #1f2937;
+    --rebs-light-gray: #f9fafb;
+    --rebs-medium-gray: #e5e7eb;
+    --rebs-dark-gray: #6b7280;
+    --rebs-text-dark: #1f2937;
+    --rebs-text-light: #6b7280;
+    --rebs-white: #ffffff;
+    --rebs-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    --rebs-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --rebs-radius: 0.5rem;
+    --rebs-radius-lg: 0.75rem;
+}
+
+/* Reset and Base Styles */
+.single-property * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+}
+
+/* Ensure Font Awesome icons display properly */
+.single-property .fas,
+.single-property .far,
+.single-property .fab,
+.single-property .fal,
+.single-property .fa {
+    font-family: "Font Awesome 6 Free", "Font Awesome 6 Pro", "Font Awesome 6 Brands" !important;
+    font-weight: 900 !important;
+    font-style: normal !important;
+    font-variant: normal !important;
+    text-rendering: auto !important;
+    line-height: 1 !important;
+    -webkit-font-smoothing: antialiased !important;
+    -moz-osx-font-smoothing: grayscale !important;
+}
+
+.single-property .far {
+    font-weight: 400 !important;
+}
+
+.single-property .fab {
+    font-family: "Font Awesome 6 Brands" !important;
+    font-weight: 400 !important;
+}
+
+.single-property body {
+    background-color: var(--rebs-light-gray);
+    color: var(--rebs-text-dark);
+    line-height: 1.6;
+}
+
+/* Layout */
+.single-property .main-single-container {
+    max-width: 1536px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.single-property .grid {
+    display: grid;
+    gap: 2rem;
+}
+
+.single-property .grid-cols-1 {
+    grid-template-columns: 1fr;
+}
+
+@media (min-width: 768px) {
+    .single-property .grid-cols-2 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .single-property .grid-cols-3 {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .single-property .grid-cols-4 {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .single-property .lg-grid-cols-3 {
+        grid-template-columns: 2fr 1fr;
+    }
+}
+
+/* Header */
+.single-property header {
+    background-color: var(--rebs-white);
+    box-shadow: var(--rebs-shadow);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+}
+
+.single-property .header-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 0;
+}
+
+.single-property .header-left {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.single-property .logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+}
+
+.single-property .logo-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    background: linear-gradient(to right, var(--rebs-primary-color), #0d9488);
+    border-radius: var(--rebs-radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.single-property .logo-icon i {
+    color: var(--rebs-white);
+    font-size: 1.25rem;
+}
+
+.single-property .logo-text {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--rebs-text-dark);
+}
+
+.single-property .nav-desktop {
+    display: none;
+    gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+    .single-property .nav-desktop {
+        display: flex;
+    }
+}
+
+.single-property .nav-link {
+    color: var(--rebs-dark-gray);
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.single-property .nav-link:hover {
+    color: var(--rebs-primary-color);
+}
+
+.single-property .header-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.single-property .header-icon {
+    color: var(--rebs-dark-gray);
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.single-property .header-icon:hover {
+    color: var(--rebs-primary-color);
+}
+
+.single-property .btn {
+    display: inline-block;
+    padding: 0.5rem 1.5rem;
+    border-radius: var(--rebs-radius);
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s;
+    border: none;
+}
+
+.single-property .btn-primary {
+    background-color: var(--rebs-primary-color);
+    color: var(--rebs-white);
+}
+
+.single-property .btn-primary:hover {
+    background-color: var(--rebs-primary-dark);
+}
+
+.single-property .menu-toggle {
+    display: block;
+    color: var(--rebs-dark-gray);
+    background: none;
+    border: none;
+    font-size: 1.25rem;
+    cursor: pointer;
+}
+
+@media (min-width: 768px) {
+    .single-property .menu-toggle {
+        display: none;
+    }
+}
+
+/* Mobile Menu */
+.single-property .mobile-menu {
+    display: none;
+    background-color: var(--rebs-white);
+    box-shadow: var(--rebs-shadow);
+}
+
+.single-property .mobile-menu.active {
+    display: block;
+}
+
+.single-property .mobile-nav {
+    padding: 1rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.single-property .mobile-nav a {
+    color: var(--rebs-dark-gray);
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.single-property .mobile-nav a:hover {
+    color: var(--rebs-primary-color);
+}
+
+/* Breadcrumb */
+.single-property .breadcrumb {
+    background-color: var(--rebs-white);
+    border-bottom: 1px solid var(--rebs-medium-gray);
+    padding: 0.75rem 0;
+}
+
+.single-property .breadcrumb-content {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+}
+
+.single-property .breadcrumb-link {
+    color: var(--rebs-dark-gray);
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.single-property .breadcrumb-link:hover {
+    color: var(--rebs-primary-color);
+}
+
+.single-property .breadcrumb-separator {
+    color: var(--rebs-dark-gray);
+    font-size: 0.75rem;
+}
+
+.single-property .breadcrumb-current {
+    color: var(--rebs-text-dark);
+    font-weight: 500;
+}
+
+/* Main Content */
+.single-property .main-content {
+    padding: 2rem 0;
+}
+
+/* Cards */
+.single-property .card {
+    background-color: var(--rebs-white);
+    border-radius: var(--rebs-radius-lg);
+    box-shadow: var(--rebs-shadow);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Property Header */
+.single-property .property-header {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+@media (min-width: 768px) {
+    .single-property .property-header {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+}
+
+.single-property .property-badges {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.single-property .badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--rebs-white);
+}
+
+.single-property .badge-primary {
+    background-color: var(--rebs-primary-color);
+}
+
+.single-property .badge-blue {
+    background-color: #3b82f6;
+}
+
+.single-property .badge-orange {
+    background-color: #f97316;
+}
+
+.single-property .property-title {
+    font-size: 1.875rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+@media (min-width: 768px) {
+    .single-property .property-title {
+        font-size: 2.25rem;
+    }
+}
+
+.single-property .property-location {
+    color: var(--rebs-dark-gray);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.single-property .property-price {
+    font-size: 2.25rem;
+    font-weight: 700;
+    color: var(--rebs-primary-color);
+}
+
+.single-property .property-price-per-unit {
+    color: var(--rebs-dark-gray);
+    font-size: 0.875rem;
+}
+
+.single-property .property-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 20px !important;
+}
+
+.single-property .action-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--rebs-medium-gray);
+    border-radius: var(--rebs-radius);
+    background-color: var(--rebs-white);
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.single-property .action-btn:hover {
+    background-color: var(--rebs-light-gray);
+}
+
+.single-property .action-btn-primary {
+    background-color: var(--rebs-primary-color);
+    color: var(--rebs-white);
+    border-color: var(--rebs-primary-color);
+}
+
+.single-property .action-btn-primary:hover {
+    background-color: var(--rebs-primary-dark);
+}
+
+/* Gallery */
+.single-property .gallery {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem;
+}
+
+.single-property .gallery-item {
+    border-radius: var(--rebs-radius);
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.single-property .gallery-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.single-property .gallery-item:hover img {
+    transform: scale(1.05);
+}
+
+.single-property .gallery-main {
+    grid-column: span 4;
+    grid-row: span 2;
+}
+
+@media (min-width: 768px) {
+    .single-property .gallery-main {
+        grid-column: span 2;
+    }
+}
+
+.single-property .gallery-more {
+    position: relative;
+}
+
+.single-property .gallery-overlay {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: var(--rebs-radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.single-property .gallery-overlay span {
+    color: var(--rebs-white);
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+/* Key Features */
+.single-property .key-features-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+@media (min-width: 768px) {
+    .single-property .key-features-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+.single-property .feature-item {
+    text-align: center;
+    padding: 1rem;
+    background-color: var(--rebs-light-gray);
+    border-radius: var(--rebs-radius);
+}
+
+.single-property .feature-icon {
+    font-size: 1.875rem;
+    color: var(--rebs-primary-color);
+    margin-bottom: 0.5rem;
+    display: inline-block;
+    width: auto;
+    height: auto;
+}
+
+.single-property .feature-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+.single-property .feature-label {
+    color: var(--rebs-dark-gray);
+    font-size: 0.875rem;
+}
+
+/* Tabs */
+.single-property .tabs {
+    background-color: var(--rebs-white);
+    border-radius: var(--rebs-radius-lg);
+    box-shadow: var(--rebs-shadow);
+    margin-bottom: 1.5rem;
+}
+
+.single-property .tabs-header {
+    display: flex;
+    overflow-x: auto;
+    border-bottom: 1px solid var(--rebs-medium-gray);
+}
+
+.single-property .tab-button {
+    padding: 1rem 1.5rem;
+    font-weight: 600;
+    white-space: nowrap;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s;
+    color: var(--rebs-dark-gray);
+}
+
+.single-property .tab-button:hover {
+    color: var(--rebs-primary-color);
+}
+
+.single-property .tab-button.active {
+    border-bottom: 3px solid var(--rebs-primary-color);
+    color: var(--rebs-primary-color);
+}
+
+.single-property .tabs-content {
+    padding: 1.5rem;
+}
+
+.single-property .tab-content {
+    display: none;
+}
+
+.single-property .tab-content.active {
+    display: block;
+}
+
+.single-property .section-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+/* Info Box */
+.single-property .info-box {
+    padding: 1rem;
+    background-color: var(--rebs-primary-light);
+    border-left: 4px solid var(--rebs-primary-color);
+    border-radius: var(--rebs-radius);
+    margin-top: 1.5rem;
+}
+
+.single-property .info-box p {
+    color: #065f46;
+}
+
+/* Property Details */
+.single-property .details-grid {
+    display: grid;
+    gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+    .single-property .details-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.single-property .detail-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--rebs-medium-gray);
+}
+
+.single-property .detail-label {
+    color: var(--rebs-dark-gray);
+}
+
+.single-property .detail-value {
+    font-weight: 600;
+}
+
+/* Amenities */
+.single-property .amenities-filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.single-property .filter-btn {
+    padding: 0.5rem 1rem;
+    border-radius: var(--rebs-radius);
+    font-weight: 600;
+    font-size: 0.875rem;
+    background-color: var(--rebs-light-gray);
+    color: var(--rebs-dark-gray);
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.single-property .filter-btn:hover {
+    background-color: var(--rebs-medium-gray);
+}
+
+.single-property .filter-btn.active {
+    background-color: var(--rebs-primary-color);
+    color: var(--rebs-white);
+}
+
+.single-property .amenities-grid {
+    display: grid;
+    gap: 1rem;
+}
+
+@media (min-width: 768px) {
+    .single-property .amenities-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .single-property .amenities-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.single-property .amenity-item {
+    padding: 1rem;
+    background-color: var(--rebs-light-gray);
+    border-radius: var(--rebs-radius);
+    transition: all 0.3s;
+}
+
+.single-property .amenity-item:hover {
+    background-color: #f0fdf4;
+    transform: translateY(-2px);
+}
+
+.single-property .amenity-item i {
+    color: var(--rebs-primary-color);
+    margin-right: 0.5rem;
+}
+
+/* Floor Plan */
+.single-property .floor-plan-container {
+    background-color: var(--rebs-light-gray);
+    border-radius: var(--rebs-radius);
+    padding: 2rem;
+    text-align: center;
+}
+
+.single-property .floor-plan-image {
+    max-width: 48rem;
+    margin: 0 auto;
+    border-radius: var(--rebs-radius);
+    box-shadow: var(--rebs-shadow-lg);
+}
+
+.single-property .floor-plan-actions {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+/* Map */
+.single-property #map {
+    height: 400px;
+    width: 100%;
+    border-radius: var(--rebs-radius);
+    margin-bottom: 1.5rem;
+}
+
+.single-property .location-features {
+    display: grid;
+    gap: 1rem;
+}
+
+@media (min-width: 768px) {
+    .single-property .location-features {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.single-property .location-feature {
+    padding: 1rem;
+    border-radius: var(--rebs-radius);
+}
+
+.single-property .location-feature i {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.single-property .location-feature h4 {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.single-property .location-feature p {
+    font-size: 0.875rem;
+    color: var(--rebs-dark-gray);
+}
+
+.single-property .location-feature-blue {
+    background-color: #dbeafe;
+}
+
+.single-property .location-feature-blue i {
+    color: #3b82f6;
+}
+
+.single-property .location-feature-green {
+    background-color: #dcfce7;
+}
+
+.single-property .location-feature-green i {
+    color: #22c55e;
+}
+
+.single-property .location-feature-purple {
+    background-color: #f3e8ff;
+}
+
+.single-property .location-feature-purple i {
+    color: #a855f7;
+}
+
+.single-property .location-feature-red {
+    background-color: #fee2e2;
+}
+
+.single-property .location-feature-red i {
+    color: #ef4444;
+}
+
+.single-property .location-feature-yellow {
+    background-color: #fef3c7;
+}
+
+.single-property .location-feature-yellow i {
+    color: #f59e0b;
+}
+
+.single-property .location-feature-teal {
+    background-color: #ccfbf1;
+}
+
+.single-property .location-feature-teal i {
+    color: #14b8a6;
+}
+
+/* Reviews */
+.single-property .rating-overview {
+    background: linear-gradient(to right, var(--rebs-primary-light), #ccfbf1);
+    border-radius: var(--rebs-radius);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.single-property .rating-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+}
+
+@media (min-width: 768px) {
+    .single-property .rating-content {
+        flex-direction: row;
+    }
+}
+
+.single-property .rating-score {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+@media (min-width: 768px) {
+    .single-property .rating-score {
+        text-align: left;
+        margin-bottom: 0;
+    }
+}
+
+.single-property .rating-value {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.single-property .rating-stars {
+    display: flex;
+    margin-bottom: 0.5rem;
+}
+
+.single-property .rating-star {
+    color: #fbbf24;
+}
+
+.single-property .rating-count {
+    color: var(--rebs-dark-gray);
+}
+
+.single-property .rating-bars {
+    width: 100%;
+}
+
+@media (min-width: 768px) {
+    .single-property .rating-bars {
+        width: 50%;
+    }
+}
+
+.single-property .rating-bar {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.single-property .rating-label {
+    width: 2rem;
+    font-size: 0.875rem;
+    color: var(--rebs-dark-gray);
+}
+
+.single-property .rating-bar-track {
+    flex: 1;
+    background-color: var(--rebs-medium-gray);
+    border-radius: 9999px;
+    height: 0.5rem;
+    margin: 0 0.5rem;
+}
+
+.single-property .rating-bar-fill {
+    background-color: var(--rebs-primary-color);
+    height: 100%;
+    border-radius: 9999px;
+}
+
+.single-property .rating-bar-count {
+    width: 2rem;
+    font-size: 0.875rem;
+    color: var(--rebs-dark-gray);
+    text-align: right;
+}
+
+.single-property .reviews-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+@media (min-width: 768px) {
+    .single-property .reviews-controls {
+        flex-direction: row;
+    }
+}
+
+.single-property .review-search {
+    flex: 1;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--rebs-medium-gray);
+    border-radius: var(--rebs-radius);
+    outline: none;
+}
+
+.single-property .review-search:focus {
+    border-color: var(--rebs-primary-color);
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+}
+
+.single-property .review-sort {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--rebs-medium-gray);
+    border-radius: var(--rebs-radius);
+    outline: none;
+}
+
+.single-property .review-sort:focus {
+    border-color: var(--rebs-primary-color);
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+}
+
+.single-property .review-item {
+    border-bottom: 1px solid var(--rebs-medium-gray);
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+}
+
+.single-property .review-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.single-property .review-user {
+    display: flex;
+    align-items: center;
+}
+
+.single-property .review-avatar {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 9999px;
+    margin-right: 0.75rem;
+}
+
+.single-property .review-name {
+    font-weight: 600;
+}
+
+.single-property .review-meta {
+    display: flex;
+    align-items: center;
+}
+
+.single-property .review-date {
+    font-size: 0.875rem;
+    color: var(--rebs-dark-gray);
+    margin-left: 0.5rem;
+}
+
+.single-property .review-text {
+    color: var(--rebs-dark-gray);
+    margin-bottom: 0.5rem;
+}
+
+.single-property .review-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 0.875rem;
+}
+
+.single-property .review-action {
+    color: var(--rebs-dark-gray);
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.single-property .review-action:hover {
+    color: var(--rebs-primary-color);
+}
+
+.single-property .load-more {
+    width: 100%;
+    padding: 0.75rem 1.5rem;
+    background-color: var(--rebs-light-gray);
+    color: var(--rebs-dark-gray);
+    border: none;
+    border-radius: var(--rebs-radius);
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-top: 1.5rem;
+}
+
+.single-property .load-more:hover {
+    background-color: var(--rebs-medium-gray);
+}
+
+/* Similar Properties */
+.single-property .similar-properties-grid {
+    display: grid;
+    gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+    .single-property .similar-properties-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.single-property .property-card {
+    border: 1px solid var(--rebs-medium-gray);
+    border-radius: var(--rebs-radius);
+    overflow: hidden;
+    transition: all 0.3s;
+}
+
+.single-property .property-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.single-property .property-image {
+    position: relative;
+}
+
+.single-property .property-image img {
+    width: 100%;
+    height: 12rem;
+    object-fit: cover;
+}
+
+.single-property .property-badge {
+    position: absolute;
+    top: 0.75rem;
+    left: 0.75rem;
+    background-color: var(--rebs-primary-color);
+    color: var(--rebs-white);
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.single-property .property-info {
+    padding: 1rem;
+}
+
+.single-property .property-card-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.single-property .property-card-location {
+    color: var(--rebs-dark-gray);
+    font-size: 0.875rem;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.single-property .property-card-price {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--rebs-primary-color);
+    margin-bottom: 0.75rem;
+}
+
+.single-property .property-card-features {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 0.875rem;
+    color: var(--rebs-dark-gray);
+    border-top: 1px solid var(--rebs-medium-gray);
+    padding-top: 0.75rem;
+}
+
+/* Sidebar */
+.single-property .sidebar {
+    position: sticky;
+    top: 6rem;
+}
+
+/* Agent Card */
+.single-property .agent-card {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.single-property .agent-avatar {
+    width: 6rem;
+    height: 6rem;
+    border-radius: 9999px;
+    margin: 0 auto 0.75rem;
+    border: 4px solid var(--rebs-primary-light);
+}
+
+.single-property .agent-name {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+.single-property .agent-title {
+    color: var(--rebs-dark-gray);
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+}
+
+.single-property .agent-rating {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+}
+
+.single-property .agent-stats {
+    border-top: 1px solid var(--rebs-medium-gray);
+    padding-top: 1rem;
+}
+
+.single-property .agent-stat {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+}
+
+.single-property .agent-stat-label {
+    color: var(--rebs-dark-gray);
+}
+
+.single-property .agent-stat-value {
+    font-weight: 600;
+}
+
+.single-property .agent-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.single-property .agent-action {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    border-radius: var(--rebs-radius);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+}
+
+.single-property .agent-action-primary {
+    background-color: var(--rebs-primary-color);
+    color: var(--rebs-white);
+}
+
+.single-property .agent-action-primary:hover {
+    background-color: var(--rebs-primary-dark);
+}
+
+.single-property .agent-action-secondary {
+    background-color: var(--rebs-secondary-color);
+    color: var(--rebs-white);
+}
+
+.single-property .agent-action-secondary:hover {
+    background-color: #374151;
+}
+
+.single-property .agent-action-outline {
+    border: 2px solid var(--rebs-primary-color);
+    color: var(--rebs-primary-color);
+    background-color: transparent;
+}
+
+.single-property .agent-action-outline:hover {
+    background-color: var(--rebs-primary-light);
+}
+
+/* Mortgage Calculator */
+.single-property .calculator-input {
+    margin-bottom: 1rem;
+}
+
+.single-property .calculator-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--rebs-dark-gray);
+    margin-bottom: 0.5rem;
+}
+
+.single-property .calculator-field {
+    width: 100%;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--rebs-medium-gray);
+    border-radius: var(--rebs-radius);
+    outline: none;
+}
+
+.single-property .calculator-field:focus {
+    border-color: var(--rebs-primary-color);
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+}
+
+.single-property .calculator-slider {
+    width: 100%;
+    margin-bottom: 0.5rem;
+}
+
+.single-property .calculator-slider-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.875rem;
+    color: var(--rebs-dark-gray);
+}
+
+.single-property .calculator-slider-value {
+    font-weight: 600;
+}
+
+.single-property .calculator-result {
+    background-color: var(--rebs-primary-light);
+    border-radius: var(--rebs-radius);
+    padding: 1rem;
+    margin-top: 1rem;
+}
+
+.single-property .calculator-result-label {
+    font-size: 0.875rem;
+    color: var(--rebs-dark-gray);
+    margin-bottom: 0.25rem;
+}
+
+.single-property .calculator-result-value {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: var(--rebs-primary-color);
+}
+
+.single-property .calculator-result-note {
+    font-size: 0.75rem;
+    color: var(--rebs-dark-gray);
+    margin-top: 0.5rem;
+}
+
+/* Stats Card */
+.single-property .stats-card {
+    background: linear-gradient(to bottom right, var(--rebs-primary-color), #0d9488);
+    border-radius: var(--rebs-radius-lg);
+    box-shadow: var(--rebs-shadow);
+    padding: 1.5rem;
+    color: var(--rebs-white);
+}
+
+.single-property .stats-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.single-property .stats-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.single-property .stat-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.single-property .stat-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.single-property .stat-value {
+    font-weight: 700;
+}
+
+/* Footer */
+.single-property footer {
+    background-color: var(--rebs-secondary-color);
+    color: var(--rebs-white);
+    margin-top: 4rem;
+}
+
+.single-property .footer-content {
+    padding: 3rem 0;
+}
+
+.single-property .footer-grid {
+    display: grid;
+    gap: 2rem;
+}
+
+@media (min-width: 768px) {
+    .single-property .footer-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+.single-property .footer-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.single-property .footer-logo-text {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.single-property .footer-description {
+    color: #9ca3af;
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+.single-property .footer-heading {
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.single-property .footer-links {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.single-property .footer-link {
+    color: #9ca3af;
+    font-size: 0.875rem;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.single-property .footer-link:hover {
+    color: var(--rebs-primary-color);
+}
+
+.single-property .footer-contact {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.single-property .footer-contact-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #9ca3af;
+    font-size: 0.875rem;
+}
+
+.single-property .footer-contact-item i {
+    color: var(--rebs-primary-color);
+}
+
+.single-property .footer-bottom {
+    border-top: 1px solid #374151;
+    padding-top: 2rem;
+    text-align: center;
+    color: #9ca3af;
+    font-size: 0.875rem;
+}
+
+/* Modals */
+.single-property .modal {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 50;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.single-property .modal.active {
+    display: flex;
+}
+
+.single-property .modal-content {
+    background-color: var(--rebs-white);
+    border-radius: var(--rebs-radius-lg);
+    max-width: 28rem;
+    width: 100%;
+    padding: 1.5rem;
+}
+
+.single-property .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.single-property .modal-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.single-property .modal-close {
+    color: var(--rebs-dark-gray);
+    background: none;
+    border: none;
+    font-size: 1.25rem;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.single-property .modal-close:hover {
+    color: var(--rebs-text-dark);
+}
+
+.single-property .form-group {
+    margin-bottom: 1rem;
+}
+
+.single-property .form-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--rebs-dark-gray);
+    margin-bottom: 0.5rem;
+}
+
+.single-property .form-input {
+    width: 100%;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--rebs-medium-gray);
+    border-radius: var(--rebs-radius);
+    outline: none;
+}
+
+.single-property .form-input:focus {
+    border-color: var(--rebs-primary-color);
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+}
+
+.single-property .form-textarea {
+    resize: vertical;
+    min-height: 6rem;
+}
+
+.single-property .form-submit {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background-color: var(--rebs-primary-color);
+    color: var(--rebs-white);
+    border: none;
+    border-radius: var(--rebs-radius);
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.single-property .form-submit:hover {
+    background-color: var(--rebs-primary-dark);
+}
+
+/* Image Viewer */
+.single-property .image-viewer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 9999;
+    display: none;
+    justify-content: center;
+    align-items: center;
+}
+
+.single-property .image-viewer.active {
+    display: flex;
+}
+
+.single-property .image-viewer img {
+    max-width: 90%;
+    max-height: 90%;
+}
+
+.single-property .image-viewer-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    color: var(--rebs-white);
+    font-size: 1.875rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    z-index: 10;
+    transition: color 0.3s;
+}
+
+.single-property .image-viewer-close:hover {
+    color: var(--rebs-primary-color);
+}
+
+.single-property .image-viewer-prev,
+.single-property .image-viewer-next {
+    position: absolute;
+    color: var(--rebs-white);
+    font-size: 1.875rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    z-index: 10;
+    transition: color 0.3s;
+}
+
+.single-property .image-viewer-prev {
+    left: 1rem;
+}
+
+.single-property .image-viewer-next {
+    right: 1rem;
+}
+
+.single-property .image-viewer-prev:hover,
+.single-property .image-viewer-next:hover {
+    color: var(--rebs-primary-color);
+}
+
+/* Utility Classes */
+.single-property .text-center {
+    text-align: center;
+}
+
+.single-property .text-left {
+    text-align: left;
+}
+
+.single-property .text-right {
+    text-align: right;
+}
+
+.single-property .hidden {
+    display: none;
+}
+
+.single-property .flex {
+    display: flex;
+}
+
+.single-property .items-center {
+    align-items: center;
+}
+
+.single-property .justify-center {
+    justify-content: center;
+}
+
+.single-property .justify-between {
+    justify-content: space-between;
+}
+
+.single-property .flex-col {
+    flex-direction: column;
+}
+
+.single-property .flex-wrap {
+    flex-wrap: wrap;
+}
+
+.single-property .gap-2 {
+    gap: 0.5rem;
+}
+
+.single-property .gap-3 {
+    gap: 0.75rem;
+}
+
+.single-property .gap-4 {
+    gap: 1rem;
+}
+
+.single-property .gap-6 {
+    gap: 1.5rem;
+}
+
+.single-property .mb-2 {
+    margin-bottom: 0.5rem;
+}
+
+.single-property .mb-3 {
+    margin-bottom: 0.75rem;
+}
+
+.single-property .mb-4 {
+    margin-bottom: 1rem;
+}
+
+.single-property .mb-6 {
+    margin-bottom: 1.5rem;
+}
+
+.single-property .mt-2 {
+    margin-top: 0.5rem;
+}
+
+.single-property .mt-4 {
+    margin-top: 1rem;
+}
+
+.single-property .mt-6 {
+    margin-top: 1.5rem;
+}
+
+.single-property .mt-16 {
+    margin-top: 4rem;
+}
+
+.single-property .mr-1 {
+    margin-right: 0.25rem;
+}
+
+.single-property .mr-2 {
+    margin-right: 0.5rem;
+}
+
+.single-property .mr-3 {
+    margin-right: 0.75rem;
+}
+
+.single-property .ml-2 {
+    margin-left: 0.5rem;
+}
+
+.single-property .p-4 {
+    padding: 1rem;
+}
+
+.single-property .p-6 {
+    padding: 1.5rem;
+}
+
+.single-property .px-4 {
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+.single-property .px-6 {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+}
+
+.single-property .py-2 {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+}
+
+.single-property .py-3 {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+}
+
+.single-property .py-4 {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+
+.single-property .py-8 {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+}
+
+.single-property .pt-3 {
+    padding-top: 0.75rem;
+}
+
+.single-property .pt-4 {
+    padding-top: 1rem;
+}
+
+.single-property .pb-4 {
+    padding-bottom: 1rem;
+}
+
+.single-property .space-y-2 > * + * {
+    margin-top: 0.5rem;
+}
+
+.single-property .space-y-3 > * + * {
+    margin-top: 0.75rem;
+}
+
+.single-property .space-y-4 > * + * {
+    margin-top: 1rem;
+}
+
+.single-property .space-y-6 > * + * {
+    margin-top: 1.5rem;
+}
+
+.single-property .leading-relaxed {
+    line-height: 1.625;
+}
+
+.single-property .whitespace-nowrap {
+    white-space: nowrap;
+}
+
+.single-property .overflow-x-auto {
+    overflow-x: auto;
+}
+
+.single-property .sticky {
+    position: sticky;
+}
+
+.single-property .top-0 {
+    top: 0;
+}
+
+.single-property .top-24 {
+    top: 6rem;
+}
+
+.single-property .absolute {
+    position: absolute;
+}
+
+.single-property .relative {
+    position: relative;
+}
+
+.single-property .inset-0 {
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+}
+
+.single-property .z-10 {
+    z-index: 10;
+}
+
+.single-property .z-50 {
+    z-index: 50;
+}
+
+.single-property .w-full {
+    width: 100%;
+}
+
+.single-property .w-12 {
+    width: 3rem;
+}
+
+.single-property .h-12 {
+    height: 3rem;
+}
+
+.single-property .max-w-full {
+    max-width: 100%;
+}
+
+.single-property .max-h-full {
+    max-height: 100%;
+}
+
+.single-property .max-w-md {
+    max-width: 28rem;
+}
+
+.single-property .max-w-3xl {
+    max-width: 48rem;
+}
+
+.single-property .object-cover {
+    object-fit: cover;
+}
+
+.single-property .rounded {
+    border-radius: var(--rebs-radius);
+}
+
+.single-property .rounded-lg {
+    border-radius: var(--rebs-radius-lg);
+}
+
+.single-property .rounded-full {
+    border-radius: 9999px;
+}
+
+.single-property .border {
+    border-width: 1px;
+    border-style: solid;
+    border-color: var(--rebs-medium-gray);
+}
+
+.single-property .border-b {
+    border-bottom-width: 1px;
+    border-bottom-style: solid;
+    border-bottom-color: var(--rebs-medium-gray);
+}
+
+.single-property .border-t {
+    border-top-width: 1px;
+    border-top-style: solid;
+    border-top-color: var(--rebs-medium-gray);
+}
+
+.single-property .border-l-4 {
+    border-left-width: 4px;
+    border-left-style: solid;
+    border-left-color: var(--rebs-primary-color);
+}
+
+.single-property .border-2 {
+    border-width: 2px;
+    border-style: solid;
+    border-color: var(--rebs-primary-color);
+}
+
+.single-property .border-gray-300 {
+    border-color: var(--rebs-medium-gray);
+}
+
+.single-property .bg-white {
+    background-color: var(--rebs-white);
+}
+
+.single-property .bg-gray-50 {
+    background-color: var(--rebs-light-gray);
+}
+
+.single-property .bg-gray-100 {
+    background-color: #f3f4f6;
+}
+
+.single-property .bg-gray-700 {
+    background-color: var(--rebs-secondary-color);
+}
+
+.single-property .bg-emerald-500 {
+    background-color: var(--rebs-primary-color);
+}
+
+.single-property .bg-emerald-50 {
+    background-color: var(--rebs-primary-light);
+}
+
+.single-property .bg-blue-500 {
+    background-color: #3b82f6;
+}
+
+.single-property .bg-orange-500 {
+    background-color: #f97316;
+}
+
+.single-property .bg-blue-50 {
+    background-color: #dbeafe;
+}
+
+.single-property .bg-green-50 {
+    background-color: #dcfce7;
+}
+
+.single-property .bg-purple-50 {
+    background-color: #f3e8ff;
+}
+
+.single-property .bg-red-50 {
+    background-color: #fee2e2;
+}
+
+.single-property .bg-yellow-50 {
+    background-color: #fef3c7;
+}
+
+.single-property .bg-teal-50 {
+    background-color: #ccfbf1;
+}
+
+.single-property .text-white {
+    color: var(--rebs-white);
+}
+
+.single-property .text-gray-600 {
+    color: var(--rebs-dark-gray);
+}
+
+.single-property .text-gray-700 {
+    color: #374151;
+}
+
+.single-property .text-gray-800 {
+    color: var(--rebs-text-dark);
+}
+
+.single-property .text-emerald-500 {
+    color: var(--rebs-primary-color);
+}
+
+.single-property .text-emerald-600 {
+    color: var(--rebs-primary-dark);
+}
+
+.single-property .text-emerald-800 {
+    color: #065f46;
+}
+
+.single-property .text-blue-500 {
+    color: #3b82f6;
+}
+
+.single-property .text-green-500 {
+    color: #22c55e;
+}
+
+.single-property .text-purple-500 {
+    color: #a855f7;
+}
+
+.single-property .text-red-500 {
+    color: #ef4444;
+}
+
+.single-property .text-yellow-500 {
+    color: #f59e0b;
+}
+
+.single-property .text-teal-500 {
+    color: #14b8a6;
+}
+
+.single-property .text-sm {
+    font-size: 0.875rem;
+}
+
+.single-property .text-xs {
+    font-size: 0.75rem;
+}
+
+.single-property .text-lg {
+    font-size: 1.125rem;
+}
+
+.single-property .text-xl {
+    font-size: 1.25rem;
+}
+
+.single-property .text-2xl {
+    font-size: 1.5rem;
+}
+
+.single-property .text-3xl {
+    font-size: 1.875rem;
+}
+
+.single-property .text-4xl {
+    font-size: 2.25rem;
+}
+
+.single-property .text-5xl {
+    font-size: 3rem;
+}
+
+.single-property .font-semibold {
+    font-weight: 600;
+}
+
+.single-property .font-bold {
+    font-weight: 700;
+}
+
+.single-property .cursor-pointer {
+    cursor: pointer;
+}
+
+.single-property .transition {
+    transition: all 0.3s;
+}
+
+
+@media print {
+    .single-property .no-print {
+        display: none !important;
+    }
+}
+
+/* Animation */
+.single-property .badge {
+    animation: rebs-pulse 2s infinite;
+}
+
+@keyframes rebs-pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: .8;
+    }
+}
+
+.single-property .skeleton {
+    animation: rebs-skeleton-loading 1s linear infinite alternate;
+}
+
+@keyframes rebs-skeleton-loading {
+    0% {
+        background-color: hsl(200, 20%, 80%);
+    }
+    100% {
+        background-color: hsl(200, 20%, 95%);
+    }
+}
+
+.single-property .tooltip {
+    position: relative;
+}
+
+.single-property .tooltip:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--rebs-secondary-color);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    white-space: nowrap;
+    font-size: 12px;
+    z-index: 1000;
+}
+
+.single-property .smooth-scroll {
+    scroll-behavior: smooth;
+}
+
+/* Additional fixes for dynamic content */
+.single-property .tab-content {
+    min-height: 200px;
+}
+
+.single-property .section-title {
+    color: var(--rebs-text-dark);
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.single-property .text-gray-600 {
+    color: var(--rebs-text-light);
+}
+
+.single-property .bg-gray-50 {
+    background-color: var(--rebs-light-gray);
+}
+
+.single-property .text-gray-900 {
+    color: var(--rebs-text-dark);
+}
+
+.single-property .text-gray-500 {
+    color: var(--rebs-text-light);
+}
+
+/* Ensure proper spacing for dynamic content */
+.single-property .mb-6 {
+    margin-bottom: 1.5rem;
+}
+
+.single-property .mb-8 {
+    margin-bottom: 2rem;
+}
+
+.single-property .space-y-4 > * + * {
+    margin-top: 1rem;
+}
+
+.single-property .space-y-3 > * + * {
+    margin-top: 0.75rem;
+}
+
+/* Specifications Grid */
+.single-property .specifications-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+@media (min-width: 768px) {
+    .single-property .specifications-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .single-property .specifications-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (min-width: 1280px) {
+    .single-property .specifications-grid {
+        grid-template-columns: repeat(5, 1fr);
+    }
+}
+
+.single-property .specifications-grid > div {
+    background-color: var(--rebs-light-gray);
+    padding: 1rem;
+    border-radius: var(--rebs-radius);
+    text-align: center;
+    transition: transform 0.2s ease;
+}
+
+.single-property .specifications-grid > div:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--rebs-shadow);
+}
+
+/* Pricing Container */
+.single-property .pricing-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+    .single-property .pricing-container {
+        flex-direction: row;
+        max-width: 600px;
+    }
+}
+
+.single-property .pricing-card {
+    background-color: var(--rebs-light-gray);
+    padding: 1.5rem;
+    border-radius: var(--rebs-radius);
+    text-align: center;
+    flex: 1;
+    min-width: 200px;
+}
+
+.single-property .pricing-card.main-price {
+    background-color: var(--rebs-primary-light);
+    border: 2px solid var(--rebs-primary-color);
+}
+
+.single-property .pricing-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--rebs-text-light);
+    margin-bottom: 0.5rem;
+}
+
+.single-property .pricing-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--rebs-text-dark);
+    margin-bottom: 0.5rem;
+}
+
+.single-property .pricing-value-small {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--rebs-text-dark);
+    margin-bottom: 0.5rem;
+}
+
+.single-property .pricing-note {
+    font-size: 0.875rem;
+    color: var(--rebs-text-light);
+    margin-top: 0.5rem;
+}
+
+/* Classification Container */
+.single-property .classification-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    max-width: 600px;
+}
+
+.single-property .classification-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    background-color: var(--rebs-light-gray);
+    border-radius: var(--rebs-radius);
+    border-left: 4px solid var(--rebs-primary-color);
+}
+
+.single-property .classification-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--rebs-text-light);
+}
+
+.single-property .classification-value {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--rebs-text-dark);
+}
+    </style>
+</head>
+<body class="smooth-scroll">
+
+<div class="single-property">
 
 
 
-<div class="single-property-container tw:bg-gray-50">
-    <div class="tw:container tw:mx-auto tw:px-4 tw:py-8">
 
-        <div class="tw:grid tw:grid-cols-1 tw:lg:grid-cols-3 tw:gap-8">
+    <div class="main-single-container container main-content ">
+        <div class="grid grid-cols-1 lg-grid-cols-3">
             <!-- Main Content -->
-            <div class="tw:lg:col-span-2">
+            <div class="lg-col-span-2">
                 <!-- Property Header -->
-                <div class="tw:bg-white tw:rounded-xl tw:shadow-sm tw:p-6 tw:mb-6">
-                    <div class="tw:flex tw:flex-col tw:md:flex-row tw:md:items-center tw:justify-between tw:mb-4">
+                <div class="card">
+                    <div class="property-header">
                         <div>
-                            <div class="tw:flex tw:items-center tw:space-x-2 tw:mb-2">
-                                <span class="tw:bg-emerald-500 tw:text-white tw:px-3 tw:py-1 tw:rounded-full tw:text-sm tw:font-semibold badge"><?php echo esc_html($property_status); ?></span>
-                                <?php if (get_post_meta($property_id, '_property_featured', true)): ?>
-                                <span class="tw:bg-blue-500 tw:text-white tw:px-3 tw:py-1 tw:rounded-full tw:text-sm tw:font-semibold"><?php esc_html_e('Featured', 'realestate-booking-suite'); ?></span>
+                            <div class="property-badges">
+                                <?php if ($property_status): ?>
+                                    <span class="badge badge-primary badge"><?php echo esc_html($property_status); ?></span>
                                 <?php endif; ?>
-                                <?php if (get_post_meta($property_id, '_property_hot_deal', true)): ?>
-                                <span class="tw:bg-orange-500 tw:text-white tw:px-3 tw:py-1 tw:rounded-full tw:text-sm tw:font-semibold"><?php esc_html_e('Hot Deal', 'realestate-booking-suite'); ?></span>
+                                <?php if (in_array('Featured', $property_badges)): ?>
+                                    <span class="badge badge-blue">Featured</span>
+                                <?php endif; ?>
+                                <?php if (in_array('New', $property_badges)): ?>
+                                    <span class="badge badge-orange">New</span>
+                                <?php endif; ?>
+                                <?php if (in_array('Sold', $property_badges)): ?>
+                                    <span class="badge badge-red">Sold</span>
                                 <?php endif; ?>
                             </div>
-                            <h1 class="tw:text-3xl tw:md:text-4xl tw:font-bold tw:text-gray-800 tw:mb-2"><?php echo esc_html($property_title); ?></h1>
-                            <div class="tw:flex tw:flex-wrap tw:items-center tw:gap-4 tw:mb-2">
-                                <p class="tw:text-gray-600 tw:flex tw:items-center">
-                                    <i class="fas fa-map-marker-alt tw:text-emerald-500 tw:mr-2"></i>
-                                    <?php echo esc_html($full_address ?: __('Location not specified', 'realestate-booking-suite')); ?>
-                                </p>
-                                <span class="tw:bg-blue-100 tw:text-blue-800 tw:px-3 tw:py-1 tw:rounded-full tw:text-sm tw:font-medium">
-                                    <i class="fas fa-home tw:mr-1"></i><?php echo esc_html($property_type); ?>
-                                </span>
-                                <span class="tw:bg-green-100 tw:text-green-800 tw:px-3 tw:py-1 tw:rounded-full tw:text-sm tw:font-medium">
-                                    <i class="fas fa-star tw:mr-1"></i><?php echo esc_html($property_condition); ?>
-                                </span>
-                            </div>
+                            <h1 class="property-title"><?php echo esc_html(get_the_title()); ?></h1>
+                            <p class="property-location">
+                                <i class="fas fa-map-marker-alt text-emerald-500"></i>
+                                <?php echo esc_html($full_address ? $full_address : 'Location not specified'); ?>
+                            </p>
                         </div>
-                        <div class="tw:mt-4 tw:md:mt-0">
-                            <p class="tw:text-4xl tw:font-bold tw:text-emerald-500"><?php echo esc_html($formatted_price); ?></p>
-                            <?php if ($price_per_sqft_formatted): ?>
-                            <p class="tw:text-gray-500 tw:text-sm"><?php echo esc_html($price_per_sqft_formatted); ?></p>
-                            <?php endif; ?>
-
-                            <!-- Price Note and Call for Price at bottom -->
-                            <?php if ($price_note): ?>
-                            <div class="tw:bg-blue-50 tw:border-l-4  tw:border-gray-200lue-500 tw:p-3 tw:rounded tw:mt-3">
-                                <p class="tw:text-blue-800 tw:text-sm"><i class="fas fa-info-circle tw:mr-2"></i><?php echo esc_html($price_note); ?></p>
-                            </div>
-                            <?php endif; ?>
-
-                            <?php if ($call_for_price): ?>
-                            <div class="tw:bg-orange-50 tw:border-l-4 tw:border-orange-500 tw:p-3 tw:rounded tw:mt-3">
-                                <p class="tw:text-orange-800 tw:text-sm"><i class="fas fa-phone tw:mr-2"></i><?php esc_html_e('Call for pricing information', 'realestate-booking-suite'); ?></p>
-                            </div>
+                        <div class="mt-4 md:mt-0">
+                            <p class="property-price"><?php echo esc_html($formatted_price); ?></p>
+                            <?php if ($formatted_price_per_sqft): ?>
+                                <p class="property-price-per-unit"><?php echo esc_html($formatted_price_per_sqft); ?></p>
                             <?php endif; ?>
                         </div>
                     </div>
 
-                    <div class="tw:flex tw:flex-wrap tw:gap-3 no-print">
-                        <button onclick="shareProperty()" class=" tw:flex tw:items-center tw:space-x-2 tw:px-4 tw:py-2 tw:border tw:border-gray-300 tw:rounded-lg hover:tw:bg-gray-50 tw:transition" data-tooltip="<?php esc_attr_e('Share Property', 'realestate-booking-suite'); ?>">
-                            <i class="fas fa-share-alt tw:text-gray-600"></i>
-                            <span class="tw:text-gray-700"><?php esc_html_e('Share', 'realestate-booking-suite'); ?></span>
+                    <div class="property-actions no-print">
+                        <button onclick="shareProperty()" class="tooltip action-btn" data-tooltip="Share Property">
+                            <i class="fas fa-share-alt text-gray-600"></i>
+                            <span class="text-gray-700">Share</span>
                         </button>
-                        <button onclick="printPage()" class=" tw:flex tw:items-center tw:space-x-2 tw:px-4 tw:py-2 tw:border tw:border-gray-300 tw:rounded-lg hover:tw:bg-gray-50 tw:transition" data-tooltip="<?php esc_attr_e('Print Details', 'realestate-booking-suite'); ?>">
-                            <i class="fas fa-print tw:text-gray-600"></i>
-                            <span class="tw:text-gray-700"><?php esc_html_e('Print', 'realestate-booking-suite'); ?></span>
+                        <button onclick="saveFavorite()" class="tooltip action-btn" data-tooltip="Save to Favorites">
+                            <i class="far fa-heart text-gray-600"></i>
+                            <span class="text-gray-700">Save</span>
+                        </button>
+                        <button onclick="printPage()" class="tooltip action-btn" data-tooltip="Print Details">
+                            <i class="fas fa-print text-gray-600"></i>
+                            <span class="text-gray-700">Print</span>
+                        </button>
+                        <button onclick="exportPDF()" class="tooltip action-btn action-btn-primary" data-tooltip="Export as PDF">
+                            <i class="fas fa-download"></i>
+                            <span>Export PDF</span>
                         </button>
                     </div>
                 </div>
 
                 <!-- Image Gallery -->
-                <div class="tw:bg-white tw:rounded-xl tw:shadow-sm tw:p-4 tw:mb-6">
-                    <?php if (! empty($gallery_images)): ?>
-                    <div class="tw:grid tw:grid-cols-4 tw:gap-3">
-                        <?php foreach ($gallery_images as $index => $image_url): ?>
-                            <?php if ($index === 0): ?>
-                            <div class="tw:col-span-4 tw:md:col-span-2 tw:md:row-span-2">
-                                <img src="<?php echo esc_url($image_url); ?>" alt="<?php esc_attr_e('Property Main', 'realestate-booking-suite'); ?>" class="tw:w-full tw:h-full tw:object-cover tw:rounded-lg tw:cursor-pointer gallery-img" onclick="openImageViewer(<?php echo $index; ?>)">
+                <div class="card">
+                    <div class="gallery">
+                        <?php 
+                            $all_images = [];
+                            if ($featured_image) {
+                                $all_images[] = $featured_image;
+                            }
+                            if (!empty($gallery_urls)) {
+                                $all_images = array_merge($all_images, $gallery_urls);
+                            }
+                            $total_images = count($all_images);
+                        ?>
+
+                        <?php if ($total_images > 0): ?>
+                            <div class="gallery-item gallery-main">
+                                <img src="<?php echo esc_url($all_images[0]); ?>" alt="<?php echo esc_attr(get_the_title()); ?>" class="gallery-img" onclick="openImageViewer(0)">
                             </div>
-                            <?php elseif ($index < 5): ?>
-                            <div class="tw:col-span-2 tw:md:col-span-1">
-                                <img src="<?php echo esc_url($image_url); ?>" alt="<?php esc_attr_e('Property', 'realestate-booking-suite'); ?>" class="tw:w-full tw:h-full tw:object-cover tw:rounded-lg tw:cursor-pointer gallery-img" onclick="openImageViewer(<?php echo $index; ?>)">
-                            </div>
-                            <?php elseif ($index === 5): ?>
-                            <div class="tw:col-span-2 tw:md:col-span-1 tw:relative">
-                                <img src="<?php echo esc_url($image_url); ?>" alt="<?php esc_attr_e('Property', 'realestate-booking-suite'); ?>" class="tw:w-full tw:h-full tw:object-cover tw:rounded-lg tw:cursor-pointer gallery-img" onclick="openImageViewer(<?php echo $index; ?>)">
-                                <div class="tw:absolute tw:inset-0 tw:bg-black tw:bg-opacity-50 tw:rounded-lg tw:flex tw:items-center tw:justify-center tw:cursor-pointer" onclick="openImageViewer(<?php echo $index; ?>)">
-                                    <span class="tw:text-white tw:text-xl tw:font-semibold">+<?php echo count($gallery_images) - 5; ?> <?php esc_html_e('More', 'realestate-booking-suite'); ?></span>
+
+                            <?php for ($i = 1; $i < min(4, $total_images); $i++): ?>
+                                <div class="gallery-item">
+                                    <img src="<?php echo esc_url($all_images[$i]); ?>" alt="<?php echo esc_attr(get_the_title()); ?>" class="gallery-img" onclick="openImageViewer(<?php echo $i; ?>)">
                                 </div>
-                            </div>
+                            <?php endfor; ?>
+
+                                <?php if ($total_images > 4): ?>
+                                    <div class="gallery-item gallery-more">
+                                        <img src="<?php echo esc_url($all_images[4]); ?>" alt="<?php echo esc_attr(get_the_title()); ?>" class="gallery-img" onclick="openImageViewer(4)">
+                                        <div class="gallery-overlay" onclick="openImageViewer(4)">
+                                            <span>+<?php echo($total_images - 4); ?> More</span>
+                                        </div>
+                                    </div>
+                                <?php endif; ?>
+                            <?php else: ?>
+                                <div class="gallery-item gallery-main">
+                                    <img src="<?php echo esc_url(get_template_directory_uri() . '/assets/images/placeholder-property.jpg'); ?>" alt="No image available" class="gallery-img">
+                                </div>
                             <?php endif; ?>
-                        <?php endforeach; ?>
                     </div>
-                    <?php else: ?>
-                    <div class="tw:text-center tw:py-12">
-                        <i class="fas fa-image tw:text-gray-300 tw:text-6xl tw:mb-4"></i>
-                        <p class="tw:text-gray-500"><?php esc_html_e('No images available for this property', 'realestate-booking-suite'); ?></p>
-                    </div>
-                    <?php endif; ?>
                 </div>
 
                 <!-- Key Features -->
-                <div class="tw:bg-white tw:rounded-xl tw:shadow-sm tw:p-6 tw:mb-6">
-                    <h2 class="tw:text-2xl tw:font-bold tw:text-gray-800 tw:mb-4"><?php esc_html_e('Key Features', 'realestate-booking-suite'); ?></h2>
-                    <div class="tw:grid tw:grid-cols-2 tw:md:grid-cols-4 tw:gap-4">
-                        <div class="tw:text-center tw:p-4 tw:bg-gray-50 tw:rounded-lg">
-                            <i class="fas fa-bed tw:text-3xl tw:text-emerald-500 tw:mb-2"></i>
-                            <p class="tw:text-2xl tw:font-bold tw:text-gray-800"><?php echo esc_html($bedrooms ?: '0'); ?></p>
-                            <p class="tw:text-gray-600 tw:text-sm"><?php esc_html_e('Bedrooms', 'realestate-booking-suite'); ?></p>
+                <div class="card">
+                    <h2 class="section-title">Key Features</h2>
+                    <div class="key-features-grid">
+                        <?php if ($bedrooms): ?>
+                        <div class="feature-item">
+                            <i class="fas fa-bed feature-icon"></i>
+                            <p class="feature-value"><?php echo esc_html($bedrooms); ?></p>
+                            <p class="feature-label">Bedrooms</p>
                         </div>
-                        <div class="tw:text-center tw:p-4 tw:bg-gray-50 tw:rounded-lg">
-                            <i class="fas fa-bath tw:text-3xl tw:text-emerald-500 tw:mb-2"></i>
-                            <p class="tw:text-2xl tw:font-bold tw:text-gray-800"><?php echo esc_html($bathrooms ?: '0'); ?></p>
-                            <p class="tw:text-gray-600 tw:text-sm"><?php esc_html_e('Bathrooms', 'realestate-booking-suite'); ?></p>
+                        <?php endif; ?>
+
+                        <?php if ($bathrooms): ?>
+                        <div class="feature-item">
+                            <i class="fas fa-bath feature-icon"></i>
+                            <p class="feature-value"><?php echo esc_html($bathrooms); ?></p>
+                            <p class="feature-label">Bathrooms</p>
                         </div>
-                        <div class="tw:text-center tw:p-4 tw:bg-gray-50 tw:rounded-lg">
-                            <i class="fas fa-ruler-combined tw:text-3xl tw:text-emerald-500 tw:mb-2"></i>
-                            <p class="tw:text-2xl tw:font-bold tw:text-gray-800"><?php echo esc_html($area ?: '0'); ?></p>
-                            <p class="tw:text-gray-600 tw:text-sm"><?php esc_html_e('Sq Ft', 'realestate-booking-suite'); ?></p>
+                        <?php endif; ?>
+
+                        <?php if ($formatted_area): ?>
+                        <div class="feature-item">
+                            <i class="fas fa-ruler-combined feature-icon"></i>
+                            <p class="feature-value"><?php echo esc_html($area_sqft); ?></p>
+                            <p class="feature-label">Sq Ft</p>
                         </div>
-                        <div class="tw:text-center tw:p-4 tw:bg-gray-50 tw:rounded-lg">
-                            <i class="fas fa-car tw:text-3xl tw:text-emerald-500 tw:mb-2"></i>
-                            <p class="tw:text-2xl tw:font-bold tw:text-gray-800"><?php echo esc_html($parking ?: '0'); ?></p>
-                            <p class="tw:text-gray-600 tw:text-sm"><?php esc_html_e('Parking', 'realestate-booking-suite'); ?></p>
+                        <?php endif; ?>
+
+                        <?php if ($parking): ?>
+                        <div class="feature-item">
+                            <i class="fas fa-car feature-icon"></i>
+                            <p class="feature-value"><?php echo esc_html($parking); ?></p>
+                            <p class="feature-label">Parking</p>
                         </div>
+                        <?php endif; ?>
+
+                        <?php if ($year_built): ?>
+                        <div class="feature-item">
+                            <i class="fas fa-calendar feature-icon"></i>
+                            <p class="feature-value"><?php echo esc_html($year_built); ?></p>
+                            <p class="feature-label">Year Built</p>
+                        </div>
+                        <?php endif; ?>
+
+                        <?php if ($property_type): ?>
+                        <div class="feature-item">
+                            <i class="fas fa-home feature-icon"></i>
+                            <p class="feature-value"><?php echo esc_html($property_type); ?></p>
+                            <p class="feature-label">Type</p>
+                        </div>
+                        <?php endif; ?>
                     </div>
                 </div>
 
                 <!-- Tabs Navigation -->
-                <div class="tw:bg-white tw:rounded-xl tw:shadow-sm tw:mb-6 no-print">
-                    <div class="tw:flex tw:overflow-x-auto tw:border-b tw:border-gray-200">
-                        <button onclick="switchTab('overview')" class="tw-tab-button tw-tab-active tw:px-6 tw:py-4 tw:font-semibold tw:whitespace-nowrap" data-tab="overview">
-                            <i class="fas fa-home tw:mr-2"></i><?php esc_html_e('Overview', 'realestate-booking-suite'); ?>
+                <div class="tabs no-print">
+                    <div class="tabs-header">
+                        <button onclick="switchTab('overview')" class="tab-button active" data-tab="overview">
+                            <i class="fas fa-home"></i> Overview
                         </button>
-                        <button onclick="switchTab('pricing')" class="tw-tab-button tw:px-6 tw:py-4 tw:font-semibold tw:text-gray-600 hover:tw:text-emerald-500 tw:whitespace-nowrap" data-tab="pricing">
-                            <i class="fas fa-dollar-sign tw:mr-2"></i><?php esc_html_e('Pricing', 'realestate-booking-suite'); ?>
+                        <button onclick="switchTab('pricing')" class="tab-button" data-tab="pricing">
+                            <i class="fas fa-dollar-sign"></i> Pricing
                         </button>
-                        <button onclick="switchTab('specifications')" class="tw-tab-button tw:px-6 tw:py-4 tw:font-semibold tw:text-gray-600 hover:tw:text-emerald-500 tw:whitespace-nowrap" data-tab="specifications">
-                            <i class="fas fa-list tw:mr-2"></i><?php esc_html_e('Specifications', 'realestate-booking-suite'); ?>
+                        <button onclick="switchTab('specifications')" class="tab-button" data-tab="specifications">
+                            <i class="fas fa-list"></i> Specifications
                         </button>
-                        <button onclick="switchTab('location')" class="tw-tab-button tw:px-6 tw:py-4 tw:font-semibold tw:text-gray-600 hover:tw:text-emerald-500 tw:whitespace-nowrap" data-tab="location">
-                            <i class="fas fa-map-marker-alt tw:mr-2"></i><?php esc_html_e('Location', 'realestate-booking-suite'); ?>
+                        <button onclick="switchTab('location')" class="tab-button" data-tab="location">
+                            <i class="fas fa-map-marker-alt"></i> Location
                         </button>
-                        <button onclick="switchTab('features')" class="tw-tab-button tw:px-6 tw:py-4 tw:font-semibold tw:text-gray-600 hover:tw:text-emerald-500 tw:whitespace-nowrap" data-tab="features">
-                            <i class="fas fa-check-circle tw:mr-2"></i><?php esc_html_e('Features', 'realestate-booking-suite'); ?>
+                        <button onclick="switchTab('features')" class="tab-button" data-tab="features">
+                            <i class="fas fa-star"></i> Features
                         </button>
-                        <button onclick="switchTab('media')" class="tw-tab-button tw:px-6 tw:py-4 tw:font-semibold tw:text-gray-600 hover:tw:text-emerald-500 tw:whitespace-nowrap" data-tab="media">
-                            <i class="fas fa-image tw:mr-2"></i><?php esc_html_e('Media', 'realestate-booking-suite'); ?>
+                        <button onclick="switchTab('media')" class="tab-button" data-tab="media">
+                            <i class="fas fa-images"></i> Media
                         </button>
-                        <?php if (! empty($floor_plans)): ?>
-                        <button onclick="switchTab('floorplan')" class="tw-tab-button tw:px-6 tw:py-4 tw:font-semibold tw:text-gray-600 hover:tw:text-emerald-500 tw:whitespace-nowrap" data-tab="floorplan">
-                            <i class="fas fa-vector-square tw:mr-2"></i><?php esc_html_e('Floor Plan', 'realestate-booking-suite'); ?>
+                        <button onclick="switchTab('agent')" class="tab-button" data-tab="agent">
+                            <i class="fas fa-user"></i> Agent
                         </button>
-                        <?php endif; ?>
-                        <button onclick="switchTab('booking')" class="tw-tab-button tw:px-6 tw:py-4 tw:font-semibold tw:text-gray-600 hover:tw:text-emerald-500 tw:whitespace-nowrap" data-tab="booking">
-                            <i class="fas fa-calendar tw:mr-2"></i><?php esc_html_e('Booking', 'realestate-booking-suite'); ?>
+                        <button onclick="switchTab('booking')" class="tab-button" data-tab="booking">
+                            <i class="fas fa-calendar"></i> Booking
                         </button>
                     </div>
 
                     <!-- Tab Contents -->
-                    <div class="tw:p-6">
+                    <div class="tabs-content">
                         <!-- Overview Tab -->
-                        <div id="overview-tab" class="tw-tab-content">
-                            <h3 class="tw:text-xl tw:font-bold tw:text-gray-800 tw:mb-4"><?php esc_html_e('Property Description', 'realestate-booking-suite'); ?></h3>
-                            <div class="tw:text-gray-600 tw:space-y-4 tw:leading-relaxed">
-                                <?php
-                                    // Get the post content (main description from editor)
-                                    $post_content = get_post_field('post_content', $property_id);
-                                if ($post_content): ?>
-                                    <?php echo wp_kses_post(wpautop($post_content)); ?>
-                                <?php elseif ($description): ?>
-                                    <?php echo wp_kses_post(wpautop($description)); ?>
-                                <?php else: ?>
-                                    <p><?php esc_html_e('Welcome to this stunning property. This exceptional property offers a perfect blend of luxury, comfort, and modern design.', 'realestate-booking-suite'); ?></p>
-                                <?php endif; ?>
+                        <div id="overview-tab" class="tab-content active">
+                            <!-- Property Classification -->
+                            <div class="mb-6">
+                                <h3 class="section-title">Property Classification</h3>
+                                <p class="text-gray-600 mb-4">Basic property information and type</p>
+                                <div class="classification-container">
+                                    <?php if ($property_type): ?>
+                                    <div class="classification-item">
+                                        <label class="classification-label">Property Type</label>
+                                        <p class="classification-value"><?php echo esc_html($property_type); ?></p>
+                                    </div>
+                                    <?php endif; ?>
+                                    
+                                    <?php if ($property_status): ?>
+                                    <div class="classification-item">
+                                        <label class="classification-label">Property Status</label>
+                                        <p class="classification-value"><?php echo esc_html($property_status); ?></p>
+                                    </div>
+                                    <?php endif; ?>
+                                    
+                                    <?php if ($property_condition): ?>
+                                    <div class="classification-item">
+                                        <label class="classification-label">Property Condition</label>
+                                        <p class="classification-value"><?php echo esc_html($property_condition); ?></p>
+                                    </div>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+
+                            <!-- Property Description -->
+                            <div class="mb-6">
+                                <h3 class="section-title">Property Description</h3>
+                                <div class="text-gray-600 space-y-4 leading-relaxed">
+                                    <?php if (get_the_content()): ?>
+                                        <?php echo wp_kses_post(get_the_content()); ?>
+                                    <?php else: ?>
+                                        <p>No description available for this property.</p>
+                                    <?php endif; ?>
+                                </div>
                             </div>
 
                             <?php if ($virtual_tour): ?>
-                            <div class="tw:mt-6 tw:p-4 tw:bg-emerald-50 tw:border-l-4 tw:border-emerald-500 tw:rounded">
-                                <p class="tw:text-emerald-800"><i class="fas fa-info-circle tw:mr-2"></i><strong><?php esc_html_e('Virtual Tour Available:', 'realestate-booking-suite'); ?></strong> <a href="<?php echo esc_url($virtual_tour); ?>" target="_blank" class="tw:underline"><?php esc_html_e('Schedule a 3D virtual walkthrough', 'realestate-booking-suite'); ?></a><?php esc_html_e('of this property at your convenience.', 'realestate-booking-suite'); ?></p>
+                            <div class="info-box">
+                                <p><i class="fas fa-info-circle mr-2"></i><strong>Virtual Tour Available:</strong> <?php echo esc_html($virtual_tour_description ? $virtual_tour_description : 'Schedule a 3D virtual walkthrough of this property at your convenience.'); ?></p>
                             </div>
                             <?php endif; ?>
                         </div>
 
                         <!-- Pricing Tab -->
-                        <div id="pricing-tab" class="tw-tab-content hidden">
-                            <h3 class="tw:text-xl tw:font-bold tw:text-gray-800 tw:mb-4"><?php esc_html_e('Pricing Information', 'realestate-booking-suite'); ?></h3>
-                            <div class="tw:grid tw:md:grid-cols-2 tw:gap-6">
-                                <div class="tw:space-y-4">
-                                    <div class="tw:bg-emerald-50 tw:rounded-lg tw:p-6">
-                                        <h4 class="tw:text-2xl tw:font-bold tw:text-emerald-600 tw:mb-2"><?php echo esc_html($formatted_price); ?></h4>
-                                        <p class="tw:text-gray-600"><?php echo esc_html($property_status); ?></p>
-                                        <?php if ($price_per_sqft_formatted): ?>
-                                        <p class="tw:text-sm tw:text-gray-500 tw:mt-2"><?php echo esc_html($price_per_sqft_formatted); ?></p>
-                                        <?php endif; ?>
-                                    </div>
-
+                        <div id="pricing-tab" class="tab-content">
+                            <h3 class="section-title">Property Pricing</h3>
+                            <p class="text-gray-600 mb-6">Set property price and pricing details</p>
+                            
+                            <div class="pricing-container">
+                                <!-- Main Price -->
+                                <div class="pricing-card main-price">
+                                    <label class="pricing-label">Price</label>
+                                    <p class="pricing-value"><?php echo esc_html($formatted_price); ?></p>
                                     <?php if ($price_note): ?>
-                                    <div class="tw:bg-blue-50 tw:border-l-4 tw:border-b tw:border-gray-200lue-500 tw:p-4 tw:rounded">
-                                        <p class="tw:text-blue-800"><i class="fas fa-info-circle tw:mr-2"></i><?php echo esc_html($price_note); ?></p>
-                                    </div>
-                                    <?php endif; ?>
-
-                                    <?php if ($call_for_price): ?>
-                                    <div class="tw:bg-orange-50 tw:border-l-4 tw:border-orange-500 tw:p-4 tw:rounded">
-                                        <p class="tw:text-orange-800"><i class="fas fa-phone tw:mr-2"></i><?php esc_html_e('Call for pricing information', 'realestate-booking-suite'); ?></p>
-                                    </div>
+                                        <p class="pricing-note"><?php echo esc_html($price_note); ?></p>
                                     <?php endif; ?>
                                 </div>
-
-                                <div class="tw:space-y-4">
-                                    <div class="tw:bg-gray-50 tw:rounded-lg tw:p-4">
-                                        <h5 class="tw:font-semibold tw:text-gray-800 tw:mb-3"><?php esc_html_e('Price Breakdown', 'realestate-booking-suite'); ?></h5>
-                                        <div class="tw:space-y-2 tw:text-sm">
-                                            <div class="tw:flex tw:justify-between">
-                                                <span class="tw:text-gray-600"><?php esc_html_e('List Price:', 'realestate-booking-suite'); ?></span>
-                                                <span class="tw:font-semibold"><?php echo esc_html($formatted_price); ?></span>
-                                            </div>
-                                            <?php if ($price_per_sqft_formatted): ?>
-                                            <div class="tw:flex tw:justify-between">
-                                                <span class="tw:text-gray-600"><?php esc_html_e('Price per sq ft:', 'realestate-booking-suite'); ?></span>
-                                                <span class="tw:font-semibold"><?php echo esc_html($price_per_sqft_formatted); ?></span>
-                                            </div>
-                                            <?php endif; ?>
-                                            <div class="tw:flex tw:justify-between">
-                                                <span class="tw:text-gray-600"><?php esc_html_e('Property Type:', 'realestate-booking-suite'); ?></span>
-                                                <span class="tw:font-semibold"><?php echo esc_html($property_type); ?></span>
-                                            </div>
-                                            <div class="tw:flex tw:justify-between">
-                                                <span class="tw:text-gray-600"><?php esc_html_e('Status:', 'realestate-booking-suite'); ?></span>
-                                                <span class="tw:font-semibold tw:text-emerald-600"><?php echo esc_html($property_status); ?></span>
-                                            </div>
-                                        </div>
-                                    </div>
+                                
+                                <!-- Price per Sq Ft -->
+                                <?php if ($formatted_price_per_sqft): ?>
+                                <div class="pricing-card">
+                                    <label class="pricing-label">Price per Sq Ft</label>
+                                    <p class="pricing-value-small"><?php echo esc_html($formatted_price_per_sqft); ?></p>
                                 </div>
+                                <?php endif; ?>
                             </div>
+                            
+                            <?php if ($call_for_price): ?>
+                            <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                                <p class="text-blue-800 font-medium"><i class="fas fa-phone mr-2"></i>Call for Price</p>
+                                <p class="text-blue-600 text-sm mt-1">Contact us for pricing information</p>
+                            </div>
+                            <?php endif; ?>
                         </div>
 
                         <!-- Specifications Tab -->
-                        <div id="specifications-tab" class="tw-tab-content hidden">
-                            <h3 class="tw:text-xl tw:font-bold tw:text-gray-800 tw:mb-4"><?php esc_html_e('Property Specifications', 'realestate-booking-suite'); ?></h3>
-                            <div class="tw:grid tw:md:grid-cols-2 tw:gap-6">
-                                <div class="tw:space-y-3">
-                                    <h4 class="tw:font-semibold tw:text-gray-800 tw:mb-3"><?php esc_html_e('Basic Information', 'realestate-booking-suite'); ?></h4>
-                                    <div class="tw:flex tw:justify-between tw:py-2 tw:border-b tw:border-gray-200 ">
-                                        <span class="tw:text-gray-600"><?php esc_html_e('Property ID:', 'realestate-booking-suite'); ?></span>
-                                        <span class="tw:font-semibold tw:text-gray-800"><?php echo esc_html($property_id); ?></span>
-                                    </div>
-                                    <div class="tw:flex tw:justify-between tw:py-2 tw:border-b tw:border-gray-200">
-                                        <span class="tw:text-gray-600"><?php esc_html_e('Property Type:', 'realestate-booking-suite'); ?></span>
-                                        <span class="tw:font-semibold tw:text-gray-800"><?php echo esc_html($property_type); ?></span>
-                                    </div>
-                                    <div class="tw:flex tw:justify-between tw:py-2 tw:border-b tw:border-gray-200">
-                                        <span class="tw:text-gray-600"><?php esc_html_e('Property Condition:', 'realestate-booking-suite'); ?></span>
-                                        <span class="tw:font-semibold tw:text-gray-800"><?php echo esc_html($property_condition); ?></span>
-                                    </div>
-                                    <div class="tw:flex tw:justify-between tw:py-2 tw:border-b tw:border-gray-200">
-                                        <span class="tw:text-gray-600"><?php esc_html_e('Status:', 'realestate-booking-suite'); ?></span>
-                                        <span class="tw:font-semibold tw:text-emerald-600"><?php echo esc_html($property_status); ?></span>
-                                    </div>
-                                    <?php if ($year_built): ?>
-                                    <div class="tw:flex tw:justify-between tw:py-2 tw:border-b tw:border-gray-200">
-                                        <span class="tw:text-gray-600"><?php esc_html_e('Year Built:', 'realestate-booking-suite'); ?></span>
-                                        <span class="tw:font-semibold tw:text-gray-800"><?php echo esc_html($year_built); ?></span>
-                                    </div>
-                                    <?php endif; ?>
-                                    <?php if ($year_remodeled): ?>
-                                    <div class="tw:flex tw:justify-between tw:py-2 tw:border-b tw:border-gray-200">
-                                        <span class="tw:text-gray-600"><?php esc_html_e('Year Remodeled:', 'realestate-booking-suite'); ?></span>
-                                        <span class="tw:font-semibold tw:text-gray-800"><?php echo esc_html($year_remodeled); ?></span>
-                                    </div>
-                                    <?php endif; ?>
+                        <div id="specifications-tab" class="tab-content">
+                            <h3 class="section-title">Property Specifications</h3>
+                            <p class="text-gray-600 mb-6">Detailed property specifications and measurements</p>
+                            
+                            <div class="specifications-grid">
+                                <?php if ($bedrooms): ?>
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Bedrooms</label>
+                                    <p class="text-2xl font-bold text-gray-900"><?php echo esc_html($bedrooms); ?></p>
                                 </div>
-
-                                <div class="tw:space-y-3">
-                                    <h4 class="tw:font-semibold tw:text-gray-800 tw:mb-3"><?php esc_html_e('Room Details', 'realestate-booking-suite'); ?></h4>
-                                    <div class="tw:flex tw:justify-between tw:py-2 tw:border-b tw:border-gray-200">
-                                        <span class="tw:text-gray-600"><?php esc_html_e('Bedrooms:', 'realestate-booking-suite'); ?></span>
-                                        <span class="tw:font-semibold tw:text-gray-800"><?php echo esc_html($bedrooms ?: '0'); ?></span>
-                                    </div>
-                                    <div class="tw:flex tw:justify-between tw:py-2 tw:border-b tw:border-gray-200">
-                                        <span class="tw:text-gray-600"><?php esc_html_e('Bathrooms:', 'realestate-booking-suite'); ?></span>
-                                        <span class="tw:font-semibold tw:text-gray-800"><?php echo esc_html($bathrooms ?: '0'); ?></span>
-                                    </div>
-                                    <?php if ($half_baths): ?>
-                                    <div class="tw:flex tw:justify-between tw:py-2 tw:border-b tw:border-gray-200">
-                                        <span class="tw:text-gray-600"><?php esc_html_e('Half Baths:', 'realestate-booking-suite'); ?></span>
-                                        <span class="tw:font-semibold tw:text-gray-800"><?php echo esc_html($half_baths); ?></span>
-                                    </div>
-                                    <?php endif; ?>
-                                    <?php if ($total_rooms): ?>
-                                    <div class="tw:flex tw:justify-between tw:py-2 tw:border-b tw:border-gray-200">
-                                        <span class="tw:text-gray-600"><?php esc_html_e('Total Rooms:', 'realestate-booking-suite'); ?></span>
-                                        <span class="tw:font-semibold tw:text-gray-800"><?php echo esc_html($total_rooms); ?></span>
-                                    </div>
-                                    <?php endif; ?>
-                                    <?php if ($floors): ?>
-                                    <div class="tw:flex tw:justify-between tw:py-2 tw:border-b tw:border-gray-200">
-                                        <span class="tw:text-gray-600"><?php esc_html_e('Floors:', 'realestate-booking-suite'); ?></span>
-                                        <span class="tw:font-semibold tw:text-gray-800"><?php echo esc_html($floors); ?></span>
-                                    </div>
-                                    <?php endif; ?>
-                                    <?php if ($floor_level): ?>
-                                    <div class="tw:flex tw:justify-between tw:py-2 tw:border-b tw:border-gray-200">
-                                        <span class="tw:text-gray-600"><?php esc_html_e('Floor Level:', 'realestate-booking-suite'); ?></span>
-                                        <span class="tw:font-semibold tw:text-gray-800"><?php echo esc_html($floor_level); ?></span>
-                                    </div>
-                                    <?php endif; ?>
+                                <?php endif; ?>
+                                
+                                <?php if ($bathrooms): ?>
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Bathrooms</label>
+                                    <p class="text-2xl font-bold text-gray-900"><?php echo esc_html($bathrooms); ?></p>
                                 </div>
-                            </div>
-
-                            <div class="tw:mt-6 tw:grid tw:md:grid-cols-2 tw:gap-6">
-                                <div class="tw:space-y-3">
-                                    <h4 class="tw:font-semibold tw:text-gray-800 tw:mb-3"><?php esc_html_e('Size & Area', 'realestate-booking-suite'); ?></h4>
-                                    <div class="tw:flex tw:justify-between tw:py-2 tw:border-b tw:border-gray-200">
-                                        <span class="tw:text-gray-600"><?php esc_html_e('Area:', 'realestate-booking-suite'); ?></span>
-                                        <span class="tw:font-semibold tw:text-gray-800"><?php echo esc_html($area ?: '0'); ?> sq ft</span>
-                                    </div>
-                                    <?php if ($lot_size): ?>
-                                    <div class="tw:flex tw:justify-between tw:py-2 tw:border-b tw:border-gray-200">
-                                        <span class="tw:text-gray-600"><?php esc_html_e('Lot Size:', 'realestate-booking-suite'); ?></span>
-                                        <span class="tw:font-semibold tw:text-gray-800"><?php echo esc_html($lot_size); ?> sq ft</span>
-                                    </div>
-                                    <?php endif; ?>
+                                <?php endif; ?>
+                                
+                                <?php if ($half_baths): ?>
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Half Baths</label>
+                                    <p class="text-2xl font-bold text-gray-900"><?php echo esc_html($half_baths); ?></p>
                                 </div>
-
-                                <div class="tw:space-y-3">
-                                    <h4 class="tw:font-semibold tw:text-gray-800 tw:mb-3"><?php esc_html_e('Building Features', 'realestate-booking-suite'); ?></h4>
-                                    <?php if ($heating): ?>
-                                    <div class="tw:flex tw:justify-between tw:py-2 tw:border-b tw:border-gray-200">
-                                        <span class="tw:text-gray-600"><?php esc_html_e('Heating:', 'realestate-booking-suite'); ?></span>
-                                        <span class="tw:font-semibold tw:text-gray-800"><?php echo esc_html($heating); ?></span>
-                                    </div>
-                                    <?php endif; ?>
-                                    <?php if ($cooling): ?>
-                                    <div class="tw:flex tw:justify-between tw:py-2 tw:border-b tw:border-gray-200">
-                                        <span class="tw:text-gray-600"><?php esc_html_e('Cooling:', 'realestate-booking-suite'); ?></span>
-                                        <span class="tw:font-semibold tw:text-gray-800"><?php echo esc_html($cooling); ?></span>
-                                    </div>
-                                    <?php endif; ?>
-                                    <?php if ($roof): ?>
-                                    <div class="tw:flex tw:justify-between tw:py-2 tw:border-b tw:border-gray-200">
-                                        <span class="tw:text-gray-600"><?php esc_html_e('Roof:', 'realestate-booking-suite'); ?></span>
-                                        <span class="tw:font-semibold tw:text-gray-800"><?php echo esc_html($roof); ?></span>
-                                    </div>
-                                    <?php endif; ?>
-                                    <?php if ($exterior_material): ?>
-                                    <div class="tw:flex tw:justify-between tw:py-2 tw:border-b tw:border-gray-200">
-                                        <span class="tw:text-gray-600"><?php esc_html_e('Exterior:', 'realestate-booking-suite'); ?></span>
-                                        <span class="tw:font-semibold tw:text-gray-800"><?php echo esc_html($exterior_material); ?></span>
-                                    </div>
-                                    <?php endif; ?>
-                                    <?php if ($floor_covering): ?>
-                                    <div class="tw:flex tw:justify-between tw:py-2 tw:border-b tw:border-gray-200">
-                                        <span class="tw:text-gray-600"><?php esc_html_e('Flooring:', 'realestate-booking-suite'); ?></span>
-                                        <span class="tw:font-semibold tw:text-gray-800"><?php echo esc_html($floor_covering); ?></span>
-                                    </div>
-                                    <?php endif; ?>
-                                    <?php if ($basement): ?>
-                                    <div class="tw:flex tw:justify-between tw:py-2 tw:border-b tw:border-gray-200">
-                                        <span class="tw:text-gray-600"><?php esc_html_e('Basement:', 'realestate-booking-suite'); ?></span>
-                                        <span class="tw:font-semibold tw:text-gray-800"><?php echo esc_html($basement); ?></span>
-                                    </div>
-                                    <?php endif; ?>
-                                    <?php if ($parking): ?>
-                                    <div class="tw:flex tw:justify-between tw:py-2 tw:border-b tw:border-gray-200">
-                                        <span class="tw:text-gray-600"><?php esc_html_e('Parking:', 'realestate-booking-suite'); ?></span>
-                                        <span class="tw:font-semibold tw:text-gray-800"><?php echo esc_html($parking); ?></span>
-                                    </div>
-                                    <?php endif; ?>
+                                <?php endif; ?>
+                                
+                                <?php if ($total_rooms): ?>
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Total Rooms</label>
+                                    <p class="text-2xl font-bold text-gray-900"><?php echo esc_html($total_rooms); ?></p>
                                 </div>
+                                <?php endif; ?>
+                                
+                                <?php if ($floors): ?>
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Floors</label>
+                                    <p class="text-2xl font-bold text-gray-900"><?php echo esc_html($floors); ?></p>
+                                </div>
+                                <?php endif; ?>
+                                
+                                <?php if ($floor_level): ?>
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Floor Level</label>
+                                    <p class="text-2xl font-bold text-gray-900"><?php echo esc_html($floor_level); ?></p>
+                                </div>
+                                <?php endif; ?>
+                                
+                                <?php if ($formatted_area): ?>
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Area (Sq Ft)</label>
+                                    <p class="text-2xl font-bold text-gray-900"><?php echo esc_html($area_sqft); ?></p>
+                                </div>
+                                <?php endif; ?>
+                                
+                                <?php if ($lot_size_sqft): ?>
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Lot Size (Sq Ft)</label>
+                                    <p class="text-2xl font-bold text-gray-900"><?php echo esc_html($lot_size_sqft); ?></p>
+                                </div>
+                                <?php endif; ?>
+                                
+                                <?php if ($year_built): ?>
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Year Built</label>
+                                    <p class="text-2xl font-bold text-gray-900"><?php echo esc_html($year_built); ?></p>
+                                </div>
+                                <?php endif; ?>
+                                
+                                <?php if ($year_remodeled): ?>
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Year Remodeled</label>
+                                    <p class="text-2xl font-bold text-gray-900"><?php echo esc_html($year_remodeled); ?></p>
+                                </div>
+                                <?php endif; ?>
                             </div>
                         </div>
 
                         <!-- Details Tab -->
-                        <div id="details-tab" class="tw-tab-content hidden">
-                            <h3 class="tw:text-xl tw:font-bold tw:text-gray-800 tw:mb-4"><?php esc_html_e('Property Details', 'realestate-booking-suite'); ?></h3>
-                            <div class="tw:grid tw:md:grid-cols-2 tw:gap-6">
-                                <div class="tw:space-y-3">
-                                    <div class="tw:flex tw:justify-between tw:py-2 tw:border-b tw:border-gray-200">
-                                        <span class="tw:text-gray-600"><?php esc_html_e('Property ID:', 'realestate-booking-suite'); ?></span>
-                                        <span class="tw:font-semibold tw:text-gray-800"><?php echo esc_html($property_id); ?></span>
+                        <div id="details-tab" class="tab-content">
+                            <h3 class="section-title">Property Details</h3>
+                            <div class="details-grid">
+                                <div class="space-y-3">
+                                    <div class="detail-item">
+                                        <span class="detail-label">Property ID:</span>
+                                        <span class="detail-value"><?php echo esc_html($post->ID); ?></span>
                                     </div>
-                                    <div class="tw:flex tw:justify-between tw:py-2 tw:border-b tw:border-gray-200">
-                                        <span class="tw:text-gray-600"><?php esc_html_e('Property Type:', 'realestate-booking-suite'); ?></span>
-                                        <span class="tw:font-semibold tw:text-gray-800"><?php echo esc_html($property_type); ?></span>
-                                    </div>
-                                    <div class="tw:flex tw:justify-between tw:py-2 tw:border-b tw:border-gray-200">
-                                        <span class="tw:text-gray-600"><?php esc_html_e('Property Condition:', 'realestate-booking-suite'); ?></span>
-                                        <span class="tw:font-semibold tw:text-gray-800"><?php echo esc_html($property_condition); ?></span>
-                                    </div>
-                                    <?php if ($half_baths): ?>
-                                    <div class="tw:flex tw:justify-between tw:py-2 tw:border-b tw:border-gray-200">
-                                        <span class="tw:text-gray-600"><?php esc_html_e('Half Baths:', 'realestate-booking-suite'); ?></span>
-                                        <span class="tw:font-semibold tw:text-gray-800"><?php echo esc_html($half_baths); ?></span>
-                                    </div>
-                                    <?php endif; ?>
-                                    <?php if ($total_rooms): ?>
-                                    <div class="tw:flex tw:justify-between tw:py-2 tw:border-b tw:border-gray-200">
-                                        <span class="tw:text-gray-600"><?php esc_html_e('Total Rooms:', 'realestate-booking-suite'); ?></span>
-                                        <span class="tw:font-semibold tw:text-gray-800"><?php echo esc_html($total_rooms); ?></span>
+                                    <?php if ($property_type): ?>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Property Type:</span>
+                                        <span class="detail-value"><?php echo esc_html($property_type); ?></span>
                                     </div>
                                     <?php endif; ?>
                                     <?php if ($year_built): ?>
-                                    <div class="tw:flex tw:justify-between tw:py-2 tw:border-b tw:border-gray-200">
-                                        <span class="tw:text-gray-600"><?php esc_html_e('Year Built:', 'realestate-booking-suite'); ?></span>
-                                        <span class="tw:font-semibold tw:text-gray-800"><?php echo esc_html($year_built); ?></span>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Year Built:</span>
+                                        <span class="detail-value"><?php echo esc_html($year_built); ?></span>
                                     </div>
                                     <?php endif; ?>
-                                    <?php if ($lot_size): ?>
-                                    <div class="tw:flex tw:justify-between tw:py-2 tw:border-b tw:border-gray-200">
-                                        <span class="tw:text-gray-600"><?php esc_html_e('Lot Size:', 'realestate-booking-suite'); ?></span>
-                                        <span class="tw:font-semibold tw:text-gray-800"><?php echo esc_html($lot_size); ?> sq ft</span>
+                                    <?php if ($formatted_lot_size): ?>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Lot Size:</span>
+                                        <span class="detail-value"><?php echo esc_html($formatted_lot_size); ?></span>
                                     </div>
                                     <?php endif; ?>
                                     <?php if ($floors): ?>
-                                    <div class="tw:flex tw:justify-between tw:py-2 tw:border-b tw:border-gray-200">
-                                        <span class="tw:text-gray-600"><?php esc_html_e('Stories:', 'realestate-booking-suite'); ?></span>
-                                        <span class="tw:font-semibold tw:text-gray-800"><?php echo esc_html($floors); ?></span>
-                                    </div>
-                                    <?php endif; ?>
-                                    <?php if ($floor_level): ?>
-                                    <div class="tw:flex tw:justify-between tw:py-2 tw:border-b tw:border-gray-200">
-                                        <span class="tw:text-gray-600"><?php esc_html_e('Floor Level:', 'realestate-booking-suite'); ?></span>
-                                        <span class="tw:font-semibold tw:text-gray-800"><?php echo esc_html($floor_level); ?></span>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Floors:</span>
+                                        <span class="detail-value"><?php echo esc_html($floors); ?></span>
                                     </div>
                                     <?php endif; ?>
                                 </div>
-                                <div class="tw:space-y-3">
-                                    <div class="tw:flex tw:justify-between tw:py-2 tw:border-b tw:border-gray-200">
-                                        <span class="tw:text-gray-600"><?php esc_html_e('Status:', 'realestate-booking-suite'); ?></span>
-                                        <span class="tw:font-semibold tw:text-emerald-600"><?php echo esc_html($property_status); ?></span>
+                                <div class="space-y-3">
+                                    <?php if ($property_status): ?>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Status:</span>
+                                        <span class="detail-value text-emerald-600"><?php echo esc_html($property_status); ?></span>
                                     </div>
+                                    <?php endif; ?>
+                                    <?php if ($floor_level): ?>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Floor Level:</span>
+                                        <span class="detail-value"><?php echo esc_html($floor_level); ?></span>
+                                    </div>
+                                    <?php endif; ?>
                                     <?php if ($heating): ?>
-                                    <div class="tw:flex tw:justify-between tw:py-2 tw:border-b tw:border-gray-200">
-                                        <span class="tw:text-gray-600"><?php esc_html_e('Heating:', 'realestate-booking-suite'); ?></span>
-                                        <span class="tw:font-semibold tw:text-gray-800"><?php echo esc_html($heating); ?></span>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Heating:</span>
+                                        <span class="detail-value"><?php echo esc_html($heating); ?></span>
                                     </div>
                                     <?php endif; ?>
                                     <?php if ($cooling): ?>
-                                    <div class="tw:flex tw:justify-between tw:py-2 tw:border-b tw:border-gray-200">
-                                        <span class="tw:text-gray-600"><?php esc_html_e('Cooling:', 'realestate-booking-suite'); ?></span>
-                                        <span class="tw:font-semibold tw:text-gray-800"><?php echo esc_html($cooling); ?></span>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Cooling:</span>
+                                        <span class="detail-value"><?php echo esc_html($cooling); ?></span>
                                     </div>
                                     <?php endif; ?>
-                                    <?php if ($roof): ?>
-                                    <div class="tw:flex tw:justify-between tw:py-2 tw:border-b tw:border-gray-200">
-                                        <span class="tw:text-gray-600"><?php esc_html_e('Roof:', 'realestate-booking-suite'); ?></span>
-                                        <span class="tw:font-semibold tw:text-gray-800"><?php echo esc_html($roof); ?></span>
+                                    <?php if ($property_condition): ?>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Condition:</span>
+                                        <span class="detail-value"><?php echo esc_html($property_condition); ?></span>
                                     </div>
                                     <?php endif; ?>
                                 </div>
@@ -715,814 +2854,675 @@
                         </div>
 
                         <!-- Features Tab -->
-                        <div id="features-tab" class="tw-tab-content hidden">
-                            <h3 class="tw:text-xl tw:font-bold tw:text-gray-800 tw:mb-4"><?php esc_html_e('Property Features & Amenities', 'realestate-booking-suite'); ?></h3>
+                        <div id="features-tab" class="tab-content">
+                            <h3 class="section-title">Amenities & Features</h3>
 
                             <!-- Filter Buttons -->
-                            <div class="tw:flex tw:flex-wrap tw:gap-2 tw:mb-6 no-print">
-                                <button onclick="filterAmenities('all')" class="filter-btn filter-active tw:px-4 tw:py-2 tw:rounded-lg tw:font-semibold tw:text-sm tw:transition" data-filter="all"><?php esc_html_e('All', 'realestate-booking-suite'); ?></button>
-                                <button onclick="filterAmenities('interior')" class="filter-btn tw:px-4 tw:py-2 tw:bg-gray-100 tw:text-gray-700 tw:rounded-lg tw:font-semibold tw:text-sm hover:tw:bg-gray-200 tw:transition" data-filter="interior"><?php esc_html_e('Interior', 'realestate-booking-suite'); ?></button>
-                                <button onclick="filterAmenities('amenities')" class="filter-btn tw:px-4 tw:py-2 tw:bg-gray-100 tw:text-gray-700 tw:rounded-lg tw:font-semibold tw:text-sm hover:tw:bg-gray-200 tw:transition" data-filter="amenities"><?php esc_html_e('Amenities', 'realestate-booking-suite'); ?></button>
+                            <div class="amenities-filter no-print">
+                                <button onclick="filterAmenities('all')" class="filter-btn active" data-filter="all">All</button>
+                                <button onclick="filterAmenities('interior')" class="filter-btn" data-filter="interior">Interior</button>
+                                <button onclick="filterAmenities('exterior')" class="filter-btn" data-filter="exterior">Exterior</button>
                             </div>
 
-
-                            <div class="tw:mb-8" data-category="interior">
-                                <h4 class="tw:text-lg tw:font-semibold tw:text-gray-800 tw:mb-4 tw:flex tw:items-center">
-                                    <i class="fas fa-home tw:text-emerald-500 tw:mr-2"></i><?php esc_html_e('Property Features', 'realestate-booking-suite'); ?>
-                                </h4>
-
-                                <div class="tw:grid tw:md:grid-cols-2 tw:lg:grid-cols-3 tw:gap-4" id="featuresContainer">
-
-
-
-                                    <!-- Custom Features from Database -->
-                                    <?php if (! empty($features_list)): ?>
-                                        <?php foreach ($features_list as $feature): ?>
-                                        <div class="amenity-item tw:p-4 tw:bg-emerald-50 tw:rounded-lg tw:border-l-4 tw:border-emerald-500" data-category="interior">
-                                            <i class="fas fa-star tw:text-emerald-500 tw:mr-2"></i>
-                                            <span class="tw:text-gray-700 tw:font-medium"><?php echo esc_html($feature); ?></span>
+                            <div class="amenities-grid" id="amenitiesContainer">
+                                <?php if (! empty($features_array)): ?>
+                                    <?php foreach ($features_array as $feature): ?>
+                                        <div class="amenity-item" data-category="interior">
+                                            <i class="fas fa-check-circle text-emerald-500"></i>
+                                            <span class="text-gray-700"><?php echo esc_html(trim($feature)); ?></span>
                                         </div>
-                                        <?php endforeach; ?>
-                                    <?php endif; ?>
-                                </div>
-                            </div>
-
-                                                       <?php esc_html_e('Property Amenities', 'realestate-booking-suite'); ?>
-                            <div class="tw:mb-8" data-category="amenities">
-                                <h4 class="tw:text-lg tw:font-semibold tw:text-gray-800 tw:mb-4 tw:flex tw:items-center">
-                                    <i class="fas fa-concierge-bell tw:text-emerald-500 tw:mr-2"></i><?php esc_html_e('Property Amenities', 'realestate-booking-suite'); ?>
-                                </h4>
-
-                                <div class="tw:grid tw:md:grid-cols-2 tw:lg:grid-cols-3 tw:gap-4" id="amenitiesContainer">
-                                    <!-- Common Amenities -->
-
-
-                                    <!-- Custom Amenities from Database -->
-                                    <?php if (! empty($amenities_list)): ?>
-                                        <?php foreach ($amenities_list as $amenity): ?>
-                                        <div class="amenity-item tw:p-4 tw:bg-orange-50 tw:rounded-lg tw:border-l-4 tw:border-orange-500" data-category="amenities">
-                                            <i class="fas fa-star tw:text-orange-500 tw:mr-2"></i>
-                                            <span class="tw:text-gray-700 tw:font-medium"><?php echo esc_html($amenity); ?></span>
-                                        </div>
-                                        <?php endforeach; ?>
-                                    <?php endif; ?>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Features & Amenities Tab -->
-                        <div id="features-tab" class="tab-content hidden">
-                            <h3 class="tw:text-xl tw:font-bold tw:text-gray-800 tw:mb-6"><?php esc_html_e('Property Features', 'realestate-booking-suite'); ?> & Amenities</h3>
-
-                            <!-- Features Section -->
-                            <?php if (! empty($features_list)): ?>
-                            <div class="tw:mb-8">
-                                <h4 class="tw:text-lg tw:font-semibold tw:text-gray-800 tw:mb-4 tw:flex tw:items-center">
-                                    <i class="fas fa-home tw:text-emerald-500 tw:mr-2"></i><?php esc_html_e('Property Features', 'realestate-booking-suite'); ?>
-                                </h4>
-
-                                <div class="tw:grid tw:md:grid-cols-2 tw:lg:grid-cols-3 tw:gap-4">
-                                    <?php foreach ($features_list as $feature): ?>
-                                    <div class="amenity-item tw:p-4 tw:bg-emerald-50 tw:rounded-lg tw:border-l-4 tw:border-emerald-500 hover:tw:bg-emerald-100 tw:transition-colors">
-                                        <i class="fas fa-check-circle tw:text-emerald-500 tw:mr-2"></i>
-                                        <span class="tw:text-gray-700 tw:font-medium"><?php echo esc_html(trim($feature)); ?></span>
-                                    </div>
                                     <?php endforeach; ?>
-                                </div>
-                            </div>
-                            <?php endif; ?>
+                                <?php endif; ?>
 
-                            <!-- Amenities Section -->
-                            <?php if (! empty($amenities_list)): ?>
-                            <div class="tw:mb-8">
-                                <h4 class="tw:text-lg tw:font-semibold tw:text-gray-800 tw:mb-4 tw:flex tw:items-center">
-                                    <i class="fas fa-concierge-bell tw:text-orange-500 tw:mr-2"></i><?php esc_html_e('Property Amenities', 'realestate-booking-suite'); ?>
-                                </h4>
-
-                                <div class="tw:grid tw:md:grid-cols-2 tw:lg:grid-cols-3 tw:gap-4">
-                                    <?php foreach ($amenities_list as $amenity): ?>
-                                    <div class="amenity-item tw:p-4 tw:bg-orange-50 tw:rounded-lg tw:border-l-4 tw:border-orange-500 hover:tw:bg-orange-100 tw:transition-colors">
-                                        <i class="fas fa-check-circle tw:text-orange-500 tw:mr-2"></i>
-                                        <span class="tw:text-gray-700 tw:font-medium"><?php echo esc_html(trim($amenity)); ?></span>
-                                    </div>
+                                <?php if (! empty($amenities_array)): ?>
+                                    <?php foreach ($amenities_array as $amenity): ?>
+                                        <div class="amenity-item" data-category="exterior">
+                                            <i class="fas fa-check-circle text-emerald-500"></i>
+                                            <span class="text-gray-700"><?php echo esc_html(trim($amenity)); ?></span>
+                                        </div>
                                     <?php endforeach; ?>
-                                </div>
-                            </div>
-                            <?php endif; ?>
+                                <?php endif; ?>
 
-                            <!-- No Features/Amenities Message -->
-                            <?php if (empty($features_list) && empty($amenities_list)): ?>
-                            <div class="tw:text-center tw:py-12">
-                                <i class="fas fa-info-circle tw:text-gray-400 tw:text-4xl tw:mb-4"></i>
-                                <p class="tw:text-gray-500 tw:text-lg"><?php esc_html_e('No features or amenities have been added to this property yet.', 'realestate-booking-suite'); ?></p>
-                            </div>
-                            <?php endif; ?>
-                        </div>
-
-                        <!-- Media Tab -->
-                        <div id="media-tab" class="tw-tab-content hidden">
-                            <h3 class="tw:text-xl tw:font-bold tw:text-gray-800 tw:mb-4"><?php esc_html_e('Property Media', 'realestate-booking-suite'); ?></h3>
-
-                            <!-- Image Gallery -->
-                            <?php if (! empty($gallery_images)): ?>
-                            <div class="tw:mb-8">
-                                <h4 class="tw:text-lg tw:font-semibold tw:text-gray-800 tw:mb-4"><?php esc_html_e('Photo Gallery', 'realestate-booking-suite'); ?></h4>
-                                <div class="tw:grid tw:grid-cols-2 tw:md:grid-cols-3 tw:lg:grid-cols-4 tw:gap-4">
-                                    <?php foreach ($gallery_images as $index => $image_url): ?>
-                                    <div class="tw:relative tw:group tw:cursor-pointer" onclick="openImageViewer(<?php echo $index; ?>)">
-                                        <img src="<?php echo esc_url($image_url); ?>" alt="Property Image<?php echo $index + 1; ?>" class="tw:w-full tw:h-48 tw:object-cover tw:rounded-lg gallery-img">
-                                        <div class="tw:absolute tw:inset-0 tw:bg-black/0 tw:group-hover:bg-black/30 tw:rounded-lg tw:transition-all tw:duration-300 tw:flex tw:items-center tw:justify-center">
-                                            <i class="fas fa-search-plus tw:text-white tw:text-2xl tw:opacity-0 group-hover:tw:opacity-100 tw:transition-opacity"></i>
-                                        </div>
+                                <?php if (empty($features_array) && empty($amenities_array)): ?>
+                                    <div class="amenity-item">
+                                        <i class="fas fa-info-circle text-gray-400"></i>
+                                        <span class="text-gray-500">No features or amenities listed for this property.</span>
                                     </div>
-                                    <?php endforeach; ?>
-                                </div>
+                                <?php endif; ?>
                             </div>
-                            <?php else: ?>
-                            <div class="tw:text-center tw:py-12 tw:bg-gray-50 tw:rounded-lg">
-                                <i class="fas fa-image tw:text-gray-300 tw:text-6xl tw:mb-4"></i>
-                                <p class="tw:text-gray-500 tw:text-lg"><?php esc_html_e('No images available for this property', 'realestate-booking-suite'); ?></p>
-                            </div>
-                            <?php endif; ?>
-
-                            <!-- Video Section -->
-                            <?php if ($video_url || $video_embed): ?>
-                            <div class="tw:mb-8">
-                                <h4 class="tw:text-lg tw:font-semibold tw:text-gray-800 tw:mb-4"><?php esc_html_e('Property Video', 'realestate-booking-suite'); ?></h4>
-                                <div class="tw:bg-gray-100 tw:rounded-lg tw:p-6">
-                                    <?php if ($video_embed): ?>
-                                        <div class="tw:aspect-video">
-                                            <?php
-                                                // Allow iframe tags with specific attributes for video embeds
-                                                $allowed_html = [
-                                                    'iframe' => [
-                                                        'src'             => [],
-                                                        'width'           => [],
-                                                        'height'          => [],
-                                                        'style'           => [],
-                                                        'allowfullscreen' => [],
-                                                        'loading'         => [],
-                                                        'referrerpolicy'  => [],
-                                                        'frameborder'     => [],
-                                                        'scrolling'       => [],
-                                                    ],
-                                                ];
-                                                echo wp_kses($video_embed, $allowed_html);
-                                            ?>
-                                        </div>
-                                    <?php elseif ($video_url): ?>
-                                        <div class="tw:aspect-video">
-                                            <?php
-                                                // Convert YouTube/Vimeo URLs to embed format
-                                                if (strpos($video_url, 'youtube.com') !== false || strpos($video_url, 'youtu.be') !== false) {
-                                                    $video_id = '';
-                                                    if (strpos($video_url, 'youtu.be') !== false) {
-                                                        $video_id = substr($video_url, strpos($video_url, 'youtu.be/') + 9);
-                                                        // Remove any query parameters
-                                                        $video_id = strtok($video_id, '?');
-                                                    } elseif (strpos($video_url, 'youtube.com') !== false) {
-                                                        parse_str(parse_url($video_url, PHP_URL_QUERY), $query);
-                                                        $video_id = $query['v'] ?? '';
-                                                    }
-                                                    if ($video_id) {
-                                                        echo '<iframe width="100%" height="100%" src="https://www.youtube.com/embed/' . esc_attr($video_id) . '?rel=0&modestbranding=1" frameborder="0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>';
-                                                    } else {
-                                                        echo '<div class="tw:flex tw:items-center tw:justify-center tw:h-full tw:bg-gray-200 tw:rounded-lg"><p class="tw:text-gray-600">' . esc_html__('Invalid YouTube URL', 'realestate-booking-suite') . '</p></div>';
-                                                    }
-                                                } elseif (strpos($video_url, 'vimeo.com') !== false) {
-                                                    $video_id = substr($video_url, strrpos($video_url, '/') + 1);
-                                                    // Remove any query parameters
-                                                    $video_id = strtok($video_id, '?');
-                                                    if ($video_id) {
-                                                        echo '<iframe width="100%" height="100%" src="https://player.vimeo.com/video/' . esc_attr($video_id) . '?title=0&byline=0&portrait=0" frameborder="0" allowfullscreen allow="autoplay; fullscreen; picture-in-picture"></iframe>';
-                                                    } else {
-                                                        echo '<div class="tw:flex tw:items-center tw:justify-center tw:h-full tw:bg-gray-200 tw:rounded-lg"><p class="tw:text-gray-600">' . esc_html__('Invalid Vimeo URL', 'realestate-booking-suite') . '</p></div>';
-                                                    }
-                                                } else {
-                                                    echo '<video controls class="tw:w-full tw:h-full tw:rounded-lg"><source src="' . esc_url($video_url) . '" type="video/mp4">' . esc_html__('Your browser does not support the video tag.', 'realestate-booking-suite') . '</video>';
-                                                }
-                                            ?>
-                                        </div>
-                                    <?php endif; ?>
-                                </div>
-                            </div>
-                            <?php endif; ?>
-
-                            <!-- Virtual Tour -->
-                            <?php if ($virtual_tour): ?>
-                            <div class="tw:mb-8">
-                                <h4 class="tw:text-lg tw:font-semibold tw:text-gray-800 tw:mb-4"><?php esc_html_e('Virtual Tour', 'realestate-booking-suite'); ?></h4>
-                                <div class="tw:bg-gradient-to-r tw:from-emerald-500 tw:to-teal-500 tw:text-white tw:rounded-lg tw:p-6">
-                                    <div class="tw:flex tw:items-center tw:justify-between">
-                                        <div>
-                                            <h5 class="tw:text-xl tw:font-bold tw:mb-2"><?php echo esc_html($virtual_tour_title ?: __('3D Virtual Walkthrough', 'realestate-booking-suite')); ?></h5>
-                                            <p class="tw:text-emerald-100"><?php echo esc_html($virtual_tour_description ?: __('Experience this property from anywhere with our interactive 3D tour.', 'realestate-booking-suite')); ?></p>
-                                        </div>
-                                        <a href="<?php echo esc_url($virtual_tour); ?>" target="_blank" class="tw:bg-white tw:text-emerald-600 tw:px-6 tw:py-3 tw:rounded-lg tw:font-semibold hover:tw:bg-gray-100 tw:transition">
-                                            <i class="fas fa-play tw:mr-2"></i><?php echo esc_html($virtual_tour_button_text ?: __('Start Tour', 'realestate-booking-suite')); ?>
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                            <?php endif; ?>
-
-                            <!-- Floor Plans -->
-                            <?php if (! empty($floor_plans)): ?>
-                            <div class="tw:mb-8">
-                                <h4 class="tw:text-lg tw:font-semibold tw:text-gray-800 tw:mb-4"><?php esc_html_e('Floor Plans', 'realestate-booking-suite'); ?></h4>
-                                <div class="tw:bg-gray-100 tw:rounded-lg tw:p-6">
-                                    <img src="<?php echo esc_url($floor_plans); ?>" alt="Floor Plan" class="tw:w-full tw:max-w-2xl tw:mx-auto tw:rounded-lg tw:shadow-lg">
-                                    <div class="tw:mt-4 tw:flex tw:justify-center tw:gap-4">
-                                        <button onclick="downloadFloorPlan()" class="tw:px-6 tw:py-3 tw:bg-emerald-500 tw:text-white tw:rounded-lg hover:tw:bg-emerald-600 tw:transition">
-                                            <i class="fas fa-download tw:mr-2"></i><?php esc_html_e('Download Floor Plan', 'realestate-booking-suite'); ?>
-                                        </button>
-                                        <button onclick="requestCustomPlan()" class="tw:px-6 tw:py-3 tw:bg-gray-700 tw:text-white tw:rounded-lg hover:tw:bg-gray-800 tw:transition">
-                                            <i class="fas fa-envelope tw:mr-2"></i><?php esc_html_e('Request Custom Plan', 'realestate-booking-suite'); ?>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                            <?php endif; ?>
-
                         </div>
 
                         <!-- Floor Plan Tab -->
-                        <?php if (! empty($floor_plans)): ?>
-                        <div id="floorplan-tab" class="tab-content hidden">
-                            <h3 class="tw:text-xl tw:font-bold tw:text-gray-800 tw:mb-4"><?php esc_html_e('Floor Plan', 'realestate-booking-suite'); ?></h3>
-                            <div class="tw:bg-gray-100 tw:rounded-lg tw:p-8 tw:text-center">
-                                <img src="<?php echo esc_url($floor_plans); ?>" alt="<?php esc_attr_e('Floor Plan', 'realestate-booking-suite'); ?>" class="tw:w-full tw:max-w-3xl tw:mx-auto tw:rounded-lg tw:shadow-lg">
-                                <div class="tw:mt-4 tw:flex tw:justify-center tw:gap-4 no-print">
-                                    <button onclick="downloadFloorPlan()" class="tw:px-6 tw:py-3 tw:bg-emerald-500 tw:text-white tw:rounded-lg hover:tw:bg-emerald-600 tw:transition">
-                                        <i class="fas fa-download tw:mr-2"></i><?php esc_html_e('Download Floor Plan', 'realestate-booking-suite'); ?>
-                                    </button>
-                                    <button onclick="requestCustomPlan()" class="tw:px-6 tw:py-3 tw:bg-gray-700 tw:text-white tw:rounded-lg hover:tw:bg-gray-800 tw:transition">
-                                        <i class="fas fa-envelope tw:mr-2"></i><?php esc_html_e('Request Custom Plan', 'realestate-booking-suite'); ?>
-                                    </button>
-                                </div>
+                        <div id="floorplan-tab" class="tab-content">
+                            <h3 class="section-title">Floor Plan</h3>
+                            <div class="floor-plan-container">
+                                <?php if ($floor_plans): ?>
+                                    <img src="<?php echo esc_url($floor_plans); ?>" alt="Floor Plan" class="floor-plan-image">
+                                    <div class="floor-plan-actions no-print">
+                                        <button onclick="downloadFloorPlan()" class="btn btn-primary">
+                                            <i class="fas fa-download mr-2"></i>Download Floor Plan
+                                        </button>
+                                        <button onclick="requestCustomPlan()" class="btn" style="background-color: var(--secondary-color); color: var(--white);">
+                                            <i class="fas fa-envelope mr-2"></i>Request Custom Plan
+                                        </button>
+                                    </div>
+                                <?php else: ?>
+                                    <div class="text-center py-8">
+                                        <i class="fas fa-home text-gray-400 text-6xl mb-4"></i>
+                                        <p class="text-gray-500">No floor plan available for this property.</p>
+                                        <button onclick="requestCustomPlan()" class="btn btn-primary mt-4">
+                                            <i class="fas fa-envelope mr-2"></i>Request Floor Plan
+                                        </button>
+                                    </div>
+                                <?php endif; ?>
                             </div>
                         </div>
-                        <?php endif; ?>
 
                         <!-- Location Tab -->
-                        <div id="location-tab" class="tw-tab-content hidden">
-                            <h3 class="tw:text-xl tw:font-bold tw:text-gray-800 tw:mb-4"><?php esc_html_e('Location & Nearby', 'realestate-booking-suite'); ?></h3>
-
-
-
-                            <?php if ($map_iframe): ?>
-                            <!-- Custom Map Iframe -->
-                            <div class="tw:rounded-lg tw:mb-6 tw:overflow-hidden" style="height: 400px; width: 100%;">
-                                <?php
-                                    // Allow iframe tags with specific attributes for maps
-                                    $allowed_html = [
-                                        'iframe' => [
-                                            'src'             => [],
-                                            'width'           => [],
-                                            'height'          => [],
-                                            'style'           => [],
-                                            'allowfullscreen' => [],
-                                            'loading'         => [],
-                                            'referrerpolicy'  => [],
-                                            'frameborder'     => [],
-                                            'scrolling'       => [],
-                                        ],
-                                    ];
-                                    echo wp_kses($map_iframe, $allowed_html);
-                                ?>
-                            </div>
-                            <?php elseif ($full_address): ?>
-                            <!-- Fallback: Show address and Google Maps link -->
-                            <div class="tw:bg-gray-100 tw:rounded-lg tw:p-6 tw:mb-6">
-                                <div class="tw:flex tw:items-center tw:justify-between">
-                                    <div>
-                                        <h4 class="tw:font-semibold tw:text-gray-800 tw:mb-2"><?php esc_html_e('Property Location', 'realestate-booking-suite'); ?></h4>
-                                        <p class="tw:text-gray-600 tw:mb-3"><?php echo esc_html($full_address); ?></p>
-                                        <a href="https://www.google.com/maps/search/<?php echo urlencode($full_address); ?>"
-                                           target="_blank"
-                                           class="tw:inline-flex tw:items-center tw:px-4 tw:py-2 tw:bg-emerald-500 tw:text-white tw:rounded-lg hover:tw:bg-emerald-600 tw:transition">
-                                            <i class="fas fa-map-marker-alt tw:mr-2"></i>
-                                            <?php esc_html_e('View on Google Maps', 'realestate-booking-suite'); ?>
-                                        </a>
-                                    </div>
-                                    <i class="fas fa-map-marker-alt tw:text-emerald-500 tw:text-4xl"></i>
+                        <div id="location-tab" class="tab-content">
+                            <h3 class="section-title">Property Location</h3>
+                            <p class="text-gray-600 mb-6">Property address and location details</p>
+                            
+                            <!-- Address Information -->
+                            <div class="mb-6">
+                                <h4 class="text-lg font-semibold mb-4">Address</h4>
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <?php if ($full_address): ?>
+                                        <p class="text-lg font-medium text-gray-900"><?php echo esc_html($full_address); ?></p>
+                                    <?php else: ?>
+                                        <p class="text-gray-500">Address not specified</p>
+                                    <?php endif; ?>
+                                    
+                                    <?php if ($city || $state || $zip): ?>
+                                        <div class="mt-2 text-sm text-gray-600">
+                                            <?php if ($city): ?><span><?php echo esc_html($city); ?></span><?php endif; ?>
+                                            <?php if ($state): ?><span><?php echo esc_html($state); ?></span><?php endif; ?>
+                                            <?php if ($zip): ?><span><?php echo esc_html($zip); ?></span><?php endif; ?>
+                                        </div>
+                                    <?php endif; ?>
+                                    
+                                    <?php if ($country): ?>
+                                        <div class="mt-1 text-sm text-gray-600">
+                                            <span><?php echo esc_html($country); ?></span>
+                                        </div>
+                                    <?php endif; ?>
                                 </div>
                             </div>
-                            <?php else: ?>
-                            <div class="tw:bg-gray-100 tw:rounded-lg tw:p-8 tw:text-center tw:mb-6">
-                                <i class="fas fa-map-marker-alt tw:text-gray-400 tw:text-4xl tw:mb-4"></i>
-                                <p class="tw:text-gray-600"><?php esc_html_e('Location information not available', 'realestate-booking-suite'); ?></p>
-                                <p class="tw:text-sm tw:text-gray-500 tw:mt-2"><?php esc_html_e('Please add a map iframe or address to display location', 'realestate-booking-suite'); ?></p>
+                            
+                            <!-- Map -->
+                            <?php if ($latitude && $longitude): ?>
+                            <div class="mb-6">
+                                <h4 class="text-lg font-semibold mb-4">Map Location</h4>
+                                <div id="map" class="w-full h-64 bg-gray-200 rounded-lg"></div>
                             </div>
                             <?php endif; ?>
-
-                            <div class="tw:grid tw:md:grid-cols-3 tw:gap-4">
-                                <?php if ($nearby_schools): ?>
-                                <div class="tw:p-4 tw:bg-blue-50 tw:rounded-lg">
-                                    <i class="fas fa-graduation-cap tw:text-blue-500 tw:text-2xl tw:mb-2"></i>
-                                    <h4 class="tw:font-semibold tw:text-gray-800 tw:mb-1"><?php esc_html_e('Schools', 'realestate-booking-suite'); ?></h4>
-                                    <p class="tw:text-sm tw:text-gray-600"><?php echo esc_html($nearby_schools); ?></p>
+                            
+                            <!-- Nearby Features -->
+                            <div class="mb-6">
+                                <h4 class="text-lg font-semibold mb-4">Nearby Features</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    <?php if ($nearby_schools): ?>
+                                    <div class="location-feature location-feature-blue">
+                                        <i class="fas fa-graduation-cap"></i>
+                                        <h4>Schools</h4>
+                                        <p><?php echo esc_html($nearby_schools); ?></p>
+                                    </div>
+                                    <?php endif; ?>
+                                    
+                                    <?php if ($nearby_shopping): ?>
+                                    <div class="location-feature location-feature-green">
+                                        <i class="fas fa-shopping-cart"></i>
+                                        <h4>Shopping</h4>
+                                        <p><?php echo esc_html($nearby_shopping); ?></p>
+                                    </div>
+                                    <?php endif; ?>
+                                    
+                                    <?php if ($nearby_restaurants): ?>
+                                    <div class="location-feature location-feature-purple">
+                                        <i class="fas fa-utensils"></i>
+                                        <h4>Restaurants</h4>
+                                        <p><?php echo esc_html($nearby_restaurants); ?></p>
+                                    </div>
+                                    <?php endif; ?>
                                 </div>
-                                <?php endif; ?>
-
-                                <?php if ($nearby_shopping): ?>
-                                <div class="tw:p-4 tw:bg-green-50 tw:rounded-lg">
-                                    <i class="fas fa-shopping-cart tw:text-green-500 tw:text-2xl tw:mb-2"></i>
-                                    <h4 class="tw:font-semibold tw:text-gray-800 tw:mb-1"><?php esc_html_e('Shopping', 'realestate-booking-suite'); ?></h4>
-                                    <p class="tw:text-sm tw:text-gray-600"><?php echo esc_html($nearby_shopping); ?></p>
-                                </div>
-                                <?php endif; ?>
-
-                                <?php if ($nearby_restaurants): ?>
-                                <div class="tw:p-4 tw:bg-purple-50 tw:rounded-lg">
-                                    <i class="fas fa-utensils tw:text-purple-500 tw:text-2xl tw:mb-2"></i>
-                                    <h4 class="tw:font-semibold tw:text-gray-800 tw:mb-1"><?php esc_html_e('Restaurants', 'realestate-booking-suite'); ?></h4>
-                                    <p class="tw:text-sm tw:text-gray-600"><?php echo esc_html($nearby_restaurants); ?></p>
-                                </div>
-                                <?php endif; ?>
-
-                                <?php if (! $nearby_schools && ! $nearby_shopping && ! $nearby_restaurants): ?>
-                                <div class="tw:col-span-3 tw:p-8 tw:text-center tw:bg-gray-50 tw:rounded-lg">
-                                    <i class="fas fa-map-marker-alt tw:text-gray-400 tw:text-4xl tw:mb-4"></i>
-                                    <p class="tw:text-gray-600"><?php esc_html_e('No nearby features configured', 'realestate-booking-suite'); ?></p>
-                                    <p class="tw:text-sm tw:text-gray-500 tw:mt-2"><?php esc_html_e('Add nearby schools, shopping, and restaurants in the Location section', 'realestate-booking-suite'); ?></p>
-                                </div>
-                                <?php endif; ?>
                             </div>
                         </div>
 
                         <!-- Reviews Tab -->
-                        <div id="reviews-tab" class="tw-tab-content hidden">
-                            <h3 class="tw:text-xl tw:font-bold tw:text-gray-800 tw:mb-4"><?php esc_html_e('Property Reviews & Ratings', 'realestate-booking-suite'); ?></h3>
-
+                        <div id="reviews-tab" class="tab-content">
+                            <h3 class="section-title">Property Reviews & Ratings</h3>
+                            <p class="text-gray-600 mb-6">Customer reviews and ratings for this property</p>
+                            
+                            <?php
+                            // Get property reviews from comments
+                            $reviews = get_comments(array(
+                                'post_id' => $post->ID,
+                                'status' => 'approve',
+                                'type' => 'comment'
+                            ));
+                            
+                            if (!empty($reviews)):
+                                $total_reviews = count($reviews);
+                                $average_rating = 0;
+                                $rating_counts = array(5 => 0, 4 => 0, 3 => 0, 2 => 0, 1 => 0);
+                                
+                                // Calculate ratings
+                                foreach ($reviews as $review) {
+                                    $rating = get_comment_meta($review->comment_ID, 'rating', true);
+                                    if ($rating) {
+                                        $average_rating += $rating;
+                                        if (isset($rating_counts[$rating])) {
+                                            $rating_counts[$rating]++;
+                                        }
+                                    }
+                                }
+                                
+                                if ($total_reviews > 0) {
+                                    $average_rating = round($average_rating / $total_reviews, 1);
+                                }
+                            ?>
+                            
                             <!-- Overall Rating -->
-                            <div class="tw:bg-gradient-to-r tw:from-emerald-50 tw:to-teal-50 tw:rounded-lg tw:p-6 tw:mb-6">
-                                <div class="tw:flex tw:flex-col tw:md:flex-row tw:items-center tw:justify-between">
-                                    <div class="tw:text-center tw:md:text-left tw:mb-4 tw:md:mb-0">
-                                        <div class="tw:text-5xl tw:font-bold tw:text-gray-800 tw:mb-2">4.8</div>
-                                        <div class="tw:flex tw:items-center tw:justify-center tw:md:justify-start tw:mb-2">
-                                            <i class="fas fa-star rating-star"></i>
-                                            <i class="fas fa-star rating-star"></i>
-                                            <i class="fas fa-star rating-star"></i>
-                                            <i class="fas fa-star rating-star"></i>
-                                            <i class="fas fa-star-half-alt rating-star"></i>
+                            <div class="rating-overview mb-8">
+                                <div class="rating-content">
+                                    <div class="rating-score">
+                                        <div class="rating-value"><?php echo esc_html($average_rating); ?></div>
+                                        <div class="rating-stars">
+                                            <?php for ($i = 1; $i <= 5; $i++): ?>
+                                                <?php if ($i <= floor($average_rating)): ?>
+                                                    <i class="fas fa-star rating-star"></i>
+                                                <?php elseif ($i == ceil($average_rating) && $average_rating != floor($average_rating)): ?>
+                                                    <i class="fas fa-star-half-alt rating-star"></i>
+                                                <?php else: ?>
+                                                    <i class="far fa-star rating-star"></i>
+                                                <?php endif; ?>
+                                            <?php endfor; ?>
                                         </div>
-                                        <p class="tw:text-gray-600"><?php esc_html_e('Based on reviews', 'realestate-booking-suite'); ?></p>
+                                        <p class="rating-count">Based on <?php echo esc_html($total_reviews); ?> review<?php echo $total_reviews != 1 ? 's' : ''; ?></p>
                                     </div>
+                                    
+                                    <?php if ($total_reviews > 0): ?>
+                                    <div class="rating-bars">
+                                        <?php for ($star = 5; $star >= 1; $star--): ?>
+                                            <?php $percentage = $total_reviews > 0 ? ($rating_counts[$star] / $total_reviews) * 100 : 0; ?>
+                                            <div class="rating-bar">
+                                                <span class="rating-label"><?php echo $star; ?>★</span>
+                                                <div class="rating-bar-track">
+                                                    <div class="rating-bar-fill" style="width: <?php echo esc_attr($percentage); ?>%"></div>
+                                                </div>
+                                                <span class="rating-bar-count"><?php echo esc_html($rating_counts[$star]); ?></span>
+                                            </div>
+                                        <?php endfor; ?>
+                                    </div>
+                                    <?php endif; ?>
                                 </div>
                             </div>
 
-                            <div class="tw:text-center tw:py-8">
-                                <i class="fas fa-comments tw:text-gray-300 tw:text-4xl tw:mb-4"></i>
-                                <p class="tw:text-gray-500"><?php esc_html_e('No reviews yet. Be the first to review this property!', 'realestate-booking-suite'); ?></p>
-                            </div>
-                        </div>
-
-                        <!-- Booking Tab -->
-                        <div id="booking-tab" class="tw-tab-content hidden">
-                            <h3 class="tw:text-xl tw:font-bold tw:text-gray-800 tw:mb-4"><?php esc_html_e('Schedule a Viewing', 'realestate-booking-suite'); ?></h3>
-
-                            <div class="tw:grid tw:md:grid-cols-2 tw:gap-8">
-                                <!-- Booking Form -->
-                                <div class="tw:bg-white tw:border tw:rounded-lg tw:p-6">
-                                    <h4 class="tw:text-lg tw:font-semibold tw:text-gray-800 tw:mb-4"><?php esc_html_e('Book a Property Tour', 'realestate-booking-suite'); ?></h4>
-                                    <form id="booking-form" class="tw:space-y-4">
-                                        <div class="tw:grid tw:md:grid-cols-2 tw:gap-4">
-                                            <div>
-                                                <label class="tw:block tw:text-sm tw:font-medium tw:text-gray-700 tw:mb-2"><?php esc_html_e('First Name', 'realestate-booking-suite'); ?></label>
-                                                <input type="text" name="first_name" id="booking_first_name" required class="tw:w-full tw:px-4 tw:py-2 tw:border tw:border-gray-300 tw:rounded-lg focus:tw:outline-none focus:tw:ring-2 focus:tw:ring-emerald-500" placeholder="<?php esc_attr_e('Enter your first name', 'realestate-booking-suite'); ?>">
-                                            </div>
-                                            <div>
-                                                <label class="tw:block tw:text-sm tw:font-medium tw:text-gray-700 tw:mb-2"><?php esc_html_e('Last Name', 'realestate-booking-suite'); ?></label>
-                                                <input type="text" name="last_name" id="booking_last_name" required class="tw:w-full tw:px-4 tw:py-2 tw:border tw:border-gray-300 tw:rounded-lg focus:tw:outline-none focus:tw:ring-2 focus:tw:ring-emerald-500" placeholder="<?php esc_attr_e('Enter your last name', 'realestate-booking-suite'); ?>">
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <label class="tw:block tw:text-sm tw:font-medium tw:text-gray-700 tw:mb-2"><?php esc_html_e('Email', 'realestate-booking-suite'); ?></label>
-                                            <input type="email" name="email" id="booking_email" required class="tw:w-full tw:px-4 tw:py-2 tw:border tw:border-gray-300 tw:rounded-lg focus:tw:outline-none focus:tw:ring-2 focus:tw:ring-emerald-500" placeholder="<?php esc_attr_e('your.email@example.com', 'realestate-booking-suite'); ?>">
-                                        </div>
-                                        <div>
-                                            <label class="tw:block tw:text-sm tw:font-medium tw:text-gray-700 tw:mb-2"><?php esc_html_e('Phone', 'realestate-booking-suite'); ?></label>
-                                            <input type="tel" name="phone" id="booking_phone" required class="tw:w-full tw:px-4 tw:py-2 tw:border tw:border-gray-300 tw:rounded-lg focus:tw:outline-none focus:tw:ring-2 focus:tw:ring-emerald-500" placeholder="<?php esc_attr_e('(555) 123-4567', 'realestate-booking-suite'); ?>">
-                                        </div>
-                                        <div class="tw:grid tw:md:grid-cols-2 tw:gap-4">
-                                            <div>
-                                                <label class="tw:block tw:text-sm tw:font-medium tw:text-gray-700 tw:mb-2"><?php esc_html_e('Preferred Date', 'realestate-booking-suite'); ?> <span class="tw:text-gray-400">(<?php esc_html_e('Optional', 'realestate-booking-suite'); ?>)</span></label>
-                                                <input type="date" name="preferred_date" id="booking_date" class="tw:w-full tw:px-4 tw:py-2 tw:border tw:border-gray-300 tw:rounded-lg focus:tw:outline-none focus:tw:ring-2 focus:tw:ring-emerald-500">
-                                            </div>
-                                            <div>
-                                                <label class="tw:block tw:text-sm tw:font-medium tw:text-gray-700 tw:mb-2"><?php esc_html_e('Preferred Time', 'realestate-booking-suite'); ?> <span class="tw:text-gray-400">(<?php esc_html_e('Optional', 'realestate-booking-suite'); ?>)</span></label>
-                                                <select name="preferred_time" id="booking_time" class="tw:w-full tw:px-4 tw:py-2 tw:border tw:border-gray-300 tw:rounded-lg focus:tw:outline-none focus:tw:ring-2 focus:tw:ring-emerald-500">
-                                                    <option value=""><?php esc_html_e('Select Time', 'realestate-booking-suite'); ?></option>
-                                                    <?php
-                                                        // Default 24-hour time slots
-                                                        $default_times = [
-                                                            '00:00' => '12:00 AM',
-                                                            '01:00' => '1:00 AM',
-                                                            '02:00' => '2:00 AM',
-                                                            '03:00' => '3:00 AM',
-                                                            '04:00' => '4:00 AM',
-                                                            '05:00' => '5:00 AM',
-                                                            '06:00' => '6:00 AM',
-                                                            '07:00' => '7:00 AM',
-                                                            '08:00' => '8:00 AM',
-                                                            '09:00' => '9:00 AM',
-                                                            '10:00' => '10:00 AM',
-                                                            '11:00' => '11:00 AM',
-                                                            '12:00' => '12:00 PM',
-                                                            '13:00' => '1:00 PM',
-                                                            '14:00' => '2:00 PM',
-                                                            '15:00' => '3:00 PM',
-                                                            '16:00' => '4:00 PM',
-                                                            '17:00' => '5:00 PM',
-                                                            '18:00' => '6:00 PM',
-                                                            '19:00' => '7:00 PM',
-                                                            '20:00' => '8:00 PM',
-                                                            '21:00' => '9:00 PM',
-                                                            '22:00' => '10:00 PM',
-                                                            '23:00' => '11:00 PM',
-                                                        ];
-
-                                                        // Use configured times or defaults
-                                                        $times_to_use = $available_times ?: $default_times;
-
-                                                        foreach ($times_to_use as $time_value => $time_label) {
-                                                            echo '<option value="' . esc_attr($time_value) . '">' . esc_html($time_label) . '</option>';
-                                                        }
-                                                    ?>
-                                                </select>
+                            <!-- Reviews List -->
+                            <div class="space-y-4">
+                                <?php foreach ($reviews as $review): ?>
+                                    <?php $rating = get_comment_meta($review->comment_ID, 'rating', true); ?>
+                                    <div class="review-item">
+                                        <div class="review-header">
+                                            <div class="review-user">
+                                                <?php echo get_avatar($review->comment_author_email, 48, '', '', array('class' => 'review-avatar')); ?>
+                                                <div>
+                                                    <h4 class="review-name"><?php echo esc_html($review->comment_author); ?></h4>
+                                                    <div class="review-meta">
+                                                        <?php if ($rating): ?>
+                                                        <div class="rating-stars">
+                                                            <?php for ($i = 1; $i <= 5; $i++): ?>
+                                                                <?php if ($i <= $rating): ?>
+                                                                    <i class="fas fa-star rating-star text-sm"></i>
+                                                                <?php else: ?>
+                                                                    <i class="far fa-star text-gray-300 text-sm"></i>
+                                                                <?php endif; ?>
+                                                            <?php endfor; ?>
+                                                        </div>
+                                                        <?php endif; ?>
+                                                        <span class="review-date"><?php echo esc_html(human_time_diff(strtotime($review->comment_date), current_time('timestamp')) . ' ago'); ?></span>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
-                                        <div>
-                                            <label class="tw:block tw:text-sm tw:font-medium tw:text-gray-700 tw:mb-2"><?php esc_html_e('Message', 'realestate-booking-suite'); ?> (<?php esc_html_e('Optional', 'realestate-booking-suite'); ?>)</label>
-                                            <textarea name="message" id="booking_message" rows="3" class="tw:w-full tw:px-4 tw:py-2 tw:border tw:border-gray-300 tw:rounded-lg focus:tw:outline-none focus:tw:ring-2 focus:tw:ring-emerald-500" placeholder="<?php esc_attr_e('Any specific questions or requirements...', 'realestate-booking-suite'); ?>"></textarea>
-                                        </div>
-                                        <input type="hidden" name="property_id" value="<?php echo esc_attr($property_id); ?>">
-                                        <input type="hidden" name="action" value="resbs_submit_booking">
-                                        <?php wp_nonce_field('resbs_booking_nonce', '_wpnonce'); ?>
-                                        <button type="button" id="booking-submit-btn" onclick="handleScheduleTourClick(event);" class="tw:w-full tw:bg-emerald-500 tw:text-white tw:py-3 tw:rounded-lg hover:tw:bg-emerald-600 tw:transition tw:font-semibold">
-                                            <i class="fas fa-calendar-check tw:mr-2"></i><?php esc_html_e('Schedule Tour', 'realestate-booking-suite'); ?>
-                                        </button>
-                                    </form>
-                                </div>
-
-                                <!-- Booking Info -->
-                                <div class="tw:space-y-6">
-                                    <!-- Agent Contact -->
-                                    <div class="tw:bg-emerald-50 tw:rounded-lg tw:p-6">
-                                        <h4 class="tw:text-lg tw:font-semibold tw:text-gray-800 tw:mb-4"><?php esc_html_e('Contact Agent', 'realestate-booking-suite'); ?></h4>
-                                        <div class="tw:space-y-3">
-                                            <div class="tw:flex tw:items-center">
-                                                <i class="fas fa-user tw:text-emerald-500 tw:mr-3"></i>
-                                                <span class="tw:text-gray-700"><?php echo esc_html($agent_name ?: __('Property Agent', 'realestate-booking-suite')); ?></span>
-                                            </div>
-                                            <?php if ($agent_phone): ?>
-                                            <div class="tw:flex tw:items-center">
-                                                <i class="fas fa-phone tw:text-emerald-500 tw:mr-3"></i>
-                                                <a href="tel:<?php echo esc_attr($agent_phone); ?>" class="tw:text-emerald-600 hover:tw:text-emerald-700"><?php echo esc_html($agent_phone); ?></a>
-                                            </div>
-                                            <?php endif; ?>
-                                            <?php if ($agent_email): ?>
-                                            <div class="tw:flex tw:items-center">
-                                                <i class="fas fa-envelope tw:text-emerald-500 tw:mr-3"></i>
-                                                <a href="mailto:<?php echo esc_attr($agent_email); ?>" class="tw:text-emerald-600 hover:tw:text-emerald-700"><?php echo esc_html($agent_email); ?></a>
-                                            </div>
-                                            <?php endif; ?>
-                                        </div>
+                                        <p class="review-text"><?php echo esc_html($review->comment_content); ?></p>
                                     </div>
-
-                                    <!-- Tour Information -->
-                                    <div class="tw:bg-blue-50 tw:rounded-lg tw:p-6">
-                                        <h4 class="tw:text-lg tw:font-semibold tw:text-gray-800 tw:mb-4"><?php esc_html_e('Tour Information', 'realestate-booking-suite'); ?></h4>
-                                        <div class="tw:space-y-3 tw:text-sm">
-                                            <div class="tw:flex tw:items-start">
-                                                <i class="fas fa-clock tw:text-blue-500 tw:mr-3 tw:mt-1"></i>
-                                                <div>
-                                                    <p class="tw:font-semibold tw:text-gray-800"><?php esc_html_e('Duration', 'realestate-booking-suite'); ?></p>
-                                                    <p class="tw:text-gray-600"><?php echo esc_html($tour_duration ?: __('Approximately 30-45 minutes', 'realestate-booking-suite')); ?></p>
-                                                </div>
-                                            </div>
-                                            <div class="tw:flex tw:items-start">
-                                                <i class="fas fa-users tw:text-blue-500 tw:mr-3 tw:mt-1"></i>
-                                                <div>
-                                                    <p class="tw:font-semibold tw:text-gray-800"><?php esc_html_e('Group Size', 'realestate-booking-suite'); ?></p>
-                                                    <p class="tw:text-gray-600"><?php echo esc_html($tour_group_size ?: __('Maximum 4 people per tour', 'realestate-booking-suite')); ?></p>
-                                                </div>
-                                            </div>
-                                            <div class="tw:flex tw:items-start">
-                                                <i class="fas fa-shield-alt tw:text-blue-500 tw:mr-3 tw:mt-1"></i>
-                                                <div>
-                                                    <p class="tw:font-semibold tw:text-gray-800"><?php esc_html_e('Safety', 'realestate-booking-suite'); ?></p>
-                                                    <p class="tw:text-gray-600"><?php echo esc_html($tour_safety ?: __('All safety protocols followed', 'realestate-booking-suite')); ?></p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-
-                                </div>
+                                <?php endforeach; ?>
                             </div>
+                            
+                            <?php else: ?>
+                                <div class="text-center py-8">
+                                    <i class="fas fa-comments text-gray-400 text-4xl mb-4"></i>
+                                    <p class="text-gray-500">No reviews yet for this property.</p>
+                                    <p class="text-gray-400 text-sm mt-2">Be the first to leave a review!</p>
+                                </div>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>
 
                 <!-- Similar Properties -->
-                <div class="tw:bg-white tw:rounded-xl tw:shadow-sm tw:p-6">
-                    <h3 class="tw:text-2xl tw:font-bold tw:text-gray-800 tw:mb-6">Similar Properties</h3>
-                    <div class="tw:grid tw:md:grid-cols-2 tw:gap-6">
-                        <?php
-                            // Get similar properties using the helper function
-                            $similar_properties = resbs_get_similar_properties($property_id, 4);
-
-                            // Debug information (remove in production)
-                            if (current_user_can('manage_options')) {
-                                echo '<!-- Debug: Found ' . count($similar_properties) . ' similar properties -->';
-                                echo '<!-- Debug: Current property status: ' . $property_status . ' -->';
-                                echo '<!-- Debug: Current property type: ' . $property_type . ' -->';
-                                echo '<!-- Debug: Current property city: ' . $city . ' -->';
-                                echo '<!-- Debug: Current property price: ' . $price . ' -->';
-                                foreach ($similar_properties as $debug_prop) {
-                                    echo '<!-- Debug Property: ' . $debug_prop->post_title . ' (ID: ' . $debug_prop->ID . ') -->';
-                                    echo '<!-- Debug - Beds: ' . esc_html(get_post_meta($debug_prop->ID, '_property_bedrooms', true)) . ' -->';
-                                    echo '<!-- Debug - Baths: ' . esc_html(get_post_meta($debug_prop->ID, '_property_bathrooms', true)) . ' -->';
-                                    echo '<!-- Debug - Area: ' . esc_html(get_post_meta($debug_prop->ID, '_property_area_sqft', true)) . ' -->';
-                                    $debug_gallery     = get_post_meta($debug_prop->ID, '_property_gallery', true);
-                                    $debug_gallery_str = is_array($debug_gallery) ? implode(',', $debug_gallery) : $debug_gallery;
-                                    echo '<!-- Debug - Gallery: ' . esc_html($debug_gallery_str) . ' -->';
-                                }
-                            }
-
-                            if ($similar_properties):
-                                foreach ($similar_properties as $similar):
-                                    $similar_price     = get_post_meta($similar->ID, '_property_price', true);
-                                    $similar_bedrooms  = get_post_meta($similar->ID, '_property_bedrooms', true);
-                                    $similar_bathrooms = get_post_meta($similar->ID, '_property_bathrooms', true);
-                                    $similar_area      = get_post_meta($similar->ID, '_property_area_sqft', true);
-                                    $similar_gallery   = get_post_meta($similar->ID, '_property_gallery', true);
-
-                                    // Safely handle gallery data - could be array, string, or empty
-                                    $similar_images = [];
-                                    if (is_array($similar_gallery)) {
-                                        $similar_images = array_filter($similar_gallery);
-                                    } elseif (is_string($similar_gallery) && ! empty($similar_gallery)) {
-                                    $similar_images = array_filter(explode(',', $similar_gallery));
-                                }
-
-                                                                                                                       // Get the first image URL properly
-                                $similar_image = 'https://images.unsplash.com/photo-1600607687644-c7171b42498f?w=600'; // Default fallback
-
-                                // Try gallery images first
-                                if (! empty($similar_images) && is_array($similar_images)) {
-                                    $first_image = $similar_images[0];
-                                    if (is_numeric($first_image)) {
-                                        $first_image_id = intval($first_image);
-                                        if ($first_image_id > 0) {
-                                            $image_url = wp_get_attachment_image_url($first_image_id, 'medium');
-                                            if ($image_url) {
-                                                $similar_image = $image_url;
-                                            }
-                                        }
-                                    } elseif (is_string($first_image) && filter_var($first_image, FILTER_VALIDATE_URL)) {
-                                    $similar_image = $first_image;
-                                }
-                            }
-
-                            // Fallback to featured image if no gallery
-                            if ($similar_image === 'https://images.unsplash.com/photo-1600607687644-c7171b42498f?w=600') {
-                                $featured_image_id = get_post_thumbnail_id($similar->ID);
-                                if ($featured_image_id) {
-                                    $featured_image_url = wp_get_attachment_image_url($featured_image_id, 'medium');
-                                    if ($featured_image_url) {
-                                        $similar_image = $featured_image_url;
-                                    }
-                                }
-                            }
-
-                            // Safely format price with fallback
-                            $similar_price_formatted = 'Price on Request';
-                            if (! empty($similar_price) && is_numeric($similar_price)) {
-                                $similar_price_formatted = '$' . number_format(floatval($similar_price));
-                            }
-                        ?>
-                        <a href="<?php echo get_permalink($similar->ID); ?>" class="property-card tw:border tw:border-gray-200 tw:rounded-lg tw:overflow-hidden hover:tw:shadow-lg tw:transition-shadow">
-                            <div class="tw:relative">
-                                <img src="<?php echo esc_url($similar_image); ?>" alt="Property" class="tw:w-full tw:h-48 tw:object-cover">
-                                <span class="tw:absolute tw:top-3 tw:left-3 tw:bg-emerald-500 tw:text-white tw:px-3 tw:py-1 tw:rounded-full tw:text-sm tw:font-semibold"><?php echo esc_html(get_post_meta($similar->ID, '_property_status', true) ?: 'For Sale'); ?></span>
-                            </div>
-                            <div class="tw:p-4">
-                                <h4 class="tw:font-bold tw:text-lg tw:text-gray-800 tw:mb-2 hover:tw:text-emerald-600 tw:transition-colors"><?php echo esc_html($similar->post_title); ?></h4>
-                                <p class="tw:text-gray-600 tw:text-sm tw:mb-3 tw:flex tw:items-center">
-                                    <i class="fas fa-map-marker-alt tw:text-emerald-500 tw:mr-2"></i>
-                                    <?php echo esc_html(get_post_meta($similar->ID, '_property_address', true)); ?>
-                                </p>
-                                <div class="tw:flex tw:items-center tw:justify-between tw:mb-3">
-                                    <span class="tw:text-2xl tw:font-bold tw:text-emerald-500"><?php echo esc_html($similar_price_formatted); ?></span>
+                <div class="card">
+                    <h3 class="section-title">Similar Properties</h3>
+                    <p class="text-gray-600 mb-6">Other properties you might be interested in</p>
+                    
+                    <?php
+                    // Get similar properties based on property type and location
+                    $similar_properties = get_posts(array(
+                        'post_type' => 'property',
+                        'posts_per_page' => 4,
+                        'post__not_in' => array($post->ID),
+                        'meta_query' => array(
+                            'relation' => 'OR',
+                            array(
+                                'key' => '_property_type',
+                                'value' => $property_type,
+                                'compare' => '='
+                            ),
+                            array(
+                                'key' => '_property_city',
+                                'value' => $city,
+                                'compare' => '='
+                            )
+                        )
+                    ));
+                    ?>
+                    
+                    <?php if (!empty($similar_properties)): ?>
+                        <div class="similar-properties-grid">
+                            <?php foreach ($similar_properties as $similar_property): ?>
+                                <?php
+                                $similar_price = get_post_meta($similar_property->ID, '_property_price', true);
+                                $similar_bedrooms = get_post_meta($similar_property->ID, '_property_bedrooms', true);
+                                $similar_bathrooms = get_post_meta($similar_property->ID, '_property_bathrooms', true);
+                                $similar_area = get_post_meta($similar_property->ID, '_property_area_sqft', true);
+                                $similar_city = get_post_meta($similar_property->ID, '_property_city', true);
+                                $similar_state = get_post_meta($similar_property->ID, '_property_state', true);
+                                $similar_featured_image = get_the_post_thumbnail_url($similar_property->ID, 'medium');
+                                $similar_status = get_post_meta($similar_property->ID, '_property_status', true);
+                                
+                                $formatted_similar_price = $similar_price ? '$' . number_format($similar_price) : 'Price on request';
+                                $similar_location = trim($similar_city . ', ' . $similar_state, ', ');
+                                ?>
+                                
+                                <div class="property-card">
+                                    <div class="property-image">
+                                        <?php if ($similar_featured_image): ?>
+                                            <img src="<?php echo esc_url($similar_featured_image); ?>" alt="<?php echo esc_attr($similar_property->post_title); ?>">
+                                        <?php else: ?>
+                                            <div class="bg-gray-200 h-48 flex items-center justify-center">
+                                                <i class="fas fa-home text-gray-400 text-4xl"></i>
+                                            </div>
+                                        <?php endif; ?>
+                                        
+                                        <?php if ($similar_status): ?>
+                                            <span class="property-badge"><?php echo esc_html($similar_status); ?></span>
+                                        <?php endif; ?>
+                                    </div>
+                                    <div class="property-info">
+                                        <h4 class="property-card-title">
+                                            <a href="<?php echo esc_url(get_permalink($similar_property->ID)); ?>" class="hover:text-emerald-600 transition-colors">
+                                                <?php echo esc_html($similar_property->post_title); ?>
+                                            </a>
+                                        </h4>
+                                        <p class="property-card-location">
+                                            <i class="fas fa-map-marker-alt text-emerald-500"></i>
+                                            <?php echo esc_html($similar_location ? $similar_location : 'Location not specified'); ?>
+                                        </p>
+                                        <div class="property-card-price"><?php echo esc_html($formatted_similar_price); ?></div>
+                                        <div class="property-card-features">
+                                            <?php if ($similar_bedrooms): ?>
+                                                <span><i class="fas fa-bed mr-1"></i><?php echo esc_html($similar_bedrooms); ?> Bed<?php echo $similar_bedrooms != 1 ? 's' : ''; ?></span>
+                                            <?php endif; ?>
+                                            <?php if ($similar_bathrooms): ?>
+                                                <span><i class="fas fa-bath mr-1"></i><?php echo esc_html($similar_bathrooms); ?> Bath<?php echo $similar_bathrooms != 1 ? 's' : ''; ?></span>
+                                            <?php endif; ?>
+                                            <?php if ($similar_area): ?>
+                                                <span><i class="fas fa-ruler-combined mr-1"></i><?php echo esc_html($similar_area); ?> sqft</span>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="tw:flex tw:items-center tw:space-x-4 tw:text-sm tw:text-gray-600 tw:border-t tw:border-gray-200 tw:pt-3">
-                                    <span class="tw:flex tw:items-center"><i class="fas fa-bed tw:mr-1 tw:text-emerald-500"></i><?php echo esc_html($similar_bedrooms ?: '0'); ?> Beds</span>
-                                    <span class="tw:flex tw:items-center"><i class="fas fa-bath tw:mr-1 tw:text-emerald-500"></i><?php echo esc_html($similar_bathrooms ?: '0'); ?> Bath</span>
-                                    <span class="tw:flex tw:items-center"><i class="fas fa-ruler-combined tw:mr-1 tw:text-emerald-500"></i><?php echo esc_html($similar_area ?: '0'); ?> sqft</span>
-                                </div>
-                            </div>
-                        </a>
-                        <?php
-                            endforeach;
-                            else:
-                        ?>
-                        <div class="tw:col-span-4 tw:text-center tw:py-8">
-                            <i class="fas fa-home tw:text-gray-300 tw:text-4xl tw:mb-4"></i>
-                            <p class="tw:text-gray-500">No similar properties found</p>
+                            <?php endforeach; ?>
                         </div>
+                    <?php else: ?>
+                        <div class="text-center py-8">
+                            <i class="fas fa-home text-gray-400 text-4xl mb-4"></i>
+                            <p class="text-gray-500">No similar properties found.</p>
+                        </div>
+                    <?php endif; ?>
+                </div>
+
+                <!-- Media Tab -->
+                <div id="media-tab" class="tab-content">
+                    <h3 class="section-title">Property Media</h3>
+                    <p class="text-gray-600 mb-6">Photos, videos, and virtual tours</p>
+                    
+                    <!-- Photo Gallery -->
+                    <div class="mb-8">
+                        <h4 class="text-lg font-semibold mb-4">Photo Gallery</h4>
+                        <?php if (!empty($gallery_urls)): ?>
+                            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                                <?php foreach ($gallery_urls as $index => $image_url): ?>
+                                    <div class="gallery-item cursor-pointer" onclick="openImageViewer(<?php echo $index; ?>)">
+                                        <img src="<?php echo esc_url($image_url); ?>" alt="Property Image" class="w-full h-32 object-cover rounded-lg hover:opacity-90 transition-opacity">
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php else: ?>
+                            <div class="text-center py-8 bg-gray-50 rounded-lg">
+                                <i class="fas fa-images text-gray-400 text-4xl mb-4"></i>
+                                <p class="text-gray-500">No photos available for this property</p>
+                            </div>
                         <?php endif; ?>
+                    </div>
+                    
+                    <!-- Virtual Tour -->
+                    <?php if ($virtual_tour): ?>
+                    <div class="mb-8">
+                        <h4 class="text-lg font-semibold mb-4">Virtual Tour</h4>
+                        <div class="bg-gray-50 p-6 rounded-lg">
+                            <h5 class="font-medium text-lg mb-2"><?php echo esc_html($virtual_tour_title ? $virtual_tour_title : 'Virtual Tour'); ?></h5>
+                            <p class="text-gray-600 mb-4"><?php echo esc_html($virtual_tour_description ? $virtual_tour_description : 'Experience this property from anywhere with our interactive 3D tour.'); ?></p>
+                            <a href="<?php echo esc_url($virtual_tour); ?>" target="_blank" class="btn btn-primary">
+                                <i class="fas fa-play mr-2"></i>
+                                <?php echo esc_html($virtual_tour_button_text ? $virtual_tour_button_text : 'Start Virtual Tour'); ?>
+                            </a>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+                    
+                    <!-- Property Video -->
+                    <?php if ($video_url || $video_embed): ?>
+                    <div class="mb-8">
+                        <h4 class="text-lg font-semibold mb-4">Property Video</h4>
+                        <div class="bg-gray-50 p-6 rounded-lg">
+                            <?php if ($video_embed): ?>
+                                <div class="video-embed">
+                                    <?php echo wp_kses_post($video_embed); ?>
+                                </div>
+                            <?php elseif ($video_url): ?>
+                                <div class="video-link">
+                                    <a href="<?php echo esc_url($video_url); ?>" target="_blank" class="btn btn-primary">
+                                        <i class="fas fa-play mr-2"></i>Watch Property Video
+                                    </a>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+                </div>
+
+                <!-- Agent Tab -->
+                <div id="agent-tab" class="tab-content">
+                    <h3 class="section-title">Property Agent</h3>
+                    <p class="text-gray-600 mb-6">Contact information and agent details</p>
+                    
+                    <!-- Agent Information -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                        <div class="bg-gray-50 p-6 rounded-lg">
+                            <h4 class="text-lg font-semibold mb-4">Agent Details</h4>
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Agent Name</label>
+                                    <p class="text-lg font-semibold text-gray-900"><?php echo esc_html($agent_name ? $agent_name : 'Not specified'); ?></p>
+                                </div>
+                                
+                                <?php if ($agent_phone): ?>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Phone Number</label>
+                                    <p class="text-lg text-gray-900"><?php echo esc_html($agent_phone); ?></p>
+                                </div>
+                                <?php endif; ?>
+                                
+                                <?php if ($agent_email): ?>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Email Address</label>
+                                    <p class="text-lg text-gray-900"><?php echo esc_html($agent_email); ?></p>
+                                </div>
+                                <?php endif; ?>
+                                
+                                <?php if ($agent_properties_sold): ?>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Properties Sold</label>
+                                    <p class="text-lg text-gray-900"><?php echo esc_html($agent_properties_sold); ?></p>
+                                </div>
+                                <?php endif; ?>
+                                
+                                <?php if ($agent_experience): ?>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Experience</label>
+                                    <p class="text-lg text-gray-900"><?php echo esc_html($agent_experience); ?></p>
+                                </div>
+                                <?php endif; ?>
+                                
+                                <?php if ($agent_response_time): ?>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Response Time</label>
+                                    <p class="text-lg text-gray-900"><?php echo esc_html($agent_response_time); ?></p>
+                                </div>
+                                <?php endif; ?>
+                                
+                                <?php if ($agent_rating): ?>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Rating</label>
+                                    <div class="flex items-center">
+                                        <div class="flex">
+                                            <?php
+                                            $rating = intval($agent_rating);
+                                            for ($i = 1; $i <= 5; $i++):
+                                            ?>
+                                                <i class="fas fa-star text-yellow-400 text-sm"></i>
+                                            <?php endfor; ?>
+                                        </div>
+                                        <span class="ml-2 text-sm text-gray-600">(<?php echo esc_html($agent_reviews); ?> reviews)</span>
+                                    </div>
+                                </div>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                        
+                        <!-- Agent Photo -->
+                        <div class="bg-gray-50 p-6 rounded-lg">
+                            <h4 class="text-lg font-semibold mb-4">Agent Photo</h4>
+                            <?php if ($agent_photo): ?>
+                                <img src="<?php echo esc_url($agent_photo); ?>" alt="<?php echo esc_attr($agent_name); ?>" class="w-32 h-32 object-cover rounded-lg mx-auto">
+                            <?php else: ?>
+                                <div class="w-32 h-32 bg-gray-300 rounded-lg mx-auto flex items-center justify-center">
+                                    <i class="fas fa-user text-gray-500 text-4xl"></i>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    
+                    <!-- Contact Form -->
+                    <div class="bg-gray-50 p-6 rounded-lg">
+                        <h4 class="text-lg font-semibold mb-4"><?php echo esc_html($contact_form_title ? $contact_form_title : 'Contact Agent'); ?></h4>
+                        <form class="space-y-4">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2"><?php echo esc_html($contact_name_label ? $contact_name_label : 'Your Name'); ?></label>
+                                    <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2"><?php echo esc_html($contact_email_label ? $contact_email_label : 'Email'); ?></label>
+                                    <input type="email" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2"><?php echo esc_html($contact_phone_label ? $contact_phone_label : 'Phone'); ?></label>
+                                <input type="tel" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2"><?php echo esc_html($contact_message_label ? $contact_message_label : 'Message'); ?></label>
+                                <textarea rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-full">
+                                <i class="fas fa-paper-plane mr-2"></i>
+                                <?php echo esc_html($contact_submit_text ? $contact_submit_text : 'Send Message'); ?>
+                            </button>
+                        </form>
                     </div>
                 </div>
 
+                <!-- Booking Tab -->
+                <div id="booking-tab" class="tab-content">
+                    <h3 class="section-title">Property Booking</h3>
+                    <p class="text-gray-600 mb-6">Schedule a viewing or book this property</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-gray-50 p-6 rounded-lg">
+                            <h4 class="text-lg font-semibold mb-4">Schedule Viewing</h4>
+                            <p class="text-gray-600 mb-4">Book a time to visit this property in person</p>
+                            <button onclick="scheduleViewing()" class="btn btn-primary w-full">
+                                <i class="fas fa-calendar-alt mr-2"></i>Schedule Viewing
+                            </button>
+                        </div>
+                        
+                        <div class="bg-gray-50 p-6 rounded-lg">
+                            <h4 class="text-lg font-semibold mb-4">Virtual Tour</h4>
+                            <p class="text-gray-600 mb-4">Take a virtual tour of this property</p>
+                            <?php if ($virtual_tour): ?>
+                                <a href="<?php echo esc_url($virtual_tour); ?>" target="_blank" class="btn btn-secondary w-full">
+                                    <i class="fas fa-play mr-2"></i>Start Virtual Tour
+                                </a>
+                            <?php else: ?>
+                                <button onclick="requestVirtualTour()" class="btn btn-secondary w-full">
+                                    <i class="fas fa-video mr-2"></i>Request Virtual Tour
+                                </button>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Sidebar -->
-            <div class="tw:lg:col-span-1">
+            <div class="sidebar">
                 <!-- Agent Card -->
-                <div class="tw:bg-white tw:rounded-xl tw:shadow-sm tw:p-6 tw:mb-6  top-24">
-                    <div class="tw:text-center tw:mb-6">
+                <div class="card agent-card">
+                    <div class="text-center mb-6">
                         <?php if ($agent_photo): ?>
-                        <img src="<?php echo esc_url($agent_photo); ?>" alt="Agent" class="tw:w-24 tw:h-24 tw:rounded-full tw:mx-auto tw:mb-3 tw:border-4 tw:border-emerald-100">
+                            <img src="<?php echo esc_url($agent_photo); ?>" alt="<?php echo esc_attr($agent_name); ?>" class="agent-avatar">
                         <?php else: ?>
-                        <div class="tw:w-24 tw:h-24 tw:rounded-full tw:mx-auto tw:mb-3 tw:border-4 tw:border-emerald-100 tw:bg-gray-200 tw:flex tw:items-center tw:justify-center">
-                            <i class="fas fa-user tw:text-gray-400 tw:text-2xl"></i>
-                        </div>
+                            <div class="agent-avatar" style="background-color: var(--primary-color); color: white; display: flex; align-items: center; justify-content: center; font-size: 2rem;">
+                                <i class="fas fa-user"></i>
+                            </div>
                         <?php endif; ?>
-                        <h3 class="tw:text-xl tw:font-bold tw:text-gray-800"><?php echo esc_html($agent_name ?: 'Property Agent'); ?></h3>
-                        <p class="tw:text-gray-600 tw:text-sm">Real Estate Agent</p>
-                        <div class="tw:flex tw:items-center tw:justify-center tw:mt-2">
+                        <h3 class="agent-name"><?php echo esc_html($agent_name); ?></h3>
+                        <p class="agent-title">Real Estate Agent</p>
+                        <div class="agent-rating">
                             <?php
-                                $rating = intval($agent_rating ?: 5);
+                                $rating = intval($agent_rating);
                                 for ($i = 1; $i <= 5; $i++):
                             ?>
-                                <i class="fas fa-star rating-star tw:text-sm<?php echo $i <= $rating ? 'tw:text-yellow-400' : 'tw:text-gray-300'; ?>"></i>
+                                <i class="fas fa-star rating-star text-sm<?php echo $i <= $rating ? 'text-yellow-400' : 'text-gray-300'; ?>"></i>
                             <?php endfor; ?>
-                            <span class="tw:text-sm tw:text-gray-600 tw:ml-2">(<?php echo esc_html($agent_reviews ?: 'reviews'); ?>)</span>
+                            <span class="text-sm text-gray-600 ml-2">(<?php echo esc_html($agent_reviews); ?> reviews)</span>
                         </div>
                     </div>
 
-                    <div class="tw:space-y-3 tw:mb-6">
+                    <div class="agent-actions">
                         <?php if ($agent_phone): ?>
-                        <a href="tel:<?php echo esc_attr($agent_phone); ?>" class="tw:flex tw:items-center tw:justify-center tw:px-4 tw:py-3 tw:bg-emerald-500 tw:text-white tw:rounded-lg hover:tw:bg-emerald-600 tw:transition">
-                            <i class="fas fa-phone tw:mr-2"></i>
+                        <a href="tel:<?php echo esc_attr($agent_phone); ?>" class="agent-action agent-action-primary">
+                            <i class="fas fa-phone mr-2"></i>
                             <span>Call Agent</span>
                         </a>
                         <?php endif; ?>
-                        <button onclick="openContactModal()" class="tw:w-full tw:flex tw:items-center tw:justify-center tw:px-4 tw:py-3 tw:bg-gray-700 tw:text-white tw:rounded-lg hover:tw:bg-gray-800 tw:transition">
-                            <i class="fas fa-envelope tw:mr-2"></i>
-                            <span><?php echo esc_html($agent_send_message_text ?: 'Send Message'); ?></span>
+                        <button onclick="openContactModal()" class="agent-action agent-action-secondary">
+                            <i class="fas fa-envelope mr-2"></i>
+                            <span><?php echo esc_html($agent_send_message_text ? $agent_send_message_text : 'Send Message'); ?></span>
+                        </button>
+                        <button onclick="scheduleTour()" class="agent-action agent-action-outline">
+                            <i class="fas fa-calendar-alt mr-2"></i>
+                            <span>Schedule Tour</span>
                         </button>
                     </div>
 
-                    <div class="tw:border-t tw:border-gray-200 tw:pt-4">
-                        <div class="tw:flex tw:items-center tw:justify-between tw:text-sm tw:mb-2">
-                            <span class="tw:text-gray-600">Properties Sold:</span>
-                            <span class="tw:font-semibold tw:text-gray-800"><?php echo esc_html($agent_properties_sold ?: '100+'); ?></span>
+                    <div class="agent-stats">
+                        <div class="agent-stat">
+                            <span class="agent-stat-label">Properties Sold:</span>
+                            <span class="agent-stat-value"><?php echo esc_html($agent_properties_sold); ?>+</span>
                         </div>
-                        <div class="tw:flex tw:items-center tw:justify-between tw:text-sm tw:mb-2">
-                            <span class="tw:text-gray-600">Experience:</span>
-                            <span class="tw:font-semibold tw:text-gray-800"><?php echo esc_html($agent_experience ?: '5+ Years'); ?></span>
+                        <div class="agent-stat">
+                            <span class="agent-stat-label">Experience:</span>
+                            <span class="agent-stat-value"><?php echo esc_html($agent_experience); ?></span>
                         </div>
-                        <div class="tw:flex tw:items-center tw:justify-between tw:text-sm">
-                            <span class="tw:text-gray-600">Response Time:</span>
-                            <span class="tw:font-semibold tw:text-gray-800"><?php echo esc_html($agent_response_time ?: '< 1 Hour'); ?></span>
+                        <div class="agent-stat">
+                            <span class="agent-stat-label">Response Time:</span>
+                            <span class="agent-stat-value"><?php echo esc_html($agent_response_time); ?></span>
                         </div>
                     </div>
                 </div>
 
                 <!-- Mortgage Calculator -->
-                <div class="tw:bg-white tw:rounded-xl tw:shadow-sm tw:p-6 tw:mb-6">
-                    <h3 class="tw:text-xl tw:font-bold tw:text-gray-800 tw:mb-4"><?php echo esc_html($mortgage_calculator_title ?: 'Mortgage Calculator'); ?></h3>
-                    <div class="tw:space-y-4">
-                        <div>
-                            <label class="tw:block tw:text-sm tw:font-medium tw:text-gray-700 tw:mb-2"><?php echo esc_html($mortgage_property_price_label ?: 'Property Price'); ?></label>
-                            <div class="tw:relative">
-                                <div class="tw:absolute tw:inset-y-0 tw:left-0 tw:pl-3 tw:flex tw:items-center tw:pointer-events-none">
-                                    <span class="tw:text-gray-500 tw:sm:text-sm">$</span>
-                                </div>
-                                <input type="number" id="propertyPrice" value="<?php echo esc_attr($price ?: '500000'); ?>" class="tw:w-full tw:pl-8 tw:pr-4 tw:py-2 tw:border tw:border-gray-300 tw:rounded-lg focus:tw:outline-none focus:tw:ring-2 focus:tw:ring-emerald-500" placeholder="<?php echo esc_attr('500000'); ?>" onkeyup="
-                                    console.log('Property price changed to:', this.value);
-
-                                    // Get all values
-                                    var price = this.value;
-                                    var downPayment = document.getElementById('downPayment').value;
-                                    var interestRate = document.getElementById('interestRate').value;
-                                    var loanTerm = document.getElementById('loanTerm').value;
-
-                                    // Convert to numbers
-                                    price = parseFloat(price) || 0;
-                                    downPayment = parseFloat(downPayment) || 0;
-                                    interestRate = parseFloat(interestRate) || 0;
-                                    loanTerm = parseFloat(loanTerm) || 30;
-
-                                    // Handle very low property prices
-                                    if (price < 1000) {
-                                        console.log('Property price too low for realistic calculation:', price);
-                                        document.getElementById('monthlyPayment').textContent = '$0';
-                                        return;
-                                    }
-
-                                    // Calculate
-                                    var downPaymentAmount = (price * downPayment) / 100;
-                                    var loanAmount = price - downPaymentAmount;
-                                    var monthlyRate = interestRate / 100 / 12;
-                                    var numberOfPayments = loanTerm * 12;
-
-                                    var monthlyPayment = 0;
-                                    if (monthlyRate > 0 && loanAmount > 0) {
-                                        monthlyPayment = loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, numberOfPayments)) / (Math.pow(1 + monthlyRate, numberOfPayments) - 1);
-                                    } else if (loanAmount > 0) {
-                                        monthlyPayment = loanAmount / numberOfPayments;
-                                    }
-
-                                    console.log('Auto calculation result:', monthlyPayment);
-
-                                    // Display result
-                                    document.getElementById('monthlyPayment').textContent = '$' + Math.round(monthlyPayment).toLocaleString();
-                                " onchange="
-                                    console.log('Property price changed to:', this.value);
-
-                                    // Get all values
-                                    var price = this.value;
-                                    var downPayment = document.getElementById('downPayment').value;
-                                    var interestRate = document.getElementById('interestRate').value;
-                                    var loanTerm = document.getElementById('loanTerm').value;
-
-                                    // Convert to numbers
-                                    price = parseFloat(price) || 0;
-                                    downPayment = parseFloat(downPayment) || 0;
-                                    interestRate = parseFloat(interestRate) || 0;
-                                    loanTerm = parseFloat(loanTerm) || 30;
-
-                                    // Handle very low property prices
-                                    if (price < 1000) {
-                                        console.log('Property price too low for realistic calculation:', price);
-                                        document.getElementById('monthlyPayment').textContent = '$0';
-                                        return;
-                                    }
-
-                                    // Calculate
-                                    var downPaymentAmount = (price * downPayment) / 100;
-                                    var loanAmount = price - downPaymentAmount;
-                                    var monthlyRate = interestRate / 100 / 12;
-                                    var numberOfPayments = loanTerm * 12;
-
-                                    var monthlyPayment = 0;
-                                    if (monthlyRate > 0 && loanAmount > 0) {
-                                        monthlyPayment = loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, numberOfPayments)) / (Math.pow(1 + monthlyRate, numberOfPayments) - 1);
-                                    } else if (loanAmount > 0) {
-                                        monthlyPayment = loanAmount / numberOfPayments;
-                                    }
-
-                                    console.log('Auto calculation result:', monthlyPayment);
-
-                                    // Display result
-                                    document.getElementById('monthlyPayment').textContent = '$' + Math.round(monthlyPayment).toLocaleString();
-                                " placeholder="500000" min="0" step="1000">
+                <div class="card">
+                    <h3 class="section-title"><?php echo esc_html($mortgage_calculator_title ? $mortgage_calculator_title : 'Mortgage Calculator'); ?></h3>
+                    <div class="space-y-4">
+                        <div class="calculator-input">
+                            <label class="calculator-label"><?php echo esc_html($mortgage_property_price_label ? $mortgage_property_price_label : 'Property Price'); ?></label>
+                            <input type="text" id="propertyPrice" value="<?php echo esc_attr($formatted_price); ?>" class="calculator-field" onkeyup="calculateMortgage()">
+                        </div>
+                        <div class="calculator-input">
+                            <label class="calculator-label"><?php echo esc_html($mortgage_down_payment_label ? $mortgage_down_payment_label : 'Down Payment (%)'); ?></label>
+                            <input type="range" id="downPayment" min="0" max="100" value="<?php echo esc_attr($mortgage_default_down_payment ? $mortgage_default_down_payment : '20'); ?>" class="calculator-slider" oninput="updateDownPayment(this.value); calculateMortgage()">
+                            <div class="calculator-slider-labels">
+                                <span>0%</span>
+                                <span id="downPaymentValue" class="calculator-slider-value"><?php echo esc_html($mortgage_default_down_payment ? $mortgage_default_down_payment : '20'); ?>%</span>
+                                <span>100%</span>
                             </div>
                         </div>
-                        <div>
-                            <label class="tw:block tw:text-sm tw:font-medium tw:text-gray-700 tw:mb-2"><?php echo esc_html($mortgage_down_payment_label ?: __('Down Payment (%)', 'realestate-booking-suite')); ?></label>
-                            <input type="range" id="downPayment" min="0" max="100" value="<?php echo esc_attr($mortgage_default_down_payment ?: '20'); ?>" class="tw:w-full" oninput="document.getElementById('downPaymentValue').textContent = this.value + '%'; calculateMortgageNow();">
-                            <div class="tw:flex tw:justify-between tw:text-sm tw:text-gray-600">
-                                <span><?php esc_html_e('0%', 'realestate-booking-suite'); ?></span>
-                                <span id="downPaymentValue" class="tw:font-semibold tw:text-emerald-600"><?php echo esc_html($mortgage_default_down_payment ?: '20'); ?>%</span>
-                                <span><?php esc_html_e('100%', 'realestate-booking-suite'); ?></span>
-                            </div>
+                        <div class="calculator-input">
+                            <label class="calculator-label"><?php echo esc_html($mortgage_interest_rate_label ? $mortgage_interest_rate_label : 'Interest Rate (%)'); ?></label>
+                            <input type="number" id="interestRate" value="<?php echo esc_attr($mortgage_default_interest_rate ? $mortgage_default_interest_rate : '6.5'); ?>" step="0.1" class="calculator-field" onkeyup="calculateMortgage()">
                         </div>
-                        <div>
-                            <label class="tw:block tw:text-sm tw:font-medium tw:text-gray-700 tw:mb-2"><?php echo esc_html($mortgage_interest_rate_label ?: __('Interest Rate (%)', 'realestate-booking-suite')); ?></label>
-                            <input type="number" id="interestRate" value="<?php echo esc_attr($mortgage_default_interest_rate ?: '6.5'); ?>" step="0.1" class="tw:w-full tw:px-4 tw:py-2 tw:border tw:border-gray-300 tw:rounded-lg focus:tw:outline-none focus:tw:ring-2 focus:tw:ring-emerald-500" placeholder="<?php echo esc_attr('6.5'); ?>" onkeyup="calculateMortgageNow()" onchange="calculateMortgageNow()">
-                        </div>
-                        <div>
-                            <label class="tw:block tw:text-sm tw:font-medium tw:text-gray-700 tw:mb-2"><?php echo esc_html($mortgage_loan_term_label ?: __('Loan Term (Years)', 'realestate-booking-suite')); ?></label>
-                            <select id="loanTerm" class="tw:w-full tw:px-4 tw:py-2 tw:border tw:border-gray-300 tw:rounded-lg focus:tw:outline-none focus:tw:ring-2 focus:tw:ring-emerald-500" onchange="calculateMortgageNow()">
+                        <div class="calculator-input">
+                            <label class="calculator-label"><?php echo esc_html($mortgage_loan_term_label ? $mortgage_loan_term_label : 'Loan Term (Years)'); ?></label>
+                            <select id="loanTerm" class="calculator-field" onchange="calculateMortgage()">
                                 <?php
-                                    $loan_terms_array = explode("\n", $mortgage_loan_terms ?: "15\n20\n30");
-                                    foreach ($loan_terms_array as $term) {
+                                    $loan_terms   = $mortgage_loan_terms ? explode(',', $mortgage_loan_terms) : ['15', '20', '30'];
+                                    $default_term = $mortgage_default_loan_term ? $mortgage_default_loan_term : '30';
+                                    foreach ($loan_terms as $term):
                                         $term = trim($term);
-                                        if (! empty($term)) {
-                                            $selected = ($term == ($mortgage_default_loan_term ?: '30')) ? 'selected' : '';
-                                            echo '<option value="' . esc_attr($term) . '" ' . $selected . '>' . esc_html($term) . ' ' . esc_html__('Years', 'realestate-booking-suite') . '</option>';
-                                        }
-                                    }
-                                ?>
+                                    ?>
+	                                    <option value="<?php echo esc_attr($term); ?>"<?php echo $term == $default_term ? 'selected' : ''; ?>><?php echo esc_html($term); ?> Years</option>
+	                                <?php endforeach; ?>
                             </select>
                         </div>
-                        <div class="tw:bg-emerald-50 tw:rounded-lg tw:p-4 tw:mt-4">
-                            <p class="tw:text-sm tw:text-gray-600 tw:mb-1"><?php echo esc_html($mortgage_monthly_payment_label ?: __('Estimated Monthly Payment', 'realestate-booking-suite')); ?></p>
-                            <p class="tw:text-3xl tw:font-bold tw:text-emerald-600" id="monthlyPayment">$0</p>
-                            <p class="tw:text-xs tw:text-gray-500 tw:mt-2"><?php echo esc_html($mortgage_disclaimer_text ?: __('*Principal & Interest only', 'realestate-booking-suite')); ?></p>
+                        <div class="calculator-result">
+                            <p class="calculator-result-label"><?php echo esc_html($mortgage_monthly_payment_label ? $mortgage_monthly_payment_label : 'Estimated Monthly Payment'); ?></p>
+                            <p class="calculator-result-value" id="monthlyPayment">$0</p>
+                            <p class="calculator-result-note"><?php echo esc_html($mortgage_disclaimer_text ? $mortgage_disclaimer_text : '*Principal & Interest only'); ?></p>
                         </div>
+                    </div>
+                </div>
 
-                        <!-- Calculate Button -->
-                        <div class="tw:mt-4">
-                            <button type="button" onclick="calculateMortgagePayment()" class="tw:w-full tw:bg-emerald-500 tw:text-white tw:py-3 tw:px-4 tw:rounded-lg hover:tw:bg-emerald-600 tw:transition tw:font-semibold">
-                                <i class="fas fa-calculator tw:mr-2"></i><?php esc_html_e('Calculate Mortgage', 'realestate-booking-suite'); ?>
-                            </button>
+                <!-- Quick Stats -->
+                <div class="stats-card">
+                    <h3 class="stats-title">Property Insights</h3>
+                    <div class="stats-list">
+                        <div class="stat-item">
+                            <span class="stat-label">
+                                <i class="fas fa-eye mr-2"></i>Views
+                            </span>
+                            <span class="stat-value">1,234</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">
+                                <i class="fas fa-heart mr-2"></i>Favorites
+                            </span>
+                            <span class="stat-value">89</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">
+                                <i class="fas fa-share-alt mr-2"></i>Shares
+                            </span>
+                            <span class="stat-value">34</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">
+                                <i class="fas fa-clock mr-2"></i>Listed
+                            </span>
+                            <span class="stat-value">5 days ago</span>
                         </div>
                     </div>
                 </div>
@@ -1534,52 +3534,306 @@
 
     <!-- Image Viewer Modal -->
     <div id="imageViewer" class="image-viewer">
-        <button onclick="closeImageViewer()" class="tw:absolute tw:top-4 tw:right-4 tw:text-white tw:text-3xl tw:z-10 hover:tw:text-emerald-400">
+        <button onclick="closeImageViewer()" class="image-viewer-close">
             <i class="fas fa-times"></i>
         </button>
-        <button onclick="prevImage()" class="tw:absolute tw:left-4 tw:text-white tw:text-3xl tw:z-10 hover:tw:text-emerald-400">
+        <button onclick="prevImage()" class="image-viewer-prev">
             <i class="fas fa-chevron-left"></i>
         </button>
-        <button onclick="nextImage()" class="tw:absolute tw:right-4 tw:text-white tw:text-3xl tw:z-10 hover:tw:text-emerald-400">
+        <button onclick="nextImage()" class="image-viewer-next">
             <i class="fas fa-chevron-right"></i>
         </button>
-        <img id="viewerImage" src="" alt="<?php esc_attr_e('Property', 'realestate-booking-suite'); ?>" class="tw:max-w-full tw:max-h-full">
+        <img id="viewerImage" src="" alt="Property">
     </div>
 
     <!-- Contact Modal -->
-    <div id="contactModal" class="tw:fixed tw:inset-0 tw:bg-black tw:bg-opacity-50 tw:z-50 tw:hidden tw:items-center tw:justify-center tw:p-4">
-        <div class="tw:bg-white tw:rounded-xl tw:max-w-md tw:w-full tw:p-6">
-            <div class="tw:flex tw:items-center tw:justify-between tw:mb-4">
-                <h3 class="tw:text-2xl tw:font-bold tw:text-gray-800"><?php echo esc_html($contact_form_title ?: 'Contact Agent'); ?></h3>
-                <button onclick="closeContactModal()" class="tw:text-gray-500 hover:tw:text-gray-700">
-                    <i class="fas fa-times tw:text-xl"></i>
+    <div id="contactModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title"><?php echo esc_html($contact_form_title ? $contact_form_title : 'Contact Agent'); ?></h3>
+                <button onclick="closeContactModal()" class="modal-close">
+                    <i class="fas fa-times"></i>
                 </button>
             </div>
-            <form onsubmit="submitContactForm(event)" class="tw:space-y-4">
-                <div>
-                    <label class="tw:block tw:text-sm tw:font-medium tw:text-gray-700 tw:mb-2"><?php echo esc_html($contact_name_label ?: __('Your Name', 'realestate-booking-suite')); ?></label>
-                    <input type="text" name="contact_name" required class="tw:w-full tw:px-4 tw:py-2 tw:border tw:border-gray-300 tw:rounded-lg focus:tw:outline-none focus:tw:ring-2 focus:tw:ring-emerald-500" placeholder="<?php esc_attr_e('Enter your full name', 'realestate-booking-suite'); ?>">
+            <form onsubmit="submitContactForm(event)" class="space-y-4">
+                <div class="form-group">
+                    <label class="form-label"><?php echo esc_html($contact_name_label ? $contact_name_label : 'Your Name'); ?></label>
+                    <input type="text" required class="form-input" name="contact_name">
                 </div>
-                <div>
-                    <label class="tw:block tw:text-sm tw:font-medium tw:text-gray-700 tw:mb-2"><?php echo esc_html($contact_email_label ?: __('Email', 'realestate-booking-suite')); ?></label>
-                    <input type="email" name="contact_email" required class="tw:w-full tw:px-4 tw:py-2 tw:border tw:border-gray-300 tw:rounded-lg focus:tw:outline-none focus:tw:ring-2 focus:tw:ring-emerald-500" placeholder="<?php esc_attr_e('your.email@example.com', 'realestate-booking-suite'); ?>">
+                <div class="form-group">
+                    <label class="form-label"><?php echo esc_html($contact_email_label ? $contact_email_label : 'Email'); ?></label>
+                    <input type="email" required class="form-input" name="contact_email">
                 </div>
-                <div>
-                    <label class="tw:block tw:text-sm tw:font-medium tw:text-gray-700 tw:mb-2"><?php echo esc_html($contact_phone_label ?: __('Phone', 'realestate-booking-suite')); ?></label>
-                    <input type="tel" name="contact_phone" required class="tw:w-full tw:px-4 tw:py-2 tw:border tw:border-gray-300 tw:rounded-lg focus:tw:outline-none focus:tw:ring-2 focus:tw:ring-emerald-500" placeholder="<?php esc_attr_e('(555) 123-4567', 'realestate-booking-suite'); ?>">
+                <div class="form-group">
+                    <label class="form-label"><?php echo esc_html($contact_phone_label ? $contact_phone_label : 'Phone'); ?></label>
+                    <input type="tel" required class="form-input" name="contact_phone">
                 </div>
-                <div>
-                    <label class="tw:block tw:text-sm tw:font-medium tw:text-gray-700 tw:mb-2"><?php echo esc_html($contact_message_label ?: __('Message', 'realestate-booking-suite')); ?></label>
-                    <textarea name="contact_message" rows="4" required class="tw:w-full tw:px-4 tw:py-2 tw:border tw:border-gray-300 tw:rounded-lg focus:tw:outline-none focus:tw:ring-2 focus:tw:ring-emerald-500" placeholder="<?php esc_attr_e('Tell us about your interest in this property...', 'realestate-booking-suite'); ?>"></textarea>
+                <div class="form-group">
+                    <label class="form-label"><?php echo esc_html($contact_message_label ? $contact_message_label : 'Message'); ?></label>
+                    <textarea rows="4" required class="form-input form-textarea" name="contact_message"></textarea>
                 </div>
-                <button type="submit" class="tw:w-full tw:bg-emerald-500 tw:text-white tw:py-3 tw:rounded-lg hover:tw:bg-emerald-600 tw:transition tw:font-semibold">
-                    <?php echo esc_html($contact_submit_text ?: __('Send Message', 'realestate-booking-suite')); ?>
+                <button type="submit" class="form-submit">
+                    <?php echo esc_html($contact_submit_text ? $contact_submit_text : 'Send Message'); ?>
                 </button>
             </form>
         </div>
     </div>
 
-</div>
+    </div>
 
+    <script>
+        // Gallery images - Dynamic from PHP
+        const galleryImages = [
+            <?php
+                if (! empty($all_images)) {
+                    foreach ($all_images as $index => $image) {
+                        echo "'" . esc_js($image) . "'";
+                        if ($index < count($all_images) - 1) {
+                            echo ',';
+                        }
+                    }
+                } else {
+                    echo "'" . esc_js(get_template_directory_uri() . '/assets/images/placeholder-property.jpg') . "'";
+                }
+            ?>
+        ];
+        let currentImageIndex = 0;
 
-<?php get_footer(); ?>
+        // Mobile Menu Toggle
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('active');
+        }
+
+        // Tab Switching
+        function switchTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+
+            // Remove active class from all buttons
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('active');
+            });
+
+            // Show selected tab content
+            document.getElementById(tabName + '-tab').classList.add('active');
+
+            // Add active class to clicked button
+            const activeButton = document.querySelector(`[data-tab="${tabName}"]`);
+            activeButton.classList.add('active');
+
+            // Initialize map if location tab is opened
+            if (tabName === 'location' && !window.mapInitialized) {
+                initMap();
+            }
+        }
+
+        // Filter Amenities
+        function filterAmenities(category) {
+            const items = document.querySelectorAll('.amenity-item');
+            const buttons = document.querySelectorAll('.filter-btn');
+
+            // Update button styles
+            buttons.forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            event.target.classList.add('active');
+
+            // Filter items
+            items.forEach(item => {
+                if (category === 'all' || item.dataset.category === category) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        // Image Viewer
+        function openImageViewer(index) {
+            currentImageIndex = index;
+            document.getElementById('viewerImage').src = galleryImages[index];
+            document.getElementById('imageViewer').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeImageViewer() {
+            document.getElementById('imageViewer').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        function nextImage() {
+            currentImageIndex = (currentImageIndex + 1) % galleryImages.length;
+            document.getElementById('viewerImage').src = galleryImages[currentImageIndex];
+        }
+
+        function prevImage() {
+            currentImageIndex = (currentImageIndex - 1 + galleryImages.length) % galleryImages.length;
+            document.getElementById('viewerImage').src = galleryImages[currentImageIndex];
+        }
+
+        // Keyboard navigation for image viewer
+        document.addEventListener('keydown', function(e) {
+            if (document.getElementById('imageViewer').classList.contains('active')) {
+                if (e.key === 'ArrowRight') nextImage();
+                if (e.key === 'ArrowLeft') prevImage();
+                if (e.key === 'Escape') closeImageViewer();
+            }
+        });
+
+        // Contact Modal
+        function openContactModal() {
+            document.getElementById('contactModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeContactModal() {
+            document.getElementById('contactModal').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        function submitContactForm(e) {
+            e.preventDefault();
+            alert('<?php echo esc_js($contact_success_message ? $contact_success_message : 'Thank you for your message! Our agent will contact you shortly.'); ?>');
+            closeContactModal();
+        }
+
+        // Mortgage Calculator
+        function updateDownPayment(value) {
+            document.getElementById('downPaymentValue').textContent = value + '%';
+        }
+
+        function calculateMortgage() {
+            const priceStr = document.getElementById('propertyPrice').value.replace(/[$,]/g, '');
+            const price = parseFloat(priceStr);
+            const downPaymentPercent = parseFloat(document.getElementById('downPayment').value);
+            const interestRate = parseFloat(document.getElementById('interestRate').value);
+            const loanTerm = parseFloat(document.getElementById('loanTerm').value);
+
+            const downPayment = price * (downPaymentPercent / 100);
+            const loanAmount = price - downPayment;
+            const monthlyRate = (interestRate / 100) / 12;
+            const numberOfPayments = loanTerm * 12;
+
+            const monthlyPayment = loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, numberOfPayments)) /
+                                  (Math.pow(1 + monthlyRate, numberOfPayments) - 1);
+
+            document.getElementById('monthlyPayment').textContent =
+                '$' + monthlyPayment.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        }
+
+        // Initialize map
+        let map;
+        function initMap() {
+            if (window.mapInitialized) return;
+
+            <?php if ($latitude && $longitude): ?>
+            map = L.map('map').setView([<?php echo esc_js($latitude); ?>,<?php echo esc_js($longitude); ?>], 14);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+
+            L.marker([<?php echo esc_js($latitude); ?>,<?php echo esc_js($longitude); ?>]).addTo(map)
+                .bindPopup('<b><?php echo esc_js(get_the_title()); ?></b><br><?php echo esc_js($full_address); ?>')
+                .openPopup();
+            <?php else: ?>
+            map = L.map('map').setView([34.0928, -118.3287], 14);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+
+            L.marker([34.0928, -118.3287]).addTo(map)
+                .bindPopup('<b><?php echo esc_js(get_the_title()); ?></b><br>Location not specified')
+                .openPopup();
+            <?php endif; ?>
+
+            window.mapInitialized = true;
+        }
+
+        // Search Reviews
+        function searchReviews() {
+            const searchTerm = document.getElementById('reviewSearch').value.toLowerCase();
+            const reviews = document.querySelectorAll('.review-item');
+
+            reviews.forEach(review => {
+                const text = review.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    review.style.display = 'block';
+                } else {
+                    review.style.display = 'none';
+                }
+            });
+        }
+
+        // Sort Reviews
+        function sortReviews() {
+            const sortValue = document.getElementById('reviewSort').value;
+            alert('Sorting reviews by: ' + sortValue);
+            // Implementation would depend on your data structure
+        }
+
+        // Like Review
+        function likeReview(button) {
+            const span = button.querySelector('span');
+            const currentCount = parseInt(span.textContent.match(/\d+/)[0]);
+            span.textContent = `Helpful (${currentCount + 1})`;
+            button.classList.add('text-emerald-500');
+        }
+
+        // Utility Functions
+        function shareProperty() {
+            if (navigator.share) {
+                navigator.share({
+                    title: '<?php echo esc_js(get_the_title()); ?>',
+                    text: 'Check out this amazing property!',
+                    url: window.location.href
+                });
+            } else {
+                alert('Share link copied to clipboard!');
+                navigator.clipboard.writeText(window.location.href);
+            }
+        }
+
+        function saveFavorite() {
+            alert('Property saved to your favorites!');
+        }
+
+        function printPage() {
+            window.print();
+        }
+
+        function exportPDF() {
+            alert('PDF export will be downloaded shortly...');
+            // In production, you'd implement actual PDF generation
+        }
+
+        function downloadFloorPlan() {
+            alert('Floor plan downloading...');
+        }
+
+        function requestCustomPlan() {
+            alert('Request sent! Our team will contact you shortly.');
+        }
+
+        function scheduleTour() {
+            alert('Tour scheduling form will open...');
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            calculateMortgage();
+        });
+
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            const contactModal = document.getElementById('contactModal');
+            if (event.target === contactModal) {
+                closeContactModal();
+            }
+        }
+    </script>
+</body>
+</html>

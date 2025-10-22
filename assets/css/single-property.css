@@ -188,8 +188,3 @@ a.property-card.border.rounded-lg.overflow-hidden.hover\:shadow-lg.transition-sh
     width: 100% !important;
     height: 100% !important;
 }
-
-.filter-active {
-    background-color: #10b981 !important;
-    color: white !important;
-}

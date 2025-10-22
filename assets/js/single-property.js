@@ -59,7 +59,6 @@ function toggleMobileMenu() {
 // Filter Amenities
 function filterAmenities(category) {
     const items = document.querySelectorAll('.amenity-item');
-    const sections = document.querySelectorAll('[data-category]');
     const buttons = document.querySelectorAll('.filter-btn');
     
     // Update button styles
@@ -77,15 +76,6 @@ function filterAmenities(category) {
             item.style.display = 'block';
         } else {
             item.style.display = 'none';
-        }
-    });
-    
-    // Filter section titles
-    sections.forEach(section => {
-        if (category === 'all' || section.dataset.category === category) {
-            section.style.display = 'block';
-        } else {
-            section.style.display = 'none';
         }
     });
 }
@@ -336,51 +326,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
-
-// Mortgage Calculator Function
-function calculateMortgagePayment() {
-    console.log('Button clicked!');
-
-    // Get values
-    var price = document.getElementById('propertyPrice').value;
-    var downPayment = document.getElementById('downPayment').value;
-    var interestRate = document.getElementById('interestRate').value;
-    var loanTerm = document.getElementById('loanTerm').value;
-
-    console.log('Input values:', {price: price, downPayment: downPayment, interestRate: interestRate, loanTerm: loanTerm});
-
-    // Convert to numbers
-    price = parseFloat(price) || 0;
-    downPayment = parseFloat(downPayment) || 0;
-    interestRate = parseFloat(interestRate) || 0;
-    loanTerm = parseFloat(loanTerm) || 30;
-
-    // Handle very low property prices
-    if (price < 1000) {
-        console.log('Property price too low for realistic calculation:', price);
-        document.getElementById('monthlyPayment').textContent = '$0';
-        return;
-    }
-
-    // Calculate
-    var downPaymentAmount = (price * downPayment) / 100;
-    var loanAmount = price - downPaymentAmount;
-    var monthlyRate = interestRate / 100 / 12;
-    var numberOfPayments = loanTerm * 12;
-
-    var monthlyPayment = 0;
-    if (monthlyRate > 0 && loanAmount > 0) {
-        monthlyPayment = loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, numberOfPayments)) / (Math.pow(1 + monthlyRate, numberOfPayments) - 1);
-    } else if (loanAmount > 0) {
-        monthlyPayment = loanAmount / numberOfPayments;
-    }
-
-    console.log('Calculation result:', monthlyPayment);
-
-    // Display result
-    document.getElementById('monthlyPayment').textContent = '$' + Math.round(monthlyPayment).toLocaleString();
-    console.log('Display updated to:', document.getElementById('monthlyPayment').textContent);
-}
 
 // Close modals when clicking outside
 window.onclick = function(event) {

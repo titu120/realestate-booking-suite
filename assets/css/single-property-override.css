@@ -33,6 +33,8 @@
 .single-property-container button {
   margin: 0 !important;
   padding: 0 !important;
+  border: none !important;
+  background: none !important;
   font: inherit !important;
   cursor: pointer !important;
 }
@@ -67,7 +69,6 @@
 .single-property-container [class*="card"] {
   all: unset !important;
   display: block !important;
-  cursor: pointer !important;
 }
 
 /* Override common theme container styles */
