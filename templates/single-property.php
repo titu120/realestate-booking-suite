@@ -259,12 +259,20 @@
     --rebs-radius-lg: 0.75rem;
 }
 
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+
+}
+
 /* Reset and Base Styles */
-.single-property * {
+.single-property{
     margin: 0;
     padding: 0;
     box-sizing: border-box;
     font-family: 'Inter', sans-serif;
+    background: #f9fafb !important
 }
 
 /* Ensure Font Awesome icons display properly */
@@ -303,7 +311,6 @@
     max-width: 1536px;
     margin: 0 auto;
     padding: 0 1rem;
-    background: #f9fafb;
     min-height: 100vh;
 }
 
@@ -531,7 +538,6 @@
 .single-property .card {
     background: #ffffff;
     border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     padding: 1.5rem;
     margin-bottom: 1.5rem;
     border: 1px solid #e5e7eb;
@@ -737,59 +743,61 @@
     font-size: 0.875rem;
 }
 
-/* Tabs */
+/* Tabs - Unified White Box Design */
 .single-property .tabs {
-    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-    border-radius: 16px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
+    background: #ffffff;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
     margin-bottom: 2rem;
-    border: 1px solid #e2e8f0;
     overflow: hidden;
 }
 
 .single-property .tabs-header {
     display: flex;
     overflow-x: auto;
-    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-    border-bottom: 1px solid #e2e8f0;
+    background: transparent;
+    border-bottom: 1px solid #e5e7eb;
+    padding: 0;
+    margin-bottom: 0;
 }
 
 .single-property .tab-button {
-    background: none;
+    background: transparent;
     border: none;
-    padding: 1.25rem 1.5rem;
+    padding: 1rem 1.5rem;
     cursor: pointer;
     font-weight: 600;
-    color: #64748b;
-    transition: all 0.3s ease;
-    border-bottom: 3px solid transparent;
+    color: #4b5563;
+    transition: color 0.2s ease;
+    border-bottom: 2px solid transparent;
     white-space: nowrap;
     position: relative;
     font-size: 0.875rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    text-transform: none;
+    letter-spacing: 0;
+    margin-right: 0;
+    font-size: 16px !important;
 }
 
 .single-property .tab-button:hover {
     color: #10b981;
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%);
-    transform: translateY(-1px);
+    background: transparent;
+    transform: none;
 }
 
 .single-property .tab-button.active {
     color: #10b981;
     border-bottom-color: #10b981;
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%);
-    box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
-}
-
-.single-property .tab-button i {
-    margin-right: 0.5rem;
-    font-size: 1rem;
+    background: transparent;
+    box-shadow: none;
+    font-weight: 600;
 }
 
 .single-property .tabs-content {
     padding: 2rem;
+    background: transparent;
+    border-radius: 0;
+    border: none;
 }
 
 .single-property .tab-content {
@@ -2588,7 +2596,7 @@
     border: 1px solid #e5e7eb;
     border-radius: 8px;
     padding: 1.5rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
 }
 
 .single-property .address-header {
@@ -2776,6 +2784,133 @@
     text-decoration: none;
 }
 
+/* Professional Agent Profile Design */
+.single-property .agent-profile-card {
+    background: #ffffff;
+    border-radius: 16px;
+    border: 1px solid #e5e7eb;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.single-property .agent-profile-header {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.single-property .agent-profile-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #10b981;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+}
+
+.single-property .agent-placeholder {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+}
+
+.single-property .agent-profile-name {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 0.5rem;
+}
+
+.single-property .agent-profile-title {
+    color: #6b7280;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+}
+
+.single-property .agent-rating-section {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.single-property .agent-stars {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.single-property .agent-stars i {
+    color: #fbbf24;
+    font-size: 1rem;
+}
+
+.single-property .agent-reviews {
+    color: #6b7280;
+    font-size: 0.875rem;
+}
+
+.single-property .agent-details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.single-property .agent-detail-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: #f9fafb;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    transition: all 0.2s ease;
+}
+
+.single-property .agent-detail-item:hover {
+    background: #f3f4f6;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.single-property .agent-detail-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+.single-property .agent-detail-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.single-property .agent-detail-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.single-property .agent-detail-value {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #111827;
+}
+
 .test-class {
 grid-column: 1 / 3 !important;
 }
@@ -2848,12 +2983,10 @@ grid-column: 1 / 3 !important;
                 <div class="card">
                     <div class="gallery">
                         <?php 
+                            // Show ONLY gallery images, not post thumbnail
                             $all_images = [];
-                            if ($featured_image) {
-                                $all_images[] = $featured_image;
-                            }
                             if (!empty($gallery_urls)) {
-                                $all_images = array_merge($all_images, $gallery_urls);
+                                $all_images = $gallery_urls;
                             }
                             $total_images = count($all_images);
                         ?>
@@ -2863,17 +2996,17 @@ grid-column: 1 / 3 !important;
                                 <img src="<?php echo esc_url($all_images[0]); ?>" alt="<?php echo esc_attr(get_the_title()); ?>" class="gallery-img" onclick="openImageViewer(0)">
                             </div>
 
-                            <?php for ($i = 1; $i < min(4, $total_images); $i++): ?>
+                            <?php for ($i = 1; $i < min(5, $total_images); $i++): ?>
                                 <div class="gallery-item">
                                     <img src="<?php echo esc_url($all_images[$i]); ?>" alt="<?php echo esc_attr(get_the_title()); ?>" class="gallery-img" onclick="openImageViewer(<?php echo $i; ?>)">
                                 </div>
                             <?php endfor; ?>
 
-                                <?php if ($total_images > 4): ?>
+                                <?php if ($total_images > 5): ?>
                                     <div class="gallery-item gallery-more">
-                                        <img src="<?php echo esc_url($all_images[4]); ?>" alt="<?php echo esc_attr(get_the_title()); ?>" class="gallery-img" onclick="openImageViewer(4)">
-                                        <div class="gallery-overlay" onclick="openImageViewer(4)">
-                                            <span>+<?php echo($total_images - 4); ?> More</span>
+                                        <img src="<?php echo esc_url($all_images[5]); ?>" alt="<?php echo esc_attr(get_the_title()); ?>" class="gallery-img" onclick="openImageViewer(5)">
+                                        <div class="gallery-overlay" onclick="openImageViewer(5)">
+                                            <span>+<?php echo($total_images - 5); ?> More</span>
                                         </div>
                                     </div>
                                 <?php endif; ?>
@@ -2943,28 +3076,28 @@ grid-column: 1 / 3 !important;
                 <div class="tabs no-print">
                     <div class="tabs-header">
                         <button onclick="switchTab('overview')" class="tab-button active" data-tab="overview">
-                            <i class="fas fa-home"></i> Overview
+                            Overview
                         </button>
                         <button onclick="switchTab('pricing')" class="tab-button" data-tab="pricing">
-                            <i class="fas fa-dollar-sign"></i> Pricing
+                            Pricing
                         </button>
                         <button onclick="switchTab('specifications')" class="tab-button" data-tab="specifications">
-                            <i class="fas fa-list"></i> Specifications
+                            Specifications
                         </button>
                         <button onclick="switchTab('location')" class="tab-button" data-tab="location">
-                            <i class="fas fa-map-marker-alt"></i> Location
+                            Location
                         </button>
                         <button onclick="switchTab('features')" class="tab-button" data-tab="features">
-                            <i class="fas fa-star"></i> Features
+                            Features
                         </button>
                         <button onclick="switchTab('media')" class="tab-button" data-tab="media">
-                            <i class="fas fa-images"></i> Media
+                            Media
                         </button>
                         <button onclick="switchTab('agent')" class="tab-button" data-tab="agent">
-                            <i class="fas fa-user"></i> Agent
+                            Agent
                         </button>
                         <button onclick="switchTab('booking')" class="tab-button" data-tab="booking">
-                            <i class="fas fa-calendar"></i> Booking
+                            Booking
                         </button>
                     </div>
 
@@ -3515,11 +3648,85 @@ grid-column: 1 / 3 !important;
                                             <?php echo wp_kses_post($video_embed); ?>
                                         </div>
                                     <?php elseif ($video_url): ?>
-                                        <div class="video-link">
-                                            <a href="<?php echo esc_url($video_url); ?>" target="_blank" class="property-video-button">
-                                                <i class="fas fa-play mr-2"></i>Watch Property Video
-                                            </a>
-                                        </div>
+                                        <?php
+                                        // Detect video platform and extract video ID
+                                        $video_platform = '';
+                                        $video_id = '';
+                                        $embed_url = '';
+                                        
+                                        // YouTube detection
+                                        if (strpos($video_url, 'youtube.com') !== false || strpos($video_url, 'youtu.be') !== false) {
+                                            $video_platform = 'youtube';
+                                            if (strpos($video_url, 'youtube.com/watch?v=') !== false) {
+                                                $video_id = substr($video_url, strpos($video_url, 'v=') + 2);
+                                                $video_id = strtok($video_id, '&');
+                                            } elseif (strpos($video_url, 'youtu.be/') !== false) {
+                                                $video_id = substr($video_url, strpos($video_url, 'youtu.be/') + 9);
+                                                $video_id = strtok($video_id, '?');
+                                            }
+                                            if ($video_id) {
+                                                $embed_url = 'https://www.youtube.com/embed/' . $video_id . '?rel=0&modestbranding=1';
+                                            }
+                                        }
+                                        // Vimeo detection
+                                        elseif (strpos($video_url, 'vimeo.com') !== false) {
+                                            $video_platform = 'vimeo';
+                                            if (strpos($video_url, 'vimeo.com/') !== false) {
+                                                $video_id = substr($video_url, strpos($video_url, 'vimeo.com/') + 9);
+                                                $video_id = strtok($video_id, '?');
+                                            }
+                                            if ($video_id) {
+                                                $embed_url = 'https://player.vimeo.com/video/' . $video_id . '?title=0&byline=0&portrait=0';
+                                            }
+                                        }
+                                        // Dailymotion detection
+                                        elseif (strpos($video_url, 'dailymotion.com') !== false) {
+                                            $video_platform = 'dailymotion';
+                                            if (strpos($video_url, 'dailymotion.com/video/') !== false) {
+                                                $video_id = substr($video_url, strpos($video_url, 'dailymotion.com/video/') + 22);
+                                                $video_id = strtok($video_id, '?');
+                                            }
+                                            if ($video_id) {
+                                                $embed_url = 'https://www.dailymotion.com/embed/video/' . $video_id;
+                                            }
+                                        }
+                                        // Wistia detection
+                                        elseif (strpos($video_url, 'wistia.com') !== false || strpos($video_url, 'wistia.net') !== false) {
+                                            $video_platform = 'wistia';
+                                            if (preg_match('/wistia\.(com|net)\/medias\/([a-zA-Z0-9]+)/', $video_url, $matches)) {
+                                                $video_id = $matches[2];
+                                                $embed_url = 'https://fast.wistia.net/embed/iframe/' . $video_id;
+                                            }
+                                        }
+                                        // Generic iframe detection (for other platforms)
+                                        elseif (strpos($video_url, 'embed') !== false || strpos($video_url, 'iframe') !== false) {
+                                            $video_platform = 'iframe';
+                                            $embed_url = $video_url;
+                                        }
+                                        ?>
+                                        
+                                        <?php if ($video_platform && $embed_url): ?>
+                                            <div class="video-embed-container">
+                                                <iframe 
+                                                    width="100%" 
+                                                    height="400" 
+                                                    src="<?php echo esc_url($embed_url); ?>" 
+                                                    frameborder="0" 
+                                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                                    allowfullscreen
+                                                    style="border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);">
+                                                </iframe>
+                                            </div>
+                                        <?php else: ?>
+                                            <div class="video-player">
+                                                <video controls width="100%" height="400" style="border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);">
+                                                    <source src="<?php echo esc_url($video_url); ?>" type="video/mp4">
+                                                    <source src="<?php echo esc_url($video_url); ?>" type="video/webm">
+                                                    <source src="<?php echo esc_url($video_url); ?>" type="video/ogg">
+                                                    Your browser does not support the video tag.
+                                                </video>
+                                            </div>
+                                        <?php endif; ?>
                                     <?php endif; ?>
                                 </div>
                             </div>
@@ -3531,79 +3738,86 @@ grid-column: 1 / 3 !important;
                             <h3 class="section-title">Property Agent</h3>
                             <p class="text-gray-600 mb-6">Contact information and agent details</p>
                             
-                            <!-- Agent Information -->
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                                <div class="bg-gray-50 p-6 rounded-lg">
-                                    <h4 class="text-lg font-semibold mb-4">Agent Details</h4>
-                                    <div class="space-y-3">
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700">Agent Name</label>
-                                            <p class="text-lg font-semibold text-gray-900"><?php echo esc_html($agent_name ? $agent_name : 'Not specified'); ?></p>
-                                        </div>
-                                        
-                                        <?php if ($agent_phone): ?>
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700">Phone Number</label>
-                                            <p class="text-lg text-gray-900"><?php echo esc_html($agent_phone); ?></p>
-                                        </div>
-                                        <?php endif; ?>
-                                        
-                                        <?php if ($agent_email): ?>
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700">Email Address</label>
-                                            <p class="text-lg text-gray-900"><?php echo esc_html($agent_email); ?></p>
-                                        </div>
-                                        <?php endif; ?>
-                                        
-                                        <?php if ($agent_properties_sold): ?>
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700">Properties Sold</label>
-                                            <p class="text-lg text-gray-900"><?php echo esc_html($agent_properties_sold); ?></p>
-                                        </div>
-                                        <?php endif; ?>
-                                        
-                                        <?php if ($agent_experience): ?>
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700">Experience</label>
-                                            <p class="text-lg text-gray-900"><?php echo esc_html($agent_experience); ?></p>
-                                        </div>
-                                        <?php endif; ?>
-                                        
-                                        <?php if ($agent_response_time): ?>
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700">Response Time</label>
-                                            <p class="text-lg text-gray-900"><?php echo esc_html($agent_response_time); ?></p>
-                                        </div>
-                                        <?php endif; ?>
-                                        
-                                        <?php if ($agent_rating): ?>
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700">Rating</label>
-                                            <div class="flex items-center">
-                                                <div class="flex">
-                                                    <?php
-                                                    $rating = intval($agent_rating);
-                                                    for ($i = 1; $i <= 5; $i++):
-                                                    ?>
-                                                        <i class="fas fa-star text-yellow-400 text-sm"></i>
-                                                    <?php endfor; ?>
-                                                </div>
-                                                <span class="ml-2 text-sm text-gray-600">(<?php echo esc_html($agent_reviews); ?> reviews)</span>
+                            <!-- Professional Agent Card -->
+                            <div class="agent-profile-card">
+                                <div class="agent-profile-header">
+                                    <div class="agent-avatar-section">
+                                        <?php if ($agent_photo): ?>
+                                            <img src="<?php echo esc_url($agent_photo); ?>" alt="<?php echo esc_attr($agent_name); ?>" class="agent-profile-avatar">
+                                        <?php else: ?>
+                                            <div class="agent-profile-avatar agent-placeholder">
+                                                <i class="fas fa-user"></i>
                                             </div>
+                                        <?php endif; ?>
+                                    </div>
+                                    <div class="agent-profile-info">
+                                        <h4 class="agent-profile-name"><?php echo esc_html($agent_name ? $agent_name : 'Not specified'); ?></h4>
+                                        <p class="agent-profile-title">Real Estate Agent</p>
+                                        <?php if ($agent_rating): ?>
+                                        <div class="agent-rating-section">
+                                            <div class="agent-stars">
+                                                <?php
+                                                $rating = intval($agent_rating);
+                                                for ($i = 1; $i <= 5; $i++):
+                                                ?>
+                                                    <i class="fas fa-star"></i>
+                                                <?php endfor; ?>
+                                            </div>
+                                            <span class="agent-reviews">(<?php echo esc_html($agent_reviews ? $agent_reviews : '0'); ?> reviews)</span>
                                         </div>
                                         <?php endif; ?>
                                     </div>
                                 </div>
                                 
-                                <!-- Agent Photo -->
-                                <div class="bg-gray-50 p-6 rounded-lg">
-                                    <h4 class="text-lg font-semibold mb-4">Agent Photo</h4>
-                                    <?php if ($agent_photo): ?>
-                                        <img src="<?php echo esc_url($agent_photo); ?>" alt="<?php echo esc_attr($agent_name); ?>" class="w-32 h-32 object-cover rounded-lg mx-auto">
-                                    <?php else: ?>
-                                        <div class="w-32 h-32 bg-gray-300 rounded-lg mx-auto flex items-center justify-center">
-                                            <i class="fas fa-user text-gray-500 text-4xl"></i>
+                                <div class="agent-details-grid">
+                                    <?php if ($agent_phone): ?>
+                                    <div class="agent-detail-item">
+                                        <i class="fas fa-phone agent-detail-icon"></i>
+                                        <div class="agent-detail-content">
+                                            <span class="agent-detail-label">Phone</span>
+                                            <span class="agent-detail-value"><?php echo esc_html($agent_phone); ?></span>
                                         </div>
+                                    </div>
+                                    <?php endif; ?>
+                                    
+                                    <?php if ($agent_email): ?>
+                                    <div class="agent-detail-item">
+                                        <i class="fas fa-envelope agent-detail-icon"></i>
+                                        <div class="agent-detail-content">
+                                            <span class="agent-detail-label">Email</span>
+                                            <span class="agent-detail-value"><?php echo esc_html($agent_email); ?></span>
+                                        </div>
+                                    </div>
+                                    <?php endif; ?>
+                                    
+                                    <?php if ($agent_properties_sold): ?>
+                                    <div class="agent-detail-item">
+                                        <i class="fas fa-home agent-detail-icon"></i>
+                                        <div class="agent-detail-content">
+                                            <span class="agent-detail-label">Properties Sold</span>
+                                            <span class="agent-detail-value"><?php echo esc_html($agent_properties_sold); ?>+</span>
+                                        </div>
+                                    </div>
+                                    <?php endif; ?>
+                                    
+                                    <?php if ($agent_experience): ?>
+                                    <div class="agent-detail-item">
+                                        <i class="fas fa-calendar agent-detail-icon"></i>
+                                        <div class="agent-detail-content">
+                                            <span class="agent-detail-label">Experience</span>
+                                            <span class="agent-detail-value"><?php echo esc_html($agent_experience); ?></span>
+                                        </div>
+                                    </div>
+                                    <?php endif; ?>
+                                    
+                                    <?php if ($agent_response_time): ?>
+                                    <div class="agent-detail-item">
+                                        <i class="fas fa-clock agent-detail-icon"></i>
+                                        <div class="agent-detail-content">
+                                            <span class="agent-detail-label">Response Time</span>
+                                            <span class="agent-detail-value"><?php echo esc_html($agent_response_time); ?></span>
+                                        </div>
+                                    </div>
                                     <?php endif; ?>
                                 </div>
                             </div>
