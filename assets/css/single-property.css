@@ -43,16 +43,6 @@
     padding: 0 !important;
 }
 
-
-
-
-
-
-
-
-
-
-
 /* --------------------------------Reset and Base Styles ----------------------------------------*/
 .single-property {
     margin: 0 !important;
@@ -2671,6 +2661,14 @@
     text-decoration: none !important;
     transition: color 0.3s !important;
     display: block !important;
+}
+.single-property  a {
+    color: #000 !important;
+  
+}
+.single-property  a:hover {
+    color: #10B981 !important;
+  
 }
 
 .single-property .mobile-nav a:hover {
