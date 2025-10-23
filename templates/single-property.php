@@ -5,7 +5,7 @@
      * @package RealEstate_Booking_Suite
      */
 
-  
+    get_header();
 
     // Prevent direct access
     if (! defined('ABSPATH')) {
@@ -1578,3 +1578,5 @@
             ?>
         ];
     </script>
+
+<?php get_footer(); ?>

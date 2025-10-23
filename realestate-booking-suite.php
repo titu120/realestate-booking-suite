@@ -103,3 +103,5 @@ require_once RESBS_PATH . 'includes/class-resbs-admin-contact-messages.php';
 
 // Load booking manager functionality (moved to functions.php to avoid double loading)
 // require_once RESBS_PATH . 'includes/class-resbs-booking-manager.php';
+
+
