@@ -53,6 +53,7 @@ function resbs_enqueue_assets() {
             '1.0.0'
         );
         
+        
         // Enqueue Shortcodes CSS
         wp_enqueue_style(
             'resbs-shortcodes',
