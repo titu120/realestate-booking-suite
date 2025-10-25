@@ -130,8 +130,13 @@
     $mortgage_default_down_payment  = get_post_meta($post->ID, '_property_mortgage_default_down_payment', true);
     $mortgage_default_interest_rate = get_post_meta($post->ID, '_property_mortgage_default_interest_rate', true);
     $mortgage_default_loan_term     = get_post_meta($post->ID, '_property_mortgage_default_loan_term', true);
-    $mortgage_loan_terms            = get_post_meta($post->ID, '_property_mortgage_loan_terms', true);
     $mortgage_disclaimer_text       = get_post_meta($post->ID, '_property_mortgage_disclaimer_text', true);
+    
+    // Get global mortgage calculator settings
+    $mortgage_loan_terms = get_option('resbs_mortgage_loan_terms', '');
+    $mortgage_default_loan_term_global = get_option('resbs_mortgage_default_loan_term', '');
+    $mortgage_default_down_payment_global = get_option('resbs_mortgage_default_down_payment', '');
+    $mortgage_default_interest_rate_global = get_option('resbs_mortgage_default_interest_rate', '');
 
     // Tour Information Fields
     $tour_duration   = get_post_meta($post->ID, '_property_tour_duration', true);
@@ -210,12 +215,20 @@
     if ($features && is_string($features)) {
         $features_array = explode(',', $features);
         $features_array = array_map('trim', $features_array);
+        // Filter out empty items
+        $features_array = array_filter($features_array, function($item) {
+            return !empty(trim($item));
+        });
     }
 
     $amenities_array = [];
     if ($amenities && is_string($amenities)) {
         $amenities_array = explode(',', $amenities);
         $amenities_array = array_map('trim', $amenities_array);
+        // Filter out empty items
+        $amenities_array = array_filter($amenities_array, function($item) {
+            return !empty(trim($item));
+        });
     }
 
     // Parse gallery images
@@ -504,9 +517,6 @@
                                 <div class="pricing-card main-price">
                                     <label class="pricing-label">Price</label>
                                     <p class="pricing-value"><?php echo esc_html($formatted_price); ?></p>
-                                    <?php if ($price_note): ?>
-                                        <p class="pricing-note"><?php echo esc_html($price_note); ?></p>
-                                    <?php endif; ?>
                                 </div>
                                 
                                 <!-- Price per Sq Ft -->
@@ -514,6 +524,14 @@
                                 <div class="pricing-card">
                                     <label class="pricing-label">Price per Sq Ft</label>
                                     <p class="pricing-value-small"><?php echo esc_html($formatted_price_per_sqft); ?></p>
+                                </div>
+                                <?php endif; ?>
+                                
+                                <!-- Price Note -->
+                                <?php if ($price_note): ?>
+                                <div class="pricing-card">
+                                    <label class="pricing-label">Price Note</label>
+                                    <p class="pricing-value-small"><?php echo esc_html($price_note); ?></p>
                                 </div>
                                 <?php endif; ?>
                             </div>
@@ -685,20 +703,45 @@
                             </div>
 
                             <div class="amenities-grid" id="amenitiesContainer">
-                                <?php if (! empty($features_array)): ?>
-                                    <?php foreach ($features_array as $feature): ?>
-                                        <div class="amenity-item" data-category="interior">
+                                <?php 
+                                
+                                // Simple categorization: Features = Interior, Amenities = Exterior
+                                function categorizeItem($item, $type) {
+                                    // Features are always interior, Amenities are always exterior
+                                    return ($type === 'feature') ? 'interior' : 'exterior';
+                                }
+                                
+                                // Display features and amenities from dashboard settings
+                                if (!empty($features_array)): ?>
+                                    <?php foreach ($features_array as $index => $feature): ?>
+                                        <?php 
+                                        $feature_trimmed = trim($feature);
+                                        // Skip empty or whitespace-only items
+                                        if (empty($feature_trimmed)) {
+                                            continue;
+                                        }
+                                        $category = categorizeItem($feature_trimmed, 'feature');
+                                        ?>
+                                        <div class="amenity-item" data-category="<?php echo esc_attr($category); ?>">
                                             <i class="fas fa-check-circle text-emerald-500"></i>
-                                            <span class="text-gray-700"><?php echo esc_html(trim($feature)); ?></span>
+                                            <span class="text-gray-700"><?php echo esc_html($feature_trimmed); ?></span>
                                         </div>
                                     <?php endforeach; ?>
                                 <?php endif; ?>
 
-                                <?php if (! empty($amenities_array)): ?>
-                                    <?php foreach ($amenities_array as $amenity): ?>
-                                        <div class="amenity-item" data-category="exterior">
+                                <?php if (!empty($amenities_array)): ?>
+                                    <?php foreach ($amenities_array as $index => $amenity): ?>
+                                        <?php 
+                                        $amenity_trimmed = trim($amenity);
+                                        // Skip empty or whitespace-only items
+                                        if (empty($amenity_trimmed)) {
+                                            continue;
+                                        }
+                                        $category = categorizeItem($amenity_trimmed, 'amenity');
+                                        ?>
+                                        <div class="amenity-item" data-category="<?php echo esc_attr($category); ?>">
                                             <i class="fas fa-check-circle text-emerald-500"></i>
-                                            <span class="text-gray-700"><?php echo esc_html(trim($amenity)); ?></span>
+                                            <span class="text-gray-700"><?php echo esc_html($amenity_trimmed); ?></span>
                                         </div>
                                     <?php endforeach; ?>
                                 <?php endif; ?>
@@ -1287,26 +1330,73 @@
                     <p class="text-gray-600 mb-6">Other properties you might be interested in</p>
                     
                     <?php
-                    // Get similar properties based on property type and location
+                    // Get similar properties based on property type and status
                     $similar_properties = get_posts(array(
                         'post_type' => 'property',
-                        'posts_per_page' => 4,
+                        'posts_per_page' => 2,
                         'post__not_in' => array($post->ID),
                         'meta_query' => array(
-                            'relation' => 'OR',
+                            'relation' => 'AND',
                             array(
                                 'key' => '_property_type',
                                 'value' => $property_type,
                                 'compare' => '='
                             ),
                             array(
-                                'key' => '_property_city',
-                                'value' => $city,
+                                'key' => '_property_status',
+                                'value' => $property_status,
                                 'compare' => '='
                             )
                         )
                     ));
+                    
+                    // If no similar properties found with exact match, try with just property type
+                    if (empty($similar_properties)) {
+                        $similar_properties = get_posts(array(
+                            'post_type' => 'property',
+                            'posts_per_page' => 2,
+                            'post__not_in' => array($post->ID),
+                            'meta_query' => array(
+                                array(
+                                    'key' => '_property_type',
+                                    'value' => $property_type,
+                                    'compare' => '='
+                                )
+                            )
+                        ));
+                    }
+                    
+                    // If still no results, get any other properties
+                    if (empty($similar_properties)) {
+                        $similar_properties = get_posts(array(
+                            'post_type' => 'property',
+                            'posts_per_page' => 2,
+                            'post__not_in' => array($post->ID),
+                            'post_status' => 'publish'
+                        ));
+                    }
+                    
+                    // Final fallback - get all properties except current one
+                    if (empty($similar_properties)) {
+                        $all_properties = get_posts(array(
+                            'post_type' => 'property',
+                            'posts_per_page' => -1,
+                            'post_status' => 'publish'
+                        ));
+                        
+                        // Remove current property from results
+                        $similar_properties = array();
+                        foreach ($all_properties as $prop) {
+                            if ($prop->ID != $post->ID) {
+                                $similar_properties[] = $prop;
+                                if (count($similar_properties) >= 2) {
+                                    break;
+                                }
+                            }
+                        }
+                    }
                     ?>
+                    
                     
                     <?php if (!empty($similar_properties)): ?>
                         <div class="similar-properties-grid">
@@ -1443,28 +1533,54 @@
                         </div>
                         <div class="calculator-input">
                             <label class="calculator-label"><?php echo esc_html($mortgage_down_payment_label ? $mortgage_down_payment_label : 'Down Payment (%)'); ?></label>
-                            <input type="range" id="downPayment" min="0" max="100" value="<?php echo esc_attr($mortgage_default_down_payment ? $mortgage_default_down_payment : '20'); ?>" class="calculator-slider" oninput="updateDownPayment(this.value); calculateMortgage()">
+                            <input type="range" id="downPayment" min="0" max="100" value="<?php echo esc_attr($mortgage_default_down_payment ? $mortgage_default_down_payment : ($mortgage_default_down_payment_global ? $mortgage_default_down_payment_global : '20')); ?>" class="calculator-slider" oninput="updateDownPayment(this.value); calculateMortgage()">
                             <div class="calculator-slider-labels">
                                 <span>0%</span>
-                                <span id="downPaymentValue" class="calculator-slider-value"><?php echo esc_html($mortgage_default_down_payment ? $mortgage_default_down_payment : '20'); ?>%</span>
+                                <span id="downPaymentValue" class="calculator-slider-value"><?php echo esc_html($mortgage_default_down_payment ? $mortgage_default_down_payment : ($mortgage_default_down_payment_global ? $mortgage_default_down_payment_global : '20')); ?>%</span>
                                 <span>100%</span>
                             </div>
                         </div>
                         <div class="calculator-input">
                             <label class="calculator-label"><?php echo esc_html($mortgage_interest_rate_label ? $mortgage_interest_rate_label : 'Interest Rate (%)'); ?></label>
-                            <input type="number" id="interestRate" value="<?php echo esc_attr($mortgage_default_interest_rate ? $mortgage_default_interest_rate : '6.5'); ?>" step="0.1" class="calculator-field" onkeyup="calculateMortgage()">
+                            <input type="number" id="interestRate" value="<?php echo esc_attr($mortgage_default_interest_rate ? $mortgage_default_interest_rate : ($mortgage_default_interest_rate_global ? $mortgage_default_interest_rate_global : '6.5')); ?>" step="0.1" class="calculator-field" onkeyup="calculateMortgage()">
                         </div>
                         <div class="calculator-input">
                             <label class="calculator-label"><?php echo esc_html($mortgage_loan_term_label ? $mortgage_loan_term_label : 'Loan Term (Years)'); ?></label>
                             <select id="loanTerm" class="calculator-field" onchange="calculateMortgage()">
                                 <?php
-                                    $loan_terms   = $mortgage_loan_terms ? explode(',', $mortgage_loan_terms) : ['15', '20', '30'];
-                                    $default_term = $mortgage_default_loan_term ? $mortgage_default_loan_term : '30';
-                                    foreach ($loan_terms as $term):
-                                        $term = trim($term);
+                                    // Use ONLY dashboard settings - no hardcoded fallbacks
+                                    if (!empty($mortgage_loan_terms)) {
+                                        $loan_terms_raw = $mortgage_loan_terms;
+                                        // Handle both comma-separated and newline-separated values
+                                        $loan_terms = array_map('trim', preg_split('/[,\n\r]+/', $loan_terms_raw));
+                                        
+                                        // Ensure we have valid numeric terms
+                                        $loan_terms = array_filter($loan_terms, function($term) {
+                                            return is_numeric($term) && $term > 0;
+                                        });
+                                        
+                                        // Get default term from dashboard or property settings
+                                        $default_term = $mortgage_default_loan_term ? $mortgage_default_loan_term : $mortgage_default_loan_term_global;
+                                        
+                                        // Debug output (remove this after testing)
+                                        if (current_user_can('manage_options')) {
+                                            echo '<!-- DEBUG: Dashboard loan terms: ' . esc_html($loan_terms_raw) . ' -->';
+                                            echo '<!-- DEBUG: Parsed terms: ' . print_r($loan_terms, true) . ' -->';
+                                            echo '<!-- DEBUG: Default term: ' . esc_html($default_term) . ' -->';
+                                        }
+                                        
+                                        // Display options from dashboard settings
+                                        foreach ($loan_terms as $term):
+                                            $is_selected = ($term == $default_term) ? ' selected' : '';
                                     ?>
-	                                    <option value="<?php echo esc_attr($term); ?>"<?php echo $term == $default_term ? 'selected' : ''; ?>><?php echo esc_html($term); ?> Years</option>
-	                                <?php endforeach; ?>
+                                        <option value="<?php echo esc_attr($term); ?>"<?php echo $is_selected; ?>><?php echo esc_html($term); ?> Years</option>
+                                    <?php 
+                                        endforeach;
+                                    } else {
+                                        // Only show this if no dashboard settings are configured
+                                        echo '<option value="">Please configure loan terms in dashboard</option>';
+                                    }
+                                ?>
                             </select>
                         </div>
                         <div class="calculator-result">
@@ -1577,6 +1693,80 @@
                 }
             ?>
         ];
+    </script>
+
+    <!-- Enqueue Single Property JavaScript -->
+    <script src="<?php echo esc_url(RESBS_URL . 'assets/js/single-property.js'); ?>"></script>
+    
+    <!-- Additional CSS for better filtering -->
+    <style>
+        .amenity-item[style*="display: none"] {
+            display: none !important;
+            height: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: hidden !important;
+        }
+        .amenities-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+    </style>
+    
+    <!-- Backup inline filter function -->
+    <script>
+        // Backup filter function in case external JS doesn't load
+        function filterAmenities(category) {
+            console.log('Filtering amenities by category:', category);
+            
+            const items = document.querySelectorAll('.amenity-item');
+            const buttons = document.querySelectorAll('.filter-btn');
+            
+            console.log('Found items:', items.length);
+            console.log('Found buttons:', buttons.length);
+            
+            // Update button styles
+            buttons.forEach(btn => {
+                btn.classList.remove('active', 'filter-active');
+                btn.classList.add('bg-gray-100', 'text-gray-700');
+            });
+            
+            // Find the clicked button and update its style
+            const clickedButton = document.querySelector(`[data-filter="${category}"]`);
+            if (clickedButton) {
+                clickedButton.classList.add('active', 'filter-active');
+                clickedButton.classList.remove('bg-gray-100', 'text-gray-700');
+                console.log('Updated button style for:', category);
+            }
+            
+            // Filter items
+            let visibleCount = 0;
+            items.forEach(item => {
+                const itemCategory = item.dataset.category;
+                console.log('Item:', item.textContent.trim(), 'Category:', itemCategory);
+                
+                if (category === 'all' || itemCategory === category) {
+                    item.style.display = 'block';
+                    item.style.visibility = 'visible';
+                    visibleCount++;
+                } else {
+                    item.style.display = 'none';
+                    item.style.visibility = 'hidden';
+                }
+            });
+            
+            console.log('Visible items after filtering:', visibleCount);
+        }
+        
+        // Test function to verify JavaScript is working
+        function testFilter() {
+            console.log('JavaScript is working!');
+        }
+        
+        // Make sure function is available globally
+        window.filterAmenities = filterAmenities;
+        window.testFilter = testFilter;
     </script>
 
 <?php get_footer(); ?>

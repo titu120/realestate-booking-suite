@@ -1624,11 +1624,7 @@
     transition: transform 0.3s ease !important;
 }
 
-.single-property .specifications-grid > div:hover {
-    transform: translateY(-4px) !important;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1) !important;
-    border-color: #10b981 !important;
-}
+
 
 .single-property .specifications-grid > div:hover::before {
     transform: scaleX(1) !important;
@@ -1644,11 +1640,14 @@
     margin-bottom: 0.5rem !important;
 }
 
+.specifications-grid p {
+    margin-top: 10px;
+}
+
 .single-property .specifications-grid > div p {
     font-size: 1.5rem !important;
     font-weight: 700 !important;
     color: #1e293b !important;
-    margin: 0 !important;
     line-height: 1.2 !important;
     display: block !important;
 }
@@ -1691,8 +1690,12 @@
     margin-bottom: 0.25rem !important;
 }
 
+.pricing-card p {
+    margin-top: 10px !important;
+}
+
 .single-property .pricing-value {
-    font-size: 1.25rem !important;
+    font-size: 1rem !important;
     font-weight: 600 !important;
     color: #111827 !important;
     margin-bottom: 0.25rem !important;

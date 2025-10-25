@@ -58,26 +58,66 @@ function toggleMobileMenu() {
 
 // Filter Amenities
 function filterAmenities(category) {
+    console.log('Filtering amenities by category:', category);
+    
     const items = document.querySelectorAll('.amenity-item');
     const buttons = document.querySelectorAll('.filter-btn');
     
+    console.log('Found items:', items.length);
+    console.log('Found buttons:', buttons.length);
+    
     // Update button styles
     buttons.forEach(btn => {
-        btn.classList.remove('filter-active');
+        btn.classList.remove('active', 'filter-active');
         btn.classList.add('bg-gray-100', 'text-gray-700');
     });
     
-    event.target.classList.add('filter-active');
-    event.target.classList.remove('bg-gray-100', 'text-gray-700');
+    // Find the clicked button and update its style
+    const clickedButton = document.querySelector(`[data-filter="${category}"]`);
+    if (clickedButton) {
+        clickedButton.classList.add('active', 'filter-active');
+        clickedButton.classList.remove('bg-gray-100', 'text-gray-700');
+        console.log('Updated button style for:', category);
+    }
     
-    // Filter items
+    // Filter items with better layout control
+    let visibleCount = 0;
     items.forEach(item => {
-        if (category === 'all' || item.dataset.category === category) {
+        const itemCategory = item.dataset.category;
+        const itemText = item.textContent.trim();
+        
+        console.log('Item:', itemText, 'Category:', itemCategory, 'Filter:', category);
+        
+        // Skip items with empty text
+        if (!itemText || itemText === '') {
+            item.style.display = 'none';
+            item.style.visibility = 'hidden';
+            item.style.height = '0';
+            item.style.margin = '0';
+            item.style.padding = '0';
+            item.style.overflow = 'hidden';
+            return;
+        }
+        
+        if (category === 'all' || itemCategory === category) {
             item.style.display = 'block';
+            item.style.visibility = 'visible';
+            item.style.height = 'auto';
+            item.style.margin = '';
+            item.style.padding = '';
+            item.style.overflow = 'visible';
+            visibleCount++;
         } else {
             item.style.display = 'none';
+            item.style.visibility = 'hidden';
+            item.style.height = '0';
+            item.style.margin = '0';
+            item.style.padding = '0';
+            item.style.overflow = 'hidden';
         }
     });
+    
+    console.log('Visible items after filtering:', visibleCount);
 }
 
 // Image Viewer - Enhanced with fallback

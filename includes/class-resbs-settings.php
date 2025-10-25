@@ -124,6 +124,12 @@ class RESBS_Settings {
         register_setting('resbs_general_settings', 'resbs_default_currency');
         register_setting('resbs_general_settings', 'resbs_map_api_key');
         
+        // Mortgage Calculator Settings
+        register_setting('resbs_general_settings', 'resbs_mortgage_loan_terms');
+        register_setting('resbs_general_settings', 'resbs_mortgage_default_loan_term');
+        register_setting('resbs_general_settings', 'resbs_mortgage_default_down_payment');
+        register_setting('resbs_general_settings', 'resbs_mortgage_default_interest_rate');
+        
         // Badge Settings
         register_setting('resbs_badge_settings', 'resbs_badge_color');
         register_setting('resbs_badge_settings', 'resbs_badge_text_color');
@@ -270,6 +276,37 @@ class RESBS_Settings {
                             <label for="resbs_map_api_key"><?php esc_html_e('Google Maps API Key', 'realestate-booking-suite'); ?></label>
                             <input type="text" id="resbs_map_api_key" name="resbs_map_api_key" value="<?php echo esc_attr(get_option('resbs_map_api_key')); ?>" class="regular-text" />
                             <p class="description"><?php esc_html_e('Enter your Google Maps API key for map functionality', 'realestate-booking-suite'); ?></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="resbs-card">
+                    <div class="resbs-card-header">
+                        <h2 class="resbs-card-title"><?php esc_html_e('Mortgage Calculator Settings', 'realestate-booking-suite'); ?></h2>
+                    </div>
+                    <div class="resbs-card-body">
+                        <div class="resbs-form-group">
+                            <label for="resbs_mortgage_loan_terms"><?php esc_html_e('Available Loan Terms', 'realestate-booking-suite'); ?></label>
+                            <textarea id="resbs_mortgage_loan_terms" name="resbs_mortgage_loan_terms" rows="4" class="large-text"><?php echo esc_textarea(get_option('resbs_mortgage_loan_terms', '10,15,20,25')); ?></textarea>
+                            <p class="description"><?php esc_html_e('Enter each loan term on a new line (e.g., 10, 15, 20, 25)', 'realestate-booking-suite'); ?></p>
+                        </div>
+                        
+                        <div class="resbs-form-group">
+                            <label for="resbs_mortgage_default_loan_term"><?php esc_html_e('Default Loan Term (Years)', 'realestate-booking-suite'); ?></label>
+                            <input type="number" id="resbs_mortgage_default_loan_term" name="resbs_mortgage_default_loan_term" value="<?php echo esc_attr(get_option('resbs_mortgage_default_loan_term', '10')); ?>" min="1" max="50" />
+                            <p class="description"><?php esc_html_e('Default loan term in years', 'realestate-booking-suite'); ?></p>
+                        </div>
+                        
+                        <div class="resbs-form-group">
+                            <label for="resbs_mortgage_default_down_payment"><?php esc_html_e('Default Down Payment (%)', 'realestate-booking-suite'); ?></label>
+                            <input type="number" id="resbs_mortgage_default_down_payment" name="resbs_mortgage_default_down_payment" value="<?php echo esc_attr(get_option('resbs_mortgage_default_down_payment', '20')); ?>" min="0" max="100" />
+                            <p class="description"><?php esc_html_e('Default down payment percentage', 'realestate-booking-suite'); ?></p>
+                        </div>
+                        
+                        <div class="resbs-form-group">
+                            <label for="resbs_mortgage_default_interest_rate"><?php esc_html_e('Default Interest Rate (%)', 'realestate-booking-suite'); ?></label>
+                            <input type="number" id="resbs_mortgage_default_interest_rate" name="resbs_mortgage_default_interest_rate" value="<?php echo esc_attr(get_option('resbs_mortgage_default_interest_rate', '6.5')); ?>" step="0.1" min="0" max="50" />
+                            <p class="description"><?php esc_html_e('Default interest rate percentage', 'realestate-booking-suite'); ?></p>
                         </div>
                     </div>
                 </div>
