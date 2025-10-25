@@ -131,6 +131,17 @@ class RESBS_Property_Metabox {
         $contact_success_message = get_post_meta($post->ID, '_property_contact_success_message', true);
         $contact_submit_text = get_post_meta($post->ID, '_property_contact_submit_text', true);
         
+        // Booking Form Dynamic Fields
+        $booking_form_title = get_post_meta($post->ID, '_property_booking_form_title', true);
+        $booking_form_subtitle = get_post_meta($post->ID, '_property_booking_form_subtitle', true);
+        $booking_name_label = get_post_meta($post->ID, '_property_booking_name_label', true);
+        $booking_email_label = get_post_meta($post->ID, '_property_booking_email_label', true);
+        $booking_phone_label = get_post_meta($post->ID, '_property_booking_phone_label', true);
+        $booking_date_label = get_post_meta($post->ID, '_property_booking_date_label', true);
+        $booking_time_label = get_post_meta($post->ID, '_property_booking_time_label', true);
+        $booking_message_label = get_post_meta($post->ID, '_property_booking_message_label', true);
+        $booking_submit_text = get_post_meta($post->ID, '_property_booking_submit_text', true);
+        
         // Mortgage Calculator Dynamic Fields
         $mortgage_calculator_title = get_post_meta($post->ID, '_property_mortgage_calculator_title', true);
         $mortgage_property_price_label = get_post_meta($post->ID, '_property_mortgage_property_price_label', true);
@@ -1111,6 +1122,67 @@ class RESBS_Property_Metabox {
                                 <div class="resbs-form-group">
                                     <label for="property_contact_submit_text"><?php esc_html_e('Submit Button Text', 'realestate-booking-suite'); ?></label>
                                     <input type="text" id="property_contact_submit_text" name="property_contact_submit_text" value="<?php echo esc_attr($contact_submit_text ?: 'Send Message'); ?>" class="resbs-stunning-input" placeholder="Send Message">
+                                </div>
+                                
+                                <!-- Section Title: Booking Form Settings -->
+                                <div class="resbs-section-title">
+                                    <h2 class="resbs-section-heading" style="font-size: 24px;font-weight: 600;padding: 10px 0; border-bottom:1px solid #ddd">
+                                        <i class="fas fa-calendar-check"></i>
+                                        <?php esc_html_e('Booking Form Settings', 'realestate-booking-suite'); ?>
+                                    </h2>
+                                    <p class="resbs-section-description"><?php esc_html_e('Configure booking form labels and messages for property viewing appointments', 'realestate-booking-suite'); ?></p>
+                                </div>
+                                
+                                <!-- Booking Form Settings -->
+                                <div class="resbs-form-group">
+                                    <label for="property_booking_form_title"><?php esc_html_e('Booking Form Title', 'realestate-booking-suite'); ?></label>
+                                    <input type="text" id="property_booking_form_title" name="property_booking_form_title" value="<?php echo esc_attr($booking_form_title ?: 'Property Booking'); ?>" class="resbs-stunning-input" placeholder="Property Booking">
+                                    <p class="resbs-input-help"><?php esc_html_e('Title displayed at the top of the booking form', 'realestate-booking-suite'); ?></p>
+                                </div>
+
+                                <div class="resbs-form-group">
+                                    <label for="property_booking_form_subtitle"><?php esc_html_e('Booking Form Subtitle', 'realestate-booking-suite'); ?></label>
+                                    <input type="text" id="property_booking_form_subtitle" name="property_booking_form_subtitle" value="<?php echo esc_attr($booking_form_subtitle ?: 'Schedule a viewing or book this property'); ?>" class="resbs-stunning-input" placeholder="Schedule a viewing or book this property">
+                                    <p class="resbs-input-help"><?php esc_html_e('Subtitle text below the main title', 'realestate-booking-suite'); ?></p>
+                                </div>
+
+                                <div class="resbs-form-row">
+                                    <div class="resbs-form-group">
+                                        <label for="property_booking_name_label"><?php esc_html_e('Name Field Label', 'realestate-booking-suite'); ?></label>
+                                        <input type="text" id="property_booking_name_label" name="property_booking_name_label" value="<?php echo esc_attr($booking_name_label ?: 'Your Name'); ?>" class="resbs-stunning-input" placeholder="Your Name">
+                                    </div>
+                                    <div class="resbs-form-group">
+                                        <label for="property_booking_email_label"><?php esc_html_e('Email Field Label', 'realestate-booking-suite'); ?></label>
+                                        <input type="text" id="property_booking_email_label" name="property_booking_email_label" value="<?php echo esc_attr($booking_email_label ?: 'Email'); ?>" class="resbs-stunning-input" placeholder="Email">
+                                    </div>
+                                </div>
+
+                                <div class="resbs-form-row">
+                                    <div class="resbs-form-group">
+                                        <label for="property_booking_phone_label"><?php esc_html_e('Phone Field Label', 'realestate-booking-suite'); ?></label>
+                                        <input type="text" id="property_booking_phone_label" name="property_booking_phone_label" value="<?php echo esc_attr($booking_phone_label ?: 'Phone'); ?>" class="resbs-stunning-input" placeholder="Phone">
+                                    </div>
+                                    <div class="resbs-form-group">
+                                        <label for="property_booking_date_label"><?php esc_html_e('Date Field Label', 'realestate-booking-suite'); ?></label>
+                                        <input type="text" id="property_booking_date_label" name="property_booking_date_label" value="<?php echo esc_attr($booking_date_label ?: 'Preferred Date'); ?>" class="resbs-stunning-input" placeholder="Preferred Date">
+                                    </div>
+                                </div>
+
+                                <div class="resbs-form-row">
+                                    <div class="resbs-form-group">
+                                        <label for="property_booking_time_label"><?php esc_html_e('Time Field Label', 'realestate-booking-suite'); ?></label>
+                                        <input type="text" id="property_booking_time_label" name="property_booking_time_label" value="<?php echo esc_attr($booking_time_label ?: 'Preferred Time'); ?>" class="resbs-stunning-input" placeholder="Preferred Time">
+                                    </div>
+                                    <div class="resbs-form-group">
+                                        <label for="property_booking_message_label"><?php esc_html_e('Message Field Label', 'realestate-booking-suite'); ?></label>
+                                        <input type="text" id="property_booking_message_label" name="property_booking_message_label" value="<?php echo esc_attr($booking_message_label ?: 'Additional Message'); ?>" class="resbs-stunning-input" placeholder="Additional Message">
+                                    </div>
+                                </div>
+
+                                <div class="resbs-form-group">
+                                    <label for="property_booking_submit_text"><?php esc_html_e('Submit Button Text', 'realestate-booking-suite'); ?></label>
+                                    <input type="text" id="property_booking_submit_text" name="property_booking_submit_text" value="<?php echo esc_attr($booking_submit_text ?: 'Schedule Property Viewing'); ?>" class="resbs-stunning-input" placeholder="Schedule Property Viewing">
+                                    <p class="resbs-input-help"><?php esc_html_e('Text displayed on the booking form submit button', 'realestate-booking-suite'); ?></p>
                                 </div>
                                 
                                 <!-- Section Title: Mortgage Calculator Settings -->
@@ -2582,6 +2654,18 @@ class RESBS_Property_Metabox {
             'property_contact_message_label' => '_property_contact_message_label',
             'property_contact_success_message' => '_property_contact_success_message',
             'property_contact_submit_text' => '_property_contact_submit_text',
+            
+            // Booking Form Fields
+            'property_booking_form_title' => '_property_booking_form_title',
+            'property_booking_form_subtitle' => '_property_booking_form_subtitle',
+            'property_booking_name_label' => '_property_booking_name_label',
+            'property_booking_email_label' => '_property_booking_email_label',
+            'property_booking_phone_label' => '_property_booking_phone_label',
+            'property_booking_date_label' => '_property_booking_date_label',
+            'property_booking_time_label' => '_property_booking_time_label',
+            'property_booking_message_label' => '_property_booking_message_label',
+            'property_booking_submit_text' => '_property_booking_submit_text',
+            
             'property_mortgage_calculator_title' => '_property_mortgage_calculator_title',
             'property_mortgage_property_price_label' => '_property_mortgage_property_price_label',
             'property_mortgage_down_payment_label' => '_property_mortgage_down_payment_label',

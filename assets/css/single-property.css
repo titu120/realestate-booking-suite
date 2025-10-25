@@ -1978,6 +1978,7 @@
     border: 1px solid var(--rebs-medium-gray) !important;
     cursor: pointer !important;
     display: inline-block !important;
+    color: #059669;
 }
 
 /* Breadcrumb */

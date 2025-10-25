@@ -119,6 +119,17 @@
     $contact_success_message = get_post_meta($post->ID, '_property_contact_success_message', true);
     $contact_submit_text     = get_post_meta($post->ID, '_property_contact_submit_text', true);
 
+    // Booking Form Dynamic Fields
+    $booking_form_title      = get_post_meta($post->ID, '_property_booking_form_title', true);
+    $booking_form_subtitle   = get_post_meta($post->ID, '_property_booking_form_subtitle', true);
+    $booking_name_label      = get_post_meta($post->ID, '_property_booking_name_label', true);
+    $booking_email_label     = get_post_meta($post->ID, '_property_booking_email_label', true);
+    $booking_phone_label     = get_post_meta($post->ID, '_property_booking_phone_label', true);
+    $booking_date_label      = get_post_meta($post->ID, '_property_booking_date_label', true);
+    $booking_time_label      = get_post_meta($post->ID, '_property_booking_time_label', true);
+    $booking_message_label   = get_post_meta($post->ID, '_property_booking_message_label', true);
+    $booking_submit_text     = get_post_meta($post->ID, '_property_booking_submit_text', true);
+
     // Mortgage Calculator Dynamic Fields
     $mortgage_calculator_title      = get_post_meta($post->ID, '_property_mortgage_calculator_title', true);
     $mortgage_property_price_label  = get_post_meta($post->ID, '_property_mortgage_property_price_label', true);
@@ -1265,39 +1276,39 @@
 
                         <!-- Booking Tab -->
                         <div id="booking-tab" class="tab-content">
-                            <h3 class="section-title">Property Booking</h3>
-                            <p class="text-gray-600 mb-6">Schedule a viewing or book this property</p>
+                            <h3 class="section-title"><?php echo esc_html($booking_form_title ? $booking_form_title : 'Property Booking'); ?></h3>
+                            <p class="text-gray-600 mb-6"><?php echo esc_html($booking_form_subtitle ? $booking_form_subtitle : 'Schedule a viewing or book this property'); ?></p>
                             
                             <div class="bg-white p-8 rounded-xl shadow-lg border border-gray-100">
-                                <h4 class="text-xl font-bold text-gray-800 mb-2">Book Property Viewing</h4>
-                                <p class="text-gray-600 mb-8">Fill out the form below to schedule your property viewing</p>
+                                <h4 class="text-xl font-bold text-gray-800 mb-2"><?php echo esc_html($booking_form_title ? $booking_form_title : 'Book Property Viewing'); ?></h4>
+                                <p class="text-gray-600 mb-8"><?php echo esc_html($booking_form_subtitle ? $booking_form_subtitle : 'Fill out the form below to schedule your property viewing'); ?></p>
                                 
-                                <form id="directBookingForm" onsubmit="handleDirectBooking(event)">
+                                <form id="directBookingForm" onsubmit="submitBookingForm(event)">
                                     <div class="space-y-6">
                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             <div class="space-y-2">
-                                                <label for="bookingName" class="block text-sm font-semibold text-gray-700">Your Name *</label>
+                                                <label for="bookingName" class="block text-sm font-semibold text-gray-700"><?php echo esc_html($booking_name_label ? $booking_name_label : 'Your Name'); ?> *</label>
                                                 <input type="text" id="bookingName" name="bookingName" required 
-                                                       placeholder="Enter your full name"
+                                                       placeholder="<?php echo esc_attr($booking_name_label ? $booking_name_label : 'Enter your full name'); ?>"
                                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200">
                                             </div>
                                             <div class="space-y-2">
-                                                <label for="bookingEmail" class="block text-sm font-semibold text-gray-700">Email *</label>
+                                                <label for="bookingEmail" class="block text-sm font-semibold text-gray-700"><?php echo esc_html($booking_email_label ? $booking_email_label : 'Email'); ?> *</label>
                                                 <input type="email" id="bookingEmail" name="bookingEmail" required 
-                                                       placeholder="Enter your email address"
+                                                       placeholder="<?php echo esc_attr($booking_email_label ? $booking_email_label : 'Enter your email address'); ?>"
                                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200">
                                             </div>
                                         </div>
                                         
                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             <div class="space-y-2">
-                                                <label for="bookingPhone" class="block text-sm font-semibold text-gray-700">Phone</label>
+                                                <label for="bookingPhone" class="block text-sm font-semibold text-gray-700"><?php echo esc_html($booking_phone_label ? $booking_phone_label : 'Phone'); ?></label>
                                                 <input type="tel" id="bookingPhone" name="bookingPhone" 
-                                                       placeholder="Enter your phone number"
+                                                       placeholder="<?php echo esc_attr($booking_phone_label ? $booking_phone_label : 'Enter your phone number'); ?>"
                                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200">
                                             </div>
                                             <div class="space-y-2">
-                                                <label for="bookingDate" class="block text-sm font-semibold text-gray-700">Preferred Date *</label>
+                                                <label for="bookingDate" class="block text-sm font-semibold text-gray-700"><?php echo esc_html($booking_date_label ? $booking_date_label : 'Preferred Date'); ?> *</label>
                                                 <input type="date" id="bookingDate" name="bookingDate" required 
                                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200">
                                             </div>
@@ -1306,15 +1317,15 @@
 
                                         
                                         <div class="space-y-2">
-                                            <label for="bookingMessage" class="block text-sm font-semibold text-gray-700">Additional Message</label>
+                                            <label for="bookingMessage" class="block text-sm font-semibold text-gray-700"><?php echo esc_html($booking_message_label ? $booking_message_label : 'Additional Message'); ?></label>
                                             <textarea id="bookingMessage" name="bookingMessage" rows="4" 
-                                                      placeholder="Any specific requirements or questions about the property..."
+                                                      placeholder="<?php echo esc_attr($booking_message_label ? $booking_message_label : 'Any specific requirements or questions about the property...'); ?>"
                                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200 resize-none"></textarea>
                                         </div>
                                         
                                         <div class="pt-4">
                                             <button type="submit" class="w-full bg-white hover:bg-green-700  font-bold py-4 px-6 rounded-lg transition duration-200 flex items-center justify-center  transform ">
-                                                <i class="fas fa-calendar-check mr-3 text-lg"></i>Schedule Property Viewing
+                                                <i class="fas fa-calendar-check mr-3 text-lg"></i><?php echo esc_html($booking_submit_text ? $booking_submit_text : 'Schedule Property Viewing'); ?>
                                             </button>
                                         </div>
                                     </div>
