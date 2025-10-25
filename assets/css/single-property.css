@@ -1124,9 +1124,7 @@
     color: var(--rebs-white) !important;
 }
 
-.single-property .agent-action-primary:hover {
-    background-color: var(--rebs-primary-dark) !important;
-}
+
 
 .single-property .agent-action-secondary {
     background-color: var(--rebs-secondary-color) !important;
@@ -2670,10 +2668,7 @@
     color: #000 !important;
   
 }
-.single-property  a:hover {
-    color: #10B981 !important;
-  
-}
+
 
 .single-property .mobile-nav a:hover {
     color: var(--rebs-primary-color) !important;

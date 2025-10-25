@@ -1515,10 +1515,6 @@
                             <i class="fas fa-envelope mr-2"></i>
                             <span><?php echo esc_html($agent_send_message_text ? $agent_send_message_text : 'Send Message'); ?></span>
                         </button>
-                        <button onclick="scheduleTour()" class="agent-action agent-action-outline">
-                            <i class="fas fa-calendar-alt mr-2"></i>
-                            <span>Schedule Tour</span>
-                        </button>
                     </div>
 
                     <div class="agent-stats">
