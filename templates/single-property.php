@@ -108,7 +108,6 @@
     $agent_experience        = get_post_meta($post->ID, '_property_agent_experience', true);
     $agent_response_time     = get_post_meta($post->ID, '_property_agent_response_time', true);
     $agent_rating            = get_post_meta($post->ID, '_property_agent_rating', true);
-    $agent_reviews           = get_post_meta($post->ID, '_property_agent_reviews', true);
     $agent_send_message_text = get_post_meta($post->ID, '_property_agent_send_message_text', true);
 
     // Contact Form Dynamic Fields
@@ -1164,19 +1163,20 @@
                                     <div class="agent-profile-info">
                                         <h4 class="agent-profile-name"><?php echo esc_html($agent_name ? $agent_name : 'Not specified'); ?></h4>
                                         <p class="agent-profile-title">Real Estate Agent</p>
-                                        <?php if ($agent_rating): ?>
                                         <div class="agent-rating-section">
                                             <div class="agent-stars">
                                                 <?php
-                                                $rating = intval($agent_rating);
+                                                $rating = intval($agent_rating ?: 5); // Default to 5 if no rating
                                                 for ($i = 1; $i <= 5; $i++):
+                                                    if ($i <= $rating) {
+                                                        echo '<i class="fas fa-star"></i>';
+                                                    } else {
+                                                        echo '<i class="far fa-star"></i>';
+                                                    }
+                                                endfor;
                                                 ?>
-                                                    <i class="fas fa-star"></i>
-                                                <?php endfor; ?>
                                             </div>
-                                            <span class="agent-reviews">(<?php echo esc_html($agent_reviews ? $agent_reviews : '0'); ?> reviews)</span>
                                         </div>
-                                        <?php endif; ?>
                                     </div>
                                 </div>
                                 
@@ -1481,12 +1481,15 @@
                         <p class="agent-title">Real Estate Agent</p>
                         <div class="agent-rating">
                             <?php
-                                $rating = intval($agent_rating);
+                                $rating = intval($agent_rating ?: 5); // Default to 5 if no rating
                                 for ($i = 1; $i <= 5; $i++):
+                                    if ($i <= $rating) {
+                                        echo '<i class="fas fa-star rating-star text-sm text-yellow-400"></i>';
+                                    } else {
+                                        echo '<i class="far fa-star rating-star text-sm text-gray-300"></i>';
+                                    }
+                                endfor;
                             ?>
-                                <i class="fas fa-star rating-star text-sm<?php echo $i <= $rating ? 'text-yellow-400' : 'text-gray-300'; ?>"></i>
-                            <?php endfor; ?>
-                            <span class="text-sm text-gray-600 ml-2">(<?php echo esc_html($agent_reviews); ?> reviews)</span>
                         </div>
                     </div>
 
@@ -1678,6 +1681,14 @@
 
     <!-- Pass PHP data to JavaScript -->
     <script>
+        // AJAX configuration
+        window.resbs_ajax = {
+            ajax_url: '<?php echo admin_url('admin-ajax.php'); ?>',
+            nonce: '<?php echo wp_create_nonce('resbs_contact_form_nonce'); ?>',
+            booking_nonce: '<?php echo wp_create_nonce('resbs_booking_form_nonce'); ?>',
+            property_id: <?php echo $post->ID; ?>
+        };
+        
         // Pass gallery images from PHP to JavaScript
         window.galleryImagesFromPHP = [
             <?php

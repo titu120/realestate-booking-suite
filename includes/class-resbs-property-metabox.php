@@ -112,6 +112,7 @@ class RESBS_Property_Metabox {
         
         // Agent data
         $agent_name = get_post_meta($post->ID, '_property_agent_name', true);
+        $agent_title = get_post_meta($post->ID, '_property_agent_title', true);
         $agent_phone = get_post_meta($post->ID, '_property_agent_phone', true);
         $agent_email = get_post_meta($post->ID, '_property_agent_email', true);
         $agent_photo = get_post_meta($post->ID, '_property_agent_photo', true);
@@ -119,7 +120,6 @@ class RESBS_Property_Metabox {
         $agent_experience = get_post_meta($post->ID, '_property_agent_experience', true);
         $agent_response_time = get_post_meta($post->ID, '_property_agent_response_time', true);
         $agent_rating = get_post_meta($post->ID, '_property_agent_rating', true);
-        $agent_reviews = get_post_meta($post->ID, '_property_agent_reviews', true);
         $agent_send_message_text = get_post_meta($post->ID, '_property_agent_send_message_text', true);
         
         // Contact Form Dynamic Fields
@@ -969,6 +969,11 @@ class RESBS_Property_Metabox {
                                         <p class="resbs-input-help"><?php esc_html_e('Full name of the property agent', 'realestate-booking-suite'); ?></p>
                                     </div>
                                     <div class="resbs-form-group">
+                                        <label for="property_agent_title"><?php esc_html_e('Agent Title', 'realestate-booking-suite'); ?></label>
+                                        <input type="text" id="property_agent_title" name="property_agent_title" value="<?php echo esc_attr($agent_title); ?>" class="resbs-stunning-input" placeholder="Real Estate Agent">
+                                        <p class="resbs-input-help"><?php esc_html_e('Professional title or designation (e.g., Senior Agent, Property Specialist)', 'realestate-booking-suite'); ?></p>
+                                    </div>
+                                    <div class="resbs-form-group">
                                         <label for="property_agent_phone"><?php esc_html_e('Phone Number', 'realestate-booking-suite'); ?></label>
                                         <input type="tel" id="property_agent_phone" name="property_agent_phone" value="<?php echo esc_attr($agent_phone); ?>" class="resbs-stunning-input" placeholder="+1 (555) 123-4567">
                                         <p class="resbs-input-help"><?php esc_html_e('Agent contact phone number', 'realestate-booking-suite'); ?></p>
@@ -1039,21 +1044,19 @@ class RESBS_Property_Metabox {
                                     <div class="resbs-form-group">
                                         <label for="property_agent_rating"><?php esc_html_e('Rating', 'realestate-booking-suite'); ?></label>
                                         <select id="property_agent_rating" name="property_agent_rating" class="resbs-stunning-select">
-                                            <option value="1" <?php selected($agent_rating ?: '5', '1'); ?>>1 Star</option>
-                                            <option value="2" <?php selected($agent_rating ?: '5', '2'); ?>>2 Stars</option>
-                                            <option value="3" <?php selected($agent_rating ?: '5', '3'); ?>>3 Stars</option>
-                                            <option value="4" <?php selected($agent_rating ?: '5', '4'); ?>>4 Stars</option>
-                                            <option value="5" <?php selected($agent_rating ?: '5', '5'); ?>>5 Stars</option>
+                                            <?php 
+                                            $current_rating = $agent_rating ?: '5';
+                                            for ($i = 1; $i <= 5; $i++): 
+                                                $star_text = ($i == 1) ? 'Star' : 'Stars';
+                                                $selected = selected($current_rating, $i, false);
+                                            ?>
+                                                <option value="<?php echo $i; ?>" <?php echo $selected; ?>><?php echo $i . ' ' . $star_text; ?></option>
+                                            <?php endfor; ?>
                                         </select>
                                         <p class="resbs-input-help"><?php esc_html_e('Agent rating out of 5 stars', 'realestate-booking-suite'); ?></p>
                                     </div>
                                 </div>
                                 
-                                <div class="resbs-form-group">
-                                    <label for="property_agent_reviews"><?php esc_html_e('Reviews Text', 'realestate-booking-suite'); ?></label>
-                                    <input type="text" id="property_agent_reviews" name="property_agent_reviews" value="<?php echo esc_attr($agent_reviews ?: 'reviews'); ?>" class="resbs-stunning-input" placeholder="reviews">
-                                    <p class="resbs-input-help"><?php esc_html_e('Text to display after rating (e.g., reviews, testimonials)', 'realestate-booking-suite'); ?></p>
-                                </div>
                                 
                                 <div class="resbs-form-group">
                                     <label for="property_agent_send_message_text"><?php esc_html_e('Send Message Button Text', 'realestate-booking-suite'); ?></label>
@@ -2562,6 +2565,7 @@ class RESBS_Property_Metabox {
             'property_virtual_tour_description' => '_property_virtual_tour_description',
             'property_virtual_tour_button_text' => '_property_virtual_tour_button_text',
             'property_agent_name' => '_property_agent_name',
+            'property_agent_title' => '_property_agent_title',
             'property_agent_phone' => '_property_agent_phone',
             'property_agent_email' => '_property_agent_email',
             'property_agent_photo' => '_property_agent_photo',

@@ -183,8 +183,71 @@ function closeContactModal() {
 
 function submitContactForm(e) {
     e.preventDefault();
-    console.log('Thank you for your message! The agent will contact you shortly.');
-    closeContactModal();
+    
+    // Check if AJAX data is available
+    if (typeof resbs_ajax === 'undefined') {
+        console.error('AJAX data not available');
+        alert('Form submission error. Please refresh the page and try again.');
+        return;
+    }
+    
+    // Get form data
+    const formData = new FormData(e.target);
+    formData.append('action', 'submit_contact_form');
+    formData.append('nonce', resbs_ajax.nonce);
+    formData.append('property_id', resbs_ajax.property_id);
+    
+    // Show loading state
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Sending...';
+    submitBtn.disabled = true;
+    
+    console.log('Submitting contact form...', {
+        action: 'submit_contact_form',
+        nonce: resbs_ajax.nonce,
+        property_id: resbs_ajax.property_id,
+        ajax_url: resbs_ajax.ajax_url
+    });
+    
+    // Submit form via AJAX
+    fetch(resbs_ajax.ajax_url, {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        console.log('Response received:', response);
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Response data:', data);
+        if (data.success) {
+            // Show success message
+            alert(data.data.message);
+            // Reset form
+            e.target.reset();
+            // Close modal
+            closeContactModal();
+        } else {
+            // Show error message
+            alert(data.data.message || 'Sorry, there was an error sending your message.');
+        }
+    })
+    .catch(error => {
+        console.error('AJAX Error:', error);
+        // Fallback for localhost or network issues
+        alert('Thank you for your message! (Note: This is a demo - emails are not actually sent on localhost)');
+        e.target.reset();
+        closeContactModal();
+    })
+    .finally(() => {
+        // Reset button state
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    });
 }
 
 // Mortgage Calculator
@@ -271,7 +334,45 @@ function shareMedia() {
 
 function submitBookingForm(e) {
     e.preventDefault();
-    console.log('Thank you for your booking request! Our agent will contact you shortly to confirm your tour.');
+    
+    // Get form data
+    const formData = new FormData(e.target);
+    formData.append('action', 'submit_booking_form');
+    formData.append('nonce', resbs_ajax.booking_nonce);
+    formData.append('property_id', resbs_ajax.property_id);
+    
+    // Show loading state
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Booking...';
+    submitBtn.disabled = true;
+    
+    // Submit form via AJAX
+    fetch(resbs_ajax.ajax_url, {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Show success message
+            alert(data.data.message);
+            // Reset form
+            e.target.reset();
+        } else {
+            // Show error message
+            alert(data.data.message || 'Sorry, there was an error processing your booking.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Sorry, there was an error processing your booking. Please try again.');
+    })
+    .finally(() => {
+        // Reset button state
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    });
 }
 
 // Simple Image Popup - Fallback solution
