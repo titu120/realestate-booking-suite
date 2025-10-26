@@ -411,22 +411,24 @@ class RESBS_Enhanced_Settings {
             background: #f1f1f1;
         }
         
-        /* Header - Clean and Simple */
+        /* Header - Modern Professional */
         .resbs-settings-header {
-            background: white;
-            padding: 20px 0;
-            margin: 0 0 20px 0;
-            border-bottom: 1px solid #ddd;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 30px 40px;
+            margin: -20px -20px 30px -20px;
+            color: white;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
         }
         
         .resbs-header-left h1 {
             margin: 0;
-            font-size: 23px;
-            font-weight: 400;
-            color: #23282d;
+            font-size: 28px;
+            font-weight: 300;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         
         .resbs-plugin-branding {
@@ -438,39 +440,48 @@ class RESBS_Enhanced_Settings {
         .resbs-logo-container {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
+            background: rgba(255,255,255,0.1);
+            padding: 10px 15px;
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
         }
         
         .resbs-logo-icon {
-            font-size: 20px;
-            color: #0073aa;
+            font-size: 24px;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
         
         .resbs-plugin-name {
-            font-size: 14px;
+            font-size: 16px;
             font-weight: 600;
-            color: #23282d;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         
         .resbs-plugin-version {
             font-size: 12px;
-            color: #666;
+            color: rgba(255,255,255,0.8);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
         }
         
-        /* Container Layout */
+        /* Container Layout - Modern Card Style */
         .resbs-settings-container {
             display: flex;
-            gap: 0;
+            margin: 30px;
             background: white;
-            border: 1px solid #ccd0d4;
-            box-shadow: 0 1px 1px rgba(0,0,0,.04);
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            overflow: hidden;
+            min-height: 600px;
         }
         
-        /* Sidebar - Estatik Style */
+        /* Sidebar - Modern Professional */
         .resbs-settings-sidebar {
-            width: 200px;
-            background: white;
-            border-right: 1px solid #ccd0d4;
+            width: 250px;
+            background: linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%);
+            border-right: 1px solid #e9ecef;
         }
         
         .resbs-settings-nav {
@@ -480,7 +491,7 @@ class RESBS_Enhanced_Settings {
         .resbs-nav-tabs {
             list-style: none;
             margin: 0;
-            padding: 0;
+            padding: 20px 0;
         }
         
         .resbs-nav-item {
@@ -489,67 +500,81 @@ class RESBS_Enhanced_Settings {
         
         .resbs-nav-link {
             display: block;
-            padding: 12px 20px;
+            padding: 15px 25px;
             text-decoration: none;
-            color: #555;
-            border-bottom: 1px solid #e1e1e1;
+            color: #6c757d;
             font-size: 14px;
-            transition: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
             position: relative;
+            border-left: 3px solid transparent;
         }
         
         .resbs-nav-link:hover {
-            background: #f8f9fa;
-            color: #23282d;
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            border-left-color: rgba(102, 126, 234, 0.3);
         }
         
         .resbs-nav-link.active {
-            background: white;
-            color: #23282d;
+            background: rgba(102, 126, 234, 0.15);
+            color: #667eea;
             font-weight: 600;
-        }
-        
-        .resbs-nav-link.active::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 3px;
-            background: #00a0d2;
+            border-left-color: #667eea;
         }
         
         .resbs-nav-text {
             font-size: 14px;
         }
         
-        /* Content Area - Estatik Style */
+        /* Content Area - Modern Professional */
         .resbs-settings-content {
             flex: 1;
             background: white;
-            padding: 30px;
-            min-height: 500px;
+            padding: 40px;
+            min-height: 600px;
         }
         
         .resbs-settings-content h2 {
-            margin: 0 0 20px 0;
-            font-size: 20px;
-            font-weight: 400;
-            color: #23282d;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #e1e1e1;
+            margin: 0 0 30px 0;
+            font-size: 24px;
+            font-weight: 300;
+            color: #2c3e50;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e9ecef;
+            position: relative;
         }
         
-        /* Form Styling - WordPress Default */
+        .resbs-settings-content h2::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 50px;
+            height: 2px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+        
+        /* Form Styling - Modern Professional */
         .resbs-form-group {
-            margin-bottom: 20px;
+            margin-bottom: 25px;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+        
+        .resbs-form-group:hover {
+            border-color: #667eea;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
         }
         
         .resbs-form-group label {
             display: block;
-            margin-bottom: 5px;
             font-weight: 600;
-            color: #23282d;
+            margin-bottom: 10px;
+            color: #2c3e50;
             font-size: 14px;
         }
         
@@ -561,11 +586,12 @@ class RESBS_Enhanced_Settings {
         .resbs-form-group textarea {
             width: 100%;
             max-width: 400px;
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 3px;
+            padding: 12px 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
             font-size: 14px;
-            background: #fff;
+            background: white;
+            transition: all 0.3s ease;
         }
         
         .resbs-form-group input[type="text"]:focus,
@@ -574,18 +600,18 @@ class RESBS_Enhanced_Settings {
         .resbs-form-group input[type="color"]:focus,
         .resbs-form-group select:focus,
         .resbs-form-group textarea:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
             outline: none;
-            border-color: #5b9dd9;
-            box-shadow: 0 0 2px rgba(30, 140, 190, 0.8);
         }
         
-        /* Toggle Switch - WordPress Style */
+        /* Toggle Switch - Modern Professional */
         .resbs-toggle-switch {
             position: relative;
             display: inline-block;
-            width: 50px;
-            height: 24px;
-            margin-right: 10px;
+            width: 60px;
+            height: 30px;
+            margin-right: 15px;
         }
         
         .resbs-toggle-switch input {
@@ -601,29 +627,32 @@ class RESBS_Enhanced_Settings {
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: #ccc;
-            transition: .4s;
-            border-radius: 24px;
+            background: linear-gradient(45deg, #e9ecef, #dee2e6);
+            transition: all 0.4s ease;
+            border-radius: 30px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
         }
         
         .resbs-slider:before {
             position: absolute;
             content: "";
-            height: 18px;
-            width: 18px;
+            height: 24px;
+            width: 24px;
             left: 3px;
             bottom: 3px;
-            background-color: white;
-            transition: .4s;
+            background: white;
+            transition: all 0.4s ease;
             border-radius: 50%;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         }
         
         input:checked + .resbs-slider {
-            background-color: #00a0d2;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
         }
         
         input:checked + .resbs-slider:before {
-            transform: translateX(26px);
+            transform: translateX(30px);
         }
         
         /* Layout Options - Simple Style */
@@ -669,14 +698,90 @@ class RESBS_Enhanced_Settings {
             margin-top: 10px;
         }
         
+        /* Checkbox and Radio Styling - Modern with Clear Indicators */
+        .resbs-checkbox-group {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+        
         .resbs-checkbox-item {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 12px;
+            padding: 15px 20px;
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            min-width: 120px;
         }
         
-        .resbs-checkbox-item input[type="checkbox"] {
+        .resbs-checkbox-item:hover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.05);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+        }
+        
+        .resbs-checkbox-item input[type="checkbox"],
+        .resbs-checkbox-item input[type="radio"] {
             margin: 0;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #667eea;
+        }
+        
+        .resbs-checkbox-item label {
+            margin: 0;
+            font-weight: 500;
+            cursor: pointer;
+            color: #6c757d;
+            font-size: 14px;
+            flex: 1;
+        }
+        
+        .resbs-checkbox-item input[type="checkbox"]:checked + label,
+        .resbs-checkbox-item input[type="radio"]:checked + label {
+            color: #667eea;
+            font-weight: 600;
+        }
+        
+        .resbs-checkbox-item:has(input[type="radio"]:checked) {
+            border-color: #667eea;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
+        }
+        
+        .resbs-checkbox-item:has(input[type="checkbox"]:checked) {
+            border-color: #667eea;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
+        }
+        
+        /* Add a checkmark icon for selected items */
+        .resbs-checkbox-item:has(input[type="radio"]:checked)::after {
+            content: "✓";
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            color: #667eea;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        
+        .resbs-checkbox-item:has(input[type="checkbox"]:checked)::after {
+            content: "✓";
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            color: #667eea;
+            font-weight: bold;
+            font-size: 12px;
         }
         
         /* Page Creation Cards - Simple Style */
@@ -729,39 +834,48 @@ class RESBS_Enhanced_Settings {
             background: #0085ba;
         }
         
-        /* Save Button - WordPress Style */
+        /* Save Button - Modern Professional */
         .resbs-save-button {
-            background: #00a0d2;
+            background: linear-gradient(45deg, #667eea, #764ba2);
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 3px;
+            padding: 15px 30px;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 16px;
             font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         
         .resbs-save-button:hover {
-            background: #0085ba;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
         }
         
-        /* Description Text */
+        /* Description Text - Modern */
         .resbs-description {
             font-size: 13px;
-            color: #666;
-            margin-top: 5px;
+            color: #6c757d;
+            margin-top: 8px;
             font-style: italic;
+            line-height: 1.5;
         }
         
-        /* Pro Tag */
+        /* Pro Tag - Modern */
         .resbs-pro-tag {
-            background: #d63638;
+            background: linear-gradient(45deg, #ff6b35, #f7931e);
             color: white;
-            padding: 2px 6px;
-            border-radius: 3px;
             font-size: 10px;
-            font-weight: bold;
-            margin-left: 8px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            margin-left: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 4px rgba(255, 107, 53, 0.3);
         }
         
         /* Success Messages */
