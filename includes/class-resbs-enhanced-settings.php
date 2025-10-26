@@ -39,7 +39,7 @@ class RESBS_Enhanced_Settings {
             esc_html__('RealEstate Booking Suite', 'realestate-booking-suite'),
             'manage_options',
             'resbs-main-menu',
-            array($this, 'settings_page_callback'),
+            array($this, 'dashboard_callback'),
             'dashicons-building',
             25
         );
@@ -51,7 +51,7 @@ class RESBS_Enhanced_Settings {
             esc_html__('Dashboard', 'realestate-booking-suite'),
             'manage_options',
             'resbs-main-menu',
-            array($this, 'settings_page_callback')
+            array($this, 'dashboard_callback')
         );
         
         // My Properties
@@ -836,28 +836,38 @@ class RESBS_Enhanced_Settings {
                 $('.resbs-nav-link').removeClass('active');
                 $(this).addClass('active');
                 
-                // Show loading spinner
-                $('.resbs-settings-content').html('<div style="text-align: center; padding: 50px;"><div style="display: inline-block; width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #00a0d2; border-radius: 50%; animation: spin 1s linear infinite;"></div><p style="margin-top: 20px;">Loading...</p></div>');
+                // Show loading spinner with minimum time
+                var loadingStartTime = Date.now();
+                $('.resbs-settings-content').html('<div style="text-align: center; padding: 30px;"><div style="display: inline-block; width: 30px; height: 30px; border: 3px solid #f3f3f3; border-top: 3px solid #00a0d2; border-radius: 50%; animation: spin 1s linear infinite;"></div><p style="margin-top: 15px; font-size: 14px;">Loading...</p></div>');
                 
                 // Load tab content via AJAX
-                console.log('Making AJAX request...');
-                
                 $.post(ajaxurl, {
                     action: 'resbs_load_tab_content',
                     tab: tab,
                     nonce: '<?php echo wp_create_nonce('resbs_load_tab_content'); ?>'
                 })
                 .done(function(response) {
-                    console.log('AJAX Success:', response);
+                    var loadingTime = Date.now() - loadingStartTime;
+                    var minLoadingTime = 500; // Minimum 500ms loading time
+                    
                     if (response.success) {
-                        $('.resbs-settings-content').html(response.data);
+                        // Ensure minimum loading time for smooth UX
+                        setTimeout(function() {
+                            $('.resbs-settings-content').html(response.data);
+                        }, Math.max(0, minLoadingTime - loadingTime));
                     } else {
-                        $('.resbs-settings-content').html('<div class="notice notice-error"><p>Error loading tab content.</p></div>');
+                        setTimeout(function() {
+                            $('.resbs-settings-content').html('<div class="notice notice-error"><p>Error loading tab content.</p></div>');
+                        }, Math.max(0, minLoadingTime - loadingTime));
                     }
                 })
                 .fail(function(xhr, status, error) {
-                    console.log('AJAX Failed:', status, error);
-                    $('.resbs-settings-content').html('<div class="notice notice-error"><p>AJAX Error: ' + error + '</p></div>');
+                    var loadingTime = Date.now() - loadingStartTime;
+                    var minLoadingTime = 500;
+                    
+                    setTimeout(function() {
+                        $('.resbs-settings-content').html('<div class="notice notice-error"><p>AJAX Error: ' + error + '</p></div>');
+                    }, Math.max(0, minLoadingTime - loadingTime));
                 });
             });
             
@@ -925,6 +935,131 @@ class RESBS_Enhanced_Settings {
                     <option value="modern" <?php selected(get_option('resbs_email_template'), 'modern'); ?>><?php esc_html_e('Modern Template', 'realestate-booking-suite'); ?></option>
                     <option value="minimal" <?php selected(get_option('resbs_email_template'), 'minimal'); ?>><?php esc_html_e('Minimal Template', 'realestate-booking-suite'); ?></option>
                 </select>
+            </div>
+            
+            <button type="submit" class="resbs-save-button"><?php esc_html_e('SAVE CHANGES', 'realestate-booking-suite'); ?></button>
+        </form>
+        <?php
+    }
+    
+    /**
+     * General settings tab - This was missing!
+     */
+    private function general_settings_tab() {
+        ?>
+        <h2><?php esc_html_e('General', 'realestate-booking-suite'); ?></h2>
+        
+        <?php if (isset($_GET['updated']) && $_GET['updated'] == '1'): ?>
+            <div class="notice notice-success"><p><?php esc_html_e('Settings saved successfully!', 'realestate-booking-suite'); ?></p></div>
+        <?php endif; ?>
+        
+        <form method="post" action="<?php echo admin_url('admin-post.php'); ?>">
+            <?php wp_nonce_field('resbs_enhanced_settings-options'); ?>
+            <input type="hidden" name="action" value="resbs_save_settings">
+            <input type="hidden" name="current_tab" value="general">
+            
+            <div class="resbs-form-group">
+                <label for="resbs_language"><?php esc_html_e('Language', 'realestate-booking-suite'); ?></label>
+                <select id="resbs_language" name="resbs_language">
+                    <option value="en" <?php selected(get_option('resbs_language'), 'en'); ?>><?php esc_html_e('English', 'realestate-booking-suite'); ?></option>
+                    <option value="es" <?php selected(get_option('resbs_language'), 'es'); ?>><?php esc_html_e('Spanish', 'realestate-booking-suite'); ?></option>
+                    <option value="fr" <?php selected(get_option('resbs_language'), 'fr'); ?>><?php esc_html_e('French', 'realestate-booking-suite'); ?></option>
+                    <option value="de" <?php selected(get_option('resbs_language'), 'de'); ?>><?php esc_html_e('German', 'realestate-booking-suite'); ?></option>
+                </select>
+            </div>
+            
+            <div class="resbs-form-group">
+                <label><?php esc_html_e('Units', 'realestate-booking-suite'); ?></label>
+                <div class="resbs-checkbox-group">
+                    <div class="resbs-checkbox-item">
+                        <input type="radio" id="area_sqft" name="resbs_area_unit" value="sqft" <?php checked(get_option('resbs_area_unit'), 'sqft'); ?>>
+                        <label for="area_sqft"><?php esc_html_e('sq ft', 'realestate-booking-suite'); ?></label>
+                    </div>
+                    <div class="resbs-checkbox-item">
+                        <input type="radio" id="area_sqm" name="resbs_area_unit" value="sqm" <?php checked(get_option('resbs_area_unit'), 'sqm'); ?>>
+                        <label for="area_sqm"><?php esc_html_e('sq m', 'realestate-booking-suite'); ?></label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="resbs-form-group">
+                <label><?php esc_html_e('Lot size unit', 'realestate-booking-suite'); ?></label>
+                <div class="resbs-checkbox-group">
+                    <div class="resbs-checkbox-item">
+                        <input type="radio" id="lot_sqft" name="resbs_lot_size_unit" value="sqft" <?php checked(get_option('resbs_lot_size_unit'), 'sqft'); ?>>
+                        <label for="lot_sqft"><?php esc_html_e('sq ft', 'realestate-booking-suite'); ?></label>
+                    </div>
+                    <div class="resbs-checkbox-item">
+                        <input type="radio" id="lot_sqm" name="resbs_lot_size_unit" value="sqm" <?php checked(get_option('resbs_lot_size_unit'), 'sqm'); ?>>
+                        <label for="lot_sqm"><?php esc_html_e('sq m', 'realestate-booking-suite'); ?></label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="resbs-form-group">
+                <label for="resbs_date_format"><?php esc_html_e('Date format', 'realestate-booking-suite'); ?></label>
+                <input type="text" id="resbs_date_format" name="resbs_date_format" value="<?php echo esc_attr(get_option('resbs_date_format', 'm/d/Y')); ?>" class="regular-text">
+            </div>
+            
+            <div class="resbs-form-group">
+                <label><?php esc_html_e('Time format', 'realestate-booking-suite'); ?></label>
+                <div class="resbs-checkbox-group">
+                    <div class="resbs-checkbox-item">
+                        <input type="radio" id="time_12h" name="resbs_time_format" value="12h" <?php checked(get_option('resbs_time_format'), '12h'); ?>>
+                        <label for="time_12h"><?php esc_html_e('12h 12-hour clock', 'realestate-booking-suite'); ?></label>
+                    </div>
+                    <div class="resbs-checkbox-item">
+                        <input type="radio" id="time_24h" name="resbs_time_format" value="24h" <?php checked(get_option('resbs_time_format'), '24h'); ?>>
+                        <label for="time_24h"><?php esc_html_e('24h 24-hour clock', 'realestate-booking-suite'); ?></label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="resbs-form-group">
+                <label>
+                    <div class="resbs-toggle-switch">
+                        <input type="checkbox" name="resbs_enable_white_label" value="1" <?php checked(get_option('resbs_enable_white_label'), 1); ?>>
+                        <span class="resbs-slider"></span>
+                    </div>
+                    <?php esc_html_e('Enable white label', 'realestate-booking-suite'); ?>
+                    <span class="resbs-pro-tag">PRO</span>
+                </label>
+                <p class="resbs-description"><?php esc_html_e('Enable this option if you want to remove RealEstate Booking Suite logo and "Powered by" link on plugin pages.', 'realestate-booking-suite'); ?></p>
+            </div>
+            
+            <div class="resbs-form-group">
+                <label>
+                    <div class="resbs-toggle-switch">
+                        <input type="checkbox" name="resbs_enable_rest_support" value="1" <?php checked(get_option('resbs_enable_rest_support'), 1); ?>>
+                        <span class="resbs-slider"></span>
+                    </div>
+                    <?php esc_html_e('Enable REST Support', 'realestate-booking-suite'); ?>
+                </label>
+                <p class="resbs-description"><?php esc_html_e('Please enable REST support if you need to use Gutenberg or pull your listings via wp api.', 'realestate-booking-suite'); ?></p>
+            </div>
+            
+            <div class="resbs-form-group">
+                <label for="resbs_main_color"><?php esc_html_e('Main color', 'realestate-booking-suite'); ?></label>
+                <input type="color" id="resbs_main_color" name="resbs_main_color" value="<?php echo esc_attr(get_option('resbs_main_color', '#0073aa')); ?>">
+                <button type="button" class="button"><?php esc_html_e('Reset', 'realestate-booking-suite'); ?></button>
+                <p class="resbs-description"><?php esc_html_e('For large buttons like Search, Request info, etc.', 'realestate-booking-suite'); ?></p>
+            </div>
+            
+            <div class="resbs-form-group">
+                <label for="resbs_secondary_color"><?php esc_html_e('Secondary color', 'realestate-booking-suite'); ?></label>
+                <input type="color" id="resbs_secondary_color" name="resbs_secondary_color" value="<?php echo esc_attr(get_option('resbs_secondary_color', '#28a745')); ?>">
+                <button type="button" class="button"><?php esc_html_e('Reset', 'realestate-booking-suite'); ?></button>
+                <p class="resbs-description"><?php esc_html_e('For smaller buttons like Search on results page, Contact, etc.', 'realestate-booking-suite'); ?></p>
+            </div>
+            
+            <div class="resbs-form-group">
+                <label>
+                    <div class="resbs-toggle-switch">
+                        <input type="checkbox" name="resbs_disable_tel_country_code" value="1" <?php checked(get_option('resbs_disable_tel_country_code'), 1); ?>>
+                        <span class="resbs-slider"></span>
+                    </div>
+                    <?php esc_html_e('Disable tel country code', 'realestate-booking-suite'); ?>
+                </label>
             </div>
             
             <button type="submit" class="resbs-save-button"><?php esc_html_e('SAVE CHANGES', 'realestate-booking-suite'); ?></button>
@@ -1078,131 +1213,6 @@ class RESBS_Enhanced_Settings {
                 <label for="resbs_currency_api_key"><?php esc_html_e('Currency API Key', 'realestate-booking-suite'); ?></label>
                 <input type="text" id="resbs_currency_api_key" name="resbs_currency_api_key" value="<?php echo esc_attr(get_option('resbs_currency_api_key')); ?>" class="regular-text">
                 <p class="resbs-description"><?php esc_html_e('Get your free API key from', 'realestate-booking-suite'); ?> <a href="https://exchangerate-api.com/" target="_blank"><?php esc_html_e('ExchangeRate-API', 'realestate-booking-suite'); ?></a></p>
-            </div>
-            
-            <button type="submit" class="resbs-save-button"><?php esc_html_e('SAVE CHANGES', 'realestate-booking-suite'); ?></button>
-        </form>
-        <?php
-    }
-    
-    /**
-     * General settings tab
-     */
-    private function general_settings_tab() {
-        ?>
-        <h2><?php esc_html_e('General', 'realestate-booking-suite'); ?></h2>
-        
-        <form method="post" action="<?php echo admin_url('admin-post.php'); ?>">
-            <?php wp_nonce_field('resbs_enhanced_settings-options'); ?>
-            <input type="hidden" name="action" value="resbs_save_settings">
-            <input type="hidden" name="current_tab" value="login-signup">
-            
-            <div class="resbs-form-group">
-                <label for="resbs_language"><?php esc_html_e('Language', 'realestate-booking-suite'); ?></label>
-                <select id="resbs_language" name="resbs_language">
-                    <option value=""><?php esc_html_e('Choose language', 'realestate-booking-suite'); ?></option>
-                    <option value="en" <?php selected(get_option('resbs_language'), 'en'); ?>><?php esc_html_e('English', 'realestate-booking-suite'); ?></option>
-                    <option value="es" <?php selected(get_option('resbs_language'), 'es'); ?>><?php esc_html_e('Spanish', 'realestate-booking-suite'); ?></option>
-                    <option value="fr" <?php selected(get_option('resbs_language'), 'fr'); ?>><?php esc_html_e('French', 'realestate-booking-suite'); ?></option>
-                    <option value="de" <?php selected(get_option('resbs_language'), 'de'); ?>><?php esc_html_e('German', 'realestate-booking-suite'); ?></option>
-                </select>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label><?php esc_html_e('Units', 'realestate-booking-suite'); ?></label>
-                <div style="display: flex; gap: 20px;">
-                    <div>
-                        <label for="resbs_area_unit"><?php esc_html_e('Area unit', 'realestate-booking-suite'); ?></label>
-                        <select id="resbs_area_unit" name="resbs_area_unit">
-                            <option value="sq ft" <?php selected(get_option('resbs_area_unit'), 'sq ft'); ?>><?php esc_html_e('sq ft', 'realestate-booking-suite'); ?></option>
-                            <option value="sq m" <?php selected(get_option('resbs_area_unit'), 'sq m'); ?>><?php esc_html_e('sq m', 'realestate-booking-suite'); ?></option>
-                            <option value="acres" <?php selected(get_option('resbs_area_unit'), 'acres'); ?>><?php esc_html_e('acres', 'realestate-booking-suite'); ?></option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="resbs_lot_size_unit"><?php esc_html_e('Lot size unit', 'realestate-booking-suite'); ?></label>
-                        <select id="resbs_lot_size_unit" name="resbs_lot_size_unit">
-                            <option value="sq ft" <?php selected(get_option('resbs_lot_size_unit'), 'sq ft'); ?>><?php esc_html_e('sq ft', 'realestate-booking-suite'); ?></option>
-                            <option value="sq m" <?php selected(get_option('resbs_lot_size_unit'), 'sq m'); ?>><?php esc_html_e('sq m', 'realestate-booking-suite'); ?></option>
-                            <option value="acres" <?php selected(get_option('resbs_lot_size_unit'), 'acres'); ?>><?php esc_html_e('acres', 'realestate-booking-suite'); ?></option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label><?php esc_html_e('Currency', 'realestate-booking-suite'); ?></label>
-                <p><?php esc_html_e('Configure your currency', 'realestate-booking-suite'); ?> <a href="#" target="_blank"><?php esc_html_e('here', 'realestate-booking-suite'); ?></a></p>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label for="resbs_date_format"><?php esc_html_e('Date format', 'realestate-booking-suite'); ?></label>
-                <select id="resbs_date_format" name="resbs_date_format">
-                    <option value="m/d/Y" <?php selected(get_option('resbs_date_format'), 'm/d/Y'); ?>>10/26/25</option>
-                    <option value="d/m/Y" <?php selected(get_option('resbs_date_format'), 'd/m/Y'); ?>>26/10/25</option>
-                    <option value="Y-m-d" <?php selected(get_option('resbs_date_format'), 'Y-m-d'); ?>>2025-10-26</option>
-                </select>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label><?php esc_html_e('Time format', 'realestate-booking-suite'); ?></label>
-                <div class="resbs-layout-options">
-                    <div class="resbs-layout-option">
-                        <input type="radio" id="time_12" name="resbs_time_format" value="12" <?php checked(get_option('resbs_time_format'), '12'); ?>>
-                        <div class="resbs-layout-preview">12h</div>
-                        <label for="time_12"><?php esc_html_e('12-hour clock', 'realestate-booking-suite'); ?></label>
-                    </div>
-                    <div class="resbs-layout-option">
-                        <input type="radio" id="time_24" name="resbs_time_format" value="24" <?php checked(get_option('resbs_time_format'), '24'); ?>>
-                        <div class="resbs-layout-preview">24h</div>
-                        <label for="time_24"><?php esc_html_e('24-hour clock', 'realestate-booking-suite'); ?></label>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label>
-                    <input type="checkbox" name="resbs_enable_white_label" value="1" <?php checked(get_option('resbs_enable_white_label'), 1); ?>>
-                    <?php esc_html_e('Enable white label', 'realestate-booking-suite'); ?>
-                    <span class="resbs-pro-tag">PRO</span>
-                </label>
-                <p class="resbs-description"><?php esc_html_e('Enable this option if you want to remove RealEstate Booking Suite logo and "Powered by" link on plugin pages.', 'realestate-booking-suite'); ?></p>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label>
-                    <input type="checkbox" name="resbs_enable_rest_support" value="1" <?php checked(get_option('resbs_enable_rest_support'), 1); ?>>
-                    <?php esc_html_e('Enable REST Support', 'realestate-booking-suite'); ?>
-                </label>
-                <p class="resbs-description"><?php esc_html_e('Please enable REST support if you need to use Gutenberg or pull your listings via wp api.', 'realestate-booking-suite'); ?></p>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label for="resbs_logo_image"><?php esc_html_e('Logo image for admin login page', 'realestate-booking-suite'); ?></label>
-                <input type="button" class="button" value="<?php esc_html_e('Upload image', 'realestate-booking-suite'); ?>" onclick="document.getElementById('resbs_logo_image').click();">
-                <input type="file" id="resbs_logo_image" name="resbs_logo_image" style="display: none;">
-                <p class="resbs-description"><?php esc_html_e('Maximum file size - 2MB. Allowed file types: JPG, PNG, GIF.', 'realestate-booking-suite'); ?></p>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label for="resbs_main_color"><?php esc_html_e('Main color', 'realestate-booking-suite'); ?></label>
-                <input type="color" id="resbs_main_color" name="resbs_main_color" value="<?php echo esc_attr(get_option('resbs_main_color', '#ff6b35')); ?>">
-                <button type="button" class="button"><?php esc_html_e('Reset', 'realestate-booking-suite'); ?></button>
-                <p class="resbs-description"><?php esc_html_e('For large buttons like Search, Request info, etc.', 'realestate-booking-suite'); ?></p>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label for="resbs_secondary_color"><?php esc_html_e('Secondary color', 'realestate-booking-suite'); ?></label>
-                <input type="color" id="resbs_secondary_color" name="resbs_secondary_color" value="<?php echo esc_attr(get_option('resbs_secondary_color', '#28a745')); ?>">
-                <button type="button" class="button"><?php esc_html_e('Reset', 'realestate-booking-suite'); ?></button>
-                <p class="resbs-description"><?php esc_html_e('For smaller buttons like Search on results page, Contact, etc.', 'realestate-booking-suite'); ?></p>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label>
-                    <input type="checkbox" name="resbs_disable_tel_country_code" value="1" <?php checked(get_option('resbs_disable_tel_country_code'), 1); ?>>
-                    <?php esc_html_e('Disable tel country code', 'realestate-booking-suite'); ?>
-                </label>
             </div>
             
             <button type="submit" class="resbs-save-button"><?php esc_html_e('SAVE CHANGES', 'realestate-booking-suite'); ?></button>
@@ -2986,22 +2996,15 @@ class RESBS_Enhanced_Settings {
      * Handle AJAX tab content loading
      */
     public function handle_load_tab_content() {
-        // Debug logging
-        error_log('RESBS AJAX: handle_load_tab_content called');
-        error_log('RESBS AJAX: POST data: ' . print_r($_POST, true));
-        
         if (!current_user_can('manage_options')) {
-            error_log('RESBS AJAX: Unauthorized user');
             wp_die('Unauthorized');
         }
         
         if (!wp_verify_nonce($_POST['nonce'], 'resbs_load_tab_content')) {
-            error_log('RESBS AJAX: Nonce verification failed');
             wp_die('Security check failed');
         }
         
         $tab = sanitize_text_field($_POST['tab']);
-        error_log('RESBS AJAX: Loading tab: ' . $tab);
         
         ob_start();
         switch ($tab) {
@@ -3052,9 +3055,6 @@ class RESBS_Enhanced_Settings {
         }
         $content = ob_get_clean();
         
-        error_log('RESBS AJAX: Content length: ' . strlen($content));
-        error_log('RESBS AJAX: Sending success response');
-        
         wp_send_json_success($content);
     }
     
@@ -3067,6 +3067,12 @@ class RESBS_Enhanced_Settings {
     }
     
     // Placeholder methods for other menu items
+    public function dashboard_callback() {
+        echo '<h1>' . esc_html__('Dashboard', 'realestate-booking-suite') . '</h1>';
+        echo '<p>' . esc_html__('Welcome to RealEstate Booking Suite Dashboard!', 'realestate-booking-suite') . '</p>';
+        echo '<p>' . esc_html__('Use the Settings menu to configure your plugin.', 'realestate-booking-suite') . '</p>';
+    }
+    
     public function data_manager_callback() {
         echo '<h1>' . esc_html__('Data Manager', 'realestate-booking-suite') . '</h1>';
         echo '<p>' . esc_html__('Data manager functionality will be implemented here.', 'realestate-booking-suite') . '</p>';
@@ -3082,6 +3088,3 @@ class RESBS_Enhanced_Settings {
         echo '<p>' . esc_html__('Demo content functionality will be implemented here.', 'realestate-booking-suite') . '</p>';
     }
 }
-
-// Initialize the enhanced settings
-new RESBS_Enhanced_Settings();
