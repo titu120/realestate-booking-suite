@@ -1685,36 +1685,7 @@
                     </div>
                 </div>
 
-                <!-- Quick Stats -->
-                <div class="stats-card">
-                    <h3 class="stats-title">Property Insights</h3>
-                    <div class="stats-list">
-                        <div class="stat-item">
-                            <span class="stat-label">
-                                <i class="fas fa-eye mr-2"></i>Views
-                            </span>
-                            <span class="stat-value">1,234</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">
-                                <i class="fas fa-heart mr-2"></i>Favorites
-                            </span>
-                            <span class="stat-value">89</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">
-                                <i class="fas fa-share-alt mr-2"></i>Shares
-                            </span>
-                            <span class="stat-value">34</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">
-                                <i class="fas fa-clock mr-2"></i>Listed
-                            </span>
-                            <span class="stat-value">5 days ago</span>
-                        </div>
-                    </div>
-                </div>
+                
             </div>
         </div>
     </div>
