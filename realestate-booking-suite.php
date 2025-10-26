@@ -124,4 +124,7 @@ require_once RESBS_PATH . 'includes/class-resbs-email-handler.php';
 require_once RESBS_PATH . 'includes/class-resbs-enhanced-settings.php';
 new RESBS_Enhanced_Settings();
 
+// Load simple archive handler
+require_once RESBS_PATH . 'includes/class-resbs-simple-archive.php';
+
 

@@ -1,0 +1,727 @@
+/**
+ * Archive Styles for Real Estate Properties
+ * Provides full control over archive display
+ * 
+ * @package RealEstate_Booking_Suite
+ */
+
+/* Archive Wrapper */
+.resbs-archive-wrapper {
+    padding: 20px 0;
+    background-color: #f8f9fa;
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
+/* Archive Header */
+.resbs-archive-header {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.resbs-archive-title h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin: 0 0 10px 0;
+}
+
+.resbs-archive-description {
+    color: #6c757d;
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+/* Archive Controls */
+.resbs-archive-controls {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.resbs-view-toggle {
+    display: flex;
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 4px;
+}
+
+.resbs-view-btn {
+    padding: 10px 16px;
+    border: none;
+    background: transparent;
+    color: #6c757d;
+    text-decoration: none;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+}
+
+.resbs-view-btn:hover,
+.resbs-view-btn.active {
+    background: #007bff;
+    color: white;
+    text-decoration: none;
+}
+
+.resbs-sort-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.resbs-sort-controls label {
+    font-weight: 500;
+    color: #495057;
+}
+
+.resbs-sort-select {
+    padding: 8px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    background: white;
+    font-size: 14px;
+    min-width: 150px;
+}
+
+/* Archive Filters */
+.resbs-archive-filters {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+}
+
+.resbs-filter-form {
+    width: 100%;
+}
+
+.resbs-filter-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    align-items: end;
+}
+
+.resbs-filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.resbs-filter-group label {
+    font-weight: 500;
+    color: #495057;
+    font-size: 14px;
+}
+
+.resbs-filter-group input,
+.resbs-filter-group select {
+    padding: 10px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+}
+
+.resbs-filter-group input:focus,
+.resbs-filter-group select:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.resbs-price-range {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.resbs-price-range input {
+    flex: 1;
+}
+
+.resbs-range-separator {
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.resbs-filter-actions {
+    display: flex;
+    gap: 10px;
+    align-items: end;
+}
+
+.resbs-filter-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.resbs-btn-primary {
+    background: #007bff;
+    color: white;
+}
+
+.resbs-btn-primary:hover {
+    background: #0056b3;
+}
+
+.resbs-btn-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.resbs-btn-secondary:hover {
+    background: #545b62;
+}
+
+/* Archive Content */
+.resbs-archive-content {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+/* Results Info */
+.resbs-results-info {
+    padding: 20px 25px;
+    border-bottom: 1px solid #e9ecef;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.resbs-results-count {
+    font-weight: 600;
+    color: #495057;
+    font-size: 16px;
+}
+
+.resbs-pagination-info {
+    color: #6c757d;
+    font-size: 14px;
+}
+
+/* Property Grid */
+.resbs-property-grid {
+    padding: 25px;
+    display: grid;
+    gap: 25px;
+}
+
+.resbs-layout-grid .resbs-property-grid {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+}
+
+.resbs-layout-list .resbs-property-grid {
+    grid-template-columns: 1fr;
+}
+
+.resbs-layout-map .resbs-property-grid {
+    grid-template-columns: 1fr;
+}
+
+/* Property Card */
+.resbs-property-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.resbs-property-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* List Layout Specific */
+.resbs-layout-list .resbs-property-card {
+    display: flex;
+    height: 200px;
+}
+
+.resbs-layout-list .resbs-property-image {
+    width: 300px;
+    height: 200px;
+    flex-shrink: 0;
+}
+
+.resbs-layout-list .resbs-property-content {
+    flex: 1;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+/* Property Image */
+.resbs-property-image {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+}
+
+.resbs-property-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.resbs-property-card:hover .resbs-property-image img {
+    transform: scale(1.05);
+}
+
+.resbs-no-image {
+    width: 100%;
+    height: 100%;
+    background: #f8f9fa;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #6c757d;
+    font-size: 14px;
+}
+
+.resbs-no-image i {
+    font-size: 2rem;
+    margin-bottom: 8px;
+}
+
+/* Property Badges */
+.resbs-property-badges {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 2;
+}
+
+.resbs-featured-badge {
+    background: #ff6b35;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.resbs-status-badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.resbs-status-sale {
+    background: #28a745;
+    color: white;
+}
+
+.resbs-status-rent {
+    background: #007bff;
+    color: white;
+}
+
+.resbs-status-sold {
+    background: #6c757d;
+    color: white;
+}
+
+.resbs-status-rented {
+    background: #ffc107;
+    color: #212529;
+}
+
+/* Property Buttons */
+.resbs-favorite-btn,
+.resbs-quick-view-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    width: 40px;
+    height: 40px;
+    background: white;
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    z-index: 2;
+}
+
+.resbs-quick-view-btn {
+    top: 65px;
+}
+
+.resbs-favorite-btn:hover,
+.resbs-quick-view-btn:hover {
+    background: #007bff;
+    color: white;
+    transform: scale(1.1);
+}
+
+.resbs-favorite-btn.favorited {
+    background: #dc3545;
+    color: white;
+}
+
+/* Property Content */
+.resbs-property-content {
+    padding: 20px;
+}
+
+.resbs-property-header {
+    margin-bottom: 15px;
+}
+
+.resbs-property-title {
+    margin: 0 0 8px 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+.resbs-property-title a {
+    color: #2c3e50;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.resbs-property-title a:hover {
+    color: #007bff;
+}
+
+.resbs-property-location {
+    color: #6c757d;
+    font-size: 14px;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.resbs-property-price {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #28a745;
+    margin-bottom: 15px;
+}
+
+/* Property Details */
+.resbs-property-details {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+}
+
+.resbs-property-detail {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: #6c757d;
+    font-size: 14px;
+}
+
+.resbs-property-detail i {
+    color: #007bff;
+}
+
+/* Property Type */
+.resbs-property-type {
+    margin-bottom: 15px;
+}
+
+.resbs-type-badge {
+    background: #e9ecef;
+    color: #495057;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+/* Property Actions */
+.resbs-property-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.resbs-view-details-btn {
+    flex: 1;
+    background: #007bff;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.resbs-view-details-btn:hover {
+    background: #0056b3;
+    color: white;
+    text-decoration: none;
+}
+
+.resbs-contact-agent-btn {
+    background: #28a745;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.resbs-contact-agent-btn:hover {
+    background: #1e7e34;
+}
+
+/* Property Meta (List View) */
+.resbs-property-meta {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #e9ecef;
+}
+
+.resbs-property-excerpt {
+    color: #6c757d;
+    font-size: 14px;
+    line-height: 1.5;
+    margin-bottom: 10px;
+}
+
+.resbs-property-features {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.resbs-feature-tag {
+    background: #f8f9fa;
+    color: #495057;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* No Properties */
+.resbs-no-properties {
+    padding: 60px 20px;
+    text-align: center;
+}
+
+.resbs-no-properties-content i {
+    font-size: 4rem;
+    color: #6c757d;
+    margin-bottom: 20px;
+}
+
+.resbs-no-properties-content h3 {
+    font-size: 1.5rem;
+    color: #495057;
+    margin-bottom: 10px;
+}
+
+.resbs-no-properties-content p {
+    color: #6c757d;
+    margin-bottom: 20px;
+}
+
+/* Pagination */
+.resbs-pagination-wrapper {
+    padding: 25px;
+    border-top: 1px solid #e9ecef;
+    display: flex;
+    justify-content: center;
+}
+
+.resbs-pagination-wrapper .page-numbers {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+.resbs-pagination-wrapper .page-numbers a,
+.resbs-pagination-wrapper .page-numbers span {
+    padding: 8px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    text-decoration: none;
+    color: #495057;
+    transition: all 0.3s ease;
+}
+
+.resbs-pagination-wrapper .page-numbers a:hover,
+.resbs-pagination-wrapper .page-numbers .current {
+    background: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+/* Map Container */
+.resbs-map-container {
+    height: 500px;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-top: 30px;
+}
+
+.resbs-property-map {
+    width: 100%;
+    height: 100%;
+    background: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6c757d;
+    font-size: 18px;
+}
+
+/* Loading Overlay */
+.resbs-loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.resbs-loading-spinner {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.resbs-loading-spinner i {
+    font-size: 2rem;
+    color: #007bff;
+    margin-bottom: 15px;
+}
+
+.resbs-loading-spinner p {
+    margin: 0;
+    color: #495057;
+    font-weight: 500;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .resbs-archive-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .resbs-archive-controls {
+        justify-content: space-between;
+    }
+    
+    .resbs-filter-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .resbs-property-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .resbs-layout-list .resbs-property-card {
+        flex-direction: column;
+        height: auto;
+    }
+    
+    .resbs-layout-list .resbs-property-image {
+        width: 100%;
+        height: 200px;
+    }
+    
+    .resbs-property-actions {
+        flex-direction: column;
+    }
+    
+    .resbs-results-info {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+@media (max-width: 480px) {
+    .resbs-archive-title h1 {
+        font-size: 2rem;
+    }
+    
+    .resbs-view-toggle {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .resbs-view-btn {
+        flex: 1;
+        justify-content: center;
+    }
+    
+    .resbs-filter-actions {
+        flex-direction: column;
+    }
+    
+    .resbs-filter-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}

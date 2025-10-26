@@ -176,6 +176,7 @@ class RESBS_Enhanced_Settings {
         register_setting('resbs_enhanced_settings', 'resbs_show_date_added');
         
         // Archive Page Settings
+        register_setting('resbs_enhanced_settings', 'resbs_enable_default_archive_template');
         register_setting('resbs_enhanced_settings', 'resbs_archive_layout');
         register_setting('resbs_enhanced_settings', 'resbs_archive_grid_columns');
         register_setting('resbs_enhanced_settings', 'resbs_archive_items_per_page');
@@ -189,6 +190,36 @@ class RESBS_Enhanced_Settings {
         register_setting('resbs_enhanced_settings', 'resbs_archive_excerpt_length');
         register_setting('resbs_enhanced_settings', 'resbs_archive_show_meta');
         register_setting('resbs_enhanced_settings', 'resbs_archive_meta_fields');
+        
+        // Additional Archive Settings
+        register_setting('resbs_enhanced_settings', 'resbs_archive_title');
+        register_setting('resbs_enhanced_settings', 'resbs_archive_description');
+        register_setting('resbs_enhanced_settings', 'resbs_default_archive_layout');
+        register_setting('resbs_enhanced_settings', 'resbs_grid_columns');
+        register_setting('resbs_enhanced_settings', 'resbs_properties_per_page');
+        register_setting('resbs_enhanced_settings', 'resbs_show_view_toggle');
+        register_setting('resbs_enhanced_settings', 'resbs_show_sorting');
+        register_setting('resbs_enhanced_settings', 'resbs_show_filters');
+        register_setting('resbs_enhanced_settings', 'resbs_show_search');
+        register_setting('resbs_enhanced_settings', 'resbs_show_pagination');
+        register_setting('resbs_enhanced_settings', 'resbs_show_property_image');
+        register_setting('resbs_enhanced_settings', 'resbs_show_property_price');
+        register_setting('resbs_enhanced_settings', 'resbs_show_property_title');
+        register_setting('resbs_enhanced_settings', 'resbs_show_property_location');
+        register_setting('resbs_enhanced_settings', 'resbs_show_property_details');
+        register_setting('resbs_enhanced_settings', 'resbs_show_property_type');
+        register_setting('resbs_enhanced_settings', 'resbs_show_property_status');
+        register_setting('resbs_enhanced_settings', 'resbs_show_favorite_button');
+        register_setting('resbs_enhanced_settings', 'resbs_show_quick_view');
+        register_setting('resbs_enhanced_settings', 'resbs_default_sort');
+        register_setting('resbs_enhanced_settings', 'resbs_filter_price');
+        register_setting('resbs_enhanced_settings', 'resbs_filter_type');
+        register_setting('resbs_enhanced_settings', 'resbs_filter_bedrooms');
+        register_setting('resbs_enhanced_settings', 'resbs_filter_bathrooms');
+        register_setting('resbs_enhanced_settings', 'resbs_filter_status');
+        register_setting('resbs_enhanced_settings', 'resbs_filter_area');
+        register_setting('resbs_enhanced_settings', 'resbs_archive_meta_description');
+        register_setting('resbs_enhanced_settings', 'resbs_archive_meta_keywords');
         
         // Listing Search Settings
         register_setting('resbs_enhanced_settings', 'resbs_address_field_placeholder');
@@ -1306,6 +1337,14 @@ class RESBS_Enhanced_Settings {
                         <label for="archive_list"><?php esc_html_e('List layout', 'realestate-booking-suite'); ?></label>
                     </div>
                 </div>
+            </div>
+            
+            <div class="resbs-form-group">
+                <label>
+                    <input type="checkbox" name="resbs_enable_default_archive_template" value="1" <?php checked(get_option('resbs_enable_default_archive_template', true), 1); ?>>
+                    <?php esc_html_e('Use Plugin Archive Template', 'realestate-booking-suite'); ?>
+                </label>
+                <p class="resbs-description"><?php esc_html_e('Override theme archive pages with plugin\'s custom archive template', 'realestate-booking-suite'); ?></p>
             </div>
             
             <div class="resbs-form-group">
@@ -2437,6 +2476,7 @@ class RESBS_Enhanced_Settings {
      */
     private function save_archive_settings() {
         $settings = array(
+            'resbs_enable_default_archive_template',
             'resbs_archive_layout',
             'resbs_archive_grid_columns',
             'resbs_archive_items_per_page',
@@ -2448,7 +2488,35 @@ class RESBS_Enhanced_Settings {
             'resbs_archive_image_size',
             'resbs_archive_show_excerpt',
             'resbs_archive_excerpt_length',
-            'resbs_archive_show_meta'
+            'resbs_archive_show_meta',
+            'resbs_archive_title',
+            'resbs_archive_description',
+            'resbs_default_archive_layout',
+            'resbs_grid_columns',
+            'resbs_properties_per_page',
+            'resbs_show_view_toggle',
+            'resbs_show_sorting',
+            'resbs_show_filters',
+            'resbs_show_search',
+            'resbs_show_pagination',
+            'resbs_show_property_image',
+            'resbs_show_property_price',
+            'resbs_show_property_title',
+            'resbs_show_property_location',
+            'resbs_show_property_details',
+            'resbs_show_property_type',
+            'resbs_show_property_status',
+            'resbs_show_favorite_button',
+            'resbs_show_quick_view',
+            'resbs_default_sort',
+            'resbs_filter_price',
+            'resbs_filter_type',
+            'resbs_filter_bedrooms',
+            'resbs_filter_bathrooms',
+            'resbs_filter_status',
+            'resbs_filter_area',
+            'resbs_archive_meta_description',
+            'resbs_archive_meta_keywords'
         );
         
         foreach ($settings as $setting) {
@@ -2463,6 +2531,8 @@ class RESBS_Enhanced_Settings {
         // Handle array settings
         if (isset($_POST['resbs_archive_meta_fields'])) {
             update_option('resbs_archive_meta_fields', array_map('sanitize_text_field', $_POST['resbs_archive_meta_fields']));
+        } else {
+            update_option('resbs_archive_meta_fields', array());
         }
     }
     
