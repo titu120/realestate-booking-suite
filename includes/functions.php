@@ -22,9 +22,9 @@ new RESBS_Property_Metabox();
 require_once RESBS_PATH . 'includes/class-resbs-metabox-ajax.php';
 new RESBS_Metabox_AJAX();
 
-// Load Settings class
-require_once RESBS_PATH . 'includes/class-resbs-settings.php';
-new RESBS_Settings();
+// DISABLED: Old settings class - replaced with enhanced settings
+// require_once RESBS_PATH . 'includes/class-resbs-settings.php';
+// new RESBS_Settings();
 
 // Load Admin Dashboard class
 require_once RESBS_PATH . 'includes/class-resbs-admin-dashboard.php';

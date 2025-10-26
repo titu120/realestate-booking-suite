@@ -252,6 +252,105 @@ class RESBS_Enhanced_Settings {
         wp_enqueue_script('wp-color-picker');
         wp_enqueue_script('jquery-ui-tabs');
         wp_enqueue_style('jquery-ui-tabs');
+        
+        // Add custom JavaScript for enhanced settings
+        wp_add_inline_script('jquery', '
+        jQuery(document).ready(function($) {
+            // Toggle switch functionality
+            $(".resbs-toggle-switch input").change(function() {
+                var slider = $(this).siblings(".resbs-slider");
+                if ($(this).is(":checked")) {
+                    slider.css("background-color", "#007cba");
+                } else {
+                    slider.css("background-color", "#ccc");
+                }
+            });
+            
+            // Layout option selection
+            $(".resbs-layout-option").click(function() {
+                $(this).siblings().removeClass("selected");
+                $(this).addClass("selected");
+                $(this).find("input[type=radio]").prop("checked", true);
+            });
+            
+            // Color picker initialization
+            if ($.fn.wpColorPicker) {
+                $("input[type=color]").wpColorPicker();
+            }
+            
+            // Create page functionality
+            $(".resbs-create-page-btn").click(function() {
+                var pageType = $(this).closest(".resbs-page-creation-card").find("p").text().trim();
+                var pageTitle = pageType;
+                var pageContent = "This is a " + pageType.toLowerCase() + " page created by RealEstate Booking Suite.";
+                
+                $.ajax({
+                    url: ajaxurl,
+                    type: "POST",
+                    data: {
+                        action: "resbs_create_page",
+                        page_type: pageType.toLowerCase().replace(/\s+/g, "_"),
+                        page_title: pageTitle,
+                        page_content: pageContent,
+                        nonce: "' . wp_create_nonce('resbs_create_page') . '"
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            alert("Page created successfully! Page ID: " + response.data.page_id);
+                        } else {
+                            alert("Failed to create page: " + response.data);
+                        }
+                    },
+                    error: function() {
+                        alert("Error creating page. Please try again.");
+                    }
+                });
+            });
+            
+            // Form validation
+            $("form").submit(function(e) {
+                var form = $(this);
+                var hasErrors = false;
+                
+                // Check required fields
+                form.find("input[required], select[required], textarea[required]").each(function() {
+                    if (!$(this).val()) {
+                        $(this).addClass("error");
+                        hasErrors = true;
+                    } else {
+                        $(this).removeClass("error");
+                    }
+                });
+                
+                if (hasErrors) {
+                    e.preventDefault();
+                    alert("Please fill in all required fields.");
+                    return false;
+                }
+            });
+        });
+        ');
+        
+        // Add custom CSS for enhanced settings
+        wp_add_inline_style('wp-admin', '
+        .resbs-enhanced-settings .error {
+            border-color: #dc3232 !important;
+            box-shadow: 0 0 2px rgba(220, 50, 50, 0.8) !important;
+        }
+        .resbs-enhanced-settings .notice {
+            margin: 20px 0;
+        }
+        .resbs-enhanced-settings .resbs-layout-option {
+            cursor: pointer;
+        }
+        .resbs-enhanced-settings .resbs-layout-option:hover {
+            border-color: #007cba;
+        }
+        .resbs-enhanced-settings .resbs-layout-option.selected {
+            border-color: #007cba;
+            background: #f0f8ff;
+        }
+        ');
     }
     
     /**
@@ -287,6 +386,9 @@ class RESBS_Enhanced_Settings {
                             <li><a href="?page=resbs-settings&tab=sharing" class="<?php echo $this->current_tab === 'sharing' ? 'active' : ''; ?>"><?php esc_html_e('Sharing', 'realestate-booking-suite'); ?></a></li>
                             <li><a href="?page=resbs-settings&tab=url-slug" class="<?php echo $this->current_tab === 'url-slug' ? 'active' : ''; ?>"><?php esc_html_e('URL Slug', 'realestate-booking-suite'); ?></a></li>
                             <li><a href="?page=resbs-settings&tab=privacy-terms" class="<?php echo $this->current_tab === 'privacy-terms' ? 'active' : ''; ?>"><?php esc_html_e('Privacy Policy & Terms of use', 'realestate-booking-suite'); ?></a></li>
+                            <li><a href="?page=resbs-settings&tab=email" class="<?php echo $this->current_tab === 'email' ? 'active' : ''; ?>"><?php esc_html_e('Email Settings', 'realestate-booking-suite'); ?></a></li>
+                            <li><a href="?page=resbs-settings&tab=appearance" class="<?php echo $this->current_tab === 'appearance' ? 'active' : ''; ?>"><?php esc_html_e('Appearance', 'realestate-booking-suite'); ?></a></li>
+                            <li><a href="?page=resbs-settings&tab=currency" class="<?php echo $this->current_tab === 'currency' ? 'active' : ''; ?>"><?php esc_html_e('Currency', 'realestate-booking-suite'); ?></a></li>
                         </ul>
                     </div>
                 </div>
@@ -329,6 +431,15 @@ class RESBS_Enhanced_Settings {
                             break;
                         case 'privacy-terms':
                             $this->privacy_terms_settings_tab();
+                            break;
+                        case 'email':
+                            $this->email_settings_tab();
+                            break;
+                        case 'appearance':
+                            $this->appearance_settings_tab();
+                            break;
+                        case 'currency':
+                            $this->currency_settings_tab();
                             break;
                         default:
                             $this->general_settings_tab();
@@ -673,14 +784,234 @@ class RESBS_Enhanced_Settings {
     }
     
     /**
+     * Email settings tab
+     */
+    private function email_settings_tab() {
+        ?>
+        <h2><?php esc_html_e('Email Settings', 'realestate-booking-suite'); ?></h2>
+        
+        <?php if (isset($_GET['updated']) && $_GET['updated'] == '1'): ?>
+            <div class="notice notice-success"><p><?php esc_html_e('Settings saved successfully!', 'realestate-booking-suite'); ?></p></div>
+        <?php endif; ?>
+        
+        <form method="post" action="<?php echo admin_url('admin-post.php'); ?>">
+            <?php wp_nonce_field('resbs_enhanced_settings-options'); ?>
+            <input type="hidden" name="action" value="resbs_save_settings">
+            <input type="hidden" name="current_tab" value="email">
+            
+            <div class="resbs-form-group">
+                <label for="resbs_email_from_name"><?php esc_html_e('From Name', 'realestate-booking-suite'); ?></label>
+                <input type="text" id="resbs_email_from_name" name="resbs_email_from_name" value="<?php echo esc_attr(get_option('resbs_email_from_name', get_bloginfo('name'))); ?>" class="regular-text">
+            </div>
+            
+            <div class="resbs-form-group">
+                <label for="resbs_email_from_email"><?php esc_html_e('From Email', 'realestate-booking-suite'); ?></label>
+                <input type="email" id="resbs_email_from_email" name="resbs_email_from_email" value="<?php echo esc_attr(get_option('resbs_email_from_email', get_option('admin_email'))); ?>" class="regular-text">
+            </div>
+            
+            <div class="resbs-form-group">
+                <label for="resbs_email_reply_to"><?php esc_html_e('Reply To Email', 'realestate-booking-suite'); ?></label>
+                <input type="email" id="resbs_email_reply_to" name="resbs_email_reply_to" value="<?php echo esc_attr(get_option('resbs_email_reply_to', get_option('admin_email'))); ?>" class="regular-text">
+            </div>
+            
+            <div class="resbs-form-group">
+                <label>
+                    <div class="resbs-toggle-switch">
+                        <input type="checkbox" name="resbs_enable_email_notifications" value="1" <?php checked(get_option('resbs_enable_email_notifications'), 1); ?>>
+                        <span class="resbs-slider"></span>
+                    </div>
+                    <?php esc_html_e('Enable Email Notifications', 'realestate-booking-suite'); ?>
+                </label>
+            </div>
+            
+            <div class="resbs-form-group">
+                <label>
+                    <div class="resbs-toggle-switch">
+                        <input type="checkbox" name="resbs_enable_admin_notifications" value="1" <?php checked(get_option('resbs_enable_admin_notifications'), 1); ?>>
+                        <span class="resbs-slider"></span>
+                    </div>
+                    <?php esc_html_e('Enable Admin Notifications', 'realestate-booking-suite'); ?>
+                </label>
+            </div>
+            
+            <div class="resbs-form-group">
+                <label for="resbs_email_template"><?php esc_html_e('Email Template', 'realestate-booking-suite'); ?></label>
+                <select id="resbs_email_template" name="resbs_email_template">
+                    <option value="default" <?php selected(get_option('resbs_email_template'), 'default'); ?>><?php esc_html_e('Default Template', 'realestate-booking-suite'); ?></option>
+                    <option value="modern" <?php selected(get_option('resbs_email_template'), 'modern'); ?>><?php esc_html_e('Modern Template', 'realestate-booking-suite'); ?></option>
+                    <option value="minimal" <?php selected(get_option('resbs_email_template'), 'minimal'); ?>><?php esc_html_e('Minimal Template', 'realestate-booking-suite'); ?></option>
+                </select>
+            </div>
+            
+            <button type="submit" class="resbs-save-button"><?php esc_html_e('SAVE CHANGES', 'realestate-booking-suite'); ?></button>
+        </form>
+        <?php
+    }
+    
+    /**
+     * Appearance settings tab
+     */
+    private function appearance_settings_tab() {
+        ?>
+        <h2><?php esc_html_e('Appearance', 'realestate-booking-suite'); ?></h2>
+        
+        <?php if (isset($_GET['updated']) && $_GET['updated'] == '1'): ?>
+            <div class="notice notice-success"><p><?php esc_html_e('Settings saved successfully!', 'realestate-booking-suite'); ?></p></div>
+        <?php endif; ?>
+        
+        <form method="post" action="<?php echo admin_url('admin-post.php'); ?>">
+            <?php wp_nonce_field('resbs_enhanced_settings-options'); ?>
+            <input type="hidden" name="action" value="resbs_save_settings">
+            <input type="hidden" name="current_tab" value="appearance">
+            
+            <div class="resbs-form-group">
+                <label for="resbs_primary_color"><?php esc_html_e('Primary Color', 'realestate-booking-suite'); ?></label>
+                <input type="color" id="resbs_primary_color" name="resbs_primary_color" value="<?php echo esc_attr(get_option('resbs_primary_color', '#007cba')); ?>">
+            </div>
+            
+            <div class="resbs-form-group">
+                <label for="resbs_secondary_color"><?php esc_html_e('Secondary Color', 'realestate-booking-suite'); ?></label>
+                <input type="color" id="resbs_secondary_color" name="resbs_secondary_color" value="<?php echo esc_attr(get_option('resbs_secondary_color', '#666666')); ?>">
+            </div>
+            
+            <div class="resbs-form-group">
+                <label for="resbs_accent_color"><?php esc_html_e('Accent Color', 'realestate-booking-suite'); ?></label>
+                <input type="color" id="resbs_accent_color" name="resbs_accent_color" value="<?php echo esc_attr(get_option('resbs_accent_color', '#28a745')); ?>">
+            </div>
+            
+            <div class="resbs-form-group">
+                <label for="resbs_font_family"><?php esc_html_e('Font Family', 'realestate-booking-suite'); ?></label>
+                <select id="resbs_font_family" name="resbs_font_family">
+                    <option value="default" <?php selected(get_option('resbs_font_family'), 'default'); ?>><?php esc_html_e('Default', 'realestate-booking-suite'); ?></option>
+                    <option value="roboto" <?php selected(get_option('resbs_font_family'), 'roboto'); ?>><?php esc_html_e('Roboto', 'realestate-booking-suite'); ?></option>
+                    <option value="opensans" <?php selected(get_option('resbs_font_family'), 'opensans'); ?>><?php esc_html_e('Open Sans', 'realestate-booking-suite'); ?></option>
+                    <option value="lato" <?php selected(get_option('resbs_font_family'), 'lato'); ?>><?php esc_html_e('Lato', 'realestate-booking-suite'); ?></option>
+                    <option value="montserrat" <?php selected(get_option('resbs_font_family'), 'montserrat'); ?>><?php esc_html_e('Montserrat', 'realestate-booking-suite'); ?></option>
+                </select>
+            </div>
+            
+            <div class="resbs-form-group">
+                <label for="resbs_button_style"><?php esc_html_e('Button Style', 'realestate-booking-suite'); ?></label>
+                <select id="resbs_button_style" name="resbs_button_style">
+                    <option value="rounded" <?php selected(get_option('resbs_button_style'), 'rounded'); ?>><?php esc_html_e('Rounded', 'realestate-booking-suite'); ?></option>
+                    <option value="square" <?php selected(get_option('resbs_button_style'), 'square'); ?>><?php esc_html_e('Square', 'realestate-booking-suite'); ?></option>
+                    <option value="pill" <?php selected(get_option('resbs_button_style'), 'pill'); ?>><?php esc_html_e('Pill', 'realestate-booking-suite'); ?></option>
+                </select>
+            </div>
+            
+            <div class="resbs-form-group">
+                <label>
+                    <div class="resbs-toggle-switch">
+                        <input type="checkbox" name="resbs_enable_dark_mode" value="1" <?php checked(get_option('resbs_enable_dark_mode'), 1); ?>>
+                        <span class="resbs-slider"></span>
+                    </div>
+                    <?php esc_html_e('Enable Dark Mode', 'realestate-booking-suite'); ?>
+                </label>
+            </div>
+            
+            <div class="resbs-form-group">
+                <label>
+                    <div class="resbs-toggle-switch">
+                        <input type="checkbox" name="resbs_enable_animations" value="1" <?php checked(get_option('resbs_enable_animations'), 1); ?>>
+                        <span class="resbs-slider"></span>
+                    </div>
+                    <?php esc_html_e('Enable Animations', 'realestate-booking-suite'); ?>
+                </label>
+            </div>
+            
+            <button type="submit" class="resbs-save-button"><?php esc_html_e('SAVE CHANGES', 'realestate-booking-suite'); ?></button>
+        </form>
+        <?php
+    }
+    
+    /**
+     * Currency settings tab
+     */
+    private function currency_settings_tab() {
+        ?>
+        <h2><?php esc_html_e('Currency Settings', 'realestate-booking-suite'); ?></h2>
+        
+        <?php if (isset($_GET['updated']) && $_GET['updated'] == '1'): ?>
+            <div class="notice notice-success"><p><?php esc_html_e('Settings saved successfully!', 'realestate-booking-suite'); ?></p></div>
+        <?php endif; ?>
+        
+        <form method="post" action="<?php echo admin_url('admin-post.php'); ?>">
+            <?php wp_nonce_field('resbs_enhanced_settings-options'); ?>
+            <input type="hidden" name="action" value="resbs_save_settings">
+            <input type="hidden" name="current_tab" value="currency">
+            
+            <div class="resbs-form-group">
+                <label for="resbs_default_currency"><?php esc_html_e('Default Currency', 'realestate-booking-suite'); ?></label>
+                <select id="resbs_default_currency" name="resbs_default_currency">
+                    <option value="USD" <?php selected(get_option('resbs_default_currency'), 'USD'); ?>>US Dollar (USD)</option>
+                    <option value="EUR" <?php selected(get_option('resbs_default_currency'), 'EUR'); ?>>Euro (EUR)</option>
+                    <option value="GBP" <?php selected(get_option('resbs_default_currency'), 'GBP'); ?>>British Pound (GBP)</option>
+                    <option value="CAD" <?php selected(get_option('resbs_default_currency'), 'CAD'); ?>>Canadian Dollar (CAD)</option>
+                    <option value="AUD" <?php selected(get_option('resbs_default_currency'), 'AUD'); ?>>Australian Dollar (AUD)</option>
+                    <option value="JPY" <?php selected(get_option('resbs_default_currency'), 'JPY'); ?>>Japanese Yen (JPY)</option>
+                    <option value="CNY" <?php selected(get_option('resbs_default_currency'), 'CNY'); ?>>Chinese Yuan (CNY)</option>
+                    <option value="INR" <?php selected(get_option('resbs_default_currency'), 'INR'); ?>>Indian Rupee (INR)</option>
+                </select>
+            </div>
+            
+            <div class="resbs-form-group">
+                <label for="resbs_currency_position"><?php esc_html_e('Currency Position', 'realestate-booking-suite'); ?></label>
+                <select id="resbs_currency_position" name="resbs_currency_position">
+                    <option value="before" <?php selected(get_option('resbs_currency_position'), 'before'); ?>><?php esc_html_e('Before amount ($100)', 'realestate-booking-suite'); ?></option>
+                    <option value="after" <?php selected(get_option('resbs_currency_position'), 'after'); ?>><?php esc_html_e('After amount (100$)', 'realestate-booking-suite'); ?></option>
+                    <option value="before_space" <?php selected(get_option('resbs_currency_position'), 'before_space'); ?>><?php esc_html_e('Before with space ($ 100)', 'realestate-booking-suite'); ?></option>
+                    <option value="after_space" <?php selected(get_option('resbs_currency_position'), 'after_space'); ?>><?php esc_html_e('After with space (100 $)', 'realestate-booking-suite'); ?></option>
+                </select>
+            </div>
+            
+            <div class="resbs-form-group">
+                <label for="resbs_thousand_separator"><?php esc_html_e('Thousand Separator', 'realestate-booking-suite'); ?></label>
+                <input type="text" id="resbs_thousand_separator" name="resbs_thousand_separator" value="<?php echo esc_attr(get_option('resbs_thousand_separator', ',')); ?>" class="small-text" maxlength="1">
+            </div>
+            
+            <div class="resbs-form-group">
+                <label for="resbs_decimal_separator"><?php esc_html_e('Decimal Separator', 'realestate-booking-suite'); ?></label>
+                <input type="text" id="resbs_decimal_separator" name="resbs_decimal_separator" value="<?php echo esc_attr(get_option('resbs_decimal_separator', '.')); ?>" class="small-text" maxlength="1">
+            </div>
+            
+            <div class="resbs-form-group">
+                <label for="resbs_decimal_places"><?php esc_html_e('Number of Decimal Places', 'realestate-booking-suite'); ?></label>
+                <input type="number" id="resbs_decimal_places" name="resbs_decimal_places" value="<?php echo esc_attr(get_option('resbs_decimal_places', 2)); ?>" class="small-text" min="0" max="4">
+            </div>
+            
+            <div class="resbs-form-group">
+                <label>
+                    <div class="resbs-toggle-switch">
+                        <input type="checkbox" name="resbs_enable_currency_conversion" value="1" <?php checked(get_option('resbs_enable_currency_conversion'), 1); ?>>
+                        <span class="resbs-slider"></span>
+                    </div>
+                    <?php esc_html_e('Enable Currency Conversion', 'realestate-booking-suite'); ?>
+                    <span class="resbs-pro-tag">PRO</span>
+                </label>
+            </div>
+            
+            <div class="resbs-form-group">
+                <label for="resbs_currency_api_key"><?php esc_html_e('Currency API Key', 'realestate-booking-suite'); ?></label>
+                <input type="text" id="resbs_currency_api_key" name="resbs_currency_api_key" value="<?php echo esc_attr(get_option('resbs_currency_api_key')); ?>" class="regular-text">
+                <p class="resbs-description"><?php esc_html_e('Get your free API key from', 'realestate-booking-suite'); ?> <a href="https://exchangerate-api.com/" target="_blank"><?php esc_html_e('ExchangeRate-API', 'realestate-booking-suite'); ?></a></p>
+            </div>
+            
+            <button type="submit" class="resbs-save-button"><?php esc_html_e('SAVE CHANGES', 'realestate-booking-suite'); ?></button>
+        </form>
+        <?php
+    }
+    
+    /**
      * General settings tab
      */
     private function general_settings_tab() {
         ?>
         <h2><?php esc_html_e('General', 'realestate-booking-suite'); ?></h2>
         
-        <form method="post" action="options.php">
-            <?php settings_fields('resbs_enhanced_settings'); ?>
+        <form method="post" action="<?php echo admin_url('admin-post.php'); ?>">
+            <?php wp_nonce_field('resbs_enhanced_settings-options'); ?>
+            <input type="hidden" name="action" value="resbs_save_settings">
+            <input type="hidden" name="current_tab" value="login-signup">
             
             <div class="resbs-form-group">
                 <label for="resbs_language"><?php esc_html_e('Language', 'realestate-booking-suite'); ?></label>
@@ -802,8 +1133,10 @@ class RESBS_Enhanced_Settings {
         ?>
         <h2><?php esc_html_e('Archive Pages', 'realestate-booking-suite'); ?></h2>
         
-        <form method="post" action="options.php">
-            <?php settings_fields('resbs_enhanced_settings'); ?>
+        <form method="post" action="<?php echo admin_url('admin-post.php'); ?>">
+            <?php wp_nonce_field('resbs_enhanced_settings-options'); ?>
+            <input type="hidden" name="action" value="resbs_save_settings">
+            <input type="hidden" name="current_tab" value="login-signup">
             
             <div class="resbs-form-group">
                 <label><?php esc_html_e('Default Layout for Archive Pages', 'realestate-booking-suite'); ?></label>
@@ -957,8 +1290,14 @@ class RESBS_Enhanced_Settings {
         ?>
         <h2><?php esc_html_e('Map', 'realestate-booking-suite'); ?></h2>
         
-        <form method="post" action="options.php">
-            <?php settings_fields('resbs_enhanced_settings'); ?>
+        <?php if (isset($_GET['updated']) && $_GET['updated'] == '1'): ?>
+            <div class="notice notice-success"><p><?php esc_html_e('Settings saved successfully!', 'realestate-booking-suite'); ?></p></div>
+        <?php endif; ?>
+        
+        <form method="post" action="<?php echo admin_url('admin-post.php'); ?>">
+            <?php wp_nonce_field('resbs_enhanced_settings-options'); ?>
+            <input type="hidden" name="action" value="resbs_save_settings">
+            <input type="hidden" name="current_tab" value="map">
             
             <div class="resbs-form-group">
                 <label for="resbs_google_api_key"><?php esc_html_e('Google Maps API Key', 'realestate-booking-suite'); ?></label>
@@ -1091,8 +1430,14 @@ class RESBS_Enhanced_Settings {
         ?>
         <h2><?php esc_html_e('Google reCAPTCHA', 'realestate-booking-suite'); ?></h2>
         
-        <form method="post" action="options.php">
-            <?php settings_fields('resbs_enhanced_settings'); ?>
+        <?php if (isset($_GET['updated']) && $_GET['updated'] == '1'): ?>
+            <div class="notice notice-success"><p><?php esc_html_e('Settings saved successfully!', 'realestate-booking-suite'); ?></p></div>
+        <?php endif; ?>
+        
+        <form method="post" action="<?php echo admin_url('admin-post.php'); ?>">
+            <?php wp_nonce_field('resbs_enhanced_settings-options'); ?>
+            <input type="hidden" name="action" value="resbs_save_settings">
+            <input type="hidden" name="current_tab" value="recaptcha">
             
             <div class="resbs-form-group">
                 <p><?php esc_html_e('If you don\'t have keys already then', 'realestate-booking-suite'); ?> <a href="https://www.google.com/recaptcha/admin" target="_blank"><?php esc_html_e('generate them', 'realestate-booking-suite'); ?></a>.</p>
@@ -1158,8 +1503,14 @@ class RESBS_Enhanced_Settings {
         ?>
         <h2><?php esc_html_e('Listings', 'realestate-booking-suite'); ?></h2>
         
-        <form method="post" action="options.php">
-            <?php settings_fields('resbs_enhanced_settings'); ?>
+        <?php if (isset($_GET['updated']) && $_GET['updated'] == '1'): ?>
+            <div class="notice notice-success"><p><?php esc_html_e('Settings saved successfully!', 'realestate-booking-suite'); ?></p></div>
+        <?php endif; ?>
+        
+        <form method="post" action="<?php echo admin_url('admin-post.php'); ?>">
+            <?php wp_nonce_field('resbs_enhanced_settings-options'); ?>
+            <input type="hidden" name="action" value="resbs_save_settings">
+            <input type="hidden" name="current_tab" value="listings">
             
             <div class="resbs-form-group">
                 <label for="resbs_general_listing_name"><?php esc_html_e('General listing name', 'realestate-booking-suite'); ?></label>
@@ -1502,8 +1853,14 @@ class RESBS_Enhanced_Settings {
         ?>
         <h2><?php esc_html_e('Listing Search', 'realestate-booking-suite'); ?></h2>
         
-        <form method="post" action="options.php">
-            <?php settings_fields('resbs_enhanced_settings'); ?>
+        <?php if (isset($_GET['updated']) && $_GET['updated'] == '1'): ?>
+            <div class="notice notice-success"><p><?php esc_html_e('Settings saved successfully!', 'realestate-booking-suite'); ?></p></div>
+        <?php endif; ?>
+        
+        <form method="post" action="<?php echo admin_url('admin-post.php'); ?>">
+            <?php wp_nonce_field('resbs_enhanced_settings-options'); ?>
+            <input type="hidden" name="action" value="resbs_save_settings">
+            <input type="hidden" name="current_tab" value="search">
             
             <div class="resbs-form-group">
                 <label for="resbs_address_field_placeholder"><?php esc_html_e('Address field search placeholder', 'realestate-booking-suite'); ?></label>
@@ -1625,8 +1982,14 @@ class RESBS_Enhanced_Settings {
         ?>
         <h2><?php esc_html_e('User Profile', 'realestate-booking-suite'); ?></h2>
         
-        <form method="post" action="options.php">
-            <?php settings_fields('resbs_enhanced_settings'); ?>
+        <?php if (isset($_GET['updated']) && $_GET['updated'] == '1'): ?>
+            <div class="notice notice-success"><p><?php esc_html_e('Settings saved successfully!', 'realestate-booking-suite'); ?></p></div>
+        <?php endif; ?>
+        
+        <form method="post" action="<?php echo admin_url('admin-post.php'); ?>">
+            <?php wp_nonce_field('resbs_enhanced_settings-options'); ?>
+            <input type="hidden" name="action" value="resbs_save_settings">
+            <input type="hidden" name="current_tab" value="user-profile">
             
             <div class="resbs-form-group">
                 <label>
@@ -1669,8 +2032,14 @@ class RESBS_Enhanced_Settings {
         ?>
         <h2><?php esc_html_e('Log in & Sign up', 'realestate-booking-suite'); ?></h2>
         
-        <form method="post" action="options.php">
-            <?php settings_fields('resbs_enhanced_settings'); ?>
+        <?php if (isset($_GET['updated']) && $_GET['updated'] == '1'): ?>
+            <div class="notice notice-success"><p><?php esc_html_e('Settings saved successfully!', 'realestate-booking-suite'); ?></p></div>
+        <?php endif; ?>
+        
+        <form method="post" action="<?php echo admin_url('admin-post.php'); ?>">
+            <?php wp_nonce_field('resbs_enhanced_settings-options'); ?>
+            <input type="hidden" name="action" value="resbs_save_settings">
+            <input type="hidden" name="current_tab" value="login-signup">
             
             <div class="resbs-form-group">
                 <label>
@@ -1773,8 +2142,14 @@ class RESBS_Enhanced_Settings {
         ?>
         <h2><?php esc_html_e('SEO', 'realestate-booking-suite'); ?></h2>
         
-        <form method="post" action="options.php">
-            <?php settings_fields('resbs_enhanced_settings'); ?>
+        <?php if (isset($_GET['updated']) && $_GET['updated'] == '1'): ?>
+            <div class="notice notice-success"><p><?php esc_html_e('Settings saved successfully!', 'realestate-booking-suite'); ?></p></div>
+        <?php endif; ?>
+        
+        <form method="post" action="<?php echo admin_url('admin-post.php'); ?>">
+            <?php wp_nonce_field('resbs_enhanced_settings-options'); ?>
+            <input type="hidden" name="action" value="resbs_save_settings">
+            <input type="hidden" name="current_tab" value="seo">
             
             <div class="resbs-form-group">
                 <label>
@@ -1830,8 +2205,14 @@ class RESBS_Enhanced_Settings {
         ?>
         <h2><?php esc_html_e('Sharing', 'realestate-booking-suite'); ?></h2>
         
-        <form method="post" action="options.php">
-            <?php settings_fields('resbs_enhanced_settings'); ?>
+        <?php if (isset($_GET['updated']) && $_GET['updated'] == '1'): ?>
+            <div class="notice notice-success"><p><?php esc_html_e('Settings saved successfully!', 'realestate-booking-suite'); ?></p></div>
+        <?php endif; ?>
+        
+        <form method="post" action="<?php echo admin_url('admin-post.php'); ?>">
+            <?php wp_nonce_field('resbs_enhanced_settings-options'); ?>
+            <input type="hidden" name="action" value="resbs_save_settings">
+            <input type="hidden" name="current_tab" value="sharing">
             
             <div class="resbs-form-group">
                 <label>
@@ -1898,8 +2279,14 @@ class RESBS_Enhanced_Settings {
         ?>
         <h2><?php esc_html_e('URL Slug', 'realestate-booking-suite'); ?></h2>
         
-        <form method="post" action="options.php">
-            <?php settings_fields('resbs_enhanced_settings'); ?>
+        <?php if (isset($_GET['updated']) && $_GET['updated'] == '1'): ?>
+            <div class="notice notice-success"><p><?php esc_html_e('Settings saved successfully!', 'realestate-booking-suite'); ?></p></div>
+        <?php endif; ?>
+        
+        <form method="post" action="<?php echo admin_url('admin-post.php'); ?>">
+            <?php wp_nonce_field('resbs_enhanced_settings-options'); ?>
+            <input type="hidden" name="action" value="resbs_save_settings">
+            <input type="hidden" name="current_tab" value="url-slug">
             
             <div class="resbs-form-group">
                 <label for="resbs_property_slug"><?php esc_html_e('Property slug', 'realestate-booking-suite'); ?></label>
@@ -1948,8 +2335,14 @@ class RESBS_Enhanced_Settings {
         ?>
         <h2><?php esc_html_e('Privacy Policy & Terms of use', 'realestate-booking-suite'); ?></h2>
         
-        <form method="post" action="options.php">
-            <?php settings_fields('resbs_enhanced_settings'); ?>
+        <?php if (isset($_GET['updated']) && $_GET['updated'] == '1'): ?>
+            <div class="notice notice-success"><p><?php esc_html_e('Settings saved successfully!', 'realestate-booking-suite'); ?></p></div>
+        <?php endif; ?>
+        
+        <form method="post" action="<?php echo admin_url('admin-post.php'); ?>">
+            <?php wp_nonce_field('resbs_enhanced_settings-options'); ?>
+            <input type="hidden" name="action" value="resbs_save_settings">
+            <input type="hidden" name="current_tab" value="privacy-terms">
             
             <div class="resbs-form-group">
                 <label><?php esc_html_e('Enable information about Privacy policy & Terms of use to submit forms', 'realestate-booking-suite'); ?></label>
@@ -2007,6 +2400,502 @@ class RESBS_Enhanced_Settings {
             <button type="submit" class="resbs-save-button"><?php esc_html_e('SAVE CHANGES', 'realestate-booking-suite'); ?></button>
         </form>
         <?php
+    }
+    
+    /**
+     * Save email settings
+     */
+    private function save_email_settings() {
+        $settings = array(
+            'resbs_email_from_name',
+            'resbs_email_from_email',
+            'resbs_email_reply_to',
+            'resbs_enable_email_notifications',
+            'resbs_enable_admin_notifications',
+            'resbs_email_template'
+        );
+        
+        foreach ($settings as $setting) {
+            if (isset($_POST[$setting])) {
+                $value = sanitize_text_field($_POST[$setting]);
+                update_option($setting, $value);
+            } else {
+                update_option($setting, '');
+            }
+        }
+    }
+    
+    /**
+     * Save appearance settings
+     */
+    private function save_appearance_settings() {
+        $settings = array(
+            'resbs_primary_color',
+            'resbs_secondary_color',
+            'resbs_accent_color',
+            'resbs_font_family',
+            'resbs_button_style',
+            'resbs_enable_dark_mode',
+            'resbs_enable_animations'
+        );
+        
+        foreach ($settings as $setting) {
+            if (isset($_POST[$setting])) {
+                $value = sanitize_text_field($_POST[$setting]);
+                update_option($setting, $value);
+            } else {
+                update_option($setting, '');
+            }
+        }
+    }
+    
+    /**
+     * Save currency settings
+     */
+    private function save_currency_settings() {
+        $settings = array(
+            'resbs_default_currency',
+            'resbs_currency_position',
+            'resbs_thousand_separator',
+            'resbs_decimal_separator',
+            'resbs_decimal_places',
+            'resbs_enable_currency_conversion',
+            'resbs_currency_api_key'
+        );
+        
+        foreach ($settings as $setting) {
+            if (isset($_POST[$setting])) {
+                $value = sanitize_text_field($_POST[$setting]);
+                update_option($setting, $value);
+            } else {
+                update_option($setting, '');
+            }
+        }
+    }
+    
+    /**
+     * Handle settings save
+     */
+    public function handle_settings_save() {
+        if (!current_user_can('manage_options')) {
+            wp_die('Unauthorized');
+        }
+        
+        if (!wp_verify_nonce($_POST['_wpnonce'], 'resbs_enhanced_settings-options')) {
+            wp_die('Security check failed');
+        }
+        
+        $tab = sanitize_text_field($_POST['current_tab']);
+        
+        // Handle different tabs
+        switch ($tab) {
+            case 'general':
+                $this->save_general_settings();
+                break;
+            case 'map':
+                $this->save_map_settings();
+                break;
+            case 'recaptcha':
+                $this->save_recaptcha_settings();
+                break;
+            case 'listings':
+                $this->save_listings_settings();
+                break;
+            case 'archive':
+                $this->save_archive_settings();
+                break;
+            case 'search':
+                $this->save_search_settings();
+                break;
+            case 'user-profile':
+                $this->save_user_profile_settings();
+                break;
+            case 'login-signup':
+                $this->save_login_signup_settings();
+                break;
+            case 'seo':
+                $this->save_seo_settings();
+                break;
+            case 'sharing':
+                $this->save_sharing_settings();
+                break;
+            case 'url-slug':
+                $this->save_url_slug_settings();
+                break;
+            case 'privacy-terms':
+                $this->save_privacy_terms_settings();
+                break;
+            case 'email':
+                $this->save_email_settings();
+                break;
+            case 'appearance':
+                $this->save_appearance_settings();
+                break;
+            case 'currency':
+                $this->save_currency_settings();
+                break;
+        }
+        
+        wp_redirect(add_query_arg(array('page' => 'resbs-settings', 'tab' => $tab, 'updated' => '1'), admin_url('admin.php')));
+        exit;
+    }
+    
+    /**
+     * Save general settings
+     */
+    private function save_general_settings() {
+        $settings = array(
+            'resbs_language',
+            'resbs_area_unit',
+            'resbs_lot_size_unit',
+            'resbs_date_format',
+            'resbs_time_format',
+            'resbs_enable_white_label',
+            'resbs_enable_rest_support',
+            'resbs_main_color',
+            'resbs_secondary_color',
+            'resbs_disable_tel_country_code'
+        );
+        
+        foreach ($settings as $setting) {
+            if (isset($_POST[$setting])) {
+                $value = sanitize_text_field($_POST[$setting]);
+                update_option($setting, $value);
+            } else {
+                update_option($setting, '');
+            }
+        }
+    }
+    
+    /**
+     * Save map settings
+     */
+    private function save_map_settings() {
+        $settings = array(
+            'resbs_google_api_key',
+            'resbs_default_latitude',
+            'resbs_default_longitude',
+            'resbs_default_zoom_level',
+            'resbs_single_property_zoom_level',
+            'resbs_enable_markers_cluster',
+            'resbs_cluster_icon',
+            'resbs_cluster_icon_color',
+            'resbs_map_marker_type',
+            'resbs_use_single_map_marker',
+            'resbs_single_marker_icon',
+            'resbs_single_marker_color'
+        );
+        
+        foreach ($settings as $setting) {
+            if (isset($_POST[$setting])) {
+                $value = sanitize_text_field($_POST[$setting]);
+                update_option($setting, $value);
+            } else {
+                update_option($setting, '');
+            }
+        }
+    }
+    
+    /**
+     * Save reCAPTCHA settings
+     */
+    private function save_recaptcha_settings() {
+        $settings = array(
+            'resbs_recaptcha_version',
+            'resbs_recaptcha_site_key',
+            'resbs_recaptcha_secret_key',
+            'resbs_recaptcha_signup',
+            'resbs_recaptcha_signin',
+            'resbs_recaptcha_reset_password',
+            'resbs_recaptcha_request_form'
+        );
+        
+        foreach ($settings as $setting) {
+            if (isset($_POST[$setting])) {
+                $value = sanitize_text_field($_POST[$setting]);
+                update_option($setting, $value);
+            } else {
+                update_option($setting, '');
+            }
+        }
+    }
+    
+    /**
+     * Save listings settings
+     */
+    private function save_listings_settings() {
+        $settings = array(
+            'resbs_general_listing_name',
+            'resbs_default_layout_listings',
+            'resbs_enable_grid_view',
+            'resbs_default_layout_single',
+            'resbs_enable_default_archive_template',
+            'resbs_enable_collapsed_description',
+            'resbs_disable_lightbox_single_page',
+            'resbs_enable_request_form_geolocation',
+            'resbs_default_tel_code',
+            'resbs_hide_request_info_button',
+            'resbs_property_headings_font',
+            'resbs_property_content_font',
+            'resbs_property_item_carousel',
+            'resbs_property_item_image_size',
+            'resbs_properties_per_page',
+            'resbs_enable_sorting',
+            'resbs_default_sort_option',
+            'resbs_show_price',
+            'resbs_show_listing_address',
+            'resbs_listing_preview_block',
+            'resbs_show_description_listing_box',
+            'resbs_enable_map_single_listing',
+            'resbs_enable_wishlist',
+            'resbs_enable_labels',
+            'resbs_enable_sharing',
+            'resbs_show_date_added'
+        );
+        
+        foreach ($settings as $setting) {
+            if (isset($_POST[$setting])) {
+                $value = sanitize_text_field($_POST[$setting]);
+                update_option($setting, $value);
+            } else {
+                update_option($setting, '');
+            }
+        }
+        
+        // Handle array settings
+        if (isset($_POST['resbs_sort_options'])) {
+            update_option('resbs_sort_options', array_map('sanitize_text_field', $_POST['resbs_sort_options']));
+        }
+    }
+    
+    /**
+     * Save archive settings
+     */
+    private function save_archive_settings() {
+        $settings = array(
+            'resbs_archive_layout',
+            'resbs_archive_grid_columns',
+            'resbs_archive_items_per_page',
+            'resbs_archive_show_filters',
+            'resbs_archive_show_search',
+            'resbs_archive_show_sorting',
+            'resbs_archive_show_pagination',
+            'resbs_archive_card_style',
+            'resbs_archive_image_size',
+            'resbs_archive_show_excerpt',
+            'resbs_archive_excerpt_length',
+            'resbs_archive_show_meta'
+        );
+        
+        foreach ($settings as $setting) {
+            if (isset($_POST[$setting])) {
+                $value = sanitize_text_field($_POST[$setting]);
+                update_option($setting, $value);
+            } else {
+                update_option($setting, '');
+            }
+        }
+        
+        // Handle array settings
+        if (isset($_POST['resbs_archive_meta_fields'])) {
+            update_option('resbs_archive_meta_fields', array_map('sanitize_text_field', $_POST['resbs_archive_meta_fields']));
+        }
+    }
+    
+    /**
+     * Save search settings
+     */
+    private function save_search_settings() {
+        $settings = array(
+            'resbs_address_field_placeholder',
+            'resbs_enable_saved_search',
+            'resbs_enable_auto_update_search',
+            'resbs_enable_autocomplete_locations'
+        );
+        
+        foreach ($settings as $setting) {
+            if (isset($_POST[$setting])) {
+                $value = sanitize_text_field($_POST[$setting]);
+                update_option($setting, $value);
+            } else {
+                update_option($setting, '');
+            }
+        }
+        
+        // Handle array settings
+        if (isset($_POST['resbs_search_filters'])) {
+            update_option('resbs_search_filters', array_map('sanitize_text_field', $_POST['resbs_search_filters']));
+        }
+    }
+    
+    /**
+     * Save user profile settings
+     */
+    private function save_user_profile_settings() {
+        $settings = array(
+            'resbs_enable_user_profile',
+            'resbs_profile_page_title',
+            'resbs_profile_page_subtitle'
+        );
+        
+        foreach ($settings as $setting) {
+            if (isset($_POST[$setting])) {
+                $value = sanitize_text_field($_POST[$setting]);
+                update_option($setting, $value);
+            } else {
+                update_option($setting, '');
+            }
+        }
+    }
+    
+    /**
+     * Save login/signup settings
+     */
+    private function save_login_signup_settings() {
+        $settings = array(
+            'resbs_enable_login_form',
+            'resbs_enable_login_facebook',
+            'resbs_enable_login_google',
+            'resbs_signin_page_title',
+            'resbs_signin_page_subtitle',
+            'resbs_enable_signup_buyers',
+            'resbs_buyer_signup_title',
+            'resbs_buyer_signup_subtitle',
+            'resbs_enable_signup_agents'
+        );
+        
+        foreach ($settings as $setting) {
+            if (isset($_POST[$setting])) {
+                $value = sanitize_text_field($_POST[$setting]);
+                update_option($setting, $value);
+            } else {
+                update_option($setting, '');
+            }
+        }
+    }
+    
+    /**
+     * Save SEO settings
+     */
+    private function save_seo_settings() {
+        $settings = array(
+            'resbs_enable_auto_tags',
+            'resbs_enable_clickable_tags',
+            'resbs_heading_tag_posts_title',
+            'resbs_enable_dynamic_content'
+        );
+        
+        foreach ($settings as $setting) {
+            if (isset($_POST[$setting])) {
+                $value = sanitize_text_field($_POST[$setting]);
+                update_option($setting, $value);
+            } else {
+                update_option($setting, '');
+            }
+        }
+    }
+    
+    /**
+     * Save sharing settings
+     */
+    private function save_sharing_settings() {
+        $settings = array(
+            'resbs_enable_sharing_link',
+            'resbs_enable_sharing_social',
+            'resbs_enable_sharing_pdf'
+        );
+        
+        foreach ($settings as $setting) {
+            if (isset($_POST[$setting])) {
+                $value = sanitize_text_field($_POST[$setting]);
+                update_option($setting, $value);
+            } else {
+                update_option($setting, '');
+            }
+        }
+        
+        // Handle array settings
+        if (isset($_POST['resbs_sharing_options'])) {
+            update_option('resbs_sharing_options', array_map('sanitize_text_field', $_POST['resbs_sharing_options']));
+        }
+    }
+    
+    /**
+     * Save URL slug settings
+     */
+    private function save_url_slug_settings() {
+        $settings = array(
+            'resbs_property_slug',
+            'resbs_property_category_slug',
+            'resbs_property_type_slug',
+            'resbs_property_status_slug',
+            'resbs_property_label_slug',
+            'resbs_property_amenity_slug',
+            'resbs_property_feature_slug'
+        );
+        
+        foreach ($settings as $setting) {
+            if (isset($_POST[$setting])) {
+                $value = sanitize_text_field($_POST[$setting]);
+                update_option($setting, $value);
+            } else {
+                update_option($setting, '');
+            }
+        }
+    }
+    
+    /**
+     * Save privacy/terms settings
+     */
+    private function save_privacy_terms_settings() {
+        $settings = array(
+            'resbs_privacy_terms_signup',
+            'resbs_privacy_terms_request_form',
+            'resbs_privacy_terms_acceptance_type',
+            'resbs_privacy_terms_text'
+        );
+        
+        foreach ($settings as $setting) {
+            if (isset($_POST[$setting])) {
+                if ($setting === 'resbs_privacy_terms_text') {
+                    $value = sanitize_textarea_field($_POST[$setting]);
+                } else {
+                    $value = sanitize_text_field($_POST[$setting]);
+                }
+                update_option($setting, $value);
+            } else {
+                update_option($setting, '');
+            }
+        }
+    }
+    
+    /**
+     * Handle create page AJAX
+     */
+    public function handle_create_page() {
+        if (!current_user_can('manage_options')) {
+            wp_die('Unauthorized');
+        }
+        
+        $page_type = sanitize_text_field($_POST['page_type']);
+        $page_title = sanitize_text_field($_POST['page_title']);
+        $page_content = sanitize_textarea_field($_POST['page_content']);
+        
+        $page_data = array(
+            'post_title' => $page_title,
+            'post_content' => $page_content,
+            'post_status' => 'publish',
+            'post_type' => 'page',
+            'post_author' => get_current_user_id()
+        );
+        
+        $page_id = wp_insert_post($page_data);
+        
+        if ($page_id) {
+            wp_send_json_success(array('page_id' => $page_id, 'message' => 'Page created successfully'));
+        } else {
+            wp_send_json_error('Failed to create page');
+        }
     }
     
     // Placeholder methods for other menu items

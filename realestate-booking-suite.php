@@ -117,4 +117,10 @@ require_once RESBS_PATH . 'includes/class-resbs-email-handler.php';
 // Load booking manager functionality (moved to functions.php to avoid double loading)
 // require_once RESBS_PATH . 'includes/class-resbs-booking-manager.php';
 
+// DISABLED: Old settings class to prevent conflicts
+// require_once RESBS_PATH . 'includes/class-resbs-settings.php';
+
+// Load enhanced settings functionality (NEW ESTATIK-STYLE)
+require_once RESBS_PATH . 'includes/class-resbs-enhanced-settings.php';
+
 
