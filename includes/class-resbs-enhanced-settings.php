@@ -21,6 +21,12 @@ class RESBS_Enhanced_Settings {
         add_action('admin_menu', array($this, 'add_admin_menu'));
         add_action('admin_init', array($this, 'register_settings'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
+        
+        // Add AJAX handlers
+        add_action('admin_post_resbs_save_settings', array($this, 'handle_settings_save'));
+        add_action('wp_ajax_resbs_create_page', array($this, 'handle_create_page'));
+        add_action('wp_ajax_resbs_load_tab_content', array($this, 'handle_load_tab_content'));
+        add_action('wp_ajax_resbs_test_ajax', array($this, 'handle_test_ajax'));
     }
     
     /**
@@ -248,109 +254,11 @@ class RESBS_Enhanced_Settings {
      * Enqueue admin scripts
      */
     public function enqueue_admin_scripts() {
-        wp_enqueue_style('wp-color-picker');
-        wp_enqueue_script('wp-color-picker');
-        wp_enqueue_script('jquery-ui-tabs');
-        wp_enqueue_style('jquery-ui-tabs');
+        // Minimal enqueue - just what we need
+        wp_enqueue_script('jquery');
         
-        // Add custom JavaScript for enhanced settings
-        wp_add_inline_script('jquery', '
-        jQuery(document).ready(function($) {
-            // Toggle switch functionality
-            $(".resbs-toggle-switch input").change(function() {
-                var slider = $(this).siblings(".resbs-slider");
-                if ($(this).is(":checked")) {
-                    slider.css("background-color", "#007cba");
-                } else {
-                    slider.css("background-color", "#ccc");
-                }
-            });
-            
-            // Layout option selection
-            $(".resbs-layout-option").click(function() {
-                $(this).siblings().removeClass("selected");
-                $(this).addClass("selected");
-                $(this).find("input[type=radio]").prop("checked", true);
-            });
-            
-            // Color picker initialization
-            if ($.fn.wpColorPicker) {
-                $("input[type=color]").wpColorPicker();
-            }
-            
-            // Create page functionality
-            $(".resbs-create-page-btn").click(function() {
-                var pageType = $(this).closest(".resbs-page-creation-card").find("p").text().trim();
-                var pageTitle = pageType;
-                var pageContent = "This is a " + pageType.toLowerCase() + " page created by RealEstate Booking Suite.";
-                
-                $.ajax({
-                    url: ajaxurl,
-                    type: "POST",
-                    data: {
-                        action: "resbs_create_page",
-                        page_type: pageType.toLowerCase().replace(/\s+/g, "_"),
-                        page_title: pageTitle,
-                        page_content: pageContent,
-                        nonce: "' . wp_create_nonce('resbs_create_page') . '"
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            alert("Page created successfully! Page ID: " + response.data.page_id);
-                        } else {
-                            alert("Failed to create page: " + response.data);
-                        }
-                    },
-                    error: function() {
-                        alert("Error creating page. Please try again.");
-                    }
-                });
-            });
-            
-            // Form validation
-            $("form").submit(function(e) {
-                var form = $(this);
-                var hasErrors = false;
-                
-                // Check required fields
-                form.find("input[required], select[required], textarea[required]").each(function() {
-                    if (!$(this).val()) {
-                        $(this).addClass("error");
-                        hasErrors = true;
-                    } else {
-                        $(this).removeClass("error");
-                    }
-                });
-                
-                if (hasErrors) {
-                    e.preventDefault();
-                    alert("Please fill in all required fields.");
-                    return false;
-                }
-            });
-        });
-        ');
-        
-        // Add custom CSS for enhanced settings
-        wp_add_inline_style('wp-admin', '
-        .resbs-enhanced-settings .error {
-            border-color: #dc3232 !important;
-            box-shadow: 0 0 2px rgba(220, 50, 50, 0.8) !important;
-        }
-        .resbs-enhanced-settings .notice {
-            margin: 20px 0;
-        }
-        .resbs-enhanced-settings .resbs-layout-option {
-            cursor: pointer;
-        }
-        .resbs-enhanced-settings .resbs-layout-option:hover {
-            border-color: #007cba;
-        }
-        .resbs-enhanced-settings .resbs-layout-option.selected {
-            border-color: #007cba;
-            background: #f0f8ff;
-        }
-        ');
+        // Make ajaxurl available globally
+        wp_add_inline_script('jquery', 'var ajaxurl = "' . admin_url('admin-ajax.php') . '";');
     }
     
     /**
@@ -361,34 +269,81 @@ class RESBS_Enhanced_Settings {
         ?>
         <div class="wrap resbs-enhanced-settings">
             <div class="resbs-settings-header">
-                <h1><?php esc_html_e('Settings', 'realestate-booking-suite'); ?></h1>
-                <div class="resbs-plugin-info">
-                    <span class="resbs-plugin-logo">🏢</span>
-                    <span class="resbs-plugin-name">RealEstate Booking Suite</span>
-                    <span class="resbs-plugin-version">Version 1.0.0</span>
+                <div class="resbs-header-left">
+                    <h1><?php esc_html_e('Settings', 'realestate-booking-suite'); ?></h1>
+                </div>
+                <div class="resbs-header-right">
+                    <div class="resbs-plugin-branding">
+                        <div class="resbs-logo-container">
+                            <div class="resbs-logo-icon">🏢</div>
+                            <div class="resbs-logo-text">
+                                <span class="resbs-plugin-name">REALESTATE BOOKING SUITE</span>
+                                <span class="resbs-plugin-version">Version 1.0.0</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             
             <div class="resbs-settings-container">
                 <div class="resbs-settings-sidebar">
                     <div class="resbs-settings-nav">
-                        <h3><?php esc_html_e('Settings', 'realestate-booking-suite'); ?></h3>
                         <ul class="resbs-nav-tabs">
-                            <li><a href="?page=resbs-settings&tab=general" class="<?php echo $this->current_tab === 'general' ? 'active' : ''; ?>"><?php esc_html_e('General', 'realestate-booking-suite'); ?></a></li>
-                            <li><a href="?page=resbs-settings&tab=map" class="<?php echo $this->current_tab === 'map' ? 'active' : ''; ?>"><?php esc_html_e('Map', 'realestate-booking-suite'); ?></a></li>
-                            <li><a href="?page=resbs-settings&tab=recaptcha" class="<?php echo $this->current_tab === 'recaptcha' ? 'active' : ''; ?>"><?php esc_html_e('Google reCAPTCHA', 'realestate-booking-suite'); ?></a></li>
-                            <li><a href="?page=resbs-settings&tab=listings" class="<?php echo $this->current_tab === 'listings' ? 'active' : ''; ?>"><?php esc_html_e('Listings', 'realestate-booking-suite'); ?></a></li>
-                            <li><a href="?page=resbs-settings&tab=archive" class="<?php echo $this->current_tab === 'archive' ? 'active' : ''; ?>"><?php esc_html_e('Archive Pages', 'realestate-booking-suite'); ?></a></li>
-                            <li><a href="?page=resbs-settings&tab=search" class="<?php echo $this->current_tab === 'search' ? 'active' : ''; ?>"><?php esc_html_e('Listing Search', 'realestate-booking-suite'); ?></a></li>
-                            <li><a href="?page=resbs-settings&tab=user-profile" class="<?php echo $this->current_tab === 'user-profile' ? 'active' : ''; ?>"><?php esc_html_e('User Profile', 'realestate-booking-suite'); ?></a></li>
-                            <li><a href="?page=resbs-settings&tab=login-signup" class="<?php echo $this->current_tab === 'login-signup' ? 'active' : ''; ?>"><?php esc_html_e('Log in & Sign up', 'realestate-booking-suite'); ?></a></li>
-                            <li><a href="?page=resbs-settings&tab=seo" class="<?php echo $this->current_tab === 'seo' ? 'active' : ''; ?>"><?php esc_html_e('SEO', 'realestate-booking-suite'); ?></a></li>
-                            <li><a href="?page=resbs-settings&tab=sharing" class="<?php echo $this->current_tab === 'sharing' ? 'active' : ''; ?>"><?php esc_html_e('Sharing', 'realestate-booking-suite'); ?></a></li>
-                            <li><a href="?page=resbs-settings&tab=url-slug" class="<?php echo $this->current_tab === 'url-slug' ? 'active' : ''; ?>"><?php esc_html_e('URL Slug', 'realestate-booking-suite'); ?></a></li>
-                            <li><a href="?page=resbs-settings&tab=privacy-terms" class="<?php echo $this->current_tab === 'privacy-terms' ? 'active' : ''; ?>"><?php esc_html_e('Privacy Policy & Terms of use', 'realestate-booking-suite'); ?></a></li>
-                            <li><a href="?page=resbs-settings&tab=email" class="<?php echo $this->current_tab === 'email' ? 'active' : ''; ?>"><?php esc_html_e('Email Settings', 'realestate-booking-suite'); ?></a></li>
-                            <li><a href="?page=resbs-settings&tab=appearance" class="<?php echo $this->current_tab === 'appearance' ? 'active' : ''; ?>"><?php esc_html_e('Appearance', 'realestate-booking-suite'); ?></a></li>
-                            <li><a href="?page=resbs-settings&tab=currency" class="<?php echo $this->current_tab === 'currency' ? 'active' : ''; ?>"><?php esc_html_e('Currency', 'realestate-booking-suite'); ?></a></li>
+                            <li class="resbs-nav-item">
+                                <a href="#" data-tab="general" class="resbs-nav-link <?php echo $this->current_tab === 'general' ? 'active' : ''; ?>">
+                                    <span class="resbs-nav-text"><?php esc_html_e('General', 'realestate-booking-suite'); ?></span>
+                                </a>
+                            </li>
+                            <li class="resbs-nav-item">
+                                <a href="#" data-tab="map" class="resbs-nav-link <?php echo $this->current_tab === 'map' ? 'active' : ''; ?>">
+                                    <span class="resbs-nav-text"><?php esc_html_e('Map', 'realestate-booking-suite'); ?></span>
+                                </a>
+                            </li>
+                            <li class="resbs-nav-item">
+                                <a href="#" data-tab="recaptcha" class="resbs-nav-link <?php echo $this->current_tab === 'recaptcha' ? 'active' : ''; ?>">
+                                    <span class="resbs-nav-text"><?php esc_html_e('Google reCAPTCHA', 'realestate-booking-suite'); ?></span>
+                                </a>
+                            </li>
+                            <li class="resbs-nav-item">
+                                <a href="#" data-tab="listings" class="resbs-nav-link <?php echo $this->current_tab === 'listings' ? 'active' : ''; ?>">
+                                    <span class="resbs-nav-text"><?php esc_html_e('Listings', 'realestate-booking-suite'); ?></span>
+                                </a>
+                            </li>
+                            <li class="resbs-nav-item">
+                                <a href="#" data-tab="search" class="resbs-nav-link <?php echo $this->current_tab === 'search' ? 'active' : ''; ?>">
+                                    <span class="resbs-nav-text"><?php esc_html_e('Listing search', 'realestate-booking-suite'); ?></span>
+                                </a>
+                            </li>
+                            <li class="resbs-nav-item">
+                                <a href="#" data-tab="user-profile" class="resbs-nav-link <?php echo $this->current_tab === 'user-profile' ? 'active' : ''; ?>">
+                                    <span class="resbs-nav-text"><?php esc_html_e('User profile', 'realestate-booking-suite'); ?></span>
+                                </a>
+                            </li>
+                            <li class="resbs-nav-item">
+                                <a href="#" data-tab="login-signup" class="resbs-nav-link <?php echo $this->current_tab === 'login-signup' ? 'active' : ''; ?>">
+                                    <span class="resbs-nav-text"><?php esc_html_e('Log in & Sign up', 'realestate-booking-suite'); ?></span>
+                                </a>
+                            </li>
+                            <li class="resbs-nav-item">
+                                <a href="#" data-tab="seo" class="resbs-nav-link <?php echo $this->current_tab === 'seo' ? 'active' : ''; ?>">
+                                    <span class="resbs-nav-text"><?php esc_html_e('SEO', 'realestate-booking-suite'); ?></span>
+                                </a>
+                            </li>
+                            <li class="resbs-nav-item">
+                                <a href="#" data-tab="sharing" class="resbs-nav-link <?php echo $this->current_tab === 'sharing' ? 'active' : ''; ?>">
+                                    <span class="resbs-nav-text"><?php esc_html_e('Sharing', 'realestate-booking-suite'); ?></span>
+                                </a>
+                            </li>
+                            <li class="resbs-nav-item">
+                                <a href="#" data-tab="url-slug" class="resbs-nav-link <?php echo $this->current_tab === 'url-slug' ? 'active' : ''; ?>">
+                                    <span class="resbs-nav-text"><?php esc_html_e('URL slug', 'realestate-booking-suite'); ?></span>
+                                </a>
+                            </li>
+                            <li class="resbs-nav-item">
+                                <a href="#" data-tab="privacy-terms" class="resbs-nav-link <?php echo $this->current_tab === 'privacy-terms' ? 'active' : ''; ?>">
+                                    <span class="resbs-nav-text"><?php esc_html_e('Privacy policy & Terms of use', 'realestate-booking-suite'); ?></span>
+                                </a>
+                            </li>
                         </ul>
                     </div>
                 </div>
@@ -450,56 +405,76 @@ class RESBS_Enhanced_Settings {
         </div>
         
         <style>
+        /* Estatik-style Settings Design */
         .resbs-enhanced-settings {
-            margin: 20px 0;
+            margin: 0;
+            background: #f1f1f1;
         }
         
+        /* Header - Clean and Simple */
         .resbs-settings-header {
+            background: white;
+            padding: 20px 0;
+            margin: 0 0 20px 0;
+            border-bottom: 1px solid #ddd;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #ddd;
         }
         
-        .resbs-plugin-info {
+        .resbs-header-left h1 {
+            margin: 0;
+            font-size: 23px;
+            font-weight: 400;
+            color: #23282d;
+        }
+        
+        .resbs-plugin-branding {
             display: flex;
             align-items: center;
             gap: 10px;
         }
         
-        .resbs-plugin-logo {
-            font-size: 24px;
+        .resbs-logo-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .resbs-logo-icon {
+            font-size: 20px;
+            color: #0073aa;
         }
         
         .resbs-plugin-name {
-            font-weight: bold;
-            font-size: 16px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #23282d;
         }
         
         .resbs-plugin-version {
+            font-size: 12px;
             color: #666;
-            font-size: 14px;
         }
         
+        /* Container Layout */
         .resbs-settings-container {
             display: flex;
-            gap: 30px;
+            gap: 0;
+            background: white;
+            border: 1px solid #ccd0d4;
+            box-shadow: 0 1px 1px rgba(0,0,0,.04);
         }
         
+        /* Sidebar - Estatik Style */
         .resbs-settings-sidebar {
-            width: 250px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            padding: 20px;
-            height: fit-content;
+            width: 200px;
+            background: white;
+            border-right: 1px solid #ccd0d4;
         }
         
-        .resbs-settings-nav h3 {
-            margin: 0 0 20px 0;
-            font-size: 16px;
-            color: #333;
+        .resbs-settings-nav {
+            padding: 0;
         }
         
         .resbs-nav-tabs {
@@ -508,94 +483,109 @@ class RESBS_Enhanced_Settings {
             padding: 0;
         }
         
-        .resbs-nav-tabs li {
+        .resbs-nav-item {
             margin: 0;
         }
         
-        .resbs-nav-tabs a {
+        .resbs-nav-link {
             display: block;
-            padding: 12px 16px;
+            padding: 12px 20px;
             text-decoration: none;
             color: #555;
-            border-radius: 6px;
-            margin-bottom: 4px;
-            transition: all 0.3s ease;
-        }
-        
-        .resbs-nav-tabs a:hover {
-            background: #e9ecef;
-            color: #333;
-        }
-        
-        .resbs-nav-tabs a.active {
-            background: #007cba;
-            color: white;
+            border-bottom: 1px solid #e1e1e1;
+            font-size: 14px;
+            transition: none;
             position: relative;
         }
         
-        .resbs-nav-tabs a.active::before {
-            content: '';
-            position: absolute;
-            left: -20px;
-            top: 0;
-            bottom: 0;
-            width: 4px;
-            background: #007cba;
-            border-radius: 0 2px 2px 0;
+        .resbs-nav-link:hover {
+            background: #f8f9fa;
+            color: #23282d;
         }
         
+        .resbs-nav-link.active {
+            background: white;
+            color: #23282d;
+            font-weight: 600;
+        }
+        
+        .resbs-nav-link.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: #00a0d2;
+        }
+        
+        .resbs-nav-text {
+            font-size: 14px;
+        }
+        
+        /* Content Area - Estatik Style */
         .resbs-settings-content {
             flex: 1;
             background: white;
-            border-radius: 8px;
             padding: 30px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            min-height: 500px;
         }
         
         .resbs-settings-content h2 {
-            margin: 0 0 30px 0;
-            color: #333;
-            font-size: 24px;
+            margin: 0 0 20px 0;
+            font-size: 20px;
+            font-weight: 400;
+            color: #23282d;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e1e1e1;
         }
         
+        /* Form Styling - WordPress Default */
         .resbs-form-group {
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
         
         .resbs-form-group label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 5px;
             font-weight: 600;
-            color: #333;
+            color: #23282d;
+            font-size: 14px;
         }
         
         .resbs-form-group input[type="text"],
         .resbs-form-group input[type="email"],
         .resbs-form-group input[type="number"],
-        .resbs-form-group input[type="url"],
+        .resbs-form-group input[type="color"],
         .resbs-form-group select,
         .resbs-form-group textarea {
             width: 100%;
-            max-width: 500px;
-            padding: 10px 12px;
+            max-width: 400px;
+            padding: 8px 12px;
             border: 1px solid #ddd;
-            border-radius: 6px;
+            border-radius: 3px;
             font-size: 14px;
+            background: #fff;
         }
         
-        .resbs-form-group input[type="color"] {
-            width: 60px;
-            height: 40px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
+        .resbs-form-group input[type="text"]:focus,
+        .resbs-form-group input[type="email"]:focus,
+        .resbs-form-group input[type="number"]:focus,
+        .resbs-form-group input[type="color"]:focus,
+        .resbs-form-group select:focus,
+        .resbs-form-group textarea:focus {
+            outline: none;
+            border-color: #5b9dd9;
+            box-shadow: 0 0 2px rgba(30, 140, 190, 0.8);
         }
         
+        /* Toggle Switch - WordPress Style */
         .resbs-toggle-switch {
             position: relative;
             display: inline-block;
             width: 50px;
             height: 24px;
+            margin-right: 10px;
         }
         
         .resbs-toggle-switch input {
@@ -629,17 +619,53 @@ class RESBS_Enhanced_Settings {
         }
         
         input:checked + .resbs-slider {
-            background-color: #007cba;
+            background-color: #00a0d2;
         }
         
         input:checked + .resbs-slider:before {
             transform: translateX(26px);
         }
         
+        /* Layout Options - Simple Style */
+        .resbs-layout-options {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        
+        .resbs-layout-option {
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: none;
+            min-width: 100px;
+            background: #fff;
+        }
+        
+        .resbs-layout-option:hover {
+            border-color: #5b9dd9;
+        }
+        
+        .resbs-layout-option.selected {
+            border-color: #00a0d2;
+            background: #f0f8fc;
+        }
+        
+        .resbs-layout-preview {
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #333;
+            font-size: 14px;
+        }
+        
+        /* Checkbox Groups */
         .resbs-checkbox-group {
             display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
+            flex-direction: column;
+            gap: 8px;
             margin-top: 10px;
         }
         
@@ -650,115 +676,37 @@ class RESBS_Enhanced_Settings {
         }
         
         .resbs-checkbox-item input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
+            margin: 0;
         }
         
-        .resbs-layout-options {
-            display: flex;
-            gap: 20px;
-            margin-top: 15px;
-        }
-        
-        .resbs-layout-option {
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            padding: 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            min-width: 120px;
-        }
-        
-        .resbs-layout-option:hover {
-            border-color: #007cba;
-        }
-        
-        .resbs-layout-option.selected {
-            border-color: #007cba;
-            background: #f0f8ff;
-        }
-        
-        .resbs-layout-option input[type="radio"] {
-            margin-bottom: 10px;
-        }
-        
-        .resbs-layout-preview {
-            width: 60px;
-            height: 40px;
-            background: #f0f0f0;
-            margin: 0 auto 10px;
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            color: #666;
-        }
-        
-        .resbs-save-button {
-            background: #ff6b35;
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 6px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 30px;
-        }
-        
-        .resbs-save-button:hover {
-            background: #e55a2b;
-        }
-        
-        .resbs-description {
-            color: #666;
-            font-size: 13px;
-            margin-top: 5px;
-            font-style: italic;
-        }
-        
-        .resbs-pro-tag {
-            background: #28a745;
-            color: white;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: bold;
-            margin-left: 10px;
-        }
-        
+        /* Page Creation Cards - Simple Style */
         .resbs-page-creation-card {
-            background: #f8f9fa;
-            border: 1px solid #e9ecef;
-            border-radius: 8px;
-            padding: 20px;
-            margin: 20px 0;
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            padding: 15px;
+            margin: 15px 0;
             display: flex;
             align-items: center;
             gap: 15px;
         }
         
         .resbs-page-icon {
-            width: 40px;
-            height: 40px;
-            background: #007cba;
-            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            background: #00a0d2;
+            border-radius: 3px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 18px;
-        }
-        
-        .resbs-page-info {
-            flex: 1;
+            font-size: 16px;
         }
         
         .resbs-page-info h4 {
             margin: 0 0 5px 0;
-            color: #333;
+            color: #23282d;
+            font-size: 14px;
         }
         
         .resbs-page-info p {
@@ -768,18 +716,154 @@ class RESBS_Enhanced_Settings {
         }
         
         .resbs-create-page-btn {
-            background: #6c757d;
+            background: #00a0d2;
             color: white;
             border: none;
             padding: 8px 16px;
-            border-radius: 4px;
+            border-radius: 3px;
             cursor: pointer;
+            font-size: 13px;
         }
         
         .resbs-create-page-btn:hover {
-            background: #5a6268;
+            background: #0085ba;
+        }
+        
+        /* Save Button - WordPress Style */
+        .resbs-save-button {
+            background: #00a0d2;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .resbs-save-button:hover {
+            background: #0085ba;
+        }
+        
+        /* Description Text */
+        .resbs-description {
+            font-size: 13px;
+            color: #666;
+            margin-top: 5px;
+            font-style: italic;
+        }
+        
+        /* Pro Tag */
+        .resbs-pro-tag {
+            background: #d63638;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: bold;
+            margin-left: 8px;
+        }
+        
+        /* Success Messages */
+        .notice.notice-success {
+            background: #d1edcc;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            border-radius: 3px;
+            padding: 12px;
+            margin: 15px 0;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .resbs-settings-container {
+                flex-direction: column;
+            }
+            
+            .resbs-settings-sidebar {
+                width: 100%;
+            }
+            
+            .resbs-nav-tabs {
+                display: flex;
+                flex-wrap: wrap;
+            }
+            
+            .resbs-nav-item {
+                flex: 1;
+                min-width: 150px;
+            }
+            
+            .resbs-nav-link {
+                border-bottom: none;
+                border-right: 1px solid #e1e1e1;
+            }
+        }
+        
+        /* Loading animation */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
         </style>
+        
+        <script>
+        // MINIMAL WORKING VERSION
+        jQuery(document).ready(function($) {
+            console.log('=== RESBS MINIMAL JS LOADED ===');
+            
+            // Test if jQuery and basic elements exist
+            console.log('jQuery version:', $.fn.jquery);
+            console.log('Nav links found:', $('.resbs-nav-link').length);
+            console.log('Content area found:', $('.resbs-settings-content').length);
+            
+            // Tab switching
+            $('.resbs-nav-link').on('click', function(e) {
+                e.preventDefault();
+                console.log('=== TAB CLICKED ===');
+                
+                // Get tab data
+                var tab = $(this).data('tab');
+                console.log('Tab data:', tab);
+                
+                // Don't reload if same tab
+                if ($(this).hasClass('active')) {
+                    console.log('Same tab, skipping');
+                    return;
+                }
+                
+                // Update active state
+                $('.resbs-nav-link').removeClass('active');
+                $(this).addClass('active');
+                
+                // Show loading spinner
+                $('.resbs-settings-content').html('<div style="text-align: center; padding: 50px;"><div style="display: inline-block; width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #00a0d2; border-radius: 50%; animation: spin 1s linear infinite;"></div><p style="margin-top: 20px;">Loading...</p></div>');
+                
+                // Load tab content via AJAX
+                console.log('Making AJAX request...');
+                
+                $.post(ajaxurl, {
+                    action: 'resbs_load_tab_content',
+                    tab: tab,
+                    nonce: '<?php echo wp_create_nonce('resbs_load_tab_content'); ?>'
+                })
+                .done(function(response) {
+                    console.log('AJAX Success:', response);
+                    if (response.success) {
+                        $('.resbs-settings-content').html(response.data);
+                    } else {
+                        $('.resbs-settings-content').html('<div class="notice notice-error"><p>Error loading tab content.</p></div>');
+                    }
+                })
+                .fail(function(xhr, status, error) {
+                    console.log('AJAX Failed:', status, error);
+                    $('.resbs-settings-content').html('<div class="notice notice-error"><p>AJAX Error: ' + error + '</p></div>');
+                });
+            });
+            
+            console.log('=== EVENT HANDLERS ATTACHED ===');
+        });
+        </script>
         <?php
     }
     
@@ -2896,6 +2980,90 @@ class RESBS_Enhanced_Settings {
         } else {
             wp_send_json_error('Failed to create page');
         }
+    }
+    
+    /**
+     * Handle AJAX tab content loading
+     */
+    public function handle_load_tab_content() {
+        // Debug logging
+        error_log('RESBS AJAX: handle_load_tab_content called');
+        error_log('RESBS AJAX: POST data: ' . print_r($_POST, true));
+        
+        if (!current_user_can('manage_options')) {
+            error_log('RESBS AJAX: Unauthorized user');
+            wp_die('Unauthorized');
+        }
+        
+        if (!wp_verify_nonce($_POST['nonce'], 'resbs_load_tab_content')) {
+            error_log('RESBS AJAX: Nonce verification failed');
+            wp_die('Security check failed');
+        }
+        
+        $tab = sanitize_text_field($_POST['tab']);
+        error_log('RESBS AJAX: Loading tab: ' . $tab);
+        
+        ob_start();
+        switch ($tab) {
+            case 'general':
+                $this->general_settings_tab();
+                break;
+            case 'map':
+                $this->map_settings_tab();
+                break;
+            case 'recaptcha':
+                $this->recaptcha_settings_tab();
+                break;
+            case 'listings':
+                $this->listings_settings_tab();
+                break;
+            case 'search':
+                $this->search_settings_tab();
+                break;
+            case 'user-profile':
+                $this->user_profile_settings_tab();
+                break;
+            case 'login-signup':
+                $this->login_signup_settings_tab();
+                break;
+            case 'seo':
+                $this->seo_settings_tab();
+                break;
+            case 'sharing':
+                $this->sharing_settings_tab();
+                break;
+            case 'url-slug':
+                $this->url_slug_settings_tab();
+                break;
+            case 'privacy-terms':
+                $this->privacy_terms_settings_tab();
+                break;
+            case 'email':
+                $this->email_settings_tab();
+                break;
+            case 'appearance':
+                $this->appearance_settings_tab();
+                break;
+            case 'currency':
+                $this->currency_settings_tab();
+                break;
+            default:
+                $this->general_settings_tab();
+        }
+        $content = ob_get_clean();
+        
+        error_log('RESBS AJAX: Content length: ' . strlen($content));
+        error_log('RESBS AJAX: Sending success response');
+        
+        wp_send_json_success($content);
+    }
+    
+    /**
+     * Test AJAX handler
+     */
+    public function handle_test_ajax() {
+        error_log('RESBS TEST AJAX: Called');
+        wp_send_json_success(array('message' => 'AJAX is working!', 'timestamp' => time()));
     }
     
     // Placeholder methods for other menu items

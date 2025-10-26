@@ -122,5 +122,6 @@ require_once RESBS_PATH . 'includes/class-resbs-email-handler.php';
 
 // Load enhanced settings functionality (NEW ESTATIK-STYLE)
 require_once RESBS_PATH . 'includes/class-resbs-enhanced-settings.php';
+new RESBS_Enhanced_Settings();
 
 
