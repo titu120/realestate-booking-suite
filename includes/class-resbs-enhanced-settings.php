@@ -144,14 +144,6 @@ class RESBS_Enhanced_Settings {
         register_setting('resbs_enhanced_settings', 'resbs_single_marker_icon');
         register_setting('resbs_enhanced_settings', 'resbs_single_marker_color');
         
-        // Google reCAPTCHA Settings
-        register_setting('resbs_enhanced_settings', 'resbs_recaptcha_version');
-        register_setting('resbs_enhanced_settings', 'resbs_recaptcha_site_key');
-        register_setting('resbs_enhanced_settings', 'resbs_recaptcha_secret_key');
-        register_setting('resbs_enhanced_settings', 'resbs_recaptcha_signup');
-        register_setting('resbs_enhanced_settings', 'resbs_recaptcha_signin');
-        register_setting('resbs_enhanced_settings', 'resbs_recaptcha_reset_password');
-        register_setting('resbs_enhanced_settings', 'resbs_recaptcha_request_form');
         
         // Listings Settings
         register_setting('resbs_enhanced_settings', 'resbs_general_listing_name');
@@ -227,27 +219,8 @@ class RESBS_Enhanced_Settings {
         register_setting('resbs_enhanced_settings', 'resbs_heading_tag_posts_title');
         register_setting('resbs_enhanced_settings', 'resbs_enable_dynamic_content');
         
-        // Sharing Settings
-        register_setting('resbs_enhanced_settings', 'resbs_enable_sharing_link');
-        register_setting('resbs_enhanced_settings', 'resbs_enable_sharing_social');
-        register_setting('resbs_enhanced_settings', 'resbs_sharing_options');
-        register_setting('resbs_enhanced_settings', 'resbs_enable_sharing_pdf');
         
-        // URL Slug Settings
-        register_setting('resbs_enhanced_settings', 'resbs_property_slug');
-        register_setting('resbs_enhanced_settings', 'resbs_property_category_slug');
-        register_setting('resbs_enhanced_settings', 'resbs_property_type_slug');
-        register_setting('resbs_enhanced_settings', 'resbs_property_status_slug');
-        register_setting('resbs_enhanced_settings', 'resbs_property_label_slug');
-        register_setting('resbs_enhanced_settings', 'resbs_property_amenity_slug');
-        register_setting('resbs_enhanced_settings', 'resbs_property_feature_slug');
         
-        // Privacy Policy & Terms Settings
-        register_setting('resbs_enhanced_settings', 'resbs_enable_privacy_terms');
-        register_setting('resbs_enhanced_settings', 'resbs_privacy_terms_signup');
-        register_setting('resbs_enhanced_settings', 'resbs_privacy_terms_request_form');
-        register_setting('resbs_enhanced_settings', 'resbs_privacy_terms_acceptance_type');
-        register_setting('resbs_enhanced_settings', 'resbs_privacy_terms_text');
     }
     
     /**
@@ -300,13 +273,13 @@ class RESBS_Enhanced_Settings {
                                 </a>
                             </li>
                             <li class="resbs-nav-item">
-                                <a href="#" data-tab="recaptcha" class="resbs-nav-link <?php echo $this->current_tab === 'recaptcha' ? 'active' : ''; ?>">
-                                    <span class="resbs-nav-text"><?php esc_html_e('Google reCAPTCHA', 'realestate-booking-suite'); ?></span>
+                                <a href="#" data-tab="listings" class="resbs-nav-link <?php echo $this->current_tab === 'listings' ? 'active' : ''; ?>">
+                                    <span class="resbs-nav-text"><?php esc_html_e('Listings', 'realestate-booking-suite'); ?></span>
                                 </a>
                             </li>
                             <li class="resbs-nav-item">
-                                <a href="#" data-tab="listings" class="resbs-nav-link <?php echo $this->current_tab === 'listings' ? 'active' : ''; ?>">
-                                    <span class="resbs-nav-text"><?php esc_html_e('Listings', 'realestate-booking-suite'); ?></span>
+                                <a href="#" data-tab="archive" class="resbs-nav-link <?php echo $this->current_tab === 'archive' ? 'active' : ''; ?>">
+                                    <span class="resbs-nav-text"><?php esc_html_e('Archive Pages', 'realestate-booking-suite'); ?></span>
                                 </a>
                             </li>
                             <li class="resbs-nav-item">
@@ -329,21 +302,6 @@ class RESBS_Enhanced_Settings {
                                     <span class="resbs-nav-text"><?php esc_html_e('SEO', 'realestate-booking-suite'); ?></span>
                                 </a>
                             </li>
-                            <li class="resbs-nav-item">
-                                <a href="#" data-tab="sharing" class="resbs-nav-link <?php echo $this->current_tab === 'sharing' ? 'active' : ''; ?>">
-                                    <span class="resbs-nav-text"><?php esc_html_e('Sharing', 'realestate-booking-suite'); ?></span>
-                                </a>
-                            </li>
-                            <li class="resbs-nav-item">
-                                <a href="#" data-tab="url-slug" class="resbs-nav-link <?php echo $this->current_tab === 'url-slug' ? 'active' : ''; ?>">
-                                    <span class="resbs-nav-text"><?php esc_html_e('URL slug', 'realestate-booking-suite'); ?></span>
-                                </a>
-                            </li>
-                            <li class="resbs-nav-item">
-                                <a href="#" data-tab="privacy-terms" class="resbs-nav-link <?php echo $this->current_tab === 'privacy-terms' ? 'active' : ''; ?>">
-                                    <span class="resbs-nav-text"><?php esc_html_e('Privacy policy & Terms of use', 'realestate-booking-suite'); ?></span>
-                                </a>
-                            </li>
                         </ul>
                     </div>
                 </div>
@@ -356,9 +314,6 @@ class RESBS_Enhanced_Settings {
                             break;
                         case 'map':
                             $this->map_settings_tab();
-                            break;
-                        case 'recaptcha':
-                            $this->recaptcha_settings_tab();
                             break;
                         case 'listings':
                             $this->listings_settings_tab();
@@ -377,24 +332,6 @@ class RESBS_Enhanced_Settings {
                             break;
                         case 'seo':
                             $this->seo_settings_tab();
-                            break;
-                        case 'sharing':
-                            $this->sharing_settings_tab();
-                            break;
-                        case 'url-slug':
-                            $this->url_slug_settings_tab();
-                            break;
-                        case 'privacy-terms':
-                            $this->privacy_terms_settings_tab();
-                            break;
-                        case 'email':
-                            $this->email_settings_tab();
-                            break;
-                        case 'appearance':
-                            $this->appearance_settings_tab();
-                            break;
-                        case 'currency':
-                            $this->currency_settings_tab();
                             break;
                         default:
                             $this->general_settings_tab();
@@ -1341,10 +1278,14 @@ class RESBS_Enhanced_Settings {
         ?>
         <h2><?php esc_html_e('Archive Pages', 'realestate-booking-suite'); ?></h2>
         
+        <?php if (isset($_GET['updated']) && $_GET['updated'] == '1'): ?>
+            <div class="notice notice-success"><p><?php esc_html_e('Settings saved successfully!', 'realestate-booking-suite'); ?></p></div>
+        <?php endif; ?>
+        
         <form method="post" action="<?php echo admin_url('admin-post.php'); ?>">
             <?php wp_nonce_field('resbs_enhanced_settings-options'); ?>
             <input type="hidden" name="action" value="resbs_save_settings">
-            <input type="hidden" name="current_tab" value="login-signup">
+            <input type="hidden" name="current_tab" value="archive">
             
             <div class="resbs-form-group">
                 <label><?php esc_html_e('Default Layout for Archive Pages', 'realestate-booking-suite'); ?></label>
@@ -1631,78 +1572,6 @@ class RESBS_Enhanced_Settings {
         <?php
     }
     
-    /**
-     * Google reCAPTCHA settings tab
-     */
-    private function recaptcha_settings_tab() {
-        ?>
-        <h2><?php esc_html_e('Google reCAPTCHA', 'realestate-booking-suite'); ?></h2>
-        
-        <?php if (isset($_GET['updated']) && $_GET['updated'] == '1'): ?>
-            <div class="notice notice-success"><p><?php esc_html_e('Settings saved successfully!', 'realestate-booking-suite'); ?></p></div>
-        <?php endif; ?>
-        
-        <form method="post" action="<?php echo admin_url('admin-post.php'); ?>">
-            <?php wp_nonce_field('resbs_enhanced_settings-options'); ?>
-            <input type="hidden" name="action" value="resbs_save_settings">
-            <input type="hidden" name="current_tab" value="recaptcha">
-            
-            <div class="resbs-form-group">
-                <p><?php esc_html_e('If you don\'t have keys already then', 'realestate-booking-suite'); ?> <a href="https://www.google.com/recaptcha/admin" target="_blank"><?php esc_html_e('generate them', 'realestate-booking-suite'); ?></a>.</p>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label><?php esc_html_e('reCAPTCHA version', 'realestate-booking-suite'); ?></label>
-                <div class="resbs-layout-options">
-                    <div class="resbs-layout-option">
-                        <input type="radio" id="recaptcha_v2" name="resbs_recaptcha_version" value="v2" <?php checked(get_option('resbs_recaptcha_version'), 'v2'); ?>>
-                        <div class="resbs-layout-preview">v2</div>
-                        <label for="recaptcha_v2"><?php esc_html_e('reCAPTCHA v2', 'realestate-booking-suite'); ?></label>
-                    </div>
-                    <div class="resbs-layout-option">
-                        <input type="radio" id="recaptcha_v3" name="resbs_recaptcha_version" value="v3" <?php checked(get_option('resbs_recaptcha_version'), 'v3'); ?>>
-                        <div class="resbs-layout-preview">v3</div>
-                        <label for="recaptcha_v3"><?php esc_html_e('reCAPTCHA v3', 'realestate-booking-suite'); ?></label>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label for="resbs_recaptcha_site_key"><?php esc_html_e('reCAPTCHA site key', 'realestate-booking-suite'); ?></label>
-                <input type="text" id="resbs_recaptcha_site_key" name="resbs_recaptcha_site_key" value="<?php echo esc_attr(get_option('resbs_recaptcha_site_key')); ?>" class="regular-text">
-            </div>
-            
-            <div class="resbs-form-group">
-                <label for="resbs_recaptcha_secret_key"><?php esc_html_e('reCAPTCHA secret key', 'realestate-booking-suite'); ?></label>
-                <input type="text" id="resbs_recaptcha_secret_key" name="resbs_recaptcha_secret_key" value="<?php echo esc_attr(get_option('resbs_recaptcha_secret_key')); ?>" class="regular-text">
-            </div>
-            
-            <div class="resbs-form-group">
-                <label><?php esc_html_e('Enable Google reCaptcha to submit forms', 'realestate-booking-suite'); ?></label>
-                <div class="resbs-checkbox-group">
-                    <div class="resbs-checkbox-item">
-                        <input type="checkbox" id="recaptcha_signup" name="resbs_recaptcha_signup" value="1" <?php checked(get_option('resbs_recaptcha_signup'), 1); ?>>
-                        <label for="recaptcha_signup"><?php esc_html_e('Sign up', 'realestate-booking-suite'); ?></label>
-                    </div>
-                    <div class="resbs-checkbox-item">
-                        <input type="checkbox" id="recaptcha_signin" name="resbs_recaptcha_signin" value="1" <?php checked(get_option('resbs_recaptcha_signin'), 1); ?>>
-                        <label for="recaptcha_signin"><?php esc_html_e('Sign in', 'realestate-booking-suite'); ?></label>
-                    </div>
-                    <div class="resbs-checkbox-item">
-                        <input type="checkbox" id="recaptcha_reset" name="resbs_recaptcha_reset_password" value="1" <?php checked(get_option('resbs_recaptcha_reset_password'), 1); ?>>
-                        <label for="recaptcha_reset"><?php esc_html_e('Reset password', 'realestate-booking-suite'); ?></label>
-                    </div>
-                    <div class="resbs-checkbox-item">
-                        <input type="checkbox" id="recaptcha_request" name="resbs_recaptcha_request_form" value="1" <?php checked(get_option('resbs_recaptcha_request_form'), 1); ?>>
-                        <label for="recaptcha_request"><?php esc_html_e('Request form', 'realestate-booking-suite'); ?></label>
-                    </div>
-                </div>
-            </div>
-            
-            <button type="submit" class="resbs-save-button"><?php esc_html_e('SAVE CHANGES', 'realestate-booking-suite'); ?></button>
-        </form>
-        <?php
-    }
     
     /**
      * Listings settings tab
@@ -2406,280 +2275,11 @@ class RESBS_Enhanced_Settings {
         <?php
     }
     
-    /**
-     * Sharing settings tab
-     */
-    private function sharing_settings_tab() {
-        ?>
-        <h2><?php esc_html_e('Sharing', 'realestate-booking-suite'); ?></h2>
-        
-        <?php if (isset($_GET['updated']) && $_GET['updated'] == '1'): ?>
-            <div class="notice notice-success"><p><?php esc_html_e('Settings saved successfully!', 'realestate-booking-suite'); ?></p></div>
-        <?php endif; ?>
-        
-        <form method="post" action="<?php echo admin_url('admin-post.php'); ?>">
-            <?php wp_nonce_field('resbs_enhanced_settings-options'); ?>
-            <input type="hidden" name="action" value="resbs_save_settings">
-            <input type="hidden" name="current_tab" value="sharing">
-            
-            <div class="resbs-form-group">
-                <label>
-                    <div class="resbs-toggle-switch">
-                        <input type="checkbox" name="resbs_enable_sharing_link" value="1" <?php checked(get_option('resbs_enable_sharing_link'), 1); ?>>
-                        <span class="resbs-slider"></span>
-                    </div>
-                    <?php esc_html_e('Enable sharing with link', 'realestate-booking-suite'); ?>
-                </label>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label>
-                    <div class="resbs-toggle-switch">
-                        <input type="checkbox" name="resbs_enable_sharing_social" value="1" <?php checked(get_option('resbs_enable_sharing_social'), 1); ?>>
-                        <span class="resbs-slider"></span>
-                    </div>
-                    <?php esc_html_e('Enable sharing via social networks', 'realestate-booking-suite'); ?>
-                </label>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label><?php esc_html_e('Select options', 'realestate-booking-suite'); ?></label>
-                <div class="resbs-checkbox-group">
-                    <div class="resbs-checkbox-item">
-                        <input type="checkbox" id="share_linkedin" name="resbs_sharing_options[]" value="linkedin" <?php echo in_array('linkedin', (array)get_option('resbs_sharing_options', array())) ? 'checked' : ''; ?>>
-                        <label for="share_linkedin"><?php esc_html_e('Linkedin', 'realestate-booking-suite'); ?></label>
-                    </div>
-                    <div class="resbs-checkbox-item">
-                        <input type="checkbox" id="share_facebook" name="resbs_sharing_options[]" value="facebook" <?php echo in_array('facebook', (array)get_option('resbs_sharing_options', array())) ? 'checked' : ''; ?>>
-                        <label for="share_facebook"><?php esc_html_e('Facebook', 'realestate-booking-suite'); ?></label>
-                    </div>
-                    <div class="resbs-checkbox-item">
-                        <input type="checkbox" id="share_twitter" name="resbs_sharing_options[]" value="twitter" <?php echo in_array('twitter', (array)get_option('resbs_sharing_options', array())) ? 'checked' : ''; ?>>
-                        <label for="share_twitter"><?php esc_html_e('Twitter', 'realestate-booking-suite'); ?></label>
-                    </div>
-                    <div class="resbs-checkbox-item">
-                        <input type="checkbox" id="share_pinterest" name="resbs_sharing_options[]" value="pinterest" <?php echo in_array('pinterest', (array)get_option('resbs_sharing_options', array())) ? 'checked' : ''; ?>>
-                        <label for="share_pinterest"><?php esc_html_e('Pinterest', 'realestate-booking-suite'); ?></label>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label>
-                    <div class="resbs-toggle-switch">
-                        <input type="checkbox" name="resbs_enable_sharing_pdf" value="1" <?php checked(get_option('resbs_enable_sharing_pdf'), 1); ?>>
-                        <span class="resbs-slider"></span>
-                    </div>
-                    <?php esc_html_e('Enable sharing with PDF', 'realestate-booking-suite'); ?>
-                    <span class="resbs-pro-tag">PRO</span>
-                </label>
-            </div>
-            
-            <button type="submit" class="resbs-save-button"><?php esc_html_e('SAVE CHANGES', 'realestate-booking-suite'); ?></button>
-        </form>
-        <?php
-    }
     
-    /**
-     * URL Slug settings tab
-     */
-    private function url_slug_settings_tab() {
-        ?>
-        <h2><?php esc_html_e('URL Slug', 'realestate-booking-suite'); ?></h2>
-        
-        <?php if (isset($_GET['updated']) && $_GET['updated'] == '1'): ?>
-            <div class="notice notice-success"><p><?php esc_html_e('Settings saved successfully!', 'realestate-booking-suite'); ?></p></div>
-        <?php endif; ?>
-        
-        <form method="post" action="<?php echo admin_url('admin-post.php'); ?>">
-            <?php wp_nonce_field('resbs_enhanced_settings-options'); ?>
-            <input type="hidden" name="action" value="resbs_save_settings">
-            <input type="hidden" name="current_tab" value="url-slug">
-            
-            <div class="resbs-form-group">
-                <label for="resbs_property_slug"><?php esc_html_e('Property slug', 'realestate-booking-suite'); ?></label>
-                <input type="text" id="resbs_property_slug" name="resbs_property_slug" value="<?php echo esc_attr(get_option('resbs_property_slug', 'property')); ?>" class="regular-text">
-            </div>
-            
-            <div class="resbs-form-group">
-                <label for="resbs_property_category_slug"><?php esc_html_e('Property category slug', 'realestate-booking-suite'); ?></label>
-                <input type="text" id="resbs_property_category_slug" name="resbs_property_category_slug" value="<?php echo esc_attr(get_option('resbs_property_category_slug', 'property-category')); ?>" class="regular-text">
-            </div>
-            
-            <div class="resbs-form-group">
-                <label for="resbs_property_type_slug"><?php esc_html_e('Property type slug', 'realestate-booking-suite'); ?></label>
-                <input type="text" id="resbs_property_type_slug" name="resbs_property_type_slug" value="<?php echo esc_attr(get_option('resbs_property_type_slug', 'property-type')); ?>" class="regular-text">
-            </div>
-            
-            <div class="resbs-form-group">
-                <label for="resbs_property_status_slug"><?php esc_html_e('Property status slug', 'realestate-booking-suite'); ?></label>
-                <input type="text" id="resbs_property_status_slug" name="resbs_property_status_slug" value="<?php echo esc_attr(get_option('resbs_property_status_slug', 'es_status')); ?>" class="regular-text">
-            </div>
-            
-            <div class="resbs-form-group">
-                <label for="resbs_property_label_slug"><?php esc_html_e('Property label slug', 'realestate-booking-suite'); ?></label>
-                <input type="text" id="resbs_property_label_slug" name="resbs_property_label_slug" value="<?php echo esc_attr(get_option('resbs_property_label_slug', 'es_label')); ?>" class="regular-text">
-            </div>
-            
-            <div class="resbs-form-group">
-                <label for="resbs_property_amenity_slug"><?php esc_html_e('Property amenity slug', 'realestate-booking-suite'); ?></label>
-                <input type="text" id="resbs_property_amenity_slug" name="resbs_property_amenity_slug" value="<?php echo esc_attr(get_option('resbs_property_amenity_slug', 'es_amenity')); ?>" class="regular-text">
-            </div>
-            
-            <div class="resbs-form-group">
-                <label for="resbs_property_feature_slug"><?php esc_html_e('Property feature slug', 'realestate-booking-suite'); ?></label>
-                <input type="text" id="resbs_property_feature_slug" name="resbs_property_feature_slug" value="<?php echo esc_attr(get_option('resbs_property_feature_slug', 'es_feature')); ?>" class="regular-text">
-            </div>
-            
-            <button type="submit" class="resbs-save-button"><?php esc_html_e('SAVE CHANGES', 'realestate-booking-suite'); ?></button>
-        </form>
-        <?php
-    }
     
-    /**
-     * Privacy Policy & Terms settings tab
-     */
-    private function privacy_terms_settings_tab() {
-        ?>
-        <h2><?php esc_html_e('Privacy Policy & Terms of use', 'realestate-booking-suite'); ?></h2>
-        
-        <?php if (isset($_GET['updated']) && $_GET['updated'] == '1'): ?>
-            <div class="notice notice-success"><p><?php esc_html_e('Settings saved successfully!', 'realestate-booking-suite'); ?></p></div>
-        <?php endif; ?>
-        
-        <form method="post" action="<?php echo admin_url('admin-post.php'); ?>">
-            <?php wp_nonce_field('resbs_enhanced_settings-options'); ?>
-            <input type="hidden" name="action" value="resbs_save_settings">
-            <input type="hidden" name="current_tab" value="privacy-terms">
-            
-            <div class="resbs-form-group">
-                <label><?php esc_html_e('Enable information about Privacy policy & Terms of use to submit forms', 'realestate-booking-suite'); ?></label>
-                <div class="resbs-checkbox-group">
-                    <div class="resbs-checkbox-item">
-                        <input type="checkbox" id="privacy_signup" name="resbs_privacy_terms_signup" value="1" <?php checked(get_option('resbs_privacy_terms_signup'), 1); ?>>
-                        <label for="privacy_signup"><?php esc_html_e('Sign up', 'realestate-booking-suite'); ?></label>
-                    </div>
-                    <div class="resbs-checkbox-item">
-                        <input type="checkbox" id="privacy_request" name="resbs_privacy_terms_request_form" value="1" <?php checked(get_option('resbs_privacy_terms_request_form'), 1); ?>>
-                        <label for="privacy_request"><?php esc_html_e('Request form', 'realestate-booking-suite'); ?></label>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label><?php esc_html_e('What to use as accepting Privacy policy & Terms of use?', 'realestate-booking-suite'); ?></label>
-                <div class="resbs-layout-options">
-                    <div class="resbs-layout-option">
-                        <input type="radio" id="privacy_text" name="resbs_privacy_terms_acceptance_type" value="text" <?php checked(get_option('resbs_privacy_terms_acceptance_type'), 'text'); ?>>
-                        <div class="resbs-layout-preview">Text</div>
-                        <label for="privacy_text"><?php esc_html_e('Text', 'realestate-booking-suite'); ?></label>
-                    </div>
-                    <div class="resbs-layout-option">
-                        <input type="radio" id="privacy_checkbox" name="resbs_privacy_terms_acceptance_type" value="checkbox" <?php checked(get_option('resbs_privacy_terms_acceptance_type'), 'checkbox'); ?>>
-                        <div class="resbs-layout-preview">☑</div>
-                        <label for="privacy_checkbox"><?php esc_html_e('Checkbox', 'realestate-booking-suite'); ?></label>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label for="resbs_privacy_terms_text"><?php esc_html_e('Privacy Policy & Terms Text', 'realestate-booking-suite'); ?></label>
-                <textarea id="resbs_privacy_terms_text" name="resbs_privacy_terms_text" rows="4" class="large-text"><?php echo esc_textarea(get_option('resbs_privacy_terms_text', 'By clicking the «BUTTON» button you agree to the Terms of Use and Privacy Policy.')); ?></textarea>
-            </div>
-            
-            <div class="resbs-page-creation-card">
-                <div class="resbs-page-icon">🔑</div>
-                <div class="resbs-page-info">
-                    <h4><?php esc_html_e('Add recommended page', 'realestate-booking-suite'); ?></h4>
-                    <p><?php esc_html_e('Terms & conditions page', 'realestate-booking-suite'); ?></p>
-                </div>
-                <button type="button" class="resbs-create-page-btn"><?php esc_html_e('Create page', 'realestate-booking-suite'); ?></button>
-            </div>
-            
-            <div class="resbs-page-creation-card">
-                <div class="resbs-page-icon">🔑</div>
-                <div class="resbs-page-info">
-                    <h4><?php esc_html_e('Add recommended page', 'realestate-booking-suite'); ?></h4>
-                    <p><?php esc_html_e('Privacy policy page', 'realestate-booking-suite'); ?></p>
-                </div>
-                <button type="button" class="resbs-create-page-btn"><?php esc_html_e('Create page', 'realestate-booking-suite'); ?></button>
-            </div>
-            
-            <button type="submit" class="resbs-save-button"><?php esc_html_e('SAVE CHANGES', 'realestate-booking-suite'); ?></button>
-        </form>
-        <?php
-    }
     
-    /**
-     * Save email settings
-     */
-    private function save_email_settings() {
-        $settings = array(
-            'resbs_email_from_name',
-            'resbs_email_from_email',
-            'resbs_email_reply_to',
-            'resbs_enable_email_notifications',
-            'resbs_enable_admin_notifications',
-            'resbs_email_template'
-        );
-        
-        foreach ($settings as $setting) {
-            if (isset($_POST[$setting])) {
-                $value = sanitize_text_field($_POST[$setting]);
-                update_option($setting, $value);
-            } else {
-                update_option($setting, '');
-            }
-        }
-    }
     
-    /**
-     * Save appearance settings
-     */
-    private function save_appearance_settings() {
-        $settings = array(
-            'resbs_primary_color',
-            'resbs_secondary_color',
-            'resbs_accent_color',
-            'resbs_font_family',
-            'resbs_button_style',
-            'resbs_enable_dark_mode',
-            'resbs_enable_animations'
-        );
-        
-        foreach ($settings as $setting) {
-            if (isset($_POST[$setting])) {
-                $value = sanitize_text_field($_POST[$setting]);
-                update_option($setting, $value);
-            } else {
-                update_option($setting, '');
-            }
-        }
-    }
     
-    /**
-     * Save currency settings
-     */
-    private function save_currency_settings() {
-        $settings = array(
-            'resbs_default_currency',
-            'resbs_currency_position',
-            'resbs_thousand_separator',
-            'resbs_decimal_separator',
-            'resbs_decimal_places',
-            'resbs_enable_currency_conversion',
-            'resbs_currency_api_key'
-        );
-        
-        foreach ($settings as $setting) {
-            if (isset($_POST[$setting])) {
-                $value = sanitize_text_field($_POST[$setting]);
-                update_option($setting, $value);
-            } else {
-                update_option($setting, '');
-            }
-        }
-    }
     
     /**
      * Handle settings save
@@ -2703,9 +2303,6 @@ class RESBS_Enhanced_Settings {
             case 'map':
                 $this->save_map_settings();
                 break;
-            case 'recaptcha':
-                $this->save_recaptcha_settings();
-                break;
             case 'listings':
                 $this->save_listings_settings();
                 break;
@@ -2723,24 +2320,6 @@ class RESBS_Enhanced_Settings {
                 break;
             case 'seo':
                 $this->save_seo_settings();
-                break;
-            case 'sharing':
-                $this->save_sharing_settings();
-                break;
-            case 'url-slug':
-                $this->save_url_slug_settings();
-                break;
-            case 'privacy-terms':
-                $this->save_privacy_terms_settings();
-                break;
-            case 'email':
-                $this->save_email_settings();
-                break;
-            case 'appearance':
-                $this->save_appearance_settings();
-                break;
-            case 'currency':
-                $this->save_currency_settings();
                 break;
         }
         
@@ -2804,29 +2383,6 @@ class RESBS_Enhanced_Settings {
         }
     }
     
-    /**
-     * Save reCAPTCHA settings
-     */
-    private function save_recaptcha_settings() {
-        $settings = array(
-            'resbs_recaptcha_version',
-            'resbs_recaptcha_site_key',
-            'resbs_recaptcha_secret_key',
-            'resbs_recaptcha_signup',
-            'resbs_recaptcha_signin',
-            'resbs_recaptcha_reset_password',
-            'resbs_recaptcha_request_form'
-        );
-        
-        foreach ($settings as $setting) {
-            if (isset($_POST[$setting])) {
-                $value = sanitize_text_field($_POST[$setting]);
-                update_option($setting, $value);
-            } else {
-                update_option($setting, '');
-            }
-        }
-    }
     
     /**
      * Save listings settings
@@ -3003,79 +2559,8 @@ class RESBS_Enhanced_Settings {
         }
     }
     
-    /**
-     * Save sharing settings
-     */
-    private function save_sharing_settings() {
-        $settings = array(
-            'resbs_enable_sharing_link',
-            'resbs_enable_sharing_social',
-            'resbs_enable_sharing_pdf'
-        );
-        
-        foreach ($settings as $setting) {
-            if (isset($_POST[$setting])) {
-                $value = sanitize_text_field($_POST[$setting]);
-                update_option($setting, $value);
-            } else {
-                update_option($setting, '');
-            }
-        }
-        
-        // Handle array settings
-        if (isset($_POST['resbs_sharing_options'])) {
-            update_option('resbs_sharing_options', array_map('sanitize_text_field', $_POST['resbs_sharing_options']));
-        }
-    }
     
-    /**
-     * Save URL slug settings
-     */
-    private function save_url_slug_settings() {
-        $settings = array(
-            'resbs_property_slug',
-            'resbs_property_category_slug',
-            'resbs_property_type_slug',
-            'resbs_property_status_slug',
-            'resbs_property_label_slug',
-            'resbs_property_amenity_slug',
-            'resbs_property_feature_slug'
-        );
-        
-        foreach ($settings as $setting) {
-            if (isset($_POST[$setting])) {
-                $value = sanitize_text_field($_POST[$setting]);
-                update_option($setting, $value);
-            } else {
-                update_option($setting, '');
-            }
-        }
-    }
     
-    /**
-     * Save privacy/terms settings
-     */
-    private function save_privacy_terms_settings() {
-        $settings = array(
-            'resbs_privacy_terms_signup',
-            'resbs_privacy_terms_request_form',
-            'resbs_privacy_terms_acceptance_type',
-            'resbs_privacy_terms_text'
-        );
-        
-        foreach ($settings as $setting) {
-            if (isset($_POST[$setting])) {
-                if ($setting === 'resbs_privacy_terms_text') {
-                    $value = sanitize_textarea_field($_POST[$setting]);
-                } else {
-                    $value = sanitize_text_field($_POST[$setting]);
-                }
-                update_option($setting, $value);
-            } else {
-                update_option($setting, '');
-            }
-        }
-    }
     
     /**
      * Handle create page AJAX
@@ -3128,9 +2613,6 @@ class RESBS_Enhanced_Settings {
             case 'map':
                 $this->map_settings_tab();
                 break;
-            case 'recaptcha':
-                $this->recaptcha_settings_tab();
-                break;
             case 'listings':
                 $this->listings_settings_tab();
                 break;
@@ -3145,24 +2627,6 @@ class RESBS_Enhanced_Settings {
                 break;
             case 'seo':
                 $this->seo_settings_tab();
-                break;
-            case 'sharing':
-                $this->sharing_settings_tab();
-                break;
-            case 'url-slug':
-                $this->url_slug_settings_tab();
-                break;
-            case 'privacy-terms':
-                $this->privacy_terms_settings_tab();
-                break;
-            case 'email':
-                $this->email_settings_tab();
-                break;
-            case 'appearance':
-                $this->appearance_settings_tab();
-                break;
-            case 'currency':
-                $this->currency_settings_tab();
                 break;
             default:
                 $this->general_settings_tab();
