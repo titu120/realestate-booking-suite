@@ -61,6 +61,16 @@ function resbs_enqueue_assets() {
             array(),
             '1.0.0'
         );
+        
+        // Enqueue Modern Dashboard CSS (Admin Only)
+        if (is_admin()) {
+            wp_enqueue_style(
+                'resbs-modern-dashboard',
+                RESBS_URL . 'assets/css/modern-dashboard.css',
+                array(),
+                '1.0.0'
+            );
+        }
     
     // DISABLED: Main JS to prevent conflicts with tabs
     // wp_enqueue_script(

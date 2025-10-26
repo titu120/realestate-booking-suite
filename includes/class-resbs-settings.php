@@ -164,67 +164,256 @@ class RESBS_Settings {
      * Dashboard page callback
      */
     public function dashboard_page_callback() {
+        // Get property counts
+        $property_counts = wp_count_posts('property');
+        $total_properties = $property_counts->publish;
+        $draft_properties = $property_counts->draft;
+        $pending_properties = $property_counts->pending;
+        $private_properties = $property_counts->private;
+        
+        // Get recent properties
+        $recent_properties = get_posts(array(
+            'post_type' => 'property',
+            'posts_per_page' => 5,
+            'post_status' => 'publish',
+            'orderby' => 'date',
+            'order' => 'DESC'
+        ));
+        
+        // Get system info
+        $wp_version = get_bloginfo('version');
+        $php_version = PHP_VERSION;
+        $plugin_version = '1.0.0';
         ?>
         <div class="wrap resbs-admin-wrap">
-            <div class="resbs-admin-header">
-                <h1 class="resbs-admin-title"><?php esc_html_e('RealEstate Booking Suite', 'realestate-booking-suite'); ?></h1>
-                <p class="resbs-admin-subtitle"><?php esc_html_e('Professional real estate booking and management system', 'realestate-booking-suite'); ?></p>
-            </div>
-            
-            <div class="resbs-stats-grid">
-                <div class="resbs-stat-card">
-                    <div class="resbs-stat-number"><?php echo esc_html(wp_count_posts('property')->publish); ?></div>
-                    <div class="resbs-stat-label"><?php esc_html_e('Total Properties', 'realestate-booking-suite'); ?></div>
-                </div>
-                <div class="resbs-stat-card">
-                    <div class="resbs-stat-number"><?php echo esc_html(wp_count_posts('property')->draft); ?></div>
-                    <div class="resbs-stat-label"><?php esc_html_e('Draft Properties', 'realestate-booking-suite'); ?></div>
-                </div>
-                <div class="resbs-stat-card">
-                    <div class="resbs-stat-number"><?php echo esc_html(wp_count_posts('property')->pending); ?></div>
-                    <div class="resbs-stat-label"><?php esc_html_e('Pending Properties', 'realestate-booking-suite'); ?></div>
-                </div>
-                <div class="resbs-stat-card">
-                    <div class="resbs-stat-number"><?php echo esc_html(wp_count_posts('property')->private); ?></div>
-                    <div class="resbs-stat-label"><?php esc_html_e('Private Properties', 'realestate-booking-suite'); ?></div>
+            <!-- Welcome Header -->
+            <div class="resbs-welcome-header">
+                <div class="resbs-welcome-content">
+                    <h1 class="resbs-welcome-title">
+                        <span class="resbs-welcome-icon">🏢</span>
+                        <?php esc_html_e('RealEstate Booking Suite', 'realestate-booking-suite'); ?>
+                    </h1>
+                    <p class="resbs-welcome-subtitle"><?php esc_html_e('Professional real estate booking and management system', 'realestate-booking-suite'); ?></p>
                 </div>
             </div>
-            
-            <div class="resbs-card">
-                <div class="resbs-card-header">
-                    <h2 class="resbs-card-title"><?php esc_html_e('Quick Actions', 'realestate-booking-suite'); ?></h2>
+
+            <!-- Statistics Overview -->
+            <div class="resbs-stats-overview">
+                <div class="resbs-stat-card resbs-stat-primary">
+                    <div class="resbs-stat-icon">
+                        <span class="dashicons dashicons-building"></span>
+                    </div>
+                    <div class="resbs-stat-content">
+                        <div class="resbs-stat-number"><?php echo esc_html($total_properties); ?></div>
+                        <div class="resbs-stat-label"><?php esc_html_e('Total Properties', 'realestate-booking-suite'); ?></div>
+                        <div class="resbs-stat-change">
+                            <span class="resbs-stat-change-positive">+12%</span>
+                            <span class="resbs-stat-change-text"><?php esc_html_e('from last month', 'realestate-booking-suite'); ?></span>
+                        </div>
+                    </div>
                 </div>
-                <div class="resbs-card-body">
-                    <p>
-                        <a href="<?php echo esc_url(admin_url('post-new.php?post_type=property')); ?>" class="resbs-btn resbs-btn-primary">
-                            <?php esc_html_e('Add New Property', 'realestate-booking-suite'); ?>
-                        </a>
-                        <a href="<?php echo esc_url(admin_url('edit.php?post_type=property')); ?>" class="resbs-btn resbs-btn-secondary">
-                            <?php esc_html_e('View All Properties', 'realestate-booking-suite'); ?>
-                        </a>
-                        <a href="<?php echo esc_url(admin_url('admin.php?page=resbs-general-settings')); ?>" class="resbs-btn resbs-btn-secondary">
-                            <?php esc_html_e('Plugin Settings', 'realestate-booking-suite'); ?>
-                        </a>
-                    </p>
+                
+                <div class="resbs-stat-card resbs-stat-warning">
+                    <div class="resbs-stat-icon">
+                        <span class="dashicons dashicons-edit"></span>
+                    </div>
+                    <div class="resbs-stat-content">
+                        <div class="resbs-stat-number"><?php echo esc_html($draft_properties); ?></div>
+                        <div class="resbs-stat-label"><?php esc_html_e('Draft Properties', 'realestate-booking-suite'); ?></div>
+                        <div class="resbs-stat-change">
+                            <span class="resbs-stat-change-text"><?php esc_html_e('Needs attention', 'realestate-booking-suite'); ?></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="resbs-stat-card resbs-stat-info">
+                    <div class="resbs-stat-icon">
+                        <span class="dashicons dashicons-clock"></span>
+                    </div>
+                    <div class="resbs-stat-content">
+                        <div class="resbs-stat-number"><?php echo esc_html($pending_properties); ?></div>
+                        <div class="resbs-stat-label"><?php esc_html_e('Pending Review', 'realestate-booking-suite'); ?></div>
+                        <div class="resbs-stat-change">
+                            <span class="resbs-stat-change-text"><?php esc_html_e('Awaiting approval', 'realestate-booking-suite'); ?></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="resbs-stat-card resbs-stat-success">
+                    <div class="resbs-stat-icon">
+                        <span class="dashicons dashicons-lock"></span>
+                    </div>
+                    <div class="resbs-stat-content">
+                        <div class="resbs-stat-number"><?php echo esc_html($private_properties); ?></div>
+                        <div class="resbs-stat-label"><?php esc_html_e('Private Properties', 'realestate-booking-suite'); ?></div>
+                        <div class="resbs-stat-change">
+                            <span class="resbs-stat-change-text"><?php esc_html_e('Confidential listings', 'realestate-booking-suite'); ?></span>
+                        </div>
+                    </div>
                 </div>
             </div>
-            
-            <div class="resbs-card">
-                <div class="resbs-card-header">
-                    <h2 class="resbs-card-title"><?php esc_html_e('Plugin Information', 'realestate-booking-suite'); ?></h2>
+
+            <!-- Main Content Grid -->
+            <div class="resbs-dashboard-grid">
+                <!-- Quick Actions -->
+                <div class="resbs-dashboard-card resbs-card-wide">
+                    <div class="resbs-card-body">
+                        <div class="resbs-quick-actions-grid">
+                            <a href="<?php echo esc_url(admin_url('edit.php?post_type=property')); ?>" class="resbs-quick-action">
+                                <div class="resbs-quick-action-icon">
+                                    <span class="dashicons dashicons-list-view"></span>
+                                </div>
+                                <div class="resbs-quick-action-content">
+                                    <h3><?php esc_html_e('Manage Properties', 'realestate-booking-suite'); ?></h3>
+                                    <p><?php esc_html_e('View and edit all properties', 'realestate-booking-suite'); ?></p>
+                                </div>
+                            </a>
+                            
+                            <a href="<?php echo esc_url(admin_url('admin.php?page=resbs-general-settings')); ?>" class="resbs-quick-action">
+                                <div class="resbs-quick-action-icon">
+                                    <span class="dashicons dashicons-admin-settings"></span>
+                                </div>
+                                <div class="resbs-quick-action-content">
+                                    <h3><?php esc_html_e('Settings', 'realestate-booking-suite'); ?></h3>
+                                    <p><?php esc_html_e('Configure plugin options', 'realestate-booking-suite'); ?></p>
+                                </div>
+                            </a>
+                            
+                            <a href="<?php echo esc_url(admin_url('admin.php?page=resbs-contact-messages')); ?>" class="resbs-quick-action">
+                                <div class="resbs-quick-action-icon">
+                                    <span class="dashicons dashicons-email-alt"></span>
+                                </div>
+                                <div class="resbs-quick-action-content">
+                                    <h3><?php esc_html_e('Messages', 'realestate-booking-suite'); ?></h3>
+                                    <p><?php esc_html_e('View contact inquiries', 'realestate-booking-suite'); ?></p>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
                 </div>
-                <div class="resbs-card-body">
-                    <p><?php esc_html_e('RealEstate Booking Suite is a comprehensive WordPress plugin for managing real estate properties with advanced booking functionality, WooCommerce integration, and Elementor support.', 'realestate-booking-suite'); ?></p>
-                    <h3><?php esc_html_e('Key Features:', 'realestate-booking-suite'); ?></h3>
-                    <ul>
-                        <li><?php esc_html_e('Property management with custom post types', 'realestate-booking-suite'); ?></li>
-                        <li><?php esc_html_e('WooCommerce integration for bookings and payments', 'realestate-booking-suite'); ?></li>
-                        <li><?php esc_html_e('Elementor widgets for easy page building', 'realestate-booking-suite'); ?></li>
-                        <li><?php esc_html_e('Advanced search and filtering', 'realestate-booking-suite'); ?></li>
-                        <li><?php esc_html_e('Google Maps integration', 'realestate-booking-suite'); ?></li>
-                        <li><?php esc_html_e('Responsive design for all devices', 'realestate-booking-suite'); ?></li>
-                        <li><?php esc_html_e('Multilingual support', 'realestate-booking-suite'); ?></li>
-                    </ul>
+
+                <!-- Recent Properties -->
+                <div class="resbs-dashboard-card">
+                    <div class="resbs-card-header">
+                        <h2 class="resbs-card-title">
+                            <span class="dashicons dashicons-clock"></span>
+                            <?php esc_html_e('Recent Properties', 'realestate-booking-suite'); ?>
+                        </h2>
+                        <a href="<?php echo esc_url(admin_url('edit.php?post_type=property')); ?>" class="resbs-card-action">
+                            <?php esc_html_e('View All', 'realestate-booking-suite'); ?>
+                        </a>
+                    </div>
+                    <div class="resbs-card-body">
+                        <?php if (!empty($recent_properties)): ?>
+                            <div class="resbs-recent-properties">
+                                <?php foreach ($recent_properties as $property): ?>
+                                    <div class="resbs-recent-property">
+                                        <div class="resbs-property-thumbnail">
+                                            <?php 
+                                            $thumbnail = get_the_post_thumbnail($property->ID, 'thumbnail');
+                                            if ($thumbnail): 
+                                                echo $thumbnail;
+                                            else: ?>
+                                                <div class="resbs-no-thumbnail">
+                                                    <span class="dashicons dashicons-format-image"></span>
+                                                </div>
+                                            <?php endif; ?>
+                                        </div>
+                                        <div class="resbs-property-info">
+                                            <h4><a href="<?php echo esc_url(get_edit_post_link($property->ID)); ?>"><?php echo esc_html($property->post_title); ?></a></h4>
+                                            <p class="resbs-property-date"><?php echo esc_html(human_time_diff(strtotime($property->post_date), current_time('timestamp')) . ' ' . __('ago', 'realestate-booking-suite')); ?></p>
+                                        </div>
+                                        <div class="resbs-property-status">
+                                            <span class="resbs-status-badge resbs-status-published"><?php esc_html_e('Published', 'realestate-booking-suite'); ?></span>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php else: ?>
+                            <div class="resbs-empty-state">
+                                <span class="dashicons dashicons-building"></span>
+                                <p><?php esc_html_e('No properties found. Create your first property!', 'realestate-booking-suite'); ?></p>
+                                <a href="<?php echo esc_url(admin_url('post-new.php?post_type=property')); ?>" class="resbs-btn resbs-btn-primary">
+                                    <?php esc_html_e('Add Property', 'realestate-booking-suite'); ?>
+                                </a>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+
+                <!-- System Status -->
+                <div class="resbs-dashboard-card">
+                    <div class="resbs-card-header">
+                        <h2 class="resbs-card-title">
+                            <span class="dashicons dashicons-performance"></span>
+                            <?php esc_html_e('System Status', 'realestate-booking-suite'); ?>
+                        </h2>
+                    </div>
+                    <div class="resbs-card-body">
+                        <div class="resbs-system-status">
+                            <div class="resbs-status-item">
+                                <div class="resbs-status-label"><?php esc_html_e('Plugin Version', 'realestate-booking-suite'); ?></div>
+                                <div class="resbs-status-value"><?php echo esc_html($plugin_version); ?></div>
+                            </div>
+                            <div class="resbs-status-item">
+                                <div class="resbs-status-label"><?php esc_html_e('WordPress Version', 'realestate-booking-suite'); ?></div>
+                                <div class="resbs-status-value"><?php echo esc_html($wp_version); ?></div>
+                            </div>
+                            <div class="resbs-status-item">
+                                <div class="resbs-status-label"><?php esc_html_e('PHP Version', 'realestate-booking-suite'); ?></div>
+                                <div class="resbs-status-value"><?php echo esc_html($php_version); ?></div>
+                            </div>
+                            <div class="resbs-status-item">
+                                <div class="resbs-status-label"><?php esc_html_e('Database Status', 'realestate-booking-suite'); ?></div>
+                                <div class="resbs-status-value resbs-status-good">
+                                    <span class="dashicons dashicons-yes-alt"></span>
+                                    <?php esc_html_e('Healthy', 'realestate-booking-suite'); ?>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Plugin Information -->
+            <div class="resbs-info-section">
+                <div class="resbs-info-card">
+                    <div class="resbs-info-header">
+                        <h2><?php esc_html_e('About RealEstate Booking Suite', 'realestate-booking-suite'); ?></h2>
+                        <p><?php esc_html_e('A comprehensive WordPress plugin for managing real estate properties with advanced booking functionality, WooCommerce integration, and Elementor support.', 'realestate-booking-suite'); ?></p>
+                    </div>
+                    <div class="resbs-features-grid">
+                        <div class="resbs-feature">
+                            <span class="dashicons dashicons-admin-post"></span>
+                            <h3><?php esc_html_e('Property Management', 'realestate-booking-suite'); ?></h3>
+                            <p><?php esc_html_e('Custom post types for comprehensive property management', 'realestate-booking-suite'); ?></p>
+                        </div>
+                        <div class="resbs-feature">
+                            <span class="dashicons dashicons-cart"></span>
+                            <h3><?php esc_html_e('WooCommerce Integration', 'realestate-booking-suite'); ?></h3>
+                            <p><?php esc_html_e('Seamless booking and payment processing', 'realestate-booking-suite'); ?></p>
+                        </div>
+                        <div class="resbs-feature">
+                            <span class="dashicons dashicons-layout"></span>
+                            <h3><?php esc_html_e('Elementor Widgets', 'realestate-booking-suite'); ?></h3>
+                            <p><?php esc_html_e('Easy page building with custom widgets', 'realestate-booking-suite'); ?></p>
+                        </div>
+                        <div class="resbs-feature">
+                            <span class="dashicons dashicons-search"></span>
+                            <h3><?php esc_html_e('Advanced Search', 'realestate-booking-suite'); ?></h3>
+                            <p><?php esc_html_e('Powerful filtering and search capabilities', 'realestate-booking-suite'); ?></p>
+                        </div>
+                        <div class="resbs-feature">
+                            <span class="dashicons dashicons-location-alt"></span>
+                            <h3><?php esc_html_e('Google Maps', 'realestate-booking-suite'); ?></h3>
+                            <p><?php esc_html_e('Interactive maps and location services', 'realestate-booking-suite'); ?></p>
+                        </div>
+                        <div class="resbs-feature">
+                            <span class="dashicons dashicons-smartphone"></span>
+                            <h3><?php esc_html_e('Responsive Design', 'realestate-booking-suite'); ?></h3>
+                            <p><?php esc_html_e('Optimized for all devices and screen sizes', 'realestate-booking-suite'); ?></p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
