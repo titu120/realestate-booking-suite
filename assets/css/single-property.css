@@ -1502,6 +1502,102 @@
     background-color: var(--rebs-primary-dark) !important;
 }
 
+/* Property Features Section */
+.single-property .property-features-section {
+
+    border-radius: 8px;
+    margin-bottom: 2rem;
+}
+
+/* Pure CSS Grid for Property Features */
+.single-property .property-features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+    width: 100%;
+}
+
+.single-property .property-features-grid .feature-detail-item {
+    width: 100%;
+    max-width: none;
+    flex: 1;
+}
+
+/* Mobile: 1 column */
+@media (max-width: 767px) {
+    .single-property .property-features-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Tablet: 2 columns */
+@media (min-width: 768px) and (max-width: 1023px) {
+    .single-property .property-features-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Desktop: 3 columns */
+@media (min-width: 1024px) {
+    .single-property .property-features-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.single-property .feature-detail-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    background: #f9fafb;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    width: 100%;
+    min-height: 60px;
+    padding:1.4rem
+
+}
+
+
+
+.single-property .feature-detail-icon {
+    width: 32px;
+    height: 32px;
+    background: var(--rebs-primary-color);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 0.75rem;
+    flex-shrink: 0;
+}
+
+.single-property .feature-detail-icon i {
+    color: white;
+    font-size: 1rem;
+}
+
+.single-property .feature-detail-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.single-property .feature-detail-label {
+    font-size: 0.75rem;
+    color: #6b7280;
+    font-weight: 500;
+    margin-bottom: 0.125rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.single-property .feature-detail-value {
+    font-size: 0.875rem;
+    color: #1f2937;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
 /* Image Viewer */
 .single-property .image-viewer {
     position: fixed !important;

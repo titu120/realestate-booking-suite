@@ -330,17 +330,9 @@
                             <i class="fas fa-share-alt text-gray-600"></i>
                             <span class="text-gray-700">Share</span>
                         </button>
-                        <button onclick="saveFavorite()" class="tooltip action-btn" data-tooltip="Save to Favorites">
-                            <i class="far fa-heart text-gray-600"></i>
-                            <span class="text-gray-700">Save</span>
-                        </button>
                         <button onclick="printPage()" class="tooltip action-btn" data-tooltip="Print Details">
                             <i class="fas fa-print text-gray-600"></i>
                             <span class="text-gray-700">Print</span>
-                        </button>
-                        <button onclick="exportPDF()" class="tooltip action-btn action-btn-primary" data-tooltip="Export as PDF">
-                            <i class="fas fa-download"></i>
-                            <span>Export PDF</span>
                         </button>
                     </div>
                 </div>
@@ -703,7 +695,99 @@
 
                         <!-- Features Tab -->
                         <div id="features-tab" class="tab-content">
-                            <h3 class="section-title">Amenities & Features</h3>
+                            <h3 class="section-title">Property Features</h3>
+                            
+                            <!-- Property Features Section -->
+                            <div class="property-features-section mb-8">
+                                <h4 class="text-lg font-semibold mb-4">Property Details</h4>
+                                <div class="property-features-grid">
+                                    <?php if ($parking): ?>
+                                    <div class="feature-detail-item">
+                                        <div class="feature-detail-icon">
+                                            <i class="fas fa-car"></i>
+                                        </div>
+                                        <div class="feature-detail-content">
+                                            <span class="feature-detail-label">Parking</span>
+                                            <span class="feature-detail-value"><?php echo esc_html(ucfirst($parking)); ?></span>
+                                        </div>
+                                    </div>
+                                    <?php endif; ?>
+                                    
+                                    <?php if ($heating): ?>
+                                    <div class="feature-detail-item">
+                                        <div class="feature-detail-icon">
+                                            <i class="fas fa-thermometer-half"></i>
+                                        </div>
+                                        <div class="feature-detail-content">
+                                            <span class="feature-detail-label">Heating</span>
+                                            <span class="feature-detail-value"><?php echo esc_html($heating); ?></span>
+                                        </div>
+                                    </div>
+                                    <?php endif; ?>
+                                    
+                                    <?php if ($cooling): ?>
+                                    <div class="feature-detail-item">
+                                        <div class="feature-detail-icon">
+                                            <i class="fas fa-snowflake"></i>
+                                        </div>
+                                        <div class="feature-detail-content">
+                                            <span class="feature-detail-label">Cooling</span>
+                                            <span class="feature-detail-value"><?php echo esc_html($cooling); ?></span>
+                                        </div>
+                                    </div>
+                                    <?php endif; ?>
+                                    
+                                    <?php if ($basement): ?>
+                                    <div class="feature-detail-item">
+                                        <div class="feature-detail-icon">
+                                            <i class="fas fa-layer-group"></i>
+                                        </div>
+                                        <div class="feature-detail-content">
+                                            <span class="feature-detail-label">Basement</span>
+                                            <span class="feature-detail-value"><?php echo esc_html($basement); ?></span>
+                                        </div>
+                                    </div>
+                                    <?php endif; ?>
+                                    
+                                    <?php if ($roof): ?>
+                                    <div class="feature-detail-item">
+                                        <div class="feature-detail-icon">
+                                            <i class="fas fa-home"></i>
+                                        </div>
+                                        <div class="feature-detail-content">
+                                            <span class="feature-detail-label">Roof</span>
+                                            <span class="feature-detail-value"><?php echo esc_html($roof); ?></span>
+                                        </div>
+                                    </div>
+                                    <?php endif; ?>
+                                    
+                                    <?php if ($exterior_material): ?>
+                                    <div class="feature-detail-item">
+                                        <div class="feature-detail-icon">
+                                            <i class="fas fa-cube"></i>
+                                        </div>
+                                        <div class="feature-detail-content">
+                                            <span class="feature-detail-label">Exterior Material</span>
+                                            <span class="feature-detail-value"><?php echo esc_html($exterior_material); ?></span>
+                                        </div>
+                                    </div>
+                                    <?php endif; ?>
+                                    
+                                    <?php if ($floor_covering): ?>
+                                    <div class="feature-detail-item">
+                                        <div class="feature-detail-icon">
+                                            <i class="fas fa-th-large"></i>
+                                        </div>
+                                        <div class="feature-detail-content">
+                                            <span class="feature-detail-label">Floor Covering</span>
+                                            <span class="feature-detail-value"><?php echo esc_html($floor_covering); ?></span>
+                                        </div>
+                                    </div>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+
+                            <h4 class="text-lg font-semibold mb-4">Amenities & Features</h4>
 
                             <!-- Filter Buttons -->
                             <div class="amenities-filter no-print">
