@@ -425,6 +425,10 @@
         color: #6b7280;
         transition: color 0.3s;
         cursor: pointer;
+        border: unset;
+    }
+    .rbs-archive .view-btn:hover {
+        background-color: unset;
     }
 
     .rbs-archive .view-btn.active {
@@ -457,6 +461,7 @@
     .rbs-archive .sort-label {
         color: #6b7280;
         font-weight: 500;
+        white-space: nowrap;
     }
 
     .rbs-archive .sort-select {
@@ -606,6 +611,10 @@
         background-color: #10b981;
     }
 
+    .rbs-archive .property-image .favorite-btn {
+        color: unset !important;
+    }
+
     .rbs-archive .favorite-btn {
         position: absolute;
         top: 16px;
@@ -620,6 +629,7 @@
         cursor: pointer;
         transition: all 0.3s;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border: unset;
     }
 
     .rbs-archive .favorite-btn:hover {
@@ -686,6 +696,11 @@
         gap: 4px;
     }
 
+    .rbs-archive  button{
+        border: unset;
+        color: unset;
+    }
+
     .rbs-archive .property-footer {
         display: flex;
         align-items: center;
@@ -704,6 +719,10 @@
         font-weight: 500;
         cursor: pointer;
         transition: color 0.3s;
+        border: unset;
+    }
+    .rbs-archive .view-details-btn:hover {
+        background-color: unset;
     }
 
     .rbs-archive .view-details-btn:hover {
