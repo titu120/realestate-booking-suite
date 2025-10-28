@@ -482,10 +482,17 @@
         border-radius: 8px;
         cursor: pointer;
         transition: all 0.3s;
+        background-color: white;
     }
 
     .rbs-archive .filter-toggle:hover {
         background-color: #f9fafb;
+        border-color: #0f766e;
+        color: #0f766e;
+    }
+
+    .rbs-archive .filter-toggle i {
+        transition: all 0.3s;
     }
 
     /* Property Listings */
@@ -493,11 +500,45 @@
         display: grid;
         grid-template-columns: 1fr;
         gap: 24px;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Listings Container when map is visible */
+    .rbs-archive .listings-container.map-visible {
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+    }
+
+    /* Remove unnecessary spacing when map is hidden */
+    .rbs-archive .listings-container.map-hidden {
+        min-height: auto;
+        height: auto;
+    }
+
+    /* Property Grid responsive adjustments */
+    .rbs-archive .property-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 24px;
+        transition: all 0.3s ease;
+    }
+
+    /* Ensure 4 columns on larger screens by default */
+    @media (min-width: 1024px) {
+        .rbs-archive .property-grid {
+            grid-template-columns: repeat(4, 1fr) !important;
+        }
     }
 
     .rbs-archive .properties-list {
         overflow-y: auto;
         max-height: calc(100vh - 300px);
+    }
+
+    /* Adjust height when map is hidden */
+    .rbs-archive .listings-container.map-hidden .properties-list {
+        max-height: none;
+        overflow-y: visible;
     }
 
     .rbs-archive .properties-list::-webkit-scrollbar {
@@ -517,11 +558,6 @@
         background: #0d5c54;
     }
 
-    .rbs-archive .property-grid {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 24px;
-    }
 
     .rbs-archive .property-card {
         background-color: white;
@@ -718,6 +754,37 @@
         height: calc(100vh - 300px);
         position: sticky;
         top: 100px;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        opacity: 0;
+        transform: translateX(100%);
+        width: 0;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+    }
+
+    /* Map Hidden State */
+    .rbs-archive .map-section.map-hidden {
+        opacity: 0;
+        transform: translateX(100%);
+        width: 0;
+        height: 0;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        display: none;
+    }
+
+    /* Map Visible State */
+    .rbs-archive .map-section.map-visible {
+        opacity: 1;
+        transform: translateX(0);
+        width: auto;
+        height: calc(100vh - 300px);
+        margin: 0;
+        padding: 0;
+        overflow: visible;
+        display: block;
     }
 
     .rbs-archive .map-container {
@@ -952,6 +1019,13 @@
     }
 
     /* Responsive Styles */
+    @media (max-width: 479px) {
+        .rbs-archive .property-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+
     @media (min-width: 768px) {
         .rbs-archive .container {
             padding: 0 24px;
@@ -975,10 +1049,14 @@
         }
         
         .rbs-archive .property-grid {
+            grid-template-columns: repeat(4, 1fr);
+        }
+        
+        .rbs-archive .listings-container.map-visible .property-grid {
             grid-template-columns: repeat(2, 1fr);
         }
         
-        .rbs-archive .listings-container {
+        .rbs-archive .listings-container.map-visible {
             grid-template-columns: 1fr 1fr;
         }
         
@@ -1002,6 +1080,16 @@
     @media (min-width: 1024px) {
         .rbs-archive .container {
             padding: 0 24px;
+        }
+    }
+
+    @media (min-width: 1200px) {
+        .rbs-archive .property-grid {
+            grid-template-columns: repeat(4, 1fr);
+        }
+        
+        .rbs-archive .listings-container.map-visible .property-grid {
+            grid-template-columns: repeat(2, 1fr);
         }
     }
 

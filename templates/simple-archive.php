@@ -194,8 +194,8 @@
                     </button>
                 </div>
 
-                <button class="filter-toggle">
-                    <i class="fas fa-sliders-h"></i>
+                <button class="filter-toggle" onclick="toggleMap()" id="mapToggleBtn">
+                    <i class="fas fa-map-marked-alt"></i>
                 </button>
             </div>
         </div>
@@ -625,5 +625,178 @@
 
 
 </div>
+
+<script>
+// Map Toggle Functionality
+function toggleMap() {
+    const mapSection = document.querySelector('.map-section');
+    const listingsContainer = document.querySelector('.listings-container');
+    const mapToggleBtn = document.getElementById('mapToggleBtn');
+    const mapIcon = mapToggleBtn.querySelector('i');
+    const propertyGrid = document.getElementById('propertyGrid');
+    const gridBtn = document.getElementById('gridBtn');
+    
+    if (mapSection.classList.contains('map-visible')) {
+        // Hide map (default state)
+        mapSection.classList.remove('map-visible');
+        mapSection.classList.add('map-hidden');
+        listingsContainer.classList.remove('map-visible');
+        mapIcon.className = 'fas fa-map-marked-alt';
+        mapToggleBtn.title = 'Show Map';
+        
+        // Adjust grid layout if grid view is active
+        if (gridBtn.classList.contains('active')) {
+            propertyGrid.style.setProperty('grid-template-columns', 'repeat(4, 1fr)', 'important');
+        }
+    } else {
+        // Show map
+        mapSection.classList.remove('map-hidden');
+        mapSection.classList.add('map-visible');
+        listingsContainer.classList.add('map-visible');
+        mapIcon.className = 'fas fa-eye-slash';
+        mapToggleBtn.title = 'Hide Map';
+        
+        // Adjust grid layout if grid view is active
+        if (gridBtn.classList.contains('active')) {
+            propertyGrid.style.setProperty('grid-template-columns', 'repeat(2, 1fr)', 'important');
+        }
+    }
+}
+
+// Dropdown toggle functionality
+function toggleDropdown(dropdownId) {
+    const dropdown = document.getElementById(dropdownId);
+    const allDropdowns = document.querySelectorAll('.dropdown-content');
+    
+    // Close all other dropdowns
+    allDropdowns.forEach(dd => {
+        if (dd.id !== dropdownId) {
+            dd.style.display = 'none';
+        }
+    });
+    
+    // Toggle current dropdown
+    if (dropdown.style.display === 'block') {
+        dropdown.style.display = 'none';
+    } else {
+        dropdown.style.display = 'block';
+    }
+}
+
+// View toggle functionality
+function toggleView(viewType) {
+    const listBtn = document.querySelector('[onclick="toggleView(\'list\')"]');
+    const mapBtn = document.querySelector('[onclick="toggleView(\'map\')"]');
+    
+    // Remove active class from all buttons
+    listBtn.classList.remove('active');
+    mapBtn.classList.remove('active');
+    
+    // Add active class to clicked button
+    if (viewType === 'list') {
+        listBtn.classList.add('active');
+    } else {
+        mapBtn.classList.add('active');
+    }
+}
+
+// Layout change functionality
+function changeLayout(layoutType) {
+    const gridBtn = document.getElementById('gridBtn');
+    const columnBtn = document.getElementById('columnBtn');
+    const propertyGrid = document.getElementById('propertyGrid');
+    
+    // Remove active class from all buttons
+    gridBtn.classList.remove('active');
+    columnBtn.classList.remove('active');
+    
+    if (layoutType === 'grid') {
+        gridBtn.classList.add('active');
+        // Check if map is visible to determine grid columns
+        const mapSection = document.querySelector('.map-section');
+        if (mapSection.classList.contains('map-visible')) {
+            // With map - 2 columns
+            propertyGrid.style.setProperty('grid-template-columns', 'repeat(2, 1fr)', 'important');
+        } else {
+            // Full width - 4 columns
+            propertyGrid.style.setProperty('grid-template-columns', 'repeat(4, 1fr)', 'important');
+        }
+    } else {
+        columnBtn.classList.add('active');
+        propertyGrid.style.gridTemplateColumns = '1fr';
+    }
+}
+
+// Property highlighting functionality
+function highlightProperty(propertyId) {
+    // Remove active class from all markers and cards
+    document.querySelectorAll('.map-marker').forEach(marker => {
+        marker.classList.remove('active');
+    });
+    document.querySelectorAll('.property-card').forEach(card => {
+        card.classList.remove('active');
+    });
+    
+    // Add active class to clicked marker and corresponding card
+    const marker = document.querySelector(`[data-property-id="${propertyId}"]`);
+    const card = document.querySelector(`.property-card[data-property-id="${propertyId}"]`);
+    
+    if (marker) marker.classList.add('active');
+    if (card) card.classList.add('active');
+}
+
+// Close dropdowns when clicking outside
+document.addEventListener('click', function(event) {
+    const dropdowns = document.querySelectorAll('.dropdown-content');
+    const filterButtons = document.querySelectorAll('.filter-chip');
+    
+    let clickedInsideDropdown = false;
+    let clickedInsideFilterButton = false;
+    
+    // Check if click was inside a dropdown
+    dropdowns.forEach(dropdown => {
+        if (dropdown.contains(event.target)) {
+            clickedInsideDropdown = true;
+        }
+    });
+    
+    // Check if click was inside a filter button
+    filterButtons.forEach(button => {
+        if (button.contains(event.target)) {
+            clickedInsideFilterButton = true;
+        }
+    });
+    
+    // Close all dropdowns if click was outside
+    if (!clickedInsideDropdown && !clickedInsideFilterButton) {
+        dropdowns.forEach(dropdown => {
+            dropdown.style.display = 'none';
+        });
+    }
+});
+
+// Initialize page
+document.addEventListener('DOMContentLoaded', function() {
+    // Set initial map toggle button title and state
+    const mapToggleBtn = document.getElementById('mapToggleBtn');
+    const mapSection = document.querySelector('.map-section');
+    const propertyGrid = document.getElementById('propertyGrid');
+    const gridBtn = document.getElementById('gridBtn');
+    
+    if (mapToggleBtn) {
+        mapToggleBtn.title = 'Show Map';
+    }
+    
+    // Set initial map state to hidden
+    if (mapSection) {
+        mapSection.classList.add('map-hidden');
+    }
+    
+    // Set initial grid layout (4 columns for full width by default)
+    if (propertyGrid) {
+        propertyGrid.style.setProperty('grid-template-columns', 'repeat(4, 1fr)', 'important');
+    }
+});
+</script>
 
 <?php get_footer(); ?>
