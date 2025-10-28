@@ -19,29 +19,32 @@ if (!defined('ABSPATH')) {
 define('RESBS_PATH', plugin_dir_path(__FILE__));
 define('RESBS_URL', plugin_dir_url(__FILE__));
 
-// Template loading functionality
-function resbs_template_loader($template) {
-    global $post;
-    
-    // Check if this is a single property post
+// Force flush rewrite rules on activation
+function resbs_flush_rewrite_rules() {
+    flush_rewrite_rules();
+}
+register_activation_hook(__FILE__, 'resbs_flush_rewrite_rules');
+
+// Manual flush rewrite rules function (for debugging)
+function resbs_manual_flush_rewrite_rules() {
+    if (isset($_GET['resbs_flush']) && $_GET['resbs_flush'] === '1') {
+        flush_rewrite_rules();
+        echo '<div style="background: green; color: white; padding: 10px; margin: 10px;">Rewrite rules flushed successfully!</div>';
+    }
+}
+add_action('init', 'resbs_manual_flush_rewrite_rules');
+
+// SINGLE PROPERTY TEMPLATE LOADER - HIGH PRIORITY
+function resbs_single_property_template_loader($template) {
     if (is_singular('property')) {
-        $plugin_template = RESBS_PATH . 'templates/single-property.php';
-        if (file_exists($plugin_template)) {
-            return $plugin_template;
+        $single_template = RESBS_PATH . 'templates/single-property.php';
+        if (file_exists($single_template)) {
+            return $single_template;
         }
     }
-    
-    // Check if this is a property archive
-    if (is_post_type_archive('property')) {
-        $plugin_template = RESBS_PATH . 'templates/simple-archive.php';
-        if (file_exists($plugin_template)) {
-            return $plugin_template;
-        }
-    }
-    
     return $template;
 }
-add_filter('template_include', 'resbs_template_loader');
+add_filter('template_include', 'resbs_single_property_template_loader', 5);
 
 // Enqueue assets
 function resbs_enqueue_assets() {
@@ -171,5 +174,4 @@ new RESBS_Enhanced_Settings();
 
 // Load simple archive handler
 require_once RESBS_PATH . 'includes/class-resbs-simple-archive.php';
-
 

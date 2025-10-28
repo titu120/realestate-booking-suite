@@ -16,265 +16,266 @@
     if (! defined('RESBS_URL')) {
         define('RESBS_URL', plugin_dir_url(dirname(__FILE__)) . '/');
     }
+?>
 
-    // Get the current post
-    global $post;
-    if (! $post) {
-        return;
-    }
+<?php if (have_posts()) : ?>
+    <?php while (have_posts()) : the_post(); ?>
+        <?php
+        // Get the current post (now available after the_post())
+        global $post;
+        
+        // Get all property data
+        $price          = get_post_meta($post->ID, '_property_price', true);
+        $price_per_sqft = get_post_meta($post->ID, '_property_price_per_sqft', true);
+        $price_note     = get_post_meta($post->ID, '_property_price_note', true);
+        $call_for_price = get_post_meta($post->ID, '_property_call_for_price', true);
 
-    // Get all property data
-    $price          = get_post_meta($post->ID, '_property_price', true);
-    $price_per_sqft = get_post_meta($post->ID, '_property_price_per_sqft', true);
-    $price_note     = get_post_meta($post->ID, '_property_price_note', true);
-    $call_for_price = get_post_meta($post->ID, '_property_call_for_price', true);
+        $bedrooms       = get_post_meta($post->ID, '_property_bedrooms', true);
+        $bathrooms      = get_post_meta($post->ID, '_property_bathrooms', true);
+        $half_baths     = get_post_meta($post->ID, '_property_half_baths', true);
+        $total_rooms    = get_post_meta($post->ID, '_property_total_rooms', true);
+        $floors         = get_post_meta($post->ID, '_property_floors', true);
+        $floor_level    = get_post_meta($post->ID, '_property_floor_level', true);
+        $area_sqft      = get_post_meta($post->ID, '_property_area_sqft', true);
+        $lot_size_sqft  = get_post_meta($post->ID, '_property_lot_size_sqft', true);
+        $year_built     = get_post_meta($post->ID, '_property_year_built', true);
+        $year_remodeled = get_post_meta($post->ID, '_property_year_remodeled', true);
 
-    $bedrooms       = get_post_meta($post->ID, '_property_bedrooms', true);
-    $bathrooms      = get_post_meta($post->ID, '_property_bathrooms', true);
-    $half_baths     = get_post_meta($post->ID, '_property_half_baths', true);
-    $total_rooms    = get_post_meta($post->ID, '_property_total_rooms', true);
-    $floors         = get_post_meta($post->ID, '_property_floors', true);
-    $floor_level    = get_post_meta($post->ID, '_property_floor_level', true);
-    $area_sqft      = get_post_meta($post->ID, '_property_area_sqft', true);
-    $lot_size_sqft  = get_post_meta($post->ID, '_property_lot_size_sqft', true);
-    $year_built     = get_post_meta($post->ID, '_property_year_built', true);
-    $year_remodeled = get_post_meta($post->ID, '_property_year_remodeled', true);
+        $property_type      = get_post_meta($post->ID, '_property_type', true);
+        $property_status    = get_post_meta($post->ID, '_property_status', true);
+        $property_condition = get_post_meta($post->ID, '_property_condition', true);
 
-    $property_type      = get_post_meta($post->ID, '_property_type', true);
-    $property_status    = get_post_meta($post->ID, '_property_status', true);
-    $property_condition = get_post_meta($post->ID, '_property_condition', true);
+        $address      = get_post_meta($post->ID, '_property_address', true);
+        $city         = get_post_meta($post->ID, '_property_city', true);
+        $state        = get_post_meta($post->ID, '_property_state', true);
+        $zip          = get_post_meta($post->ID, '_property_zip', true);
+        $country      = get_post_meta($post->ID, '_property_country', true);
+        $latitude     = get_post_meta($post->ID, '_property_latitude', true);
+        $longitude    = get_post_meta($post->ID, '_property_longitude', true);
+        $map_iframe   = get_post_meta($post->ID, '_property_map_iframe', true);
+        // Try alternative field names
+        if (!$map_iframe) {
+            $map_iframe = get_post_meta($post->ID, '_property_custom_map_iframe', true);
+        }
+        if (!$map_iframe) {
+            $map_iframe = get_post_meta($post->ID, '_property_map_embed', true);
+        }
+        if (!$map_iframe) {
+            $map_iframe = get_post_meta($post->ID, '_property_google_map_iframe', true);
+        }
+        $hide_address = get_post_meta($post->ID, '_property_hide_address', true);
 
-    $address      = get_post_meta($post->ID, '_property_address', true);
-    $city         = get_post_meta($post->ID, '_property_city', true);
-    $state        = get_post_meta($post->ID, '_property_state', true);
-    $zip          = get_post_meta($post->ID, '_property_zip', true);
-    $country      = get_post_meta($post->ID, '_property_country', true);
-    $latitude     = get_post_meta($post->ID, '_property_latitude', true);
-    $longitude    = get_post_meta($post->ID, '_property_longitude', true);
-    $map_iframe   = get_post_meta($post->ID, '_property_map_iframe', true);
-    // Try alternative field names
-    if (!$map_iframe) {
-        $map_iframe = get_post_meta($post->ID, '_property_custom_map_iframe', true);
-    }
-    if (!$map_iframe) {
-        $map_iframe = get_post_meta($post->ID, '_property_map_embed', true);
-    }
-    if (!$map_iframe) {
-        $map_iframe = get_post_meta($post->ID, '_property_google_map_iframe', true);
-    }
-    $hide_address = get_post_meta($post->ID, '_property_hide_address', true);
+        $features          = get_post_meta($post->ID, '_property_features', true);
+        $amenities         = get_post_meta($post->ID, '_property_amenities', true);
+        $parking           = get_post_meta($post->ID, '_property_parking', true);
+        $heating           = get_post_meta($post->ID, '_property_heating', true);
+        $cooling           = get_post_meta($post->ID, '_property_cooling', true);
+        $basement          = get_post_meta($post->ID, '_property_basement', true);
+        $roof              = get_post_meta($post->ID, '_property_roof', true);
+        $exterior_material = get_post_meta($post->ID, '_property_exterior_material', true);
+        $floor_covering    = get_post_meta($post->ID, '_property_floor_covering', true);
 
-    $features          = get_post_meta($post->ID, '_property_features', true);
-    $amenities         = get_post_meta($post->ID, '_property_amenities', true);
-    $parking           = get_post_meta($post->ID, '_property_parking', true);
-    $heating           = get_post_meta($post->ID, '_property_heating', true);
-    $cooling           = get_post_meta($post->ID, '_property_cooling', true);
-    $basement          = get_post_meta($post->ID, '_property_basement', true);
-    $roof              = get_post_meta($post->ID, '_property_roof', true);
-    $exterior_material = get_post_meta($post->ID, '_property_exterior_material', true);
-    $floor_covering    = get_post_meta($post->ID, '_property_floor_covering', true);
+        // Nearby features
+        $nearby_schools     = get_post_meta($post->ID, '_property_nearby_schools', true);
+        $nearby_shopping    = get_post_meta($post->ID, '_property_nearby_shopping', true);
+        $nearby_restaurants = get_post_meta($post->ID, '_property_nearby_restaurants', true);
 
-    // Nearby features
-    $nearby_schools     = get_post_meta($post->ID, '_property_nearby_schools', true);
-    $nearby_shopping    = get_post_meta($post->ID, '_property_nearby_shopping', true);
-    $nearby_restaurants = get_post_meta($post->ID, '_property_nearby_restaurants', true);
-
-    $gallery_images           = get_post_meta($post->ID, '_property_gallery', true);
-    
-    // Convert gallery attachment IDs to URLs
-    $gallery_urls = [];
-    if (!empty($gallery_images) && is_array($gallery_images)) {
-        foreach ($gallery_images as $image_id) {
-            $image_url = wp_get_attachment_image_url($image_id, 'full');
-            if ($image_url) {
-                $gallery_urls[] = $image_url;
+        $gallery_images           = get_post_meta($post->ID, '_property_gallery', true);
+        
+        // Convert gallery attachment IDs to URLs
+        $gallery_urls = [];
+        if (!empty($gallery_images) && is_array($gallery_images)) {
+            foreach ($gallery_images as $image_id) {
+                $image_url = wp_get_attachment_image_url($image_id, 'full');
+                if ($image_url) {
+                    $gallery_urls[] = $image_url;
+                }
             }
         }
-    }
-    $floor_plans              = get_post_meta($post->ID, '_property_floor_plans', true);
-    $virtual_tour             = get_post_meta($post->ID, '_property_virtual_tour', true);
-    $virtual_tour_title       = get_post_meta($post->ID, '_property_virtual_tour_title', true);
-    $virtual_tour_description = get_post_meta($post->ID, '_property_virtual_tour_description', true);
-    $virtual_tour_button_text = get_post_meta($post->ID, '_property_virtual_tour_button_text', true);
-    $video_url                = get_post_meta($post->ID, '_property_video_url', true);
-    $video_embed              = get_post_meta($post->ID, '_property_video_embed', true);
+        $floor_plans              = get_post_meta($post->ID, '_property_floor_plans', true);
+        $virtual_tour             = get_post_meta($post->ID, '_property_virtual_tour', true);
+        $virtual_tour_title       = get_post_meta($post->ID, '_property_virtual_tour_title', true);
+        $virtual_tour_description = get_post_meta($post->ID, '_property_virtual_tour_description', true);
+        $virtual_tour_button_text = get_post_meta($post->ID, '_property_virtual_tour_button_text', true);
+        $video_url                = get_post_meta($post->ID, '_property_video_url', true);
+        $video_embed              = get_post_meta($post->ID, '_property_video_embed', true);
 
-    // Agent data
-    $agent_name              = get_post_meta($post->ID, '_property_agent_name', true);
-    $agent_phone             = get_post_meta($post->ID, '_property_agent_phone', true);
-    $agent_email             = get_post_meta($post->ID, '_property_agent_email', true);
-    $agent_photo             = get_post_meta($post->ID, '_property_agent_photo', true);
-    $agent_properties_sold   = get_post_meta($post->ID, '_property_agent_properties_sold', true);
-    $agent_experience        = get_post_meta($post->ID, '_property_agent_experience', true);
-    $agent_response_time     = get_post_meta($post->ID, '_property_agent_response_time', true);
-    $agent_rating            = get_post_meta($post->ID, '_property_agent_rating', true);
-    $agent_send_message_text = get_post_meta($post->ID, '_property_agent_send_message_text', true);
+        // Agent data
+        $agent_name              = get_post_meta($post->ID, '_property_agent_name', true);
+        $agent_phone             = get_post_meta($post->ID, '_property_agent_phone', true);
+        $agent_email             = get_post_meta($post->ID, '_property_agent_email', true);
+        $agent_photo             = get_post_meta($post->ID, '_property_agent_photo', true);
+        $agent_properties_sold   = get_post_meta($post->ID, '_property_agent_properties_sold', true);
+        $agent_experience        = get_post_meta($post->ID, '_property_agent_experience', true);
+        $agent_response_time     = get_post_meta($post->ID, '_property_agent_response_time', true);
+        $agent_rating            = get_post_meta($post->ID, '_property_agent_rating', true);
+        $agent_send_message_text = get_post_meta($post->ID, '_property_agent_send_message_text', true);
 
-    // Contact Form Dynamic Fields
-    $contact_form_title      = get_post_meta($post->ID, '_property_contact_form_title', true);
-    $contact_name_label      = get_post_meta($post->ID, '_property_contact_name_label', true);
-    $contact_email_label     = get_post_meta($post->ID, '_property_contact_email_label', true);
-    $contact_phone_label     = get_post_meta($post->ID, '_property_contact_phone_label', true);
-    $contact_message_label   = get_post_meta($post->ID, '_property_contact_message_label', true);
-    $contact_success_message = get_post_meta($post->ID, '_property_contact_success_message', true);
-    $contact_submit_text     = get_post_meta($post->ID, '_property_contact_submit_text', true);
+        // Contact Form Dynamic Fields
+        $contact_form_title      = get_post_meta($post->ID, '_property_contact_form_title', true);
+        $contact_name_label      = get_post_meta($post->ID, '_property_contact_name_label', true);
+        $contact_email_label     = get_post_meta($post->ID, '_property_contact_email_label', true);
+        $contact_phone_label     = get_post_meta($post->ID, '_property_contact_phone_label', true);
+        $contact_message_label   = get_post_meta($post->ID, '_property_contact_message_label', true);
+        $contact_success_message = get_post_meta($post->ID, '_property_contact_success_message', true);
+        $contact_submit_text     = get_post_meta($post->ID, '_property_contact_submit_text', true);
 
-    // Booking Form Dynamic Fields
-    $booking_form_title      = get_post_meta($post->ID, '_property_booking_form_title', true);
-    $booking_form_subtitle   = get_post_meta($post->ID, '_property_booking_form_subtitle', true);
-    $booking_name_label      = get_post_meta($post->ID, '_property_booking_name_label', true);
-    $booking_email_label     = get_post_meta($post->ID, '_property_booking_email_label', true);
-    $booking_phone_label     = get_post_meta($post->ID, '_property_booking_phone_label', true);
-    $booking_date_label      = get_post_meta($post->ID, '_property_booking_date_label', true);
-    $booking_time_label      = get_post_meta($post->ID, '_property_booking_time_label', true);
-    $booking_message_label   = get_post_meta($post->ID, '_property_booking_message_label', true);
-    $booking_submit_text     = get_post_meta($post->ID, '_property_booking_submit_text', true);
+        // Booking Form Dynamic Fields
+        $booking_form_title      = get_post_meta($post->ID, '_property_booking_form_title', true);
+        $booking_form_subtitle   = get_post_meta($post->ID, '_property_booking_form_subtitle', true);
+        $booking_name_label      = get_post_meta($post->ID, '_property_booking_name_label', true);
+        $booking_email_label     = get_post_meta($post->ID, '_property_booking_email_label', true);
+        $booking_phone_label     = get_post_meta($post->ID, '_property_booking_phone_label', true);
+        $booking_date_label      = get_post_meta($post->ID, '_property_booking_date_label', true);
+        $booking_time_label      = get_post_meta($post->ID, '_property_booking_time_label', true);
+        $booking_message_label   = get_post_meta($post->ID, '_property_booking_message_label', true);
+        $booking_submit_text     = get_post_meta($post->ID, '_property_booking_submit_text', true);
 
-    // Mortgage Calculator Dynamic Fields
-    $mortgage_calculator_title      = get_post_meta($post->ID, '_property_mortgage_calculator_title', true);
-    $mortgage_property_price_label  = get_post_meta($post->ID, '_property_mortgage_property_price_label', true);
-    $mortgage_down_payment_label    = get_post_meta($post->ID, '_property_mortgage_down_payment_label', true);
-    $mortgage_interest_rate_label   = get_post_meta($post->ID, '_property_mortgage_interest_rate_label', true);
-    $mortgage_loan_term_label       = get_post_meta($post->ID, '_property_mortgage_loan_term_label', true);
-    $mortgage_monthly_payment_label = get_post_meta($post->ID, '_property_mortgage_monthly_payment_label', true);
-    $mortgage_default_down_payment  = get_post_meta($post->ID, '_property_mortgage_default_down_payment', true);
-    $mortgage_default_interest_rate = get_post_meta($post->ID, '_property_mortgage_default_interest_rate', true);
-    $mortgage_default_loan_term     = get_post_meta($post->ID, '_property_mortgage_default_loan_term', true);
-    $mortgage_disclaimer_text       = get_post_meta($post->ID, '_property_mortgage_disclaimer_text', true);
-    
-    // Get global mortgage calculator settings
-    $mortgage_loan_terms = get_option('resbs_mortgage_loan_terms', '');
-    $mortgage_default_loan_term_global = get_option('resbs_mortgage_default_loan_term', '');
-    $mortgage_default_down_payment_global = get_option('resbs_mortgage_default_down_payment', '');
-    $mortgage_default_interest_rate_global = get_option('resbs_mortgage_default_interest_rate', '');
+        // Mortgage Calculator Dynamic Fields
+        $mortgage_calculator_title      = get_post_meta($post->ID, '_property_mortgage_calculator_title', true);
+        $mortgage_property_price_label  = get_post_meta($post->ID, '_property_mortgage_property_price_label', true);
+        $mortgage_down_payment_label    = get_post_meta($post->ID, '_property_mortgage_down_payment_label', true);
+        $mortgage_interest_rate_label   = get_post_meta($post->ID, '_property_mortgage_interest_rate_label', true);
+        $mortgage_loan_term_label       = get_post_meta($post->ID, '_property_mortgage_loan_term_label', true);
+        $mortgage_monthly_payment_label = get_post_meta($post->ID, '_property_mortgage_monthly_payment_label', true);
+        $mortgage_default_down_payment  = get_post_meta($post->ID, '_property_mortgage_default_down_payment', true);
+        $mortgage_default_interest_rate = get_post_meta($post->ID, '_property_mortgage_default_interest_rate', true);
+        $mortgage_default_loan_term     = get_post_meta($post->ID, '_property_mortgage_default_loan_term', true);
+        $mortgage_disclaimer_text       = get_post_meta($post->ID, '_property_mortgage_disclaimer_text', true);
+        
+        // Get global mortgage calculator settings
+        $mortgage_loan_terms = get_option('resbs_mortgage_loan_terms', '');
+        $mortgage_default_loan_term_global = get_option('resbs_mortgage_default_loan_term', '');
+        $mortgage_default_down_payment_global = get_option('resbs_mortgage_default_down_payment', '');
+        $mortgage_default_interest_rate_global = get_option('resbs_mortgage_default_interest_rate', '');
 
-    // Tour Information Fields
-    $tour_duration   = get_post_meta($post->ID, '_property_tour_duration', true);
-    $tour_group_size = get_post_meta($post->ID, '_property_tour_group_size', true);
-    $tour_safety     = get_post_meta($post->ID, '_property_tour_safety', true);
+        // Tour Information Fields
+        $tour_duration   = get_post_meta($post->ID, '_property_tour_duration', true);
+        $tour_group_size = get_post_meta($post->ID, '_property_tour_group_size', true);
+        $tour_safety     = get_post_meta($post->ID, '_property_tour_safety', true);
 
-    // Get property badges
-    $property_badges = get_post_meta($post->ID, '_property_badges', true);
-    if (! is_array($property_badges)) {
-        $property_badges = [];
-    }
-
-    // Get property taxonomies
-    $property_types     = get_the_terms($post->ID, 'property_type');
-    $property_statuses  = get_the_terms($post->ID, 'property_status');
-    $property_locations = get_the_terms($post->ID, 'property_location');
-
-    // Get featured image
-    $featured_image = get_the_post_thumbnail_url($post->ID, 'large');
-
-    // Format price
-    $formatted_price = '';
-    if ($price && ! $call_for_price) {
-        $formatted_price = '$' . number_format($price);
-    } elseif ($call_for_price) {
-        $formatted_price = 'Call for Price';
-    }
-
-    // Format price per sqft
-    $formatted_price_per_sqft = '';
-    if ($price_per_sqft) {
-        $formatted_price_per_sqft = '$' . number_format($price_per_sqft) . '/sq ft';
-    }
-
-    // Format area
-    $formatted_area = '';
-    if ($area_sqft) {
-        $formatted_area = number_format($area_sqft) . ' sq ft';
-    }
-
-    // Format lot size
-    $formatted_lot_size = '';
-    if ($lot_size_sqft) {
-        $formatted_lot_size = number_format($lot_size_sqft) . ' sq ft';
-    }
-
-    // Format full address
-    $full_address = '';
-    if ($address) {
-        $full_address = $address;
-        if ($city) {
-            $full_address .= ', ' . $city;
+        // Get property badges
+        $property_badges = get_post_meta($post->ID, '_property_badges', true);
+        if (! is_array($property_badges)) {
+            $property_badges = [];
         }
 
-        if ($state) {
-            $full_address .= ', ' . $state;
+        // Get property taxonomies
+        $property_types     = get_the_terms($post->ID, 'property_type');
+        $property_statuses  = get_the_terms($post->ID, 'property_status');
+        $property_locations = get_the_terms($post->ID, 'property_location');
+
+        // Get featured image
+        $featured_image = get_the_post_thumbnail_url($post->ID, 'large');
+
+        // Format price
+        $formatted_price = '';
+        if ($price && ! $call_for_price) {
+            $formatted_price = '$' . number_format($price);
+        } elseif ($call_for_price) {
+            $formatted_price = 'Call for Price';
         }
 
-        if ($zip) {
-            $full_address .= ' ' . $zip;
+        // Format price per sqft
+        $formatted_price_per_sqft = '';
+        if ($price_per_sqft) {
+            $formatted_price_per_sqft = '$' . number_format($price_per_sqft) . '/sq ft';
         }
 
-        if ($country) {
+        // Format area
+        $formatted_area = '';
+        if ($area_sqft) {
+            $formatted_area = number_format($area_sqft) . ' sq ft';
+        }
+
+        // Format lot size
+        $formatted_lot_size = '';
+        if ($lot_size_sqft) {
+            $formatted_lot_size = number_format($lot_size_sqft) . ' sq ft';
+        }
+
+        // Format full address
+        $full_address = '';
+        if ($address) {
+            $full_address = $address;
+            if ($city) {
+                $full_address .= ', ' . $city;
+            }
+
+            if ($state) {
+                $full_address .= ', ' . $state;
+            }
+
+            if ($zip) {
+                $full_address .= ' ' . $zip;
+            }
+
+            if ($country) {
+                $full_address .= ', ' . $country;
+            }
+
+        }
+        
+        // Ensure addresses are properly formatted with country if missing
+        if ($country && strpos(strtolower($full_address), strtolower($country)) === false) {
             $full_address .= ', ' . $country;
         }
 
-    }
-    
-    // Ensure addresses are properly formatted with country if missing
-    if ($country && strpos(strtolower($full_address), strtolower($country)) === false) {
-        $full_address .= ', ' . $country;
-    }
-
-    // Parse features and amenities
-    $features_array = [];
-    if ($features && is_string($features)) {
-        $features_array = explode(',', $features);
-        $features_array = array_map('trim', $features_array);
-        // Filter out empty items
-        $features_array = array_filter($features_array, function($item) {
-            return !empty(trim($item));
-        });
-    }
-
-    $amenities_array = [];
-    if ($amenities && is_string($amenities)) {
-        $amenities_array = explode(',', $amenities);
-        $amenities_array = array_map('trim', $amenities_array);
-        // Filter out empty items
-        $amenities_array = array_filter($amenities_array, function($item) {
-            return !empty(trim($item));
-        });
-    }
-
-    // Parse gallery images
-    $gallery_array = [];
-    if ($gallery_images && is_string($gallery_images)) {
-        $gallery_array = explode(',', $gallery_images);
-        $gallery_array = array_map('trim', $gallery_array);
-    }
-
-    // Default values for missing data
-    $default_values = [
-        'price'                 => '$0',
-        'price_per_sqft'        => '$0/sq ft',
-        'bedrooms'              => '0',
-        'bathrooms'             => '0',
-        'area_sqft'             => '0 sq ft',
-        'property_type'         => 'Property',
-        'property_status'       => 'Available',
-        'property_condition'    => 'Good',
-        'agent_name'            => 'Contact Agent',
-        'agent_phone'           => 'N/A',
-        'agent_email'           => 'N/A',
-        'agent_rating'          => '5',
-        'agent_reviews'         => '0',
-        'agent_experience'      => 'N/A',
-        'agent_response_time'   => 'N/A',
-        'agent_properties_sold' => '0',
-    ];
-
-    // Apply defaults
-    foreach ($default_values as $key => $default_value) {
-        if (empty($$key)) {
-            $$key = $default_value;
+        // Parse features and amenities
+        $features_array = [];
+        if ($features && is_string($features)) {
+            $features_array = explode(',', $features);
+            $features_array = array_map('trim', $features_array);
+            // Filter out empty items
+            $features_array = array_filter($features_array, function($item) {
+                return !empty(trim($item));
+            });
         }
-    }
-?>
+
+        $amenities_array = [];
+        if ($amenities && is_string($amenities)) {
+            $amenities_array = explode(',', $amenities);
+            $amenities_array = array_map('trim', $amenities_array);
+            // Filter out empty items
+            $amenities_array = array_filter($amenities_array, function($item) {
+                return !empty(trim($item));
+            });
+        }
+
+        // Parse gallery images
+        $gallery_array = [];
+        if ($gallery_images && is_string($gallery_images)) {
+            $gallery_array = explode(',', $gallery_images);
+            $gallery_array = array_map('trim', $gallery_array);
+        }
+
+        // Default values for missing data
+        $default_values = [
+            'price'                 => '$0',
+            'price_per_sqft'        => '$0/sq ft',
+            'bedrooms'              => '0',
+            'bathrooms'             => '0',
+            'area_sqft'             => '0 sq ft',
+            'property_type'         => 'Property',
+            'property_status'       => 'Available',
+            'property_condition'    => 'Good',
+            'agent_name'            => 'Contact Agent',
+            'agent_phone'           => 'N/A',
+            'agent_email'           => 'N/A',
+            'agent_rating'          => '5',
+            'agent_reviews'         => '0',
+            'agent_experience'      => 'N/A',
+            'agent_response_time'   => 'N/A',
+            'agent_properties_sold' => '0',
+        ];
+
+        // Apply defaults
+        foreach ($default_values as $key => $default_value) {
+            if (empty($$key)) {
+                $$key = $default_value;
+            }
+        }
+        ?>
 <!-- Single Property Template Styles -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -1841,5 +1842,14 @@
         window.filterAmenities = filterAmenities;
         window.testFilter = testFilter;
     </script>
+
+    <?php endwhile; ?>
+<?php else : ?>
+    <div class="container" style="padding: 20px;">
+        <h1>Property Not Found</h1>
+        <p>Sorry, the property you're looking for doesn't exist or has been removed.</p>
+        <a href="<?php echo home_url('/property/'); ?>" style="background: #007cba; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">Back to Properties</a>
+    </div>
+<?php endif; ?>
 
 <?php get_footer(); ?>

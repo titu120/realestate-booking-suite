@@ -18,7 +18,8 @@ class RESBS_CPT {
     public function __construct() {
         add_action('init', array($this, 'register_property_cpt'));
         add_action('init', array($this, 'register_property_taxonomies'));
-        add_filter('template_include', array($this, 'property_template_include'));
+        add_action('init', array($this, 'flush_rewrite_rules_if_needed'));
+        // REMOVED: add_filter('template_include', array($this, 'property_template_include'));
     }
     
     /**
@@ -156,16 +157,42 @@ class RESBS_CPT {
     }
     
     /**
-     * Include custom template for single property
+     * Include custom template for single property and archive
      */
     public function property_template_include($template) {
-        if (is_singular('property')) {
-            $custom_template = RESBS_PATH . 'templates/single-property.php';
-            if (file_exists($custom_template)) {
-                return $custom_template;
+        global $post;
+        
+        // SIMPLE CHECK: If URL contains /property/ and has a slug, it's a single property
+        $request_uri = $_SERVER['REQUEST_URI'];
+        
+        // Check if it's a single property page (URL like /property/some-slug/)
+        if (preg_match('/\/property\/[^\/]+\/?$/', $request_uri)) {
+            $single_template = RESBS_PATH . 'templates/test-single-property.php';
+            if (file_exists($single_template)) {
+                return $single_template;
             }
         }
+        
+        // Check if it's property archive (URL like /property/)
+        if (preg_match('/\/property\/?$/', $request_uri)) {
+            $archive_template = RESBS_PATH . 'templates/archive-property.php';
+            if (file_exists($archive_template)) {
+                return $archive_template;
+            }
+        }
+        
         return $template;
+    }
+    
+    /**
+     * Flush rewrite rules if needed
+     */
+    public function flush_rewrite_rules_if_needed() {
+        $option_name = 'resbs_flush_rewrite_rules';
+        if (get_option($option_name) !== '1') {
+            flush_rewrite_rules();
+            update_option($option_name, '1');
+        }
     }
 }
 

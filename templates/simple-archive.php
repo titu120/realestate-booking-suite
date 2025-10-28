@@ -497,7 +497,7 @@ $property_statuses = get_terms(array(
                             </div>
                             <div class="property-footer">
                                         <span class="property-type"><?php echo esc_html($property_type_name); ?></span>
-                                        <a href="<?php echo get_permalink(); ?>" class="view-details-btn" target="_blank">
+                                        <a href="<?php echo get_permalink(); ?>" class="view-details-btn" target="_blank" onclick="console.log('Property ID: <?php echo get_the_ID(); ?>, Permalink: <?php echo get_permalink(); ?>')">
                                     View Details <i class="fas fa-arrow-right"></i>
                                         </a>
                             </div>
