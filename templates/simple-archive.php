@@ -214,7 +214,7 @@
                         propertyGrid.style.setProperty('grid-template-columns', 'repeat(4, 1fr)', 'important');
                         
                         console.log('Grid button should now be active!');
-                    " id="gridBtn" class="layout-btn" style="background-color: red;">
+                    " id="gridBtn" class="layout-btn">
                         <i class="fas fa-th-large"></i>
                     </button>
                 </div>
