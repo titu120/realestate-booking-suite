@@ -531,45 +531,28 @@
     }
 
     .rbs-archive .properties-list {
-        overflow-y: auto;
-        max-height: calc(100vh - 300px);
-    }
-
-    /* Adjust height when map is hidden */
-    .rbs-archive .listings-container.map-hidden .properties-list {
-        max-height: none;
         overflow-y: visible;
+        max-height: none;
     }
 
-    .rbs-archive .properties-list::-webkit-scrollbar {
-        width: 6px;
+    /* No scrolling - let content flow naturally */
+    .rbs-archive .listings-container .properties-list {
+        overflow-y: visible;
+        max-height: none;
     }
 
-    .rbs-archive .properties-list::-webkit-scrollbar-track {
-        background: #f1f1f1;
-    }
-
-    .rbs-archive .properties-list::-webkit-scrollbar-thumb {
-        background: #0f766e;
-        border-radius: 10px;
-    }
-
-    .rbs-archive .properties-list::-webkit-scrollbar-thumb:hover {
-        background: #0d5c54;
-    }
 
 
     .rbs-archive .property-card {
         background-color: white;
-        border-radius: 16px;
         overflow: hidden;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        border: 1px solid #e5e7eb;
         transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .rbs-archive .property-card:hover {
         transform: translateY(-8px);
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        
     }
 
     .rbs-archive .property-image {
