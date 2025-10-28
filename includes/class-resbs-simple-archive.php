@@ -13,6 +13,27 @@ class RESBS_Simple_Archive {
     
     public function __construct() {
         add_filter('template_include', array($this, 'use_simple_template'), 99);
+        add_action('wp_enqueue_scripts', array($this, 'enqueue_simple_archive_assets'));
+    }
+    
+    public function enqueue_simple_archive_assets() {
+        // Only enqueue on archive pages
+        if (is_post_type_archive('resbs_property') || 
+            is_post_type_archive('property') || 
+            is_post_type_archive('properties') ||
+            is_tax('resbs_property_category') ||
+            is_tax('property_category') ||
+            is_tax('properties_category')) {
+            
+            // Enqueue the simple archive JavaScript
+            wp_enqueue_script(
+                'resbs-simple-archive',
+                RESBS_URL . 'assets/js/simple-archive.js',
+                array('jquery'),
+                '1.0.0',
+                true
+            );
+        }
     }
     
     public function use_simple_template($template) {
