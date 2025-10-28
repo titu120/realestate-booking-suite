@@ -247,27 +247,38 @@ $property_types = get_terms(array(
 
                 <!-- Bedrooms Dropdown -->
                 <div id="bedroomsDropdown" class="dropdown-content">
-                    <div class="filter-options">
-                        <button type="button" class="filter-option" data-value="" onclick="setFilterValue('bedrooms', '', this)">Any</button>
-                        <button type="button" class="filter-option" data-value="1" onclick="setFilterValue('bedrooms', '1', this)">1+</button>
-                        <button type="button" class="filter-option" data-value="2" onclick="setFilterValue('bedrooms', '2', this)">2+</button>
-                        <button type="button" class="filter-option" data-value="3" onclick="setFilterValue('bedrooms', '3', this)">3+</button>
-                        <button type="button" class="filter-option" data-value="4" onclick="setFilterValue('bedrooms', '4', this)">4+</button>
-                        <button type="button" class="filter-option" data-value="5" onclick="setFilterValue('bedrooms', '5', this)">5+</button>
+                    <div class="dropdown-grid">
+                        <div>
+                            <label class="dropdown-label">Min Bedrooms</label>
+                            <input type="number" placeholder="Min Bedrooms" class="dropdown-input" name="bedrooms" value="<?php echo esc_attr($bedrooms); ?>" min="0">
+                        </div>
                     </div>
-                    <input type="hidden" name="bedrooms" value="<?php echo esc_attr($bedrooms); ?>">
+                    <div class="filter-actions">
+                        <button type="submit" class="apply-filter-btn">
+                            <i class="fas fa-filter"></i> Apply Filter
+                        </button>
+                        <button type="button" class="clear-filter-btn" onclick="clearBedroomsFilter()">
+                            <i class="fas fa-times"></i> Clear
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Bathrooms Dropdown -->
                 <div id="bathroomsDropdown" class="dropdown-content">
-                    <div class="filter-options">
-                        <button type="button" class="filter-option" data-value="" onclick="setFilterValue('bathrooms', '', this)">Any</button>
-                        <button type="button" class="filter-option" data-value="1" onclick="setFilterValue('bathrooms', '1', this)">1+</button>
-                        <button type="button" class="filter-option" data-value="2" onclick="setFilterValue('bathrooms', '2', this)">2+</button>
-                        <button type="button" class="filter-option" data-value="3" onclick="setFilterValue('bathrooms', '3', this)">3+</button>
-                        <button type="button" class="filter-option" data-value="4" onclick="setFilterValue('bathrooms', '4', this)">4+</button>
+                    <div class="dropdown-grid">
+                        <div>
+                            <label class="dropdown-label">Min Bathrooms</label>
+                            <input type="number" placeholder="Min Bathrooms" class="dropdown-input" name="bathrooms" value="<?php echo esc_attr($bathrooms); ?>" min="0" step="0.5">
+                        </div>
                     </div>
-                    <input type="hidden" name="bathrooms" value="<?php echo esc_attr($bathrooms); ?>">
+                    <div class="filter-actions">
+                        <button type="submit" class="apply-filter-btn">
+                            <i class="fas fa-filter"></i> Apply Filter
+                        </button>
+                        <button type="button" class="clear-filter-btn" onclick="clearBathroomsFilter()">
+                            <i class="fas fa-times"></i> Clear
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Location Dropdown -->
@@ -739,6 +750,18 @@ function clearPriceFilter() {
 function clearTypeFilter() {
     // Select the "Any Type" radio button
     document.querySelector('input[name="property_type"][value=""]').checked = true;
+    document.getElementById('searchForm').submit();
+}
+
+// Clear bedrooms filter function
+function clearBedroomsFilter() {
+    document.querySelector('input[name="bedrooms"]').value = '';
+    document.getElementById('searchForm').submit();
+}
+
+// Clear bathrooms filter function
+function clearBathroomsFilter() {
+    document.querySelector('input[name="bathrooms"]').value = '';
     document.getElementById('searchForm').submit();
 }
 </script>
