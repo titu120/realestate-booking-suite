@@ -115,3 +115,7 @@ new RESBS_Shortcodes();
 // Load Shortcode AJAX Handlers
 require_once RESBS_PATH . 'includes/class-resbs-shortcode-ajax.php';
 new RESBS_Shortcode_AJAX();
+
+// Load Dynamic Archive AJAX Handlers
+require_once RESBS_PATH . 'includes/class-resbs-dynamic-archive-ajax.php';
+new RESBS_Dynamic_Archive_AJAX();

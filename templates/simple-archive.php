@@ -1,20 +1,190 @@
 <?php get_header(); ?>
 
-
-
-
-
-
-
-
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer">
+
+<?php
+// Note: AJAX functionality disabled for now to prevent errors
+// wp_enqueue_script('resbs-dynamic-archive');
+
+// Get query parameters for filtering
+$paged = (get_query_var('paged')) ? get_query_var('paged') : 1;
+$search_query = isset($_GET['search']) ? sanitize_text_field($_GET['search']) : '';
+$min_price = isset($_GET['min_price']) ? intval($_GET['min_price']) : '';
+$max_price = isset($_GET['max_price']) ? intval($_GET['max_price']) : '';
+$property_type = isset($_GET['property_type']) ? sanitize_text_field($_GET['property_type']) : '';
+$bedrooms = isset($_GET['bedrooms']) ? intval($_GET['bedrooms']) : '';
+$bathrooms = isset($_GET['bathrooms']) ? intval($_GET['bathrooms']) : '';
+$min_sqft = isset($_GET['min_sqft']) ? intval($_GET['min_sqft']) : '';
+$max_sqft = isset($_GET['max_sqft']) ? intval($_GET['max_sqft']) : '';
+$year_built = isset($_GET['year_built']) ? sanitize_text_field($_GET['year_built']) : '';
+$property_status = isset($_GET['property_status']) ? sanitize_text_field($_GET['property_status']) : '';
+$sort_by = isset($_GET['sort_by']) ? sanitize_text_field($_GET['sort_by']) : 'date';
+
+// Build WP_Query arguments
+$args = array(
+    'post_type' => 'property',
+    'post_status' => 'publish',
+    'posts_per_page' => 12,
+    'paged' => $paged,
+    'meta_query' => array(),
+    'tax_query' => array(),
+);
+
+// Add search query
+if (!empty($search_query)) {
+    $args['s'] = $search_query;
+}
+
+// Add price range filter
+if (!empty($min_price) || !empty($max_price)) {
+    $price_query = array(
+        'key' => '_property_price',
+        'type' => 'NUMERIC',
+    );
+    
+    if (!empty($min_price)) {
+        $price_query['value'] = $min_price;
+        $price_query['compare'] = '>=';
+    }
+    
+    if (!empty($max_price)) {
+        if (!empty($min_price)) {
+            $price_query['compare'] = 'BETWEEN';
+            $price_query['value'] = array($min_price, $max_price);
+        } else {
+            $price_query['value'] = $max_price;
+            $price_query['compare'] = '<=';
+        }
+    }
+    
+    $args['meta_query'][] = $price_query;
+}
+
+// Add bedrooms filter
+if (!empty($bedrooms)) {
+    $args['meta_query'][] = array(
+        'key' => '_property_bedrooms',
+        'value' => $bedrooms,
+        'compare' => '>=',
+        'type' => 'NUMERIC'
+    );
+}
+
+// Add bathrooms filter
+if (!empty($bathrooms)) {
+    $args['meta_query'][] = array(
+        'key' => '_property_bathrooms',
+        'value' => $bathrooms,
+        'compare' => '>=',
+        'type' => 'NUMERIC'
+    );
+}
+
+// Add square footage filter
+if (!empty($min_sqft) || !empty($max_sqft)) {
+    $sqft_query = array(
+        'key' => '_property_area_sqft',
+        'type' => 'NUMERIC',
+    );
+    
+    if (!empty($min_sqft)) {
+        $sqft_query['value'] = $min_sqft;
+        $sqft_query['compare'] = '>=';
+    }
+    
+    if (!empty($max_sqft)) {
+        if (!empty($min_sqft)) {
+            $sqft_query['compare'] = 'BETWEEN';
+            $sqft_query['value'] = array($min_sqft, $max_sqft);
+        } else {
+            $sqft_query['value'] = $max_sqft;
+            $sqft_query['compare'] = '<=';
+        }
+    }
+    
+    $args['meta_query'][] = $sqft_query;
+}
+
+// Add year built filter
+if (!empty($year_built)) {
+    $year_value = str_replace('+', '', $year_built);
+    $args['meta_query'][] = array(
+        'key' => '_property_year_built',
+        'value' => $year_value,
+        'compare' => '>=',
+        'type' => 'NUMERIC'
+    );
+}
+
+// Add property type filter
+if (!empty($property_type)) {
+    $args['tax_query'][] = array(
+        'taxonomy' => 'property_type',
+        'field' => 'slug',
+        'terms' => $property_type,
+    );
+}
+
+// Add property status filter
+if (!empty($property_status)) {
+    $args['tax_query'][] = array(
+        'taxonomy' => 'property_status',
+        'field' => 'slug',
+        'terms' => $property_status,
+    );
+}
+
+// Add sorting
+switch ($sort_by) {
+    case 'price_low':
+        $args['meta_key'] = '_property_price';
+        $args['orderby'] = 'meta_value_num';
+        $args['order'] = 'ASC';
+        break;
+    case 'price_high':
+        $args['meta_key'] = '_property_price';
+        $args['orderby'] = 'meta_value_num';
+        $args['order'] = 'DESC';
+        break;
+    case 'newest':
+    default:
+        $args['orderby'] = 'date';
+        $args['order'] = 'DESC';
+        break;
+}
+
+// Set meta_query relation
+if (count($args['meta_query']) > 1) {
+    $args['meta_query']['relation'] = 'AND';
+}
+
+// Set tax_query relation
+if (count($args['tax_query']) > 1) {
+    $args['tax_query']['relation'] = 'AND';
+}
+
+// Execute the query
+$properties_query = new WP_Query($args);
+
+// Get property types for filter dropdown
+$property_types = get_terms(array(
+    'taxonomy' => 'property_type',
+    'hide_empty' => false,
+));
+
+// Get property statuses for filter dropdown
+$property_statuses = get_terms(array(
+    'taxonomy' => 'property_status',
+    'hide_empty' => false,
+));
+?>
 
 <div class="rbs-archive">
 
     <!-- Advanced Search Bar -->
     <div class="search-bar">
         <div class="container">
-            <div class="search-container">
+            <form method="GET" class="search-container">
                 <!-- Search Input -->
                 <div class="search-input-container">
                     <i class="fas fa-search search-icon"></i>
@@ -23,41 +193,43 @@
                         placeholder="Address, City, ZIP..."
                         class="search-input"
                         id="searchInput"
+                        name="search"
+                        value="<?php echo esc_attr($search_query); ?>"
                     >
                 </div>
 
                 <!-- Filter Buttons -->
                 <div class="filter-buttons">
-                    <button onclick="toggleDropdown('priceDropdown')" class="filter-chip">
+                    <button type="button" onclick="toggleDropdown('priceDropdown')" class="filter-chip">
                         <span>Price</span>
                         <i class="fas fa-chevron-down"></i>
                     </button>
 
-                    <button onclick="toggleDropdown('typeDropdown')" class="filter-chip">
+                    <button type="button" onclick="toggleDropdown('typeDropdown')" class="filter-chip">
                         <span>Type</span>
                         <i class="fas fa-chevron-down"></i>
                     </button>
 
-                    <button onclick="toggleDropdown('bedroomsDropdown')" class="filter-chip">
+                    <button type="button" onclick="toggleDropdown('bedroomsDropdown')" class="filter-chip">
                         <span>Bedrooms</span>
                         <i class="fas fa-chevron-down"></i>
                     </button>
 
-                    <button onclick="toggleDropdown('bathroomsDropdown')" class="filter-chip">
+                    <button type="button" onclick="toggleDropdown('bathroomsDropdown')" class="filter-chip">
                         <span>Bathrooms</span>
                         <i class="fas fa-chevron-down"></i>
                     </button>
 
-                    <button onclick="toggleDropdown('moreFiltersDropdown')" class="filter-chip">
+                    <button type="button" onclick="toggleDropdown('moreFiltersDropdown')" class="filter-chip">
                         <span>More filters</span>
                         <i class="fas fa-sliders-h"></i>
                     </button>
 
-                    <button class="search-btn">
+                    <button type="submit" class="search-btn">
                         <i class="fas fa-search"></i> Search
                     </button>
                 </div>
-            </div>
+            </form>
 
             <!-- Dropdown Panels Container -->
             <div class="dropdowns-container">
@@ -66,11 +238,11 @@
                     <div class="dropdown-grid">
                         <div>
                             <label class="dropdown-label">Min Price</label>
-                            <input type="text" placeholder="$ Min Price" class="dropdown-input">
+                            <input type="number" placeholder="$ Min Price" class="dropdown-input" name="min_price" value="<?php echo esc_attr($min_price); ?>" onchange="this.form.submit()">
                         </div>
                         <div>
                             <label class="dropdown-label">Max Price</label>
-                            <input type="text" placeholder="$ Max Price" class="dropdown-input">
+                            <input type="number" placeholder="$ Max Price" class="dropdown-input" name="max_price" value="<?php echo esc_attr($max_price); ?>" onchange="this.form.submit()">
                         </div>
                     </div>
                 </div>
@@ -78,6 +250,14 @@
                 <!-- Type Dropdown -->
                 <div id="typeDropdown" class="dropdown-content">
                     <div class="checkbox-grid">
+                        <?php if ($property_types && !is_wp_error($property_types)): ?>
+                            <?php foreach ($property_types as $type): ?>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="property_type" value="<?php echo esc_attr($type->slug); ?>" <?php checked($property_type, $type->slug); ?> onchange="this.form.submit()">
+                                    <span><?php echo esc_html($type->name); ?></span>
+                                </label>
+                            <?php endforeach; ?>
+                        <?php else: ?>
                         <label class="checkbox-item">
                             <input type="checkbox">
                             <span>House</span>
@@ -94,30 +274,33 @@
                             <input type="checkbox">
                             <span>Office</span>
                         </label>
+                        <?php endif; ?>
                     </div>
                 </div>
 
                 <!-- Bedrooms Dropdown -->
                 <div id="bedroomsDropdown" class="dropdown-content">
                     <div class="filter-options">
-                        <button class="filter-option">Any</button>
-                        <button class="filter-option">1+</button>
-                        <button class="filter-option">2+</button>
-                        <button class="filter-option">3+</button>
-                        <button class="filter-option">4+</button>
-                        <button class="filter-option">5+</button>
+                        <button type="button" class="filter-option" data-value="">Any</button>
+                        <button type="button" class="filter-option" data-value="1">1+</button>
+                        <button type="button" class="filter-option" data-value="2">2+</button>
+                        <button type="button" class="filter-option" data-value="3">3+</button>
+                        <button type="button" class="filter-option" data-value="4">4+</button>
+                        <button type="button" class="filter-option" data-value="5">5+</button>
                     </div>
+                    <input type="hidden" name="bedrooms" value="<?php echo esc_attr($bedrooms); ?>">
                 </div>
 
                 <!-- Bathrooms Dropdown -->
                 <div id="bathroomsDropdown" class="dropdown-content">
                     <div class="filter-options">
-                        <button class="filter-option">Any</button>
-                        <button class="filter-option">1+</button>
-                        <button class="filter-option">2+</button>
-                        <button class="filter-option">3+</button>
-                        <button class="filter-option">4+</button>
+                        <button type="button" class="filter-option" data-value="">Any</button>
+                        <button type="button" class="filter-option" data-value="1">1+</button>
+                        <button type="button" class="filter-option" data-value="2">2+</button>
+                        <button type="button" class="filter-option" data-value="3">3+</button>
+                        <button type="button" class="filter-option" data-value="4">4+</button>
                     </div>
+                    <input type="hidden" name="bathrooms" value="<?php echo esc_attr($bathrooms); ?>">
                 </div>
 
                 <!-- More Filters Dropdown -->
@@ -126,26 +309,32 @@
                         <div>
                             <label class="dropdown-label">Square Feet</label>
                             <div class="flex" style="gap: 8px;">
-                                <input type="number" placeholder="Min" class="dropdown-input">
-                                <input type="number" placeholder="Max" class="dropdown-input">
+                                <input type="number" placeholder="Min" class="dropdown-input" name="min_sqft" value="<?php echo esc_attr($min_sqft); ?>" onchange="this.form.submit()">
+                                <input type="number" placeholder="Max" class="dropdown-input" name="max_sqft" value="<?php echo esc_attr($max_sqft); ?>" onchange="this.form.submit()">
                             </div>
                         </div>
                         <div>
                             <label class="dropdown-label">Year Built</label>
-                            <select class="dropdown-input">
-                                <option>Any</option>
-                                <option>2020+</option>
-                                <option>2010+</option>
-                                <option>2000+</option>
-                                <option>1990+</option>
+                            <select class="dropdown-input" name="year_built">
+                                <option value="">Any</option>
+                                <option value="2020+" <?php selected($year_built, '2020+'); ?>>2020+</option>
+                                <option value="2010+" <?php selected($year_built, '2010+'); ?>>2010+</option>
+                                <option value="2000+" <?php selected($year_built, '2000+'); ?>>2000+</option>
+                                <option value="1990+" <?php selected($year_built, '1990+'); ?>>1990+</option>
                             </select>
                         </div>
                         <div>
                             <label class="dropdown-label">Status</label>
-                            <select class="dropdown-input">
-                                <option>All</option>
-                                <option>For Sale</option>
-                                <option>For Rent</option>
+                            <select class="dropdown-input" name="property_status">
+                                <option value="">All</option>
+                                <?php if ($property_statuses && !is_wp_error($property_statuses)): ?>
+                                    <?php foreach ($property_statuses as $status): ?>
+                                        <option value="<?php echo esc_attr($status->slug); ?>" <?php selected($property_status, $status->slug); ?>><?php echo esc_html($status->name); ?></option>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <option value="for-sale" <?php selected($property_status, 'for-sale'); ?>>For Sale</option>
+                                    <option value="for-rent" <?php selected($property_status, 'for-rent'); ?>>For Rent</option>
+                                <?php endif; ?>
                             </select>
                         </div>
                     </div>
@@ -170,51 +359,22 @@
                     <span>Map View</span>
                 </button>
                 <div class="results-count">
-                    <span id="resultsCount">7</span> results
+                    <span id="resultsCount"><?php echo $properties_query->found_posts; ?></span> results
                 </div>
             </div>
 
             <!-- Right Side -->
             <div class="sort-controls">
                 <span class="sort-label">Sort by:</span>
-                <select class="sort-select">
-                    <option>Newest</option>
-                    <option>Price: Low to High</option>
-                    <option>Price: High to Low</option>
-                    <option>Most Popular</option>
-                    <option>Recently Updated</option>
+                <select class="sort-select" name="sort_by" onchange="this.form.submit()">
+                    <option value="newest" <?php selected($sort_by, 'newest'); ?>>Newest</option>
+                    <option value="price_low" <?php selected($sort_by, 'price_low'); ?>>Price: Low to High</option>
+                    <option value="price_high" <?php selected($sort_by, 'price_high'); ?>>Price: High to Low</option>
+                    <option value="popular" <?php selected($sort_by, 'popular'); ?>>Most Popular</option>
                 </select>
 
                 <div class="layout-toggle">
-                    <button onclick="
-                        console.log('Grid button clicked directly!');
-                        const mapSection = document.querySelector('.map-section');
-                        const listingsContainer = document.querySelector('.listings-container');
-                        const propertyGrid = document.getElementById('propertyGrid');
-                        const gridBtn = document.getElementById('gridBtn');
-                        const mapToggleBtn = document.getElementById('mapToggleBtn');
-                        
-                        // Hide map
-                        mapSection.classList.remove('map-visible');
-                        mapSection.classList.add('map-hidden');
-                        listingsContainer.classList.remove('map-visible');
-                        
-                        // Remove active from map button
-                        if (mapToggleBtn) {
-                            mapToggleBtn.classList.remove('active');
-                            mapToggleBtn.title = 'Show Map';
-                            const mapIcon = mapToggleBtn.querySelector('i');
-                            mapIcon.className = 'fas fa-map-marked-alt';
-                        }
-                        
-                        // Activate grid button
-                        gridBtn.classList.add('active');
-                        
-                        // Set grid to 4 columns
-                        propertyGrid.style.setProperty('grid-template-columns', 'repeat(4, 1fr)', 'important');
-                        
-                        console.log('Grid button should now be active!');
-                    " id="gridBtn" class="layout-btn">
+                    <button onclick="toggleView('list')" class="layout-btn">
                         <i class="fas fa-th-large"></i>
                     </button>
                 </div>
@@ -230,305 +390,126 @@
             <!-- Property Listings -->
             <div class="properties-list" id="propertiesContainer">
                 <div id="propertyGrid" class="property-grid">
-                    <!-- Property Card 1 -->
-                    <div class="property-card" data-property-id="1">
+                    <?php if ($properties_query->have_posts()): ?>
+                        <?php while ($properties_query->have_posts()): $properties_query->the_post(); ?>
+                            <?php
+                            // Get property meta data
+                            $price = get_post_meta(get_the_ID(), '_property_price', true);
+                            $bedrooms = get_post_meta(get_the_ID(), '_property_bedrooms', true);
+                            $bathrooms = get_post_meta(get_the_ID(), '_property_bathrooms', true);
+                            $area_sqft = get_post_meta(get_the_ID(), '_property_area_sqft', true);
+                            $address = get_post_meta(get_the_ID(), '_property_address', true);
+                            $city = get_post_meta(get_the_ID(), '_property_city', true);
+                            $state = get_post_meta(get_the_ID(), '_property_state', true);
+                            $zip = get_post_meta(get_the_ID(), '_property_zip', true);
+                            $latitude = get_post_meta(get_the_ID(), '_property_latitude', true);
+                            $longitude = get_post_meta(get_the_ID(), '_property_longitude', true);
+                            
+                            // Get property type and status
+                            $property_types = get_the_terms(get_the_ID(), 'property_type');
+                            $property_statuses = get_the_terms(get_the_ID(), 'property_status');
+                            
+                            $property_type_name = '';
+                            if ($property_types && !is_wp_error($property_types)) {
+                                $property_type_name = $property_types[0]->name;
+                            }
+                            
+                            $property_status_name = '';
+                            if ($property_statuses && !is_wp_error($property_statuses)) {
+                                $property_status_name = $property_statuses[0]->name;
+                            }
+                            
+                            // Get featured image
+                            $featured_image = get_the_post_thumbnail_url(get_the_ID(), 'large');
+                            if (!$featured_image) {
+                                $featured_image = 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800';
+                            }
+                            
+                            // Format price
+                            $formatted_price = '';
+                            if ($price) {
+                                $formatted_price = '$' . number_format($price);
+                            }
+                            
+                            // Format location
+                            $location = '';
+                            if ($address) $location .= $address;
+                            if ($city) $location .= ($location ? ', ' : '') . $city;
+                            if ($state) $location .= ($location ? ', ' : '') . $state;
+                            if ($zip) $location .= ($location ? ' ' : '') . $zip;
+                            
+                            // Determine badge
+                            $badge_class = 'badge-new';
+                            $badge_text = 'Just listed';
+                            $post_date = get_the_date('Y-m-d');
+                            $days_old = (time() - strtotime($post_date)) / (60 * 60 * 24);
+                            
+                            if ($days_old < 7) {
+                                $badge_class = 'badge-new';
+                                $badge_text = 'Just listed';
+                            } elseif ($days_old < 30) {
+                                $badge_class = 'badge-featured';
+                                $badge_text = 'Featured';
+                            } else {
+                                $badge_class = 'badge-standard';
+                                $badge_text = 'Available';
+                            }
+                            ?>
+                            
+                            <!-- Property Card -->
+                            <div class="property-card" data-property-id="<?php echo get_the_ID(); ?>">
                         <div class="property-image">
-                            <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800" alt="Property">
+                                    <img src="<?php echo esc_url($featured_image); ?>" alt="<?php echo esc_attr(get_the_title()); ?>">
                             <div class="gradient-overlay"></div>
-                            <div class="property-badge badge-featured">Featured</div>
+                                    <div class="property-badge <?php echo esc_attr($badge_class); ?>"><?php echo esc_html($badge_text); ?></div>
                             <button class="favorite-btn">
                                 <i class="far fa-heart"></i>
                             </button>
                             <div class="property-info-overlay">
-                                <h3 class="property-title">Alove Avenue</h3>
-                                <p class="property-location">Alove Avenue</p>
+                                        <h3 class="property-title"><?php echo esc_html(get_the_title()); ?></h3>
+                                        <p class="property-location"><?php echo esc_html($location); ?></p>
                             </div>
                         </div>
                         <div class="property-details">
                             <div class="property-price-container">
-                                <span class="property-price">$450,000</span>
-                                <span class="property-status">For sale</span>
+                                        <span class="property-price"><?php echo esc_html($formatted_price); ?></span>
+                                        <span class="property-status"><?php echo esc_html($property_status_name); ?></span>
                             </div>
                             <div class="property-features">
+                                        <?php if ($bedrooms): ?>
                                 <div class="property-feature">
                                     <i class="fas fa-bed"></i>
-                                    <span>2 beds</span>
+                                                <span><?php echo esc_html($bedrooms); ?> beds</span>
                                 </div>
+                                        <?php endif; ?>
+                                        <?php if ($bathrooms): ?>
                                 <div class="property-feature">
                                     <i class="fas fa-bath"></i>
-                                    <span>2 baths</span>
+                                                <span><?php echo esc_html($bathrooms); ?> baths</span>
                                 </div>
+                                        <?php endif; ?>
+                                        <?php if ($area_sqft): ?>
                                 <div class="property-feature">
                                     <i class="fas fa-ruler-combined"></i>
-                                    <span>630 sq ft</span>
+                                                <span><?php echo esc_html(number_format($area_sqft)); ?> sq ft</span>
                                 </div>
+                                        <?php endif; ?>
                             </div>
                             <div class="property-footer">
-                                <span class="property-type">Apartment</span>
-                                <button class="view-details-btn">
+                                        <span class="property-type"><?php echo esc_html($property_type_name); ?></span>
+                                        <a href="<?php echo get_permalink(); ?>" class="view-details-btn">
                                     View Details <i class="fas fa-arrow-right"></i>
-                                </button>
+                                        </a>
                             </div>
                         </div>
                     </div>
-
-                    <!-- Property Card 2 -->
-                    <div class="property-card" data-property-id="2">
-                        <div class="property-image">
-                            <img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800" alt="Property">
-                            <div class="gradient-overlay"></div>
-                            <div class="property-badge badge-new">Just listed</div>
-                            <button class="favorite-btn">
-                                <i class="far fa-heart"></i>
-                            </button>
-                            <div class="property-info-overlay">
-                                <h3 class="property-title">725 NE 168th St</h3>
-                                <p class="property-location">Miami, FL 33162</p>
-                            </div>
+                        <?php endwhile; ?>
+                    <?php else: ?>
+                        <div class="no-properties-found">
+                            <h3>No properties found</h3>
+                            <p>Try adjusting your search criteria or browse all properties.</p>
                         </div>
-                        <div class="property-details">
-                            <div class="property-price-container">
-                                <span class="property-price">$1,500</span>
-                                <span class="property-location">Miami, FL 33162</span>
-                                <span class="property-status">For rent</span>
-                            </div>
-                            <div class="property-features">
-                                <div class="property-feature">
-                                    <i class="fas fa-bed"></i>
-                                    <span>3 beds</span>
-                                </div>
-                                <div class="property-feature">
-                                    <i class="fas fa-bath"></i>
-                                    <span>2 baths</span>
-                                </div>
-                                <div class="property-feature">
-                                    <i class="fas fa-ruler-combined"></i>
-                                    <span>850 sq ft</span>
-                                </div>
-                            </div>
-                            <div class="property-footer">
-                                <span class="property-type">Apartment</span>
-                                <button class="view-details-btn">
-                                    View Details <i class="fas fa-arrow-right"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Property Card 3 -->
-                    <div class="property-card" data-property-id="3">
-                        <div class="property-image">
-                            <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800" alt="Property">
-                            <div class="gradient-overlay"></div>
-                            <div class="property-badge badge-new">Just listed</div>
-                            <button class="favorite-btn">
-                                <i class="far fa-heart"></i>
-                            </button>
-                            <div class="property-info-overlay">
-                                <h3 class="property-title">261 SW 8th St</h3>
-                                <p class="property-location">Miami, FL 33130</p>
-                            </div>
-                        </div>
-                        <div class="property-details">
-                            <div class="property-price-container">
-                                <span class="property-price">$220,000</span>
-                                <span class="property-location">Miami, FL 33130</span>
-                                <span class="property-status">For sale</span>
-                            </div>
-                            <div class="property-features">
-                                <div class="property-feature">
-                                    <i class="fas fa-bed"></i>
-                                    <span>5 beds</span>
-                                </div>
-                                <div class="property-feature">
-                                    <i class="fas fa-bath"></i>
-                                    <span>2 baths</span>
-                                </div>
-                                <div class="property-feature">
-                                    <i class="fas fa-ruler-combined"></i>
-                                    <span>700 sq ft</span>
-                                </div>
-                            </div>
-                            <div class="property-footer">
-                                <span class="property-type">Condo</span>
-                                <button class="view-details-btn">
-                                    View Details <i class="fas fa-arrow-right"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Property Card 4 -->
-                    <div class="property-card" data-property-id="4">
-                        <div class="property-image">
-                            <img src="https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800" alt="Property">
-                            <div class="gradient-overlay"></div>
-                            <div class="property-badge badge-featured">Featured</div>
-                            <button class="favorite-btn">
-                                <i class="far fa-heart"></i>
-                            </button>
-                            <div class="property-info-overlay">
-                                <h3 class="property-title">1551 West Ave</h3>
-                                <p class="property-location">Miami Beach, FL 33139</p>
-                            </div>
-                        </div>
-                        <div class="property-details">
-                            <div class="property-price-container">
-                                <span class="property-price">$459,000</span>
-                                <span class="property-location">Miami Beach, FL 33139</span>
-                                <span class="property-status">For sale</span>
-                            </div>
-                            <div class="property-features">
-                                <div class="property-feature">
-                                    <i class="fas fa-bed"></i>
-                                    <span>3 beds</span>
-                                </div>
-                                <div class="property-feature">
-                                    <i class="fas fa-bath"></i>
-                                    <span>2 baths</span>
-                                </div>
-                                <div class="property-feature">
-                                    <i class="fas fa-ruler-combined"></i>
-                                    <span>679 sq ft</span>
-                                </div>
-                            </div>
-                            <div class="property-footer">
-                                <span class="property-type">House</span>
-                                <button class="view-details-btn">
-                                    View Details <i class="fas fa-arrow-right"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Property Card 5 -->
-                    <div class="property-card" data-property-id="5">
-                        <div class="property-image">
-                            <img src="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800" alt="Property">
-                            <div class="gradient-overlay"></div>
-                            <div class="property-badge badge-new">Just listed</div>
-                            <button class="favorite-btn">
-                                <i class="far fa-heart"></i>
-                            </button>
-                            <div class="property-info-overlay">
-                                <h3 class="property-title">8230 W Flagler St</h3>
-                                <p class="property-location">Miami, FL 33144</p>
-                            </div>
-                        </div>
-                        <div class="property-details">
-                            <div class="property-price-container">
-                                <span class="property-price">$5,000</span>
-                                <span class="property-location">Miami, FL 33144</span>
-                                <span class="property-status">For rent</span>
-                            </div>
-                            <div class="property-features">
-                                <div class="property-feature">
-                                    <i class="fas fa-bed"></i>
-                                    <span>3 beds</span>
-                                </div>
-                                <div class="property-feature">
-                                    <i class="fas fa-bath"></i>
-                                    <span>3 baths</span>
-                                </div>
-                                <div class="property-feature">
-                                    <i class="fas fa-ruler-combined"></i>
-                                    <span>350 sq ft</span>
-                                </div>
-                            </div>
-                            <div class="property-footer">
-                                <span class="property-type">Office</span>
-                                <button class="view-details-btn">
-                                    View Details <i class="fas fa-arrow-right"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Property Card 6 -->
-                    <div class="property-card" data-property-id="6">
-                        <div class="property-image">
-                            <img src="https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?w=800" alt="Property">
-                            <div class="gradient-overlay"></div>
-                            <div class="property-badge badge-new">Just listed</div>
-                            <button class="favorite-btn">
-                                <i class="far fa-heart"></i>
-                            </button>
-                            <div class="property-info-overlay">
-                                <h3 class="property-title">924 Marseille Dr</h3>
-                                <p class="property-location">Miami Beach, FL 33141</p>
-                            </div>
-                        </div>
-                        <div class="property-details">
-                            <div class="property-price-container">
-                                <span class="property-price">$4,395,000</span>
-                                <span class="property-location">Miami Beach, FL 33141</span>
-                                <span class="property-status">For sale</span>
-                            </div>
-                            <div class="property-features">
-                                <div class="property-feature">
-                                    <i class="fas fa-bed"></i>
-                                    <span>5 beds</span>
-                                </div>
-                                <div class="property-feature">
-                                    <i class="fas fa-bath"></i>
-                                    <span>3 baths</span>
-                                </div>
-                                <div class="property-feature">
-                                    <i class="fas fa-ruler-combined"></i>
-                                    <span>1,200 sq ft</span>
-                                </div>
-                            </div>
-                            <div class="property-footer">
-                                <span class="property-type">Apartment</span>
-                                <button class="view-details-btn">
-                                    View Details <i class="fas fa-arrow-right"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Property Card 7 -->
-                    <div class="property-card" data-property-id="7">
-                        <div class="property-image">
-                            <img src="https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=800" alt="Property">
-                            <div class="gradient-overlay"></div>
-                            <div class="property-badge badge-featured">Featured</div>
-                            <button class="favorite-btn">
-                                <i class="far fa-heart"></i>
-                            </button>
-                            <div class="property-info-overlay">
-                                <h3 class="property-title">Luxury Penthouse</h3>
-                                <p class="property-location">Downtown Miami</p>
-                            </div>
-                        </div>
-                        <div class="property-details">
-                            <div class="property-price-container">
-                                <span class="property-price">$2,800,000</span>
-                                <span class="property-location">Downtown Miami</span>
-                                <span class="property-status">For sale</span>
-                            </div>
-                            <div class="property-features">
-                                <div class="property-feature">
-                                    <i class="fas fa-bed"></i>
-                                    <span>4 beds</span>
-                                </div>
-                                <div class="property-feature">
-                                    <i class="fas fa-bath"></i>
-                                    <span>4 baths</span>
-                                </div>
-                                <div class="property-feature">
-                                    <i class="fas fa-ruler-combined"></i>
-                                    <span>2,500 sq ft</span>
-                                </div>
-                            </div>
-                            <div class="property-footer">
-                                <span class="property-type">Penthouse</span>
-                                <button class="view-details-btn">
-                                    View Details <i class="fas fa-arrow-right"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                    <?php endif; ?>
                 </div>
             </div>
 
@@ -570,123 +551,83 @@
 
                         <!-- Map Markers -->
                         <div id="mapMarkers" class="map-markers">
-                            <!-- Marker 1 -->
-                            <div class="map-marker" style="top: 35%; left: 25%;" data-property-id="1" onclick="highlightProperty(1)">
+                            <?php 
+                            // Reset query for map markers
+                            $properties_query->rewind_posts();
+                            $marker_count = 0;
+                            ?>
+                            <?php while ($properties_query->have_posts()): $properties_query->the_post(); ?>
+                                <?php
+                                $marker_count++;
+                                $latitude = get_post_meta(get_the_ID(), '_property_latitude', true);
+                                $longitude = get_post_meta(get_the_ID(), '_property_longitude', true);
+                                $price = get_post_meta(get_the_ID(), '_property_price', true);
+                                
+                                // Skip if no coordinates
+                                if (!$latitude || !$longitude) continue;
+                                
+                                // Determine marker color based on property age
+                                $post_date = get_the_date('Y-m-d');
+                                $days_old = (time() - strtotime($post_date)) / (60 * 60 * 24);
+                                
+                                if ($days_old < 7) {
+                                    $marker_color = '#10b981'; // Green for new
+                                    $marker_icon = 'fas fa-building';
+                                } elseif ($days_old < 30) {
+                                    $marker_color = '#f97316'; // Orange for featured
+                                    $marker_icon = 'fas fa-home';
+                                } else {
+                                    $marker_color = '#0f766e'; // Teal for standard
+                                    $marker_icon = 'fas fa-building';
+                                }
+                                
+                                // Random positioning for demo (in real implementation, use actual coordinates)
+                                $top = 25 + ($marker_count * 8) % 50;
+                                $left = 20 + ($marker_count * 12) % 60;
+                                
+                                $formatted_price = $price ? '$' . number_format($price) : 'Price on request';
+                                ?>
+                                
+                                <!-- Marker -->
+                                <div class="map-marker" style="top: <?php echo $top; ?>%; left: <?php echo $left; ?>%;" data-property-id="<?php echo get_the_ID(); ?>" onclick="highlightProperty(<?php echo get_the_ID(); ?>)">
                                 <div class="marker-tooltip">
-                                    <div class="tooltip-title">Alove Avenue</div>
-                                    <div class="tooltip-price">$450,000</div>
+                                        <div class="tooltip-title"><?php echo esc_html(get_the_title()); ?></div>
+                                        <div class="tooltip-price"><?php echo esc_html($formatted_price); ?></div>
                                 </div>
-                                <div class="marker-icon" style="background-color: #f97316;">
-                                    <i class="fas fa-home"></i>
+                                    <div class="marker-icon" style="background-color: <?php echo esc_attr($marker_color); ?>;">
+                                        <i class="<?php echo esc_attr($marker_icon); ?>"></i>
                                 </div>
                             </div>
-
-                            <!-- Marker 2 -->
-                            <div class="map-marker" style="top: 45%; left: 60%;" data-property-id="2" onclick="highlightProperty(2)">
-                                <div class="marker-tooltip">
-                                    <div class="tooltip-title">725 NE 168th St</div>
-                                    <div class="tooltip-price">$1,500/mo</div>
+                            <?php endwhile; ?>
                                 </div>
-                                <div class="marker-icon" style="background-color: #10b981;">
-                                    <i class="fas fa-building"></i>
-                                </div>
-                            </div>
-
-                            <!-- Marker 3 -->
-                            <div class="map-marker" style="top: 60%; left: 40%;" data-property-id="3" onclick="highlightProperty(3)">
-                                <div class="marker-tooltip">
-                                    <div class="tooltip-title">261 SW 8th St</div>
-                                    <div class="tooltip-price">$220,000</div>
-                                </div>
-                                <div class="marker-icon" style="background-color: #10b981;">
-                                    <i class="fas fa-building"></i>
-                                </div>
-                            </div>
-
-                            <!-- Marker 4 -->
-                            <div class="map-marker" style="top: 50%; left: 75%;" data-property-id="4" onclick="highlightProperty(4)">
-                                <div class="marker-tooltip">
-                                    <div class="tooltip-title">1551 West Ave</div>
-                                    <div class="tooltip-price">$459,000</div>
-                                </div>
-                                <div class="marker-icon" style="background-color: #f97316;">
-                                    <i class="fas fa-home"></i>
-                                </div>
-                            </div>
-
-                            <!-- Marker 5 -->
-                            <div class="map-marker" style="top: 70%; left: 30%;" data-property-id="5" onclick="highlightProperty(5)">
-                                <div class="marker-tooltip">
-                                    <div class="tooltip-title">8230 W Flagler St</div>
-                                    <div class="tooltip-price">$5,000/mo</div>
-                                </div>
-                                <div class="marker-icon" style="background-color: #10b981;">
-                                    <i class="fas fa-briefcase"></i>
-                                </div>
-                            </div>
-
-                            <!-- Marker 6 -->
-                            <div class="map-marker" style="top: 25%; left: 80%;" data-property-id="6" onclick="highlightProperty(6)">
-                                <div class="marker-tooltip">
-                                    <div class="tooltip-title">924 Marseille Dr</div>
-                                    <div class="tooltip-price">$4,395,000</div>
-                                </div>
-                                <div class="marker-icon" style="background-color: #10b981;">
-                                    <i class="fas fa-building"></i>
-                                </div>
-                            </div>
-
-                            <!-- Marker 7 -->
-                            <div class="map-marker" style="top: 40%; left: 50%;" data-property-id="7" onclick="highlightProperty(7)">
-                                <div class="marker-tooltip">
-                                    <div class="tooltip-title">Luxury Penthouse</div>
-                                    <div class="tooltip-price">$2,800,000</div>
-                                </div>
-                                <div class="marker-icon" style="background-color: #f97316;">
-                                    <i class="fas fa-crown"></i>
                                 </div>
                             </div>
                         </div>
                     </div>
+        
+        <!-- Pagination -->
+        <?php if ($properties_query->max_num_pages > 1): ?>
+            <div class="pagination-container">
+                <?php
+                echo paginate_links(array(
+                    'total' => $properties_query->max_num_pages,
+                    'current' => $paged,
+                    'format' => '?paged=%#%',
+                    'show_all' => false,
+                    'type' => 'list',
+                    'end_size' => 2,
+                    'mid_size' => 1,
+                    'prev_text' => '<i class="fas fa-chevron-left"></i> Previous',
+                    'next_text' => 'Next <i class="fas fa-chevron-right"></i>',
+                ));
+                ?>
                 </div>
-            </div>
+        <?php endif; ?>
         </div>
-    </div>
-
-
-
 </div>
 
 <script>
-// Map Show Functionality (just show map)
-function showMap() {
-    const mapSection = document.querySelector('.map-section');
-    const listingsContainer = document.querySelector('.listings-container');
-    const mapToggleBtn = document.getElementById('mapToggleBtn');
-    const mapIcon = mapToggleBtn.querySelector('i');
-    const propertyGrid = document.getElementById('propertyGrid');
-    const gridBtn = document.getElementById('gridBtn');
-    
-    // Remove active from other buttons
-    const listBtn = document.querySelector('[onclick="toggleView(\'list\')"]');
-    const mapBtn = document.querySelector('[onclick="toggleView(\'map\')"]');
-    if (listBtn) listBtn.classList.remove('active');
-    if (mapBtn) mapBtn.classList.remove('active');
-    if (gridBtn) gridBtn.classList.remove('active');
-    
-    // Show map
-    mapSection.classList.remove('map-hidden');
-    mapSection.classList.add('map-visible');
-    listingsContainer.classList.add('map-visible');
-    mapIcon.className = 'fas fa-eye-slash';
-    mapToggleBtn.title = 'Map Visible';
-    mapToggleBtn.classList.add('active');
-    
-    // Set grid to 2 columns when map is visible
-    propertyGrid.style.setProperty('grid-template-columns', 'repeat(2, 1fr)', 'important');
-}
-
-// Dropdown toggle functionality
+// Simple dropdown toggle functionality
 function toggleDropdown(dropdownId) {
     const dropdown = document.getElementById(dropdownId);
     const allDropdowns = document.querySelectorAll('.dropdown-content');
@@ -706,101 +647,66 @@ function toggleDropdown(dropdownId) {
     }
 }
 
-// View toggle functionality
+// Simple view toggle functionality
 function toggleView(viewType) {
     const listBtn = document.querySelector('[onclick="toggleView(\'list\')"]');
     const mapBtn = document.querySelector('[onclick="toggleView(\'map\')"]');
-    const gridBtn = document.getElementById('gridBtn');
-    const mapToggleBtn = document.getElementById('mapToggleBtn');
     const mapSection = document.querySelector('.map-section');
     const listingsContainer = document.querySelector('.listings-container');
     const propertyGrid = document.getElementById('propertyGrid');
     
     // Remove active class from all buttons
-    listBtn.classList.remove('active');
-    mapBtn.classList.remove('active');
-    if (gridBtn) gridBtn.classList.remove('active');
-    if (mapToggleBtn) mapToggleBtn.classList.remove('active');
+    if (listBtn) listBtn.classList.remove('active');
+    if (mapBtn) mapBtn.classList.remove('active');
     
     // Add active class to clicked button and change layout
     if (viewType === 'list') {
-        listBtn.classList.add('active');
+        if (listBtn) listBtn.classList.add('active');
         // Hide map for list view
+        if (mapSection) {
         mapSection.classList.remove('map-visible');
         mapSection.classList.add('map-hidden');
+        }
+        if (listingsContainer) {
         listingsContainer.classList.remove('map-visible');
+        }
+        if (propertyGrid) {
         propertyGrid.style.setProperty('grid-template-columns', 'repeat(4, 1fr)', 'important');
+        }
     } else {
-        mapBtn.classList.add('active');
+        if (mapBtn) mapBtn.classList.add('active');
         // Show map for map view
+        if (mapSection) {
         mapSection.classList.remove('map-hidden');
         mapSection.classList.add('map-visible');
+        }
+        if (listingsContainer) {
         listingsContainer.classList.add('map-visible');
+        }
+        if (propertyGrid) {
+        propertyGrid.style.setProperty('grid-template-columns', 'repeat(2, 1fr)', 'important');
+        }
+    }
+}
+
+// Simple map show functionality
+function showMap() {
+    const mapSection = document.querySelector('.map-section');
+    const listingsContainer = document.querySelector('.listings-container');
+    const propertyGrid = document.getElementById('propertyGrid');
+    
+    if (mapSection) {
+        mapSection.classList.remove('map-hidden');
+        mapSection.classList.add('map-visible');
+    }
+    
+    if (listingsContainer) {
+        listingsContainer.classList.add('map-visible');
+    }
+    
+    if (propertyGrid) {
         propertyGrid.style.setProperty('grid-template-columns', 'repeat(2, 1fr)', 'important');
     }
-}
-
-// Simple grid layout functionality
-function changeLayout(layoutType) {
-    console.log('changeLayout function called!');
-    const propertyGrid = document.getElementById('propertyGrid');
-    const gridBtn = document.getElementById('gridBtn');
-    const mapSection = document.querySelector('.map-section');
-    const mapToggleBtn = document.getElementById('mapToggleBtn');
-    const listingsContainer = document.querySelector('.listings-container');
-    const listBtn = document.querySelector('[onclick="toggleView(\'list\')"]');
-    const mapBtn = document.querySelector('[onclick="toggleView(\'map\')"]');
-    
-    console.log('Elements found:', {
-        propertyGrid: !!propertyGrid,
-        gridBtn: !!gridBtn,
-        mapSection: !!mapSection,
-        mapToggleBtn: !!mapToggleBtn,
-        listingsContainer: !!listingsContainer
-    });
-    
-    // Remove active from all other buttons
-    if (listBtn) listBtn.classList.remove('active');
-    if (mapBtn) mapBtn.classList.remove('active');
-    if (mapToggleBtn) mapToggleBtn.classList.remove('active');
-    
-    // Hide map when grid button is clicked
-    mapSection.classList.remove('map-visible');
-    mapSection.classList.add('map-hidden');
-    listingsContainer.classList.remove('map-visible');
-    
-    // Reset map toggle button
-    if (mapToggleBtn) {
-        mapToggleBtn.title = 'Show Map';
-        const mapIcon = mapToggleBtn.querySelector('i');
-        mapIcon.className = 'fas fa-map-marked-alt';
-    }
-    
-    // Activate grid button
-    gridBtn.classList.add('active');
-    
-    // Set grid layout to 4 columns (full width)
-    propertyGrid.style.setProperty('grid-template-columns', 'repeat(4, 1fr)', 'important');
-    
-    console.log('Grid button should now be active and map hidden');
-}
-
-// Property highlighting functionality
-function highlightProperty(propertyId) {
-    // Remove active class from all markers and cards
-    document.querySelectorAll('.map-marker').forEach(marker => {
-        marker.classList.remove('active');
-    });
-    document.querySelectorAll('.property-card').forEach(card => {
-        card.classList.remove('active');
-    });
-    
-    // Add active class to clicked marker and corresponding card
-    const marker = document.querySelector(`[data-property-id="${propertyId}"]`);
-    const card = document.querySelector(`.property-card[data-property-id="${propertyId}"]`);
-    
-    if (marker) marker.classList.add('active');
-    if (card) card.classList.add('active');
 }
 
 // Close dropdowns when clicking outside
@@ -835,26 +741,20 @@ document.addEventListener('click', function(event) {
 
 // Initialize page
 document.addEventListener('DOMContentLoaded', function() {
-    // Set initial map toggle button title and state
-    const mapToggleBtn = document.getElementById('mapToggleBtn');
-    const mapSection = document.querySelector('.map-section');
-    const propertyGrid = document.getElementById('propertyGrid');
-    const gridBtn = document.getElementById('gridBtn');
-    
-    if (mapToggleBtn) {
-        mapToggleBtn.title = 'Show Map';
-    }
-    
     // Set initial map state to hidden
+    const mapSection = document.querySelector('.map-section');
     if (mapSection) {
         mapSection.classList.add('map-hidden');
     }
     
     // Set initial grid layout (4 columns for full width by default)
+    const propertyGrid = document.getElementById('propertyGrid');
     if (propertyGrid) {
         propertyGrid.style.setProperty('grid-template-columns', 'repeat(4, 1fr)', 'important');
     }
 });
 </script>
+
+<?php wp_reset_postdata(); ?>
 
 <?php get_footer(); ?>

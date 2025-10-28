@@ -81,6 +81,15 @@ function resbs_enqueue_assets() {
             '1.0.0'
         );
         
+        // Enqueue Dynamic Archive JS
+        wp_enqueue_script(
+            'resbs-dynamic-archive',
+            RESBS_URL . 'assets/js/dynamic-archive.js',
+            array('jquery'),
+            '1.0.0',
+            true
+        );
+        
 
         
     
