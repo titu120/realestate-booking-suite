@@ -1052,7 +1052,7 @@
             grid-template-columns: repeat(4, 1fr);
         }
         
-        .rbs-archive .listings-container.map-visible .property-grid {
+        .rbs-archive .listings-container.map-visible .property-grid:not(.list-view) {
             grid-template-columns: repeat(2, 1fr);
         }
         
@@ -1088,7 +1088,7 @@
             grid-template-columns: repeat(4, 1fr);
         }
         
-        .rbs-archive .listings-container.map-visible .property-grid {
+        .rbs-archive .listings-container.map-visible .property-grid:not(.list-view) {
             grid-template-columns: repeat(2, 1fr);
         }
     }

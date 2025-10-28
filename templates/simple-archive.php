@@ -189,9 +189,6 @@
                     <button onclick="changeLayout('grid')" id="gridBtn" class="layout-btn active">
                         <i class="fas fa-th-large"></i>
                     </button>
-                    <button onclick="changeLayout('column')" id="columnBtn" class="layout-btn">
-                        <i class="fas fa-bars"></i>
-                    </button>
                 </div>
 
                 <button class="filter-toggle" onclick="toggleMap()" id="mapToggleBtn">
@@ -264,6 +261,7 @@
                         <div class="property-details">
                             <div class="property-price-container">
                                 <span class="property-price">$1,500</span>
+                                <span class="property-location">Miami, FL 33162</span>
                                 <span class="property-status">For rent</span>
                             </div>
                             <div class="property-features">
@@ -306,6 +304,7 @@
                         <div class="property-details">
                             <div class="property-price-container">
                                 <span class="property-price">$220,000</span>
+                                <span class="property-location">Miami, FL 33130</span>
                                 <span class="property-status">For sale</span>
                             </div>
                             <div class="property-features">
@@ -348,6 +347,7 @@
                         <div class="property-details">
                             <div class="property-price-container">
                                 <span class="property-price">$459,000</span>
+                                <span class="property-location">Miami Beach, FL 33139</span>
                                 <span class="property-status">For sale</span>
                             </div>
                             <div class="property-features">
@@ -390,6 +390,7 @@
                         <div class="property-details">
                             <div class="property-price-container">
                                 <span class="property-price">$5,000</span>
+                                <span class="property-location">Miami, FL 33144</span>
                                 <span class="property-status">For rent</span>
                             </div>
                             <div class="property-features">
@@ -432,6 +433,7 @@
                         <div class="property-details">
                             <div class="property-price-container">
                                 <span class="property-price">$4,395,000</span>
+                                <span class="property-location">Miami Beach, FL 33141</span>
                                 <span class="property-status">For sale</span>
                             </div>
                             <div class="property-features">
@@ -474,6 +476,7 @@
                         <div class="property-details">
                             <div class="property-price-container">
                                 <span class="property-price">$2,800,000</span>
+                                <span class="property-location">Downtown Miami</span>
                                 <span class="property-status">For sale</span>
                             </div>
                             <div class="property-features">
@@ -700,31 +703,22 @@ function toggleView(viewType) {
     }
 }
 
-// Layout change functionality
+// Simple grid layout functionality
 function changeLayout(layoutType) {
-    const gridBtn = document.getElementById('gridBtn');
-    const columnBtn = document.getElementById('columnBtn');
     const propertyGrid = document.getElementById('propertyGrid');
+    const gridBtn = document.getElementById('gridBtn');
+    const mapSection = document.querySelector('.map-section');
     
-    // Remove active class from all buttons
-    gridBtn.classList.remove('active');
-    columnBtn.classList.remove('active');
-    
-    if (layoutType === 'grid') {
-        gridBtn.classList.add('active');
-        // Check if map is visible to determine grid columns
-        const mapSection = document.querySelector('.map-section');
-        if (mapSection.classList.contains('map-visible')) {
-            // With map - 2 columns
-            propertyGrid.style.setProperty('grid-template-columns', 'repeat(2, 1fr)', 'important');
-        } else {
-            // Full width - 4 columns
-            propertyGrid.style.setProperty('grid-template-columns', 'repeat(4, 1fr)', 'important');
-        }
+    // Only grid view - check if map is visible
+    propertyGrid.classList.remove('list-view');
+    if (mapSection && mapSection.classList.contains('map-visible')) {
+        // Map is visible - show 2 columns
+        propertyGrid.style.setProperty('grid-template-columns', 'repeat(2, 1fr)', 'important');
     } else {
-        columnBtn.classList.add('active');
-        propertyGrid.style.gridTemplateColumns = '1fr';
+        // Map is hidden - show 4 columns
+        propertyGrid.style.setProperty('grid-template-columns', 'repeat(4, 1fr)', 'important');
     }
+    gridBtn.classList.add('active');
 }
 
 // Property highlighting functionality
