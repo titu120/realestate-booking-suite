@@ -11,8 +11,10 @@ $search_query = isset($_GET['search']) ? sanitize_text_field($_GET['search']) : 
 $min_price = isset($_GET['min_price']) ? intval($_GET['min_price']) : '';
 $max_price = isset($_GET['max_price']) ? intval($_GET['max_price']) : '';
 $property_type_filter = isset($_GET['property_type']) ? sanitize_text_field($_GET['property_type']) : '';
-$bedrooms = isset($_GET['bedrooms']) ? intval($_GET['bedrooms']) : '';
-$bathrooms = isset($_GET['bathrooms']) ? intval($_GET['bathrooms']) : '';
+$min_bedrooms = isset($_GET['min_bedrooms']) ? intval($_GET['min_bedrooms']) : '';
+$max_bedrooms = isset($_GET['max_bedrooms']) ? intval($_GET['max_bedrooms']) : '';
+$min_bathrooms = isset($_GET['min_bathrooms']) ? floatval($_GET['min_bathrooms']) : '';
+$max_bathrooms = isset($_GET['max_bathrooms']) ? floatval($_GET['max_bathrooms']) : '';
 $sort_by = isset($_GET['sort_by']) ? sanitize_text_field($_GET['sort_by']) : 'date';
 $paged = (get_query_var('paged')) ? get_query_var('paged') : 1;
 
@@ -51,24 +53,46 @@ if (!empty($min_price) || !empty($max_price)) {
     $args['meta_query'][] = $price_query;
 }
 
-// Add bedrooms filter
-if (!empty($bedrooms)) {
-    $args['meta_query'][] = array(
+// Add bedrooms filter (min and max)
+if (!empty($min_bedrooms) || !empty($max_bedrooms)) {
+    $bedrooms_query = array(
         'key' => '_property_bedrooms',
-        'value' => $bedrooms,
-        'compare' => '>=',
-        'type' => 'NUMERIC'
+        'type' => 'NUMERIC',
     );
+    
+    if (!empty($min_bedrooms) && !empty($max_bedrooms)) {
+        $bedrooms_query['value'] = array($min_bedrooms, $max_bedrooms);
+        $bedrooms_query['compare'] = 'BETWEEN';
+    } elseif (!empty($min_bedrooms)) {
+        $bedrooms_query['value'] = $min_bedrooms;
+        $bedrooms_query['compare'] = '>=';
+    } elseif (!empty($max_bedrooms)) {
+        $bedrooms_query['value'] = $max_bedrooms;
+        $bedrooms_query['compare'] = '<=';
+    }
+    
+    $args['meta_query'][] = $bedrooms_query;
 }
 
-// Add bathrooms filter
-if (!empty($bathrooms)) {
-    $args['meta_query'][] = array(
+// Add bathrooms filter (min and max)
+if (!empty($min_bathrooms) || !empty($max_bathrooms)) {
+    $bathrooms_query = array(
         'key' => '_property_bathrooms',
-        'value' => $bathrooms,
-        'compare' => '>=',
-        'type' => 'NUMERIC'
+        'type' => 'NUMERIC',
     );
+    
+    if (!empty($min_bathrooms) && !empty($max_bathrooms)) {
+        $bathrooms_query['value'] = array($min_bathrooms, $max_bathrooms);
+        $bathrooms_query['compare'] = 'BETWEEN';
+    } elseif (!empty($min_bathrooms)) {
+        $bathrooms_query['value'] = $min_bathrooms;
+        $bathrooms_query['compare'] = '>=';
+    } elseif (!empty($max_bathrooms)) {
+        $bathrooms_query['value'] = $max_bathrooms;
+        $bathrooms_query['compare'] = '<=';
+    }
+    
+    $args['meta_query'][] = $bathrooms_query;
 }
 
 // Property type filter will be handled by database query below
@@ -250,7 +274,11 @@ $property_types = get_terms(array(
                     <div class="dropdown-grid">
                         <div>
                             <label class="dropdown-label">Min Bedrooms</label>
-                            <input type="number" placeholder="Min Bedrooms" class="dropdown-input" name="bedrooms" value="<?php echo esc_attr($bedrooms); ?>" min="0">
+                            <input type="number" placeholder="Min Bedrooms" class="dropdown-input" name="min_bedrooms" value="<?php echo esc_attr($min_bedrooms); ?>" min="0">
+                        </div>
+                        <div>
+                            <label class="dropdown-label">Max Bedrooms</label>
+                            <input type="number" placeholder="Max Bedrooms" class="dropdown-input" name="max_bedrooms" value="<?php echo esc_attr($max_bedrooms); ?>" min="0">
                         </div>
                     </div>
                     <div class="filter-actions">
@@ -268,7 +296,11 @@ $property_types = get_terms(array(
                     <div class="dropdown-grid">
                         <div>
                             <label class="dropdown-label">Min Bathrooms</label>
-                            <input type="number" placeholder="Min Bathrooms" class="dropdown-input" name="bathrooms" value="<?php echo esc_attr($bathrooms); ?>" min="0" step="0.5">
+                            <input type="number" placeholder="Min Bathrooms" class="dropdown-input" name="min_bathrooms" value="<?php echo esc_attr($min_bathrooms); ?>" min="0" step="0.5">
+                        </div>
+                        <div>
+                            <label class="dropdown-label">Max Bathrooms</label>
+                            <input type="number" placeholder="Max Bathrooms" class="dropdown-input" name="max_bathrooms" value="<?php echo esc_attr($max_bathrooms); ?>" min="0" step="0.5">
                         </div>
                     </div>
                     <div class="filter-actions">
@@ -755,13 +787,15 @@ function clearTypeFilter() {
 
 // Clear bedrooms filter function
 function clearBedroomsFilter() {
-    document.querySelector('input[name="bedrooms"]').value = '';
+    document.querySelector('input[name="min_bedrooms"]').value = '';
+    document.querySelector('input[name="max_bedrooms"]').value = '';
     document.getElementById('searchForm').submit();
 }
 
 // Clear bathrooms filter function
 function clearBathroomsFilter() {
-    document.querySelector('input[name="bathrooms"]').value = '';
+    document.querySelector('input[name="min_bathrooms"]').value = '';
+    document.querySelector('input[name="max_bathrooms"]').value = '';
     document.getElementById('searchForm').submit();
 }
 </script>
