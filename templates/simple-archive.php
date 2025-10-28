@@ -235,6 +235,14 @@ $property_types = get_terms(array(
                         </label>
                         <?php endif; ?>
                     </div>
+                    <div class="filter-actions">
+                        <button type="submit" class="apply-filter-btn">
+                            <i class="fas fa-filter"></i> Apply Filter
+                        </button>
+                        <button type="button" class="clear-filter-btn" onclick="clearTypeFilter()">
+                            <i class="fas fa-times"></i> Clear
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Bedrooms Dropdown -->
@@ -724,6 +732,13 @@ document.addEventListener('click', function(event) {
 function clearPriceFilter() {
     document.querySelector('input[name="min_price"]').value = '';
     document.querySelector('input[name="max_price"]').value = '';
+    document.getElementById('searchForm').submit();
+}
+
+// Clear type filter function
+function clearTypeFilter() {
+    // Select the "Any Type" radio button
+    document.querySelector('input[name="property_type"][value=""]').checked = true;
     document.getElementById('searchForm').submit();
 }
 </script>
