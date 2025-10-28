@@ -374,7 +374,7 @@ $property_statuses = get_terms(array(
                 </select>
 
                 <div class="layout-toggle">
-                    <button onclick="showGridLayout()" class="layout-btn" id="gridBtn">
+                    <button onclick="showGridLayout()" class="layout-btn" id="gridBtn"></button>
                         <i class="fas fa-th-large"></i>
                     </button>
                 </div>
@@ -497,7 +497,7 @@ $property_statuses = get_terms(array(
                             </div>
                             <div class="property-footer">
                                         <span class="property-type"><?php echo esc_html($property_type_name); ?></span>
-                                        <a href="<?php echo get_permalink(); ?>" class="view-details-btn">
+                                        <a href="<?php echo get_permalink(); ?>" class="view-details-btn" target="_blank">
                                     View Details <i class="fas fa-arrow-right"></i>
                                         </a>
                             </div>

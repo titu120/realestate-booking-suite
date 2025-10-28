@@ -19,6 +19,30 @@ if (!defined('ABSPATH')) {
 define('RESBS_PATH', plugin_dir_path(__FILE__));
 define('RESBS_URL', plugin_dir_url(__FILE__));
 
+// Template loading functionality
+function resbs_template_loader($template) {
+    global $post;
+    
+    // Check if this is a single property post
+    if (is_singular('property')) {
+        $plugin_template = RESBS_PATH . 'templates/single-property.php';
+        if (file_exists($plugin_template)) {
+            return $plugin_template;
+        }
+    }
+    
+    // Check if this is a property archive
+    if (is_post_type_archive('property')) {
+        $plugin_template = RESBS_PATH . 'templates/simple-archive.php';
+        if (file_exists($plugin_template)) {
+            return $plugin_template;
+        }
+    }
+    
+    return $template;
+}
+add_filter('template_include', 'resbs_template_loader');
+
 // Enqueue assets
 function resbs_enqueue_assets() {
     // Enqueue CSS
