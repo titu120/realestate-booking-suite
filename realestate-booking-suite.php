@@ -108,7 +108,7 @@ function resbs_enqueue_assets() {
             '1.0.0'
         );
         
-        // Enqueue Dynamic Archive JS
+        // Re-enable Dynamic Archive JS but with modifications
         wp_enqueue_script(
             'resbs-dynamic-archive',
             RESBS_URL . 'assets/js/dynamic-archive.js',

@@ -14,14 +14,23 @@ jQuery(document).ready(function($) {
     var mapMarkers = $('#mapMarkers');
     var isLoading = false;
     
-    // Handle form submission with AJAX
-    searchForm.on('submit', function(e) {
-        e.preventDefault();
-        
-        if (isLoading) return;
-        
-        performSearch();
-    });
+    // Handle form submission with AJAX - DISABLED to allow price filter to work
+    // searchForm.on('submit', function(e) {
+    //     // Check if this is a price filter submission
+    //     var isPriceFilter = $(e.target).find('input[name="min_price"], input[name="max_price"]').length > 0;
+    //     
+    //     if (isPriceFilter) {
+    //         // Allow normal form submission for price filters
+    //         return true;
+    //     }
+    //     
+    //     // Prevent default for other filters and use AJAX
+    //     e.preventDefault();
+    //     
+    //     if (isLoading) return;
+    //     
+    //     performSearch();
+    // });
     
     // Handle filter changes
     $('.filter-option').on('click', function() {
@@ -32,6 +41,13 @@ jQuery(document).ready(function($) {
     
     // Handle sort changes
     $('.sort-select').on('change', function() {
+        if (isLoading) return;
+        
+        performSearch();
+    });
+    
+    // Handle radio button changes for property type
+    $('input[name="property_type"]').on('change', function() {
         if (isLoading) return;
         
         performSearch();
@@ -51,9 +67,7 @@ jQuery(document).ready(function($) {
             search: $('#searchInput').val(),
             min_price: $('input[name="min_price"]').val(),
             max_price: $('input[name="max_price"]').val(),
-            property_type: $('input[name="property_type"]:checked').map(function() {
-                return this.value;
-            }).get(),
+            property_type: $('input[name="property_type"]:checked').val(),
             bedrooms: $('input[name="bedrooms"]').val(),
             bathrooms: $('input[name="bathrooms"]').val(),
             min_sqft: $('input[name="min_sqft"]').val(),
@@ -73,11 +87,13 @@ jQuery(document).ready(function($) {
                 if (response.success) {
                     updateResults(response);
                 } else {
-                    showError('Search failed. Please try again.');
+                    // Silent failure - no alert
+                    console.log('Search failed silently');
                 }
             },
             error: function() {
-                showError('An error occurred. Please try again.');
+                // Silent error - no alert
+                console.log('AJAX error occurred silently');
             },
             complete: function() {
                 isLoading = false;
@@ -216,10 +232,10 @@ jQuery(document).ready(function($) {
         $('.search-btn').prop('disabled', false).html('<i class="fas fa-search"></i> Search');
     }
     
-    // Show error message
+    // Show error message - DISABLED to prevent alerts
     function showError(message) {
-        // You can implement a toast notification or alert here
-        alert(message);
+        // Silent error - no alert
+        console.log('Error (silent):', message);
     }
     
     // Number formatting helper

@@ -6,19 +6,15 @@
 // Note: AJAX functionality disabled for now to prevent errors
 // wp_enqueue_script('resbs-dynamic-archive');
 
-// Get query parameters for filtering
-$paged = (get_query_var('paged')) ? get_query_var('paged') : 1;
+// SIMPLE WORKING FILTER APPROACH
 $search_query = isset($_GET['search']) ? sanitize_text_field($_GET['search']) : '';
 $min_price = isset($_GET['min_price']) ? intval($_GET['min_price']) : '';
 $max_price = isset($_GET['max_price']) ? intval($_GET['max_price']) : '';
-$property_type = isset($_GET['property_type']) ? sanitize_text_field($_GET['property_type']) : '';
+$property_type_filter = isset($_GET['property_type']) ? sanitize_text_field($_GET['property_type']) : '';
 $bedrooms = isset($_GET['bedrooms']) ? intval($_GET['bedrooms']) : '';
 $bathrooms = isset($_GET['bathrooms']) ? intval($_GET['bathrooms']) : '';
-$min_sqft = isset($_GET['min_sqft']) ? intval($_GET['min_sqft']) : '';
-$max_sqft = isset($_GET['max_sqft']) ? intval($_GET['max_sqft']) : '';
-$year_built = isset($_GET['year_built']) ? sanitize_text_field($_GET['year_built']) : '';
-$property_status = isset($_GET['property_status']) ? sanitize_text_field($_GET['property_status']) : '';
 $sort_by = isset($_GET['sort_by']) ? sanitize_text_field($_GET['sort_by']) : 'date';
+$paged = (get_query_var('paged')) ? get_query_var('paged') : 1;
 
 // Build WP_Query arguments
 $args = array(
@@ -27,7 +23,6 @@ $args = array(
     'posts_per_page' => 12,
     'paged' => $paged,
     'meta_query' => array(),
-    'tax_query' => array(),
 );
 
 // Add search query
@@ -42,19 +37,15 @@ if (!empty($min_price) || !empty($max_price)) {
         'type' => 'NUMERIC',
     );
     
-    if (!empty($min_price)) {
+    if (!empty($min_price) && !empty($max_price)) {
+        $price_query['value'] = array($min_price, $max_price);
+        $price_query['compare'] = 'BETWEEN';
+    } elseif (!empty($min_price)) {
         $price_query['value'] = $min_price;
         $price_query['compare'] = '>=';
-    }
-    
-    if (!empty($max_price)) {
-        if (!empty($min_price)) {
-            $price_query['compare'] = 'BETWEEN';
-            $price_query['value'] = array($min_price, $max_price);
-        } else {
-            $price_query['value'] = $max_price;
-            $price_query['compare'] = '<=';
-        }
+    } elseif (!empty($max_price)) {
+        $price_query['value'] = $max_price;
+        $price_query['compare'] = '<=';
     }
     
     $args['meta_query'][] = $price_query;
@@ -80,59 +71,7 @@ if (!empty($bathrooms)) {
     );
 }
 
-// Add square footage filter
-if (!empty($min_sqft) || !empty($max_sqft)) {
-    $sqft_query = array(
-        'key' => '_property_area_sqft',
-        'type' => 'NUMERIC',
-    );
-    
-    if (!empty($min_sqft)) {
-        $sqft_query['value'] = $min_sqft;
-        $sqft_query['compare'] = '>=';
-    }
-    
-    if (!empty($max_sqft)) {
-        if (!empty($min_sqft)) {
-            $sqft_query['compare'] = 'BETWEEN';
-            $sqft_query['value'] = array($min_sqft, $max_sqft);
-        } else {
-            $sqft_query['value'] = $max_sqft;
-            $sqft_query['compare'] = '<=';
-        }
-    }
-    
-    $args['meta_query'][] = $sqft_query;
-}
-
-// Add year built filter
-if (!empty($year_built)) {
-    $year_value = str_replace('+', '', $year_built);
-    $args['meta_query'][] = array(
-        'key' => '_property_year_built',
-        'value' => $year_value,
-        'compare' => '>=',
-        'type' => 'NUMERIC'
-    );
-}
-
-// Add property type filter
-if (!empty($property_type)) {
-    $args['tax_query'][] = array(
-        'taxonomy' => 'property_type',
-        'field' => 'slug',
-        'terms' => $property_type,
-    );
-}
-
-// Add property status filter
-if (!empty($property_status)) {
-    $args['tax_query'][] = array(
-        'taxonomy' => 'property_status',
-        'field' => 'slug',
-        'terms' => $property_status,
-    );
-}
+// Property type filter will be handled by database query below
 
 // Add sorting
 switch ($sort_by) {
@@ -158,23 +97,26 @@ if (count($args['meta_query']) > 1) {
     $args['meta_query']['relation'] = 'AND';
 }
 
-// Set tax_query relation
-if (count($args['tax_query']) > 1) {
-    $args['tax_query']['relation'] = 'AND';
+// Execute the query
+// Clear any potential caching issues
+wp_cache_flush();
+
+// SIMPLE PROPERTY TYPE FILTER
+if (!empty($property_type_filter)) {
+    $args['tax_query'] = array(
+        array(
+            'taxonomy' => 'property_type',
+            'field' => 'slug',
+            'terms' => $property_type_filter,
+        )
+    );
 }
 
-// Execute the query
 $properties_query = new WP_Query($args);
 
-// Get property types for filter dropdown
+// Get ONLY existing property types - no creating new ones
 $property_types = get_terms(array(
     'taxonomy' => 'property_type',
-    'hide_empty' => false,
-));
-
-// Get property statuses for filter dropdown
-$property_statuses = get_terms(array(
-    'taxonomy' => 'property_status',
     'hide_empty' => false,
 ));
 ?>
@@ -184,7 +126,7 @@ $property_statuses = get_terms(array(
     <!-- Advanced Search Bar -->
     <div class="search-bar">
         <div class="container">
-            <form method="GET" class="search-container">
+            <form method="GET" class="search-container" id="searchForm">
                 <!-- Search Input -->
                 <div class="search-input-container">
                     <i class="fas fa-search search-icon"></i>
@@ -220,6 +162,11 @@ $property_statuses = get_terms(array(
                         <i class="fas fa-chevron-down"></i>
                     </button>
 
+                    <button type="button" onclick="toggleDropdown('locationDropdown')" class="filter-chip">
+                        <span>Location</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+
                     <button type="button" onclick="toggleDropdown('moreFiltersDropdown')" class="filter-chip">
                         <span>More filters</span>
                         <i class="fas fa-sliders-h"></i>
@@ -229,49 +176,61 @@ $property_statuses = get_terms(array(
                         <i class="fas fa-search"></i> Search
                     </button>
                 </div>
-            </form>
 
-            <!-- Dropdown Panels Container -->
-            <div class="dropdowns-container">
+                <!-- Dropdown Panels Container -->
+                <div class="dropdowns-container">
                 <!-- Price Dropdown -->
                 <div id="priceDropdown" class="dropdown-content">
                     <div class="dropdown-grid">
                         <div>
                             <label class="dropdown-label">Min Price</label>
-                            <input type="number" placeholder="$ Min Price" class="dropdown-input" name="min_price" value="<?php echo esc_attr($min_price); ?>" onchange="this.form.submit()">
+                            <input type="number" placeholder="$ Min Price" class="dropdown-input" name="min_price" value="<?php echo esc_attr($min_price); ?>">
                         </div>
                         <div>
                             <label class="dropdown-label">Max Price</label>
-                            <input type="number" placeholder="$ Max Price" class="dropdown-input" name="max_price" value="<?php echo esc_attr($max_price); ?>" onchange="this.form.submit()">
+                            <input type="number" placeholder="$ Max Price" class="dropdown-input" name="max_price" value="<?php echo esc_attr($max_price); ?>">
                         </div>
+                    </div>
+                    <div class="filter-actions">
+                        <button type="submit" class="apply-filter-btn">
+                            <i class="fas fa-filter"></i> Apply Filter
+                        </button>
+                        <button type="button" class="clear-filter-btn" onclick="clearPriceFilter()">
+                            <i class="fas fa-times"></i> Clear
+                        </button>
                     </div>
                 </div>
 
                 <!-- Type Dropdown -->
                 <div id="typeDropdown" class="dropdown-content">
                     <div class="checkbox-grid">
+                        <!-- Add "Any" option first -->
+                        <label class="checkbox-item">
+                            <input type="radio" name="property_type" value="" <?php checked($property_type_filter, ''); ?>>
+                            <span>Any Type</span>
+                        </label>
                         <?php if ($property_types && !is_wp_error($property_types)): ?>
                             <?php foreach ($property_types as $type): ?>
                                 <label class="checkbox-item">
-                                    <input type="checkbox" name="property_type" value="<?php echo esc_attr($type->slug); ?>" <?php checked($property_type, $type->slug); ?> onchange="this.form.submit()">
+                                    <input type="radio" name="property_type" value="<?php echo esc_attr($type->slug); ?>" <?php checked($property_type_filter, $type->slug); ?>>
                                     <span><?php echo esc_html($type->name); ?></span>
                                 </label>
                             <?php endforeach; ?>
                         <?php else: ?>
                         <label class="checkbox-item">
-                            <input type="checkbox">
+                            <input type="radio" name="property_type" value="house" <?php checked($property_type_filter, 'house'); ?>>
                             <span>House</span>
                         </label>
                         <label class="checkbox-item">
-                            <input type="checkbox">
+                            <input type="radio" name="property_type" value="apartment" <?php checked($property_type_filter, 'apartment'); ?>>
                             <span>Apartment</span>
                         </label>
                         <label class="checkbox-item">
-                            <input type="checkbox">
+                            <input type="radio" name="property_type" value="condo" <?php checked($property_type_filter, 'condo'); ?>>
                             <span>Condo</span>
                         </label>
                         <label class="checkbox-item">
-                            <input type="checkbox">
+                            <input type="radio" name="property_type" value="office" <?php checked($property_type_filter, 'office'); ?>>
                             <span>Office</span>
                         </label>
                         <?php endif; ?>
@@ -281,12 +240,12 @@ $property_statuses = get_terms(array(
                 <!-- Bedrooms Dropdown -->
                 <div id="bedroomsDropdown" class="dropdown-content">
                     <div class="filter-options">
-                        <button type="button" class="filter-option" data-value="">Any</button>
-                        <button type="button" class="filter-option" data-value="1">1+</button>
-                        <button type="button" class="filter-option" data-value="2">2+</button>
-                        <button type="button" class="filter-option" data-value="3">3+</button>
-                        <button type="button" class="filter-option" data-value="4">4+</button>
-                        <button type="button" class="filter-option" data-value="5">5+</button>
+                        <button type="button" class="filter-option" data-value="" onclick="setFilterValue('bedrooms', '', this)">Any</button>
+                        <button type="button" class="filter-option" data-value="1" onclick="setFilterValue('bedrooms', '1', this)">1+</button>
+                        <button type="button" class="filter-option" data-value="2" onclick="setFilterValue('bedrooms', '2', this)">2+</button>
+                        <button type="button" class="filter-option" data-value="3" onclick="setFilterValue('bedrooms', '3', this)">3+</button>
+                        <button type="button" class="filter-option" data-value="4" onclick="setFilterValue('bedrooms', '4', this)">4+</button>
+                        <button type="button" class="filter-option" data-value="5" onclick="setFilterValue('bedrooms', '5', this)">5+</button>
                     </div>
                     <input type="hidden" name="bedrooms" value="<?php echo esc_attr($bedrooms); ?>">
                 </div>
@@ -294,13 +253,44 @@ $property_statuses = get_terms(array(
                 <!-- Bathrooms Dropdown -->
                 <div id="bathroomsDropdown" class="dropdown-content">
                     <div class="filter-options">
-                        <button type="button" class="filter-option" data-value="">Any</button>
-                        <button type="button" class="filter-option" data-value="1">1+</button>
-                        <button type="button" class="filter-option" data-value="2">2+</button>
-                        <button type="button" class="filter-option" data-value="3">3+</button>
-                        <button type="button" class="filter-option" data-value="4">4+</button>
+                        <button type="button" class="filter-option" data-value="" onclick="setFilterValue('bathrooms', '', this)">Any</button>
+                        <button type="button" class="filter-option" data-value="1" onclick="setFilterValue('bathrooms', '1', this)">1+</button>
+                        <button type="button" class="filter-option" data-value="2" onclick="setFilterValue('bathrooms', '2', this)">2+</button>
+                        <button type="button" class="filter-option" data-value="3" onclick="setFilterValue('bathrooms', '3', this)">3+</button>
+                        <button type="button" class="filter-option" data-value="4" onclick="setFilterValue('bathrooms', '4', this)">4+</button>
                     </div>
                     <input type="hidden" name="bathrooms" value="<?php echo esc_attr($bathrooms); ?>">
+                </div>
+
+                <!-- Location Dropdown -->
+                <div id="locationDropdown" class="dropdown-content">
+                    <div class="checkbox-grid">
+                        <?php if ($property_locations && !is_wp_error($property_locations)): ?>
+                            <?php foreach ($property_locations as $location): ?>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="property_location[]" value="<?php echo esc_attr($location->slug); ?>" <?php checked(in_array($location->slug, (array)$property_location), true); ?> onchange="submitForm()">
+                                    <span><?php echo esc_html($location->name); ?></span>
+                                </label>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="property_location[]" value="uttara-dhaka">
+                            <span>Uttara Dhaka</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="property_location[]" value="badda">
+                            <span>Badda</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="property_location[]" value="dhanmondi">
+                            <span>Dhanmondi</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="property_location[]" value="gulshan">
+                            <span>Gulshan</span>
+                        </label>
+                        <?php endif; ?>
+                    </div>
                 </div>
 
                 <!-- More Filters Dropdown -->
@@ -340,6 +330,7 @@ $property_statuses = get_terms(array(
                     </div>
                 </div>
             </div>
+            </form>
         </div>
     </div>
 
@@ -626,6 +617,58 @@ $property_statuses = get_terms(array(
         </div>
 </div>
 
+<style>
+/* Filter Action Buttons */
+.filter-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.apply-filter-btn, .clear-filter-btn {
+    flex: 1;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.apply-filter-btn {
+    background-color: #10b981;
+    color: white;
+    font-weight: 600;
+}
+
+.apply-filter-btn:hover {
+    background-color: #059669;
+    color: white;
+}
+
+.clear-filter-btn {
+    background-color: #ef4444;
+    color: white;
+    font-weight: 600;
+}
+
+.clear-filter-btn:hover {
+    background-color: #dc2626;
+    color: white;
+}
+
+.apply-filter-btn i, .clear-filter-btn i {
+    font-size: 12px;
+}
+</style>
+
 <script>
 // Simple dropdown toggle functionality
 function toggleDropdown(dropdownId) {
@@ -644,102 +687,6 @@ function toggleDropdown(dropdownId) {
         dropdown.style.display = 'none';
     } else {
         dropdown.style.display = 'block';
-    }
-}
-
-// Simple view toggle functionality
-function toggleView(viewType) {
-    const listBtn = document.querySelector('[onclick="toggleView(\'list\')"]');
-    const mapBtn = document.querySelector('[onclick="toggleView(\'map\')"]');
-    const mapSection = document.querySelector('.map-section');
-    const listingsContainer = document.querySelector('.listings-container');
-    const propertyGrid = document.getElementById('propertyGrid');
-    
-    // Remove active class from all buttons
-    if (listBtn) listBtn.classList.remove('active');
-    if (mapBtn) mapBtn.classList.remove('active');
-    
-    // Add active class to clicked button and change layout
-    if (viewType === 'list') {
-        if (listBtn) listBtn.classList.add('active');
-        // Hide map for list view
-        if (mapSection) {
-        mapSection.classList.remove('map-visible');
-        mapSection.classList.add('map-hidden');
-        }
-        if (listingsContainer) {
-        listingsContainer.classList.remove('map-visible');
-        }
-        if (propertyGrid) {
-        propertyGrid.style.setProperty('grid-template-columns', 'repeat(4, 1fr)', 'important');
-        }
-    } else {
-        if (mapBtn) mapBtn.classList.add('active');
-        // Show map for map view
-        if (mapSection) {
-        mapSection.classList.remove('map-hidden');
-        mapSection.classList.add('map-visible');
-        }
-        if (listingsContainer) {
-        listingsContainer.classList.add('map-visible');
-        }
-        if (propertyGrid) {
-        propertyGrid.style.setProperty('grid-template-columns', 'repeat(2, 1fr)', 'important');
-        }
-    }
-}
-
-// Simple map show functionality
-function showMap() {
-    const mapSection = document.querySelector('.map-section');
-    const listingsContainer = document.querySelector('.listings-container');
-    const propertyGrid = document.getElementById('propertyGrid');
-    
-    if (mapSection) {
-        mapSection.classList.remove('map-hidden');
-        mapSection.classList.add('map-visible');
-    }
-    
-    if (listingsContainer) {
-        listingsContainer.classList.add('map-visible');
-    }
-    
-    if (propertyGrid) {
-        propertyGrid.style.setProperty('grid-template-columns', 'repeat(2, 1fr)', 'important');
-    }
-}
-
-// Grid layout functionality
-function showGridLayout() {
-    const mapSection = document.querySelector('.map-section');
-    const listingsContainer = document.querySelector('.listings-container');
-    const propertyGrid = document.getElementById('propertyGrid');
-    const gridBtn = document.getElementById('gridBtn');
-    const mapToggleBtn = document.getElementById('mapToggleBtn');
-    const listBtn = document.querySelector('[onclick="toggleView(\'list\')"]');
-    const mapBtn = document.querySelector('[onclick="toggleView(\'map\')"]');
-    
-    // Remove active from all other buttons
-    if (listBtn) listBtn.classList.remove('active');
-    if (mapBtn) mapBtn.classList.remove('active');
-    if (mapToggleBtn) mapToggleBtn.classList.remove('active');
-    
-    // Activate grid button
-    if (gridBtn) gridBtn.classList.add('active');
-    
-    // Hide map
-    if (mapSection) {
-        mapSection.classList.remove('map-visible');
-        mapSection.classList.add('map-hidden');
-    }
-    
-    if (listingsContainer) {
-        listingsContainer.classList.remove('map-visible');
-    }
-    
-    // Set grid to 4 columns (full width)
-    if (propertyGrid) {
-        propertyGrid.style.setProperty('grid-template-columns', 'repeat(4, 1fr)', 'important');
     }
 }
 
@@ -773,20 +720,12 @@ document.addEventListener('click', function(event) {
     }
 });
 
-// Initialize page
-document.addEventListener('DOMContentLoaded', function() {
-    // Set initial map state to hidden
-    const mapSection = document.querySelector('.map-section');
-    if (mapSection) {
-        mapSection.classList.add('map-hidden');
-    }
-    
-    // Set initial grid layout (4 columns for full width by default)
-    const propertyGrid = document.getElementById('propertyGrid');
-    if (propertyGrid) {
-        propertyGrid.style.setProperty('grid-template-columns', 'repeat(4, 1fr)', 'important');
-    }
-});
+// Clear price filter function
+function clearPriceFilter() {
+    document.querySelector('input[name="min_price"]').value = '';
+    document.querySelector('input[name="max_price"]').value = '';
+    document.getElementById('searchForm').submit();
+}
 </script>
 
 <?php wp_reset_postdata(); ?>

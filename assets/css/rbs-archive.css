@@ -699,6 +699,34 @@
         margin-bottom: 16px;
     }
 
+    .filter-buttons button:focus{
+        background-color: unset !important;
+        color:unset !important
+    }
+
+    .filter-buttons button:hover{
+        background-color: unset !important;
+        color:unset !important
+    }
+    .dropdown-content button.apply-filter-btn {
+        color: #fff;
+    }
+    .dropdown-content button.apply-filter-btn:focus {
+        color: #fff;
+    }
+    .dropdown-content button.apply-filter-btn:hover {
+        color: #fff;
+    }
+    .dropdown-content button.clear-filter-btn {
+        color: #fff;
+    }
+    .dropdown-content button.clear-filter-btn:focus {
+        color: #fff;
+    }
+    .dropdown-content button.clear-filter-btn:hover {
+        color: #fff;
+    }
+
     .rbs-archive .property-feature {
         display: flex;
         align-items: center;
