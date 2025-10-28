@@ -186,12 +186,40 @@
                 </select>
 
                 <div class="layout-toggle">
-                    <button onclick="changeLayout('grid')" id="gridBtn" class="layout-btn active">
+                    <button onclick="
+                        console.log('Grid button clicked directly!');
+                        const mapSection = document.querySelector('.map-section');
+                        const listingsContainer = document.querySelector('.listings-container');
+                        const propertyGrid = document.getElementById('propertyGrid');
+                        const gridBtn = document.getElementById('gridBtn');
+                        const mapToggleBtn = document.getElementById('mapToggleBtn');
+                        
+                        // Hide map
+                        mapSection.classList.remove('map-visible');
+                        mapSection.classList.add('map-hidden');
+                        listingsContainer.classList.remove('map-visible');
+                        
+                        // Remove active from map button
+                        if (mapToggleBtn) {
+                            mapToggleBtn.classList.remove('active');
+                            mapToggleBtn.title = 'Show Map';
+                            const mapIcon = mapToggleBtn.querySelector('i');
+                            mapIcon.className = 'fas fa-map-marked-alt';
+                        }
+                        
+                        // Activate grid button
+                        gridBtn.classList.add('active');
+                        
+                        // Set grid to 4 columns
+                        propertyGrid.style.setProperty('grid-template-columns', 'repeat(4, 1fr)', 'important');
+                        
+                        console.log('Grid button should now be active!');
+                    " id="gridBtn" class="layout-btn" style="background-color: red;">
                         <i class="fas fa-th-large"></i>
                     </button>
                 </div>
 
-                <button class="filter-toggle" onclick="toggleMap()" id="mapToggleBtn">
+                <button class="filter-toggle" onclick="showMap()" id="mapToggleBtn">
                     <i class="fas fa-map-marked-alt"></i>
                 </button>
             </div>
@@ -630,8 +658,8 @@
 </div>
 
 <script>
-// Map Toggle Functionality
-function toggleMap() {
+// Map Show Functionality (just show map)
+function showMap() {
     const mapSection = document.querySelector('.map-section');
     const listingsContainer = document.querySelector('.listings-container');
     const mapToggleBtn = document.getElementById('mapToggleBtn');
@@ -639,31 +667,23 @@ function toggleMap() {
     const propertyGrid = document.getElementById('propertyGrid');
     const gridBtn = document.getElementById('gridBtn');
     
-    if (mapSection.classList.contains('map-visible')) {
-        // Hide map (default state)
-        mapSection.classList.remove('map-visible');
-        mapSection.classList.add('map-hidden');
-        listingsContainer.classList.remove('map-visible');
-        mapIcon.className = 'fas fa-map-marked-alt';
-        mapToggleBtn.title = 'Show Map';
-        
-        // Adjust grid layout if grid view is active
-        if (gridBtn.classList.contains('active')) {
-            propertyGrid.style.setProperty('grid-template-columns', 'repeat(4, 1fr)', 'important');
-        }
-    } else {
-        // Show map
-        mapSection.classList.remove('map-hidden');
-        mapSection.classList.add('map-visible');
-        listingsContainer.classList.add('map-visible');
-        mapIcon.className = 'fas fa-eye-slash';
-        mapToggleBtn.title = 'Hide Map';
-        
-        // Adjust grid layout if grid view is active
-        if (gridBtn.classList.contains('active')) {
-            propertyGrid.style.setProperty('grid-template-columns', 'repeat(2, 1fr)', 'important');
-        }
-    }
+    // Remove active from other buttons
+    const listBtn = document.querySelector('[onclick="toggleView(\'list\')"]');
+    const mapBtn = document.querySelector('[onclick="toggleView(\'map\')"]');
+    if (listBtn) listBtn.classList.remove('active');
+    if (mapBtn) mapBtn.classList.remove('active');
+    if (gridBtn) gridBtn.classList.remove('active');
+    
+    // Show map
+    mapSection.classList.remove('map-hidden');
+    mapSection.classList.add('map-visible');
+    listingsContainer.classList.add('map-visible');
+    mapIcon.className = 'fas fa-eye-slash';
+    mapToggleBtn.title = 'Map Visible';
+    mapToggleBtn.classList.add('active');
+    
+    // Set grid to 2 columns when map is visible
+    propertyGrid.style.setProperty('grid-template-columns', 'repeat(2, 1fr)', 'important');
 }
 
 // Dropdown toggle functionality
@@ -690,35 +710,79 @@ function toggleDropdown(dropdownId) {
 function toggleView(viewType) {
     const listBtn = document.querySelector('[onclick="toggleView(\'list\')"]');
     const mapBtn = document.querySelector('[onclick="toggleView(\'map\')"]');
+    const gridBtn = document.getElementById('gridBtn');
+    const mapToggleBtn = document.getElementById('mapToggleBtn');
+    const mapSection = document.querySelector('.map-section');
+    const listingsContainer = document.querySelector('.listings-container');
+    const propertyGrid = document.getElementById('propertyGrid');
     
     // Remove active class from all buttons
     listBtn.classList.remove('active');
     mapBtn.classList.remove('active');
+    if (gridBtn) gridBtn.classList.remove('active');
+    if (mapToggleBtn) mapToggleBtn.classList.remove('active');
     
-    // Add active class to clicked button
+    // Add active class to clicked button and change layout
     if (viewType === 'list') {
         listBtn.classList.add('active');
+        // Hide map for list view
+        mapSection.classList.remove('map-visible');
+        mapSection.classList.add('map-hidden');
+        listingsContainer.classList.remove('map-visible');
+        propertyGrid.style.setProperty('grid-template-columns', 'repeat(4, 1fr)', 'important');
     } else {
         mapBtn.classList.add('active');
+        // Show map for map view
+        mapSection.classList.remove('map-hidden');
+        mapSection.classList.add('map-visible');
+        listingsContainer.classList.add('map-visible');
+        propertyGrid.style.setProperty('grid-template-columns', 'repeat(2, 1fr)', 'important');
     }
 }
 
 // Simple grid layout functionality
 function changeLayout(layoutType) {
+    console.log('changeLayout function called!');
     const propertyGrid = document.getElementById('propertyGrid');
     const gridBtn = document.getElementById('gridBtn');
     const mapSection = document.querySelector('.map-section');
+    const mapToggleBtn = document.getElementById('mapToggleBtn');
+    const listingsContainer = document.querySelector('.listings-container');
+    const listBtn = document.querySelector('[onclick="toggleView(\'list\')"]');
+    const mapBtn = document.querySelector('[onclick="toggleView(\'map\')"]');
     
-    // Only grid view - check if map is visible
-    propertyGrid.classList.remove('list-view');
-    if (mapSection && mapSection.classList.contains('map-visible')) {
-        // Map is visible - show 2 columns
-        propertyGrid.style.setProperty('grid-template-columns', 'repeat(2, 1fr)', 'important');
-    } else {
-        // Map is hidden - show 4 columns
-        propertyGrid.style.setProperty('grid-template-columns', 'repeat(4, 1fr)', 'important');
+    console.log('Elements found:', {
+        propertyGrid: !!propertyGrid,
+        gridBtn: !!gridBtn,
+        mapSection: !!mapSection,
+        mapToggleBtn: !!mapToggleBtn,
+        listingsContainer: !!listingsContainer
+    });
+    
+    // Remove active from all other buttons
+    if (listBtn) listBtn.classList.remove('active');
+    if (mapBtn) mapBtn.classList.remove('active');
+    if (mapToggleBtn) mapToggleBtn.classList.remove('active');
+    
+    // Hide map when grid button is clicked
+    mapSection.classList.remove('map-visible');
+    mapSection.classList.add('map-hidden');
+    listingsContainer.classList.remove('map-visible');
+    
+    // Reset map toggle button
+    if (mapToggleBtn) {
+        mapToggleBtn.title = 'Show Map';
+        const mapIcon = mapToggleBtn.querySelector('i');
+        mapIcon.className = 'fas fa-map-marked-alt';
     }
+    
+    // Activate grid button
     gridBtn.classList.add('active');
+    
+    // Set grid layout to 4 columns (full width)
+    propertyGrid.style.setProperty('grid-template-columns', 'repeat(4, 1fr)', 'important');
+    
+    console.log('Grid button should now be active and map hidden');
 }
 
 // Property highlighting functionality

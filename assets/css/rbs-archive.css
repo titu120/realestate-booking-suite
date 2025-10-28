@@ -412,8 +412,11 @@
     }
 
     .rbs-archive .view-btn.active {
-        color: #0f766e;
+        color: white;
         font-weight: 500;
+        background-color: #0f766e;
+        padding: 8px 16px;
+        border-radius: 8px;
     }
 
     .rbs-archive .view-btn i {
@@ -489,6 +492,12 @@
         background-color: #f9fafb;
         border-color: #0f766e;
         color: #0f766e;
+    }
+
+    .rbs-archive .filter-toggle.active {
+        background-color: #0f766e;
+        border-color: #0f766e;
+        color: white;
     }
 
     .rbs-archive .filter-toggle i {
@@ -678,6 +687,7 @@
         background-color: #f3f4f6;
         padding: 4px 12px;
         border-radius: 9999px;
+        white-space: nowrap;
     }
 
     .rbs-archive .property-features {
@@ -697,7 +707,15 @@
 
     .rbs-archive  button{
         border: unset;
-        color: unset;
+        color: #0f766e;
+    }
+    .rbs-archive  button:focus{
+        border: unset;
+        color: #0f766e;
+    }
+    .rbs-archive  button:hover{
+        border: unset;
+        color: #0f766e;
     }
 
     .rbs-archive .property-footer {
