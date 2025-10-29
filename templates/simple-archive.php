@@ -164,6 +164,11 @@ switch ($sort_by) {
         $args['orderby'] = 'meta_value_num';
         $args['order'] = 'DESC';
         break;
+    case 'popular':
+        // Sort by comment count (popularity indicator)
+        $args['orderby'] = 'comment_count';
+        $args['order'] = 'DESC';
+        break;
     case 'newest':
     default:
         $args['orderby'] = 'date';
@@ -443,7 +448,7 @@ $property_statuses = get_terms(array(
             <!-- Right Side -->
             <div class="sort-controls">
                 <span class="sort-label">Sort by:</span>
-                <select class="sort-select" name="sort_by" onchange="this.form.submit()">
+                <select class="sort-select" name="sort_by" id="sortSelect" onchange="handleSortChange(this.value)">
                     <option value="newest" <?php selected($sort_by, 'newest'); ?>>Newest</option>
                     <option value="price_low" <?php selected($sort_by, 'price_low'); ?>>Price: Low to High</option>
                     <option value="price_high" <?php selected($sort_by, 'price_high'); ?>>Price: High to Low</option>
@@ -1247,6 +1252,24 @@ function clearMoreFilters() {
     document.querySelector('select[name="year_built"]').value = '';
     document.querySelector('select[name="property_status"]').value = '';
     document.getElementById('searchForm').submit();
+}
+
+// Handle sort change dynamically
+function handleSortChange(sortValue) {
+    // Get current URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    // Update sort_by parameter
+    urlParams.set('sort_by', sortValue);
+    
+    // Remove paged parameter to go back to page 1
+    urlParams.delete('paged');
+    
+    // Build new URL with updated parameters
+    const newUrl = window.location.pathname + '?' + urlParams.toString();
+    
+    // Navigate to new URL
+    window.location.href = newUrl;
 }
 
 // Show Map View - Always show map when clicked
