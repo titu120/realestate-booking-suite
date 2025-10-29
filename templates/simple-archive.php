@@ -426,12 +426,12 @@ $property_statuses = get_terms(array(
         <div class="control-bar">
             <!-- Left Side -->
             <div class="view-controls">
-                <button onclick="toggleView('list')" class="view-btn active">
+                <button onclick="showListView()" class="view-btn active">
                     <i class="fas fa-list"></i>
                     <span>List View</span>
                 </button>
                 <div class="view-divider">|</div>
-                <button onclick="toggleView('map')" class="view-btn">
+                <button onclick="showMapView()" class="view-btn">
                     <i class="fas fa-map-marked-alt"></i>
                     <span>Map View</span>
                 </button>
@@ -451,7 +451,7 @@ $property_statuses = get_terms(array(
                 </select>
 
                 <div class="layout-toggle">
-                    <button onclick="showGridLayout()" class="layout-btn" id="gridBtn"></button>
+                    <button onclick="showGridLayout()" class="layout-btn" id="gridBtn">
                         <i class="fas fa-th-large"></i>
                     </button>
                 </div>
@@ -725,9 +725,41 @@ $property_statuses = get_terms(array(
     margin-bottom: 40px;
 }
 
-/* Ensure proper spacing */
+/* Property Grid Layout - Conditional columns */
 .property-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* Default: 4 columns when map is hidden */
+    gap: 20px;
     margin-bottom: 40px;
+}
+
+/* When map is visible, show only 2 columns */
+.listings-container.map-visible .property-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+}
+
+/* Additional specific rule to ensure 2 columns when map is visible */
+.rbs-archive .listings-container.map-visible .properties-list .property-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+}
+
+/* Property Card Styling */
+.property-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.property-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.property-card.highlighted {
+    border: 2px solid #10b981;
+    transform: translateY(-2px);
 }
 
 .no-properties-found {
@@ -782,19 +814,66 @@ body {
 .listings-container.map-visible {
     display: flex;
     gap: 20px;
+    min-height: 60vh; /* Use viewport height instead of fixed height */
 }
 
 .listings-container.map-visible .properties-list {
     flex: 1;
+    overflow-y: auto; /* Make it scrollable */
+    max-height: 70vh; /* Use viewport height */
+    padding-right: 10px; /* Add some space for scrollbar */
+}
+
+/* Custom scrollbar styling */
+.listings-container.map-visible .properties-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.listings-container.map-visible .properties-list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.listings-container.map-visible .properties-list::-webkit-scrollbar-thumb {
+    background: #10b981;
+    border-radius: 10px;
+}
+
+.listings-container.map-visible .properties-list::-webkit-scrollbar-thumb:hover {
+    background: #059669;
 }
 
 .listings-container.map-visible .map-section {
     flex: 1;
     display: block;
+    min-height: 60vh; /* Use viewport height */
 }
 
-/* Better responsive spacing */
-@media (max-width: 768px) {
+/* Responsive Grid Layout */
+/* Large screens (1200px+) */
+@media (min-width: 1200px) {
+    .property-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+    
+    .listings-container.map-visible .property-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+}
+
+/* Medium screens (768px - 1199px) */
+@media (min-width: 768px) and (max-width: 1199px) {
+    .property-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .listings-container.map-visible .property-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+}
+
+/* Small screens (below 768px) */
+@media (max-width: 767px) {
     .main-content {
         padding-bottom: 40px;
     }
@@ -810,17 +889,216 @@ body {
     
     .property-grid {
         margin-bottom: 30px;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+    
+    /* Mobile button design */
+    .control-bar {
+        flex-direction: column;
+        gap: 20px;
+        align-items: stretch;
+    }
+    
+    .view-controls {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .view-btn {
+        padding: 10px 16px;
+        font-size: 13px;
+    }
+    
+    .sort-controls {
+        justify-content: center;
+        flex-wrap: wrap;
     }
     
     /* Mobile map layout */
     .listings-container.map-visible {
         flex-direction: column;
+        min-height: auto;
+    }
+    
+    .listings-container.map-visible .properties-list {
+        max-height: 50vh;
+        overflow-y: auto;
     }
     
     .listings-container.map-visible .map-section {
         order: 2;
         margin-top: 20px;
+        min-height: 50vh;
     }
+    
+    .listings-container.map-visible .property-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+}
+
+/* Extra small screens (below 480px) */
+@media (max-width: 479px) {
+    .property-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    .listings-container.map-visible .property-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* View Control Buttons Design */
+.view-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.view-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    background: white;
+    color: #6b7280;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    outline: none;
+}
+
+.view-btn:hover {
+    border-color: #10b981;
+    color: #10b981;
+    background: #f0fdf4;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
+}
+
+.view-btn.active {
+    background: #10b981;
+    border-color: #10b981;
+    color: white;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.view-btn.active:hover {
+    background: #059669;
+    border-color: #059669;
+    color: white;
+}
+
+.view-btn i {
+    font-size: 16px;
+}
+
+.view-divider {
+    color: #d1d5db;
+    font-weight: 300;
+    font-size: 18px;
+}
+
+.results-count {
+    color: #6b7280;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* Control Bar Layout */
+.control-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 30px 0;
+    padding: 20px 0;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.sort-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.sort-label {
+    color: #6b7280;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.sort-select {
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    background: white;
+    color: #374151;
+    font-size: 14px;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.sort-select:hover,
+.sort-select:focus {
+    border-color: #10b981;
+}
+
+.layout-toggle {
+    display: flex;
+    align-items: center;
+}
+
+.layout-btn,
+.filter-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    background: white;
+    color: #6b7280;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    outline: none;
+    font-size: 16px;
+}
+
+.layout-btn:hover,
+.filter-toggle:hover {
+    border-color: #10b981;
+    color: #10b981;
+    background: #f0fdf4;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
+}
+
+.layout-btn.active,
+.filter-toggle.active {
+    background: #10b981;
+    border-color: #10b981;
+    color: white;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.layout-btn.active:hover,
+.filter-toggle.active:hover {
+    background: #059669;
+    border-color: #059669;
+    color: white;
+}
+
+.layout-btn i,
+.filter-toggle i {
+    font-size: 16px;
 }
 
 /* Filter Action Buttons */
@@ -962,8 +1240,8 @@ function clearMoreFilters() {
     document.getElementById('searchForm').submit();
 }
 
-// Map toggle functionality
-function toggleView(viewType) {
+// Show Map View - Always show map when clicked
+function showMapView() {
     const mapSection = document.querySelector('.map-section');
     const listingsContainer = document.querySelector('.listings-container');
     const viewButtons = document.querySelectorAll('.view-btn');
@@ -972,62 +1250,89 @@ function toggleView(viewType) {
     // Remove active class from all view buttons
     viewButtons.forEach(btn => btn.classList.remove('active'));
     
-    if (viewType === 'map') {
-        // Show map view
-        mapSection.classList.remove('map-hidden');
-        mapSection.classList.add('map-visible');
-        listingsContainer.classList.add('map-visible');
-        
-        // Update button states
-        document.querySelector('.view-btn[onclick="toggleView(\'map\')"]').classList.add('active');
-        if (mapToggleBtn) mapToggleBtn.classList.add('active');
-    } else {
-        // Show list view
-        mapSection.classList.remove('map-visible');
-        mapSection.classList.add('map-hidden');
-        listingsContainer.classList.remove('map-visible');
-        
-        // Update button states
-        document.querySelector('.view-btn[onclick="toggleView(\'list\')"]').classList.add('active');
-        if (mapToggleBtn) mapToggleBtn.classList.remove('active');
-    }
+    // Always show map view
+    mapSection.classList.remove('map-hidden');
+    mapSection.classList.add('map-visible');
+    listingsContainer.classList.add('map-visible');
+    
+    // Update button states
+    document.querySelector('.view-btn[onclick="showMapView()"]').classList.add('active');
+    if (mapToggleBtn) mapToggleBtn.classList.add('active');
+    
+    console.log('Map view activated. Listings container classes:', listingsContainer.className);
 }
 
-// Show map function (for the map toggle button)
+// Show List View - Always hide map when clicked
+function showListView() {
+    const mapSection = document.querySelector('.map-section');
+    const listingsContainer = document.querySelector('.listings-container');
+    const viewButtons = document.querySelectorAll('.view-btn');
+    const mapToggleBtn = document.getElementById('mapToggleBtn');
+    
+    // Remove active class from all view buttons
+    viewButtons.forEach(btn => btn.classList.remove('active'));
+    
+    // Always hide map view
+    mapSection.classList.remove('map-visible');
+    mapSection.classList.add('map-hidden');
+    listingsContainer.classList.remove('map-visible');
+    
+    // Update button states
+    document.querySelector('.view-btn[onclick="showListView()"]').classList.add('active');
+    if (mapToggleBtn) mapToggleBtn.classList.remove('active');
+    
+    console.log('List view activated. Map hidden.');
+}
+
+// Show map function - Always show map when clicked
 function showMap() {
     const mapSection = document.querySelector('.map-section');
     const listingsContainer = document.querySelector('.listings-container');
     const mapToggleBtn = document.getElementById('mapToggleBtn');
+    const gridBtn = document.getElementById('gridBtn');
     
-    if (mapSection.classList.contains('map-visible')) {
-        // Hide map
-        mapSection.classList.remove('map-visible');
-        mapSection.classList.add('map-hidden');
-        listingsContainer.classList.remove('map-visible');
-        if (mapToggleBtn) mapToggleBtn.classList.remove('active');
-        
-        // Update view buttons
-        document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
-        document.querySelector('.view-btn[onclick="toggleView(\'list\')"]').classList.add('active');
-    } else {
-        // Show map
-        mapSection.classList.remove('map-hidden');
-        mapSection.classList.add('map-visible');
-        listingsContainer.classList.add('map-visible');
-        if (mapToggleBtn) mapToggleBtn.classList.add('active');
-        
-        // Update view buttons
-        document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
-        document.querySelector('.view-btn[onclick="toggleView(\'map\')"]').classList.add('active');
-    }
+    // Always show map
+    mapSection.classList.remove('map-hidden');
+    mapSection.classList.add('map-visible');
+    listingsContainer.classList.add('map-visible');
+    
+    // Update button states
+    if (mapToggleBtn) mapToggleBtn.classList.add('active');
+    if (gridBtn) gridBtn.classList.remove('active');
+    
+    // Update view buttons
+    document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelector('.view-btn[onclick="showMapView()"]').classList.add('active');
+    
+    console.log('Map button clicked - Map shown');
 }
 
-// Show grid layout function
+// Show grid layout function - Always hide map when clicked
 function showGridLayout() {
+    const mapSection = document.querySelector('.map-section');
+    const listingsContainer = document.querySelector('.listings-container');
     const propertyGrid = document.getElementById('propertyGrid');
+    const gridBtn = document.getElementById('gridBtn');
+    const mapToggleBtn = document.getElementById('mapToggleBtn');
+    
+    // Always hide map
+    mapSection.classList.remove('map-visible');
+    mapSection.classList.add('map-hidden');
+    listingsContainer.classList.remove('map-visible');
+    
     if (propertyGrid) {
         propertyGrid.classList.remove('list-view');
     }
+    
+    // Update button states
+    if (gridBtn) gridBtn.classList.add('active');
+    if (mapToggleBtn) mapToggleBtn.classList.remove('active');
+    
+    // Update view buttons
+    document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelector('.view-btn[onclick="showListView()"]').classList.add('active');
+    
+    console.log('Grid button clicked - Map hidden');
 }
 
 // Highlight property function (for map markers)
@@ -1072,13 +1377,15 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Set initial button states
-    const listViewBtn = document.querySelector('.view-btn[onclick="toggleView(\'list\')"]');
-    const mapViewBtn = document.querySelector('.view-btn[onclick="toggleView(\'map\')"]');
+    const listViewBtn = document.querySelector('.view-btn[onclick="showListView()"]');
+    const mapViewBtn = document.querySelector('.view-btn[onclick="showMapView()"]');
     const mapToggleBtn = document.getElementById('mapToggleBtn');
+    const gridBtn = document.getElementById('gridBtn');
     
     if (listViewBtn) listViewBtn.classList.add('active');
     if (mapViewBtn) mapViewBtn.classList.remove('active');
     if (mapToggleBtn) mapToggleBtn.classList.remove('active');
+    if (gridBtn) gridBtn.classList.add('active');
 });
 </script>
 
