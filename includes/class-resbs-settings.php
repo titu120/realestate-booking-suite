@@ -136,6 +136,7 @@ class RESBS_Settings {
         register_setting('resbs_badge_settings', 'resbs_badge_position');
         
         // Map Settings
+        register_setting('resbs_map_settings', 'resbs_google_maps_api_key');
         register_setting('resbs_map_settings', 'resbs_map_zoom_level');
         register_setting('resbs_map_settings', 'resbs_map_center_lat');
         register_setting('resbs_map_settings', 'resbs_map_center_lng');
@@ -582,6 +583,29 @@ class RESBS_Settings {
                 settings_fields('resbs_map_settings');
                 do_settings_sections('resbs_map_settings');
                 ?>
+                
+                <div class="resbs-card">
+                    <div class="resbs-card-header">
+                        <h2 class="resbs-card-title"><?php esc_html_e('Google Maps API Configuration', 'realestate-booking-suite'); ?></h2>
+                    </div>
+                    <div class="resbs-card-body">
+                        <div class="resbs-form-group">
+                            <label for="resbs_google_maps_api_key"><?php esc_html_e('Google Maps API Key', 'realestate-booking-suite'); ?> <span style="color: red;">*</span></label>
+                            <input type="text" id="resbs_google_maps_api_key" name="resbs_google_maps_api_key" value="<?php echo esc_attr(get_option('resbs_google_maps_api_key', '')); ?>" class="regular-text" placeholder="AIzaSy..." />
+                            <p class="description">
+                                <?php esc_html_e('Enter your Google Maps API key. ', 'realestate-booking-suite'); ?>
+                                <a href="https://console.cloud.google.com/google/maps-apis/credentials" target="_blank"><?php esc_html_e('Get your API key here', 'realestate-booking-suite'); ?></a>
+                                <br>
+                                <strong><?php esc_html_e('Required APIs:', 'realestate-booking-suite'); ?></strong> Maps JavaScript API, Places API (optional)
+                            </p>
+                            <?php if (empty(get_option('resbs_google_maps_api_key', ''))): ?>
+                                <div class="notice notice-warning inline" style="margin-top: 10px;">
+                                    <p><?php esc_html_e('⚠️ Google Maps will not work without an API key. Please add your API key to enable interactive maps.', 'realestate-booking-suite'); ?></p>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
                 
                 <div class="resbs-card">
                     <div class="resbs-card-header">

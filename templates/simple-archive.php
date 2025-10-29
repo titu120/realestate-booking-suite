@@ -595,97 +595,89 @@ $property_statuses = get_terms(array(
                 </div>
             </div>
 
-            <!-- Interactive Map -->
+            <!-- Interactive Google Map -->
             <div class="map-section map-hidden">
-                <div class="map-container">
-                    <div class="map-bg">
-                        <!-- Map Controls -->
-                        <div class="map-controls">
-                            <button class="map-control">
-                                <i class="fas fa-plus"></i>
-                            </button>
-                            <button class="map-control">
-                                <i class="fas fa-minus"></i>
-                            </button>
-                            <button class="map-control">
-                                <i class="fas fa-expand"></i>
-                            </button>
-                        </div>
-
-                        <!-- Map Legend -->
-                        <div class="map-legend">
-                            <h4 class="legend-title">Legend</h4>
-                            <div class="legend-items">
-                                <div class="legend-item">
-                                    <div class="legend-color" style="background-color: #f97316;"></div>
-                                    <span class="legend-label">Featured</span>
-                                </div>
-                                <div class="legend-item">
-                                    <div class="legend-color" style="background-color: #10b981;"></div>
-                                    <span class="legend-label">Just Listed</span>
-                                </div>
-                                <div class="legend-item">
-                                    <div class="legend-color" style="background-color: #0f766e;"></div>
-                                    <span class="legend-label">Standard</span>
-                                </div>
+                <div class="map-container" style="position: relative;">
+                    <div id="googleMap"></div>
+                    
+                    <!-- Map Legend -->
+                    <div class="map-legend" style="position: absolute; bottom: 20px; left: 20px; z-index: 10;">
+                        <h4 class="legend-title">Legend</h4>
+                        <div class="legend-items">
+                            <div class="legend-item">
+                                <div class="legend-color" style="background-color: #10b981;"></div>
+                                <span class="legend-label">Just Listed</span>
                             </div>
-                        </div>
-
-                        <!-- Map Markers -->
-                        <div id="mapMarkers" class="map-markers">
-                            <?php 
-                            // Reset query for map markers
-                            $properties_query->rewind_posts();
-                            $marker_count = 0;
-                            ?>
-                            <?php while ($properties_query->have_posts()): $properties_query->the_post(); ?>
-                                <?php
-                                $marker_count++;
-                                $latitude = get_post_meta(get_the_ID(), '_property_latitude', true);
-                                $longitude = get_post_meta(get_the_ID(), '_property_longitude', true);
-                                $price = get_post_meta(get_the_ID(), '_property_price', true);
-                                
-                                // Skip if no coordinates
-                                if (!$latitude || !$longitude) continue;
-                                
-                                // Determine marker color based on property age
-                                $post_date = get_the_date('Y-m-d');
-                                $days_old = (time() - strtotime($post_date)) / (60 * 60 * 24);
-                                
-                                if ($days_old < 7) {
-                                    $marker_color = '#10b981'; // Green for new
-                                    $marker_icon = 'fas fa-building';
-                                } elseif ($days_old < 30) {
-                                    $marker_color = '#f97316'; // Orange for featured
-                                    $marker_icon = 'fas fa-home';
-                                } else {
-                                    $marker_color = '#0f766e'; // Teal for standard
-                                    $marker_icon = 'fas fa-building';
-                                }
-                                
-                                // Random positioning for demo (in real implementation, use actual coordinates)
-                                $top = 25 + ($marker_count * 8) % 50;
-                                $left = 20 + ($marker_count * 12) % 60;
-                                
-                                $formatted_price = $price ? '$' . number_format($price) : 'Price on request';
-                                ?>
-                                
-                                <!-- Marker -->
-                                <div class="map-marker" style="top: <?php echo $top; ?>%; left: <?php echo $left; ?>%;" data-property-id="<?php echo get_the_ID(); ?>" onclick="highlightProperty(<?php echo get_the_ID(); ?>)">
-                                <div class="marker-tooltip">
-                                        <div class="tooltip-title"><?php echo esc_html(get_the_title()); ?></div>
-                                        <div class="tooltip-price"><?php echo esc_html($formatted_price); ?></div>
-                                </div>
-                                    <div class="marker-icon" style="background-color: <?php echo esc_attr($marker_color); ?>;">
-                                        <i class="<?php echo esc_attr($marker_icon); ?>"></i>
-                                </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background-color: #f97316;"></div>
+                                <span class="legend-label">Featured</span>
                             </div>
-                            <?php endwhile; ?>
-                                </div>
-                                </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background-color: #0f766e;"></div>
+                                <span class="legend-label">Standard</span>
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+            
+            <?php
+            // Get Google Maps API key
+            $google_maps_api_key = get_option('resbs_google_maps_api_key', '');
+            $map_zoom = get_option('resbs_map_zoom_level', 10);
+            $map_center_lat = get_option('resbs_map_center_lat', 40.7128);
+            $map_center_lng = get_option('resbs_map_center_lng', -74.0060);
+            
+            // Debug: Show API key status (remove after testing)
+            if (empty($google_maps_api_key)) {
+                echo '<!-- DEBUG: Google Maps API key is NOT set in database. Please add it in WordPress Admin → RealEstate Booking Suite → Map Settings -->';
+            } else {
+                echo '<!-- DEBUG: Google Maps API key is SET (length: ' . strlen($google_maps_api_key) . ' characters) -->';
+            }
+            
+            // Prepare properties data for JavaScript
+            $properties_query->rewind_posts();
+            $properties_data = array();
+            while ($properties_query->have_posts()): $properties_query->the_post();
+                $latitude = get_post_meta(get_the_ID(), '_property_latitude', true);
+                $longitude = get_post_meta(get_the_ID(), '_property_longitude', true);
+                
+                if ($latitude && $longitude) {
+                    $price = get_post_meta(get_the_ID(), '_property_price', true);
+                    $bedrooms = get_post_meta(get_the_ID(), '_property_bedrooms', true);
+                    $bathrooms = get_post_meta(get_the_ID(), '_property_bathrooms', true);
+                    $area_sqft = get_post_meta(get_the_ID(), '_property_area_sqft', true);
+                    $featured_image = get_the_post_thumbnail_url(get_the_ID(), 'thumbnail');
+                    
+                    $post_date = get_the_date('Y-m-d');
+                    $days_old = (time() - strtotime($post_date)) / (60 * 60 * 24);
+                    
+                    if ($days_old < 7) {
+                        $marker_color = '#10b981'; // Green for new
+                    } elseif ($days_old < 30) {
+                        $marker_color = '#f97316'; // Orange for featured
+                    } else {
+                        $marker_color = '#0f766e'; // Teal for standard
+                    }
+                    
+                    $properties_data[] = array(
+                        'id' => get_the_ID(),
+                        'title' => get_the_title(),
+                        'lat' => floatval($latitude),
+                        'lng' => floatval($longitude),
+                        'price' => $price ? '$' . number_format($price) : 'Price on request',
+                        'bedrooms' => $bedrooms,
+                        'bathrooms' => $bathrooms,
+                        'area_sqft' => $area_sqft,
+                        'permalink' => get_permalink(),
+                        'image' => $featured_image ? $featured_image : '',
+                        'marker_color' => $marker_color,
+                        'days_old' => $days_old
+                    );
+                }
+            endwhile;
+            wp_reset_postdata();
+            ?>
         
         <!-- Pagination -->
         <?php if ($properties_query->max_num_pages > 1): ?>
@@ -857,10 +849,35 @@ body {
 
 .listings-container.map-visible .map-section .map-container {
     height: 100%;
+    position: relative;
 }
 
-.listings-container.map-visible .map-section .map-bg {
+#googleMap {
+    width: 100%;
     height: 100%;
+    min-height: 400px;
+    background: transparent !important;
+    position: relative;
+    z-index: 1;
+    display: block;
+}
+
+/* Ensure map is visible when section is visible */
+.map-section.map-visible #googleMap {
+    display: block !important;
+    visibility: visible !important;
+}
+
+/* Map Legend positioning */
+.map-legend {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    z-index: 100;
 }
 
 /* Responsive Grid Layout */
@@ -1418,8 +1435,354 @@ document.addEventListener('DOMContentLoaded', function() {
     if (mapViewBtn) mapViewBtn.classList.remove('active');
     if (mapToggleBtn) mapToggleBtn.classList.remove('active');
     if (gridBtn) gridBtn.classList.add('active');
+    
+    // Initialize Google Map if API key is available
+    <?php if (!empty($google_maps_api_key)): ?>
+    initializeGoogleMap();
+    <?php else: ?>
+    console.warn('Google Maps API key is not set. Please add your API key in Map Settings.');
+    <?php endif; ?>
 });
 </script>
+
+<?php if (!empty($google_maps_api_key)): ?>
+<script>
+console.log('=== Google Maps Integration Started ===');
+console.log('API Key from PHP:', '<?php echo substr(esc_js($google_maps_api_key), 0, 10); ?>...');
+console.log('Properties with coordinates:', <?php echo count($properties_data); ?>);
+
+// Google Maps Variables - Must be global
+window.map = null;
+window.markers = [];
+window.infoWindows = [];
+window.propertiesData = <?php echo json_encode($properties_data); ?>;
+window.googleMapsApiKey = '<?php echo esc_js($google_maps_api_key); ?>';
+window.mapInitialized = false;
+
+console.log('Window variables set. API Key length:', window.googleMapsApiKey ? window.googleMapsApiKey.length : 0);
+
+// Initialize map function (called by Google Maps API callback)
+window.initMap = function() {
+    console.log('=== initMap called ===');
+    console.log('Google Maps API loaded:', typeof google !== 'undefined' && typeof google.maps !== 'undefined');
+    console.log('Properties data:', window.propertiesData ? window.propertiesData.length + ' properties' : 'none');
+    
+    const mapContainer = document.getElementById('googleMap');
+    if (!mapContainer) {
+        console.error('❌ Map container (#googleMap) not found in DOM');
+        return;
+    }
+    
+    console.log('Map container found:', mapContainer);
+    console.log('Map container visible:', mapContainer.offsetParent !== null);
+    console.log('Map container dimensions:', mapContainer.offsetWidth + 'x' + mapContainer.offsetHeight);
+    
+    // Wait a bit if container is not visible
+    if (mapContainer.offsetParent === null) {
+        console.log('⏳ Map container is hidden, will initialize when shown');
+        return;
+    }
+    
+    // Get map center from properties or use default
+    let centerLat = <?php echo esc_js($map_center_lat); ?>;
+    let centerLng = <?php echo esc_js($map_center_lng); ?>;
+    
+    // If properties exist, center map on them
+    if (window.propertiesData && window.propertiesData.length > 0) {
+        console.log('📍 Centering map on properties');
+        let bounds = new google.maps.LatLngBounds();
+        window.propertiesData.forEach(function(property) {
+            bounds.extend(new google.maps.LatLng(property.lat, property.lng));
+        });
+        centerLat = bounds.getCenter().lat();
+        centerLng = bounds.getCenter().lng();
+        console.log('Map center:', centerLat, centerLng);
+    } else {
+        console.log('📌 No properties with coordinates, using default center');
+    }
+    
+    try {
+        console.log('🗺️ Creating Google Map...');
+        // Create map
+        window.map = new google.maps.Map(mapContainer, {
+            center: { lat: centerLat, lng: centerLng },
+            zoom: <?php echo esc_js($map_zoom); ?>,
+            mapTypeControl: true,
+            streetViewControl: true,
+            fullscreenControl: true,
+            zoomControl: true,
+            styles: [
+                {
+                    featureType: 'poi',
+                    elementType: 'labels',
+                    stylers: [{ visibility: 'off' }]
+                }
+            ]
+        });
+        
+        console.log('✅ Google Map created successfully');
+        
+        // Fit bounds if properties exist
+        if (window.propertiesData && window.propertiesData.length > 0) {
+            let bounds = new google.maps.LatLngBounds();
+            window.propertiesData.forEach(function(property) {
+                bounds.extend(new google.maps.LatLng(property.lat, property.lng));
+            });
+            window.map.fitBounds(bounds);
+            console.log('📍 Map bounds adjusted to fit all properties');
+        }
+        
+        // Add markers for each property
+        addPropertyMarkers();
+        
+        window.mapInitialized = true;
+        console.log('✅ Google Map fully initialized with markers');
+    } catch (error) {
+        console.error('❌ Error initializing Google Map:', error);
+        console.error('Error details:', error.message, error.stack);
+    }
+};
+
+// Initialize Google Map
+function initializeGoogleMap() {
+    // Check if Google Maps API is loaded
+    if (typeof google === 'undefined' || typeof google.maps === 'undefined') {
+        console.log('Waiting for Google Maps API to load...');
+        // Wait for API to load
+        setTimeout(function() {
+            if (typeof google !== 'undefined' && typeof google.maps !== 'undefined') {
+                checkAndInitMap();
+            } else {
+                console.error('Google Maps API failed to load');
+            }
+        }, 1000);
+        return;
+    }
+    
+    checkAndInitMap();
+}
+
+// Check and initialize map
+function checkAndInitMap() {
+    const mapContainer = document.getElementById('googleMap');
+    if (!mapContainer) {
+        console.error('Map container not found');
+        return;
+    }
+    
+    // If map is visible, initialize it
+    if (mapContainer.offsetParent !== null && !window.map) {
+        window.initMap();
+    } else if (mapContainer.offsetParent === null) {
+        // Map is hidden, set up observer to initialize when shown
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mapContainer.offsetParent !== null && !window.map && typeof google !== 'undefined' && typeof google.maps !== 'undefined') {
+                    window.initMap();
+                    observer.disconnect();
+                }
+            });
+        });
+        
+        observer.observe(mapContainer, {
+            attributes: true,
+            attributeFilter: ['class'],
+            childList: false,
+            subtree: false
+        });
+    }
+}
+
+// Add property markers to map
+function addPropertyMarkers() {
+    if (!window.map || !window.propertiesData || window.propertiesData.length === 0) {
+        console.log('Cannot add markers: map or properties not available');
+        return;
+    }
+    
+    // Clear existing markers
+    window.markers.forEach(function(marker) {
+        marker.setMap(null);
+    });
+    window.markers = [];
+    window.infoWindows = [];
+    
+    window.propertiesData.forEach(function(property) {
+        // Create custom marker icon based on property status
+        const markerIcon = {
+            path: google.maps.SymbolPath.CIRCLE,
+            scale: 10,
+            fillColor: property.marker_color,
+            fillOpacity: 1,
+            strokeColor: '#ffffff',
+            strokeWeight: 2
+        };
+        
+        // Create marker
+        const marker = new google.maps.Marker({
+            position: { lat: property.lat, lng: property.lng },
+            map: window.map,
+            title: property.title,
+            icon: markerIcon,
+            animation: google.maps.Animation.DROP
+        });
+        
+        // Create info window content
+        const infoContent = `
+            <div class="property-info-window" style="min-width: 250px; padding: 10px;">
+                ${property.image ? `<img src="${property.image}" style="width: 100%; height: 150px; object-fit: cover; border-radius: 8px; margin-bottom: 10px;" alt="${property.title}">` : ''}
+                <h3 style="margin: 0 0 10px 0; font-size: 16px; font-weight: 600;">${property.title}</h3>
+                <p style="margin: 0 0 8px 0; font-size: 18px; font-weight: bold; color: #10b981;">${property.price}</p>
+                <div style="display: flex; gap: 15px; margin-bottom: 10px; font-size: 14px; color: #666;">
+                    ${property.bedrooms ? `<span>🛏️ ${property.bedrooms} beds</span>` : ''}
+                    ${property.bathrooms ? `<span>🚿 ${property.bathrooms} baths</span>` : ''}
+                    ${property.area_sqft ? `<span>📏 ${property.area_sqft.toLocaleString()} sq ft</span>` : ''}
+                </div>
+                <a href="${property.permalink}" target="_blank" style="display: inline-block; padding: 8px 16px; background: #10b981; color: white; text-decoration: none; border-radius: 6px; font-size: 14px; font-weight: 500; margin-top: 8px;">
+                    View Details →
+                </a>
+            </div>
+        `;
+        
+        // Create info window
+        const infoWindow = new google.maps.InfoWindow({
+            content: infoContent
+        });
+        
+        // Add click event to marker
+        marker.addListener('click', function() {
+            // Close all other info windows
+            window.infoWindows.forEach(function(iw) {
+                iw.close();
+            });
+            
+            // Open this info window
+            infoWindow.open(window.map, marker);
+            
+            // Highlight property card in list
+            highlightProperty(property.id);
+            
+            // Pan to marker
+            window.map.panTo(marker.getPosition());
+            
+            console.log('Property clicked:', property.title, 'ID:', property.id);
+        });
+        
+        window.markers.push(marker);
+        window.infoWindows.push(infoWindow);
+    });
+    
+    console.log('Added', window.markers.length, 'markers to map');
+}
+
+// Re-initialize map when shown
+function showMapView() {
+    const mapSection = document.querySelector('.map-section');
+    const listingsContainer = document.querySelector('.listings-container');
+    const viewButtons = document.querySelectorAll('.view-btn');
+    const mapToggleBtn = document.getElementById('mapToggleBtn');
+    
+    // Remove active class from all view buttons
+    viewButtons.forEach(btn => btn.classList.remove('active'));
+    
+    // Always show map view
+    mapSection.classList.remove('map-hidden');
+    mapSection.classList.add('map-visible');
+    listingsContainer.classList.add('map-visible');
+    
+    // Update button states
+    document.querySelector('.view-btn[onclick="showMapView()"]').classList.add('active');
+    if (mapToggleBtn) mapToggleBtn.classList.add('active');
+    
+    // Initialize map after a short delay to ensure container is visible
+    setTimeout(function() {
+        if (typeof google !== 'undefined' && typeof google.maps !== 'undefined') {
+            if (!window.map) {
+                console.log('Initializing map in showMapView');
+                window.initMap();
+            } else {
+                // Resize map to fix any display issues
+                google.maps.event.trigger(window.map, 'resize');
+                if (window.propertiesData && window.propertiesData.length > 0) {
+                    let bounds = new google.maps.LatLngBounds();
+                    window.propertiesData.forEach(function(property) {
+                        bounds.extend(new google.maps.LatLng(property.lat, property.lng));
+                    });
+                    window.map.fitBounds(bounds);
+                }
+            }
+        } else {
+            console.log('Google Maps API not loaded yet');
+        }
+    }, 200);
+    
+    console.log('Map view activated. Listings container classes:', listingsContainer.className);
+}
+
+// Update showMap function to also initialize map
+const originalShowMap = window.showMap;
+if (typeof originalShowMap === 'function') {
+    window.showMap = function() {
+        originalShowMap();
+        setTimeout(function() {
+            if (typeof google !== 'undefined' && typeof google.maps !== 'undefined') {
+                if (!window.map) {
+                    window.initMap();
+                } else {
+                    google.maps.event.trigger(window.map, 'resize');
+                }
+            }
+        }, 200);
+    };
+}
+</script>
+
+<!-- Google Maps JavaScript API - Load after page is ready -->
+<script>
+(function() {
+    console.log('=== Google Maps API Loader ===');
+    console.log('API Key exists:', typeof window.googleMapsApiKey !== 'undefined');
+    console.log('API Key value:', window.googleMapsApiKey ? (window.googleMapsApiKey.substring(0, 10) + '...') : 'NOT SET');
+    
+    if (typeof window.googleMapsApiKey === 'undefined' || !window.googleMapsApiKey) {
+        console.error('❌ Google Maps API key not set in window.googleMapsApiKey');
+        console.error('Please save your API key in WordPress Admin → RealEstate Booking Suite → Map Settings');
+        return;
+    }
+    
+    // Check if already loaded
+    if (typeof google !== 'undefined' && typeof google.maps !== 'undefined') {
+        console.log('✅ Google Maps API already loaded');
+        if (window.initMap && typeof window.initMap === 'function') {
+            window.initMap();
+        }
+        return;
+    }
+    
+    // Load Google Maps API
+    console.log('📡 Loading Google Maps API...');
+    const script = document.createElement('script');
+    const apiUrl = 'https://maps.googleapis.com/maps/api/js?key=' + window.googleMapsApiKey + '&callback=initMap&libraries=places';
+    console.log('API URL:', apiUrl.replace(window.googleMapsApiKey, 'KEY_HIDDEN'));
+    script.src = apiUrl;
+    script.async = true;
+    script.defer = true;
+    script.onload = function() {
+        console.log('✅ Google Maps API script loaded successfully');
+    };
+    script.onerror = function() {
+        console.error('❌ Failed to load Google Maps API');
+        console.error('Please check:');
+        console.error('1. Your API key is correct');
+        console.error('2. Maps JavaScript API is enabled in Google Cloud Console');
+        console.error('3. Your domain is whitelisted (if restricted)');
+        console.error('4. You have billing enabled in Google Cloud');
+    };
+    document.head.appendChild(script);
+    console.log('📝 Script tag added to document head');
+})();
+</script>
+<?php endif; ?>
 
 <?php wp_reset_postdata(); ?>
 
