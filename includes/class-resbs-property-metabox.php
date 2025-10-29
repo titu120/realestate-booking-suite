@@ -330,7 +330,7 @@ class RESBS_Property_Metabox {
                                 </div>
                                 <div class="resbs-card-title">
                                     <h3><?php esc_html_e('Property Classification', 'realestate-booking-suite'); ?></h3>
-                                    <p><?php esc_html_e('Basic property information and type', 'realestate-booking-suite'); ?></p>
+  
                                 </div>
                             </div>
                             <div class="resbs-card-body">
@@ -389,7 +389,6 @@ class RESBS_Property_Metabox {
                                 </div>
                                 <div class="resbs-card-title">
                                     <h3><?php esc_html_e('Property Pricing', 'realestate-booking-suite'); ?></h3>
-                                    <p><?php esc_html_e('Set property price and pricing details', 'realestate-booking-suite'); ?></p>
                                 </div>
                             </div>
                             <div class="resbs-card-body">
@@ -441,7 +440,6 @@ class RESBS_Property_Metabox {
                                 </div>
                                 <div class="resbs-card-title">
                                     <h3><?php esc_html_e('Property Specifications', 'realestate-booking-suite'); ?></h3>
-                                    <p><?php esc_html_e('Detailed property specifications and measurements', 'realestate-booking-suite'); ?></p>
                                 </div>
                             </div>
                             <div class="resbs-card-body">
@@ -539,7 +537,6 @@ class RESBS_Property_Metabox {
                                 </div>
                                 <div class="resbs-card-title">
                                     <h3><?php esc_html_e('Property Location', 'realestate-booking-suite'); ?></h3>
-                                    <p><?php esc_html_e('Address and location details', 'realestate-booking-suite'); ?></p>
                                 </div>
                             </div>
                             <div class="resbs-card-body">
@@ -652,7 +649,6 @@ class RESBS_Property_Metabox {
                                 </div>
                                 <div class="resbs-card-title">
                                     <h3><?php esc_html_e('Property Features & Amenities', 'realestate-booking-suite'); ?></h3>
-                                    <p><?php esc_html_e('Features, amenities, and property characteristics', 'realestate-booking-suite'); ?></p>
                                 </div>
                             </div>
                             <div class="resbs-card-body">
@@ -860,7 +856,6 @@ class RESBS_Property_Metabox {
                                 </div>
                                 <div class="resbs-card-title">
                                     <h3><?php esc_html_e('Property Media', 'realestate-booking-suite'); ?></h3>
-                                    <p><?php esc_html_e('Photos, videos, and virtual tours', 'realestate-booking-suite'); ?></p>
                                 </div>
                             </div>
                             <div class="resbs-card-body">
@@ -969,7 +964,7 @@ class RESBS_Property_Metabox {
                                 </div>
                                 <div class="resbs-card-title">
                                     <h3><?php esc_html_e('Property Agent', 'realestate-booking-suite'); ?></h3>
-                                    <p><?php esc_html_e('Agent information and contact details', 'realestate-booking-suite'); ?></p>
+     
                                 </div>
                             </div>
                             <div class="resbs-card-body">
@@ -1273,7 +1268,7 @@ class RESBS_Property_Metabox {
                                 </div>
                                 <div class="resbs-card-title">
                                     <h3><?php esc_html_e('Booking Settings', 'realestate-booking-suite'); ?></h3>
-                                    <p><?php esc_html_e('Configure booking availability and policies', 'realestate-booking-suite'); ?></p>
+
                                 </div>
                             </div>
                             <div class="resbs-card-body">

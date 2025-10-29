@@ -15,6 +15,10 @@ $min_bedrooms = isset($_GET['min_bedrooms']) ? intval($_GET['min_bedrooms']) : '
 $max_bedrooms = isset($_GET['max_bedrooms']) ? intval($_GET['max_bedrooms']) : '';
 $min_bathrooms = isset($_GET['min_bathrooms']) ? floatval($_GET['min_bathrooms']) : '';
 $max_bathrooms = isset($_GET['max_bathrooms']) ? floatval($_GET['max_bathrooms']) : '';
+$min_sqft = isset($_GET['min_sqft']) ? intval($_GET['min_sqft']) : '';
+$max_sqft = isset($_GET['max_sqft']) ? intval($_GET['max_sqft']) : '';
+$year_built = isset($_GET['year_built']) ? sanitize_text_field($_GET['year_built']) : '';
+$property_status = isset($_GET['property_status']) ? sanitize_text_field($_GET['property_status']) : '';
 $sort_by = isset($_GET['sort_by']) ? sanitize_text_field($_GET['sort_by']) : 'date';
 $paged = (get_query_var('paged')) ? get_query_var('paged') : 1;
 
@@ -95,6 +99,57 @@ if (!empty($min_bathrooms) || !empty($max_bathrooms)) {
     $args['meta_query'][] = $bathrooms_query;
 }
 
+// Add square feet filter (min and max)
+if (!empty($min_sqft) || !empty($max_sqft)) {
+    $sqft_query = array(
+        'key' => '_property_area_sqft',
+        'type' => 'NUMERIC',
+    );
+    
+    if (!empty($min_sqft) && !empty($max_sqft)) {
+        $sqft_query['value'] = array($min_sqft, $max_sqft);
+        $sqft_query['compare'] = 'BETWEEN';
+    } elseif (!empty($min_sqft)) {
+        $sqft_query['value'] = $min_sqft;
+        $sqft_query['compare'] = '>=';
+    } elseif (!empty($max_sqft)) {
+        $sqft_query['value'] = $max_sqft;
+        $sqft_query['compare'] = '<=';
+    }
+    
+    $args['meta_query'][] = $sqft_query;
+}
+
+// Add year built filter
+if (!empty($year_built)) {
+    $year_query = array(
+        'key' => '_property_year_built',
+        'type' => 'NUMERIC',
+    );
+    
+    if (strpos($year_built, '+') !== false) {
+        $year_value = intval(str_replace('+', '', $year_built));
+        $year_query['value'] = $year_value;
+        $year_query['compare'] = '>=';
+    } else {
+        $year_query['value'] = intval($year_built);
+        $year_query['compare'] = '=';
+    }
+    
+    $args['meta_query'][] = $year_query;
+}
+
+// Add property status filter
+if (!empty($property_status)) {
+    $args['tax_query'] = array(
+        array(
+            'taxonomy' => 'property_status',
+            'field' => 'slug',
+            'terms' => $property_status,
+        )
+    );
+}
+
 // Property type filter will be handled by database query below
 
 // Add sorting
@@ -143,6 +198,12 @@ $property_types = get_terms(array(
     'taxonomy' => 'property_type',
     'hide_empty' => false,
 ));
+
+// Get property statuses
+$property_statuses = get_terms(array(
+    'taxonomy' => 'property_status',
+    'hide_empty' => false,
+));
 ?>
 
 <div class="rbs-archive">
@@ -186,10 +247,6 @@ $property_types = get_terms(array(
                         <i class="fas fa-chevron-down"></i>
                     </button>
 
-                    <button type="button" onclick="toggleDropdown('locationDropdown')" class="filter-chip">
-                        <span>Location</span>
-                        <i class="fas fa-chevron-down"></i>
-                    </button>
 
                     <button type="button" onclick="toggleDropdown('moreFiltersDropdown')" class="filter-chip">
                         <span>More filters</span>
@@ -313,36 +370,6 @@ $property_types = get_terms(array(
                     </div>
                 </div>
 
-                <!-- Location Dropdown -->
-                <div id="locationDropdown" class="dropdown-content">
-                    <div class="checkbox-grid">
-                        <?php if ($property_locations && !is_wp_error($property_locations)): ?>
-                            <?php foreach ($property_locations as $location): ?>
-                                <label class="checkbox-item">
-                                    <input type="checkbox" name="property_location[]" value="<?php echo esc_attr($location->slug); ?>" <?php checked(in_array($location->slug, (array)$property_location), true); ?> onchange="submitForm()">
-                                    <span><?php echo esc_html($location->name); ?></span>
-                                </label>
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                        <label class="checkbox-item">
-                            <input type="checkbox" name="property_location[]" value="uttara-dhaka">
-                            <span>Uttara Dhaka</span>
-                        </label>
-                        <label class="checkbox-item">
-                            <input type="checkbox" name="property_location[]" value="badda">
-                            <span>Badda</span>
-                        </label>
-                        <label class="checkbox-item">
-                            <input type="checkbox" name="property_location[]" value="dhanmondi">
-                            <span>Dhanmondi</span>
-                        </label>
-                        <label class="checkbox-item">
-                            <input type="checkbox" name="property_location[]" value="gulshan">
-                            <span>Gulshan</span>
-                        </label>
-                        <?php endif; ?>
-                    </div>
-                </div>
 
                 <!-- More Filters Dropdown -->
                 <div id="moreFiltersDropdown" class="dropdown-content">
@@ -350,8 +377,8 @@ $property_types = get_terms(array(
                         <div>
                             <label class="dropdown-label">Square Feet</label>
                             <div class="flex" style="gap: 8px;">
-                                <input type="number" placeholder="Min" class="dropdown-input" name="min_sqft" value="<?php echo esc_attr($min_sqft); ?>" onchange="this.form.submit()">
-                                <input type="number" placeholder="Max" class="dropdown-input" name="max_sqft" value="<?php echo esc_attr($max_sqft); ?>" onchange="this.form.submit()">
+                                <input type="number" placeholder="Min" class="dropdown-input" name="min_sqft" value="<?php echo esc_attr($min_sqft); ?>">
+                                <input type="number" placeholder="Max" class="dropdown-input" name="max_sqft" value="<?php echo esc_attr($max_sqft); ?>">
                             </div>
                         </div>
                         <div>
@@ -379,6 +406,14 @@ $property_types = get_terms(array(
                             </select>
                         </div>
                     </div>
+                    <div class="filter-actions">
+                        <button type="submit" class="apply-filter-btn">
+                            <i class="fas fa-filter"></i> Apply Filter
+                        </button>
+                        <button type="button" class="clear-filter-btn" onclick="clearMoreFilters()">
+                            <i class="fas fa-times"></i> Clear
+                        </button>
+                    </div>
                 </div>
             </div>
             </form>
@@ -391,12 +426,12 @@ $property_types = get_terms(array(
         <div class="control-bar">
             <!-- Left Side -->
             <div class="view-controls">
-                <button onclick="toggleView('list')" class="view-btn">
+                <button onclick="toggleView('list')" class="view-btn active">
                     <i class="fas fa-list"></i>
                     <span>List View</span>
                 </button>
                 <div class="view-divider">|</div>
-                <button onclick="toggleView('map')" class="view-btn active">
+                <button onclick="toggleView('map')" class="view-btn">
                     <i class="fas fa-map-marked-alt"></i>
                     <span>Map View</span>
                 </button>
@@ -556,7 +591,7 @@ $property_types = get_terms(array(
             </div>
 
             <!-- Interactive Map -->
-            <div class="map-section">
+            <div class="map-section map-hidden">
                 <div class="map-container">
                     <div class="map-bg">
                         <!-- Map Controls -->
@@ -669,6 +704,125 @@ $property_types = get_terms(array(
 </div>
 
 <style>
+/* Main Layout Fixes */
+.rbs-archive {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.main-content {
+    flex: 1;
+    padding-bottom: 60px;
+}
+
+.listings-container {
+    margin-bottom: 40px;
+}
+
+.pagination-container {
+    margin-top: 40px;
+    margin-bottom: 40px;
+}
+
+/* Ensure proper spacing */
+.property-grid {
+    margin-bottom: 40px;
+}
+
+.no-properties-found {
+    padding: 60px 20px;
+    text-align: center;
+    background-color: #f9fafb;
+    border-radius: 12px;
+    margin: 40px 0;
+}
+
+.no-properties-found h3 {
+    color: #374151;
+    margin-bottom: 12px;
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.no-properties-found p {
+    color: #6b7280;
+    font-size: 16px;
+    margin: 0;
+}
+
+/* Additional spacing improvements */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Ensure proper footer spacing */
+body {
+    margin: 0;
+    padding: 0;
+}
+
+/* Map Visibility Controls */
+.map-section {
+    display: none; /* Hidden by default */
+    transition: all 0.3s ease;
+}
+
+.map-section.map-visible {
+    display: block;
+}
+
+.map-section.map-hidden {
+    display: none;
+}
+
+/* Layout adjustments when map is visible */
+.listings-container.map-visible {
+    display: flex;
+    gap: 20px;
+}
+
+.listings-container.map-visible .properties-list {
+    flex: 1;
+}
+
+.listings-container.map-visible .map-section {
+    flex: 1;
+    display: block;
+}
+
+/* Better responsive spacing */
+@media (max-width: 768px) {
+    .main-content {
+        padding-bottom: 40px;
+    }
+    
+    .listings-container {
+        margin-bottom: 30px;
+    }
+    
+    .pagination-container {
+        margin-top: 30px;
+        margin-bottom: 30px;
+    }
+    
+    .property-grid {
+        margin-bottom: 30px;
+    }
+    
+    /* Mobile map layout */
+    .listings-container.map-visible {
+        flex-direction: column;
+    }
+    
+    .listings-container.map-visible .map-section {
+        order: 2;
+        margin-top: 20px;
+    }
+}
+
 /* Filter Action Buttons */
 .filter-actions {
     display: flex;
@@ -798,6 +952,134 @@ function clearBathroomsFilter() {
     document.querySelector('input[name="max_bathrooms"]').value = '';
     document.getElementById('searchForm').submit();
 }
+
+// Clear more filters function
+function clearMoreFilters() {
+    document.querySelector('input[name="min_sqft"]').value = '';
+    document.querySelector('input[name="max_sqft"]').value = '';
+    document.querySelector('select[name="year_built"]').value = '';
+    document.querySelector('select[name="property_status"]').value = '';
+    document.getElementById('searchForm').submit();
+}
+
+// Map toggle functionality
+function toggleView(viewType) {
+    const mapSection = document.querySelector('.map-section');
+    const listingsContainer = document.querySelector('.listings-container');
+    const viewButtons = document.querySelectorAll('.view-btn');
+    const mapToggleBtn = document.getElementById('mapToggleBtn');
+    
+    // Remove active class from all view buttons
+    viewButtons.forEach(btn => btn.classList.remove('active'));
+    
+    if (viewType === 'map') {
+        // Show map view
+        mapSection.classList.remove('map-hidden');
+        mapSection.classList.add('map-visible');
+        listingsContainer.classList.add('map-visible');
+        
+        // Update button states
+        document.querySelector('.view-btn[onclick="toggleView(\'map\')"]').classList.add('active');
+        if (mapToggleBtn) mapToggleBtn.classList.add('active');
+    } else {
+        // Show list view
+        mapSection.classList.remove('map-visible');
+        mapSection.classList.add('map-hidden');
+        listingsContainer.classList.remove('map-visible');
+        
+        // Update button states
+        document.querySelector('.view-btn[onclick="toggleView(\'list\')"]').classList.add('active');
+        if (mapToggleBtn) mapToggleBtn.classList.remove('active');
+    }
+}
+
+// Show map function (for the map toggle button)
+function showMap() {
+    const mapSection = document.querySelector('.map-section');
+    const listingsContainer = document.querySelector('.listings-container');
+    const mapToggleBtn = document.getElementById('mapToggleBtn');
+    
+    if (mapSection.classList.contains('map-visible')) {
+        // Hide map
+        mapSection.classList.remove('map-visible');
+        mapSection.classList.add('map-hidden');
+        listingsContainer.classList.remove('map-visible');
+        if (mapToggleBtn) mapToggleBtn.classList.remove('active');
+        
+        // Update view buttons
+        document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelector('.view-btn[onclick="toggleView(\'list\')"]').classList.add('active');
+    } else {
+        // Show map
+        mapSection.classList.remove('map-hidden');
+        mapSection.classList.add('map-visible');
+        listingsContainer.classList.add('map-visible');
+        if (mapToggleBtn) mapToggleBtn.classList.add('active');
+        
+        // Update view buttons
+        document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelector('.view-btn[onclick="toggleView(\'map\')"]').classList.add('active');
+    }
+}
+
+// Show grid layout function
+function showGridLayout() {
+    const propertyGrid = document.getElementById('propertyGrid');
+    if (propertyGrid) {
+        propertyGrid.classList.remove('list-view');
+    }
+}
+
+// Highlight property function (for map markers)
+function highlightProperty(propertyId) {
+    // Remove active class from all property cards
+    document.querySelectorAll('.property-card').forEach(card => {
+        card.classList.remove('highlighted');
+    });
+    
+    // Add active class to selected property card
+    const selectedCard = document.querySelector(`[data-property-id="${propertyId}"]`);
+    if (selectedCard) {
+        selectedCard.classList.add('highlighted');
+        selectedCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    
+    // Update map marker states
+    document.querySelectorAll('.map-marker').forEach(marker => {
+        marker.classList.remove('active');
+    });
+    
+    const selectedMarker = document.querySelector(`.map-marker[data-property-id="${propertyId}"]`);
+    if (selectedMarker) {
+        selectedMarker.classList.add('active');
+    }
+}
+
+// Initialize map state on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const mapSection = document.querySelector('.map-section');
+    const listingsContainer = document.querySelector('.listings-container');
+    
+    // Ensure map starts hidden
+    if (mapSection) {
+        mapSection.classList.add('map-hidden');
+        mapSection.classList.remove('map-visible');
+    }
+    
+    // Ensure listings container starts in list view
+    if (listingsContainer) {
+        listingsContainer.classList.remove('map-visible');
+    }
+    
+    // Set initial button states
+    const listViewBtn = document.querySelector('.view-btn[onclick="toggleView(\'list\')"]');
+    const mapViewBtn = document.querySelector('.view-btn[onclick="toggleView(\'map\')"]');
+    const mapToggleBtn = document.getElementById('mapToggleBtn');
+    
+    if (listViewBtn) listViewBtn.classList.add('active');
+    if (mapViewBtn) mapViewBtn.classList.remove('active');
+    if (mapToggleBtn) mapToggleBtn.classList.remove('active');
+});
 </script>
 
 <?php wp_reset_postdata(); ?>

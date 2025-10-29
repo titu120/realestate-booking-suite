@@ -561,7 +561,13 @@
 
     .rbs-archive .property-card:hover {
         transform: translateY(-8px);
-        
+        box-shadow: 0 20px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .rbs-archive .property-card.highlighted {
+        transform: translateY(-8px);
+        box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.3), 0 20px 25px rgba(0, 0, 0, 0.15);
+        border-color: #0f766e;
     }
 
     .rbs-archive .property-image {
@@ -780,9 +786,7 @@
         border-radius: 16px;
         overflow: hidden;
         box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
-        height: calc(100vh - 300px);
-        position: sticky;
-        top: 100px;
+        height: 500px;
         transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         opacity: 0;
         transform: translateX(100%);
@@ -809,7 +813,7 @@
         opacity: 1;
         transform: translateX(0);
         width: auto;
-        height: calc(100vh - 300px);
+        height: 500px;
         margin: 0;
         padding: 0;
         overflow: visible;
