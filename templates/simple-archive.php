@@ -814,13 +814,14 @@ body {
 .listings-container.map-visible {
     display: flex;
     gap: 20px;
-    min-height: 60vh; /* Use viewport height instead of fixed height */
+    height: 85vh; /* Full height for map view */
+    min-height: 85vh;
 }
 
 .listings-container.map-visible .properties-list {
     flex: 1;
     overflow-y: auto; /* Make it scrollable */
-    max-height: 70vh; /* Use viewport height */
+    height: 100%; /* Full height */
     padding-right: 10px; /* Add some space for scrollbar */
 }
 
@@ -846,7 +847,15 @@ body {
 .listings-container.map-visible .map-section {
     flex: 1;
     display: block;
-    min-height: 60vh; /* Use viewport height */
+    height: 100%; /* Full height to match properties list */
+}
+
+.listings-container.map-visible .map-section .map-container {
+    height: 100%;
+}
+
+.listings-container.map-visible .map-section .map-bg {
+    height: 100%;
 }
 
 /* Responsive Grid Layout */
