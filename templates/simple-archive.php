@@ -433,7 +433,7 @@ $property_statuses = get_terms(array(
             <div class="view-controls">
                 <button onclick="showListView()" class="view-btn active">
                     <i class="fas fa-list"></i>
-                    <span>List View</span>
+                    <span>Grid View</span>
                 </button>
                 <div class="view-divider">|</div>
                 <button onclick="showMapView()" class="view-btn">
