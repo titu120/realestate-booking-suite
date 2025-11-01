@@ -85,10 +85,57 @@ class RESBS_Slider_Widget extends \Elementor\Widget_Base {
             array(
                 'label' => esc_html__('Layout', 'realestate-booking-suite'),
                 'type' => \Elementor\Controls_Manager::SELECT,
-                'default' => 'horizontal',
+                'default' => 'grid',
                 'options' => array(
-                    'horizontal' => esc_html__('Horizontal', 'realestate-booking-suite'),
-                    'vertical' => esc_html__('Vertical', 'realestate-booking-suite'),
+                    'grid' => esc_html__('Grid', 'realestate-booking-suite'),
+                    'horizontal' => esc_html__('Horizontal Slider', 'realestate-booking-suite'),
+                    'vertical' => esc_html__('Vertical Slider', 'realestate-booking-suite'),
+                ),
+            )
+        );
+
+        $this->add_control(
+            'columns',
+            array(
+                'label' => esc_html__('Columns', 'realestate-booking-suite'),
+                'type' => \Elementor\Controls_Manager::SELECT,
+                'default' => '3',
+                'options' => array(
+                    '1' => esc_html__('1 Column', 'realestate-booking-suite'),
+                    '2' => esc_html__('2 Columns', 'realestate-booking-suite'),
+                    '3' => esc_html__('3 Columns', 'realestate-booking-suite'),
+                    '4' => esc_html__('4 Columns', 'realestate-booking-suite'),
+                ),
+                'condition' => array(
+                    'layout' => 'grid',
+                ),
+            )
+        );
+
+        $this->add_control(
+            'grid_gap',
+            array(
+                'label' => esc_html__('Grid Gap', 'realestate-booking-suite'),
+                'type' => \Elementor\Controls_Manager::SLIDER,
+                'size_units' => array('px', 'rem'),
+                'range' => array(
+                    'px' => array(
+                        'min' => 0,
+                        'max' => 100,
+                        'step' => 1,
+                    ),
+                    'rem' => array(
+                        'min' => 0,
+                        'max' => 6,
+                        'step' => 0.1,
+                    ),
+                ),
+                'default' => array(
+                    'unit' => 'rem',
+                    'size' => 1.5,
+                ),
+                'condition' => array(
+                    'layout' => 'grid',
                 ),
             )
         );
@@ -308,6 +355,8 @@ class RESBS_Slider_Widget extends \Elementor\Widget_Base {
         
         $title = sanitize_text_field($settings['title']);
         $layout = sanitize_text_field($settings['layout']);
+        $columns = isset($settings['columns']) ? intval($settings['columns']) : 3;
+        $grid_gap = isset($settings['grid_gap']['size']) ? $settings['grid_gap']['size'] . $settings['grid_gap']['unit'] : '1.5rem';
         $posts_per_page = intval($settings['posts_per_page']);
         $slides_to_show = intval($settings['slides_to_show']);
         $autoplay = $settings['autoplay'] === 'yes';
@@ -384,39 +433,317 @@ class RESBS_Slider_Widget extends \Elementor\Widget_Base {
                  'show_arrows' => $show_arrows,
                  'show_dots' => $show_dots,
                  'infinite_loop' => $infinite_loop,
-                 'layout' => $layout
+                 'layout' => $layout,
+                 'columns' => $columns
              ))); ?>">
             
             <?php if (!empty($title)): ?>
-                <h3 class="resbs-slider-title"><?php echo esc_html($title); ?></h3>
+                <div class="resbs-slider-header">
+                    <h3 class="resbs-slider-title"><?php echo esc_html($title); ?></h3>
+                    <?php if ($layout !== 'grid' && $show_arrows): ?>
+                        <div class="resbs-slider-nav">
+                            <button type="button" class="resbs-slider-arrow resbs-slider-prev">
+                                <span class="dashicons dashicons-arrow-left-alt2"></span>
+                            </button>
+                            <button type="button" class="resbs-slider-arrow resbs-slider-next">
+                                <span class="dashicons dashicons-arrow-right-alt2"></span>
+                            </button>
+                        </div>
+                    <?php endif; ?>
+                </div>
             <?php endif; ?>
             
-            <div class="resbs-slider-container">
-                <?php if ($show_arrows): ?>
-                    <button type="button" class="resbs-slider-arrow resbs-slider-prev">
-                        <span class="dashicons dashicons-arrow-left-alt2"></span>
-                    </button>
-                    <button type="button" class="resbs-slider-arrow resbs-slider-next">
-                        <span class="dashicons dashicons-arrow-right-alt2"></span>
-                    </button>
-                <?php endif; ?>
-                
-                <div class="resbs-slider-track">
+            <?php if ($layout === 'grid'): ?>
+                <div class="resbs-slider-grid" style="grid-template-columns: repeat(<?php echo esc_attr($columns); ?>, 1fr); gap: <?php echo esc_attr($grid_gap); ?>;">
                     <?php if ($properties->have_posts()): ?>
                         <?php while ($properties->have_posts()): $properties->the_post(); ?>
-                            <div class="resbs-slider-slide">
-                                <?php $this->render_property_card(); ?>
-                            </div>
+                            <?php $this->render_property_card_grid(); ?>
                         <?php endwhile; ?>
                         <?php wp_reset_postdata(); ?>
                     <?php else: ?>
                         <p class="resbs-no-properties"><?php esc_html_e('No properties found.', 'realestate-booking-suite'); ?></p>
                     <?php endif; ?>
                 </div>
-                
-                <?php if ($show_dots): ?>
-                    <div class="resbs-slider-dots"></div>
+            <?php else: ?>
+                <div class="resbs-slider-container">
+                    <?php if ($show_arrows && empty($title)): ?>
+                        <button type="button" class="resbs-slider-arrow resbs-slider-prev">
+                            <span class="dashicons dashicons-arrow-left-alt2"></span>
+                        </button>
+                        <button type="button" class="resbs-slider-arrow resbs-slider-next">
+                            <span class="dashicons dashicons-arrow-right-alt2"></span>
+                        </button>
+                    <?php endif; ?>
+                    
+                    <div class="resbs-slider-track">
+                        <?php if ($properties->have_posts()): ?>
+                            <?php while ($properties->have_posts()): $properties->the_post(); ?>
+                                <div class="resbs-slider-slide">
+                                    <?php $this->render_property_card(); ?>
+                                </div>
+                            <?php endwhile; ?>
+                            <?php wp_reset_postdata(); ?>
+                        <?php else: ?>
+                            <p class="resbs-no-properties"><?php esc_html_e('No properties found.', 'realestate-booking-suite'); ?></p>
+                        <?php endif; ?>
+                    </div>
+                    
+                    <?php if ($show_dots): ?>
+                        <div class="resbs-slider-dots"></div>
+                    <?php endif; ?>
+                </div>
+            <?php endif; ?>
+        </div>
+        
+        <?php if ($layout === 'grid'): ?>
+        <style>
+            /* Grid Layout */
+            #<?php echo esc_attr($widget_id); ?> .resbs-slider-grid {
+                display: grid !important;
+                width: 100% !important;
+            }
+            
+            @media (max-width: 1024px) {
+                #<?php echo esc_attr($widget_id); ?> .resbs-slider-grid {
+                    grid-template-columns: repeat(2, 1fr) !important;
+                }
+            }
+            
+            @media (max-width: 768px) {
+                #<?php echo esc_attr($widget_id); ?> .resbs-slider-grid {
+                    grid-template-columns: 1fr !important;
+                }
+            }
+            
+            /* Header */
+            #<?php echo esc_attr($widget_id); ?> .resbs-slider-header {
+                display: flex !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+                margin-bottom: 1.5rem !important;
+            }
+            
+            #<?php echo esc_attr($widget_id); ?> .resbs-slider-title {
+                font-size: 1.5rem !important;
+                font-weight: 700 !important;
+                color: #111827 !important;
+                margin: 0 !important;
+            }
+            
+            #<?php echo esc_attr($widget_id); ?> .resbs-slider-nav {
+                display: flex !important;
+                gap: 0.5rem !important;
+            }
+            
+            #<?php echo esc_attr($widget_id); ?> .resbs-slider-arrow {
+                width: 36px !important;
+                height: 36px !important;
+                border: 1px solid #e5e7eb !important;
+                background: #ffffff !important;
+                border-radius: 0.375rem !important;
+                cursor: pointer !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                transition: all 0.2s !important;
+            }
+            
+            #<?php echo esc_attr($widget_id); ?> .resbs-slider-arrow:hover {
+                background: #f3f4f6 !important;
+                border-color: #d1d5db !important;
+            }
+            
+            #<?php echo esc_attr($widget_id); ?> .resbs-slider-arrow .dashicons {
+                font-size: 18px !important;
+                color: #374151 !important;
+            }
+            
+            /* Property Card */
+            #<?php echo esc_attr($widget_id); ?> .property-card {
+                border: 1px solid #e5e7eb !important;
+                border-radius: 0.5rem !important;
+                overflow: hidden !important;
+                transition: all 0.3s !important;
+                display: block !important;
+                background: #ffffff !important;
+            }
+            
+            #<?php echo esc_attr($widget_id); ?> .property-card:hover {
+                transform: translateY(-5px) !important;
+                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1) !important;
+            }
+            
+            /* Property Image */
+            #<?php echo esc_attr($widget_id); ?> .property-image {
+                position: relative !important;
+                display: block !important;
+            }
+            
+            #<?php echo esc_attr($widget_id); ?> .property-image img {
+                width: 100% !important;
+                height: 12rem !important;
+                object-fit: cover !important;
+                display: block !important;
+            }
+            
+            #<?php echo esc_attr($widget_id); ?> .property-image .bg-gray-200 {
+                background-color: #e5e7eb !important;
+                height: 12rem !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                width: 100% !important;
+            }
+            
+            /* Property Badge */
+            #<?php echo esc_attr($widget_id); ?> .property-badge {
+                position: absolute !important;
+                top: 0.75rem !important;
+                left: 0.75rem !important;
+                background-color: #10b981 !important;
+                color: #ffffff !important;
+                padding: 0.25rem 0.75rem !important;
+                border-radius: 9999px !important;
+                font-size: 0.75rem !important;
+                font-weight: 600 !important;
+                display: inline-block !important;
+                text-transform: uppercase !important;
+            }
+            
+            /* Property Info */
+            #<?php echo esc_attr($widget_id); ?> .property-info {
+                padding: 1rem !important;
+                display: block !important;
+            }
+            
+            /* Property Card Title */
+            #<?php echo esc_attr($widget_id); ?> .property-card-title {
+                font-size: 1.125rem !important;
+                font-weight: 700 !important;
+                margin-bottom: 0.5rem !important;
+                display: block !important;
+                line-height: 1.5 !important;
+            }
+            
+            #<?php echo esc_attr($widget_id); ?> .property-card-title a {
+                color: #111827 !important;
+                text-decoration: none !important;
+                transition: color 0.3s !important;
+            }
+            
+            #<?php echo esc_attr($widget_id); ?> .property-card-title a:hover {
+                color: #10b981 !important;
+            }
+            
+            /* Property Card Location */
+            #<?php echo esc_attr($widget_id); ?> .property-card-location {
+                color: #6b7280 !important;
+                font-size: 0.875rem !important;
+                margin-bottom: 0.75rem !important;
+                display: flex !important;
+                align-items: center !important;
+                gap: 0.5rem !important;
+                line-height: 1.5 !important;
+            }
+            
+            #<?php echo esc_attr($widget_id); ?> .property-card-location i {
+                color: #10b981 !important;
+            }
+            
+            /* Property Card Price */
+            #<?php echo esc_attr($widget_id); ?> .property-card-price {
+                font-size: 1.5rem !important;
+                font-weight: 700 !important;
+                color: #10b981 !important;
+                margin-bottom: 0.75rem !important;
+                display: block !important;
+                line-height: 1.5 !important;
+            }
+            
+            /* Property Card Features */
+            #<?php echo esc_attr($widget_id); ?> .property-card-features {
+                display: flex !important;
+                align-items: center !important;
+                gap: 1rem !important;
+                font-size: 0.875rem !important;
+                color: #6b7280 !important;
+                border-top: 1px solid #e5e7eb !important;
+                padding-top: 0.75rem !important;
+                flex-wrap: wrap !important;
+            }
+            
+            #<?php echo esc_attr($widget_id); ?> .property-card-features span {
+                display: inline-flex !important;
+                align-items: center !important;
+                gap: 0.25rem !important;
+            }
+            
+            #<?php echo esc_attr($widget_id); ?> .property-card-features i {
+                color: #6b7280 !important;
+            }
+        </style>
+        <?php endif; ?>
+        <?php
+    }
+
+    /**
+     * Render property card for grid layout
+     */
+    private function render_property_card_grid() {
+        $property_id = get_the_ID();
+        $price = get_post_meta($property_id, '_property_price', true);
+        $bedrooms = get_post_meta($property_id, '_property_bedrooms', true);
+        $bathrooms = get_post_meta($property_id, '_property_bathrooms', true);
+        $area_sqft = get_post_meta($property_id, '_property_area_sqft', true);
+        $city = get_post_meta($property_id, '_property_city', true);
+        $state = get_post_meta($property_id, '_property_state', true);
+        $property_status_meta = get_post_meta($property_id, '_property_status', true);
+        $featured_image = get_the_post_thumbnail_url($property_id, 'medium');
+        
+        $formatted_price = $price ? '$' . number_format($price) : 'Price on request';
+        $location = trim($city . ', ' . $state, ', ');
+        ?>
+        
+        <div class="property-card">
+            <div class="property-image">
+                <?php if ($featured_image): ?>
+                    <a href="<?php echo esc_url(get_permalink($property_id)); ?>">
+                        <img src="<?php echo esc_url($featured_image); ?>" alt="<?php echo esc_attr(get_the_title()); ?>">
+                    </a>
+                <?php else: ?>
+                    <div class="bg-gray-200 h-48 flex items-center justify-center">
+                        <i class="fas fa-home text-gray-400 text-4xl"></i>
+                    </div>
                 <?php endif; ?>
+                
+                <?php if ($property_status_meta): ?>
+                    <span class="property-badge"><?php echo esc_html($property_status_meta); ?></span>
+                <?php endif; ?>
+            </div>
+            <div class="property-info">
+                <h4 class="property-card-title">
+                    <a href="<?php echo esc_url(get_permalink($property_id)); ?>" class="hover:text-emerald-600 transition-colors">
+                        <?php echo esc_html(get_the_title()); ?>
+                    </a>
+                </h4>
+                <?php if ($location): ?>
+                    <p class="property-card-location">
+                        <i class="fas fa-map-marker-alt text-emerald-500"></i>
+                        <?php echo esc_html($location); ?>
+                    </p>
+                <?php endif; ?>
+                <div class="property-card-price"><?php echo esc_html($formatted_price); ?></div>
+                <div class="property-card-features">
+                    <?php if ($bedrooms): ?>
+                        <span><i class="fas fa-bed mr-1"></i><?php echo esc_html($bedrooms); ?> Bed<?php echo $bedrooms != 1 ? 's' : ''; ?></span>
+                    <?php endif; ?>
+                    <?php if ($bathrooms): ?>
+                        <span><i class="fas fa-bath mr-1"></i><?php echo esc_html($bathrooms); ?> Bath<?php echo $bathrooms != 1 ? 's' : ''; ?></span>
+                    <?php endif; ?>
+                    <?php if ($area_sqft): ?>
+                        <span><i class="fas fa-ruler-combined mr-1"></i><?php echo esc_html($area_sqft); ?> sqft</span>
+                    <?php endif; ?>
+                </div>
             </div>
         </div>
         <?php
