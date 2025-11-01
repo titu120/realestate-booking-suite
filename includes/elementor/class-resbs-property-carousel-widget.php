@@ -10,6 +10,16 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// Ensure Elementor Widget_Base class is available
+if (!class_exists('\Elementor\Widget_Base')) {
+    return;
+}
+
+// Prevent class redeclaration
+if (class_exists('RESBS_Property_Carousel_Widget')) {
+    return;
+}
+
 class RESBS_Property_Carousel_Widget extends \Elementor\Widget_Base {
 
     /**

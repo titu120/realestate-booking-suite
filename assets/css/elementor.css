@@ -1,17 +1,59 @@
 /* Elementor Widget Styles */
+/* IMPORTANT: Use high specificity to override Elementor default styles */
+
+/* Global Reset for Elementor Widgets */
+.elementor-widget-resbs-property-grid *,
+.elementor-widget-resbs-property-carousel *,
+.elementor-widget-resbs-search *,
+.elementor-widget-resbs-slider *,
+.elementor-widget-resbs-request-form *,
+.elementor-widget-resbs-listings *,
+.elementor-widget-resbs-authentication *,
+.elementor-widget-resbs-half-map * {
+    box-sizing: border-box !important;
+}
+
+/* Target Elementor widget containers specifically */
+.elementor-widget-resbs-property-grid,
+.elementor-widget-resbs-property-carousel,
+.elementor-widget-resbs-search,
+.elementor-widget-resbs-slider,
+.elementor-widget-resbs-request-form,
+.elementor-widget-resbs-listings,
+.elementor-widget-resbs-authentication,
+.elementor-widget-resbs-half-map,
+.elementor-element[data-widget_type*="resbs"] {
+    width: 100% !important;
+}
+
+.elementor-widget-resbs-property-grid .elementor-widget-container,
+.elementor-widget-resbs-property-carousel .elementor-widget-container,
+.elementor-widget-resbs-search .elementor-widget-container,
+.elementor-widget-resbs-slider .elementor-widget-container,
+.elementor-widget-resbs-request-form .elementor-widget-container,
+.elementor-widget-resbs-listings .elementor-widget-container,
+.elementor-widget-resbs-authentication .elementor-widget-container,
+.elementor-widget-resbs-half-map .elementor-widget-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+}
 
 /* Property Grid Widget */
-.resbs-elementor-property-grid {
-    width: 100%;
+.resbs-elementor-property-grid,
+.elementor-widget-resbs-property-grid .resbs-elementor-property-grid {
+    width: 100% !important;
 }
 
 /* Filters */
-.resbs-filters {
-    background: #f8f9fa;
-    padding: 20px;
-    border-radius: 8px;
-    margin-bottom: 30px;
-    border: 1px solid #e9ecef;
+.resbs-filters,
+.elementor-widget-resbs-property-grid .resbs-filters {
+    background: #f8f9fa !important;
+    padding: 20px !important;
+    border-radius: 8px !important;
+    margin-bottom: 30px !important;
+    border: 1px solid #e9ecef !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
 }
 
 .resbs-filter-row {
@@ -86,44 +128,67 @@
     background: #5a6268;
 }
 
-/* Property Grid */
-.resbs-property-grid {
-    display: grid;
-    gap: 20px;
-    margin-bottom: 30px;
+/* Property Grid - High specificity */
+.resbs-property-grid,
+.elementor-widget-resbs-property-grid .resbs-property-grid,
+.elementor-widget-resbs-listings-widget .resbs-properties-container {
+    display: grid !important;
+    gap: 25px !important;
+    margin-bottom: 30px !important;
+    width: 100% !important;
 }
 
-.resbs-grid-2-cols {
-    grid-template-columns: repeat(2, 1fr);
+.resbs-grid-2-cols,
+.elementor-widget-resbs-property-grid .resbs-grid-2-cols {
+    grid-template-columns: repeat(2, 1fr) !important;
 }
 
-.resbs-grid-3-cols {
-    grid-template-columns: repeat(3, 1fr);
+.resbs-grid-3-cols,
+.elementor-widget-resbs-property-grid .resbs-grid-3-cols {
+    grid-template-columns: repeat(3, 1fr) !important;
 }
 
-.resbs-grid-4-cols {
-    grid-template-columns: repeat(4, 1fr);
+.resbs-grid-4-cols,
+.elementor-widget-resbs-property-grid .resbs-grid-4-cols {
+    grid-template-columns: repeat(4, 1fr) !important;
 }
 
-/* Property Card */
-.resbs-property-card {
-    background: white;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-    position: relative;
+/* Property Card - High specificity for Elementor */
+.resbs-property-card,
+.elementor-widget-resbs-property-grid .resbs-property-card,
+.elementor-widget-resbs-property-carousel .resbs-property-card,
+.elementor-widget-resbs-listings-widget .resbs-property-card,
+.elementor-element .resbs-property-card {
+    background: white !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+    transition: all 0.3s ease !important;
+    position: relative !important;
+    margin-bottom: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important;
 }
 
-.resbs-property-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+.resbs-property-card:hover,
+.elementor-widget-resbs-property-grid .resbs-property-card:hover,
+.elementor-widget-resbs-property-carousel .resbs-property-card:hover,
+.elementor-widget-resbs-listings-widget .resbs-property-card:hover {
+    transform: translateY(-5px) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important;
 }
 
-.resbs-property-image {
-    position: relative;
-    overflow: hidden;
-    height: 200px;
+.resbs-property-image,
+.elementor-widget-resbs-property-grid .resbs-property-image,
+.elementor-widget-resbs-property-carousel .resbs-property-image,
+.elementor-widget-resbs-listings-widget .resbs-property-image {
+    position: relative !important;
+    overflow: hidden !important;
+    height: 220px !important;
+    background: #f8f9fa !important;
+    width: 100% !important;
+    display: block !important;
 }
 
 .resbs-property-image img {
@@ -225,15 +290,24 @@
     background: #005a87;
 }
 
-.resbs-property-content {
-    padding: 20px;
+.resbs-property-content,
+.elementor-widget-resbs-property-grid .resbs-property-content,
+.elementor-widget-resbs-property-carousel .resbs-property-content,
+.elementor-widget-resbs-listings-widget .resbs-property-content {
+    padding: 20px !important;
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
 }
 
-.resbs-property-title {
-    margin: 0 0 10px 0;
-    font-size: 18px;
-    font-weight: 600;
-    line-height: 1.4;
+.resbs-property-title,
+.elementor-widget-resbs-property-grid .resbs-property-title,
+.elementor-widget-resbs-property-carousel .resbs-property-title,
+.elementor-widget-resbs-listings-widget .resbs-property-title {
+    margin: 0 0 10px 0 !important;
+    font-size: 18px !important;
+    font-weight: 600 !important;
+    line-height: 1.4 !important;
 }
 
 .resbs-property-title a {
@@ -246,11 +320,14 @@
     color: #007cba;
 }
 
-.resbs-property-price {
-    font-size: 20px;
-    font-weight: 700;
-    color: #28a745;
-    margin-bottom: 15px;
+.resbs-property-price,
+.elementor-widget-resbs-property-grid .resbs-property-price,
+.elementor-widget-resbs-property-carousel .resbs-property-price,
+.elementor-widget-resbs-listings-widget .resbs-property-price {
+    font-size: 22px !important;
+    font-weight: 700 !important;
+    color: #28a745 !important;
+    margin-bottom: 15px !important;
 }
 
 .resbs-property-meta {
@@ -285,29 +362,40 @@
     flex-wrap: wrap;
 }
 
-.resbs-btn {
-    padding: 8px 16px;
-    border: none;
-    border-radius: 6px;
-    font-size: 14px;
-    font-weight: 600;
-    text-decoration: none;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
+.resbs-btn,
+.elementor-widget-resbs-property-grid .resbs-btn,
+.elementor-widget-resbs-property-carousel .resbs-btn,
+.elementor-widget-resbs-listings-widget .resbs-btn {
+    padding: 10px 20px !important;
+    border: none !important;
+    border-radius: 6px !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    text-decoration: none !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 5px !important;
+    text-align: center !important;
 }
 
-.resbs-btn-primary {
-    background: #007cba;
-    color: white;
+.resbs-btn-primary,
+.elementor-widget-resbs-property-grid .resbs-btn-primary,
+.elementor-widget-resbs-property-carousel .resbs-btn-primary,
+.elementor-widget-resbs-listings-widget .resbs-btn-primary {
+    background: #007cba !important;
+    color: white !important;
 }
 
-.resbs-btn-primary:hover {
-    background: #005a87;
-    color: white;
-    text-decoration: none;
+.resbs-btn-primary:hover,
+.elementor-widget-resbs-property-grid .resbs-btn-primary:hover,
+.elementor-widget-resbs-property-carousel .resbs-btn-primary:hover,
+.elementor-widget-resbs-listings-widget .resbs-btn-primary:hover {
+    background: #005a87 !important;
+    color: white !important;
+    text-decoration: none !important;
 }
 
 .resbs-btn-secondary {
@@ -1036,4 +1124,1104 @@
 @keyframes resbs-slideOut {
     from { opacity: 1; transform: translateX(0); }
     to { opacity: 0; transform: translateX(-30px); }
+}
+
+/* ============================================
+   SEARCH WIDGET STYLES
+   ============================================ */
+.resbs-search-widget,
+.elementor-widget-resbs-search .resbs-search-widget,
+.elementor-widget-resbs-search-widget .resbs-search-widget {
+    width: 100% !important;
+    margin-bottom: 30px !important;
+}
+
+.resbs-search-form,
+.elementor-widget-resbs-search .resbs-search-form,
+.elementor-widget-resbs-search-widget .resbs-search-form {
+    background: #ffffff !important;
+    border-radius: 12px !important;
+    padding: 30px !important;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08) !important;
+    border: 1px solid #e9ecef !important;
+    margin: 0 !important;
+}
+
+.resbs-search-title {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0 0 25px 0;
+    color: #333;
+}
+
+.resbs-search-fields {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.resbs-search-field {
+    display: flex;
+    flex-direction: column;
+}
+
+.resbs-search-field label {
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #333;
+    font-size: 14px;
+}
+
+.resbs-search-input,
+.resbs-search-select,
+.elementor-widget-resbs-search .resbs-search-input,
+.elementor-widget-resbs-search .resbs-search-select,
+.elementor-widget-resbs-search-widget .resbs-search-input,
+.elementor-widget-resbs-search-widget .resbs-search-select {
+    padding: 12px 15px !important;
+    border: 1px solid #ddd !important;
+    border-radius: 8px !important;
+    font-size: 14px !important;
+    background: white !important;
+    transition: all 0.3s ease !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
+    margin: 0 !important;
+}
+
+.resbs-search-input:focus,
+.resbs-search-select:focus {
+    outline: none;
+    border-color: #007cba;
+    box-shadow: 0 0 0 3px rgba(0, 124, 186, 0.1);
+}
+
+.resbs-input-group {
+    display: flex;
+    gap: 5px;
+}
+
+.resbs-input-group .resbs-search-input {
+    flex: 1;
+}
+
+.resbs-search-location-btn {
+    padding: 12px 15px;
+    background: #007cba;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.resbs-search-location-btn:hover {
+    background: #005a87;
+}
+
+.resbs-search-field-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.resbs-search-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+}
+
+.resbs-search-btn,
+.resbs-search-reset-btn,
+.elementor-widget-resbs-search .resbs-search-btn,
+.elementor-widget-resbs-search .resbs-search-reset-btn,
+.elementor-widget-resbs-search-widget .resbs-search-btn,
+.elementor-widget-resbs-search-widget .resbs-search-reset-btn {
+    padding: 14px 30px !important;
+    border: none !important;
+    border-radius: 8px !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    flex: 1 !important;
+    min-width: 150px !important;
+    display: inline-block !important;
+    text-align: center !important;
+    line-height: 1.5 !important;
+}
+
+.resbs-search-btn,
+.elementor-widget-resbs-search-widget .resbs-search-btn {
+    background: #007cba !important;
+    color: white !important;
+}
+
+.resbs-search-btn:hover,
+.elementor-widget-resbs-search-widget .resbs-search-btn:hover {
+    background: #005a87 !important;
+}
+
+.resbs-search-reset-btn,
+.elementor-widget-resbs-search-widget .resbs-search-reset-btn {
+    background: #6c757d !important;
+    color: white !important;
+}
+
+.resbs-search-reset-btn:hover,
+.elementor-widget-resbs-search-widget .resbs-search-reset-btn:hover {
+    background: #5a6268 !important;
+}
+
+/* ============================================
+   LISTINGS WIDGET STYLES
+   ============================================ */
+.resbs-listings-widget,
+.elementor-widget-resbs-listings .resbs-listings-widget,
+.elementor-widget-resbs-listings-widget .resbs-listings-widget {
+    width: 100% !important;
+}
+
+.resbs-listings-navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 12px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.resbs-listings-title {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0;
+    color: #333;
+}
+
+.resbs-listings-count {
+    color: #6c757d;
+    font-size: 14px;
+}
+
+.resbs-listings-controls {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.resbs-sort-control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.resbs-sort-control label {
+    font-weight: 600;
+    color: #333;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.resbs-sort-select {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background: white;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.resbs-view-toggle {
+    display: flex;
+    gap: 5px;
+    background: white;
+    padding: 4px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+
+.resbs-view-btn {
+    padding: 8px 12px;
+    border: none;
+    background: transparent;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #6c757d;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.resbs-view-btn:hover {
+    background: #f8f9fa;
+    color: #007cba;
+}
+
+.resbs-view-btn.active {
+    background: #007cba;
+    color: white;
+}
+
+.resbs-listings-content.resbs-layout-grid .resbs-properties-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 25px;
+}
+
+.resbs-listings-content.resbs-layout-list .resbs-properties-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.resbs-listings-content.resbs-layout-list .resbs-property-card {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+}
+
+.resbs-listings-content.resbs-layout-list .resbs-property-image {
+    flex: 0 0 300px;
+    height: 200px;
+}
+
+.resbs-listings-content.resbs-layout-list .resbs-property-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.resbs-property-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.resbs-property-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.resbs-property-image {
+    position: relative;
+    overflow: hidden;
+    height: 220px;
+    background: #f8f9fa;
+}
+
+.resbs-placeholder-image {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.resbs-placeholder-image .dashicons {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+}
+
+.resbs-property-badges {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    z-index: 5;
+}
+
+.resbs-badge-status {
+    background: #17a2b8;
+}
+
+.resbs-property-actions {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #e9ecef;
+}
+
+.resbs-property-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.resbs-property-card:hover .resbs-property-image img {
+    transform: scale(1.05);
+}
+
+.resbs-property-location {
+    color: #6c757d;
+    font-size: 13px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.resbs-property-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0 0 10px 0;
+    line-height: 1.4;
+}
+
+.resbs-property-title a {
+    color: #333;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.resbs-property-title a:hover {
+    color: #007cba;
+}
+
+.resbs-property-price {
+    font-size: 22px;
+    font-weight: 700;
+    color: #28a745;
+    margin-bottom: 15px;
+}
+
+.resbs-property-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 15px;
+    color: #6c757d;
+    font-size: 14px;
+}
+
+.resbs-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.resbs-meta-item .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+}
+
+.resbs-favorite-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.9);
+    color: #dc3545;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    z-index: 5;
+}
+
+.resbs-favorite-btn:hover {
+    background: #dc3545;
+    color: white;
+}
+
+.resbs-favorite-btn.active {
+    background: #dc3545;
+    color: white;
+}
+
+.resbs-listings-pagination {
+    margin-top: 30px;
+    display: flex;
+    justify-content: center;
+}
+
+.resbs-listings-pagination .page-numbers {
+    display: flex;
+    gap: 5px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.resbs-listings-pagination .page-numbers li {
+    margin: 0;
+}
+
+.resbs-listings-pagination .page-numbers a,
+.resbs-listings-pagination .page-numbers span {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    text-decoration: none;
+    color: #6c757d;
+    transition: all 0.3s ease;
+    display: block;
+}
+
+.resbs-listings-pagination .page-numbers a:hover {
+    background: #007cba;
+    border-color: #007cba;
+    color: white;
+}
+
+.resbs-listings-pagination .page-numbers .current {
+    background: #007cba;
+    border-color: #007cba;
+    color: white;
+}
+
+/* ============================================
+   REQUEST FORM WIDGET STYLES
+   ============================================ */
+.resbs-request-form-widget {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.resbs-request-form {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.resbs-request-title {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0 0 20px 0;
+    color: #333;
+    text-align: center;
+}
+
+.resbs-request-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.resbs-request-field {
+    display: flex;
+    flex-direction: column;
+}
+
+.resbs-request-field label {
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #333;
+    font-size: 14px;
+}
+
+.resbs-request-field input,
+.resbs-request-field textarea {
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    transition: border-color 0.3s ease;
+}
+
+.resbs-request-field input:focus,
+.resbs-request-field textarea:focus {
+    outline: none;
+    border-color: #007cba;
+    box-shadow: 0 0 0 3px rgba(0, 124, 186, 0.1);
+}
+
+.resbs-request-field textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+.resbs-request-footer {
+    text-align: center;
+}
+
+.resbs-request-disclaimer {
+    font-size: 12px;
+    color: #6c757d;
+    margin-bottom: 15px;
+}
+
+.resbs-request-submit-btn {
+    width: 100%;
+    padding: 14px 30px;
+    background: #007cba;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.resbs-request-submit-btn:hover {
+    background: #005a87;
+}
+
+/* ============================================
+   AUTHENTICATION WIDGET STYLES
+   ============================================ */
+.resbs-auth-widget {
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.resbs-auth-container {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.resbs-auth-header {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.resbs-auth-title {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0 0 10px 0;
+    color: #333;
+}
+
+.resbs-auth-subtitle {
+    color: #6c757d;
+    font-size: 14px;
+    margin: 0;
+}
+
+.resbs-auth-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.resbs-auth-field {
+    display: flex;
+    flex-direction: column;
+}
+
+.resbs-auth-field label {
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #333;
+    font-size: 14px;
+}
+
+.resbs-auth-field input {
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+}
+
+.resbs-auth-field input:focus {
+    outline: none;
+    border-color: #007cba;
+    box-shadow: 0 0 0 3px rgba(0, 124, 186, 0.1);
+}
+
+.resbs-auth-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.resbs-auth-btn {
+    width: 100%;
+    padding: 14px 30px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.resbs-auth-btn.resbs-login-btn {
+    background: #007cba;
+    color: white;
+}
+
+.resbs-auth-btn.resbs-login-btn:hover {
+    background: #005a87;
+}
+
+.resbs-auth-btn.resbs-logout-btn {
+    background: #dc3545;
+    color: white;
+}
+
+.resbs-auth-btn.resbs-logout-btn:hover {
+    background: #c82333;
+}
+
+.resbs-social-auth {
+    margin-bottom: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #e9ecef;
+}
+
+.resbs-social-auth-title {
+    text-align: center;
+    font-size: 14px;
+    color: #6c757d;
+    margin-bottom: 15px;
+}
+
+.resbs-social-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.resbs-social-btn {
+    padding: 12px 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.resbs-social-btn:hover {
+    background: #f8f9fa;
+    border-color: #007cba;
+}
+
+.resbs-auth-footer {
+    text-align: center;
+    padding-top: 20px;
+    border-top: 1px solid #e9ecef;
+}
+
+.resbs-auth-footer p {
+    margin: 0;
+    color: #6c757d;
+    font-size: 12px;
+}
+
+/* ============================================
+   HALF MAP WIDGET STYLES
+   ============================================ */
+.resbs-half-map-widget {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    min-height: 600px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.resbs-half-map-listings {
+    background: white;
+    overflow-y: auto;
+    max-height: 600px;
+    padding: 20px;
+}
+
+.resbs-half-map-listings-header {
+    margin-bottom: 20px;
+}
+
+.resbs-half-map-listings-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0 0 10px 0;
+    color: #333;
+}
+
+.resbs-half-map-listings-count {
+    color: #6c757d;
+    font-size: 14px;
+}
+
+.resbs-half-map-properties {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.resbs-half-map-property-card {
+    padding: 15px;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.resbs-half-map-property-card:hover,
+.resbs-half-map-property-card.active {
+    border-color: #007cba;
+    box-shadow: 0 2px 8px rgba(0, 124, 186, 0.15);
+    transform: translateY(-2px);
+}
+
+.resbs-half-map-property-image {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 6px;
+    margin-bottom: 10px;
+}
+
+.resbs-half-map-property-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0 0 5px 0;
+    color: #333;
+}
+
+.resbs-half-map-property-price {
+    font-size: 18px;
+    font-weight: 700;
+    color: #28a745;
+    margin-bottom: 10px;
+}
+
+.resbs-half-map-property-meta {
+    display: flex;
+    gap: 15px;
+    color: #6c757d;
+    font-size: 13px;
+}
+
+.resbs-half-map-container {
+    position: relative;
+    height: 100%;
+    min-height: 600px;
+}
+
+.resbs-half-map-map {
+    width: 100%;
+    height: 100%;
+    min-height: 600px;
+}
+
+.resbs-map-error {
+    padding: 40px 20px;
+    text-align: center;
+    color: #6c757d;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN FOR ALL WIDGETS
+   ============================================ */
+@media (max-width: 992px) {
+    .resbs-half-map-widget {
+        grid-template-columns: 1fr;
+    }
+    
+    .resbs-half-map-listings {
+        max-height: 300px;
+    }
+    
+    .resbs-search-fields {
+        grid-template-columns: 1fr;
+    }
+    
+    .resbs-listings-navbar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+@media (max-width: 768px) {
+    .resbs-search-form {
+        padding: 20px;
+    }
+    
+    .resbs-listings-content.resbs-layout-list .resbs-property-card {
+        flex-direction: column;
+    }
+    
+    .resbs-listings-content.resbs-layout-list .resbs-property-image {
+        flex: none;
+        width: 100%;
+    }
+    
+    .resbs-request-form,
+    .resbs-auth-container {
+        padding: 20px;
+    }
+    
+    .resbs-half-map-properties {
+        gap: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .resbs-search-field-group {
+        grid-template-columns: 1fr;
+    }
+    
+    .resbs-search-actions {
+        flex-direction: column;
+    }
+    
+    .resbs-search-btn,
+    .resbs-search-reset-btn {
+        width: 100%;
+    }
+}
+
+/* ============================================
+   CRITICAL OVERRIDES - MAXIMUM SPECIFICITY
+   ============================================ */
+/* Override Elementor defaults with maximum specificity */
+.elementor-element[data-widget_type*="resbs"] .elementor-widget-container,
+.elementor-widget-resbs-property-grid .elementor-widget-container,
+.elementor-widget-resbs-property-carousel .elementor-widget-container,
+.elementor-widget-resbs-search .elementor-widget-container,
+.elementor-widget-resbs-slider .elementor-widget-container,
+.elementor-widget-resbs-request-form .elementor-widget-container,
+.elementor-widget-resbs-listings .elementor-widget-container,
+.elementor-widget-resbs-authentication .elementor-widget-container,
+.elementor-widget-resbs-half-map .elementor-widget-container {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+}
+
+/* Force widget styles to apply */
+.elementor-widget-resbs-property-grid .resbs-property-grid,
+.elementor-widget-resbs-listings .resbs-properties-container {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
+    gap: 25px !important;
+    width: 100% !important;
+}
+
+.elementor-widget-resbs-property-grid .resbs-property-card,
+.elementor-widget-resbs-listings .resbs-property-card {
+    background: #fff !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    height: auto !important;
+    margin: 0 !important;
+}
+
+.elementor-widget-resbs-property-grid .resbs-property-card:hover,
+.elementor-widget-resbs-listings .resbs-property-card:hover {
+    transform: translateY(-5px) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important;
+}
+
+.elementor-widget-resbs-property-grid .resbs-property-image,
+.elementor-widget-resbs-listings .resbs-property-image {
+    width: 100% !important;
+    height: 220px !important;
+    overflow: hidden !important;
+    position: relative !important;
+    background: #f8f9fa !important;
+}
+
+.elementor-widget-resbs-property-grid .resbs-property-image img,
+.elementor-widget-resbs-listings .resbs-property-image img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    display: block !important;
+}
+
+.elementor-widget-resbs-property-grid .resbs-property-content,
+.elementor-widget-resbs-listings .resbs-property-content {
+    padding: 20px !important;
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+.elementor-widget-resbs-property-grid .resbs-property-title,
+.elementor-widget-resbs-listings .resbs-property-title {
+    font-size: 18px !important;
+    font-weight: 600 !important;
+    margin: 0 0 10px 0 !important;
+    line-height: 1.4 !important;
+}
+
+.elementor-widget-resbs-property-grid .resbs-property-title a,
+.elementor-widget-resbs-listings .resbs-property-title a {
+    color: #333 !important;
+    text-decoration: none !important;
+}
+
+.elementor-widget-resbs-property-grid .resbs-property-price,
+.elementor-widget-resbs-listings .resbs-property-price {
+    font-size: 22px !important;
+    font-weight: 700 !important;
+    color: #28a745 !important;
+    margin: 0 0 15px 0 !important;
+}
+
+.elementor-widget-resbs-property-grid .resbs-property-meta,
+.elementor-widget-resbs-listings .resbs-property-meta {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 15px !important;
+    margin: 0 0 15px 0 !important;
+    font-size: 14px !important;
+    color: #6c757d !important;
+}
+
+.elementor-widget-resbs-property-grid .resbs-meta-item,
+.elementor-widget-resbs-listings .resbs-meta-item {
+    display: flex !important;
+    align-items: center !important;
+    gap: 5px !important;
+}
+
+.elementor-widget-resbs-property-grid .resbs-btn,
+.elementor-widget-resbs-listings .resbs-btn {
+    padding: 10px 20px !important;
+    border-radius: 6px !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    text-decoration: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    border: none !important;
+}
+
+.elementor-widget-resbs-property-grid .resbs-btn-primary,
+.elementor-widget-resbs-listings .resbs-btn-primary {
+    background: #007cba !important;
+    color: #fff !important;
+}
+
+.elementor-widget-resbs-property-grid .resbs-btn-primary:hover,
+.elementor-widget-resbs-listings .resbs-btn-primary:hover {
+    background: #005a87 !important;
+    color: #fff !important;
+}
+
+/* Search widget critical overrides */
+.elementor-widget-resbs-search .resbs-search-form {
+    background: #fff !important;
+    border-radius: 12px !important;
+    padding: 30px !important;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08) !important;
+    border: 1px solid #e9ecef !important;
+}
+
+.elementor-widget-resbs-search .resbs-search-input,
+.elementor-widget-resbs-search .resbs-search-select {
+    width: 100% !important;
+    padding: 12px 15px !important;
+    border: 1px solid #ddd !important;
+    border-radius: 8px !important;
+    font-size: 14px !important;
+    background: #fff !important;
+    box-sizing: border-box !important;
+}
+
+.elementor-widget-resbs-search .resbs-search-btn {
+    background: #007cba !important;
+    color: #fff !important;
+    padding: 14px 30px !important;
+    border: none !important;
+    border-radius: 8px !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+}
+
+/* Badge styles */
+.elementor-widget-resbs-property-grid .resbs-badge,
+.elementor-widget-resbs-listings .resbs-badge {
+    padding: 4px 8px !important;
+    border-radius: 4px !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    color: #fff !important;
+    display: inline-block !important;
+}
+
+.elementor-widget-resbs-property-grid .resbs-badge-featured,
+.elementor-widget-resbs-listings .resbs-badge-featured {
+    background: #ffc107 !important;
+    color: #212529 !important;
+}
+
+.elementor-widget-resbs-property-grid .resbs-badge-sold,
+.elementor-widget-resbs-listings .resbs-badge-sold {
+    background: #dc3545 !important;
+}
+
+.elementor-widget-resbs-property-grid .resbs-badge-status,
+.elementor-widget-resbs-listings .resbs-badge-status {
+    background: #17a2b8 !important;
+}
+
+/* Property actions */
+.elementor-widget-resbs-property-grid .resbs-property-actions,
+.elementor-widget-resbs-listings .resbs-property-actions {
+    margin-top: auto !important;
+    padding-top: 15px !important;
+    border-top: 1px solid #e9ecef !important;
+}
+
+.elementor-widget-resbs-property-grid .resbs-favorite-btn,
+.elementor-widget-resbs-listings .resbs-favorite-btn {
+    position: absolute !important;
+    top: 10px !important;
+    right: 10px !important;
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 50% !important;
+    background: rgba(255, 255, 255, 0.9) !important;
+    border: none !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    z-index: 10 !important;
 }

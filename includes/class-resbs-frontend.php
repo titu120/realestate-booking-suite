@@ -32,6 +32,17 @@ class RESBS_Frontend {
         add_action('wp_ajax_resbs_toggle_favorite', array($this, 'handle_toggle_favorite'));
         add_action('wp_ajax_nopriv_resbs_toggle_favorite', array($this, 'handle_toggle_favorite'));
         
+        // New widget AJAX handlers
+        add_action('wp_ajax_resbs_elementor_submit_request', array($this, 'handle_elementor_submit_request'));
+        add_action('wp_ajax_nopriv_resbs_elementor_submit_request', array($this, 'handle_elementor_submit_request'));
+        add_action('wp_ajax_resbs_elementor_login', array($this, 'handle_elementor_login'));
+        add_action('wp_ajax_nopriv_resbs_elementor_login', array($this, 'handle_elementor_login'));
+        add_action('wp_ajax_resbs_elementor_logout', array($this, 'handle_elementor_logout'));
+        add_action('wp_ajax_resbs_elementor_load_listings', array($this, 'handle_elementor_load_listings'));
+        add_action('wp_ajax_nopriv_resbs_elementor_load_listings', array($this, 'handle_elementor_load_listings'));
+        add_action('wp_ajax_resbs_elementor_load_map_properties', array($this, 'handle_elementor_load_map_properties'));
+        add_action('wp_ajax_nopriv_resbs_elementor_load_map_properties', array($this, 'handle_elementor_load_map_properties'));
+        
         // Add frontend display hooks
         add_action('wp_head', array($this, 'add_frontend_styles'));
     }
@@ -1569,6 +1580,263 @@ class RESBS_Frontend {
         $output .= '</div></div>';
         
         return $output;
+    }
+    
+    /**
+     * Handle Elementor request form submission
+     */
+    public function handle_elementor_submit_request() {
+        // Verify nonce
+        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'resbs_elementor_nonce')) {
+            wp_send_json_error(esc_html__('Security check failed.', 'realestate-booking-suite'));
+        }
+        
+        // Get form data
+        parse_str($_POST['form_data'], $form_data);
+        
+        $name = isset($form_data['name']) ? sanitize_text_field($form_data['name']) : '';
+        $email = isset($form_data['email']) ? sanitize_email($form_data['email']) : '';
+        $phone = isset($form_data['phone']) ? sanitize_text_field($form_data['phone']) : '';
+        $message = isset($form_data['message']) ? sanitize_textarea_field($form_data['message']) : '';
+        $property_id = isset($form_data['property_id']) ? intval($form_data['property_id']) : 0;
+        
+        // Validate required fields
+        if (empty($name) || empty($email)) {
+            wp_send_json_error(esc_html__('Please fill in all required fields.', 'realestate-booking-suite'));
+        }
+        
+        if (!is_email($email)) {
+            wp_send_json_error(esc_html__('Please enter a valid email address.', 'realestate-booking-suite'));
+        }
+        
+        // Send email notification
+        $admin_email = get_option('admin_email');
+        $subject = sprintf(esc_html__('New Property Inquiry: %s', 'realestate-booking-suite'), get_bloginfo('name'));
+        
+        $email_message = sprintf(
+            esc_html__('You have received a new property inquiry:%s%sName: %s%sEmail: %s%sPhone: %s%sMessage: %s%s', 'realestate-booking-suite'),
+            "\n\n",
+            "---\n",
+            $name,
+            "\n",
+            $email,
+            "\n",
+            $phone,
+            "\n",
+            $message,
+            "\n\n"
+        );
+        
+        if ($property_id) {
+            $property_title = get_the_title($property_id);
+            $property_url = get_permalink($property_id);
+            $email_message .= sprintf(
+                esc_html__('Property: %s%sProperty URL: %s', 'realestate-booking-suite'),
+                $property_title,
+                "\n",
+                $property_url
+            );
+        }
+        
+        $headers = array('Content-Type: text/html; charset=UTF-8', 'From: ' . $name . ' <' . $email . '>');
+        
+        $sent = wp_mail($admin_email, $subject, nl2br($email_message), $headers);
+        
+        if ($sent) {
+            wp_send_json_success(array(
+                'message' => esc_html__('Thank you! Your request has been submitted successfully.', 'realestate-booking-suite')
+            ));
+        } else {
+            wp_send_json_error(esc_html__('Failed to send request. Please try again later.', 'realestate-booking-suite'));
+        }
+    }
+    
+    /**
+     * Handle Elementor login
+     */
+    public function handle_elementor_login() {
+        // Verify nonce
+        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'resbs_elementor_nonce')) {
+            wp_send_json_error(esc_html__('Security check failed.', 'realestate-booking-suite'));
+        }
+        
+        $username = isset($_POST['username']) ? sanitize_user($_POST['username']) : '';
+        $password = isset($_POST['password']) ? $_POST['password'] : '';
+        
+        if (empty($username) || empty($password)) {
+            wp_send_json_error(esc_html__('Please enter both username and password.', 'realestate-booking-suite'));
+        }
+        
+        // Attempt login
+        $credentials = array(
+            'user_login' => $username,
+            'user_password' => $password,
+            'remember' => true
+        );
+        
+        $user = wp_signon($credentials, false);
+        
+        if (is_wp_error($user)) {
+            wp_send_json_error($user->get_error_message());
+        } else {
+            wp_send_json_success(array(
+                'message' => esc_html__('Login successful!', 'realestate-booking-suite'),
+                'redirect' => home_url()
+            ));
+        }
+    }
+    
+    /**
+     * Handle Elementor logout
+     */
+    public function handle_elementor_logout() {
+        // Verify nonce
+        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'resbs_elementor_nonce')) {
+            wp_send_json_error(esc_html__('Security check failed.', 'realestate-booking-suite'));
+        }
+        
+        wp_logout();
+        
+        wp_send_json_success(array(
+            'message' => esc_html__('Logged out successfully!', 'realestate-booking-suite')
+        ));
+    }
+    
+    /**
+     * Handle Elementor listings load
+     */
+    public function handle_elementor_load_listings() {
+        // Verify nonce
+        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'resbs_elementor_nonce')) {
+            wp_send_json_error(esc_html__('Security check failed.', 'realestate-booking-suite'));
+        }
+        
+        $widget_id = isset($_POST['widget_id']) ? sanitize_text_field($_POST['widget_id']) : '';
+        $filters = isset($_POST['filters']) ? $_POST['filters'] : array();
+        
+        // Build query
+        $args = array(
+            'post_type' => 'property',
+            'post_status' => 'publish',
+            'posts_per_page' => isset($filters['posts_per_page']) ? intval($filters['posts_per_page']) : 12,
+            'paged' => isset($filters['page']) ? intval($filters['page']) : 1,
+        );
+        
+        // Handle sorting
+        if (!empty($filters['sort'])) {
+            $sort_parts = explode('_', $filters['sort']);
+            if (count($sort_parts) === 2) {
+                $orderby = $sort_parts[0];
+                $order = strtoupper($sort_parts[1]);
+                
+                if ($orderby === 'price') {
+                    $args['meta_key'] = '_property_price';
+                    $args['orderby'] = 'meta_value_num';
+                } else {
+                    $args['orderby'] = $orderby;
+                }
+                $args['order'] = $order;
+            }
+        }
+        
+        $query = new WP_Query($args);
+        
+        ob_start();
+        if ($query->have_posts()) {
+            while ($query->have_posts()) {
+                $query->the_post();
+                // Render property card HTML
+                $property_id = get_the_ID();
+                $price = get_post_meta($property_id, '_property_price', true);
+                $bedrooms = get_post_meta($property_id, '_property_bedrooms', true);
+                $bathrooms = get_post_meta($property_id, '_property_bathrooms', true);
+                $area_sqft = get_post_meta($property_id, '_property_area_sqft', true);
+                $location = get_the_terms($property_id, 'property_location');
+                $featured_image = get_the_post_thumbnail_url($property_id, 'medium_large');
+                
+                echo '<div class="resbs-property-card" data-property-id="' . esc_attr($property_id) . '">';
+                echo '<div class="resbs-property-image">';
+                if ($featured_image) {
+                    echo '<a href="' . esc_url(get_permalink()) . '"><img src="' . esc_url($featured_image) . '" alt="' . esc_attr(get_the_title()) . '"></a>';
+                } else {
+                    echo '<a href="' . esc_url(get_permalink()) . '"><div class="resbs-placeholder-image"></div></a>';
+                }
+                echo '<button type="button" class="resbs-favorite-btn" data-property-id="' . esc_attr($property_id) . '"><span class="dashicons dashicons-heart"></span></button>';
+                echo '</div>';
+                echo '<div class="resbs-property-content">';
+                if ($location) {
+                    echo '<div class="resbs-property-location">' . esc_html($location[0]->name) . '</div>';
+                }
+                echo '<h3 class="resbs-property-title"><a href="' . esc_url(get_permalink()) . '">' . esc_html(get_the_title()) . '</a></h3>';
+                if ($price) {
+                    echo '<div class="resbs-property-price">$' . esc_html(number_format($price)) . '</div>';
+                }
+                echo '<div class="resbs-property-meta">';
+                if ($bedrooms) {
+                    echo '<span class="resbs-meta-item"><span class="dashicons dashicons-bed-alt"></span>' . esc_html($bedrooms) . ' beds</span>';
+                }
+                if ($bathrooms) {
+                    echo '<span class="resbs-meta-item"><span class="dashicons dashicons-bath"></span>' . esc_html($bathrooms) . ' baths</span>';
+                }
+                if ($area_sqft) {
+                    echo '<span class="resbs-meta-item"><span class="dashicons dashicons-admin-home"></span>' . esc_html(number_format($area_sqft)) . ' sq ft</span>';
+                }
+                echo '</div></div></div>';
+            }
+            wp_reset_postdata();
+        }
+        $html = ob_get_clean();
+        
+        wp_send_json_success(array(
+            'html' => $html,
+            'found_posts' => $query->found_posts,
+            'max_pages' => $query->max_num_pages
+        ));
+    }
+    
+    /**
+     * Handle Elementor map properties load
+     */
+    public function handle_elementor_load_map_properties() {
+        // Verify nonce
+        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'resbs_elementor_nonce')) {
+            wp_send_json_error(esc_html__('Security check failed.', 'realestate-booking-suite'));
+        }
+        
+        $widget_id = isset($_POST['widget_id']) ? sanitize_text_field($_POST['widget_id']) : '';
+        
+        // Build query
+        $args = array(
+            'post_type' => 'property',
+            'post_status' => 'publish',
+            'posts_per_page' => 50, // Limit for map display
+        );
+        
+        $query = new WP_Query($args);
+        $properties = array();
+        
+        if ($query->have_posts()) {
+            while ($query->have_posts()) {
+                $query->the_post();
+                $property_id = get_the_ID();
+                
+                $properties[] = array(
+                    'id' => $property_id,
+                    'title' => get_the_title(),
+                    'url' => get_permalink(),
+                    'price' => get_post_meta($property_id, '_property_price', true),
+                    'price_formatted' => get_post_meta($property_id, '_property_price', true) ? '$' . number_format(get_post_meta($property_id, '_property_price', true)) : '',
+                    'latitude' => get_post_meta($property_id, '_property_latitude', true),
+                    'longitude' => get_post_meta($property_id, '_property_longitude', true),
+                    'featured_image' => get_the_post_thumbnail_url($property_id, 'medium')
+                );
+            }
+            wp_reset_postdata();
+        }
+        
+        wp_send_json_success(array(
+            'properties' => $properties
+        ));
     }
 }
 

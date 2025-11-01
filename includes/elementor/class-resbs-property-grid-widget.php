@@ -10,6 +10,16 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// Ensure Elementor Widget_Base class is available
+if (!class_exists('\Elementor\Widget_Base')) {
+    return;
+}
+
+// Prevent class redeclaration
+if (class_exists('RESBS_Property_Grid_Widget')) {
+    return;
+}
+
 class RESBS_Property_Grid_Widget extends \Elementor\Widget_Base {
 
     /**
@@ -707,7 +717,12 @@ class RESBS_Property_Grid_Widget extends \Elementor\Widget_Base {
         $property_price = get_post_meta($property_id, '_property_price', true);
         $property_bedrooms = get_post_meta($property_id, '_property_bedrooms', true);
         $property_bathrooms = get_post_meta($property_id, '_property_bathrooms', true);
-        $property_size = get_post_meta($property_id, '_property_size', true);
+        $property_area_sqft = get_post_meta($property_id, '_property_area_sqft', true);
+        // Fallback to _property_size if _property_area_sqft doesn't exist
+        if (empty($property_area_sqft)) {
+            $property_size = get_post_meta($property_id, '_property_size', true);
+            $property_area_sqft = $property_size;
+        }
         $property_featured = get_post_meta($property_id, '_property_featured', true);
         $property_status = get_the_terms($property_id, 'property_status');
         $property_type = get_the_terms($property_id, 'property_type');
@@ -736,15 +751,22 @@ class RESBS_Property_Grid_Widget extends \Elementor\Widget_Base {
                 <?php endif; ?>
 
                 <?php if ($show_badges): ?>
-                    <?php do_action('resbs_property_badges', $property_id, 'widget'); ?>
+                    <div class="resbs-property-badges">
+                        <?php 
+                        $badge_manager = new RESBS_Badge_Manager();
+                        $badges = $badge_manager->get_property_badges($property_id, 'widget');
+                        foreach ($badges as $badge): ?>
+                            <span class="resbs-badge resbs-badge-<?php echo esc_attr($badge['type']); ?>">
+                                <?php echo esc_html($badge['text']); ?>
+                            </span>
+                        <?php endforeach; ?>
+                    </div>
                 <?php endif; ?>
 
                 <?php if ($show_favorite_button): ?>
-                    <div class="resbs-property-actions">
-                        <button type="button" class="resbs-favorite-btn" data-property-id="<?php echo esc_attr($property_id); ?>">
-                            <span class="dashicons dashicons-heart"></span>
-                        </button>
-                    </div>
+                    <button type="button" class="resbs-favorite-btn" data-property-id="<?php echo esc_attr($property_id); ?>" aria-label="<?php esc_attr_e('Add to favorites', 'realestate-booking-suite'); ?>">
+                        <span class="dashicons dashicons-heart"></span>
+                    </button>
                 <?php endif; ?>
             </div>
 
@@ -777,10 +799,10 @@ class RESBS_Property_Grid_Widget extends \Elementor\Widget_Base {
                             </div>
                         <?php endif; ?>
 
-                        <?php if (!empty($property_size)): ?>
+                        <?php if (!empty($property_area_sqft)): ?>
                             <div class="resbs-property-meta-item">
                                 <span class="dashicons dashicons-admin-home"></span>
-                                <span><?php echo esc_html($property_size); ?> <?php esc_html_e('sq ft', 'realestate-booking-suite'); ?></span>
+                                <span><?php echo esc_html(number_format(floatval($property_area_sqft))); ?> <?php esc_html_e('sq ft', 'realestate-booking-suite'); ?></span>
                             </div>
                         <?php endif; ?>
 

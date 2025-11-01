@@ -901,4 +901,359 @@ jQuery(document).ready(function($) {
             updateSlideWidth($widget);
         });
     });
+
+    // ============================================
+    // SEARCH WIDGET FUNCTIONALITY
+    // ============================================
+    $('.resbs-search-widget').each(function() {
+        initSearchWidget($(this));
+    });
+
+    function initSearchWidget($widget) {
+        var widgetId = $widget.attr('id');
+        var $form = $widget.find('.resbs-search-form-inner');
+        var $resultsUrl = $form.attr('action') || window.location.href;
+
+        // Handle form submission
+        $form.on('submit', function(e) {
+            e.preventDefault();
+            performSearch($widget);
+        });
+
+        // Handle reset button
+        $widget.find('.resbs-search-reset-btn').on('click', function() {
+            $form[0].reset();
+            performSearch($widget);
+        });
+
+        // Handle location button
+        $widget.find('.resbs-search-location-btn').on('click', function() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    // You can implement reverse geocoding here
+                    alert('Location feature requires Google Maps API integration');
+                });
+            } else {
+                alert('Geolocation is not supported by your browser');
+            }
+        });
+    }
+
+    function performSearch($widget) {
+        var $form = $widget.find('.resbs-search-form-inner');
+        var formData = $form.serialize();
+        var resultsUrl = $form.attr('action') || window.location.href;
+
+        // Redirect to results page with search parameters
+        window.location.href = resultsUrl + (resultsUrl.indexOf('?') > -1 ? '&' : '?') + formData;
+    }
+
+    // ============================================
+    // LISTINGS WIDGET FUNCTIONALITY
+    // ============================================
+    $('.resbs-listings-widget').each(function() {
+        initListingsWidget($(this));
+    });
+
+    function initListingsWidget($widget) {
+        var widgetId = $widget.attr('id');
+        var settings = $widget.data('settings') || {};
+
+        // Handle view toggle
+        $widget.find('.resbs-view-btn').on('click', function() {
+            var view = $(this).data('view');
+            switchView($widget, view);
+        });
+
+        // Handle sort change
+        $widget.find('.resbs-sort-select').on('change', function() {
+            var sortValue = $(this).val();
+            if (sortValue) {
+                reloadListings($widget, { sort: sortValue });
+            }
+        });
+
+        // Handle favorite button
+        $(document).on('click', '#' + widgetId + ' .resbs-favorite-btn', function() {
+            var $btn = $(this);
+            var propertyId = $btn.data('property-id');
+            if (propertyId) {
+                toggleFavorite($btn, propertyId);
+            }
+        });
+    }
+
+    function switchView($widget, view) {
+        var $content = $widget.find('.resbs-listings-content');
+        $content.removeClass('resbs-layout-grid resbs-layout-list resbs-layout-map');
+        $content.addClass('resbs-layout-' + view);
+
+        // Update active button
+        $widget.find('.resbs-view-btn').removeClass('active');
+        $widget.find('.resbs-view-btn[data-view="' + view + '"]').addClass('active');
+
+        if (view === 'map') {
+            initListingsMap($widget);
+        }
+    }
+
+    function reloadListings($widget, filters) {
+        // AJAX call to reload listings
+        $.ajax({
+            url: resbs_elementor_ajax.ajax_url,
+            type: 'POST',
+            data: {
+                action: 'resbs_elementor_load_listings',
+                nonce: resbs_elementor_ajax.nonce,
+                widget_id: $widget.attr('id'),
+                filters: filters
+            },
+            success: function(response) {
+                if (response.success) {
+                    $widget.find('.resbs-properties-container').html(response.data.html);
+                }
+            }
+        });
+    }
+
+    function initListingsMap($widget) {
+        // Initialize Google Maps for listings
+        if (typeof google !== 'undefined' && google.maps) {
+            // Map implementation here
+            console.log('Map view initialized');
+        }
+    }
+
+    // ============================================
+    // REQUEST FORM WIDGET FUNCTIONALITY
+    // ============================================
+    $('.resbs-request-form-widget').each(function() {
+        initRequestForm($(this));
+    });
+
+    function initRequestForm($widget) {
+        var $form = $widget.find('.resbs-request-form');
+        var $submitBtn = $widget.find('.resbs-request-submit-btn');
+
+        $submitBtn.on('click', function(e) {
+            e.preventDefault();
+            submitRequestForm($widget);
+        });
+    }
+
+    function submitRequestForm($widget) {
+        var $form = $widget.find('.resbs-request-form');
+        var $submitBtn = $widget.find('.resbs-request-submit-btn');
+        var formData = $form.serialize();
+
+        $submitBtn.prop('disabled', true).text('Submitting...');
+
+        $.ajax({
+            url: resbs_elementor_ajax.ajax_url,
+            type: 'POST',
+            data: {
+                action: 'resbs_elementor_submit_request',
+                nonce: resbs_elementor_ajax.nonce,
+                form_data: formData
+            },
+            success: function(response) {
+                if (response.success) {
+                    $form.html('<div style="padding: 30px; text-align: center;"><h3>Thank You!</h3><p>' + (response.data.message || 'Your request has been submitted successfully.') + '</p></div>');
+                } else {
+                    alert(response.data.message || 'An error occurred. Please try again.');
+                    $submitBtn.prop('disabled', false).text('REQUEST INFO');
+                }
+            },
+            error: function() {
+                alert('An error occurred. Please try again.');
+                $submitBtn.prop('disabled', false).text('REQUEST INFO');
+            }
+        });
+    }
+
+    // ============================================
+    // AUTHENTICATION WIDGET FUNCTIONALITY
+    // ============================================
+    $('.resbs-auth-widget').each(function() {
+        initAuthWidget($(this));
+    });
+
+    function initAuthWidget($widget) {
+        var $loginForm = $widget.find('.resbs-login-form');
+        var $loginBtn = $widget.find('.resbs-login-btn');
+        var $logoutBtn = $widget.find('.resbs-logout-btn');
+
+        if ($loginForm.length) {
+            $loginBtn.on('click', function(e) {
+                e.preventDefault();
+                performLogin($widget);
+            });
+        }
+
+        if ($logoutBtn.length) {
+            $logoutBtn.on('click', function(e) {
+                e.preventDefault();
+                performLogout($widget);
+            });
+        }
+
+        // Social login buttons
+        $widget.find('.resbs-social-btn').on('click', function() {
+            var provider = $(this).data('provider');
+            if (provider) {
+                // Redirect to social login
+                window.location.href = '/wp-login.php?social=' + provider;
+            }
+        });
+    }
+
+    function performLogin($widget) {
+        var $form = $widget.find('.resbs-login-form');
+        var username = $form.find('input[name="username"]').val();
+        var password = $form.find('input[name="password"]').val();
+        var $loginBtn = $widget.find('.resbs-login-btn');
+
+        if (!username || !password) {
+            alert('Please enter both username and password');
+            return;
+        }
+
+        $loginBtn.prop('disabled', true).text('Logging in...');
+
+        $.ajax({
+            url: resbs_elementor_ajax.ajax_url,
+            type: 'POST',
+            data: {
+                action: 'resbs_elementor_login',
+                nonce: resbs_elementor_ajax.nonce,
+                username: username,
+                password: password
+            },
+            success: function(response) {
+                if (response.success) {
+                    // Reload page to show logged in state
+                    window.location.reload();
+                } else {
+                    alert(response.data.message || 'Login failed. Please check your credentials.');
+                    $loginBtn.prop('disabled', false).text('LOG IN');
+                }
+            },
+            error: function() {
+                alert('An error occurred. Please try again.');
+                $loginBtn.prop('disabled', false).text('LOG IN');
+            }
+        });
+    }
+
+    function performLogout($widget) {
+        $.ajax({
+            url: resbs_elementor_ajax.ajax_url,
+            type: 'POST',
+            data: {
+                action: 'resbs_elementor_logout',
+                nonce: resbs_elementor_ajax.nonce
+            },
+            success: function(response) {
+                if (response.success) {
+                    window.location.reload();
+                }
+            }
+        });
+    }
+
+    // ============================================
+    // HALF MAP WIDGET FUNCTIONALITY
+    // ============================================
+    $('.resbs-half-map-widget').each(function() {
+        initHalfMapWidget($(this));
+    });
+
+    function initHalfMapWidget($widget) {
+        var widgetId = $widget.attr('id');
+        var mapId = 'resbs-half-map-' + widgetId;
+        var $mapContainer = $widget.find('.resbs-half-map-map');
+        var map = null;
+        var markers = [];
+
+        // Initialize Google Maps
+        if (typeof google !== 'undefined' && google.maps) {
+            $mapContainer.attr('id', mapId);
+
+            // Create map
+            map = new google.maps.Map(document.getElementById(mapId), {
+                zoom: 10,
+                center: { lat: 40.7128, lng: -74.0060 }, // Default to NYC
+                mapTypeId: 'roadmap'
+            });
+
+            // Load property markers
+            loadMapProperties($widget, map);
+        } else {
+            $mapContainer.html('<div class="resbs-map-error"><p>Google Maps is not available. Please check your API key.</p></div>');
+        }
+
+        // Handle property card click
+        $widget.find('.resbs-half-map-property-card').on('click', function() {
+            var propertyId = $(this).data('property-id');
+            if (propertyId && map) {
+                centerMapOnProperty(map, propertyId);
+            }
+        });
+    }
+
+    function loadMapProperties($widget, map) {
+        var widgetId = $widget.attr('id');
+        var markers = [];
+
+        $.ajax({
+            url: resbs_elementor_ajax.ajax_url,
+            type: 'POST',
+            data: {
+                action: 'resbs_elementor_load_map_properties',
+                nonce: resbs_elementor_ajax.nonce,
+                widget_id: widgetId
+            },
+            success: function(response) {
+                if (response.success && response.data.properties) {
+                    var bounds = new google.maps.LatLngBounds();
+                    
+                    response.data.properties.forEach(function(property) {
+                        if (property.latitude && property.longitude) {
+                            var marker = new google.maps.Marker({
+                                position: { lat: parseFloat(property.latitude), lng: parseFloat(property.longitude) },
+                                map: map,
+                                title: property.title
+                            });
+                            
+                            markers.push(marker);
+                            bounds.extend(marker.getPosition());
+
+                            var infoWindow = new google.maps.InfoWindow({
+                                content: '<div style="padding: 10px;"><strong>' + property.title + '</strong><br>' + property.price_formatted + '<br><a href="' + property.url + '" target="_blank">View Property</a></div>'
+                            });
+
+                            marker.addListener('click', function() {
+                                infoWindow.open(map, marker);
+                                $widget.find('.resbs-half-map-property-card[data-property-id="' + property.id + '"]').addClass('active').siblings().removeClass('active');
+                            });
+                        }
+                    });
+
+                    // Fit map to show all markers
+                    if (markers.length > 0) {
+                        map.fitBounds(bounds);
+                    } else {
+                        // Default center if no markers
+                        map.setCenter({ lat: 40.7128, lng: -74.0060 });
+                        map.setZoom(10);
+                    }
+                }
+            }
+        });
+    }
+
+    function centerMapOnProperty(map, propertyId) {
+        // Find property marker and center map on it
+        // Implementation depends on how markers are stored
+    }
 });
