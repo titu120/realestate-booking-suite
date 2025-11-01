@@ -615,19 +615,17 @@ class RESBS_Settings {
                         <div class="resbs-form-group">
                             <label for="resbs_map_zoom_level"><?php esc_html_e('Default Zoom Level', 'realestate-booking-suite'); ?></label>
                             <input type="number" id="resbs_map_zoom_level" name="resbs_map_zoom_level" value="<?php echo esc_attr(get_option('resbs_map_zoom_level', '10')); ?>" min="1" max="20" />
-                            <p class="description"><?php esc_html_e('Default zoom level for maps (1-20)', 'realestate-booking-suite'); ?></p>
+                            <p class="description"><?php esc_html_e('Default zoom level for maps when viewing multiple properties (1-20). Individual property maps will auto-fit to show the property location.', 'realestate-booking-suite'); ?></p>
                         </div>
                         
-                        <div class="resbs-form-group">
-                            <label for="resbs_map_center_lat"><?php esc_html_e('Map Center Latitude', 'realestate-booking-suite'); ?></label>
-                            <input type="number" id="resbs_map_center_lat" name="resbs_map_center_lat" value="<?php echo esc_attr(get_option('resbs_map_center_lat', '40.7128')); ?>" step="any" />
-                            <p class="description"><?php esc_html_e('Default latitude for map center', 'realestate-booking-suite'); ?></p>
-                        </div>
-                        
-                        <div class="resbs-form-group">
-                            <label for="resbs_map_center_lng"><?php esc_html_e('Map Center Longitude', 'realestate-booking-suite'); ?></label>
-                            <input type="number" id="resbs_map_center_lng" name="resbs_map_center_lng" value="<?php echo esc_attr(get_option('resbs_map_center_lng', '-74.0060')); ?>" step="any" />
-                            <p class="description"><?php esc_html_e('Default longitude for map center', 'realestate-booking-suite'); ?></p>
+                        <div class="resbs-form-group" style="padding: 15px; background: #f0f9ff; border-left: 4px solid #3b82f6; border-radius: 4px; margin-top: 20px;">
+                            <h3 style="margin: 0 0 10px 0; font-size: 14px; color: #1e40af;">
+                                <i class="dashicons dashicons-info" style="vertical-align: middle;"></i>
+                                <?php esc_html_e('Property Location Coordinates', 'realestate-booking-suite'); ?>
+                            </h3>
+                            <p style="margin: 0; color: #1e3a8a; font-size: 13px;">
+                                <?php esc_html_e('Each property has its own latitude and longitude coordinates. Set these individually in each property\'s "Location" tab when editing properties. The map will automatically center on your properties based on their individual coordinates.', 'realestate-booking-suite'); ?>
+                            </p>
                         </div>
                     </div>
                 </div>

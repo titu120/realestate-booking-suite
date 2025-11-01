@@ -589,6 +589,81 @@ class RESBS_Property_Metabox {
                                     <input type="text" id="property_country" name="property_country" value="<?php echo esc_attr($country); ?>" class="resbs-stunning-input" placeholder="<?php esc_attr_e('Enter country name', 'realestate-booking-suite'); ?>">
                                 </div>
 
+                                <!-- Map Coordinates Section - ALWAYS VISIBLE -->
+                                <div class="resbs-form-group" style="margin-top: 30px; padding-top: 25px; border-top: 3px solid #3b82f6; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);">
+                                    <h4 style="margin-bottom: 20px; font-size: 18px; color: #1e40af; font-weight: 700; display: flex; align-items: center;">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 10px; color: #3b82f6;">
+                                            <path d="M21 10C21 17 12 23 12 23S3 17 3 10C3 7.61305 3.94821 5.32387 5.63604 3.63604C7.32387 1.94821 9.61305 1 12 1C14.3869 1 16.6761 1.94821 18.3639 3.63604C20.0518 5.32387 21 7.61305 21 10Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <circle cx="12" cy="10" r="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                        <?php esc_html_e('Map Coordinates (Required for Map Display)', 'realestate-booking-suite'); ?>
+                                    </h4>
+                                    
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                                        <div>
+                                            <label for="property_latitude" style="display: block; margin-bottom: 8px; font-weight: 600; color: #1f2937; font-size: 14px;">
+                                                <?php esc_html_e('Latitude', 'realestate-booking-suite'); ?>
+                                                <span style="color: #ef4444; font-weight: bold; margin-left: 5px;">*</span>
+                                            </label>
+                                            <input type="text" 
+                                                   id="property_latitude" 
+                                                   name="property_latitude" 
+                                                   value="<?php echo esc_attr($latitude); ?>" 
+                                                   class="resbs-stunning-input" 
+                                                   placeholder="23.8103"
+                                                   style="width: 100%; padding: 12px; font-size: 14px; border: 2px solid #3b82f6; border-radius: 8px; background: white;">
+                                            <p style="margin-top: 6px; font-size: 12px; color: #6b7280;">
+                                                <?php esc_html_e('Range: -90 to 90', 'realestate-booking-suite'); ?>
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <label for="property_longitude" style="display: block; margin-bottom: 8px; font-weight: 600; color: #1f2937; font-size: 14px;">
+                                                <?php esc_html_e('Longitude', 'realestate-booking-suite'); ?>
+                                                <span style="color: #ef4444; font-weight: bold; margin-left: 5px;">*</span>
+                                            </label>
+                                            <input type="text" 
+                                                   id="property_longitude" 
+                                                   name="property_longitude" 
+                                                   value="<?php echo esc_attr($longitude); ?>" 
+                                                   class="resbs-stunning-input" 
+                                                   placeholder="90.4125"
+                                                   style="width: 100%; padding: 12px; font-size: 14px; border: 2px solid #3b82f6; border-radius: 8px; background: white;">
+                                            <p style="margin-top: 6px; font-size: 12px; color: #6b7280;">
+                                                <?php esc_html_e('Range: -180 to 180', 'realestate-booking-suite'); ?>
+                                            </p>
+                                        </div>
+                                    </div>
+                                    
+                                    <?php 
+                                    $map_api_key_main = get_option('resbs_map_api_key', '');
+                                    if (empty($map_api_key_main)) {
+                                        $map_api_key_main = get_option('resbs_google_maps_api_key', '');
+                                    }
+                                    if (!empty($map_api_key_main)): ?>
+                                        <p style="margin-bottom: 15px; padding: 12px; background: #dbeafe; border-left: 4px solid #3b82f6; border-radius: 4px; color: #1e40af; font-size: 13px;">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle; margin-right: 5px; color: #3b82f6;">
+                                                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                                                <path d="M12 16V12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                                <path d="M12 8H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                            </svg>
+                                            <strong><?php esc_html_e('Auto-Geocoding Enabled:', 'realestate-booking-suite'); ?></strong>
+                                            <?php esc_html_e('Coordinates will be automatically updated as you type in the address fields above. You can also click the map or drag the marker to set coordinates manually.', 'realestate-booking-suite'); ?>
+                                        </p>
+                                    <?php else: ?>
+                                        <p style="padding: 12px; background: #fef3c7; border-left: 4px solid #f59e0b; border-radius: 4px; color: #92400e; font-size: 13px; margin-bottom: 15px;">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle; margin-right: 5px;">
+                                                <path d="M10.29 3.86L1.82 18C1.64573 18.3024 1.57299 18.6453 1.61211 18.9873C1.65124 19.3293 1.80026 19.6522 2.03588 19.9067C2.2715 20.1612 2.58172 20.3343 2.92278 20.4015C3.26384 20.4687 3.61736 20.4273 3.93 20.283L12 16.77L20.07 20.283C20.3826 20.4273 20.7362 20.4687 21.0772 20.4015C21.4183 20.3343 21.7285 20.1612 21.9641 19.9067C22.1997 19.6522 22.3488 19.3293 22.3879 18.9873C22.427 18.6453 22.3543 18.3024 22.18 18L13.71 3.86C13.5318 3.56631 13.2807 3.32312 12.9812 3.15447C12.6817 2.98582 12.3438 2.89725 12 2.89725C11.6562 2.89725 11.3183 2.98582 11.0188 3.15447C10.7193 3.32312 10.4682 3.56631 10.29 3.86Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                <line x1="12" y1="9" x2="12" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                            <strong><?php esc_html_e('Google Maps API Key Not Configured', 'realestate-booking-suite'); ?></strong>
+                                            <br>
+                                            <?php esc_html_e('You can manually enter coordinates above, or configure Google Maps API key to enable automatic geocoding and interactive map preview.', 'realestate-booking-suite'); ?>
+                                            <a href="<?php echo esc_url(admin_url('admin.php?page=resbs-general-settings')); ?>" style="color: #b45309; text-decoration: underline; margin-left: 5px;">
+                                                <?php esc_html_e('Configure API Key →', 'realestate-booking-suite'); ?>
+                                            </a>
+                                        </p>
+                                    <?php endif; ?>
+                                </div>
 
                                 <div class="resbs-form-group">
                                     <label for="property_map_iframe"><?php esc_html_e('Custom Map Iframe', 'realestate-booking-suite'); ?></label>
@@ -2285,7 +2360,12 @@ class RESBS_Property_Metabox {
             <div class="resbs-form-section">
                 <h3><?php esc_html_e('Property Location', 'realestate-booking-suite'); ?></h3>
                 
-                <?php if (!get_option('resbs_map_api_key')): ?>
+                <?php 
+                $map_api_key = get_option('resbs_map_api_key', '');
+                if (empty($map_api_key)) {
+                    $map_api_key = get_option('resbs_google_maps_api_key', '');
+                }
+                if (empty($map_api_key)): ?>
                 <div class="resbs-alert resbs-alert-warning">
                     <p><?php esc_html_e('You need to configure your Google Maps API key to use location features.', 'realestate-booking-suite'); ?></p>
                     <a href="<?php echo esc_url(admin_url('admin.php?page=resbs-general-settings')); ?>" class="resbs-btn resbs-btn-primary"><?php esc_html_e('Configure API Key', 'realestate-booking-suite'); ?></a>
@@ -2328,25 +2408,86 @@ class RESBS_Property_Metabox {
                     </div>
                 </div>
 
-                <div class="resbs-form-row">
-                    <div class="resbs-form-group">
-                        <label for="property_latitude"><?php esc_html_e('Latitude', 'realestate-booking-suite'); ?></label>
-                        <input type="text" id="property_latitude" name="property_latitude" value="<?php echo esc_attr($latitude); ?>" class="resbs-input" placeholder="40.7128">
+                <!-- Map Coordinates Section - ALWAYS VISIBLE -->
+                <div class="resbs-form-group" style="margin-top: 30px; padding-top: 20px; border-top: 3px solid #3b82f6; background: #f8fafc; padding: 20px; border-radius: 8px;">
+                    <h3 style="margin-bottom: 15px; font-size: 18px; color: #1e40af; font-weight: 600;">
+                        <i class="dashicons dashicons-location-alt" style="vertical-align: middle; margin-right: 8px; color: #3b82f6;"></i>
+                        <?php esc_html_e('Map Coordinates (Required for Map Display)', 'realestate-booking-suite'); ?>
+                    </h3>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                        <div>
+                            <label for="property_latitude" style="display: block; margin-bottom: 8px; font-weight: 600; color: #374151; font-size: 14px;">
+                                <?php esc_html_e('Latitude', 'realestate-booking-suite'); ?>
+                                <span style="color: #ef4444; font-weight: bold;">*</span>
+                            </label>
+                            <input type="text" 
+                                   id="property_latitude" 
+                                   name="property_latitude" 
+                                   value="<?php echo esc_attr($latitude); ?>" 
+                                   class="resbs-input" 
+                                   placeholder="23.8103"
+                                   style="width: 100%; padding: 10px; font-size: 14px; border: 2px solid #d1d5db; border-radius: 6px;">
+                            <p style="margin-top: 6px; font-size: 12px; color: #6b7280;">
+                                <?php esc_html_e('Range: -90 to 90', 'realestate-booking-suite'); ?>
+                            </p>
+                        </div>
+                        <div>
+                            <label for="property_longitude" style="display: block; margin-bottom: 8px; font-weight: 600; color: #374151; font-size: 14px;">
+                                <?php esc_html_e('Longitude', 'realestate-booking-suite'); ?>
+                                <span style="color: #ef4444; font-weight: bold;">*</span>
+                            </label>
+                            <input type="text" 
+                                   id="property_longitude" 
+                                   name="property_longitude" 
+                                   value="<?php echo esc_attr($longitude); ?>" 
+                                   class="resbs-input" 
+                                   placeholder="90.4125"
+                                   style="width: 100%; padding: 10px; font-size: 14px; border: 2px solid #d1d5db; border-radius: 6px;">
+                            <p style="margin-top: 6px; font-size: 12px; color: #6b7280;">
+                                <?php esc_html_e('Range: -180 to 180', 'realestate-booking-suite'); ?>
+                            </p>
+                        </div>
                     </div>
-                    <div class="resbs-form-group">
-                        <label for="property_longitude"><?php esc_html_e('Longitude', 'realestate-booking-suite'); ?></label>
-                        <input type="text" id="property_longitude" name="property_longitude" value="<?php echo esc_attr($longitude); ?>" class="resbs-input" placeholder="-74.0060">
-                    </div>
+                    
+                    <?php 
+                    $map_api_key_location = get_option('resbs_map_api_key', '');
+                    if (empty($map_api_key_location)) {
+                        $map_api_key_location = get_option('resbs_google_maps_api_key', '');
+                    }
+                    if (!empty($map_api_key_location)): ?>
+                        <p style="margin-bottom: 15px; padding: 12px; background: #dbeafe; border-left: 4px solid #3b82f6; border-radius: 4px; color: #1e40af; font-size: 13px;">
+                            <i class="dashicons dashicons-info" style="vertical-align: middle; color: #3b82f6;"></i>
+                            <strong><?php esc_html_e('Auto-Geocoding Enabled:', 'realestate-booking-suite'); ?></strong>
+                            <?php esc_html_e('Coordinates will be automatically updated as you type in the address fields above. You can also click the map or drag the marker to set coordinates manually.', 'realestate-booking-suite'); ?>
+                        </p>
+                        
+                        <div style="margin-bottom: 15px;">
+                            <button type="button" id="resbs-geocode-address" class="button button-secondary" style="margin-bottom: 10px;">
+                                <i class="dashicons dashicons-search" style="vertical-align: middle; margin-right: 5px;"></i>
+                                <?php esc_html_e('Get Coordinates from Address', 'realestate-booking-suite'); ?>
+                            </button>
+                        </div>
+                        
+                        <div id="resbs-map-preview" style="height: 350px; border: 2px solid #d1d5db; border-radius: 8px; margin-top: 15px; background: #f9fafb;"></div>
+                        
+                        <p style="margin-top: 10px; font-size: 12px; color: #6b7280; font-style: italic;">
+                            <i class="dashicons dashicons-admin-tools" style="vertical-align: middle;"></i>
+                            <?php esc_html_e('Tip: Click anywhere on the map or drag the red marker to set the exact property location coordinates.', 'realestate-booking-suite'); ?>
+                        </p>
+                    <?php else: ?>
+                        <!-- API Key not configured - show manual entry option -->
+                        <p style="padding: 12px; background: #fef3c7; border-left: 4px solid #f59e0b; border-radius: 4px; color: #92400e; font-size: 13px; margin-bottom: 15px;">
+                            <i class="dashicons dashicons-warning" style="vertical-align: middle;"></i>
+                            <strong><?php esc_html_e('Google Maps API Key Not Configured', 'realestate-booking-suite'); ?></strong>
+                            <br>
+                            <?php esc_html_e('You can manually enter coordinates above, or configure Google Maps API key to enable automatic geocoding and interactive map preview.', 'realestate-booking-suite'); ?>
+                            <a href="<?php echo esc_url(admin_url('admin.php?page=resbs-general-settings')); ?>" style="color: #b45309; text-decoration: underline; margin-left: 5px;">
+                                <?php esc_html_e('Configure API Key →', 'realestate-booking-suite'); ?>
+                            </a>
+                        </p>
+                    <?php endif; ?>
                 </div>
-
-                <?php if (get_option('resbs_map_api_key')): ?>
-                <div class="resbs-form-group">
-                    <button type="button" id="resbs-geocode-address" class="resbs-btn resbs-btn-secondary">
-                        <?php esc_html_e('Get Coordinates from Address', 'realestate-booking-suite'); ?>
-                    </button>
-                    <div id="resbs-map-preview" style="height: 300px; margin-top: 15px; border: 1px solid #ddd; border-radius: 4px;"></div>
-                </div>
-                <?php endif; ?>
             </div>
         </div>
         <?php
@@ -2621,6 +2762,9 @@ class RESBS_Property_Metabox {
             'property_state' => '_property_state',
             'property_zip' => '_property_zip',
             'property_country' => '_property_country',
+            'property_latitude' => '_property_latitude',
+            'property_longitude' => '_property_longitude',
+            'property_hide_address' => '_property_hide_address',
             'property_map_iframe' => '_property_map_iframe',
             'property_features' => '_property_features',
             'property_amenities' => '_property_amenities',
@@ -2727,6 +2871,21 @@ class RESBS_Property_Metabox {
                       $form_field === 'property_mortgage_disclaimer_text') {
                 // Special handling for textarea fields
                 $value = isset($_POST[$form_field]) ? sanitize_textarea_field($_POST[$form_field]) : '';
+            } elseif ($form_field === 'property_latitude' || $form_field === 'property_longitude') {
+                // Special handling for coordinates - save as float
+                $value = isset($_POST[$form_field]) ? sanitize_text_field($_POST[$form_field]) : '';
+                // Validate and convert to float if valid
+                if (!empty($value) && is_numeric($value)) {
+                    $float_value = floatval($value);
+                    // Ensure it's within valid ranges
+                    if ($form_field === 'property_latitude' && ($float_value < -90 || $float_value > 90)) {
+                        $value = ''; // Invalid latitude
+                    } elseif ($form_field === 'property_longitude' && ($float_value < -180 || $float_value > 180)) {
+                        $value = ''; // Invalid longitude
+                    } else {
+                        $value = $float_value; // Valid coordinate
+                    }
+                }
             } else {
                 $value = isset($_POST[$form_field]) ? sanitize_text_field($_POST[$form_field]) : '';
             }
@@ -2949,10 +3108,16 @@ class RESBS_Property_Metabox {
                 true
             );
             
+            // Get API key - check both option names for compatibility
+            $map_api_key = get_option('resbs_map_api_key', '');
+            if (empty($map_api_key)) {
+                $map_api_key = get_option('resbs_google_maps_api_key', '');
+            }
+            
             wp_localize_script('resbs-property-metabox', 'resbs_metabox', array(
                 'ajax_url' => admin_url('admin-ajax.php'),
                 'nonce' => wp_create_nonce('resbs_metabox_nonce'),
-                'map_api_key' => get_option('resbs_map_api_key'),
+                'map_api_key' => $map_api_key,
                 'strings' => array(
                     'upload_error' => esc_html__('Upload failed. Please try again.', 'realestate-booking-suite'),
                     'delete_confirm' => esc_html__('Are you sure you want to delete this image?', 'realestate-booking-suite'),

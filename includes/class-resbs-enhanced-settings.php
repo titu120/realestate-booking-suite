@@ -131,9 +131,10 @@ class RESBS_Enhanced_Settings {
         register_setting('resbs_enhanced_settings', 'resbs_disable_tel_country_code');
         
         // Map Settings
+        register_setting('resbs_enhanced_settings', 'resbs_mapbox_access_token');
+        // Keep Google API key for backwards compatibility
         register_setting('resbs_enhanced_settings', 'resbs_google_api_key');
-        register_setting('resbs_enhanced_settings', 'resbs_default_latitude');
-        register_setting('resbs_enhanced_settings', 'resbs_default_longitude');
+        // Default latitude/longitude removed - maps now use individual property coordinates
         register_setting('resbs_enhanced_settings', 'resbs_default_zoom_level');
         register_setting('resbs_enhanced_settings', 'resbs_single_property_zoom_level');
         register_setting('resbs_enhanced_settings', 'resbs_enable_markers_cluster');
@@ -1487,16 +1488,30 @@ class RESBS_Enhanced_Settings {
             <input type="hidden" name="action" value="resbs_save_settings">
             <input type="hidden" name="current_tab" value="map">
             
-            <div class="resbs-form-group">
-                <label for="resbs_google_api_key"><?php esc_html_e('Google Maps API Key', 'realestate-booking-suite'); ?></label>
-                <p><?php esc_html_e('To load Google Maps correctly you should enter Google API key. If you don\'t have API key already then', 'realestate-booking-suite'); ?> <a href="https://developers.google.com/maps/documentation/javascript/get-api-key" target="_blank"><?php esc_html_e('generate it', 'realestate-booking-suite'); ?></a>.</p>
-                <input type="text" id="resbs_google_api_key" name="resbs_google_api_key" value="<?php echo esc_attr(get_option('resbs_google_api_key')); ?>" class="regular-text">
+            <div class="resbs-form-group" style="padding: 20px; background: #f0fdf4; border-left: 4px solid #10b981; border-radius: 6px; margin-bottom: 20px;">
+                <h3 style="margin: 0 0 10px 0; font-size: 16px; color: #166534; display: flex; align-items: center;">
+                    <span style="font-size: 24px; margin-right: 8px;">✅</span>
+                    <?php esc_html_e('Free OpenStreetMap Maps (No Setup Required!)', 'realestate-booking-suite'); ?>
+                </h3>
+                <p style="margin: 0; color: #166534; font-size: 14px; line-height: 1.6;">
+                    <?php esc_html_e('Your site is using OpenStreetMap with Leaflet.js - completely FREE with no API keys, no billing, and unlimited usage!', 'realestate-booking-suite'); ?>
+                </p>
+                <p style="margin: 10px 0 0 0; color: #15803d; font-size: 13px;">
+                    <strong>✨ Features:</strong> <?php esc_html_e('No setup needed • Unlimited map views • Free geocoding • Works everywhere • No restrictions', 'realestate-booking-suite'); ?>
+                </p>
             </div>
             
-            <div class="resbs-form-group">
-                <label for="resbs_default_latitude"><?php esc_html_e('Default Latitude and Longitude - center of the map', 'realestate-booking-suite'); ?></label>
-                <input type="text" id="resbs_default_latitude" name="resbs_default_latitude" value="<?php echo esc_attr(get_option('resbs_default_latitude', '40.7128,-74.0060')); ?>" placeholder="ex: 12.381068,-1.492711">
-            </div>
+            <!-- Hidden field for backwards compatibility (not used anymore) -->
+            <input type="hidden" name="resbs_mapbox_access_token" value="">
+            <?php if (!empty(get_option('resbs_mapbox_access_token', '')) || !empty(get_option('resbs_google_api_key', ''))): ?>
+                <div class="resbs-form-group" style="padding: 15px; background: #fffbeb; border-left: 4px solid #f59e0b; border-radius: 6px; margin-top: 15px;">
+                    <p style="margin: 0; color: #92400e; font-size: 13px;">
+                        <strong>ℹ️ Note:</strong> <?php esc_html_e('You previously had Mapbox or Google Maps configured. The system now uses free OpenStreetMap automatically - no action needed!', 'realestate-booking-suite'); ?>
+                    </p>
+                </div>
+            <?php endif; ?>
+            
+            <!-- Default Latitude/Longitude removed - Maps now use individual property coordinates -->
             
             <div class="resbs-form-group">
                 <label for="resbs_default_zoom_level"><?php esc_html_e('Default zoom level', 'realestate-booking-suite'); ?></label>
@@ -2398,9 +2413,9 @@ class RESBS_Enhanced_Settings {
      */
     private function save_map_settings() {
         $settings = array(
-            'resbs_google_api_key',
-            'resbs_default_latitude',
-            'resbs_default_longitude',
+            'resbs_mapbox_access_token',
+            'resbs_google_api_key', // Keep for backwards compatibility
+            // 'resbs_default_latitude' and 'resbs_default_longitude' removed - maps now use individual property coordinates
             'resbs_default_zoom_level',
             'resbs_single_property_zoom_level',
             'resbs_enable_markers_cluster',

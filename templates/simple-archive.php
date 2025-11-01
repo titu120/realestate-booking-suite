@@ -598,7 +598,7 @@ $property_statuses = get_terms(array(
             <!-- Interactive Google Map -->
             <div class="map-section map-hidden">
                 <div class="map-container" style="position: relative;">
-                    <div id="googleMap"></div>
+                    <div id="googleMap" style="width: 100%; height: 100%; min-height: 500px;"></div>
                     
                     <!-- Map Legend -->
                     <div class="map-legend" style="position: absolute; bottom: 20px; left: 20px; z-index: 10;">
@@ -622,32 +622,54 @@ $property_statuses = get_terms(array(
             </div>
             
             <?php
-            // Get Google Maps API key
-            $google_maps_api_key = get_option('resbs_google_maps_api_key', '');
+            // Using OpenStreetMap with Leaflet.js - completely FREE, no API keys needed!
+            // No tokens or API keys required - everything is free and unlimited
+            $use_openstreetmap = true; // Always use free OpenStreetMap
             $map_zoom = get_option('resbs_map_zoom_level', 10);
-            $map_center_lat = get_option('resbs_map_center_lat', 40.7128);
-            $map_center_lng = get_option('resbs_map_center_lng', -74.0060);
             
-            // Debug: Show API key status (remove after testing)
-            if (empty($google_maps_api_key)) {
-                echo '<!-- DEBUG: Google Maps API key is NOT set in database. Please add it in WordPress Admin → RealEstate Booking Suite → Map Settings -->';
-            } else {
-                echo '<!-- DEBUG: Google Maps API key is SET (length: ' . strlen($google_maps_api_key) . ' characters) -->';
-            }
+            // IMPORTANT: Map location is based on EACH PROPERTY's individual coordinates
+            // Dashboard location settings are NOT used - each property has its own location
+            // This fallback is ONLY used if NO properties have coordinates set
+            $map_center_lat = 23.8103; // Fallback only - property locations take priority
+            $map_center_lng = 90.4125; // Fallback only - property locations take priority
+            
+            // Debug: Using free OpenStreetMap
+            echo '<!-- DEBUG: Using FREE OpenStreetMap with Leaflet.js - No API keys required, unlimited usage, completely free! -->';
             
             // Prepare properties data for JavaScript
+            // IMPORTANT: Add ALL properties to map - use geocoding for those without coordinates
             $properties_query->rewind_posts();
             $properties_data = array();
+            $properties_without_coords = array();
+            
             while ($properties_query->have_posts()): $properties_query->the_post();
-                $latitude = get_post_meta(get_the_ID(), '_property_latitude', true);
-                $longitude = get_post_meta(get_the_ID(), '_property_longitude', true);
+                $property_id = get_the_ID();
+                $property_title = get_the_title();
                 
-                if ($latitude && $longitude) {
-                    $price = get_post_meta(get_the_ID(), '_property_price', true);
-                    $bedrooms = get_post_meta(get_the_ID(), '_property_bedrooms', true);
-                    $bathrooms = get_post_meta(get_the_ID(), '_property_bathrooms', true);
-                    $area_sqft = get_post_meta(get_the_ID(), '_property_area_sqft', true);
-                    $featured_image = get_the_post_thumbnail_url(get_the_ID(), 'thumbnail');
+                // Get coordinates - try multiple meta key formats for compatibility
+                $latitude = get_post_meta($property_id, '_property_latitude', true);
+                $longitude = get_post_meta($property_id, '_property_longitude', true);
+                
+                // Fallback: try without underscore prefix
+                if (empty($latitude)) {
+                    $latitude = get_post_meta($property_id, 'property_latitude', true);
+                }
+                if (empty($longitude)) {
+                    $longitude = get_post_meta($property_id, 'property_longitude', true);
+                }
+                
+                $city = get_post_meta($property_id, '_property_city', true);
+                $address = get_post_meta($property_id, '_property_address', true);
+                $state = get_post_meta($property_id, '_property_state', true);
+                $zip = get_post_meta($property_id, '_property_zip', true);
+                $country = get_post_meta($property_id, '_property_country', true);
+                
+                // Get property data regardless of coordinates
+                $price = get_post_meta($property_id, '_property_price', true);
+                $bedrooms = get_post_meta($property_id, '_property_bedrooms', true);
+                $bathrooms = get_post_meta($property_id, '_property_bathrooms', true);
+                $area_sqft = get_post_meta($property_id, '_property_area_sqft', true);
+                $featured_image = get_the_post_thumbnail_url($property_id, 'thumbnail');
                     
                     $post_date = get_the_date('Y-m-d');
                     $days_old = (time() - strtotime($post_date)) / (60 * 60 * 24);
@@ -660,11 +682,57 @@ $property_statuses = get_terms(array(
                         $marker_color = '#0f766e'; // Teal for standard
                     }
                     
-                    $properties_data[] = array(
-                        'id' => get_the_ID(),
-                        'title' => get_the_title(),
-                        'lat' => floatval($latitude),
-                        'lng' => floatval($longitude),
+                // Validate and set coordinates
+                $lat_float = null;
+                $lng_float = null;
+                $needs_geocoding = false;
+                
+                if (!empty($latitude) && !empty($longitude)) {
+                    $lat_float = floatval($latitude);
+                    $lng_float = floatval($longitude);
+                    
+                    // Check if coordinates are valid
+                    if (!is_numeric($latitude) || !is_numeric($longitude) || 
+                        $lat_float < -90 || $lat_float > 90 ||
+                        $lng_float < -180 || $lng_float > 180 ||
+                        ($lat_float == 0 && $lng_float == 0)) {
+                        // Invalid coordinates - need geocoding
+                        $lat_float = null;
+                        $lng_float = null;
+                        $needs_geocoding = true;
+                        echo '<!-- DEBUG: Property "' . esc_html($property_title) . '" (ID: ' . $property_id . ') has invalid coordinates, will geocode -->';
+                    }
+                } else {
+                    // No coordinates - need geocoding
+                    $needs_geocoding = true;
+                    echo '<!-- DEBUG: Property "' . esc_html($property_title) . '" (ID: ' . $property_id . ') has NO coordinates, will geocode from address -->';
+                }
+                
+                // Build address string for geocoding
+                $address_string = '';
+                if ($address) $address_string .= $address;
+                if ($city) $address_string .= ($address_string ? ', ' : '') . $city;
+                if ($state) $address_string .= ($address_string ? ', ' : '') . $state;
+                if ($zip) $address_string .= ($address_string ? ' ' : '') . $zip;
+                if ($country) $address_string .= ($address_string ? ', ' : '') . $country;
+                
+                // If no address fields, try using property location taxonomy term
+                if (empty($address_string)) {
+                    $location_terms = get_the_terms($property_id, 'property_location');
+                    if ($location_terms && !is_wp_error($location_terms) && !empty($location_terms)) {
+                        $location_name = $location_terms[0]->name;
+                        $address_string = $location_name . ', Bangladesh'; // Add country for better geocoding
+                        echo '<!-- DEBUG: Property "' . esc_html($property_title) . '" using location taxonomy: ' . esc_html($location_name) . ' -->';
+                    }
+                }
+                
+                // ALWAYS add property to data array - even if it needs geocoding
+                // Ensure needs_geocoding is TRUE if no coordinates exist
+                $needs_geocoding = ($lat_float === null || $lng_float === null);
+                
+                $property_data = array(
+                    'id' => $property_id,
+                    'title' => $property_title,
                         'price' => $price ? '$' . number_format($price) : 'Price on request',
                         'bedrooms' => $bedrooms,
                         'bathrooms' => $bathrooms,
@@ -672,11 +740,53 @@ $property_statuses = get_terms(array(
                         'permalink' => get_permalink(),
                         'image' => $featured_image ? $featured_image : '',
                         'marker_color' => $marker_color,
-                        'days_old' => $days_old
-                    );
+                    'days_old' => $days_old,
+                    'city' => $city ? $city : '',
+                    'address' => $address ? $address : '',
+                    'full_address' => $address_string,
+                    'needs_geocoding' => $needs_geocoding // Explicitly set this
+                );
+                
+                if ($lat_float !== null && $lng_float !== null) {
+                    // Has valid coordinates
+                    $property_data['lat'] = $lat_float;
+                    $property_data['lng'] = $lng_float;
+                    $property_data['needs_geocoding'] = false;
+                } else {
+                    // Needs geocoding - will be done in JavaScript
+                    $property_data['needs_geocoding'] = true;
+                    $properties_without_coords[] = $property_data;
+                    
+                    // Debug: log if address string is empty
+                    if (empty($address_string)) {
+                        echo '<!-- WARNING: Property "' . esc_html($property_title) . '" has NO address string - will try location taxonomy or city -->';
+                    }
                 }
+                
+                // Add ALL properties to the array
+                $properties_data[] = $property_data;
             endwhile;
             wp_reset_postdata();
+            
+            // Debug output - detailed information
+            $properties_with_coords = array_filter($properties_data, function($p) { return !empty($p['lat']) && !empty($p['lng']); });
+            $properties_needing_geocode = array_filter($properties_data, function($p) { return !empty($p['needs_geocoding']) && $p['needs_geocoding']; });
+            
+            echo '<!-- DEBUG: Total properties in query: ' . $properties_query->found_posts . ' -->';
+            echo '<!-- DEBUG: Total properties being added to map: ' . count($properties_data) . ' -->';
+            echo '<!-- DEBUG: Properties with valid coordinates: ' . count($properties_with_coords) . ' -->';
+            echo '<!-- DEBUG: Properties needing geocoding: ' . count($properties_needing_geocode) . ' -->';
+            
+            if (count($properties_data) > 0) {
+                echo '<!-- DEBUG: All properties list -->';
+                foreach ($properties_data as $idx => $prop) {
+                    if (isset($prop['lat']) && isset($prop['lng'])) {
+                        echo '<!-- Property ' . ($idx + 1) . ': ' . esc_html($prop['title']) . ' - Lat: ' . $prop['lat'] . ', Lng: ' . $prop['lng'] . ' -->';
+                    } else {
+                        echo '<!-- Property ' . ($idx + 1) . ': ' . esc_html($prop['title']) . ' - Will geocode: ' . esc_html($prop['full_address']) . ' -->';
+                    }
+                }
+            }
             ?>
         
         <!-- Pagination -->
@@ -849,13 +959,21 @@ body {
 
 .listings-container.map-visible .map-section .map-container {
     height: 100%;
+    min-height: 500px;
     position: relative;
+    width: 100%;
+}
+
+.listings-container.map-visible .map-section {
+    min-height: 500px;
+    height: 100%;
 }
 
 #googleMap {
-    width: 100%;
-    height: 100%;
-    min-height: 400px;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 500px !important;
+    position: relative !important;
     background: transparent !important;
     position: relative;
     z-index: 1;
@@ -1436,20 +1554,643 @@ document.addEventListener('DOMContentLoaded', function() {
     if (mapToggleBtn) mapToggleBtn.classList.remove('active');
     if (gridBtn) gridBtn.classList.add('active');
     
-    // Initialize Google Map if API key is available
-    <?php if (!empty($google_maps_api_key)): ?>
-    initializeGoogleMap();
-    <?php else: ?>
-    console.warn('Google Maps API key is not set. Please add your API key in Map Settings.');
+    // Initialize OpenStreetMap (free, no setup required)
+    <?php if ($use_openstreetmap): ?>
+    initializeOpenStreetMap();
     <?php endif; ?>
 });
 </script>
 
-<?php if (!empty($google_maps_api_key)): ?>
+<?php if ($use_openstreetmap): ?>
+<!-- Leaflet.js CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<!-- Leaflet.js JavaScript -->
+<script>
+// Load Leaflet.js and initialize when ready
+(function() {
+    var leafletScript = document.createElement('script');
+    leafletScript.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+    leafletScript.integrity = 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=';
+    leafletScript.crossOrigin = 'anonymous';
+    leafletScript.onload = function() {
+        console.log('✅ Leaflet.js script loaded successfully');
+        // Leaflet loaded, initialization will happen below
+    };
+    leafletScript.onerror = function() {
+        console.error('❌ Failed to load Leaflet.js script');
+        var mapContainer = document.getElementById('googleMap');
+        if (mapContainer) {
+            mapContainer.innerHTML = '<div style="padding: 40px; text-align: center; color: #ef4444;"><h3>⚠️ Map Library Failed to Load</h3><p>Please check your internet connection and refresh the page.</p></div>';
+        }
+    };
+    document.head.appendChild(leafletScript);
+})();
+</script>
+
+<script>
+console.log('=== OpenStreetMap (Leaflet) Integration Started ===');
+console.log('Using FREE OpenStreetMap - No API keys, no billing, unlimited usage!');
+console.log('Total properties in query:', <?php echo $properties_query->found_posts; ?>);
+console.log('Total properties being added to map:', <?php echo count($properties_data); ?>);
+
+// Leaflet Variables - Must be global
+window.map = null;
+window.markers = [];
+window.popups = [];
+window.propertiesData = <?php echo json_encode($properties_data); ?>;
+window.mapInitialized = false;
+
+console.log('=== PROPERTIES DATA DEBUG ===');
+console.log('All properties data:', window.propertiesData);
+if (window.propertiesData && window.propertiesData.length > 0) {
+    console.log('Property details:');
+    window.propertiesData.forEach(function(prop, idx) {
+        if (prop.lat && prop.lng) {
+            console.log('  [' + (idx + 1) + ']', prop.title, '- Has coordinates - Lat:', prop.lat, ', Lng:', prop.lng);
+        } else {
+            console.log('  [' + (idx + 1) + ']', prop.title, '- Needs geocoding:', prop.full_address || 'No address');
+        }
+    });
+} else {
+    console.warn('⚠️ WARNING: No properties found!'); 
+
+// Initialize OpenStreetMap with Leaflet
+function initializeOpenStreetMap() {
+    console.log('=== initializeOpenStreetMap called ===');
+    console.log('Leaflet.js loaded:', typeof L !== 'undefined');
+    
+    if (typeof L === 'undefined') {
+        console.error('❌ Leaflet.js is not loaded!');
+        showMapError('Map library failed to load. Please refresh the page.');
+        return;
+    }
+    
+    console.log('Properties data:', window.propertiesData ? window.propertiesData.length + ' properties' : 'none');
+    
+    const mapContainer = document.getElementById('googleMap'); // Keep same container ID
+    if (!mapContainer) {
+        console.error('❌ Map container (#googleMap) not found in DOM');
+        return;
+    }
+    
+    // Check if map already exists
+    if (window.map) {
+        console.log('✅ Map already initialized, skipping...');
+        // Still resize it in case container became visible
+        setTimeout(function() {
+            if (window.map) {
+                window.map.invalidateSize();
+            }
+        }, 100);
+        return;
+    }
+    
+    console.log('Map container found:', mapContainer);
+    console.log('Map container visible:', mapContainer.offsetParent !== null);
+    console.log('Map container dimensions:', mapContainer.offsetWidth + 'x' + mapContainer.offsetHeight);
+    
+    // Initialize even if hidden - Leaflet can initialize on hidden containers
+    // We'll call invalidateSize() when it becomes visible
+    if (mapContainer.offsetParent === null) {
+        console.log('⏳ Map container is hidden, but will initialize anyway (will resize when shown)');
+    }
+    
+    // IMPORTANT: Show ALL properties on map - geocode those without coordinates
+    let centerLat = <?php echo esc_js($map_center_lat); ?>; // Fallback only
+    let centerLng = <?php echo esc_js($map_center_lng); ?>; // Fallback only
+    
+    // Separate properties with and without coordinates
+    const propertiesWithCoords = [];
+    const propertiesNeedingGeocode = [];
+    
+    if (window.propertiesData && window.propertiesData.length > 0) {
+        window.propertiesData.forEach(function(property) {
+            const lat = parseFloat(property.lat);
+            const lng = parseFloat(property.lng);
+            
+            if (!isNaN(lat) && !isNaN(lng) && 
+                lat >= -90 && lat <= 90 && 
+                lng >= -180 && lng <= 180 &&
+                lat !== 0 && lng !== 0) {
+                // Has valid coordinates
+                propertiesWithCoords.push(property);
+                console.log('✅ Property with coordinates:', property.title, 'at', lat, ',', lng);
+            } else if (property.needs_geocoding) {
+                // Needs geocoding - ensure we have an address
+                if (!property.full_address || property.full_address.trim() === '') {
+                    // Try city as fallback
+                    if (property.city && property.city.trim() !== '') {
+                        property.full_address = property.city + ', Bangladesh';
+                        console.log('📍 Property needs geocoding (using city):', property.title, '- Address:', property.full_address);
+                    } else if (property.address && property.address.trim() !== '') {
+                        property.full_address = property.address + ', Bangladesh';
+                        console.log('📍 Property needs geocoding (using address):', property.title, '- Address:', property.full_address);
+                    }
+                }
+                
+                // If still no address, try property title/location as last resort
+                if (!property.full_address || property.full_address.trim() === '') {
+                    console.warn('⚠️ Property has no address/city - will try title:', property.title);
+                    property.full_address = property.title + ', Bangladesh';
+                }
+                
+                if (property.full_address && property.full_address.trim() !== '') {
+                    propertiesNeedingGeocode.push(property);
+                    console.log('✅ Property added to geocoding queue:', property.title, '- Will geocode:', property.full_address);
+                } else {
+                    console.error('❌ Property cannot be geocoded - no address available:', property.title);
+                }
+            } else {
+                console.warn('⚠️ Property skipped - no coordinates and needs_geocoding=false:', property.title, '- needs_geocoding:', property.needs_geocoding);
+            }
+        });
+    }
+    
+    console.log('📊 Summary:');
+    console.log('  - Total properties:', window.propertiesData ? window.propertiesData.length : 0);
+    console.log('  - Properties with coordinates:', propertiesWithCoords.length);
+    console.log('  - Properties needing geocoding:', propertiesNeedingGeocode.length);
+    console.log('  - Total properties that will appear on map:', propertiesWithCoords.length + propertiesNeedingGeocode.length);
+    
+    // Log all properties for debugging
+    if (window.propertiesData && window.propertiesData.length > 0) {
+        console.log('📋 DETAILED PROPERTIES LIST:');
+        window.propertiesData.forEach(function(prop, idx) {
+            const lat = parseFloat(prop.lat);
+            const lng = parseFloat(prop.lng);
+            if (!isNaN(lat) && !isNaN(lng) && lat !== 0 && lng !== 0) {
+                console.log('  [' + (idx + 1) + '] ✅', prop.title, '- HAS COORDINATES:', lat, ',', lng);
+            } else if (prop.needs_geocoding) {
+                console.log('  [' + (idx + 1) + '] 📍', prop.title, '- WILL GEOCODE:', prop.full_address || prop.city || prop.title || 'NO ADDRESS');
+            } else {
+                console.log('  [' + (idx + 1) + '] ⚠️', prop.title, '- SKIPPED (needs_geocoding=false, no coords)');
+            }
+        });
+    }
+    
+    // Calculate map center from properties with coordinates
+    if (propertiesWithCoords.length > 0) {
+        let minLat = Infinity, maxLat = -Infinity;
+        let minLng = Infinity, maxLng = -Infinity;
+        
+        propertiesWithCoords.forEach(function(property) {
+            const lat = parseFloat(property.lat);
+            const lng = parseFloat(property.lng);
+            minLat = Math.min(minLat, lat);
+            maxLat = Math.max(maxLat, lat);
+            minLng = Math.min(minLng, lng);
+            maxLng = Math.max(maxLng, lng);
+        });
+        
+        centerLat = (minLat + maxLat) / 2;
+        centerLng = (minLng + maxLng) / 2;
+        console.log('✅ Map centered on properties with coordinates:', centerLat, centerLng);
+    }
+    
+    try {
+        console.log('🗺️ Creating OpenStreetMap with Leaflet...');
+        // Create Leaflet map with OpenStreetMap tiles
+        window.map = L.map('googleMap', {
+            center: [centerLat, centerLng],
+            zoom: <?php echo esc_js($map_zoom); ?>,
+            zoomControl: true
+        });
+        
+        // Add OpenStreetMap tile layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            maxZoom: 19
+        }).addTo(window.map);
+        
+        console.log('✅ OpenStreetMap loaded successfully');
+        
+        // Add markers for properties that already have coordinates
+        if (propertiesWithCoords.length > 0) {
+            console.log('📍 Adding', propertiesWithCoords.length, 'properties with coordinates to map');
+            addLeafletMarkers(propertiesWithCoords);
+            
+            // Fit bounds to show all properties with coordinates
+            if (propertiesWithCoords.length > 1) {
+                const bounds = L.latLngBounds([]);
+                propertiesWithCoords.forEach(function(property) {
+                    bounds.extend([parseFloat(property.lat), parseFloat(property.lng)]);
+                });
+                window.map.fitBounds(bounds, {padding: [50, 50]});
+                console.log('📍 Map bounds adjusted to fit', propertiesWithCoords.length, 'properties with coordinates');
+            }
+        }
+        
+        // Then geocode properties that need it - IMPORTANT: This will add ALL properties to map
+        if (propertiesNeedingGeocode.length > 0) {
+            console.log('📍 Starting geocoding for', propertiesNeedingGeocode.length, 'properties without coordinates...');
+            console.log('📍 This will ensure ALL properties appear on the map!');
+            geocodePropertiesNominatim(propertiesNeedingGeocode);
+        } else {
+            console.log('✅ All properties already have coordinates - no geocoding needed');
+        }
+        
+        // Log final status
+        console.log('🗺️ Map initialization complete!');
+        console.log('📍 Properties on map:', propertiesWithCoords.length, '(with coords) +', propertiesNeedingGeocode.length, '(geocoding) =', propertiesWithCoords.length + propertiesNeedingGeocode.length, 'total');
+        
+        window.mapInitialized = true;
+        console.log('✅ OpenStreetMap fully initialized with markers');
+        
+        // If container was hidden, resize when it becomes visible
+        if (mapContainer.offsetParent === null) {
+            const resizeObserver = new MutationObserver(function() {
+                if (mapContainer.offsetParent !== null && window.map) {
+                    console.log('📍 Map container became visible, resizing...');
+                    setTimeout(function() {
+                        window.map.invalidateSize();
+                    }, 200);
+                    resizeObserver.disconnect();
+                }
+            });
+            
+            resizeObserver.observe(mapContainer.parentElement || mapContainer, {
+                attributes: true,
+                attributeFilter: ['class', 'style'],
+                childList: false,
+                subtree: true
+            });
+        }
+        
+    } catch (error) {
+        console.error('❌ Error initializing OpenStreetMap:', error);
+        console.error('Error details:', error.message, error.stack);
+        showMapError('Error initializing map: ' + error.message + '. Please check your browser console for details.');
+    }
+}
+
+// Add Leaflet markers
+function addLeafletMarkers(propertiesArray) {
+    const propertiesToUse = propertiesArray || window.propertiesData || [];
+    
+    console.log('=== addLeafletMarkers called ===');
+    console.log('Map available:', !!window.map);
+    console.log('Properties to add:', propertiesToUse.length);
+    
+    if (!window.map) {
+        console.error('❌ Map not available');
+        return;
+    }
+    
+    if (!propertiesToUse || propertiesToUse.length === 0) {
+        console.error('❌ No properties available to add markers');
+        return;
+    }
+    
+    console.log('✅ Adding markers for', propertiesToUse.length, 'properties');
+    
+    // Clear existing markers
+    window.markers.forEach(function(marker) {
+        window.map.removeLayer(marker);
+    });
+    window.markers = [];
+    window.popups = [];
+    
+    // Add markers for all properties
+    propertiesToUse.forEach(function(property, index) {
+        if (property.lat && property.lng) {
+            addLeafletMarker(property);
+            console.log('✅ Marker added for property', (index + 1) + ':', property.title, 'at', property.lat, ',', property.lng);
+        } else {
+            console.warn('⚠️ Skipping property without coordinates:', property.title);
+        }
+    });
+    
+    console.log('✅ Successfully added', window.markers.length, 'markers to map');
+}
+
+// Add a single Leaflet marker
+function addLeafletMarker(property) {
+    if (!window.map) return;
+    if (!property.lat || !property.lng) return;
+    
+    // Create custom icon
+    const markerColor = property.marker_color || '#10b981';
+    const markerIcon = L.divIcon({
+        className: 'leaflet-marker-custom',
+        html: `<div style="width: 20px; height: 20px; border-radius: 50%; background-color: ${markerColor}; border: 2px solid #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>`,
+        iconSize: [20, 20],
+        iconAnchor: [10, 10]
+    });
+    
+    // Create marker
+    const marker = L.marker([parseFloat(property.lat), parseFloat(property.lng)], {
+        icon: markerIcon
+    }).addTo(window.map);
+    
+    // Create popup content
+    const popupContent = `
+        <div class="property-info-window" style="min-width: 250px; padding: 10px;">
+            ${property.image ? `<img src="${property.image}" style="width: 100%; height: 150px; object-fit: cover; border-radius: 8px; margin-bottom: 10px;" alt="${property.title}">` : ''}
+            <h3 style="margin: 0 0 10px 0; font-size: 16px; font-weight: 600;">${property.title}</h3>
+            <p style="margin: 0 0 8px 0; font-size: 18px; font-weight: bold; color: #10b981;">${property.price}</p>
+            <div style="display: flex; gap: 15px; margin-bottom: 10px; font-size: 14px; color: #666;">
+                ${property.bedrooms ? `<span>🛏️ ${property.bedrooms} beds</span>` : ''}
+                ${property.bathrooms ? `<span>🚿 ${property.bathrooms} baths</span>` : ''}
+                ${property.area_sqft ? `<span>📏 ${property.area_sqft.toLocaleString()} sq ft</span>` : ''}
+            </div>
+            <a href="${property.permalink}" target="_blank" style="display: inline-block; padding: 8px 16px; background: #10b981; color: white; text-decoration: none; border-radius: 6px; font-size: 14px; font-weight: 500; margin-top: 8px;">
+                View Details →
+            </a>
+        </div>
+    `;
+    
+    // Create popup
+    marker.bindPopup(popupContent);
+    
+    // Store marker
+    window.markers.push(marker);
+}
+
+// Geocode properties using Nominatim (free OpenStreetMap geocoding)
+function geocodePropertiesNominatim(propertiesArray) {
+    if (!propertiesArray || propertiesArray.length === 0) return;
+    if (!window.map) return;
+    
+    console.log('🗺️ Starting Nominatim geocoding for', propertiesArray.length, 'properties');
+    console.log('📝 Using FREE Nominatim geocoding service - no API keys needed!');
+    
+    let geocodeIndex = 0;
+    const geocodeDelay = 1000; // Delay between geocoding requests (ms) - Nominatim requires slower requests
+    
+    function geocodeNext() {
+        if (geocodeIndex >= propertiesArray.length) {
+            console.log('✅ Finished geocoding all properties');
+            // Update bounds to include newly geocoded properties
+            updateLeafletBounds();
+            return;
+        }
+        
+        const property = propertiesArray[geocodeIndex];
+        if (!property.full_address) {
+            console.warn('⚠️ Skipping', property.title, '- no address to geocode');
+            geocodeIndex++;
+            setTimeout(geocodeNext, geocodeDelay);
+            return;
+        }
+        
+        console.log('📍 Geocoding:', property.title, '- Address:', property.full_address);
+        
+        // Use Nominatim (free OpenStreetMap geocoding service)
+        const geocodeUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(property.full_address)}&limit=1`;
+        
+        fetch(geocodeUrl, {
+            headers: {
+                'User-Agent': 'RealEstate-Booking-Suite-WordPress-Plugin/1.0' // Required by Nominatim
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.length > 0) {
+                    const result = data[0];
+                    const lat = parseFloat(result.lat);
+                    const lng = parseFloat(result.lon);
+                    
+                    // Add coordinates to property
+                    property.lat = lat;
+                    property.lng = lng;
+                    property.needs_geocoding = false;
+                    
+                    console.log('✅ Geocoded:', property.title, '- Coordinates:', lat, ',', lng);
+                    
+                    // Add marker for this property
+                    addLeafletMarker(property);
+                } else {
+                    console.warn('⚠️ Geocoding failed for:', property.title, '- No results found');
+                }
+                
+                // Process next property
+                geocodeIndex++;
+                setTimeout(geocodeNext, geocodeDelay);
+            })
+            .catch(error => {
+                console.warn('⚠️ Geocoding error for:', property.title, '- Error:', error);
+                geocodeIndex++;
+                setTimeout(geocodeNext, geocodeDelay);
+            });
+    }
+    
+    // Start geocoding
+    geocodeNext();
+}
+
+// Update map bounds to include all markers
+function updateLeafletBounds() {
+    if (!window.map || !window.markers || window.markers.length === 0) return;
+    
+    const bounds = L.latLngBounds([]);
+    window.markers.forEach(function(marker) {
+        bounds.extend(marker.getLatLng());
+    });
+    
+    if (window.markers.length > 0) {
+        window.map.fitBounds(bounds, {padding: [50, 50]});
+        console.log('📍 Map bounds updated to show all', window.markers.length, 'properties');
+    }
+}
+
+// Check and initialize map
+function checkAndInitLeafletMap() {
+    const mapContainer = document.getElementById('googleMap');
+    if (!mapContainer) {
+        console.error('❌ Map container (#googleMap) not found');
+        return;
+    }
+    
+    console.log('📋 Map container check:', {
+        'exists': !!mapContainer,
+        'visible': mapContainer.offsetParent !== null,
+        'width': mapContainer.offsetWidth,
+        'height': mapContainer.offsetHeight,
+        'mapExists': !!window.map
+    });
+    
+    // Initialize map if not already initialized
+    if (!window.map && typeof L !== 'undefined') {
+        if (mapContainer.offsetParent !== null) {
+            console.log('📍 Map container is visible, initializing now...');
+            initializeOpenStreetMap();
+        } else {
+            console.log('📍 Map container is hidden, but initializing anyway...');
+            // Initialize even if hidden - Leaflet can handle this
+            initializeOpenStreetMap();
+            
+            // Set up observer to resize when shown
+            const observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if (mapContainer.offsetParent !== null && window.map) {
+                        console.log('📍 Map container became visible, resizing map...');
+                        setTimeout(function() {
+                            if (window.map) {
+                                window.map.invalidateSize();
+                            }
+                        }, 100);
+                        observer.disconnect();
+                    }
+                });
+            });
+            
+            observer.observe(mapContainer.parentElement || mapContainer, {
+                attributes: true,
+                attributeFilter: ['class', 'style'],
+                childList: false,
+                subtree: true
+            });
+            
+            // Also watch for class changes on map section
+            const mapSection = document.querySelector('.map-section');
+            if (mapSection) {
+                observer.observe(mapSection, {
+                    attributes: true,
+                    attributeFilter: ['class'],
+                    childList: false,
+                    subtree: false
+                });
+            }
+        }
+    } else if (window.map) {
+        console.log('📍 Map already initialized');
+    } else {
+        console.warn('⚠️ Leaflet.js not loaded yet');
+    }
+}
+
+// Function to show user-friendly map error
+function showMapError(message) {
+    const mapContainer = document.getElementById('googleMap');
+    if (!mapContainer) return;
+    
+    // Remove any existing error message
+    const existingError = mapContainer.querySelector('.resbs-map-error');
+    if (existingError) {
+        existingError.remove();
+    }
+    
+    // Get admin URL
+    let adminUrl = '';
+    if (typeof window.location !== 'undefined') {
+        const currentUrl = window.location.href;
+        const urlParts = currentUrl.split('/');
+        if (urlParts.length > 3) {
+            adminUrl = urlParts[0] + '//' + urlParts[2] + '/wp-admin';
+        }
+    }
+    
+    // Create error message overlay
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'resbs-map-error';
+    errorDiv.style.cssText = 'position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); z-index: 1000; max-width: 450px; text-align: center; border: 2px solid #ef4444;';
+    errorDiv.innerHTML = `
+        <div style="color: #ef4444; font-size: 48px; margin-bottom: 15px;">⚠️</div>
+        <h3 style="color: #1f2937; margin: 0 0 10px 0; font-size: 18px; font-weight: 600;">Map Error</h3>
+        <p style="color: #6b7280; margin: 0 0 20px 0; font-size: 14px; line-height: 1.5;">${message}</p>
+        ${adminUrl ? '<a href="' + adminUrl + '/admin.php?page=resbs-general-settings" target="_blank" style="display: inline-block; padding: 10px 20px; background: #3b82f6; color: white; text-decoration: none; border-radius: 6px; font-weight: 500; margin-top: 10px;">⚙️ Configure Map Token in Settings</a>' : ''}
+        <p style="margin-top: 15px; font-size: 11px; color: #9ca3af;">Go to WordPress Admin → RealEstate Booking Suite → Settings → Map Settings</p>
+    `;
+    
+    mapContainer.style.position = 'relative';
+    mapContainer.appendChild(errorDiv);
+}
+
+// Initialize Leaflet map when library loads
+function initLeafletWhenReady() {
+    if (typeof L !== 'undefined') {
+        console.log('✅ Leaflet.js loaded, checking map initialization...');
+        checkAndInitLeafletMap();
+    } else {
+        console.log('⏳ Waiting for Leaflet.js to load...');
+        setTimeout(function() {
+            if (typeof L !== 'undefined') {
+                initLeafletWhenReady();
+            } else {
+                console.error('❌ Leaflet.js failed to load after timeout');
+                // Try once more after longer delay
+                setTimeout(function() {
+                    if (typeof L !== 'undefined') {
+                        initLeafletWhenReady();
+                    } else {
+                        console.error('❌ Leaflet.js failed to load - check internet connection');
+                        const mapContainer = document.getElementById('googleMap');
+                        if (mapContainer) {
+                            showMapError('Failed to load map library. Please check your internet connection and refresh the page.');
+                        }
+                    }
+                }, 2000);
+            }
+        }, 500);
+    }
+}
+
+// Start initialization
+initLeafletWhenReady();
+
+// Update showMapView function for Leaflet
+const originalShowMapView = window.showMapView;
+window.showMapView = function() {
+    console.log('🗺️ showMapView called');
+    if (typeof originalShowMapView === 'function') {
+        originalShowMapView();
+    }
+    
+    // Wait a bit longer for container to become visible
+    setTimeout(function() {
+        const mapContainer = document.getElementById('googleMap');
+        console.log('📋 showMapView - Map container check:', {
+            'exists': !!mapContainer,
+            'visible': mapContainer ? mapContainer.offsetParent !== null : false,
+            'LeafletLoaded': typeof L !== 'undefined',
+            'mapExists': !!window.map
+        });
+        
+        if (typeof L !== 'undefined') {
+            if (!window.map && mapContainer && mapContainer.offsetParent !== null) {
+                console.log('📍 Initializing Leaflet map in showMapView');
+                initializeOpenStreetMap();
+            } else if (window.map) {
+                // Resize map
+                console.log('📍 Map exists, resizing...');
+                setTimeout(function() {
+                    window.map.invalidateSize();
+                    // Fit bounds
+                    if (window.markers && window.markers.length > 0) {
+                        updateLeafletBounds();
+                    }
+                }, 100);
+            } else {
+                console.log('📍 Map container not visible yet, will initialize when visible');
+                // Try again after a short delay
+                setTimeout(function() {
+                    if (!window.map && mapContainer && mapContainer.offsetParent !== null) {
+                        console.log('📍 Container now visible, initializing...');
+                        initializeOpenStreetMap();
+                    }
+                }, 500);
+            }
+        } else {
+            console.warn('⚠️ Leaflet.js not loaded yet in showMapView');
+            // Wait for Leaflet to load
+            setTimeout(function() {
+                if (typeof L !== 'undefined' && mapContainer && mapContainer.offsetParent !== null && !window.map) {
+                    console.log('📍 Leaflet loaded, initializing map now...');
+                    initializeOpenStreetMap();
+                }
+            }, 1000);
+        }
+    }, 300);
+};
+
+</script>
+
+<?php elseif (!empty($google_maps_api_key)): ?>
 <script>
 console.log('=== Google Maps Integration Started ===');
 console.log('API Key from PHP:', '<?php echo substr(esc_js($google_maps_api_key), 0, 10); ?>...');
-console.log('Properties with coordinates:', <?php echo count($properties_data); ?>);
+console.log('Total properties in query:', <?php echo $properties_query->found_posts; ?>);
+console.log('Total properties being added to map:', <?php echo count($properties_data); ?>);
 
 // Google Maps Variables - Must be global
 window.map = null;
@@ -1458,7 +2199,30 @@ window.infoWindows = [];
 window.propertiesData = <?php echo json_encode($properties_data); ?>;
 window.googleMapsApiKey = '<?php echo esc_js($google_maps_api_key); ?>';
 window.mapInitialized = false;
+window.geocoder = null;
 
+// Debug: Verify API key was loaded correctly
+console.log('API Key Status:', {
+    'exists': typeof window.googleMapsApiKey !== 'undefined',
+    'length': window.googleMapsApiKey ? window.googleMapsApiKey.length : 0,
+    'startsWith_Aiza': window.googleMapsApiKey ? window.googleMapsApiKey.startsWith('AIza') : false,
+    'first_10_chars': window.googleMapsApiKey ? window.googleMapsApiKey.substring(0, 10) + '...' : 'NOT SET'
+});
+
+console.log('=== PROPERTIES DATA DEBUG ===');
+console.log('All properties data:', window.propertiesData);
+if (window.propertiesData && window.propertiesData.length > 0) {
+    console.log('Property details:');
+    window.propertiesData.forEach(function(prop, idx) {
+        if (prop.lat && prop.lng) {
+            console.log('  [' + (idx + 1) + ']', prop.title, '- Has coordinates - Lat:', prop.lat, ', Lng:', prop.lng);
+        } else {
+            console.log('  [' + (idx + 1) + ']', prop.title, '- Needs geocoding:', prop.full_address || 'No address');
+        }
+    });
+} else {
+    console.warn('⚠️ WARNING: No properties found!');
+}
 console.log('Window variables set. API Key length:', window.googleMapsApiKey ? window.googleMapsApiKey.length : 0);
 
 // Initialize map function (called by Google Maps API callback)
@@ -1483,22 +2247,50 @@ window.initMap = function() {
         return;
     }
     
-    // Get map center from properties or use default
-    let centerLat = <?php echo esc_js($map_center_lat); ?>;
-    let centerLng = <?php echo esc_js($map_center_lng); ?>;
+    // IMPORTANT: Show ALL properties on map - geocode those without coordinates
+    let centerLat = <?php echo esc_js($map_center_lat); ?>; // Fallback only
+    let centerLng = <?php echo esc_js($map_center_lng); ?>; // Fallback only
     
-    // If properties exist, center map on them
+    // Initialize geocoder for properties without coordinates
+    window.geocoder = new google.maps.Geocoder();
+    
+    // Separate properties with and without coordinates
+    const propertiesWithCoords = [];
+    const propertiesNeedingGeocode = [];
+    
     if (window.propertiesData && window.propertiesData.length > 0) {
-        console.log('📍 Centering map on properties');
-        let bounds = new google.maps.LatLngBounds();
         window.propertiesData.forEach(function(property) {
-            bounds.extend(new google.maps.LatLng(property.lat, property.lng));
+            const lat = parseFloat(property.lat);
+            const lng = parseFloat(property.lng);
+            
+            if (!isNaN(lat) && !isNaN(lng) && 
+                lat >= -90 && lat <= 90 && 
+                lng >= -180 && lng <= 180 &&
+                lat !== 0 && lng !== 0) {
+                // Has valid coordinates
+                propertiesWithCoords.push(property);
+                console.log('✅ Property with coordinates:', property.title, 'at', lat, ',', lng);
+            } else if (property.needs_geocoding && property.full_address) {
+                // Needs geocoding
+                propertiesNeedingGeocode.push(property);
+                console.log('📍 Property needs geocoding:', property.title, '- Address:', property.full_address);
+            } else {
+                console.warn('⚠️ Property cannot be geocoded (no address):', property.title);
+            }
+        });
+    }
+    
+    console.log('📊 Summary: ' + propertiesWithCoords.length + ' with coordinates, ' + propertiesNeedingGeocode.length + ' need geocoding');
+    
+    // Calculate map center from properties with coordinates
+    if (propertiesWithCoords.length > 0) {
+        let bounds = new google.maps.LatLngBounds();
+        propertiesWithCoords.forEach(function(property) {
+            bounds.extend(new google.maps.LatLng(parseFloat(property.lat), parseFloat(property.lng)));
         });
         centerLat = bounds.getCenter().lat();
         centerLng = bounds.getCenter().lng();
-        console.log('Map center:', centerLat, centerLng);
-    } else {
-        console.log('📌 No properties with coordinates, using default center');
+        console.log('✅ Map centered on properties with coordinates:', centerLat, centerLng);
     }
     
     try {
@@ -1522,18 +2314,25 @@ window.initMap = function() {
         
         console.log('✅ Google Map created successfully');
         
-        // Fit bounds if properties exist
-        if (window.propertiesData && window.propertiesData.length > 0) {
+        // First, add markers for properties that already have coordinates
+        if (propertiesWithCoords.length > 0) {
+            console.log('📍 Adding', propertiesWithCoords.length, 'properties with coordinates to map');
+            addPropertyMarkers(propertiesWithCoords);
+            
+            // Fit bounds to show all properties with coordinates
             let bounds = new google.maps.LatLngBounds();
-            window.propertiesData.forEach(function(property) {
-                bounds.extend(new google.maps.LatLng(property.lat, property.lng));
+            propertiesWithCoords.forEach(function(property) {
+                bounds.extend(new google.maps.LatLng(parseFloat(property.lat), parseFloat(property.lng)));
             });
-            window.map.fitBounds(bounds);
-            console.log('📍 Map bounds adjusted to fit all properties');
+            window.map.fitBounds(bounds, {padding: 50});
+            console.log('📍 Map bounds adjusted to fit', propertiesWithCoords.length, 'properties with coordinates');
         }
         
-        // Add markers for each property
-        addPropertyMarkers();
+        // Then geocode properties that need it
+        if (propertiesNeedingGeocode.length > 0) {
+            console.log('📍 Geocoding', propertiesNeedingGeocode.length, 'properties without coordinates...');
+            geocodeProperties(propertiesNeedingGeocode);
+        }
         
         window.mapInitialized = true;
         console.log('✅ Google Map fully initialized with markers');
@@ -1593,26 +2392,91 @@ function checkAndInitMap() {
     }
 }
 
-// Add property markers to map
-function addPropertyMarkers() {
-    if (!window.map || !window.propertiesData || window.propertiesData.length === 0) {
-        console.log('Cannot add markers: map or properties not available');
+// Geocode properties that don't have coordinates
+function geocodeProperties(propertiesArray) {
+    if (!propertiesArray || propertiesArray.length === 0) return;
+    if (!window.geocoder || !window.map) return;
+    
+    console.log('🗺️ Starting geocoding for', propertiesArray.length, 'properties');
+    
+    let geocodeIndex = 0;
+    const geocodeDelay = 200; // Delay between geocoding requests (ms) to avoid rate limiting
+    
+    function geocodeNext() {
+        if (geocodeIndex >= propertiesArray.length) {
+            console.log('✅ Finished geocoding all properties');
+            // Update bounds to include newly geocoded properties
+            updateMapBounds();
         return;
     }
     
-    // Clear existing markers
-    window.markers.forEach(function(marker) {
-        marker.setMap(null);
-    });
-    window.markers = [];
-    window.infoWindows = [];
+        const property = propertiesArray[geocodeIndex];
+        if (!property.full_address) {
+            console.warn('⚠️ Skipping', property.title, '- no address to geocode');
+            geocodeIndex++;
+            setTimeout(geocodeNext, geocodeDelay);
+            return;
+        }
+        
+        console.log('📍 Geocoding:', property.title, '- Address:', property.full_address);
+        
+        window.geocoder.geocode(
+            { address: property.full_address },
+            function(results, status) {
+                if (status === 'OK' && results && results[0]) {
+                    const location = results[0].geometry.location;
+                    const lat = location.lat();
+                    const lng = location.lng();
+                    
+                    // Add coordinates to property
+                    property.lat = lat;
+                    property.lng = lng;
+                    property.needs_geocoding = false;
+                    
+                    console.log('✅ Geocoded:', property.title, '- Coordinates:', lat, ',', lng);
+                    
+                    // Add marker for this property
+                    addPropertyMarker(property);
+                } else {
+                    console.warn('⚠️ Geocoding failed for:', property.title, '- Status:', status);
+                }
+                
+                // Process next property
+                geocodeIndex++;
+                setTimeout(geocodeNext, geocodeDelay);
+            }
+        );
+    }
     
-    window.propertiesData.forEach(function(property) {
+    // Start geocoding
+    geocodeNext();
+}
+
+// Update map bounds to include all markers
+function updateMapBounds() {
+    if (!window.map || !window.markers || window.markers.length === 0) return;
+    
+    const bounds = new google.maps.LatLngBounds();
+    window.markers.forEach(function(marker) {
+        bounds.extend(marker.getPosition());
+    });
+    
+    if (window.markers.length > 0) {
+        window.map.fitBounds(bounds, {padding: 50});
+        console.log('📍 Map bounds updated to show all', window.markers.length, 'properties');
+    }
+}
+
+// Add a single property marker to the map
+function addPropertyMarker(property) {
+    if (!window.map) return;
+    if (!property.lat || !property.lng) return;
+    
         // Create custom marker icon based on property status
         const markerIcon = {
             path: google.maps.SymbolPath.CIRCLE,
             scale: 10,
-            fillColor: property.marker_color,
+        fillColor: property.marker_color || '#10b981',
             fillOpacity: 1,
             strokeColor: '#ffffff',
             strokeWeight: 2
@@ -1620,7 +2484,7 @@ function addPropertyMarkers() {
         
         // Create marker
         const marker = new google.maps.Marker({
-            position: { lat: property.lat, lng: property.lng },
+        position: { lat: parseFloat(property.lat), lng: parseFloat(property.lng) },
             map: window.map,
             title: property.title,
             icon: markerIcon,
@@ -1655,24 +2519,57 @@ function addPropertyMarkers() {
             window.infoWindows.forEach(function(iw) {
                 iw.close();
             });
-            
-            // Open this info window
             infoWindow.open(window.map, marker);
-            
-            // Highlight property card in list
-            highlightProperty(property.id);
-            
-            // Pan to marker
-            window.map.panTo(marker.getPosition());
-            
-            console.log('Property clicked:', property.title, 'ID:', property.id);
-        });
-        
-        window.markers.push(marker);
-        window.infoWindows.push(infoWindow);
     });
     
-    console.log('Added', window.markers.length, 'markers to map');
+    // Store marker and info window
+    window.markers.push(marker);
+    window.infoWindows.push(infoWindow);
+}
+
+// Add property markers to map
+function addPropertyMarkers(propertiesArray) {
+    // Use provided array or fall back to all properties with coordinates
+    const propertiesToUse = propertiesArray || window.propertiesData || [];
+    
+    console.log('=== addPropertyMarkers called ===');
+    console.log('Map available:', !!window.map);
+    console.log('Properties to add:', propertiesToUse.length);
+    
+    if (!window.map) {
+        console.error('❌ Map not available');
+        return;
+    }
+    
+    if (!propertiesToUse || propertiesToUse.length === 0) {
+        console.error('❌ No properties available to add markers');
+        return;
+    }
+    
+    console.log('✅ Adding markers for', propertiesToUse.length, 'properties');
+    
+    // Log all properties before adding markers
+    propertiesToUse.forEach(function(property, index) {
+        console.log('  Property ' + (index + 1) + ':', property.title, '- Coordinates:', property.lat, ',', property.lng);
+    });
+    
+    // Add markers for all properties using the helper function
+    propertiesToUse.forEach(function(property, index) {
+        if (property.lat && property.lng) {
+            addPropertyMarker(property);
+        } else {
+            console.warn('⚠️ Skipping property without coordinates:', property.title);
+        }
+        
+        console.log('✅ Marker added for property', (index + 1) + ':', property.title, 'at', property.lat, ',', property.lng);
+    });
+    
+    console.log('✅ Successfully added', window.markers.length, 'markers to map');
+    console.log('Marker positions:');
+    window.markers.forEach(function(marker, index) {
+        const pos = marker.getPosition();
+        console.log('  Marker', (index + 1) + ':', pos.lat(), ',', pos.lng());
+    });
 }
 
 // Re-initialize map when shown
@@ -1703,12 +2600,19 @@ function showMapView() {
             } else {
                 // Resize map to fix any display issues
                 google.maps.event.trigger(window.map, 'resize');
-                if (window.propertiesData && window.propertiesData.length > 0) {
+                // Use all properties that have coordinates (including geocoded ones)
+                const allProperties = window.propertiesData || [];
+                const propertiesWithCoords = allProperties.filter(function(p) {
+                    return p.lat && p.lng;
+                });
+                
+                if (propertiesWithCoords.length > 0) {
                     let bounds = new google.maps.LatLngBounds();
-                    window.propertiesData.forEach(function(property) {
-                        bounds.extend(new google.maps.LatLng(property.lat, property.lng));
+                    propertiesWithCoords.forEach(function(property) {
+                        bounds.extend(new google.maps.LatLng(parseFloat(property.lat), parseFloat(property.lng)));
                     });
-                    window.map.fitBounds(bounds);
+                    window.map.fitBounds(bounds, {padding: 50});
+                    console.log('Map bounds updated to fit', propertiesWithCoords.length, 'properties');
                 }
             }
         } else {
@@ -1761,26 +2665,163 @@ if (typeof originalShowMap === 'function') {
     
     // Load Google Maps API
     console.log('📡 Loading Google Maps API...');
+    console.log('API Key being used:', window.googleMapsApiKey ? (window.googleMapsApiKey.substring(0, 15) + '...') : 'MISSING');
+    
+    // Validate API key format before loading
+    if (!window.googleMapsApiKey || window.googleMapsApiKey.length < 20) {
+        console.error('❌ Invalid API key format or key is too short');
+        showMapError('Google Maps API key is invalid or missing. Please check your API key in Settings.');
+        return;
+    }
+    
+    if (!window.googleMapsApiKey.startsWith('AIza')) {
+        console.warn('⚠️ API key format warning: Google Maps API keys typically start with "AIza"');
+    }
+    
     const script = document.createElement('script');
     const apiUrl = 'https://maps.googleapis.com/maps/api/js?key=' + window.googleMapsApiKey + '&callback=initMap&libraries=places';
-    console.log('API URL:', apiUrl.replace(window.googleMapsApiKey, 'KEY_HIDDEN'));
+    console.log('API URL (key hidden):', apiUrl.replace(window.googleMapsApiKey, 'KEY_HIDDEN'));
     script.src = apiUrl;
     script.async = true;
     script.defer = true;
     script.onload = function() {
         console.log('✅ Google Maps API script loaded successfully');
+        // Check for API errors after a short delay
+        setTimeout(function() {
+            if (typeof google !== 'undefined' && typeof google.maps !== 'undefined') {
+                // Check if there's an error in the map container
+                const mapContainer = document.getElementById('googleMap');
+                if (mapContainer) {
+                    // Listen for API errors
+                    google.maps.event.addListenerOnce(window.map || {}, 'error', function(error) {
+                        console.error('❌ Google Maps API Error:', error);
+                        showMapError('Google Maps API Error: ' + (error.message || 'Unknown error'));
+                    });
+                }
+            }
+        }, 1000);
     };
     script.onerror = function() {
-        console.error('❌ Failed to load Google Maps API');
-        console.error('Please check:');
-        console.error('1. Your API key is correct');
-        console.error('2. Maps JavaScript API is enabled in Google Cloud Console');
-        console.error('3. Your domain is whitelisted (if restricted)');
-        console.error('4. You have billing enabled in Google Cloud');
+        console.error('❌ Failed to load Google Maps API script');
+        showMapError('Failed to load Google Maps API. Please check your API key configuration.');
+    };
+    
+    // Add global error handler for Google Maps API errors
+    window.gm_authFailure = function() {
+        console.error('❌ Google Maps Authentication Failed');
+        showMapError('Google Maps API authentication failed. Please check your API key in Settings.');
+    };
+    
+    // Listen for specific Google Maps API errors
+    window.addEventListener('error', function(event) {
+        if (event.message && typeof event.message === 'string') {
+            if (event.message.includes('ApiNotActivatedMapError')) {
+                console.error('❌ Maps JavaScript API is not enabled');
+                showMapError('Maps JavaScript API is not enabled. Please enable it in Google Cloud Console → APIs & Services → Library → Maps JavaScript API.');
+                event.preventDefault();
+            } else if (event.message.includes('BillingNotEnabledMapError')) {
+                console.error('❌ Billing is not enabled');
+                showMapError('Billing is not enabled for your Google Cloud project. Please enable billing in Google Cloud Console to use Google Maps API.');
+                event.preventDefault();
+            }
+        }
+    }, true);
+    
+    // Catch Google Maps API errors from console errors
+    const originalError = console.error;
+    console.error = function(...args) {
+        originalError.apply(console, args);
+        const errorText = args.join(' ');
+        if (errorText.includes('ApiNotActivatedMapError')) {
+            if (!document.querySelector('.resbs-map-error')) {
+                showMapError('Maps JavaScript API is not enabled. Please enable it in Google Cloud Console → APIs & Services → Library → Maps JavaScript API.');
+            }
+        } else if (errorText.includes('BillingNotEnabledMapError')) {
+            if (!document.querySelector('.resbs-map-error')) {
+                showMapError('Billing is not enabled for your Google Cloud project. Please enable billing in Google Cloud Console.');
+            }
+        }
     };
     document.head.appendChild(script);
     console.log('📝 Script tag added to document head');
 })();
+
+// Function to show user-friendly map error
+function showMapError(message) {
+    const mapContainer = document.getElementById('googleMap');
+    if (!mapContainer) return;
+    
+    // Remove any existing error message
+    const existingError = mapContainer.querySelector('.resbs-map-error');
+    if (existingError) {
+        existingError.remove();
+    }
+    
+    // Get admin URL (try to detect it)
+    let adminUrl = '';
+    if (typeof window.location !== 'undefined') {
+        const currentUrl = window.location.href;
+        const urlParts = currentUrl.split('/');
+        if (urlParts.length > 3) {
+            adminUrl = urlParts[0] + '//' + urlParts[2] + '/wp-admin';
+        }
+    }
+    
+    // Create error message overlay
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'resbs-map-error';
+    errorDiv.style.cssText = 'position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); z-index: 1000; max-width: 450px; text-align: center; border: 2px solid #ef4444;';
+    errorDiv.innerHTML = `
+        <div style="color: #ef4444; font-size: 48px; margin-bottom: 15px;">⚠️</div>
+        <h3 style="color: #1f2937; margin: 0 0 10px 0; font-size: 18px; font-weight: 600;">Google Maps Error</h3>
+        <p style="color: #6b7280; margin: 0 0 20px 0; font-size: 14px; line-height: 1.5;">${message}</p>
+        <div style="background: #fef2f2; border-left: 4px solid #ef4444; padding: 15px; border-radius: 6px; margin-bottom: 15px; text-align: left;">
+            <p style="margin: 0 0 10px 0; font-size: 13px; color: #991b1b; font-weight: 600;">🔧 To fix this, please check:</p>
+            <ul style="margin: 0; padding-left: 20px; font-size: 12px; color: #991b1b; line-height: 1.8;">
+                <li>Your API key is correct and active</li>
+                <li><strong>Maps JavaScript API</strong> is enabled in Google Cloud Console</li>
+                <li><strong>Billing is enabled</strong> in your Google Cloud project</li>
+                <li>If using API key restrictions, add <code>localhost</code> to allowed domains</li>
+            </ul>
+        </div>
+        ${adminUrl ? '<a href="' + adminUrl + '/admin.php?page=resbs-general-settings" target="_blank" style="display: inline-block; padding: 10px 20px; background: #3b82f6; color: white; text-decoration: none; border-radius: 6px; font-weight: 500; margin-top: 10px;">⚙️ Configure API Key in Settings</a>' : ''}
+        <p style="margin-top: 15px; font-size: 11px; color: #9ca3af;">Go to WordPress Admin → RealEstate Booking Suite → Settings → Map Settings</p>
+    `;
+    
+    mapContainer.style.position = 'relative';
+    mapContainer.appendChild(errorDiv);
+}
+
+// Check for Google Maps API errors on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Monitor for common Google Maps errors
+    const checkMapErrors = setInterval(function() {
+        const mapContainer = document.getElementById('googleMap');
+        if (mapContainer) {
+            // Check if Google Maps shows an error overlay
+            // Use textContent to check for error messages (querySelector doesn't support :contains)
+            const textContent = mapContainer.textContent || '';
+            const hasGoogleError = textContent.includes("can't load Google Maps") || 
+                                 textContent.includes("can't load") ||
+                                 textContent.includes("Google Maps");
+            
+            if (hasGoogleError && !mapContainer.querySelector('.resbs-map-error')) {
+                clearInterval(checkMapErrors);
+                // Only show custom error if Google's error message is present
+                // Check for common Google Maps error indicators
+                const hasErrorIndicators = mapContainer.textContent.match(/error|failed|can't|unable/i);
+                if (hasErrorIndicators) {
+                    showMapError('Google Maps failed to load. Please check your API key and billing configuration.');
+                }
+            }
+        }
+    }, 2000);
+    
+    // Stop checking after 10 seconds
+    setTimeout(function() {
+        clearInterval(checkMapErrors);
+    }, 10000);
+});
 </script>
 <?php endif; ?>
 

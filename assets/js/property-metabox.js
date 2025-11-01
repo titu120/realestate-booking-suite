@@ -553,59 +553,243 @@
          */
         initMapIntegration: function() {
             if (!resbs_metabox.map_api_key) {
+                console.warn('⚠️ Google Maps API key not configured. Auto-geocoding disabled.');
                 return;
             }
             
-            // Geocode address button
+            console.log('🗺️ Initializing map integration with API key');
+            
+            // Load Google Maps API if not already loaded
+            if (typeof google === 'undefined' || typeof google.maps === 'undefined') {
+                console.log('📡 Loading Google Maps API...');
+                RESBS_Property_Metabox.loadGoogleMapsAPI();
+            } else {
+                console.log('✅ Google Maps API already loaded');
+                window.resbsMapsLoaded = true;
+            }
+            
+            // Geocode address button (manual trigger)
             $('#resbs-geocode-address').on('click', function() {
-                var address = $('#property_address').val();
-                var city = $('#property_city').val();
-                var state = $('#property_state').val();
-                var zip = $('#property_zip').val();
-                var country = $('#property_country').val();
-                
-                var fullAddress = [address, city, state, zip, country].filter(function(part) {
-                    return part && part.trim() !== '';
-                }).join(', ');
-                
-                if (fullAddress) {
-                    RESBS_Property_Metabox.geocodeAddress(fullAddress);
-                }
+                RESBS_Property_Metabox.geocodeFromFields();
             });
             
-            // Initialize map if coordinates exist
+            // Auto-geocode when address fields change (dynamic location update)
+            var geocodeTimeout;
+            var addressFields = ['#property_address', '#property_city', '#property_state', '#property_zip', '#property_country'];
+            
+            addressFields.forEach(function(fieldSelector) {
+                $(fieldSelector).on('input blur', function() {
+                    // Clear previous timeout
+                    clearTimeout(geocodeTimeout);
+                    
+                    // Debounce: Wait 1 second after user stops typing before geocoding
+                    geocodeTimeout = setTimeout(function() {
+                        var address = $('#property_address').val();
+                        var city = $('#property_city').val();
+                        var state = $('#property_state').val();
+                        var zip = $('#property_zip').val();
+                        var country = $('#property_country').val();
+                        
+                        // Only auto-geocode if at least city or address is provided
+                        if (address || city) {
+                            // Wait for Google Maps API to load if needed
+                            if (typeof google !== 'undefined' && typeof google.maps !== 'undefined') {
+                                console.log('🔄 Auto-geocoding address fields...');
+                                RESBS_Property_Metabox.geocodeFromFields(true);
+                            } else {
+                                // Wait for API to load, then geocode
+                                var checkApi = setInterval(function() {
+                                    if (typeof google !== 'undefined' && typeof google.maps !== 'undefined') {
+                                        clearInterval(checkApi);
+                                        console.log('🔄 Auto-geocoding address fields (after API load)...');
+                                        RESBS_Property_Metabox.geocodeFromFields(true);
+                                    }
+                                }, 500);
+                                
+                                // Timeout after 10 seconds
+                                setTimeout(function() {
+                                    clearInterval(checkApi);
+                                }, 10000);
+                            }
+                        }
+                    }, 1000);
+                });
+            });
+            
+            // Initialize map if coordinates exist or wait for auto-geocode
             var lat = $('#property_latitude').val();
             var lng = $('#property_longitude').val();
             
-            if (lat && lng) {
-                RESBS_Property_Metabox.initMap(parseFloat(lat), parseFloat(lng));
+            if (lat && lng && !isNaN(parseFloat(lat)) && !isNaN(parseFloat(lng))) {
+                // Wait for Google Maps API to load, then initialize map
+                var waitForApiToInitMap = setInterval(function() {
+                    if (typeof google !== 'undefined' && typeof google.maps !== 'undefined') {
+                        clearInterval(waitForApiToInitMap);
+                        setTimeout(function() {
+                            RESBS_Property_Metabox.initMap(parseFloat(lat), parseFloat(lng));
+                        }, 300);
+                    }
+                }, 500);
+                
+                // Timeout after 10 seconds
+                setTimeout(function() {
+                    clearInterval(waitForApiToInitMap);
+                }, 10000);
+            } else {
+                // If no coordinates but address fields exist, try to geocode on page load
+                var address = $('#property_address').val();
+                var city = $('#property_city').val();
+                if ((address || city) && resbs_metabox.map_api_key) {
+                    // Wait for Google Maps API to load
+                    var waitForApi = setInterval(function() {
+                        if (typeof google !== 'undefined' && typeof google.maps !== 'undefined') {
+                            clearInterval(waitForApi);
+                            setTimeout(function() {
+                                console.log('🔄 Auto-geocoding on page load...');
+                                RESBS_Property_Metabox.geocodeFromFields(true);
+                            }, 500);
+                        }
+                    }, 500);
+                    
+                    // Timeout after 10 seconds
+                    setTimeout(function() {
+                        clearInterval(waitForApi);
+                    }, 10000);
+                }
+            }
+        },
+
+        /**
+         * Geocode from address fields (extracts all fields and geocodes)
+         */
+        geocodeFromFields: function(silent) {
+            var address = $('#property_address').val();
+            var city = $('#property_city').val();
+            var state = $('#property_state').val();
+            var zip = $('#property_zip').val();
+            var country = $('#property_country').val();
+            
+            var fullAddress = [address, city, state, zip, country].filter(function(part) {
+                return part && part.trim() !== '';
+            }).join(', ');
+            
+            if (fullAddress) {
+                if (!silent) {
+                    console.log('📍 Geocoding:', fullAddress);
+                }
+                RESBS_Property_Metabox.geocodeAddress(fullAddress, silent);
+            } else {
+                if (!silent) {
+                    console.warn('⚠️ No address fields filled to geocode');
+                }
             }
         },
 
         /**
          * Geocode address
          */
-        geocodeAddress: function(address) {
+        geocodeAddress: function(address, silent) {
             if (!window.google || !window.google.maps) {
+                // Try to load Google Maps API if not loaded
+                if (resbs_metabox.map_api_key && typeof window.resbsMapsLoaded === 'undefined') {
+                    RESBS_Property_Metabox.loadGoogleMapsAPI();
+                    // Retry after API loads
+                    setTimeout(function() {
+                        RESBS_Property_Metabox.geocodeAddress(address, silent);
+                    }, 2000);
+                } else if (!silent) {
+                    console.warn('⚠️ Google Maps API not loaded');
+                }
                 return;
             }
             
             var geocoder = new google.maps.Geocoder();
             
+            // Show loading indicator
+            if (!silent) {
+                $('#resbs-geocode-address').prop('disabled', true).text('Geocoding...');
+            }
+            
             geocoder.geocode({ address: address }, function(results, status) {
+                // Re-enable button
+                if (!silent) {
+                    $('#resbs-geocode-address').prop('disabled', false).text('Get Coordinates from Address');
+                }
+                
                 if (status === 'OK' && results[0]) {
                     var location = results[0].geometry.location;
                     var lat = location.lat();
                     var lng = location.lng();
+                    var formattedAddress = results[0].formatted_address;
                     
+                    // Update coordinate fields
                     $('#property_latitude').val(lat);
                     $('#property_longitude').val(lng);
                     
+                    // Update map preview
                     RESBS_Property_Metabox.initMap(lat, lng);
+                    
+                    // Log success
+                    if (!silent) {
+                        console.log('✅ Geocoding successful:', formattedAddress);
+                        console.log('📍 Coordinates:', lat, lng);
+                    } else {
+                        console.log('✅ Auto-geocoded:', lat, lng);
+                    }
+                    
+                    // Show success message briefly
+                    if (!silent) {
+                        var $button = $('#resbs-geocode-address');
+                        var originalText = $button.text();
+                        $button.text('✓ Coordinates Updated!').addClass('resbs-btn-success');
+                        setTimeout(function() {
+                            $button.text(originalText).removeClass('resbs-btn-success');
+                        }, 2000);
+                    }
                 } else {
-                    console.log(resbs_metabox.strings.geocoding_error);
+                    if (!silent) {
+                        console.error('❌ Geocoding failed:', status);
+                        alert('Could not find coordinates for this address. Please check the address and try again.');
+                    } else {
+                        console.warn('⚠️ Auto-geocoding failed for:', address);
+                    }
                 }
             });
+        },
+        
+        /**
+         * Load Google Maps API dynamically
+         */
+        loadGoogleMapsAPI: function() {
+            if (typeof google !== 'undefined' && typeof google.maps !== 'undefined') {
+                window.resbsMapsLoaded = true;
+                return;
+            }
+            
+            if (window.resbsMapsLoading) {
+                return; // Already loading
+            }
+            
+            window.resbsMapsLoading = true;
+            var script = document.createElement('script');
+            var apiKey = resbs_metabox.map_api_key;
+            script.src = 'https://maps.googleapis.com/maps/api/js?key=' + apiKey + '&callback=resbsMapsCallback&libraries=places';
+            script.async = true;
+            script.defer = true;
+            
+            // Create callback function
+            window.resbsMapsCallback = function() {
+                window.resbsMapsLoaded = true;
+                window.resbsMapsLoading = false;
+                console.log('✅ Google Maps API loaded');
+            };
+            
+            script.onerror = function() {
+                window.resbsMapsLoading = false;
+                console.error('❌ Failed to load Google Maps API');
+            };
+            
+            document.head.appendChild(script);
         },
 
         /**
@@ -621,26 +805,78 @@
                 return;
             }
             
+            // Use existing coordinates or default
+            var currentLat = lat || parseFloat($('#property_latitude').val()) || 23.8103;
+            var currentLng = lng || parseFloat($('#property_longitude').val()) || 90.4125;
+            
             var mapOptions = {
-                center: { lat: lat, lng: lng },
+                center: { lat: currentLat, lng: currentLng },
                 zoom: 15,
-                mapTypeId: google.maps.MapTypeId.ROADMAP
+                mapTypeId: google.maps.MapTypeId.ROADMAP,
+                mapTypeControl: true,
+                streetViewControl: true,
+                fullscreenControl: true,
+                zoomControl: true
             };
+            
+            // Clear existing map if any
+            if (window.resbsMap) {
+                window.resbsMapMarker.setMap(null);
+            }
             
             window.resbsMap = new google.maps.Map(mapElement, mapOptions);
             
-            var marker = new google.maps.Marker({
-                position: { lat: lat, lng: lng },
-                map: window.resbsMap,
-                draggable: true,
-                title: 'Property Location'
-            });
+            // Create or update marker
+            if (!window.resbsMapMarker) {
+                window.resbsMapMarker = new google.maps.Marker({
+                    position: { lat: currentLat, lng: currentLng },
+                    map: window.resbsMap,
+                    draggable: true,
+                    title: 'Property Location',
+                    animation: google.maps.Animation.DROP
+                });
+            } else {
+                window.resbsMapMarker.setPosition({ lat: currentLat, lng: currentLng });
+                window.resbsMapMarker.setMap(window.resbsMap);
+            }
             
             // Update coordinates when marker is dragged
-            marker.addListener('dragend', function() {
-                var position = marker.getPosition();
-                $('#property_latitude').val(position.lat());
-                $('#property_longitude').val(position.lng());
+            window.resbsMapMarker.addListener('dragend', function() {
+                var position = window.resbsMapMarker.getPosition();
+                $('#property_latitude').val(position.lat().toFixed(6));
+                $('#property_longitude').val(position.lng().toFixed(6));
+                console.log('📍 Marker dragged to:', position.lat(), position.lng());
+            });
+            
+            // Update coordinates when map is clicked
+            window.resbsMap.addListener('click', function(event) {
+                var clickLat = event.latLng.lat();
+                var clickLng = event.latLng.lng();
+                
+                // Move marker to clicked location
+                window.resbsMapMarker.setPosition(event.latLng);
+                
+                // Update input fields
+                $('#property_latitude').val(clickLat.toFixed(6));
+                $('#property_longitude').val(clickLng.toFixed(6));
+                
+                console.log('📍 Map clicked at:', clickLat, clickLng);
+            });
+            
+            // Update map when coordinates are manually changed
+            $('#property_latitude, #property_longitude').on('change', function() {
+                var newLat = parseFloat($('#property_latitude').val());
+                var newLng = parseFloat($('#property_longitude').val());
+                
+                if (!isNaN(newLat) && !isNaN(newLng) && 
+                    newLat >= -90 && newLat <= 90 && 
+                    newLng >= -180 && newLng <= 180) {
+                    var newPosition = { lat: newLat, lng: newLng };
+                    window.resbsMap.setCenter(newPosition);
+                    if (window.resbsMapMarker) {
+                        window.resbsMapMarker.setPosition(newPosition);
+                    }
+                }
             });
         },
 
