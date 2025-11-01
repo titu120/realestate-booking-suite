@@ -1575,27 +1575,70 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <?php if ($use_openstreetmap): ?>
 <!-- Leaflet.js CSS -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="anonymous" onerror="console.warn('⚠️ Leaflet CSS failed to load, trying alternate CDN'); this.onerror=null; this.href='https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css';"/>
 <!-- Leaflet.js JavaScript -->
 <script>
 // Load Leaflet.js and initialize when ready
 (function() {
     var leafletScript = document.createElement('script');
     leafletScript.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
-    leafletScript.integrity = 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=';
     leafletScript.crossOrigin = 'anonymous';
-    leafletScript.onload = function() {
-        console.log('✅ Leaflet.js script loaded successfully');
-        // Leaflet loaded, initialization will happen below
-    };
-    leafletScript.onerror = function() {
-        console.error('❌ Failed to load Leaflet.js script');
-        var mapContainer = document.getElementById('googleMap');
-        if (mapContainer) {
-            mapContainer.innerHTML = '<div style="padding: 40px; text-align: center; color: #ef4444;"><h3>⚠️ Map Library Failed to Load</h3><p>Please check your internet connection and refresh the page.</p></div>';
-        }
-    };
-    document.head.appendChild(leafletScript);
+    leafletScript.async = true;
+    leafletScript.defer = true;
+    
+    var loadAttempts = 0;
+    var maxAttempts = 3;
+    
+    function loadLeaflet() {
+        loadAttempts++;
+        console.log('📦 Loading Leaflet.js (attempt ' + loadAttempts + ')...');
+        
+        var newScript = document.createElement('script');
+        newScript.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+        newScript.crossOrigin = 'anonymous';
+        newScript.async = true;
+        
+        newScript.onload = function() {
+            console.log('✅ Leaflet.js script loaded successfully');
+            // Leaflet loaded, initialization will happen below
+            if (typeof window.initLeafletWhenReady === 'function') {
+                window.initLeafletWhenReady();
+            }
+        };
+        
+        newScript.onerror = function() {
+            console.warn('⚠️ Failed to load Leaflet.js (attempt ' + loadAttempts + ')');
+            if (loadAttempts < maxAttempts) {
+                // Try alternate CDN
+                console.log('🔄 Trying alternate CDN...');
+                var altScript = document.createElement('script');
+                altScript.src = 'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js';
+                altScript.crossOrigin = 'anonymous';
+                altScript.async = true;
+                altScript.onload = function() {
+                    console.log('✅ Leaflet.js loaded from alternate CDN');
+                    if (typeof window.initLeafletWhenReady === 'function') {
+                        window.initLeafletWhenReady();
+                    }
+                };
+                altScript.onerror = function() {
+                    if (loadAttempts >= maxAttempts) {
+                        console.error('❌ Failed to load Leaflet.js from all sources after ' + maxAttempts + ' attempts');
+                        // Don't show error immediately - let initLeafletWhenReady handle it with delay
+                    }
+                };
+                document.head.appendChild(altScript);
+            } else {
+                console.error('❌ Failed to load Leaflet.js from all sources');
+                // Error will be handled by initLeafletWhenReady with proper delay
+            }
+        };
+        
+        document.head.appendChild(newScript);
+    }
+    
+    // Start loading
+    loadLeaflet();
 })();
 </script>
 
@@ -1633,8 +1676,21 @@ function initializeOpenStreetMap() {
     console.log('Leaflet.js loaded:', typeof L !== 'undefined');
     
     if (typeof L === 'undefined') {
-        console.error('❌ Leaflet.js is not loaded!');
-        showMapError('Map library failed to load. Please refresh the page.');
+        console.warn('⚠️ Leaflet.js is not loaded yet, will wait...');
+        // Don't show error immediately - wait a bit more for it to load
+        setTimeout(function() {
+            if (typeof L !== 'undefined') {
+                console.log('✅ Leaflet.js loaded, initializing map...');
+                initializeOpenStreetMap();
+            } else {
+                console.error('❌ Leaflet.js failed to load after additional wait');
+                // Only show error if map container is visible
+                const mapContainer = document.getElementById('googleMap');
+                if (mapContainer && mapContainer.offsetParent !== null) {
+                    showMapError('Map library failed to load. Please refresh the page.');
+                }
+            }
+        }, 1000);
         return;
     }
     
@@ -1644,6 +1700,21 @@ function initializeOpenStreetMap() {
     if (!mapContainer) {
         console.error('❌ Map container (#googleMap) not found in DOM');
         return;
+    }
+    
+    // Remove any existing error messages first
+    const existingError = mapContainer.querySelector('.resbs-map-error');
+    if (existingError) {
+        existingError.remove();
+        console.log('✅ Removed existing error message');
+    }
+    
+    // Clear any error HTML that might have been set directly
+    if (mapContainer.innerHTML.includes('Map Library Failed to Load') || 
+        mapContainer.innerHTML.includes('⚠️') ||
+        mapContainer.textContent.includes('Map Error')) {
+        mapContainer.innerHTML = ''; // Clear error content
+        console.log('✅ Cleared error HTML from map container');
     }
     
     // Check if map already exists
@@ -2132,36 +2203,60 @@ function showMapError(message) {
 }
 
 // Initialize Leaflet map when library loads
-function initLeafletWhenReady() {
+window.initLeafletWhenReady = function() {
     if (typeof L !== 'undefined') {
         console.log('✅ Leaflet.js loaded, checking map initialization...');
+        // Remove any error messages if Leaflet is now loaded
+        const mapContainer = document.getElementById('googleMap');
+        if (mapContainer) {
+            const existingError = mapContainer.querySelector('.resbs-map-error');
+            if (existingError) {
+                existingError.remove();
+                console.log('✅ Removed error message - Leaflet loaded successfully');
+            }
+            // Also clear innerHTML if it was set to error message
+            if (mapContainer.innerHTML.includes('Map Library Failed to Load')) {
+                mapContainer.innerHTML = ''; // Clear error, map will be initialized below
+            }
+        }
         checkAndInitLeafletMap();
     } else {
         console.log('⏳ Waiting for Leaflet.js to load...');
         setTimeout(function() {
             if (typeof L !== 'undefined') {
-                initLeafletWhenReady();
+                window.initLeafletWhenReady();
             } else {
-                console.error('❌ Leaflet.js failed to load after timeout');
-                // Try once more after longer delay
+                console.log('⏳ Still waiting for Leaflet.js...');
+                // Wait longer before showing error
                 setTimeout(function() {
                     if (typeof L !== 'undefined') {
-                        initLeafletWhenReady();
+                        window.initLeafletWhenReady();
                     } else {
-                        console.error('❌ Leaflet.js failed to load - check internet connection');
-                        const mapContainer = document.getElementById('googleMap');
-                        if (mapContainer) {
-                            showMapError('Failed to load map library. Please check your internet connection and refresh the page.');
-                        }
+                        console.log('⏳ Waiting a bit more...');
+                        // Final attempt after longer delay
+                        setTimeout(function() {
+                            if (typeof L !== 'undefined') {
+                                window.initLeafletWhenReady();
+                            } else {
+                                console.error('❌ Leaflet.js failed to load after extended wait');
+                                const mapContainer = document.getElementById('googleMap');
+                                if (mapContainer) {
+                                    // Only show error if map container is visible
+                                    if (mapContainer.offsetParent !== null) {
+                                        showMapError('Failed to load map library. Please check your internet connection and refresh the page.');
+                                    }
+                                }
+                            }
+                        }, 3000);
                     }
                 }, 2000);
             }
         }, 500);
     }
-}
+};
 
 // Start initialization
-initLeafletWhenReady();
+window.initLeafletWhenReady();
 
 // Update showMapView function for Leaflet
 const originalShowMapView = window.showMapView;
