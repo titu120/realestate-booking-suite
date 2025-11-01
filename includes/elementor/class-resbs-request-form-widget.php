@@ -242,15 +242,10 @@ class RESBS_Request_Form_Widget extends \Elementor\Widget_Base {
                             <label for="request_phone_<?php echo esc_attr($widget_id); ?>">
                                 <?php esc_html_e('Phone', 'realestate-booking-suite'); ?>
                             </label>
-                            <select name="phone_code" class="resbs-phone-code">
-                                <option value="other"><?php esc_html_e('Other', 'realestate-booking-suite'); ?></option>
-                                <option value="us">+1 (US)</option>
-                                <option value="uk">+44 (UK)</option>
-                                <option value="ca">+1 (CA)</option>
-                            </select>
                             <input type="tel" 
                                    name="phone" 
                                    id="request_phone_<?php echo esc_attr($widget_id); ?>" 
+                                   placeholder="<?php esc_attr_e('Enter your phone number', 'realestate-booking-suite'); ?>"
                                    class="resbs-phone-input">
                         </div>
                     <?php endif; ?>
@@ -279,6 +274,92 @@ class RESBS_Request_Form_Widget extends \Elementor\Widget_Base {
                 <div class="resbs-request-form-message" style="display: none;"></div>
             </form>
         </div>
+        
+        <style>
+            /* Form Field Styles */
+            #<?php echo esc_attr($widget_id); ?> .resbs-form-field {
+                margin-bottom: 1.25rem !important;
+            }
+            
+            #<?php echo esc_attr($widget_id); ?> .resbs-form-field label {
+                display: block !important;
+                font-size: 0.875rem !important;
+                font-weight: 500 !important;
+                color: #374151 !important;
+                margin-bottom: 0.5rem !important;
+            }
+            
+            #<?php echo esc_attr($widget_id); ?> .resbs-form-field input[type="text"],
+            #<?php echo esc_attr($widget_id); ?> .resbs-form-field input[type="email"],
+            #<?php echo esc_attr($widget_id); ?> .resbs-form-field input[type="tel"],
+            #<?php echo esc_attr($widget_id); ?> .resbs-form-field textarea {
+                width: 100% !important;
+                padding: 0.75rem !important;
+                border: 1px solid #d1d5db !important;
+                border-radius: 0.375rem !important;
+                font-size: 0.875rem !important;
+                background: #ffffff !important;
+                color: #111827 !important;
+                transition: all 0.2s !important;
+                box-sizing: border-box !important;
+                font-family: inherit !important;
+            }
+            
+            #<?php echo esc_attr($widget_id); ?> .resbs-form-field input[type="text"]:focus,
+            #<?php echo esc_attr($widget_id); ?> .resbs-form-field input[type="email"]:focus,
+            #<?php echo esc_attr($widget_id); ?> .resbs-form-field input[type="tel"]:focus,
+            #<?php echo esc_attr($widget_id); ?> .resbs-form-field textarea:focus {
+                outline: none !important;
+                border-color: #3b82f6 !important;
+                box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+            }
+            
+            #<?php echo esc_attr($widget_id); ?> .resbs-form-field textarea {
+                resize: vertical !important;
+                min-height: 100px !important;
+            }
+            
+            /* Submit Button */
+            #<?php echo esc_attr($widget_id); ?> .resbs-request-submit-btn {
+                width: 100% !important;
+                padding: 0.75rem 1.5rem !important;
+                background: #3b82f6 !important;
+                color: #ffffff !important;
+                border: none !important;
+                border-radius: 0.375rem !important;
+                font-size: 0.875rem !important;
+                font-weight: 600 !important;
+                cursor: pointer !important;
+                transition: all 0.2s !important;
+                text-transform: uppercase !important;
+                letter-spacing: 0.5px !important;
+            }
+            
+            #<?php echo esc_attr($widget_id); ?> .resbs-request-submit-btn:hover {
+                background: #2563eb !important;
+            }
+            
+            /* Disclaimer */
+            #<?php echo esc_attr($widget_id); ?> .resbs-request-disclaimer {
+                font-size: 0.75rem !important;
+                color: #6b7280 !important;
+                margin-bottom: 1rem !important;
+                line-height: 1.5 !important;
+            }
+            
+            /* Footer */
+            #<?php echo esc_attr($widget_id); ?> .resbs-request-form-footer {
+                margin-top: 1.5rem !important;
+            }
+            
+            /* Title */
+            #<?php echo esc_attr($widget_id); ?> .resbs-request-form-title {
+                font-size: 1.25rem !important;
+                font-weight: 700 !important;
+                color: #111827 !important;
+                margin-bottom: 1.5rem !important;
+            }
+        </style>
         <?php
     }
 
@@ -301,8 +382,7 @@ class RESBS_Request_Form_Widget extends \Elementor\Widget_Base {
                     </div>
                     <div class="resbs-form-field">
                         <label><?php esc_html_e('Phone', 'realestate-booking-suite'); ?></label>
-                        <select><option><?php esc_html_e('Other', 'realestate-booking-suite'); ?></option></select>
-                        <input type="tel">
+                        <input type="tel" placeholder="<?php esc_attr_e('Enter your phone number', 'realestate-booking-suite'); ?>">
                     </div>
                     <div class="resbs-form-field">
                         <label><?php esc_html_e('Message', 'realestate-booking-suite'); ?> *</label>

@@ -1609,45 +1609,85 @@ class RESBS_Frontend {
             wp_send_json_error(esc_html__('Please enter a valid email address.', 'realestate-booking-suite'));
         }
         
-        // Send email notification
-        $admin_email = get_option('admin_email');
-        $subject = sprintf(esc_html__('New Property Inquiry: %s', 'realestate-booking-suite'), get_bloginfo('name'));
-        
-        $email_message = sprintf(
-            esc_html__('You have received a new property inquiry:%s%sName: %s%sEmail: %s%sPhone: %s%sMessage: %s%s', 'realestate-booking-suite'),
-            "\n\n",
-            "---\n",
-            $name,
-            "\n",
-            $email,
-            "\n",
-            $phone,
-            "\n",
-            $message,
-            "\n\n"
-        );
+        // Get property and agent information
+        $property_title = '';
+        $property_url = '';
+        $agent_email = '';
+        $agent_name = '';
         
         if ($property_id) {
             $property_title = get_the_title($property_id);
             $property_url = get_permalink($property_id);
-            $email_message .= sprintf(
-                esc_html__('Property: %s%sProperty URL: %s', 'realestate-booking-suite'),
-                $property_title,
-                "\n",
-                $property_url
-            );
+            $agent_email = get_post_meta($property_id, '_property_agent_email', true);
+            $agent_name = get_post_meta($property_id, '_property_agent_name', true);
         }
         
-        $headers = array('Content-Type: text/html; charset=UTF-8', 'From: ' . $name . ' <' . $email . '>');
+        // Prepare email content
+        $subject = sprintf(esc_html__('New Property Inquiry: %s', 'realestate-booking-suite'), $property_title ? $property_title : get_bloginfo('name'));
         
-        $sent = wp_mail($admin_email, $subject, nl2br($email_message), $headers);
+        // HTML email content
+        $email_message = '<div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">';
+        $email_message .= '<h2 style="color: #10b981; border-bottom: 2px solid #10b981; padding-bottom: 10px;">' . esc_html__('New Property Inquiry', 'realestate-booking-suite') . '</h2>';
+        $email_message .= '<table style="width: 100%; border-collapse: collapse; margin: 20px 0;">';
+        $email_message .= '<tr><td style="padding: 8px; font-weight: bold; width: 150px;">' . esc_html__('Name:', 'realestate-booking-suite') . '</td><td style="padding: 8px;">' . esc_html($name) . '</td></tr>';
+        $email_message .= '<tr><td style="padding: 8px; font-weight: bold;">' . esc_html__('Email:', 'realestate-booking-suite') . '</td><td style="padding: 8px;"><a href="mailto:' . esc_attr($email) . '">' . esc_html($email) . '</a></td></tr>';
         
-        if ($sent) {
+        if (!empty($phone)) {
+            $email_message .= '<tr><td style="padding: 8px; font-weight: bold;">' . esc_html__('Phone:', 'realestate-booking-suite') . '</td><td style="padding: 8px;"><a href="tel:' . esc_attr($phone) . '">' . esc_html($phone) . '</a></td></tr>';
+        }
+        
+        if ($property_title) {
+            $email_message .= '<tr><td style="padding: 8px; font-weight: bold;">' . esc_html__('Property:', 'realestate-booking-suite') . '</td><td style="padding: 8px;"><a href="' . esc_url($property_url) . '">' . esc_html($property_title) . '</a></td></tr>';
+        }
+        
+        $email_message .= '</table>';
+        $email_message .= '<div style="margin: 20px 0; padding: 15px; background: #f9fafb; border-left: 4px solid #10b981;">';
+        $email_message .= '<strong>' . esc_html__('Message:', 'realestate-booking-suite') . '</strong><br>';
+        $email_message .= nl2br(esc_html($message));
+        $email_message .= '</div>';
+        $email_message .= '</div>';
+        
+        // Email headers
+        $headers = array(
+            'Content-Type: text/html; charset=UTF-8',
+            'From: ' . $name . ' <' . $email . '>',
+            'Reply-To: ' . $name . ' <' . $email . '>'
+        );
+        
+        // Send to admin
+        $admin_email = get_option('admin_email');
+        $admin_sent = wp_mail($admin_email, $subject, $email_message, $headers);
+        
+        // Send to property agent if available
+        $agent_sent = false;
+        if (!empty($agent_email) && is_email($agent_email)) {
+            $agent_sent = wp_mail($agent_email, $subject, $email_message, $headers);
+        }
+        
+        // Send confirmation to user
+        $user_subject = esc_html__('Thank you for your inquiry', 'realestate-booking-suite');
+        $user_message = '<div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">';
+        $user_message .= '<h2 style="color: #10b981;">' . esc_html__('Thank You!', 'realestate-booking-suite') . '</h2>';
+        $user_message .= '<p>' . esc_html__('We have received your inquiry and will get back to you as soon as possible.', 'realestate-booking-suite') . '</p>';
+        if ($property_title) {
+            $user_message .= '<p><strong>' . esc_html__('Property:', 'realestate-booking-suite') . '</strong> <a href="' . esc_url($property_url) . '">' . esc_html($property_title) . '</a></p>';
+        }
+        $user_message .= '<hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;">';
+        $user_message .= '<p style="font-size: 12px; color: #6b7280;">' . esc_html__('This is an automated confirmation email.', 'realestate-booking-suite') . '</p>';
+        $user_message .= '</div>';
+        
+        $user_headers = array('Content-Type: text/html; charset=UTF-8');
+        $user_sent = wp_mail($email, $user_subject, $user_message, $user_headers);
+        
+        // Return success if at least admin or agent email was sent
+        if ($admin_sent || $agent_sent) {
             wp_send_json_success(array(
-                'message' => esc_html__('Thank you! Your request has been submitted successfully.', 'realestate-booking-suite')
+                'message' => esc_html__('Thank you! Your request has been submitted successfully. We will contact you soon.', 'realestate-booking-suite')
             ));
         } else {
-            wp_send_json_error(esc_html__('Failed to send request. Please try again later.', 'realestate-booking-suite'));
+            wp_send_json_error(array(
+                'message' => esc_html__('Failed to send request. Please try again later or contact us directly.', 'realestate-booking-suite')
+            ));
         }
     }
     
