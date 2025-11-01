@@ -708,21 +708,32 @@ $property_statuses = get_terms(array(
                     echo '<!-- DEBUG: Property "' . esc_html($property_title) . '" (ID: ' . $property_id . ') has NO coordinates, will geocode from address -->';
                 }
                 
-                // Build address string for geocoding
-                $address_string = '';
-                if ($address) $address_string .= $address;
-                if ($city) $address_string .= ($address_string ? ', ' : '') . $city;
-                if ($state) $address_string .= ($address_string ? ', ' : '') . $state;
-                if ($zip) $address_string .= ($address_string ? ' ' : '') . $zip;
-                if ($country) $address_string .= ($address_string ? ', ' : '') . $country;
+                // Get location taxonomy term FIRST (most reliable for geocoding)
+                $location_terms = get_the_terms($property_id, 'property_location');
+                $location_name = '';
+                if ($location_terms && !is_wp_error($location_terms) && !empty($location_terms)) {
+                    $location_name = $location_terms[0]->name;
+                }
                 
-                // If no address fields, try using property location taxonomy term
-                if (empty($address_string)) {
-                    $location_terms = get_the_terms($property_id, 'property_location');
-                    if ($location_terms && !is_wp_error($location_terms) && !empty($location_terms)) {
-                        $location_name = $location_terms[0]->name;
-                        $address_string = $location_name . ', Bangladesh'; // Add country for better geocoding
-                        echo '<!-- DEBUG: Property "' . esc_html($property_title) . '" using location taxonomy: ' . esc_html($location_name) . ' -->';
+                // Build address string for geocoding
+                // Priority: Use location taxonomy if available, otherwise build from address fields
+                $address_string = '';
+                
+                if (!empty($location_name)) {
+                    // Use location taxonomy as primary - it's usually the most accurate (e.g., "Uttara Dhaka", "Jashore")
+                    $address_string = $location_name . ', Bangladesh';
+                    echo '<!-- DEBUG: Property "' . esc_html($property_title) . '" using location taxonomy: ' . esc_html($location_name) . ' -->';
+                } else {
+                    // Fallback to address fields
+                    if ($address) $address_string .= $address;
+                    if ($city) $address_string .= ($address_string ? ', ' : '') . $city;
+                    if ($state) $address_string .= ($address_string ? ', ' : '') . $state;
+                    if ($zip) $address_string .= ($address_string ? ' ' : '') . $zip;
+                    if ($country) $address_string .= ($address_string ? ', ' : '') . $country;
+                    
+                    // If still empty, try city alone
+                    if (empty($address_string) && $city) {
+                        $address_string = $city . ', Bangladesh';
                     }
                 }
                 
@@ -743,6 +754,7 @@ $property_statuses = get_terms(array(
                     'days_old' => $days_old,
                     'city' => $city ? $city : '',
                     'address' => $address ? $address : '',
+                    'location_name' => $location_name ? $location_name : '', // Location taxonomy term
                     'full_address' => $address_string,
                     'needs_geocoding' => $needs_geocoding // Explicitly set this
                 );
@@ -1612,7 +1624,8 @@ if (window.propertiesData && window.propertiesData.length > 0) {
         }
     });
 } else {
-    console.warn('⚠️ WARNING: No properties found!'); 
+    console.warn('⚠️ WARNING: No properties found!');
+}
 
 // Initialize OpenStreetMap with Leaflet
 function initializeOpenStreetMap() {
@@ -1668,40 +1681,62 @@ function initializeOpenStreetMap() {
             const lat = parseFloat(property.lat);
             const lng = parseFloat(property.lng);
             
-            if (!isNaN(lat) && !isNaN(lng) && 
+            // Check if property has valid coordinates
+            const hasValidCoords = !isNaN(lat) && !isNaN(lng) && 
                 lat >= -90 && lat <= 90 && 
                 lng >= -180 && lng <= 180 &&
-                lat !== 0 && lng !== 0) {
-                // Has valid coordinates
+                lat !== 0 && lng !== 0;
+            
+            if (hasValidCoords) {
+                // Has valid coordinates - add directly to map
                 propertiesWithCoords.push(property);
                 console.log('✅ Property with coordinates:', property.title, 'at', lat, ',', lng);
-            } else if (property.needs_geocoding) {
-                // Needs geocoding - ensure we have an address
+            } else {
+                // No valid coordinates - needs geocoding
+                // Ensure we have an address for geocoding
                 if (!property.full_address || property.full_address.trim() === '') {
-                    // Try city as fallback
-                    if (property.city && property.city.trim() !== '') {
+                    // Priority 1: Use location_name (location taxonomy term) if available - most reliable
+                    if (property.location_name && property.location_name.trim() !== '') {
+                        property.full_address = property.location_name + ', Bangladesh';
+                        console.log('📍 Property needs geocoding (using location taxonomy):', property.title, '- Location:', property.full_address);
+                    }
+                    // Priority 2: Try city
+                    else if (property.city && property.city.trim() !== '') {
                         property.full_address = property.city + ', Bangladesh';
                         console.log('📍 Property needs geocoding (using city):', property.title, '- Address:', property.full_address);
-                    } else if (property.address && property.address.trim() !== '') {
+                    }
+                    // Priority 3: Try address field
+                    else if (property.address && property.address.trim() !== '') {
                         property.full_address = property.address + ', Bangladesh';
                         console.log('📍 Property needs geocoding (using address):', property.title, '- Address:', property.full_address);
                     }
                 }
                 
-                // If still no address, try property title/location as last resort
+                // If still no address, try property title as last resort
                 if (!property.full_address || property.full_address.trim() === '') {
-                    console.warn('⚠️ Property has no address/city - will try title:', property.title);
-                    property.full_address = property.title + ', Bangladesh';
+                    // Try using location name from property if available (e.g., "Uttara Dhaka", "Jashore")
+                    const locationMatch = property.title.match(/(?:real estate|property|wali|Copy)/i);
+                    if (!locationMatch && property.title.trim() !== '') {
+                        property.full_address = property.title + ', Bangladesh';
+                        console.log('📍 Property needs geocoding (using title):', property.title, '- Address:', property.full_address);
+                    } else {
+                        // Try to extract location from title or use a default
+                        property.full_address = property.title.replace(/Copy/gi, '').replace(/\s+/g, ' ').trim() + ', Bangladesh';
+                        if (property.full_address === ', Bangladesh') {
+                            property.full_address = 'Dhaka, Bangladesh'; // Default fallback
+                        }
+                        console.log('📍 Property needs geocoding (using modified title):', property.title, '- Address:', property.full_address);
+                    }
                 }
                 
+                // Always add to geocoding queue if we have any address text
                 if (property.full_address && property.full_address.trim() !== '') {
+                    property.needs_geocoding = true; // Ensure this is set
                     propertiesNeedingGeocode.push(property);
                     console.log('✅ Property added to geocoding queue:', property.title, '- Will geocode:', property.full_address);
                 } else {
                     console.error('❌ Property cannot be geocoded - no address available:', property.title);
                 }
-            } else {
-                console.warn('⚠️ Property skipped - no coordinates and needs_geocoding=false:', property.title, '- needs_geocoding:', property.needs_geocoding);
             }
         });
     }
@@ -2263,19 +2298,55 @@ window.initMap = function() {
             const lat = parseFloat(property.lat);
             const lng = parseFloat(property.lng);
             
-            if (!isNaN(lat) && !isNaN(lng) && 
+            // Check if property has valid coordinates
+            const hasValidCoords = !isNaN(lat) && !isNaN(lng) && 
                 lat >= -90 && lat <= 90 && 
                 lng >= -180 && lng <= 180 &&
-                lat !== 0 && lng !== 0) {
-                // Has valid coordinates
+                lat !== 0 && lng !== 0;
+            
+            if (hasValidCoords) {
+                // Has valid coordinates - add directly to map
                 propertiesWithCoords.push(property);
                 console.log('✅ Property with coordinates:', property.title, 'at', lat, ',', lng);
-            } else if (property.needs_geocoding && property.full_address) {
-                // Needs geocoding
-                propertiesNeedingGeocode.push(property);
-                console.log('📍 Property needs geocoding:', property.title, '- Address:', property.full_address);
             } else {
-                console.warn('⚠️ Property cannot be geocoded (no address):', property.title);
+                // No valid coordinates - needs geocoding
+                // Ensure we have an address for geocoding
+                if (!property.full_address || property.full_address.trim() === '') {
+                    // Priority 1: Use location_name (location taxonomy term) if available - most reliable
+                    if (property.location_name && property.location_name.trim() !== '') {
+                        property.full_address = property.location_name + ', Bangladesh';
+                        console.log('📍 Property needs geocoding (using location taxonomy):', property.title, '- Location:', property.full_address);
+                    }
+                    // Priority 2: Try city
+                    else if (property.city && property.city.trim() !== '') {
+                        property.full_address = property.city + ', Bangladesh';
+                        console.log('📍 Property needs geocoding (using city):', property.title, '- Address:', property.full_address);
+                    }
+                    // Priority 3: Try address field
+                    else if (property.address && property.address.trim() !== '') {
+                        property.full_address = property.address + ', Bangladesh';
+                        console.log('📍 Property needs geocoding (using address):', property.title, '- Address:', property.full_address);
+                    }
+                }
+                
+                // If still no address, try property title as last resort
+                if (!property.full_address || property.full_address.trim() === '') {
+                    // Try to extract location from title or use a default
+                    property.full_address = property.title.replace(/Copy/gi, '').replace(/\s+/g, ' ').trim() + ', Bangladesh';
+                    if (property.full_address === ', Bangladesh') {
+                        property.full_address = 'Dhaka, Bangladesh'; // Default fallback
+                    }
+                    console.log('📍 Property needs geocoding (using title):', property.title, '- Address:', property.full_address);
+                }
+                
+                // Always add to geocoding queue if we have any address text
+                if (property.full_address && property.full_address.trim() !== '') {
+                    property.needs_geocoding = true; // Ensure this is set
+                    propertiesNeedingGeocode.push(property);
+                    console.log('✅ Property added to geocoding queue:', property.title, '- Will geocode:', property.full_address);
+                } else {
+                    console.error('❌ Property cannot be geocoded - no address available:', property.title);
+                }
             }
         });
     }
