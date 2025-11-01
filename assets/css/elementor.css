@@ -1,7 +1,13 @@
-/* Elementor Widget Styles */
-/* IMPORTANT: Use high specificity to override Elementor default styles */
+/* ============================================
+   RESBS ELEMENTOR WIDGETS CSS - PREMIUM DESIGN
+   PREFIX: resbs- (all classes use resbs- prefix)
+   VERSION: 2.0.0 - COMPLETE REDESIGN
+   ============================================ */
 
-/* Global Reset for Elementor Widgets */
+/* ============================================
+   GLOBAL RESETS & BASE STYLES
+   ============================================ */
+
 .elementor-widget-resbs-property-grid *,
 .elementor-widget-resbs-property-carousel *,
 .elementor-widget-resbs-search *,
@@ -9,11 +15,11 @@
 .elementor-widget-resbs-request-form *,
 .elementor-widget-resbs-listings *,
 .elementor-widget-resbs-authentication *,
-.elementor-widget-resbs-half-map * {
+.elementor-widget-resbs-half-map *,
+.elementor-element[data-widget_type*="resbs"] * {
     box-sizing: border-box !important;
 }
 
-/* Target Elementor widget containers specifically */
 .elementor-widget-resbs-property-grid,
 .elementor-widget-resbs-property-carousel,
 .elementor-widget-resbs-search,
@@ -37,2091 +43,322 @@
     width: 100% !important;
     max-width: 100% !important;
     padding: 0 !important;
+    margin: 0 !important;
 }
 
-/* Property Grid Widget */
-.resbs-elementor-property-grid,
-.elementor-widget-resbs-property-grid .resbs-elementor-property-grid {
-    width: 100% !important;
-}
+/* ============================================
+   PROPERTY GRID & LISTINGS
+   ============================================ */
 
-/* Filters */
-.resbs-filters,
-.elementor-widget-resbs-property-grid .resbs-filters {
-    background: #f8f9fa !important;
-    padding: 20px !important;
-    border-radius: 8px !important;
-    margin-bottom: 30px !important;
-    border: 1px solid #e9ecef !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
-}
-
-.resbs-filter-row {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 15px;
-    align-items: end;
-}
-
-.resbs-filter-group {
-    display: flex;
-    flex-direction: column;
-}
-
-.resbs-filter-group label {
-    font-weight: 600;
-    margin-bottom: 5px;
-    color: #333;
-    font-size: 14px;
-}
-
-.resbs-filter-group select,
-.resbs-filter-group input {
-    padding: 10px 12px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    font-size: 14px;
-    background: white;
-    transition: border-color 0.3s ease;
-}
-
-.resbs-filter-group select:focus,
-.resbs-filter-group input:focus {
-    outline: none;
-    border-color: #007cba;
-    box-shadow: 0 0 0 3px rgba(0, 124, 186, 0.1);
-}
-
-.resbs-filter-actions {
-    display: flex;
-    gap: 10px;
-    align-items: end;
-}
-
-.resbs-filter-btn,
-.resbs-reset-btn {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 6px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    white-space: nowrap;
-}
-
-.resbs-filter-btn {
-    background: #007cba;
-    color: white;
-}
-
-.resbs-filter-btn:hover {
-    background: #005a87;
-}
-
-.resbs-reset-btn {
-    background: #6c757d;
-    color: white;
-}
-
-.resbs-reset-btn:hover {
-    background: #5a6268;
-}
-
-/* Property Grid - High specificity */
 .resbs-property-grid,
 .elementor-widget-resbs-property-grid .resbs-property-grid,
-.elementor-widget-resbs-listings-widget .resbs-properties-container {
+.elementor-widget-resbs-listings .resbs-properties-container {
     display: grid !important;
-    gap: 25px !important;
-    margin-bottom: 30px !important;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)) !important;
+    gap: 30px !important;
     width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
-.resbs-grid-2-cols,
-.elementor-widget-resbs-property-grid .resbs-grid-2-cols {
-    grid-template-columns: repeat(2, 1fr) !important;
+@media (max-width: 768px) {
+    .resbs-property-grid,
+    .elementor-widget-resbs-property-grid .resbs-property-grid,
+    .elementor-widget-resbs-listings .resbs-properties-container {
+        grid-template-columns: 1fr !important;
+        gap: 25px !important;
+    }
 }
 
-.resbs-grid-3-cols,
-.elementor-widget-resbs-property-grid .resbs-grid-3-cols {
-    grid-template-columns: repeat(3, 1fr) !important;
-}
+/* ============================================
+   PREMIUM PROPERTY CARD DESIGN
+   ============================================ */
 
-.resbs-grid-4-cols,
-.elementor-widget-resbs-property-grid .resbs-grid-4-cols {
-    grid-template-columns: repeat(4, 1fr) !important;
-}
-
-/* Property Card - High specificity for Elementor */
 .resbs-property-card,
 .elementor-widget-resbs-property-grid .resbs-property-card,
 .elementor-widget-resbs-property-carousel .resbs-property-card,
-.elementor-widget-resbs-listings-widget .resbs-property-card,
-.elementor-element .resbs-property-card {
-    background: white !important;
-    border-radius: 12px !important;
+.elementor-widget-resbs-listings .resbs-property-card,
+.elementor-widget-resbs-slider .resbs-property-card {
+    background: #ffffff !important;
+    border-radius: 16px !important;
     overflow: hidden !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
-    transition: all 0.3s ease !important;
-    position: relative !important;
-    margin-bottom: 0 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 4px 16px rgba(0, 0, 0, 0.04) !important;
     display: flex !important;
     flex-direction: column !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 1px solid rgba(0, 0, 0, 0.06) !important;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    position: relative !important;
     height: 100% !important;
 }
 
 .resbs-property-card:hover,
 .elementor-widget-resbs-property-grid .resbs-property-card:hover,
 .elementor-widget-resbs-property-carousel .resbs-property-card:hover,
-.elementor-widget-resbs-listings-widget .resbs-property-card:hover {
-    transform: translateY(-5px) !important;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important;
+.elementor-widget-resbs-listings .resbs-property-card:hover {
+    transform: translateY(-8px) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 16px 48px rgba(0, 0, 0, 0.08) !important;
+    border-color: rgba(0, 124, 186, 0.2) !important;
 }
 
+/* Property Image - Premium Design */
 .resbs-property-image,
 .elementor-widget-resbs-property-grid .resbs-property-image,
 .elementor-widget-resbs-property-carousel .resbs-property-image,
-.elementor-widget-resbs-listings-widget .resbs-property-image {
-    position: relative !important;
-    overflow: hidden !important;
-    height: 220px !important;
-    background: #f8f9fa !important;
-    width: 100% !important;
-    display: block !important;
-}
-
-.resbs-property-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.3s ease;
-}
-
-.resbs-property-card:hover .resbs-property-image img {
-    transform: scale(1.05);
-}
-
-.resbs-property-badges {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-}
-
-.resbs-badge {
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: 600;
-    text-transform: uppercase;
-    color: white;
-}
-
-.resbs-badge-featured {
-    background: #ffc107;
-    color: #212529;
-}
-
-.resbs-badge-new {
-    background: #28a745;
-}
-
-.resbs-badge-sold {
-    background: #dc3545;
-}
-
-.resbs-badge-rent {
-    background: #17a2b8;
-}
-
-.resbs-property-actions-overlay {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.resbs-property-card:hover .resbs-property-actions-overlay {
-    opacity: 1;
-}
-
-.resbs-favorite-btn,
-.resbs-book-btn {
-    width: 40px;
-    height: 40px;
-    border: none;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-size: 16px;
-}
-
-.resbs-favorite-btn {
-    background: rgba(255, 255, 255, 0.9);
-    color: #dc3545;
-}
-
-.resbs-favorite-btn:hover {
-    background: #dc3545;
-    color: white;
-}
-
-.resbs-favorite-btn.active {
-    background: #dc3545;
-    color: white;
-}
-
-.resbs-book-btn {
-    background: rgba(0, 124, 186, 0.9);
-    color: white;
-}
-
-.resbs-book-btn:hover {
-    background: #005a87;
-}
-
-.resbs-property-content,
-.elementor-widget-resbs-property-grid .resbs-property-content,
-.elementor-widget-resbs-property-carousel .resbs-property-content,
-.elementor-widget-resbs-listings-widget .resbs-property-content {
-    padding: 20px !important;
-    flex: 1 !important;
-    display: flex !important;
-    flex-direction: column !important;
-}
-
-.resbs-property-title,
-.elementor-widget-resbs-property-grid .resbs-property-title,
-.elementor-widget-resbs-property-carousel .resbs-property-title,
-.elementor-widget-resbs-listings-widget .resbs-property-title {
-    margin: 0 0 10px 0 !important;
-    font-size: 18px !important;
-    font-weight: 600 !important;
-    line-height: 1.4 !important;
-}
-
-.resbs-property-title a {
-    color: #333;
-    text-decoration: none;
-    transition: color 0.3s ease;
-}
-
-.resbs-property-title a:hover {
-    color: #007cba;
-}
-
-.resbs-property-price,
-.elementor-widget-resbs-property-grid .resbs-property-price,
-.elementor-widget-resbs-property-carousel .resbs-property-price,
-.elementor-widget-resbs-listings-widget .resbs-property-price {
-    font-size: 22px !important;
-    font-weight: 700 !important;
-    color: #28a745 !important;
-    margin-bottom: 15px !important;
-}
-
-.resbs-property-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    margin-bottom: 15px;
-    color: #6c757d;
-    font-size: 14px;
-}
-
-.resbs-property-meta span {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
-.resbs-property-meta .dashicons {
-    font-size: 16px;
-}
-
-.resbs-property-excerpt {
-    color: #6c757d;
-    font-size: 14px;
-    line-height: 1.5;
-    margin-bottom: 15px;
-}
-
-.resbs-property-actions {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-}
-
-.resbs-btn,
-.elementor-widget-resbs-property-grid .resbs-btn,
-.elementor-widget-resbs-property-carousel .resbs-btn,
-.elementor-widget-resbs-listings-widget .resbs-btn {
-    padding: 10px 20px !important;
-    border: none !important;
-    border-radius: 6px !important;
-    font-size: 14px !important;
-    font-weight: 600 !important;
-    text-decoration: none !important;
-    cursor: pointer !important;
-    transition: all 0.3s ease !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 5px !important;
-    text-align: center !important;
-}
-
-.resbs-btn-primary,
-.elementor-widget-resbs-property-grid .resbs-btn-primary,
-.elementor-widget-resbs-property-carousel .resbs-btn-primary,
-.elementor-widget-resbs-listings-widget .resbs-btn-primary {
-    background: #007cba !important;
-    color: white !important;
-}
-
-.resbs-btn-primary:hover,
-.elementor-widget-resbs-property-grid .resbs-btn-primary:hover,
-.elementor-widget-resbs-property-carousel .resbs-btn-primary:hover,
-.elementor-widget-resbs-listings-widget .resbs-btn-primary:hover {
-    background: #005a87 !important;
-    color: white !important;
-    text-decoration: none !important;
-}
-
-.resbs-btn-secondary {
-    background: #6c757d;
-    color: white;
-}
-
-.resbs-btn-secondary:hover {
-    background: #5a6268;
-    color: white;
-    text-decoration: none;
-}
-
-/* Pagination */
-.resbs-pagination-wrapper {
-    display: flex;
-    justify-content: center;
-    margin-top: 30px;
-}
-
-.resbs-pagination {
-    display: flex;
-    gap: 5px;
-    align-items: center;
-}
-
-.resbs-pagination-btn {
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    text-decoration: none;
-    color: #6c757d;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
-.resbs-pagination-btn:hover {
-    background: #f8f9fa;
-    border-color: #007cba;
-    color: #007cba;
-    text-decoration: none;
-}
-
-.resbs-pagination-btn.active {
-    background: #007cba;
-    border-color: #007cba;
-    color: white;
-}
-
-.resbs-pagination-btn.disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-/* Infinite Scroll */
-.resbs-infinite-scroll-wrapper {
-    text-align: center;
-    margin-top: 30px;
-}
-
-.resbs-load-more-btn {
-    background: #007cba;
-    color: white;
-    padding: 12px 24px;
-    border: none;
-    border-radius: 6px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.3s ease;
-}
-
-.resbs-load-more-btn:hover {
-    background: #005a87;
-}
-
-.resbs-load-more-btn:disabled {
-    background: #6c757d;
-    cursor: not-allowed;
-}
-
-/* Loading States */
-.resbs-loading {
-    text-align: center;
-    padding: 40px 20px;
-    color: #6c757d;
-}
-
-.resbs-spinner {
-    width: 40px;
-    height: 40px;
-    border: 4px solid #f3f3f3;
-    border-top: 4px solid #007cba;
-    border-radius: 50%;
-    animation: resbs-spin 1s linear infinite;
-    margin: 0 auto 15px;
-}
-
-@keyframes resbs-spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-.resbs-no-properties {
-    text-align: center;
-    padding: 60px 20px;
-    color: #6c757d;
-    background: #f8f9fa;
-    border-radius: 8px;
-    border: 1px solid #e9ecef;
-}
-
-.resbs-no-properties p {
-    font-size: 18px;
-    margin: 0;
-}
-
-/* Responsive Design */
-@media (max-width: 1200px) {
-    .resbs-grid-4-cols {
-        grid-template-columns: repeat(3, 1fr);
-    }
-}
-
-@media (max-width: 992px) {
-    .resbs-grid-4-cols,
-    .resbs-grid-3-cols {
-        grid-template-columns: repeat(2, 1fr);
-    }
-    
-    .resbs-filter-row {
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    }
-}
-
-@media (max-width: 768px) {
-    .resbs-grid-4-cols,
-    .resbs-grid-3-cols,
-    .resbs-grid-2-cols {
-        grid-template-columns: 1fr;
-    }
-    
-    .resbs-filter-row {
-        grid-template-columns: 1fr;
-    }
-    
-    .resbs-filter-actions {
-        flex-direction: column;
-        align-items: stretch;
-    }
-    
-    .resbs-filter-btn,
-    .resbs-reset-btn {
-        width: 100%;
-    }
-    
-    .resbs-property-actions {
-        flex-direction: column;
-    }
-    
-    .resbs-btn {
-        justify-content: center;
-    }
-}
-
-@media (max-width: 480px) {
-    .resbs-filters {
-        padding: 15px;
-    }
-    
-    .resbs-property-content {
-        padding: 15px;
-    }
-    
-    .resbs-property-image {
-        height: 180px;
-    }
-    
-    .resbs-property-title {
-        font-size: 16px;
-    }
-    
-    .resbs-property-price {
-        font-size: 18px;
-    }
-}
-
-/* Elementor Editor Styles */
-.elementor-editor .resbs-elementor-property-grid {
-    pointer-events: none;
-}
-
-.elementor-editor .resbs-elementor-property-grid .resbs-filter-btn,
-.elementor-editor .resbs-elementor-property-grid .resbs-reset-btn,
-.elementor-editor .resbs-elementor-property-grid .resbs-favorite-btn,
-.elementor-editor .resbs-elementor-property-grid .resbs-book-btn,
-.elementor-editor .resbs-elementor-property-grid .resbs-btn {
-    pointer-events: none;
-}
-
-/* Custom Elementor Controls */
-.elementor-control-resbs_heading .elementor-control-title {
-    font-size: 16px;
-    font-weight: 600;
-    color: #007cba;
-    border-bottom: 1px solid #e9ecef;
-    padding-bottom: 10px;
-    margin-bottom: 15px;
-}
-
-/* Animation Classes */
-.resbs-fade-in {
-    animation: resbs-fadeIn 0.5s ease-in;
-}
-
-@keyframes resbs-fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.resbs-slide-up {
-    animation: resbs-slideUp 0.3s ease-out;
-}
-
-@keyframes resbs-slideUp {
-    from { transform: translateY(20px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-}
-
-/* Property Carousel Widget */
-.resbs-elementor-property-carousel {
-    position: relative;
-    width: 100%;
-}
-
-.resbs-carousel-container {
-    position: relative;
-    overflow: hidden;
-    border-radius: 12px;
-}
-
-.resbs-carousel-track {
-    display: flex;
-    transition: transform 0.5s ease-in-out;
-    will-change: transform;
-}
-
-.resbs-carousel-slide {
-    flex: 0 0 auto;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-/* Carousel Navigation Arrows */
-.resbs-carousel-arrow {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 10;
-    background: rgba(255, 255, 255, 0.9);
-    border: none;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-    color: #333;
-    font-size: 18px;
-}
-
-.resbs-carousel-arrow:hover {
-    background: #007cba;
-    color: white;
-    transform: translateY(-50%) scale(1.1);
-}
-
-.resbs-carousel-prev {
-    left: 15px;
-}
-
-.resbs-carousel-next {
-    right: 15px;
-}
-
-.resbs-carousel-arrow:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: translateY(-50%);
-}
-
-.resbs-carousel-arrow:disabled:hover {
-    background: rgba(255, 255, 255, 0.9);
-    color: #333;
-    transform: translateY(-50%);
-}
-
-/* Carousel Dots */
-.resbs-carousel-dots {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 8px;
-    margin-top: 20px;
-    padding: 0 20px;
-}
-
-.resbs-carousel-dot {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: #ddd;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    border: none;
-    padding: 0;
-}
-
-.resbs-carousel-dot:hover {
-    background: #007cba;
-    transform: scale(1.2);
-}
-
-.resbs-carousel-dot.active {
-    background: #007cba;
-    transform: scale(1.3);
-}
-
-/* Carousel Property Cards */
-.resbs-elementor-property-carousel .resbs-property-card {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    margin: 0;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-}
-
-.resbs-elementor-property-carousel .resbs-property-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-}
-
-.resbs-elementor-property-carousel .resbs-property-image {
-    height: 200px;
-    overflow: hidden;
-    position: relative;
-}
-
-.resbs-elementor-property-carousel .resbs-property-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.3s ease;
-}
-
-.resbs-elementor-property-carousel .resbs-property-card:hover .resbs-property-image img {
-    transform: scale(1.05);
-}
-
-.resbs-elementor-property-carousel .resbs-property-content {
-    padding: 20px;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-}
-
-.resbs-elementor-property-carousel .resbs-property-title {
-    margin: 0 0 10px 0;
-    font-size: 18px;
-    font-weight: 600;
-    line-height: 1.4;
-    flex-shrink: 0;
-}
-
-.resbs-elementor-property-carousel .resbs-property-title a {
-    color: #333;
-    text-decoration: none;
-    transition: color 0.3s ease;
-}
-
-.resbs-elementor-property-carousel .resbs-property-title a:hover {
-    color: #007cba;
-}
-
-.resbs-elementor-property-carousel .resbs-property-price {
-    font-size: 20px;
-    font-weight: 700;
-    color: #28a745;
-    margin-bottom: 15px;
-    flex-shrink: 0;
-}
-
-.resbs-elementor-property-carousel .resbs-property-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    margin-bottom: 15px;
-    color: #6c757d;
-    font-size: 14px;
-    flex-shrink: 0;
-}
-
-.resbs-elementor-property-carousel .resbs-property-meta span {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
-.resbs-elementor-property-carousel .resbs-property-meta .dashicons {
-    font-size: 16px;
-}
-
-.resbs-elementor-property-carousel .resbs-property-excerpt {
-    color: #6c757d;
-    font-size: 14px;
-    line-height: 1.5;
-    margin-bottom: 15px;
-    flex: 1;
-}
-
-.resbs-elementor-property-carousel .resbs-property-actions {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-top: auto;
-    flex-shrink: 0;
-}
-
-.resbs-elementor-property-carousel .resbs-btn {
-    padding: 8px 16px;
-    border: none;
-    border-radius: 6px;
-    font-size: 14px;
-    font-weight: 600;
-    text-decoration: none;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    flex: 1;
-    justify-content: center;
-}
-
-.resbs-elementor-property-carousel .resbs-btn-primary {
-    background: #007cba;
-    color: white;
-}
-
-.resbs-elementor-property-carousel .resbs-btn-primary:hover {
-    background: #005a87;
-    color: white;
-    text-decoration: none;
-}
-
-.resbs-elementor-property-carousel .resbs-btn-secondary {
-    background: #6c757d;
-    color: white;
-}
-
-.resbs-elementor-property-carousel .resbs-btn-secondary:hover {
-    background: #5a6268;
-    color: white;
-    text-decoration: none;
-}
-
-/* Carousel Badges */
-.resbs-elementor-property-carousel .resbs-property-badges {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    z-index: 5;
-}
-
-.resbs-elementor-property-carousel .resbs-badge {
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: 600;
-    text-transform: uppercase;
-    color: white;
-}
-
-.resbs-elementor-property-carousel .resbs-badge-featured {
-    background: #ffc107;
-    color: #212529;
-}
-
-.resbs-elementor-property-carousel .resbs-badge-new {
-    background: #28a745;
-}
-
-.resbs-elementor-property-carousel .resbs-badge-sold {
-    background: #dc3545;
-}
-
-.resbs-elementor-property-carousel .resbs-badge-rent {
-    background: #17a2b8;
-}
-
-/* Carousel Action Overlay */
-.resbs-elementor-property-carousel .resbs-property-actions-overlay {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    z-index: 5;
-}
-
-.resbs-elementor-property-carousel .resbs-property-card:hover .resbs-property-actions-overlay {
-    opacity: 1;
-}
-
-.resbs-elementor-property-carousel .resbs-favorite-btn,
-.resbs-elementor-property-carousel .resbs-book-btn {
-    width: 40px;
-    height: 40px;
-    border: none;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-size: 16px;
-}
-
-.resbs-elementor-property-carousel .resbs-favorite-btn {
-    background: rgba(255, 255, 255, 0.9);
-    color: #dc3545;
-}
-
-.resbs-elementor-property-carousel .resbs-favorite-btn:hover {
-    background: #dc3545;
-    color: white;
-}
-
-.resbs-elementor-property-carousel .resbs-favorite-btn.active {
-    background: #dc3545;
-    color: white;
-}
-
-.resbs-elementor-property-carousel .resbs-book-btn {
-    background: rgba(0, 124, 186, 0.9);
-    color: white;
-}
-
-.resbs-elementor-property-carousel .resbs-book-btn:hover {
-    background: #005a87;
-}
-
-/* Carousel Loading States */
-.resbs-elementor-property-carousel .resbs-loading {
-    text-align: center;
-    padding: 40px 20px;
-    color: #6c757d;
-}
-
-.resbs-elementor-property-carousel .resbs-spinner {
-    width: 40px;
-    height: 40px;
-    border: 4px solid #f3f3f3;
-    border-top: 4px solid #007cba;
-    border-radius: 50%;
-    animation: resbs-spin 1s linear infinite;
-    margin: 0 auto 15px;
-}
-
-.resbs-elementor-property-carousel .resbs-no-properties {
-    text-align: center;
-    padding: 60px 20px;
-    color: #6c757d;
-    background: #f8f9fa;
-    border-radius: 8px;
-    border: 1px solid #e9ecef;
-}
-
-.resbs-elementor-property-carousel .resbs-no-properties p {
-    font-size: 18px;
-    margin: 0;
-}
-
-/* Carousel Responsive Design */
-@media (max-width: 1200px) {
-    .resbs-carousel-track[data-slides-to-show="4"] {
-        --slides-to-show: 3;
-    }
-}
-
-@media (max-width: 992px) {
-    .resbs-carousel-track[data-slides-to-show="4"],
-    .resbs-carousel-track[data-slides-to-show="3"] {
-        --slides-to-show: 2;
-    }
-    
-    .resbs-carousel-arrow {
-        width: 35px;
-        height: 35px;
-        font-size: 16px;
-    }
-    
-    .resbs-carousel-prev {
-        left: 10px;
-    }
-    
-    .resbs-carousel-next {
-        right: 10px;
-    }
-}
-
-@media (max-width: 768px) {
-    .resbs-carousel-track[data-slides-to-show="4"],
-    .resbs-carousel-track[data-slides-to-show="3"],
-    .resbs-carousel-track[data-slides-to-show="2"] {
-        --slides-to-show: 1;
-    }
-    
-    .resbs-carousel-arrow {
-        width: 30px;
-        height: 30px;
-        font-size: 14px;
-    }
-    
-    .resbs-carousel-prev {
-        left: 5px;
-    }
-    
-    .resbs-carousel-next {
-        right: 5px;
-    }
-    
-    .resbs-elementor-property-carousel .resbs-property-actions {
-        flex-direction: column;
-    }
-    
-    .resbs-elementor-property-carousel .resbs-btn {
-        width: 100%;
-    }
-}
-
-@media (max-width: 480px) {
-    .resbs-elementor-property-carousel .resbs-property-content {
-        padding: 15px;
-    }
-    
-    .resbs-elementor-property-carousel .resbs-property-image {
-        height: 180px;
-    }
-    
-    .resbs-elementor-property-carousel .resbs-property-title {
-        font-size: 16px;
-    }
-    
-    .resbs-elementor-property-carousel .resbs-property-price {
-        font-size: 18px;
-    }
-    
-    .resbs-carousel-dots {
-        margin-top: 15px;
-        gap: 6px;
-    }
-    
-    .resbs-carousel-dot {
-        width: 10px;
-        height: 10px;
-    }
-}
-
-/* Carousel Autoplay Pause on Hover */
-.resbs-elementor-property-carousel:hover .resbs-carousel-track {
-    animation-play-state: paused;
-}
-
-/* Carousel Touch/Swipe Support */
-.resbs-carousel-track {
-    touch-action: pan-y;
-    user-select: none;
-}
-
-.resbs-carousel-slide {
-    user-select: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-}
-
-/* Carousel Accessibility */
-.resbs-carousel-arrow:focus {
-    outline: 2px solid #007cba;
-    outline-offset: 2px;
-}
-
-.resbs-carousel-dot:focus {
-    outline: 2px solid #007cba;
-    outline-offset: 2px;
-}
-
-/* Carousel Animation Classes */
-.resbs-carousel-slide-in {
-    animation: resbs-slideIn 0.5s ease-out;
-}
-
-@keyframes resbs-slideIn {
-    from { opacity: 0; transform: translateX(30px); }
-    to { opacity: 1; transform: translateX(0); }
-}
-
-.resbs-carousel-slide-out {
-    animation: resbs-slideOut 0.5s ease-in;
-}
-
-@keyframes resbs-slideOut {
-    from { opacity: 1; transform: translateX(0); }
-    to { opacity: 0; transform: translateX(-30px); }
-}
-
-/* ============================================
-   SEARCH WIDGET STYLES
-   ============================================ */
-.resbs-search-widget,
-.elementor-widget-resbs-search .resbs-search-widget,
-.elementor-widget-resbs-search-widget .resbs-search-widget {
-    width: 100% !important;
-    margin-bottom: 30px !important;
-}
-
-.resbs-search-form,
-.elementor-widget-resbs-search .resbs-search-form,
-.elementor-widget-resbs-search-widget .resbs-search-form {
-    background: #ffffff !important;
-    border-radius: 12px !important;
-    padding: 30px !important;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08) !important;
-    border: 1px solid #e9ecef !important;
-    margin: 0 !important;
-}
-
-.resbs-search-title {
-    font-size: 24px;
-    font-weight: 600;
-    margin: 0 0 25px 0;
-    color: #333;
-}
-
-.resbs-search-fields {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
-    margin-bottom: 20px;
-}
-
-.resbs-search-field {
-    display: flex;
-    flex-direction: column;
-}
-
-.resbs-search-field label {
-    font-weight: 600;
-    margin-bottom: 8px;
-    color: #333;
-    font-size: 14px;
-}
-
-.resbs-search-input,
-.resbs-search-select,
-.elementor-widget-resbs-search .resbs-search-input,
-.elementor-widget-resbs-search .resbs-search-select,
-.elementor-widget-resbs-search-widget .resbs-search-input,
-.elementor-widget-resbs-search-widget .resbs-search-select {
-    padding: 12px 15px !important;
-    border: 1px solid #ddd !important;
-    border-radius: 8px !important;
-    font-size: 14px !important;
-    background: white !important;
-    transition: all 0.3s ease !important;
-    width: 100% !important;
-    box-sizing: border-box !important;
-    -webkit-appearance: none !important;
-    -moz-appearance: none !important;
-    appearance: none !important;
-    margin: 0 !important;
-}
-
-.resbs-search-input:focus,
-.resbs-search-select:focus {
-    outline: none;
-    border-color: #007cba;
-    box-shadow: 0 0 0 3px rgba(0, 124, 186, 0.1);
-}
-
-.resbs-input-group {
-    display: flex;
-    gap: 5px;
-}
-
-.resbs-input-group .resbs-search-input {
-    flex: 1;
-}
-
-.resbs-search-location-btn {
-    padding: 12px 15px;
-    background: #007cba;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background 0.3s ease;
-}
-
-.resbs-search-location-btn:hover {
-    background: #005a87;
-}
-
-.resbs-search-field-group {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-}
-
-.resbs-search-actions {
-    display: flex;
-    gap: 15px;
-    margin-top: 10px;
-    flex-wrap: wrap;
-}
-
-.resbs-search-btn,
-.resbs-search-reset-btn,
-.elementor-widget-resbs-search .resbs-search-btn,
-.elementor-widget-resbs-search .resbs-search-reset-btn,
-.elementor-widget-resbs-search-widget .resbs-search-btn,
-.elementor-widget-resbs-search-widget .resbs-search-reset-btn {
-    padding: 14px 30px !important;
-    border: none !important;
-    border-radius: 8px !important;
-    font-size: 16px !important;
-    font-weight: 600 !important;
-    cursor: pointer !important;
-    transition: all 0.3s ease !important;
-    flex: 1 !important;
-    min-width: 150px !important;
-    display: inline-block !important;
-    text-align: center !important;
-    line-height: 1.5 !important;
-}
-
-.resbs-search-btn,
-.elementor-widget-resbs-search-widget .resbs-search-btn {
-    background: #007cba !important;
-    color: white !important;
-}
-
-.resbs-search-btn:hover,
-.elementor-widget-resbs-search-widget .resbs-search-btn:hover {
-    background: #005a87 !important;
-}
-
-.resbs-search-reset-btn,
-.elementor-widget-resbs-search-widget .resbs-search-reset-btn {
-    background: #6c757d !important;
-    color: white !important;
-}
-
-.resbs-search-reset-btn:hover,
-.elementor-widget-resbs-search-widget .resbs-search-reset-btn:hover {
-    background: #5a6268 !important;
-}
-
-/* ============================================
-   LISTINGS WIDGET STYLES
-   ============================================ */
-.resbs-listings-widget,
-.elementor-widget-resbs-listings .resbs-listings-widget,
-.elementor-widget-resbs-listings-widget .resbs-listings-widget {
-    width: 100% !important;
-}
-
-.resbs-listings-navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 30px;
-    padding: 20px;
-    background: #f8f9fa;
-    border-radius: 12px;
-    flex-wrap: wrap;
-    gap: 15px;
-}
-
-.resbs-listings-title {
-    font-size: 24px;
-    font-weight: 600;
-    margin: 0;
-    color: #333;
-}
-
-.resbs-listings-count {
-    color: #6c757d;
-    font-size: 14px;
-}
-
-.resbs-listings-controls {
-    display: flex;
-    gap: 20px;
-    align-items: center;
-    flex-wrap: wrap;
-}
-
-.resbs-sort-control {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.resbs-sort-control label {
-    font-weight: 600;
-    color: #333;
-    font-size: 14px;
-    white-space: nowrap;
-}
-
-.resbs-sort-select {
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    background: white;
-    font-size: 14px;
-    cursor: pointer;
-}
-
-.resbs-view-toggle {
-    display: flex;
-    gap: 5px;
-    background: white;
-    padding: 4px;
-    border-radius: 8px;
-    border: 1px solid #ddd;
-}
-
-.resbs-view-btn {
-    padding: 8px 12px;
-    border: none;
-    background: transparent;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    color: #6c757d;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.resbs-view-btn:hover {
-    background: #f8f9fa;
-    color: #007cba;
-}
-
-.resbs-view-btn.active {
-    background: #007cba;
-    color: white;
-}
-
-.resbs-listings-content.resbs-layout-grid .resbs-properties-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 25px;
-}
-
-.resbs-listings-content.resbs-layout-list .resbs-properties-container {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-.resbs-listings-content.resbs-layout-list .resbs-property-card {
-    display: flex;
-    flex-direction: row;
-    gap: 20px;
-}
-
-.resbs-listings-content.resbs-layout-list .resbs-property-image {
-    flex: 0 0 300px;
-    height: 200px;
-}
-
-.resbs-listings-content.resbs-layout-list .resbs-property-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
-.resbs-property-card {
-    background: white;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-    transition: all 0.3s ease;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-}
-
-.resbs-property-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-}
-
-.resbs-property-image {
-    position: relative;
-    overflow: hidden;
-    height: 220px;
-    background: #f8f9fa;
-}
-
-.resbs-placeholder-image {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-}
-
-.resbs-placeholder-image .dashicons {
-    font-size: 48px;
-    width: 48px;
-    height: 48px;
-}
-
-.resbs-property-badges {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    z-index: 5;
-}
-
-.resbs-badge-status {
-    background: #17a2b8;
-}
-
-.resbs-property-actions {
-    margin-top: 15px;
-    padding-top: 15px;
-    border-top: 1px solid #e9ecef;
-}
-
-.resbs-property-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.3s ease;
-}
-
-.resbs-property-card:hover .resbs-property-image img {
-    transform: scale(1.05);
-}
-
-.resbs-property-location {
-    color: #6c757d;
-    font-size: 13px;
-    margin-bottom: 8px;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
-.resbs-property-title {
-    font-size: 18px;
-    font-weight: 600;
-    margin: 0 0 10px 0;
-    line-height: 1.4;
-}
-
-.resbs-property-title a {
-    color: #333;
-    text-decoration: none;
-    transition: color 0.3s ease;
-}
-
-.resbs-property-title a:hover {
-    color: #007cba;
-}
-
-.resbs-property-price {
-    font-size: 22px;
-    font-weight: 700;
-    color: #28a745;
-    margin-bottom: 15px;
-}
-
-.resbs-property-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    margin-bottom: 15px;
-    color: #6c757d;
-    font-size: 14px;
-}
-
-.resbs-meta-item {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
-.resbs-meta-item .dashicons {
-    font-size: 16px;
-    width: 16px;
-    height: 16px;
-}
-
-.resbs-favorite-btn {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    width: 40px;
-    height: 40px;
-    border: none;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.9);
-    color: #dc3545;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-    z-index: 5;
-}
-
-.resbs-favorite-btn:hover {
-    background: #dc3545;
-    color: white;
-}
-
-.resbs-favorite-btn.active {
-    background: #dc3545;
-    color: white;
-}
-
-.resbs-listings-pagination {
-    margin-top: 30px;
-    display: flex;
-    justify-content: center;
-}
-
-.resbs-listings-pagination .page-numbers {
-    display: flex;
-    gap: 5px;
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.resbs-listings-pagination .page-numbers li {
-    margin: 0;
-}
-
-.resbs-listings-pagination .page-numbers a,
-.resbs-listings-pagination .page-numbers span {
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    text-decoration: none;
-    color: #6c757d;
-    transition: all 0.3s ease;
-    display: block;
-}
-
-.resbs-listings-pagination .page-numbers a:hover {
-    background: #007cba;
-    border-color: #007cba;
-    color: white;
-}
-
-.resbs-listings-pagination .page-numbers .current {
-    background: #007cba;
-    border-color: #007cba;
-    color: white;
-}
-
-/* ============================================
-   REQUEST FORM WIDGET STYLES
-   ============================================ */
-.resbs-request-form-widget {
-    width: 100%;
-    max-width: 600px;
-    margin: 0 auto;
-}
-
-.resbs-request-form {
-    background: white;
-    border-radius: 12px;
-    padding: 30px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-}
-
-.resbs-request-title {
-    font-size: 24px;
-    font-weight: 600;
-    margin: 0 0 20px 0;
-    color: #333;
-    text-align: center;
-}
-
-.resbs-request-fields {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    margin-bottom: 25px;
-}
-
-.resbs-request-field {
-    display: flex;
-    flex-direction: column;
-}
-
-.resbs-request-field label {
-    font-weight: 600;
-    margin-bottom: 8px;
-    color: #333;
-    font-size: 14px;
-}
-
-.resbs-request-field input,
-.resbs-request-field textarea {
-    padding: 12px 15px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    font-size: 14px;
-    font-family: inherit;
-    transition: border-color 0.3s ease;
-}
-
-.resbs-request-field input:focus,
-.resbs-request-field textarea:focus {
-    outline: none;
-    border-color: #007cba;
-    box-shadow: 0 0 0 3px rgba(0, 124, 186, 0.1);
-}
-
-.resbs-request-field textarea {
-    resize: vertical;
-    min-height: 120px;
-}
-
-.resbs-request-footer {
-    text-align: center;
-}
-
-.resbs-request-disclaimer {
-    font-size: 12px;
-    color: #6c757d;
-    margin-bottom: 15px;
-}
-
-.resbs-request-submit-btn {
-    width: 100%;
-    padding: 14px 30px;
-    background: #007cba;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.3s ease;
-}
-
-.resbs-request-submit-btn:hover {
-    background: #005a87;
-}
-
-/* ============================================
-   AUTHENTICATION WIDGET STYLES
-   ============================================ */
-.resbs-auth-widget {
-    width: 100%;
-    max-width: 400px;
-    margin: 0 auto;
-}
-
-.resbs-auth-container {
-    background: white;
-    border-radius: 12px;
-    padding: 30px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-}
-
-.resbs-auth-header {
-    text-align: center;
-    margin-bottom: 25px;
-}
-
-.resbs-auth-title {
-    font-size: 24px;
-    font-weight: 600;
-    margin: 0 0 10px 0;
-    color: #333;
-}
-
-.resbs-auth-subtitle {
-    color: #6c757d;
-    font-size: 14px;
-    margin: 0;
-}
-
-.resbs-auth-fields {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    margin-bottom: 20px;
-}
-
-.resbs-auth-field {
-    display: flex;
-    flex-direction: column;
-}
-
-.resbs-auth-field label {
-    font-weight: 600;
-    margin-bottom: 8px;
-    color: #333;
-    font-size: 14px;
-}
-
-.resbs-auth-field input {
-    padding: 12px 15px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    font-size: 14px;
-    transition: border-color 0.3s ease;
-}
-
-.resbs-auth-field input:focus {
-    outline: none;
-    border-color: #007cba;
-    box-shadow: 0 0 0 3px rgba(0, 124, 186, 0.1);
-}
-
-.resbs-auth-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-bottom: 20px;
-}
-
-.resbs-auth-btn {
-    width: 100%;
-    padding: 14px 30px;
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.resbs-auth-btn.resbs-login-btn {
-    background: #007cba;
-    color: white;
-}
-
-.resbs-auth-btn.resbs-login-btn:hover {
-    background: #005a87;
-}
-
-.resbs-auth-btn.resbs-logout-btn {
-    background: #dc3545;
-    color: white;
-}
-
-.resbs-auth-btn.resbs-logout-btn:hover {
-    background: #c82333;
-}
-
-.resbs-social-auth {
-    margin-bottom: 20px;
-    padding-top: 20px;
-    border-top: 1px solid #e9ecef;
-}
-
-.resbs-social-auth-title {
-    text-align: center;
-    font-size: 14px;
-    color: #6c757d;
-    margin-bottom: 15px;
-}
-
-.resbs-social-buttons {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.resbs-social-btn {
-    padding: 12px 20px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    background: white;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    font-size: 14px;
-    font-weight: 600;
-}
-
-.resbs-social-btn:hover {
-    background: #f8f9fa;
-    border-color: #007cba;
-}
-
-.resbs-auth-footer {
-    text-align: center;
-    padding-top: 20px;
-    border-top: 1px solid #e9ecef;
-}
-
-.resbs-auth-footer p {
-    margin: 0;
-    color: #6c757d;
-    font-size: 12px;
-}
-
-/* ============================================
-   HALF MAP WIDGET STYLES
-   ============================================ */
-.resbs-half-map-widget {
-    width: 100%;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0;
-    min-height: 600px;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-}
-
-.resbs-half-map-listings {
-    background: white;
-    overflow-y: auto;
-    max-height: 600px;
-    padding: 20px;
-}
-
-.resbs-half-map-listings-header {
-    margin-bottom: 20px;
-}
-
-.resbs-half-map-listings-title {
-    font-size: 20px;
-    font-weight: 600;
-    margin: 0 0 10px 0;
-    color: #333;
-}
-
-.resbs-half-map-listings-count {
-    color: #6c757d;
-    font-size: 14px;
-}
-
-.resbs-half-map-properties {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-.resbs-half-map-property-card {
-    padding: 15px;
-    border: 1px solid #e9ecef;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    background: white;
-}
-
-.resbs-half-map-property-card:hover,
-.resbs-half-map-property-card.active {
-    border-color: #007cba;
-    box-shadow: 0 2px 8px rgba(0, 124, 186, 0.15);
-    transform: translateY(-2px);
-}
-
-.resbs-half-map-property-image {
-    width: 100%;
-    height: 150px;
-    object-fit: cover;
-    border-radius: 6px;
-    margin-bottom: 10px;
-}
-
-.resbs-half-map-property-title {
-    font-size: 16px;
-    font-weight: 600;
-    margin: 0 0 5px 0;
-    color: #333;
-}
-
-.resbs-half-map-property-price {
-    font-size: 18px;
-    font-weight: 700;
-    color: #28a745;
-    margin-bottom: 10px;
-}
-
-.resbs-half-map-property-meta {
-    display: flex;
-    gap: 15px;
-    color: #6c757d;
-    font-size: 13px;
-}
-
-.resbs-half-map-container {
-    position: relative;
-    height: 100%;
-    min-height: 600px;
-}
-
-.resbs-half-map-map {
-    width: 100%;
-    height: 100%;
-    min-height: 600px;
-}
-
-.resbs-map-error {
-    padding: 40px 20px;
-    text-align: center;
-    color: #6c757d;
-}
-
-/* ============================================
-   RESPONSIVE DESIGN FOR ALL WIDGETS
-   ============================================ */
-@media (max-width: 992px) {
-    .resbs-half-map-widget {
-        grid-template-columns: 1fr;
-    }
-    
-    .resbs-half-map-listings {
-        max-height: 300px;
-    }
-    
-    .resbs-search-fields {
-        grid-template-columns: 1fr;
-    }
-    
-    .resbs-listings-navbar {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-}
-
-@media (max-width: 768px) {
-    .resbs-search-form {
-        padding: 20px;
-    }
-    
-    .resbs-listings-content.resbs-layout-list .resbs-property-card {
-        flex-direction: column;
-    }
-    
-    .resbs-listings-content.resbs-layout-list .resbs-property-image {
-        flex: none;
-        width: 100%;
-    }
-    
-    .resbs-request-form,
-    .resbs-auth-container {
-        padding: 20px;
-    }
-    
-    .resbs-half-map-properties {
-        gap: 10px;
-    }
-}
-
-@media (max-width: 480px) {
-    .resbs-search-field-group {
-        grid-template-columns: 1fr;
-    }
-    
-    .resbs-search-actions {
-        flex-direction: column;
-    }
-    
-    .resbs-search-btn,
-    .resbs-search-reset-btn {
-        width: 100%;
-    }
-}
-
-/* ============================================
-   CRITICAL OVERRIDES - MAXIMUM SPECIFICITY
-   ============================================ */
-/* Override Elementor defaults with maximum specificity */
-.elementor-element[data-widget_type*="resbs"] .elementor-widget-container,
-.elementor-widget-resbs-property-grid .elementor-widget-container,
-.elementor-widget-resbs-property-carousel .elementor-widget-container,
-.elementor-widget-resbs-search .elementor-widget-container,
-.elementor-widget-resbs-slider .elementor-widget-container,
-.elementor-widget-resbs-request-form .elementor-widget-container,
-.elementor-widget-resbs-listings .elementor-widget-container,
-.elementor-widget-resbs-authentication .elementor-widget-container,
-.elementor-widget-resbs-half-map .elementor-widget-container {
-    padding: 0 !important;
-    margin: 0 !important;
-    max-width: 100% !important;
-}
-
-/* Force widget styles to apply */
-.elementor-widget-resbs-property-grid .resbs-property-grid,
-.elementor-widget-resbs-listings .resbs-properties-container {
-    display: grid !important;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
-    gap: 25px !important;
-    width: 100% !important;
-}
-
-.elementor-widget-resbs-property-grid .resbs-property-card,
-.elementor-widget-resbs-listings .resbs-property-card {
-    background: #fff !important;
-    border-radius: 12px !important;
-    overflow: hidden !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
-    display: flex !important;
-    flex-direction: column !important;
-    height: auto !important;
-    margin: 0 !important;
-}
-
-.elementor-widget-resbs-property-grid .resbs-property-card:hover,
-.elementor-widget-resbs-listings .resbs-property-card:hover {
-    transform: translateY(-5px) !important;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important;
-}
-
-.elementor-widget-resbs-property-grid .resbs-property-image,
 .elementor-widget-resbs-listings .resbs-property-image {
-    width: 100% !important;
-    height: 220px !important;
-    overflow: hidden !important;
     position: relative !important;
-    background: #f8f9fa !important;
+    width: 100% !important;
+    height: 260px !important;
+    overflow: hidden !important;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
+.resbs-property-image img,
 .elementor-widget-resbs-property-grid .resbs-property-image img,
+.elementor-widget-resbs-property-carousel .resbs-property-image img,
 .elementor-widget-resbs-listings .resbs-property-image img {
     width: 100% !important;
     height: 100% !important;
     object-fit: cover !important;
     display: block !important;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
+.resbs-property-card:hover .resbs-property-image img {
+    transform: scale(1.1) !important;
+}
+
+/* Image Overlay on Hover */
+.resbs-property-image::after {
+    content: '' !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    background: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.3) 100%) !important;
+    opacity: 0 !important;
+    transition: opacity 0.4s ease !important;
+    pointer-events: none !important;
+}
+
+.resbs-property-card:hover .resbs-property-image::after {
+    opacity: 1 !important;
+}
+
+/* Property Badges - Modern Design */
+.resbs-property-badges,
+.elementor-widget-resbs-property-grid .resbs-property-badges,
+.elementor-widget-resbs-property-carousel .resbs-property-badges,
+.elementor-widget-resbs-listings .resbs-property-badges {
+    position: absolute !important;
+    top: 16px !important;
+    left: 16px !important;
+    z-index: 5 !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.resbs-badge,
+.elementor-widget-resbs-property-grid .resbs-badge,
+.elementor-widget-resbs-property-carousel .resbs-badge,
+.elementor-widget-resbs-listings .resbs-badge {
+    padding: 6px 14px !important;
+    border-radius: 20px !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    color: #ffffff !important;
+    display: inline-block !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+    backdrop-filter: blur(10px) !important;
+}
+
+.resbs-badge-featured {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important;
+}
+
+.resbs-badge-new {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important;
+}
+
+.resbs-badge-sold {
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%) !important;
+}
+
+.resbs-badge-rent {
+    background: linear-gradient(135deg, #30cfd0 0%, #330867 100%) !important;
+}
+
+/* Favorite Button - Modern Design */
+.resbs-favorite-btn,
+.elementor-widget-resbs-property-grid .resbs-favorite-btn,
+.elementor-widget-resbs-property-carousel .resbs-favorite-btn,
+.elementor-widget-resbs-listings .resbs-favorite-btn {
+    position: absolute !important;
+    top: 16px !important;
+    right: 16px !important;
+    width: 44px !important;
+    height: 44px !important;
+    border-radius: 50% !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    border: none !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    z-index: 10 !important;
+    cursor: pointer !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.resbs-favorite-btn:hover {
+    background: #ffffff !important;
+    transform: scale(1.1) !important;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2) !important;
+}
+
+.resbs-favorite-btn .dashicons {
+    font-size: 20px !important;
+    width: 20px !important;
+    height: 20px !important;
+    color: #e74c3c !important;
+}
+
+.resbs-favorite-btn.active .dashicons {
+    color: #e74c3c !important;
+}
+
+/* Property Content - Premium Layout */
+.resbs-property-content,
 .elementor-widget-resbs-property-grid .resbs-property-content,
+.elementor-widget-resbs-property-carousel .resbs-property-content,
 .elementor-widget-resbs-listings .resbs-property-content {
-    padding: 20px !important;
+    padding: 24px !important;
     flex: 1 !important;
     display: flex !important;
     flex-direction: column !important;
+    background: #ffffff !important;
 }
 
+/* Property Location - Elegant Style */
+.resbs-property-location,
+.elementor-widget-resbs-property-grid .resbs-property-location,
+.elementor-widget-resbs-property-carousel .resbs-property-location,
+.elementor-widget-resbs-listings .resbs-property-location {
+    font-size: 13px !important;
+    color: #6b7280 !important;
+    margin-bottom: 12px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    font-weight: 500 !important;
+}
+
+.resbs-property-location .dashicons {
+    font-size: 16px !important;
+    width: 16px !important;
+    height: 16px !important;
+    color: #9ca3af !important;
+}
+
+/* Property Title - Premium Typography */
+.resbs-property-title,
 .elementor-widget-resbs-property-grid .resbs-property-title,
+.elementor-widget-resbs-property-carousel .resbs-property-title,
 .elementor-widget-resbs-listings .resbs-property-title {
-    font-size: 18px !important;
-    font-weight: 600 !important;
-    margin: 0 0 10px 0 !important;
-    line-height: 1.4 !important;
-}
-
-.elementor-widget-resbs-property-grid .resbs-property-title a,
-.elementor-widget-resbs-listings .resbs-property-title a {
-    color: #333 !important;
-    text-decoration: none !important;
-}
-
-.elementor-widget-resbs-property-grid .resbs-property-price,
-.elementor-widget-resbs-listings .resbs-property-price {
-    font-size: 22px !important;
+    font-size: 20px !important;
     font-weight: 700 !important;
-    color: #28a745 !important;
-    margin: 0 0 15px 0 !important;
+    margin: 0 0 12px 0 !important;
+    line-height: 1.4 !important;
+    color: #1f2937 !important;
 }
 
+.resbs-property-title a {
+    color: #1f2937 !important;
+    text-decoration: none !important;
+    transition: color 0.3s ease !important;
+}
+
+.resbs-property-title a:hover {
+    color: #007cba !important;
+}
+
+/* Property Price - Bold & Eye-catching */
+.resbs-property-price,
+.elementor-widget-resbs-property-grid .resbs-property-price,
+.elementor-widget-resbs-property-carousel .resbs-property-price,
+.elementor-widget-resbs-listings .resbs-property-price {
+    font-size: 28px !important;
+    font-weight: 800 !important;
+    color: #007cba !important;
+    margin: 0 0 16px 0 !important;
+    line-height: 1.2 !important;
+    letter-spacing: -0.5px !important;
+}
+
+/* Property Meta - Modern Icon Layout */
+.resbs-property-meta,
 .elementor-widget-resbs-property-grid .resbs-property-meta,
+.elementor-widget-resbs-property-carousel .resbs-property-meta,
 .elementor-widget-resbs-listings .resbs-property-meta {
     display: flex !important;
     flex-wrap: wrap !important;
-    gap: 15px !important;
-    margin: 0 0 15px 0 !important;
-    font-size: 14px !important;
-    color: #6c757d !important;
+    gap: 16px !important;
+    margin: 0 0 20px 0 !important;
+    padding: 16px 0 !important;
+    border-top: 1px solid #e5e7eb !important;
+    border-bottom: 1px solid #e5e7eb !important;
 }
 
+.resbs-meta-item,
+.resbs-property-meta-item,
 .elementor-widget-resbs-property-grid .resbs-meta-item,
+.elementor-widget-resbs-property-carousel .resbs-meta-item,
 .elementor-widget-resbs-listings .resbs-meta-item {
     display: flex !important;
     align-items: center !important;
-    gap: 5px !important;
+    gap: 8px !important;
+    font-size: 14px !important;
+    color: #6b7280 !important;
+    font-weight: 500 !important;
 }
 
+.resbs-meta-item .dashicons,
+.resbs-property-meta-item .dashicons {
+    font-size: 18px !important;
+    width: 18px !important;
+    height: 18px !important;
+    color: #007cba !important;
+}
+
+/* Property Actions - Modern Buttons */
+.resbs-property-actions,
+.elementor-widget-resbs-property-grid .resbs-property-actions,
+.elementor-widget-resbs-property-carousel .resbs-property-actions,
+.elementor-widget-resbs-listings .resbs-property-actions {
+    margin-top: auto !important;
+    padding-top: 16px !important;
+}
+
+.resbs-btn,
+.resbs-property-btn,
 .elementor-widget-resbs-property-grid .resbs-btn,
+.elementor-widget-resbs-property-carousel .resbs-btn,
 .elementor-widget-resbs-listings .resbs-btn {
-    padding: 10px 20px !important;
-    border-radius: 6px !important;
-    font-size: 14px !important;
+    padding: 14px 28px !important;
+    border-radius: 10px !important;
+    font-size: 15px !important;
     font-weight: 600 !important;
     text-decoration: none !important;
     display: inline-flex !important;
@@ -2129,99 +366,344 @@
     justify-content: center !important;
     text-align: center !important;
     border: none !important;
+    cursor: pointer !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    letter-spacing: 0.3px !important;
+    width: 100% !important;
+    box-shadow: 0 2px 8px rgba(0, 124, 186, 0.2) !important;
 }
 
-.elementor-widget-resbs-property-grid .resbs-btn-primary,
-.elementor-widget-resbs-listings .resbs-btn-primary {
+.resbs-btn-primary,
+.resbs-property-btn.primary {
+    background: linear-gradient(135deg, #007cba 0%, #005a87 100%) !important;
+    color: #ffffff !important;
+}
+
+.resbs-btn-primary:hover,
+.resbs-property-btn.primary:hover {
+    background: linear-gradient(135deg, #005a87 0%, #007cba 100%) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(0, 124, 186, 0.3) !important;
+}
+
+/* ============================================
+   SWIPER CAROUSEL - PREMIUM DESIGN
+   ============================================ */
+
+.elementor-widget-resbs-property-carousel .resbs-property-carousel.swiper {
+    position: relative !important;
+    width: 100% !important;
+    overflow: visible !important;
+    padding: 0 0 60px 0 !important;
+}
+
+.elementor-widget-resbs-property-carousel .swiper-wrapper {
+    display: flex !important;
+    align-items: stretch !important;
+}
+
+.elementor-widget-resbs-property-carousel .swiper-slide {
+    height: auto !important;
+    display: flex !important;
+}
+
+/* Swiper Navigation Buttons - Premium Design */
+.elementor-widget-resbs-property-carousel .swiper-button-next,
+.elementor-widget-resbs-property-carousel .swiper-button-prev {
+    background: #ffffff !important;
+    border: 2px solid #007cba !important;
+    border-radius: 50% !important;
+    width: 56px !important;
+    height: 56px !important;
+    color: #007cba !important;
+    box-shadow: 0 4px 16px rgba(0, 124, 186, 0.2) !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    margin-top: 0 !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+}
+
+.elementor-widget-resbs-property-carousel .swiper-button-next::after,
+.elementor-widget-resbs-property-carousel .swiper-button-prev::after {
+    font-size: 22px !important;
+    font-weight: 700 !important;
+}
+
+.elementor-widget-resbs-property-carousel .swiper-button-next:hover,
+.elementor-widget-resbs-property-carousel .swiper-button-prev:hover {
     background: #007cba !important;
-    color: #fff !important;
+    color: #ffffff !important;
+    transform: translateY(-50%) scale(1.1) !important;
+    box-shadow: 0 6px 20px rgba(0, 124, 186, 0.3) !important;
 }
 
-.elementor-widget-resbs-property-grid .resbs-btn-primary:hover,
-.elementor-widget-resbs-listings .resbs-btn-primary:hover {
-    background: #005a87 !important;
-    color: #fff !important;
+.elementor-widget-resbs-property-carousel .swiper-button-prev {
+    left: -28px !important;
 }
 
-/* Search widget critical overrides */
+.elementor-widget-resbs-property-carousel .swiper-button-next {
+    right: -28px !important;
+}
+
+/* Swiper Pagination - Modern Dots */
+.elementor-widget-resbs-property-carousel .swiper-pagination {
+    position: absolute !important;
+    bottom: 20px !important;
+    width: 100% !important;
+}
+
+.elementor-widget-resbs-property-carousel .swiper-pagination-bullet {
+    background: #d1d5db !important;
+    opacity: 1 !important;
+    width: 10px !important;
+    height: 10px !important;
+    transition: all 0.3s ease !important;
+    margin: 0 4px !important;
+}
+
+.elementor-widget-resbs-property-carousel .swiper-pagination-bullet-active {
+    background: #007cba !important;
+    width: 32px !important;
+    border-radius: 5px !important;
+}
+
+/* Carousel Property Cards */
+.elementor-widget-resbs-property-carousel .swiper-slide .resbs-property-card {
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
+}
+
+.elementor-widget-resbs-property-carousel .swiper-slide .resbs-property-image {
+    height: 260px !important;
+}
+
+/* ============================================
+   SEARCH FORM - PREMIUM DESIGN
+   ============================================ */
+
 .elementor-widget-resbs-search .resbs-search-form {
-    background: #fff !important;
-    border-radius: 12px !important;
-    padding: 30px !important;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08) !important;
-    border: 1px solid #e9ecef !important;
+    background: #ffffff !important;
+    border-radius: 20px !important;
+    padding: 40px !important;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08) !important;
+    border: 1px solid rgba(0, 0, 0, 0.06) !important;
+    margin: 0 !important;
 }
 
 .elementor-widget-resbs-search .resbs-search-input,
 .elementor-widget-resbs-search .resbs-search-select {
     width: 100% !important;
-    padding: 12px 15px !important;
-    border: 1px solid #ddd !important;
-    border-radius: 8px !important;
-    font-size: 14px !important;
-    background: #fff !important;
+    padding: 16px 20px !important;
+    border: 2px solid #e5e7eb !important;
+    border-radius: 12px !important;
+    font-size: 15px !important;
+    background: #ffffff !important;
     box-sizing: border-box !important;
+    margin: 0 0 16px 0 !important;
+    transition: all 0.3s ease !important;
+    color: #1f2937 !important;
+}
+
+.elementor-widget-resbs-search .resbs-search-input:focus,
+.elementor-widget-resbs-search .resbs-search-select:focus {
+    outline: none !important;
+    border-color: #007cba !important;
+    box-shadow: 0 0 0 4px rgba(0, 124, 186, 0.1) !important;
 }
 
 .elementor-widget-resbs-search .resbs-search-btn {
-    background: #007cba !important;
-    color: #fff !important;
-    padding: 14px 30px !important;
+    background: linear-gradient(135deg, #007cba 0%, #005a87 100%) !important;
+    color: #ffffff !important;
+    padding: 16px 40px !important;
     border: none !important;
-    border-radius: 8px !important;
+    border-radius: 12px !important;
     font-size: 16px !important;
-    font-weight: 600 !important;
+    font-weight: 700 !important;
     cursor: pointer !important;
-}
-
-/* Badge styles */
-.elementor-widget-resbs-property-grid .resbs-badge,
-.elementor-widget-resbs-listings .resbs-badge {
-    padding: 4px 8px !important;
-    border-radius: 4px !important;
-    font-size: 12px !important;
-    font-weight: 600 !important;
-    text-transform: uppercase !important;
-    color: #fff !important;
     display: inline-block !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 4px 12px rgba(0, 124, 186, 0.3) !important;
+    width: 100% !important;
 }
 
-.elementor-widget-resbs-property-grid .resbs-badge-featured,
-.elementor-widget-resbs-listings .resbs-badge-featured {
-    background: #ffc107 !important;
-    color: #212529 !important;
+.elementor-widget-resbs-search .resbs-search-btn:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 16px rgba(0, 124, 186, 0.4) !important;
 }
 
-.elementor-widget-resbs-property-grid .resbs-badge-sold,
-.elementor-widget-resbs-listings .resbs-badge-sold {
-    background: #dc3545 !important;
+/* ============================================
+   REQUEST FORM - PREMIUM DESIGN
+   ============================================ */
+
+.elementor-widget-resbs-request-form .resbs-request-form {
+    background: #ffffff !important;
+    border-radius: 20px !important;
+    padding: 40px !important;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08) !important;
+    border: 1px solid rgba(0, 0, 0, 0.06) !important;
 }
 
-.elementor-widget-resbs-property-grid .resbs-badge-status,
-.elementor-widget-resbs-listings .resbs-badge-status {
-    background: #17a2b8 !important;
+.elementor-widget-resbs-request-form input[type="text"],
+.elementor-widget-resbs-request-form input[type="email"],
+.elementor-widget-resbs-request-form input[type="tel"],
+.elementor-widget-resbs-request-form textarea {
+    width: 100% !important;
+    padding: 16px 20px !important;
+    border: 2px solid #e5e7eb !important;
+    border-radius: 12px !important;
+    font-size: 15px !important;
+    background: #ffffff !important;
+    box-sizing: border-box !important;
+    margin-bottom: 20px !important;
+    transition: all 0.3s ease !important;
+    color: #1f2937 !important;
+    font-family: inherit !important;
 }
 
-/* Property actions */
-.elementor-widget-resbs-property-grid .resbs-property-actions,
-.elementor-widget-resbs-listings .resbs-property-actions {
-    margin-top: auto !important;
-    padding-top: 15px !important;
-    border-top: 1px solid #e9ecef !important;
+.elementor-widget-resbs-request-form input:focus,
+.elementor-widget-resbs-request-form textarea:focus {
+    outline: none !important;
+    border-color: #007cba !important;
+    box-shadow: 0 0 0 4px rgba(0, 124, 186, 0.1) !important;
 }
 
-.elementor-widget-resbs-property-grid .resbs-favorite-btn,
-.elementor-widget-resbs-listings .resbs-favorite-btn {
-    position: absolute !important;
-    top: 10px !important;
-    right: 10px !important;
+.elementor-widget-resbs-request-form button,
+.elementor-widget-resbs-request-form .resbs-btn {
+    background: linear-gradient(135deg, #007cba 0%, #005a87 100%) !important;
+    color: #ffffff !important;
+    padding: 16px 40px !important;
+    border: none !important;
+    border-radius: 12px !important;
+    font-size: 16px !important;
+    font-weight: 700 !important;
+    cursor: pointer !important;
+    width: 100% !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 4px 12px rgba(0, 124, 186, 0.3) !important;
+}
+
+.elementor-widget-resbs-request-form button:hover,
+.elementor-widget-resbs-request-form .resbs-btn:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 16px rgba(0, 124, 186, 0.4) !important;
+}
+
+/* ============================================
+   AUTHENTICATION FORM - PREMIUM DESIGN
+   ============================================ */
+
+.elementor-widget-resbs-authentication .resbs-auth-form {
+    background: #ffffff !important;
+    border-radius: 20px !important;
+    padding: 40px !important;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08) !important;
+    border: 1px solid rgba(0, 0, 0, 0.06) !important;
+}
+
+.elementor-widget-resbs-authentication input[type="text"],
+.elementor-widget-resbs-authentication input[type="email"],
+.elementor-widget-resbs-authentication input[type="password"] {
+    width: 100% !important;
+    padding: 16px 20px !important;
+    border: 2px solid #e5e7eb !important;
+    border-radius: 12px !important;
+    font-size: 15px !important;
+    background: #ffffff !important;
+    box-sizing: border-box !important;
+    margin-bottom: 20px !important;
+    transition: all 0.3s ease !important;
+    color: #1f2937 !important;
+    font-family: inherit !important;
+}
+
+.elementor-widget-resbs-authentication input:focus {
+    outline: none !important;
+    border-color: #007cba !important;
+    box-shadow: 0 0 0 4px rgba(0, 124, 186, 0.1) !important;
+}
+
+.elementor-widget-resbs-authentication button {
+    background: linear-gradient(135deg, #007cba 0%, #005a87 100%) !important;
+    color: #ffffff !important;
+    padding: 16px 40px !important;
+    border: none !important;
+    border-radius: 12px !important;
+    font-size: 16px !important;
+    font-weight: 700 !important;
+    cursor: pointer !important;
+    width: 100% !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 4px 12px rgba(0, 124, 186, 0.3) !important;
+}
+
+.elementor-widget-resbs-authentication button:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 16px rgba(0, 124, 186, 0.4) !important;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+@media (max-width: 1024px) {
+    .elementor-widget-resbs-property-carousel .swiper-button-prev {
+        left: 10px !important;
+    }
+    
+    .elementor-widget-resbs-property-carousel .swiper-button-next {
+        right: 10px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .resbs-property-image,
+    .elementor-widget-resbs-property-grid .resbs-property-image,
+    .elementor-widget-resbs-property-carousel .resbs-property-image {
+        height: 220px !important;
+    }
+    
+    .elementor-widget-resbs-search .resbs-search-form,
+    .elementor-widget-resbs-request-form .resbs-request-form,
+    .elementor-widget-resbs-authentication .resbs-auth-form {
+        padding: 24px !important;
+    }
+    
+    .resbs-property-content,
+    .elementor-widget-resbs-property-grid .resbs-property-content,
+    .elementor-widget-resbs-property-carousel .resbs-property-content {
+        padding: 20px !important;
+    }
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+.resbs-no-properties {
+    text-align: center !important;
+    padding: 60px 20px !important;
+    color: #6b7280 !important;
+    font-size: 16px !important;
+}
+
+.resbs-widget-loading {
+    text-align: center !important;
+    padding: 40px !important;
+    color: #6b7280 !important;
+}
+
+.resbs-spinner {
+    border: 3px solid #e5e7eb !important;
+    border-top: 3px solid #007cba !important;
+    border-radius: 50% !important;
     width: 40px !important;
     height: 40px !important;
-    border-radius: 50% !important;
-    background: rgba(255, 255, 255, 0.9) !important;
-    border: none !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    z-index: 10 !important;
+    animation: spin 1s linear infinite !important;
+    margin: 0 auto 20px !important;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }

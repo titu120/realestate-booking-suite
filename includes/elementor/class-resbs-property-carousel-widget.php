@@ -1,6 +1,6 @@
 <?php
 /**
- * Elementor Property Carousel Widget
+ * Elementor Property Grid Widget
  * 
  * @package RealEstate_Booking_Suite
  */
@@ -33,14 +33,14 @@ class RESBS_Property_Carousel_Widget extends \Elementor\Widget_Base {
      * Get widget title
      */
     public function get_title() {
-        return esc_html__('Property Carousel', 'realestate-booking-suite');
+        return esc_html__('Property Grid', 'realestate-booking-suite');
     }
 
     /**
      * Get widget icon
      */
     public function get_icon() {
-        return 'eicon-carousel';
+        return 'eicon-posts-grid';
     }
 
     /**
@@ -54,7 +54,7 @@ class RESBS_Property_Carousel_Widget extends \Elementor\Widget_Base {
      * Get widget keywords
      */
     public function get_keywords() {
-        return array('property', 'carousel', 'slider', 'real estate', 'booking');
+        return array('property', 'grid', 'listings', 'real estate', 'booking');
     }
 
     /**
@@ -92,103 +92,73 @@ class RESBS_Property_Carousel_Widget extends \Elementor\Widget_Base {
         );
 
         $this->add_control(
-            'items_per_view',
+            'columns',
             array(
-                'label' => esc_html__('Items Per View', 'realestate-booking-suite'),
+                'label' => esc_html__('Columns', 'realestate-booking-suite'),
                 'type' => \Elementor\Controls_Manager::SELECT,
                 'default' => '3',
                 'options' => array(
-                    '1' => esc_html__('1 Item', 'realestate-booking-suite'),
-                    '2' => esc_html__('2 Items', 'realestate-booking-suite'),
-                    '3' => esc_html__('3 Items', 'realestate-booking-suite'),
-                    '4' => esc_html__('4 Items', 'realestate-booking-suite'),
+                    '1' => esc_html__('1 Column', 'realestate-booking-suite'),
+                    '2' => esc_html__('2 Columns', 'realestate-booking-suite'),
+                    '3' => esc_html__('3 Columns', 'realestate-booking-suite'),
+                    '4' => esc_html__('4 Columns', 'realestate-booking-suite'),
                 ),
             )
         );
 
-        $this->end_controls_section();
-
-        // Carousel Settings Section
-        $this->start_controls_section(
-            'carousel_section',
+        $this->add_responsive_control(
+            'columns_tablet',
             array(
-                'label' => esc_html__('Carousel Settings', 'realestate-booking-suite'),
-                'tab' => \Elementor\Controls_Manager::TAB_CONTENT,
+                'label' => esc_html__('Columns (Tablet)', 'realestate-booking-suite'),
+                'type' => \Elementor\Controls_Manager::SELECT,
+                'default' => '2',
+                'options' => array(
+                    '1' => esc_html__('1 Column', 'realestate-booking-suite'),
+                    '2' => esc_html__('2 Columns', 'realestate-booking-suite'),
+                    '3' => esc_html__('3 Columns', 'realestate-booking-suite'),
+                    '4' => esc_html__('4 Columns', 'realestate-booking-suite'),
+                ),
             )
         );
 
-        $this->add_control(
-            'autoplay',
+        $this->add_responsive_control(
+            'columns_mobile',
             array(
-                'label' => esc_html__('Enable Autoplay', 'realestate-booking-suite'),
-                'type' => \Elementor\Controls_Manager::SWITCHER,
-                'label_on' => esc_html__('Yes', 'realestate-booking-suite'),
-                'label_off' => esc_html__('No', 'realestate-booking-suite'),
-                'return_value' => 'yes',
-                'default' => 'yes',
-            )
-        );
-
-        $this->add_control(
-            'autoplay_speed',
-            array(
-                'label' => esc_html__('Autoplay Speed (ms)', 'realestate-booking-suite'),
-                'type' => \Elementor\Controls_Manager::NUMBER,
-                'default' => 3000,
-                'min' => 1000,
-                'max' => 10000,
-                'step' => 500,
-                'condition' => array(
-                    'autoplay' => 'yes',
+                'label' => esc_html__('Columns (Mobile)', 'realestate-booking-suite'),
+                'type' => \Elementor\Controls_Manager::SELECT,
+                'default' => '1',
+                'options' => array(
+                    '1' => esc_html__('1 Column', 'realestate-booking-suite'),
+                    '2' => esc_html__('2 Columns', 'realestate-booking-suite'),
                 ),
             )
         );
 
         $this->add_control(
-            'show_dots',
+            'grid_gap',
             array(
-                'label' => esc_html__('Show Dots', 'realestate-booking-suite'),
-                'type' => \Elementor\Controls_Manager::SWITCHER,
-                'label_on' => esc_html__('Yes', 'realestate-booking-suite'),
-                'label_off' => esc_html__('No', 'realestate-booking-suite'),
-                'return_value' => 'yes',
-                'default' => 'yes',
-            )
-        );
-
-        $this->add_control(
-            'show_arrows',
-            array(
-                'label' => esc_html__('Show Arrows', 'realestate-booking-suite'),
-                'type' => \Elementor\Controls_Manager::SWITCHER,
-                'label_on' => esc_html__('Yes', 'realestate-booking-suite'),
-                'label_off' => esc_html__('No', 'realestate-booking-suite'),
-                'return_value' => 'yes',
-                'default' => 'yes',
-            )
-        );
-
-        $this->add_control(
-            'infinite_loop',
-            array(
-                'label' => esc_html__('Infinite Loop', 'realestate-booking-suite'),
-                'type' => \Elementor\Controls_Manager::SWITCHER,
-                'label_on' => esc_html__('Yes', 'realestate-booking-suite'),
-                'label_off' => esc_html__('No', 'realestate-booking-suite'),
-                'return_value' => 'yes',
-                'default' => 'yes',
-            )
-        );
-
-        $this->add_control(
-            'pause_on_hover',
-            array(
-                'label' => esc_html__('Pause on Hover', 'realestate-booking-suite'),
-                'type' => \Elementor\Controls_Manager::SWITCHER,
-                'label_on' => esc_html__('Yes', 'realestate-booking-suite'),
-                'label_off' => esc_html__('No', 'realestate-booking-suite'),
-                'return_value' => 'yes',
-                'default' => 'yes',
+                'label' => esc_html__('Grid Gap', 'realestate-booking-suite'),
+                'type' => \Elementor\Controls_Manager::SLIDER,
+                'size_units' => array('px', 'rem'),
+                'range' => array(
+                    'px' => array(
+                        'min' => 0,
+                        'max' => 100,
+                        'step' => 1,
+                    ),
+                    'rem' => array(
+                        'min' => 0,
+                        'max' => 6,
+                        'step' => 0.1,
+                    ),
+                ),
+                'default' => array(
+                    'unit' => 'rem',
+                    'size' => 1.5,
+                ),
+                'selectors' => array(
+                    '{{WRAPPER}} .similar-properties-grid' => 'gap: {{SIZE}}{{UNIT}};',
+                ),
             )
         );
 
@@ -352,7 +322,7 @@ class RESBS_Property_Carousel_Widget extends \Elementor\Widget_Base {
         $this->start_controls_section(
             'style_section',
             array(
-                'label' => esc_html__('Style', 'realestate-booking-suite'),
+                'label' => esc_html__('Grid Style', 'realestate-booking-suite'),
                 'tab' => \Elementor\Controls_Manager::TAB_STYLE,
             )
         );
@@ -367,6 +337,512 @@ class RESBS_Property_Carousel_Widget extends \Elementor\Widget_Base {
                     'default' => esc_html__('Default', 'realestate-booking-suite'),
                     'modern' => esc_html__('Modern', 'realestate-booking-suite'),
                     'classic' => esc_html__('Classic', 'realestate-booking-suite'),
+                ),
+            )
+        );
+
+        $this->end_controls_section();
+
+        // Card Style Section
+        $this->start_controls_section(
+            'card_style_section',
+            array(
+                'label' => esc_html__('Card Style', 'realestate-booking-suite'),
+                'tab' => \Elementor\Controls_Manager::TAB_STYLE,
+            )
+        );
+
+        $this->add_control(
+            'card_background',
+            array(
+                'label' => esc_html__('Background Color', 'realestate-booking-suite'),
+                'type' => \Elementor\Controls_Manager::COLOR,
+                'default' => '#ffffff',
+                'selectors' => array(
+                    '{{WRAPPER}} .property-card' => 'background-color: {{VALUE}};',
+                ),
+            )
+        );
+
+        $this->add_control(
+            'card_border_color',
+            array(
+                'label' => esc_html__('Border Color', 'realestate-booking-suite'),
+                'type' => \Elementor\Controls_Manager::COLOR,
+                'default' => '#e5e7eb',
+                'selectors' => array(
+                    '{{WRAPPER}} .property-card' => 'border-color: {{VALUE}};',
+                ),
+            )
+        );
+
+        $this->add_control(
+            'card_border_width',
+            array(
+                'label' => esc_html__('Border Width', 'realestate-booking-suite'),
+                'type' => \Elementor\Controls_Manager::SLIDER,
+                'size_units' => array('px'),
+                'range' => array(
+                    'px' => array(
+                        'min' => 0,
+                        'max' => 10,
+                        'step' => 1,
+                    ),
+                ),
+                'default' => array(
+                    'unit' => 'px',
+                    'size' => 1,
+                ),
+                'selectors' => array(
+                    '{{WRAPPER}} .property-card' => 'border-width: {{SIZE}}{{UNIT}};',
+                ),
+            )
+        );
+
+        $this->add_control(
+            'card_border_radius',
+            array(
+                'label' => esc_html__('Border Radius', 'realestate-booking-suite'),
+                'type' => \Elementor\Controls_Manager::SLIDER,
+                'size_units' => array('px', 'rem'),
+                'range' => array(
+                    'px' => array(
+                        'min' => 0,
+                        'max' => 50,
+                        'step' => 1,
+                    ),
+                    'rem' => array(
+                        'min' => 0,
+                        'max' => 3,
+                        'step' => 0.1,
+                    ),
+                ),
+                'default' => array(
+                    'unit' => 'rem',
+                    'size' => 0.5,
+                ),
+                'selectors' => array(
+                    '{{WRAPPER}} .property-card' => 'border-radius: {{SIZE}}{{UNIT}};',
+                ),
+            )
+        );
+
+        $this->add_group_control(
+            \Elementor\Group_Control_Box_Shadow::get_type(),
+            array(
+                'name' => 'card_box_shadow',
+                'label' => esc_html__('Box Shadow', 'realestate-booking-suite'),
+                'selector' => '{{WRAPPER}} .property-card',
+            )
+        );
+
+        $this->add_control(
+            'card_hover_transform',
+            array(
+                'label' => esc_html__('Hover Transform (px)', 'realestate-booking-suite'),
+                'type' => \Elementor\Controls_Manager::SLIDER,
+                'size_units' => array('px'),
+                'range' => array(
+                    'px' => array(
+                        'min' => -20,
+                        'max' => 20,
+                        'step' => 1,
+                    ),
+                ),
+                'default' => array(
+                    'unit' => 'px',
+                    'size' => -5,
+                ),
+                'selectors' => array(
+                    '{{WRAPPER}} .property-card:hover' => 'transform: translateY({{SIZE}}{{UNIT}});',
+                ),
+            )
+        );
+
+        $this->add_group_control(
+            \Elementor\Group_Control_Box_Shadow::get_type(),
+            array(
+                'name' => 'card_hover_box_shadow',
+                'label' => esc_html__('Hover Box Shadow', 'realestate-booking-suite'),
+                'selector' => '{{WRAPPER}} .property-card:hover',
+            )
+        );
+
+        $this->end_controls_section();
+
+        // Image Style Section
+        $this->start_controls_section(
+            'image_style_section',
+            array(
+                'label' => esc_html__('Image Style', 'realestate-booking-suite'),
+                'tab' => \Elementor\Controls_Manager::TAB_STYLE,
+            )
+        );
+
+        $this->add_control(
+            'image_height',
+            array(
+                'label' => esc_html__('Image Height', 'realestate-booking-suite'),
+                'type' => \Elementor\Controls_Manager::SLIDER,
+                'size_units' => array('px', 'rem'),
+                'range' => array(
+                    'px' => array(
+                        'min' => 100,
+                        'max' => 500,
+                        'step' => 10,
+                    ),
+                    'rem' => array(
+                        'min' => 6,
+                        'max' => 30,
+                        'step' => 0.5,
+                    ),
+                ),
+                'default' => array(
+                    'unit' => 'rem',
+                    'size' => 12,
+                ),
+                'selectors' => array(
+                    '{{WRAPPER}} .property-image img' => 'height: {{SIZE}}{{UNIT}};',
+                    '{{WRAPPER}} .property-image .bg-gray-200' => 'height: {{SIZE}}{{UNIT}};',
+                ),
+            )
+        );
+
+        $this->add_control(
+            'image_border_radius',
+            array(
+                'label' => esc_html__('Image Border Radius', 'realestate-booking-suite'),
+                'type' => \Elementor\Controls_Manager::SLIDER,
+                'size_units' => array('px', 'rem'),
+                'range' => array(
+                    'px' => array(
+                        'min' => 0,
+                        'max' => 50,
+                        'step' => 1,
+                    ),
+                    'rem' => array(
+                        'min' => 0,
+                        'max' => 3,
+                        'step' => 0.1,
+                    ),
+                ),
+                'default' => array(
+                    'unit' => 'px',
+                    'size' => 0,
+                ),
+                'selectors' => array(
+                    '{{WRAPPER}} .property-image img' => 'border-radius: {{SIZE}}{{UNIT}};',
+                ),
+            )
+        );
+
+        $this->end_controls_section();
+
+        // Badge Style Section
+        $this->start_controls_section(
+            'badge_style_section',
+            array(
+                'label' => esc_html__('Badge Style', 'realestate-booking-suite'),
+                'tab' => \Elementor\Controls_Manager::TAB_STYLE,
+            )
+        );
+
+        $this->add_control(
+            'badge_background',
+            array(
+                'label' => esc_html__('Background Color', 'realestate-booking-suite'),
+                'type' => \Elementor\Controls_Manager::COLOR,
+                'default' => '#10b981',
+                'selectors' => array(
+                    '{{WRAPPER}} .property-badge' => 'background-color: {{VALUE}};',
+                ),
+            )
+        );
+
+        $this->add_control(
+            'badge_text_color',
+            array(
+                'label' => esc_html__('Text Color', 'realestate-booking-suite'),
+                'type' => \Elementor\Controls_Manager::COLOR,
+                'default' => '#ffffff',
+                'selectors' => array(
+                    '{{WRAPPER}} .property-badge' => 'color: {{VALUE}};',
+                ),
+            )
+        );
+
+        $this->add_control(
+            'badge_padding',
+            array(
+                'label' => esc_html__('Padding', 'realestate-booking-suite'),
+                'type' => \Elementor\Controls_Manager::DIMENSIONS,
+                'size_units' => array('px', 'rem'),
+                'default' => array(
+                    'top' => '0.25',
+                    'right' => '0.75',
+                    'bottom' => '0.25',
+                    'left' => '0.75',
+                    'unit' => 'rem',
+                    'isLinked' => false,
+                ),
+                'selectors' => array(
+                    '{{WRAPPER}} .property-badge' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+                ),
+            )
+        );
+
+        $this->add_control(
+            'badge_border_radius',
+            array(
+                'label' => esc_html__('Border Radius', 'realestate-booking-suite'),
+                'type' => \Elementor\Controls_Manager::SLIDER,
+                'size_units' => array('px', 'rem'),
+                'range' => array(
+                    'px' => array(
+                        'min' => 0,
+                        'max' => 100,
+                        'step' => 1,
+                    ),
+                    'rem' => array(
+                        'min' => 0,
+                        'max' => 6,
+                        'step' => 0.1,
+                    ),
+                ),
+                'default' => array(
+                    'unit' => 'rem',
+                    'size' => 9999,
+                ),
+                'selectors' => array(
+                    '{{WRAPPER}} .property-badge' => 'border-radius: {{SIZE}}{{UNIT}};',
+                ),
+            )
+        );
+
+        $this->add_group_control(
+            \Elementor\Group_Control_Typography::get_type(),
+            array(
+                'name' => 'badge_typography',
+                'label' => esc_html__('Typography', 'realestate-booking-suite'),
+                'selector' => '{{WRAPPER}} .property-badge',
+            )
+        );
+
+        $this->end_controls_section();
+
+        // Title Style Section
+        $this->start_controls_section(
+            'title_style_section',
+            array(
+                'label' => esc_html__('Title Style', 'realestate-booking-suite'),
+                'tab' => \Elementor\Controls_Manager::TAB_STYLE,
+            )
+        );
+
+        $this->add_control(
+            'title_color',
+            array(
+                'label' => esc_html__('Color', 'realestate-booking-suite'),
+                'type' => \Elementor\Controls_Manager::COLOR,
+                'default' => '#111827',
+                'selectors' => array(
+                    '{{WRAPPER}} .property-card-title a' => 'color: {{VALUE}};',
+                ),
+            )
+        );
+
+        $this->add_control(
+            'title_hover_color',
+            array(
+                'label' => esc_html__('Hover Color', 'realestate-booking-suite'),
+                'type' => \Elementor\Controls_Manager::COLOR,
+                'default' => '#10b981',
+                'selectors' => array(
+                    '{{WRAPPER}} .property-card-title a:hover' => 'color: {{VALUE}};',
+                ),
+            )
+        );
+
+        $this->add_group_control(
+            \Elementor\Group_Control_Typography::get_type(),
+            array(
+                'name' => 'title_typography',
+                'label' => esc_html__('Typography', 'realestate-booking-suite'),
+                'selector' => '{{WRAPPER}} .property-card-title',
+            )
+        );
+
+        $this->add_control(
+            'title_margin',
+            array(
+                'label' => esc_html__('Margin', 'realestate-booking-suite'),
+                'type' => \Elementor\Controls_Manager::DIMENSIONS,
+                'size_units' => array('px', 'rem'),
+                'selectors' => array(
+                    '{{WRAPPER}} .property-card-title' => 'margin: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+                ),
+            )
+        );
+
+        $this->end_controls_section();
+
+        // Location Style Section
+        $this->start_controls_section(
+            'location_style_section',
+            array(
+                'label' => esc_html__('Location Style', 'realestate-booking-suite'),
+                'tab' => \Elementor\Controls_Manager::TAB_STYLE,
+            )
+        );
+
+        $this->add_control(
+            'location_color',
+            array(
+                'label' => esc_html__('Text Color', 'realestate-booking-suite'),
+                'type' => \Elementor\Controls_Manager::COLOR,
+                'default' => '#6b7280',
+                'selectors' => array(
+                    '{{WRAPPER}} .property-card-location' => 'color: {{VALUE}};',
+                ),
+            )
+        );
+
+        $this->add_control(
+            'location_icon_color',
+            array(
+                'label' => esc_html__('Icon Color', 'realestate-booking-suite'),
+                'type' => \Elementor\Controls_Manager::COLOR,
+                'default' => '#10b981',
+                'selectors' => array(
+                    '{{WRAPPER}} .property-card-location i' => 'color: {{VALUE}};',
+                ),
+            )
+        );
+
+        $this->add_group_control(
+            \Elementor\Group_Control_Typography::get_type(),
+            array(
+                'name' => 'location_typography',
+                'label' => esc_html__('Typography', 'realestate-booking-suite'),
+                'selector' => '{{WRAPPER}} .property-card-location',
+            )
+        );
+
+        $this->end_controls_section();
+
+        // Price Style Section
+        $this->start_controls_section(
+            'price_style_section',
+            array(
+                'label' => esc_html__('Price Style', 'realestate-booking-suite'),
+                'tab' => \Elementor\Controls_Manager::TAB_STYLE,
+            )
+        );
+
+        $this->add_control(
+            'price_color',
+            array(
+                'label' => esc_html__('Color', 'realestate-booking-suite'),
+                'type' => \Elementor\Controls_Manager::COLOR,
+                'default' => '#10b981',
+                'selectors' => array(
+                    '{{WRAPPER}} .property-card-price' => 'color: {{VALUE}};',
+                ),
+            )
+        );
+
+        $this->add_group_control(
+            \Elementor\Group_Control_Typography::get_type(),
+            array(
+                'name' => 'price_typography',
+                'label' => esc_html__('Typography', 'realestate-booking-suite'),
+                'selector' => '{{WRAPPER}} .property-card-price',
+            )
+        );
+
+        $this->end_controls_section();
+
+        // Features Style Section
+        $this->start_controls_section(
+            'features_style_section',
+            array(
+                'label' => esc_html__('Features Style', 'realestate-booking-suite'),
+                'tab' => \Elementor\Controls_Manager::TAB_STYLE,
+            )
+        );
+
+        $this->add_control(
+            'features_text_color',
+            array(
+                'label' => esc_html__('Text Color', 'realestate-booking-suite'),
+                'type' => \Elementor\Controls_Manager::COLOR,
+                'default' => '#6b7280',
+                'selectors' => array(
+                    '{{WRAPPER}} .property-card-features' => 'color: {{VALUE}};',
+                ),
+            )
+        );
+
+        $this->add_control(
+            'features_border_color',
+            array(
+                'label' => esc_html__('Border Color', 'realestate-booking-suite'),
+                'type' => \Elementor\Controls_Manager::COLOR,
+                'default' => '#e5e7eb',
+                'selectors' => array(
+                    '{{WRAPPER}} .property-card-features' => 'border-top-color: {{VALUE}};',
+                ),
+            )
+        );
+
+        $this->add_group_control(
+            \Elementor\Group_Control_Typography::get_type(),
+            array(
+                'name' => 'features_typography',
+                'label' => esc_html__('Typography', 'realestate-booking-suite'),
+                'selector' => '{{WRAPPER}} .property-card-features',
+            )
+        );
+
+        $this->add_control(
+            'features_padding',
+            array(
+                'label' => esc_html__('Padding', 'realestate-booking-suite'),
+                'type' => \Elementor\Controls_Manager::DIMENSIONS,
+                'size_units' => array('px', 'rem'),
+                'selectors' => array(
+                    '{{WRAPPER}} .property-card-features' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+                ),
+            )
+        );
+
+        $this->end_controls_section();
+
+        // Info Section Style
+        $this->start_controls_section(
+            'info_style_section',
+            array(
+                'label' => esc_html__('Info Section Style', 'realestate-booking-suite'),
+                'tab' => \Elementor\Controls_Manager::TAB_STYLE,
+            )
+        );
+
+        $this->add_control(
+            'info_padding',
+            array(
+                'label' => esc_html__('Padding', 'realestate-booking-suite'),
+                'type' => \Elementor\Controls_Manager::DIMENSIONS,
+                'size_units' => array('px', 'rem'),
+                'default' => array(
+                    'top' => '1',
+                    'right' => '1',
+                    'bottom' => '1',
+                    'left' => '1',
+                    'unit' => 'rem',
+                    'isLinked' => true,
+                ),
+                'selectors' => array(
+                    '{{WRAPPER}} .property-info' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
                 ),
             )
         );
@@ -419,19 +895,12 @@ class RESBS_Property_Carousel_Widget extends \Elementor\Widget_Base {
         // Sanitize settings
         $title = sanitize_text_field($settings['title']);
         $posts_per_page = intval($settings['posts_per_page']);
-        $items_per_view = intval($settings['items_per_view']);
-        $autoplay = $settings['autoplay'] === 'yes';
-        $autoplay_speed = intval($settings['autoplay_speed']);
-        $show_dots = $settings['show_dots'] === 'yes';
-        $show_arrows = $settings['show_arrows'] === 'yes';
-        $infinite_loop = $settings['infinite_loop'] === 'yes';
-        $pause_on_hover = $settings['pause_on_hover'] === 'yes';
+        $columns = intval($settings['columns']);
+        $columns_tablet = isset($settings['columns_tablet']) ? intval($settings['columns_tablet']) : 2;
+        $columns_mobile = isset($settings['columns_mobile']) ? intval($settings['columns_mobile']) : 1;
         $show_price = $settings['show_price'] === 'yes';
         $show_meta = $settings['show_meta'] === 'yes';
-        $show_excerpt = $settings['show_excerpt'] === 'yes';
         $show_badges = $settings['show_badges'] === 'yes';
-        $show_favorite_button = $settings['show_favorite_button'] === 'yes';
-        $show_book_button = $settings['show_book_button'] === 'yes';
         $orderby = sanitize_text_field($settings['orderby']);
         $order = sanitize_text_field($settings['order']);
         $property_type = sanitize_text_field($settings['property_type']);
@@ -440,78 +909,252 @@ class RESBS_Property_Carousel_Widget extends \Elementor\Widget_Base {
         $widget_style = sanitize_text_field($settings['widget_style']);
 
         // Generate unique widget ID
-        $widget_id = 'resbs-carousel-widget-' . $this->get_id();
+        $widget_id = 'resbs-property-grid-widget-' . $this->get_id();
+
+        // Build grid CSS classes
+        $grid_classes = 'similar-properties-grid';
+        
+        // Get grid gap from settings
+        $grid_gap = isset($settings['grid_gap']['size']) ? $settings['grid_gap']['size'] . $settings['grid_gap']['unit'] : '1.5rem';
+
+        // Get properties
+        $properties = $this->get_properties($settings);
 
         ?>
-        <div class="resbs-property-carousel-widget resbs-style-<?php echo esc_attr($widget_style); ?>" 
-             id="<?php echo esc_attr($widget_id); ?>"
-             data-settings="<?php echo esc_attr(wp_json_encode(array(
-                 'posts_per_page' => $posts_per_page,
-                 'items_per_view' => $items_per_view,
-                 'autoplay' => $autoplay,
-                 'autoplay_speed' => $autoplay_speed,
-                 'show_dots' => $show_dots,
-                 'show_arrows' => $show_arrows,
-                 'infinite_loop' => $infinite_loop,
-                 'pause_on_hover' => $pause_on_hover,
-                 'show_price' => $show_price,
-                 'show_meta' => $show_meta,
-                 'show_excerpt' => $show_excerpt,
-                 'show_badges' => $show_badges,
-                 'show_favorite_button' => $show_favorite_button,
-                 'show_book_button' => $show_book_button,
-                 'orderby' => $orderby,
-                 'order' => $order,
-                 'property_type' => $property_type,
-                 'property_status' => $property_status,
-                 'featured_only' => $featured_only
-             ))); ?>">
+        <div class="resbs-property-grid-widget resbs-style-<?php echo esc_attr($widget_style); ?>" 
+             id="<?php echo esc_attr($widget_id); ?>">
 
             <?php if (!empty($title)): ?>
                 <h3 class="resbs-widget-title"><?php echo esc_html($title); ?></h3>
             <?php endif; ?>
 
-            <div class="resbs-property-carousel" 
-                 data-autoplay="<?php echo esc_attr($autoplay ? 'true' : 'false'); ?>"
-                 data-autoplay-speed="<?php echo esc_attr($autoplay_speed); ?>"
-                 data-show-dots="<?php echo esc_attr($show_dots ? 'true' : 'false'); ?>"
-                 data-show-arrows="<?php echo esc_attr($show_arrows ? 'true' : 'false'); ?>"
-                 data-infinite-loop="<?php echo esc_attr($infinite_loop ? 'true' : 'false'); ?>"
-                 data-pause-on-hover="<?php echo esc_attr($pause_on_hover ? 'true' : 'false'); ?>"
-                 data-items-per-view="<?php echo esc_attr($items_per_view); ?>">
-                
-                <div class="resbs-carousel-wrapper">
-                    <div class="resbs-carousel-track">
-                        <?php $this->render_properties($settings); ?>
-                    </div>
-                </div>
-                
-                <?php if ($show_arrows): ?>
-                    <button class="resbs-carousel-prev" aria-label="<?php esc_attr_e('Previous', 'realestate-booking-suite'); ?>">‹</button>
-                    <button class="resbs-carousel-next" aria-label="<?php esc_attr_e('Next', 'realestate-booking-suite'); ?>">›</button>
+            <?php if (!empty($properties)): ?>
+                <div class="<?php echo esc_attr($grid_classes); ?>" 
+                     data-columns="<?php echo esc_attr($columns); ?>"
+                     data-columns-tablet="<?php echo esc_attr($columns_tablet); ?>"
+                     data-columns-mobile="<?php echo esc_attr($columns_mobile); ?>">
+                    <?php foreach ($properties as $property): ?>
+                    <?php 
+                        $property_price = get_post_meta($property->ID, '_property_price', true);
+                        $property_bedrooms = get_post_meta($property->ID, '_property_bedrooms', true);
+                        $property_bathrooms = get_post_meta($property->ID, '_property_bathrooms', true);
+                        $property_area = get_post_meta($property->ID, '_property_area_sqft', true);
+                        $property_city = get_post_meta($property->ID, '_property_city', true);
+                        $property_state = get_post_meta($property->ID, '_property_state', true);
+                        $property_featured_image = get_the_post_thumbnail_url($property->ID, 'medium');
+                        $property_status_meta = get_post_meta($property->ID, '_property_status', true);
+                        
+                        $formatted_price = $property_price ? '$' . number_format($property_price) : 'Price on request';
+                        $location = trim($property_city . ', ' . $property_state, ', ');
+                        ?>
+                        
+                        <div class="property-card">
+                            <div class="property-image">
+                                <?php if ($property_featured_image): ?>
+                                    <a href="<?php echo esc_url(get_permalink($property->ID)); ?>">
+                                        <img src="<?php echo esc_url($property_featured_image); ?>" alt="<?php echo esc_attr($property->post_title); ?>">
+                                    </a>
+                                <?php else: ?>
+                                    <div class="bg-gray-200 h-48 flex items-center justify-center">
+                                        <i class="fas fa-home text-gray-400 text-4xl"></i>
+                                    </div>
                 <?php endif; ?>
                 
-                <?php if ($show_dots): ?>
-                    <div class="resbs-carousel-dots"></div>
+                                <?php if ($show_badges && $property_status_meta): ?>
+                                    <span class="property-badge"><?php echo esc_html($property_status_meta); ?></span>
                 <?php endif; ?>
             </div>
-
-            <div class="resbs-widget-loading" style="display: none;">
-                <div class="resbs-spinner"></div>
-                <p><?php esc_html_e('Loading properties...', 'realestate-booking-suite'); ?></p>
+                            <div class="property-info">
+                                <h4 class="property-card-title">
+                                    <a href="<?php echo esc_url(get_permalink($property->ID)); ?>" class="hover:text-emerald-600 transition-colors">
+                                        <?php echo esc_html($property->post_title); ?>
+                                    </a>
+                                </h4>
+                                <?php if ($location): ?>
+                                    <p class="property-card-location">
+                                        <i class="fas fa-map-marker-alt text-emerald-500"></i>
+                                        <?php echo esc_html($location); ?>
+                                    </p>
+                                <?php endif; ?>
+                                <?php if ($show_price): ?>
+                                    <div class="property-card-price"><?php echo esc_html($formatted_price); ?></div>
+                                <?php endif; ?>
+                                <?php if ($show_meta): ?>
+                                    <div class="property-card-features">
+                                        <?php if ($property_bedrooms): ?>
+                                            <span><i class="fas fa-bed mr-1"></i><?php echo esc_html($property_bedrooms); ?> Bed<?php echo $property_bedrooms != 1 ? 's' : ''; ?></span>
+                                        <?php endif; ?>
+                                        <?php if ($property_bathrooms): ?>
+                                            <span><i class="fas fa-bath mr-1"></i><?php echo esc_html($property_bathrooms); ?> Bath<?php echo $property_bathrooms != 1 ? 's' : ''; ?></span>
+                                        <?php endif; ?>
+                                        <?php if ($property_area): ?>
+                                            <span><i class="fas fa-ruler-combined mr-1"></i><?php echo esc_html($property_area); ?> sqft</span>
+                                        <?php endif; ?>
             </div>
-
-            <div class="resbs-widget-no-properties" style="display: none;">
-                <p><?php esc_html_e('No properties found.', 'realestate-booking-suite'); ?></p>
+                                <?php endif; ?>
             </div>
         </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php else: ?>
+                <div class="text-center py-8">
+                    <i class="fas fa-home text-gray-400 text-4xl mb-4"></i>
+                    <p class="text-gray-500"><?php esc_html_e('No properties found.', 'realestate-booking-suite'); ?></p>
+                </div>
+            <?php endif; ?>
+        </div>
+        
+        <style>
+            /* Grid Layout */
+            #<?php echo esc_attr($widget_id); ?> .similar-properties-grid {
+                display: grid !important;
+                gap: <?php echo esc_attr($grid_gap); ?> !important;
+                grid-template-columns: repeat(<?php echo esc_attr($columns); ?>, 1fr) !important;
+            }
+            
+            @media (max-width: 1024px) {
+                #<?php echo esc_attr($widget_id); ?> .similar-properties-grid {
+                    grid-template-columns: repeat(<?php echo esc_attr($columns_tablet); ?>, 1fr) !important;
+                }
+            }
+            
+            @media (max-width: 768px) {
+                #<?php echo esc_attr($widget_id); ?> .similar-properties-grid {
+                    grid-template-columns: repeat(<?php echo esc_attr($columns_mobile); ?>, 1fr) !important;
+                }
+            }
+            
+            /* Property Card */
+            #<?php echo esc_attr($widget_id); ?> .property-card {
+                border: 1px solid #e5e7eb !important;
+                border-radius: 0.5rem !important;
+                overflow: hidden !important;
+                transition: all 0.3s !important;
+                display: block !important;
+                background: #ffffff !important;
+            }
+            
+            #<?php echo esc_attr($widget_id); ?> .property-card:hover {
+                transform: translateY(-5px) !important;
+                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1) !important;
+            }
+            
+            /* Property Image */
+            #<?php echo esc_attr($widget_id); ?> .property-image {
+                position: relative !important;
+                display: block !important;
+            }
+            
+            #<?php echo esc_attr($widget_id); ?> .property-image img {
+                width: 100% !important;
+                height: 12rem !important;
+                object-fit: cover !important;
+                display: block !important;
+            }
+            
+            #<?php echo esc_attr($widget_id); ?> .property-image .bg-gray-200 {
+                background-color: #e5e7eb !important;
+                height: 12rem !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                width: 100% !important;
+            }
+            
+            /* Property Badge */
+            #<?php echo esc_attr($widget_id); ?> .property-badge {
+                position: absolute !important;
+                top: 0.75rem !important;
+                left: 0.75rem !important;
+                background-color: #10b981 !important;
+                color: #ffffff !important;
+                padding: 0.25rem 0.75rem !important;
+                border-radius: 9999px !important;
+                font-size: 0.75rem !important;
+                font-weight: 600 !important;
+                display: inline-block !important;
+                text-transform: lowercase !important;
+            }
+            
+            /* Property Info */
+            #<?php echo esc_attr($widget_id); ?> .property-info {
+                padding: 1rem !important;
+                display: block !important;
+            }
+            
+            /* Property Card Title */
+            #<?php echo esc_attr($widget_id); ?> .property-card-title {
+                font-size: 1.125rem !important;
+                font-weight: 700 !important;
+                margin-bottom: 0.5rem !important;
+                display: block !important;
+                line-height: 1.5 !important;
+            }
+            
+            #<?php echo esc_attr($widget_id); ?> .property-card-title a {
+                color: #111827 !important;
+                text-decoration: none !important;
+                transition: color 0.3s !important;
+            }
+            
+            #<?php echo esc_attr($widget_id); ?> .property-card-title a:hover {
+                color: #10b981 !important;
+            }
+            
+            /* Property Card Location */
+            #<?php echo esc_attr($widget_id); ?> .property-card-location {
+                color: #6b7280 !important;
+                font-size: 0.875rem !important;
+                margin-bottom: 0.75rem !important;
+                display: flex !important;
+                align-items: center !important;
+                gap: 0.5rem !important;
+                line-height: 1.5 !important;
+            }
+            
+            #<?php echo esc_attr($widget_id); ?> .property-card-location i {
+                color: #10b981 !important;
+            }
+            
+            /* Property Card Price */
+            #<?php echo esc_attr($widget_id); ?> .property-card-price {
+                font-size: 1.5rem !important;
+                font-weight: 700 !important;
+                color: #10b981 !important;
+                margin-bottom: 0.75rem !important;
+                display: block !important;
+                line-height: 1.5 !important;
+            }
+            
+            /* Property Card Features */
+            #<?php echo esc_attr($widget_id); ?> .property-card-features {
+                display: flex !important;
+                align-items: center !important;
+                gap: 1rem !important;
+                font-size: 0.875rem !important;
+                color: #6b7280 !important;
+                border-top: 1px solid #e5e7eb !important;
+                padding-top: 0.75rem !important;
+                flex-wrap: wrap !important;
+            }
+            
+            #<?php echo esc_attr($widget_id); ?> .property-card-features span {
+                display: inline-flex !important;
+                align-items: center !important;
+                gap: 0.25rem !important;
+            }
+            
+            #<?php echo esc_attr($widget_id); ?> .property-card-features i {
+                color: #6b7280 !important;
+            }
+        </style>
         <?php
     }
 
     /**
-     * Render properties
+     * Get properties based on query settings
      */
-    private function render_properties($settings) {
+    private function get_properties($settings) {
         // Build query args
         $query_args = array(
             'post_type' => 'property',
@@ -555,127 +1198,15 @@ class RESBS_Property_Carousel_Widget extends \Elementor\Widget_Base {
             $query_args['tax_query'] = $tax_query;
         }
 
-        $properties = new WP_Query($query_args);
+        $properties_query = new WP_Query($query_args);
+        $properties = array();
 
-        if ($properties->have_posts()) {
-            while ($properties->have_posts()) {
-                $properties->the_post();
-                $this->render_property_card($settings);
-            }
+        if ($properties_query->have_posts()) {
+            $properties = $properties_query->posts;
             wp_reset_postdata();
-        } else {
-            echo '<p class="resbs-no-properties">' . esc_html__('No properties found.', 'realestate-booking-suite') . '</p>';
         }
+
+        return $properties;
     }
 
-    /**
-     * Render individual property card
-     */
-    private function render_property_card($settings) {
-        $property_id = get_the_ID();
-        $property_price = get_post_meta($property_id, '_property_price', true);
-        $property_bedrooms = get_post_meta($property_id, '_property_bedrooms', true);
-        $property_bathrooms = get_post_meta($property_id, '_property_bathrooms', true);
-        $property_size = get_post_meta($property_id, '_property_size', true);
-        $property_featured = get_post_meta($property_id, '_property_featured', true);
-        $property_status = get_the_terms($property_id, 'property_status');
-        $property_type = get_the_terms($property_id, 'property_type');
-        $property_location = get_the_terms($property_id, 'property_location');
-
-        $show_price = $settings['show_price'] === 'yes';
-        $show_meta = $settings['show_meta'] === 'yes';
-        $show_excerpt = $settings['show_excerpt'] === 'yes';
-        $show_badges = $settings['show_badges'] === 'yes';
-        $show_favorite_button = $settings['show_favorite_button'] === 'yes';
-        $show_book_button = $settings['show_book_button'] === 'yes';
-        ?>
-
-        <div class="resbs-property-card resbs-layout-carousel">
-            <div class="resbs-property-image">
-                <?php if (has_post_thumbnail()): ?>
-                    <a href="<?php echo esc_url(get_permalink()); ?>">
-                        <?php the_post_thumbnail('medium', array('alt' => esc_attr(get_the_title()))); ?>
-                    </a>
-                <?php else: ?>
-                    <a href="<?php echo esc_url(get_permalink()); ?>">
-                        <img src="<?php echo esc_url(RESBS_URL . 'assets/images/placeholder.jpg'); ?>" 
-                             alt="<?php esc_attr_e('Property Image', 'realestate-booking-suite'); ?>">
-                    </a>
-                <?php endif; ?>
-
-                <?php if ($show_badges): ?>
-                    <?php do_action('resbs_property_badges', $property_id, 'widget'); ?>
-                <?php endif; ?>
-
-                <?php if ($show_favorite_button): ?>
-                    <div class="resbs-property-actions">
-                        <button type="button" class="resbs-favorite-btn" data-property-id="<?php echo esc_attr($property_id); ?>">
-                            <span class="dashicons dashicons-heart"></span>
-                        </button>
-                    </div>
-                <?php endif; ?>
-            </div>
-
-            <div class="resbs-property-content">
-                <h3 class="resbs-property-title">
-                    <a href="<?php echo esc_url(get_permalink()); ?>">
-                        <?php echo esc_html(get_the_title()); ?>
-                    </a>
-                </h3>
-
-                <?php if ($show_price && !empty($property_price)): ?>
-                    <div class="resbs-property-price">
-                        <?php echo esc_html('$' . number_format($property_price)); ?>
-                    </div>
-                <?php endif; ?>
-
-                <?php if ($show_meta): ?>
-                    <div class="resbs-property-meta">
-                        <?php if (!empty($property_bedrooms)): ?>
-                            <div class="resbs-property-meta-item">
-                                <span class="dashicons dashicons-bed-alt"></span>
-                                <span><?php echo esc_html($property_bedrooms); ?> <?php esc_html_e('Bedrooms', 'realestate-booking-suite'); ?></span>
-                            </div>
-                        <?php endif; ?>
-
-                        <?php if (!empty($property_bathrooms)): ?>
-                            <div class="resbs-property-meta-item">
-                                <span class="dashicons dashicons-bath"></span>
-                                <span><?php echo esc_html($property_bathrooms); ?> <?php esc_html_e('Bathrooms', 'realestate-booking-suite'); ?></span>
-                            </div>
-                        <?php endif; ?>
-
-                        <?php if (!empty($property_size)): ?>
-                            <div class="resbs-property-meta-item">
-                                <span class="dashicons dashicons-admin-home"></span>
-                                <span><?php echo esc_html($property_size); ?> <?php esc_html_e('sq ft', 'realestate-booking-suite'); ?></span>
-                            </div>
-                        <?php endif; ?>
-
-                        <?php if (!empty($property_location)): ?>
-                            <div class="resbs-property-meta-item">
-                                <span class="dashicons dashicons-location"></span>
-                                <span><?php echo esc_html($property_location[0]->name); ?></span>
-                            </div>
-                        <?php endif; ?>
-                    </div>
-                <?php endif; ?>
-
-                <?php if ($show_excerpt): ?>
-                    <div class="resbs-property-excerpt">
-                        <?php echo wp_kses_post(wp_trim_words(get_the_excerpt(), 15)); ?>
-                    </div>
-                <?php endif; ?>
-
-                <?php if ($show_book_button): ?>
-                    <div class="resbs-property-actions">
-                        <a href="<?php echo esc_url(get_permalink()); ?>" class="resbs-property-btn primary">
-                            <?php esc_html_e('View Details', 'realestate-booking-suite'); ?>
-                        </a>
-                    </div>
-                <?php endif; ?>
-            </div>
-        </div>
-        <?php
-    }
 }

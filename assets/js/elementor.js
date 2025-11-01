@@ -8,10 +8,26 @@ jQuery(document).ready(function($) {
         initPropertyGrid($(this));
     });
 
-    // Initialize all property carousel widgets
-    $('.resbs-elementor-property-carousel').each(function() {
-        initPropertyCarousel($(this));
+    // Initialize all property carousel widgets with Swiper
+    function initializeCarousels() {
+        $('.resbs-property-carousel.swiper').each(function() {
+            var $widget = $(this);
+            if (!$widget.hasClass('resbs-swiper-initialized')) {
+                initPropertyCarouselSwiper($widget);
+            }
+        });
+    }
+    
+    // Initialize immediately if DOM ready
+    initializeCarousels();
+    
+    // Also initialize when Elementor frontend is ready
+    $(window).on('elementor/frontend/init', function() {
+        setTimeout(initializeCarousels, 100);
     });
+    
+    // Fallback: Initialize after a short delay
+    setTimeout(initializeCarousels, 500);
 
     /**
      * Initialize property grid widget
@@ -455,43 +471,155 @@ jQuery(document).ready(function($) {
     $(window).trigger('resize');
 
     /**
-     * Initialize property carousel widget
+     * Initialize property carousel widget with Swiper
      */
+    function initPropertyCarouselSwiper($widget) {
+        // Wait for Swiper to load
+        if (typeof Swiper === 'undefined') {
+            setTimeout(function() {
+                initPropertyCarouselSwiper($widget);
+            }, 100);
+            return;
+        }
+        
+        var widgetId = $widget.attr('id');
+        if (!$widgetId) {
+            widgetId = 'resbs-carousel-' + Math.random().toString(36).substr(2, 9);
+            $widget.attr('id', widgetId);
+        }
+        
+        var autoplay = $widget.data('autoplay') === 'true' || $widget.data('autoplay') === true;
+        var autoplaySpeed = parseInt($widget.data('autoplay-speed')) || 3000;
+        var showDots = $widget.data('show-dots') === 'true' || $widget.data('show-dots') === true;
+        var showArrows = $widget.data('show-arrows') === 'true' || $widget.data('show-arrows') === true;
+        var infiniteLoop = $widget.data('infinite-loop') === 'true' || $widget.data('infinite-loop') === true;
+        var pauseOnHover = $widget.data('pause-on-hover') === 'true' || $widget.data('pause-on-hover') === true;
+        var itemsPerView = parseInt($widget.data('items-per-view')) || 3;
+        
+        // Check if already initialized
+        if ($widget.hasClass('resbs-swiper-initialized')) {
+            return;
+        }
+        
+        // Initialize Swiper with proper selectors for this specific widget
+        var swiperConfig = {
+            slidesPerView: itemsPerView,
+            spaceBetween: 25,
+            loop: infiniteLoop && $widget.find('.swiper-slide').length > itemsPerView,
+            autoplay: autoplay ? {
+                delay: autoplaySpeed,
+                disableOnInteraction: false,
+                pauseOnMouseEnter: pauseOnHover
+            } : false,
+            pagination: showDots ? {
+                el: $widget.find('.swiper-pagination')[0],
+                clickable: true,
+                dynamicBullets: true
+            } : false,
+            navigation: showArrows ? {
+                nextEl: $widget.find('.swiper-button-next')[0],
+                prevEl: $widget.find('.swiper-button-prev')[0],
+            } : false,
+            breakpoints: {
+                320: {
+                    slidesPerView: 1,
+                    spaceBetween: 15
+                },
+                640: {
+                    slidesPerView: 2,
+                    spaceBetween: 20
+                },
+                768: {
+                    slidesPerView: 2,
+                    spaceBetween: 20
+                },
+                1024: {
+                    slidesPerView: itemsPerView >= 3 ? 3 : itemsPerView,
+                    spaceBetween: 25
+                },
+                1280: {
+                    slidesPerView: itemsPerView,
+                    spaceBetween: 25
+                }
+            },
+            on: {
+                init: function() {
+                    $widget.addClass('resbs-swiper-initialized');
+                }
+            }
+        };
+        
+        try {
+            var swiper = new Swiper('#' + widgetId, swiperConfig);
+            
+            // Handle favorite buttons
+            $widget.on('click', '.resbs-favorite-btn', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                var $btn = $(this);
+                var propertyId = $btn.data('property-id');
+                if (propertyId) {
+                    toggleFavorite($btn, propertyId);
+                }
+            });
+        } catch (e) {
+            console.error('Swiper initialization error:', e);
+        }
+    }
+    
+    // Old carousel code - keeping for backward compatibility but using Swiper now
+    var carouselStates = {};
+    
     function initPropertyCarousel($widget) {
         var settings = $widget.data('settings');
         var widgetId = $widget.attr('id');
-        var currentSlide = 0;
-        var totalSlides = 0;
-        var slidesToShow = parseInt(settings.slides_to_show);
-        var autoplayInterval = null;
-        var isAnimating = false;
+        var slidesToShow = parseInt(settings.items_per_view || settings.slides_to_show || 3);
         
-        // Load initial properties
-        loadCarouselProperties($widget, function(properties) {
-            totalSlides = Math.ceil(properties.length / slidesToShow);
-            setupCarousel($widget, properties);
+        // Initialize state for this widget
+        carouselStates[widgetId] = {
+            currentSlide: 0,
+            totalSlides: 0,
+            isAnimating: false,
+            autoplayInterval: null
+        };
+        
+        // Check if slides are already rendered in HTML
+        var $existingSlides = $widget.find('.resbs-carousel-slide');
+        if ($existingSlides.length > 0) {
+            // Initialize with existing HTML
+            carouselStates[widgetId].totalSlides = $existingSlides.length;
+            setupCarousel($widget, null);
             if (settings.autoplay) {
                 startAutoplay($widget);
             }
-        });
+        } else {
+            // Load via AJAX
+            loadCarouselProperties($widget, function(properties) {
+                carouselStates[widgetId].totalSlides = Math.ceil(properties.length / slidesToShow);
+                setupCarousel($widget, properties);
+                if (settings.autoplay) {
+                    startAutoplay($widget);
+                }
+            });
+        }
         
         // Handle navigation arrows
         $widget.find('.resbs-carousel-prev').on('click', function() {
-            if (!isAnimating) {
+            if (!carouselStates[widgetId].isAnimating) {
                 prevSlide($widget);
             }
         });
         
         $widget.find('.resbs-carousel-next').on('click', function() {
-            if (!isAnimating) {
+            if (!carouselStates[widgetId].isAnimating) {
                 nextSlide($widget);
             }
         });
         
         // Handle dot navigation
         $(document).on('click', '#' + widgetId + ' .resbs-carousel-dot', function() {
-            if (!isAnimating) {
-                var slideIndex = $(this).index();
+            if (!carouselStates[widgetId].isAnimating) {
+                var slideIndex = $(this).data('slide');
                 goToSlide($widget, slideIndex);
             }
         });
@@ -619,9 +747,27 @@ jQuery(document).ready(function($) {
         var settings = $widget.data('settings');
         var $track = $widget.find('.resbs-carousel-track');
         var $dots = $widget.find('.resbs-carousel-dots');
-        var slidesToShow = parseInt(settings.slides_to_show);
+        var slidesToShow = parseInt(settings.items_per_view || settings.slides_to_show || 3);
         
-        // Clear existing content
+        // If slides already exist in HTML (server-rendered), use them
+        var $existingSlides = $track.find('.resbs-carousel-slide');
+        if ($existingSlides.length > 0) {
+            // Just create dots and initialize
+            var totalSlides = $existingSlides.length;
+            $dots.empty();
+            for (var k = 0; k < totalSlides; k++) {
+                var $dot = $('<span class="resbs-carousel-dot" data-slide="' + k + '"></span>');
+                if (k === 0) {
+                    $dot.addClass('active');
+                }
+                $dots.append($dot);
+            }
+            $track.data('current-slide', 0);
+            updateArrowStates($widget, 0, totalSlides);
+            return;
+        }
+        
+        // Otherwise create slides from AJAX data
         $track.empty();
         $dots.empty();
         
@@ -649,8 +795,9 @@ jQuery(document).ready(function($) {
                 $dots.append($dot);
             }
             
-            // Set initial slide width
-            updateSlideWidth($widget);
+            // Set initial slide
+            $track.data('current-slide', 0);
+            updateArrowStates($widget, 0, totalSlides);
             
             // Add animation
             $track.find('.resbs-property-card').addClass('resbs-carousel-slide-in');
@@ -753,9 +900,12 @@ jQuery(document).ready(function($) {
      * Navigate to previous slide
      */
     function prevSlide($widget) {
+        var widgetId = $widget.attr('id');
+        var state = carouselStates[widgetId];
+        if (!state) return;
+        
         var settings = $widget.data('settings');
         var $track = $widget.find('.resbs-carousel-track');
-        var $dots = $widget.find('.resbs-carousel-dots');
         var currentSlide = parseInt($track.data('current-slide') || 0);
         var totalSlides = $widget.find('.resbs-carousel-slide').length;
         
@@ -769,9 +919,12 @@ jQuery(document).ready(function($) {
      * Navigate to next slide
      */
     function nextSlide($widget) {
+        var widgetId = $widget.attr('id');
+        var state = carouselStates[widgetId];
+        if (!state) return;
+        
         var settings = $widget.data('settings');
         var $track = $widget.find('.resbs-carousel-track');
-        var $dots = $widget.find('.resbs-carousel-dots');
         var currentSlide = parseInt($track.data('current-slide') || 0);
         var totalSlides = $widget.find('.resbs-carousel-slide').length;
         
@@ -785,19 +938,28 @@ jQuery(document).ready(function($) {
      * Go to specific slide
      */
     function goToSlide($widget, slideIndex) {
+        var widgetId = $widget.attr('id');
+        var state = carouselStates[widgetId];
+        if (!state) return;
+        
         var $track = $widget.find('.resbs-carousel-track');
         var $dots = $widget.find('.resbs-carousel-dots');
         var $slides = $widget.find('.resbs-carousel-slide');
         var totalSlides = $slides.length;
         
-        if (slideIndex >= 0 && slideIndex < totalSlides && !isAnimating) {
-            isAnimating = true;
+        if (slideIndex >= 0 && slideIndex < totalSlides && !state.isAnimating) {
+            state.isAnimating = true;
             
-            // Update track position
-            var slideWidth = 100 / totalSlides;
+            // Update track position - calculate based on slide width
+            var slidesToShow = parseInt($track.data('slides-to-show') || 3);
+            var slideWidth = 100 / slidesToShow;
             var translateX = -(slideIndex * slideWidth);
-            $track.css('transform', 'translateX(' + translateX + '%)');
+            $track.css({
+                'transform': 'translateX(' + translateX + '%)',
+                'transition': 'transform 0.5s ease'
+            });
             $track.data('current-slide', slideIndex);
+            state.currentSlide = slideIndex;
             
             // Update dots
             $dots.find('.resbs-carousel-dot').removeClass('active');
@@ -808,7 +970,7 @@ jQuery(document).ready(function($) {
             
             // Reset animation flag
             setTimeout(function() {
-                isAnimating = false;
+                state.isAnimating = false;
             }, 500);
         }
     }
@@ -834,12 +996,16 @@ jQuery(document).ready(function($) {
      * Start autoplay
      */
     function startAutoplay($widget) {
+        var widgetId = $widget.attr('id');
+        var state = carouselStates[widgetId];
+        if (!state) return;
+        
         var settings = $widget.data('settings');
         var speed = parseInt(settings.autoplay_speed) || 3000;
         
         stopAutoplay($widget);
         
-        autoplayInterval = setInterval(function() {
+        state.autoplayInterval = setInterval(function() {
             nextSlide($widget);
         }, speed);
     }
@@ -848,9 +1014,13 @@ jQuery(document).ready(function($) {
      * Stop autoplay
      */
     function stopAutoplay($widget) {
-        if (autoplayInterval) {
-            clearInterval(autoplayInterval);
-            autoplayInterval = null;
+        var widgetId = $widget.attr('id');
+        var state = carouselStates[widgetId];
+        if (!state) return;
+        
+        if (state.autoplayInterval) {
+            clearInterval(state.autoplayInterval);
+            state.autoplayInterval = null;
         }
     }
 
