@@ -3025,6 +3025,10 @@
     max-width: none !important;
 }
 
+.resbs-property-image img {
+    height: 100% !important;
+}
+
 /* ============================================================================
    END OF COMPLETE ISOLATION CSS
    ==================================================

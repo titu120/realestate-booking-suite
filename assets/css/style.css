@@ -3146,3 +3146,9 @@
     }
 }
 
+.resbs-property-image img {
+    height: 100% !important;
+}
+label {
+    white-space: nowrap !important;
+}

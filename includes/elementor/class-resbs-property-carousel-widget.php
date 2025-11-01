@@ -1047,14 +1047,14 @@ class RESBS_Property_Carousel_Widget extends \Elementor\Widget_Base {
             
             #<?php echo esc_attr($widget_id); ?> .property-image img {
                 width: 100% !important;
-                height: 12rem !important;
+
                 object-fit: cover !important;
                 display: block !important;
             }
             
             #<?php echo esc_attr($widget_id); ?> .property-image .bg-gray-200 {
                 background-color: #e5e7eb !important;
-                height: 12rem !important;
+  
                 display: flex !important;
                 align-items: center !important;
                 justify-content: center !important;
