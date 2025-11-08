@@ -30,7 +30,7 @@ if (!function_exists('resbs_load_elementor_widget_files')) {
             array('file' => 'includes/elementor/class-resbs-request-form-widget.php', 'class' => 'RESBS_Request_Form_Widget'),
             array('file' => 'includes/elementor/class-resbs-listings-widget.php', 'class' => 'RESBS_Listings_Widget'),
             array('file' => 'includes/elementor/class-resbs-authentication-widget.php', 'class' => 'RESBS_Authentication_Widget'),
-            array('file' => 'includes/elementor/class-resbs-half-map-widget.php', 'class' => 'RESBS_Half_Map_Widget'),
+
         );
         
         foreach ($widget_files as $widget) {
@@ -134,11 +134,22 @@ class RESBS_Elementor_Widgets {
      * Enqueue Elementor styles
      */
     public function enqueue_elementor_styles() {
+        // Ensure Font Awesome is loaded for Elementor widgets
+        if (!wp_style_is('font-awesome', 'enqueued') && !wp_style_is('font-awesome', 'registered')) {
+            wp_enqueue_style(
+                'font-awesome',
+                'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
+                array(),
+                '6.4.0',
+                'all'
+            );
+        }
+        
         // Load CSS with maximum priority
         wp_enqueue_style(
             'resbs-elementor',
             RESBS_URL . 'assets/css/elementor.css',
-            array('elementor-frontend', 'elementor-frontend-css'),
+            array('elementor-frontend', 'elementor-frontend-css', 'font-awesome'),
             '2.0.0',
             'all'
         );

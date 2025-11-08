@@ -985,6 +985,7 @@ class RESBS_Listings_Widget extends \Elementor\Widget_Base {
                 padding: 0.75rem 0 0 0 !important;
                 margin: 0 0 0.75rem 0 !important;
                 flex-wrap: wrap !important;
+                border:none !important;
             }
             
             #<?php echo esc_attr($widget_id); ?> .resbs-meta-item {
@@ -1541,7 +1542,7 @@ class RESBS_Listings_Widget extends \Elementor\Widget_Base {
                         </h3>
                         <?php if ($location): ?>
                             <div class="resbs-property-location">
-                                <i class="fas fa-map-marker-alt"></i>
+                                <i class="fas fa-map-marker"></i>
                                 <span><?php echo esc_html($location); ?></span>
                             </div>
                         <?php endif; ?>

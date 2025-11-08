@@ -972,7 +972,7 @@ class RESBS_Property_Carousel_Widget extends \Elementor\Widget_Base {
                                 </h4>
                                 <?php if ($location): ?>
                                     <p class="property-card-location">
-                                        <i class="fas fa-map-marker-alt text-emerald-500"></i>
+                                        <i class="fas fa-map-marker text-emerald-500"></i>
                                         <?php echo esc_html($location); ?>
                                     </p>
                                 <?php endif; ?>

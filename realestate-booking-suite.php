@@ -48,11 +48,20 @@ add_filter('template_include', 'resbs_single_property_template_loader', 5);
 
 // Enqueue assets
 function resbs_enqueue_assets() {
+    // Enqueue Font Awesome 6.4.0 CDN for icons - load early with high priority
+    wp_enqueue_style(
+        'font-awesome',
+        'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
+        array(),
+        '6.4.0',
+        'all'
+    );
+    
     // Enqueue CSS
     wp_enqueue_style(
         'resbs-style',
         RESBS_URL . 'assets/css/style.css',
-        array(),
+        array('font-awesome'),
         '1.0.0'
     );
     
@@ -147,8 +156,16 @@ function resbs_enqueue_assets() {
         //     true
         // );
 }
-add_action('wp_enqueue_scripts', 'resbs_enqueue_assets');
-add_action('admin_enqueue_scripts', 'resbs_enqueue_assets');
+add_action('wp_enqueue_scripts', 'resbs_enqueue_assets', 5);
+add_action('admin_enqueue_scripts', 'resbs_enqueue_assets', 5);
+
+// Fallback: Add Font Awesome directly to head if not already loaded
+function resbs_add_fontawesome_fallback() {
+    if (!wp_style_is('font-awesome', 'enqueued') && !wp_style_is('font-awesome', 'done')) {
+        echo '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />' . "\n";
+    }
+}
+add_action('wp_head', 'resbs_add_fontawesome_fallback', 1);
 
 // Load main functionality
 require_once RESBS_PATH . 'includes/functions.php';
