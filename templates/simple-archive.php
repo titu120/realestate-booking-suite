@@ -573,7 +573,7 @@ $property_statuses = get_terms(array(
                                         <?php if ($area_sqft): ?>
                                 <div class="property-feature">
                                     <i class="fas fa-ruler-combined"></i>
-                                                <span><?php echo esc_html(number_format($area_sqft)); ?> sq ft</span>
+                                                <span><?php echo resbs_format_area($area_sqft); ?></span>
                                 </div>
                                         <?php endif; ?>
                             </div>
@@ -625,7 +625,9 @@ $property_statuses = get_terms(array(
             // Using OpenStreetMap with Leaflet.js - completely FREE, no API keys needed!
             // No tokens or API keys required - everything is free and unlimited
             $use_openstreetmap = true; // Always use free OpenStreetMap
-            $map_zoom = get_option('resbs_map_zoom_level', 10);
+            // Get map settings dynamically from General settings
+            $map_zoom = resbs_get_default_zoom_level();
+            $map_settings = resbs_get_map_settings('archive');
             
             // IMPORTANT: Map location is based on EACH PROPERTY's individual coordinates
             // Dashboard location settings are NOT used - each property has its own location
@@ -1576,6 +1578,9 @@ document.addEventListener('DOMContentLoaded', function() {
 <?php if ($use_openstreetmap): ?>
 <!-- Leaflet.js CSS -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="anonymous" onerror="console.warn('⚠️ Leaflet CSS failed to load, trying alternate CDN'); this.onerror=null; this.href='https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css';"/>
+<!-- Leaflet.markercluster CSS (for marker clustering) -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" crossorigin="anonymous" />
 <!-- Leaflet.js JavaScript -->
 <script>
 // Load Leaflet.js and initialize when ready
@@ -1600,11 +1605,47 @@ document.addEventListener('DOMContentLoaded', function() {
         
         newScript.onload = function() {
             console.log('✅ Leaflet.js script loaded successfully');
-            // Leaflet loaded, initialization will happen below
-            if (typeof window.initLeafletWhenReady === 'function') {
-                window.initLeafletWhenReady();
-            }
+            // Load Leaflet.markercluster after Leaflet is loaded
+            loadMarkerCluster();
         };
+        
+        function loadMarkerCluster() {
+            // Load Leaflet.markercluster CSS (already in head)
+            // Load Leaflet.markercluster JS
+            var clusterScript = document.createElement('script');
+            clusterScript.src = 'https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js';
+            clusterScript.crossOrigin = 'anonymous';
+            clusterScript.async = true;
+            clusterScript.onload = function() {
+                console.log('✅ Leaflet.markercluster loaded successfully');
+                // Both libraries loaded, initialization will happen below
+                if (typeof window.initLeafletWhenReady === 'function') {
+                    window.initLeafletWhenReady();
+                }
+            };
+            clusterScript.onerror = function() {
+                console.warn('⚠️ Failed to load Leaflet.markercluster, trying alternate CDN...');
+                var altClusterScript = document.createElement('script');
+                altClusterScript.src = 'https://cdn.jsdelivr.net/npm/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js';
+                altClusterScript.crossOrigin = 'anonymous';
+                altClusterScript.async = true;
+                altClusterScript.onload = function() {
+                    console.log('✅ Leaflet.markercluster loaded from alternate CDN');
+                    if (typeof window.initLeafletWhenReady === 'function') {
+                        window.initLeafletWhenReady();
+                    }
+                };
+                altClusterScript.onerror = function() {
+                    console.warn('⚠️ Failed to load Leaflet.markercluster, clustering will be disabled');
+                    // Still initialize map without clustering
+                    if (typeof window.initLeafletWhenReady === 'function') {
+                        window.initLeafletWhenReady();
+                    }
+                };
+                document.head.appendChild(altClusterScript);
+            };
+            document.head.appendChild(clusterScript);
+        }
         
         newScript.onerror = function() {
             console.warn('⚠️ Failed to load Leaflet.js (attempt ' + loadAttempts + ')');
@@ -1617,9 +1658,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 altScript.async = true;
                 altScript.onload = function() {
                     console.log('✅ Leaflet.js loaded from alternate CDN');
-                    if (typeof window.initLeafletWhenReady === 'function') {
-                        window.initLeafletWhenReady();
-                    }
+                    // Load marker cluster after Leaflet loads
+                    loadMarkerCluster();
                 };
                 altScript.onerror = function() {
                     if (loadAttempts >= maxAttempts) {
@@ -1652,8 +1692,11 @@ console.log('Total properties being added to map:', <?php echo count($properties
 window.map = null;
 window.markers = [];
 window.popups = [];
+window.markerClusterGroup = null; // For marker clustering
 window.propertiesData = <?php echo json_encode($properties_data); ?>;
 window.mapInitialized = false;
+// Map settings from General settings - dynamically applied
+window.resbsMapSettings = <?php echo json_encode($map_settings); ?>;
 
 console.log('=== PROPERTIES DATA DEBUG ===');
 console.log('All properties data:', window.propertiesData);
@@ -1855,10 +1898,14 @@ function initializeOpenStreetMap() {
     
     try {
         console.log('🗺️ Creating OpenStreetMap with Leaflet...');
+        // Get zoom from map settings (dynamically from General settings)
+        const mapZoom = window.resbsMapSettings ? window.resbsMapSettings.zoom : <?php echo esc_js($map_zoom); ?>;
+        console.log('📍 Using zoom level:', mapZoom, '(from General settings)');
+        
         // Create Leaflet map with OpenStreetMap tiles
         window.map = L.map('googleMap', {
             center: [centerLat, centerLng],
-            zoom: <?php echo esc_js($map_zoom); ?>,
+            zoom: mapZoom,
             zoomControl: true
         });
         
@@ -1947,46 +1994,158 @@ function addLeafletMarkers(propertiesArray) {
         return;
     }
     
-    console.log('✅ Adding markers for', propertiesToUse.length, 'properties');
+    // Get map settings
+    const mapSettings = window.resbsMapSettings || {};
+    const enableCluster = mapSettings.enableCluster || false;
     
-    // Clear existing markers
+    console.log('✅ Adding markers for', propertiesToUse.length, 'properties');
+    console.log('📍 Clustering enabled:', enableCluster);
+    
+    // Clear existing markers and cluster group
+    if (window.markerClusterGroup) {
+        window.map.removeLayer(window.markerClusterGroup);
+        window.markerClusterGroup = null;
+    }
     window.markers.forEach(function(marker) {
         window.map.removeLayer(marker);
     });
     window.markers = [];
     window.popups = [];
     
+    // Initialize marker cluster group if clustering is enabled
+    if (enableCluster && typeof L.markerClusterGroup !== 'undefined') {
+        // Get cluster settings
+        const clusterIcon = mapSettings.clusterIcon || 'circle';
+        const clusterIconColor = mapSettings.clusterIconColor || '#333333';
+        
+        // Create custom cluster icon function
+        const createClusterIcon = function(cluster) {
+            const count = cluster.getChildCount();
+            let iconHtml = '';
+            
+            switch(clusterIcon) {
+                case 'bubble':
+                    iconHtml = `<div style="background-color: ${clusterIconColor}; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; border: 3px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">${count}</div>`;
+                    break;
+                case 'outline':
+                    iconHtml = `<div style="background-color: rgba(255,255,255,0.9); color: ${clusterIconColor}; width: 40px; height: 40px; border-radius: 50%; border: 3px solid ${clusterIconColor}; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">${count}</div>`;
+                    break;
+                case 'circle':
+                default:
+                    iconHtml = `<div style="background-color: ${clusterIconColor}; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; border: 3px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">${count}</div>`;
+                    break;
+            }
+            
+            return L.divIcon({
+                className: 'marker-cluster-custom',
+                html: iconHtml,
+                iconSize: L.point(40, 40),
+                iconAnchor: L.point(20, 20)
+            });
+        };
+        
+        window.markerClusterGroup = L.markerClusterGroup({
+            iconCreateFunction: createClusterIcon,
+            maxClusterRadius: 50,
+            spiderfyOnMaxZoom: true,
+            showCoverageOnHover: false,
+            zoomToBoundsOnClick: true
+        });
+        
+        window.markerClusterGroup.addTo(window.map);
+        console.log('✅ Marker cluster group initialized with icon type:', clusterIcon, 'and color:', clusterIconColor);
+    }
+    
     // Add markers for all properties
     propertiesToUse.forEach(function(property, index) {
         if (property.lat && property.lng) {
-            addLeafletMarker(property);
-            console.log('✅ Marker added for property', (index + 1) + ':', property.title, 'at', property.lat, ',', property.lng);
+            const marker = createLeafletMarker(property);
+            if (marker) {
+                if (enableCluster && window.markerClusterGroup) {
+                    // Add to cluster group
+                    window.markerClusterGroup.addLayer(marker);
+                } else {
+                    // Add directly to map
+                    marker.addTo(window.map);
+                }
+                window.markers.push(marker);
+                console.log('✅ Marker added for property', (index + 1) + ':', property.title, 'at', property.lat, ',', property.lng);
+            }
         } else {
             console.warn('⚠️ Skipping property without coordinates:', property.title);
         }
     });
     
     console.log('✅ Successfully added', window.markers.length, 'markers to map');
+    if (enableCluster && window.markerClusterGroup) {
+        console.log('📍 Markers are clustered');
+    }
 }
 
-// Add a single Leaflet marker
-function addLeafletMarker(property) {
-    if (!window.map) return;
-    if (!property.lat || !property.lng) return;
+// Create a Leaflet marker (returns marker object, doesn't add to map)
+function createLeafletMarker(property) {
+    if (!window.map) return null;
+    if (!property.lat || !property.lng) return null;
     
-    // Create custom icon
-    const markerColor = property.marker_color || '#10b981';
-    const markerIcon = L.divIcon({
-        className: 'leaflet-marker-custom',
-        html: `<div style="width: 20px; height: 20px; border-radius: 50%; background-color: ${markerColor}; border: 2px solid #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>`,
-        iconSize: [20, 20],
-        iconAnchor: [10, 10]
-    });
+    // Get map settings from General settings
+    const mapSettings = window.resbsMapSettings || {};
+    const markerType = mapSettings.markerType || 'icon';
+    const useSingleMarker = mapSettings.useSingleMarker || false;
+    const singleMarkerIcon = mapSettings.singleMarkerIcon || 'pin';
+    const singleMarkerColor = mapSettings.singleMarkerColor || '#333333';
     
-    // Create marker
+    // Determine marker color based on settings
+    let markerColor = property.marker_color || '#10b981';
+    if (useSingleMarker) {
+        markerColor = singleMarkerColor;
+    }
+    
+    // Create marker icon based on settings
+    let markerIcon;
+    
+    if (markerType === 'price' && property.price) {
+        // Show price as marker
+        const priceText = property.price.replace(/[$,]/g, '').replace(/Price on request/i, 'P.O.R');
+        markerIcon = L.divIcon({
+            className: 'leaflet-marker-price',
+            html: `<div style="background-color: ${markerColor}; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; white-space: nowrap; border: 2px solid #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">${priceText}</div>`,
+            iconSize: [60, 20],
+            iconAnchor: [30, 10]
+        });
+    } else {
+        // Use icon marker
+        let iconHtml = '';
+        if (useSingleMarker) {
+            // Use single marker icon type
+            switch(singleMarkerIcon) {
+                case 'outline':
+                    iconHtml = `<div style="width: 24px; height: 24px; border: 3px solid ${markerColor}; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); background-color: rgba(255,255,255,0.8); box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>`;
+                    break;
+                case 'person':
+                    iconHtml = `<div style="width: 24px; height: 24px; border-radius: 50%; background-color: ${markerColor}; border: 2px solid #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; color: white; font-size: 12px;">👤</div>`;
+                    break;
+                case 'pin':
+                default:
+                    iconHtml = `<div style="width: 20px; height: 20px; border-radius: 50%; background-color: ${markerColor}; border: 2px solid #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>`;
+                    break;
+            }
+        } else {
+            // Use property-specific color
+            iconHtml = `<div style="width: 20px; height: 20px; border-radius: 50%; background-color: ${markerColor}; border: 2px solid #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>`;
+        }
+        
+        markerIcon = L.divIcon({
+            className: 'leaflet-marker-custom',
+            html: iconHtml,
+            iconSize: [20, 20],
+            iconAnchor: [10, 10]
+        });
+    }
+    
+    // Create marker (don't add to map yet - will be added by caller)
     const marker = L.marker([parseFloat(property.lat), parseFloat(property.lng)], {
         icon: markerIcon
-    }).addTo(window.map);
+    });
     
     // Create popup content
     const popupContent = `
@@ -2008,8 +2167,26 @@ function addLeafletMarker(property) {
     // Create popup
     marker.bindPopup(popupContent);
     
-    // Store marker
-    window.markers.push(marker);
+    return marker;
+}
+
+// Legacy function for backwards compatibility (now uses createLeafletMarker)
+function addLeafletMarker(property) {
+    const marker = createLeafletMarker(property);
+    if (marker) {
+        // Get map settings to check if clustering is enabled
+        const mapSettings = window.resbsMapSettings || {};
+        const enableCluster = mapSettings.enableCluster || false;
+        
+        if (enableCluster && window.markerClusterGroup) {
+            // Add to cluster group
+            window.markerClusterGroup.addLayer(marker);
+        } else {
+            // Add directly to map
+            marker.addTo(window.map);
+        }
+        window.markers.push(marker);
+    }
 }
 
 // Geocode properties using Nominatim (free OpenStreetMap geocoding)

@@ -176,22 +176,24 @@
             $formatted_price = 'Call for Price';
         }
 
-        // Format price per sqft
+        // Format price per unit (uses General settings)
         $formatted_price_per_sqft = '';
         if ($price_per_sqft) {
-            $formatted_price_per_sqft = '$' . number_format($price_per_sqft) . '/sq ft';
+            $area_unit = resbs_get_area_unit();
+            $unit_label = ($area_unit === 'sqm') ? 'sq m' : 'sq ft';
+            $formatted_price_per_sqft = '$' . number_format($price_per_sqft) . '/' . $unit_label;
         }
 
-        // Format area
+        // Format area (uses General settings)
         $formatted_area = '';
         if ($area_sqft) {
-            $formatted_area = number_format($area_sqft) . ' sq ft';
+            $formatted_area = resbs_format_area($area_sqft);
         }
 
-        // Format lot size
+        // Format lot size (uses General settings)
         $formatted_lot_size = '';
         if ($lot_size_sqft) {
-            $formatted_lot_size = number_format($lot_size_sqft) . ' sq ft';
+            $formatted_lot_size = resbs_format_lot_size($lot_size_sqft);
         }
 
         // Format full address
@@ -398,8 +400,8 @@
                         <?php if ($formatted_area): ?>
                         <div class="feature-item">
                             <i class="fas fa-ruler-combined feature-icon"></i>
-                            <p class="feature-value"><?php echo esc_html($area_sqft); ?></p>
-                            <p class="feature-label">Sq Ft</p>
+                            <p class="feature-value"><?php echo esc_html($formatted_area); ?></p>
+                            <p class="feature-label"><?php echo esc_html(resbs_get_area_unit() === 'sqm' ? 'Sq M' : 'Sq Ft'); ?></p>
                         </div>
                         <?php endif; ?>
 
@@ -522,10 +524,10 @@
                                     <p class="pricing-value"><?php echo esc_html($formatted_price); ?></p>
                                 </div>
                                 
-                                <!-- Price per Sq Ft -->
+                                <!-- Price per Unit -->
                                 <?php if ($formatted_price_per_sqft): ?>
                                 <div class="pricing-card">
-                                    <label class="pricing-label">Price per Sq Ft</label>
+                                    <label class="pricing-label">Price per <?php echo esc_html(resbs_get_area_unit() === 'sqm' ? 'Sq M' : 'Sq Ft'); ?></label>
                                     <p class="pricing-value-small"><?php echo esc_html($formatted_price_per_sqft); ?></p>
                                 </div>
                                 <?php endif; ?>
@@ -597,15 +599,15 @@
                                 
                                 <?php if ($formatted_area): ?>
                                 <div class="bg-gray-50 p-4 rounded-lg">
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Area (Sq Ft)</label>
-                                    <p class="text-2xl font-bold text-gray-900"><?php echo esc_html($area_sqft); ?></p>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Area (<?php echo esc_html(resbs_get_area_unit() === 'sqm' ? 'Sq M' : 'Sq Ft'); ?>)</label>
+                                    <p class="text-2xl font-bold text-gray-900"><?php echo esc_html($formatted_area); ?></p>
                                 </div>
                                 <?php endif; ?>
                                 
-                                <?php if ($lot_size_sqft): ?>
+                                <?php if ($formatted_lot_size): ?>
                                 <div class="bg-gray-50 p-4 rounded-lg">
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Lot Size (Sq Ft)</label>
-                                    <p class="text-2xl font-bold text-gray-900"><?php echo esc_html($lot_size_sqft); ?></p>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Lot Size (<?php echo esc_html(resbs_get_lot_size_unit() === 'sqm' ? 'Sq M' : 'Sq Ft'); ?>)</label>
+                                    <p class="text-2xl font-bold text-gray-900"><?php echo esc_html($formatted_lot_size); ?></p>
                                 </div>
                                 <?php endif; ?>
                                 
@@ -1282,7 +1284,7 @@
                                         <i class="fas fa-phone agent-detail-icon"></i>
                                         <div class="agent-detail-content">
                                             <span class="agent-detail-label">Phone</span>
-                                            <span class="agent-detail-value"><?php echo esc_html($agent_phone); ?></span>
+                                            <span class="agent-detail-value"><?php echo resbs_format_phone($agent_phone); ?></span>
                                         </div>
                                     </div>
                                     <?php endif; ?>
@@ -1544,7 +1546,7 @@
                                                 <span><i class="fas fa-bath mr-1"></i><?php echo esc_html($similar_bathrooms); ?> Bath<?php echo $similar_bathrooms != 1 ? 's' : ''; ?></span>
                                             <?php endif; ?>
                                             <?php if ($similar_area): ?>
-                                                <span><i class="fas fa-ruler-combined mr-1"></i><?php echo esc_html($similar_area); ?> sqft</span>
+                                                <span><i class="fas fa-ruler-combined mr-1"></i><?php echo resbs_format_area($similar_area); ?></span>
                                             <?php endif; ?>
                                         </div>
                                     </div>

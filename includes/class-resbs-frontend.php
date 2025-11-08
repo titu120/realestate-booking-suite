@@ -745,7 +745,7 @@ class RESBS_Frontend {
                     <?php if ($area): ?>
                         <span class="resbs-property-area">
                             <span class="dashicons dashicons-fullscreen-alt"></span>
-                            <?php echo esc_html($area); ?> <?php esc_html_e('sq ft', 'realestate-booking-suite'); ?>
+                            <?php echo resbs_format_area($area); ?>
                         </span>
                     <?php endif; ?>
                 </div>
@@ -1413,9 +1413,53 @@ class RESBS_Frontend {
      * Add frontend styles for property features
      */
     public function add_frontend_styles() {
-        if (is_singular('property')) {
-            ?>
-            <style>
+        // Get general color settings
+        $main_color = resbs_get_main_color();
+        $secondary_color = resbs_get_secondary_color();
+        
+        ?>
+        <style>
+        /* General Settings CSS Variables - Available on ALL pages (archive, single, widgets, etc.) */
+        :root {
+            --resbs-main-color: <?php echo esc_attr($main_color); ?>;
+            --resbs-secondary-color: <?php echo esc_attr($secondary_color); ?>;
+        }
+        
+        /* Apply main color to large buttons */
+        .resbs-btn-primary,
+        .resbs-save-button,
+        .resbs-submit-btn,
+        button.resbs-primary {
+            background-color: var(--resbs-main-color) !important;
+            border-color: var(--resbs-main-color) !important;
+        }
+        
+        .resbs-btn-primary:hover,
+        .resbs-save-button:hover,
+        .resbs-submit-btn:hover,
+        button.resbs-primary:hover {
+            background-color: <?php echo esc_attr($this->darken_color($main_color, 10)); ?> !important;
+            border-color: <?php echo esc_attr($this->darken_color($main_color, 10)); ?> !important;
+        }
+        
+        /* Apply secondary color to small buttons */
+        .resbs-btn-secondary,
+        .resbs-view-btn,
+        .resbs-edit-btn,
+        button.resbs-secondary {
+            background-color: var(--resbs-secondary-color) !important;
+            border-color: var(--resbs-secondary-color) !important;
+        }
+        
+        .resbs-btn-secondary:hover,
+        .resbs-view-btn:hover,
+        .resbs-edit-btn:hover,
+        button.resbs-secondary:hover {
+            background-color: <?php echo esc_attr($this->darken_color($secondary_color, 10)); ?> !important;
+            border-color: <?php echo esc_attr($this->darken_color($secondary_color, 10)); ?> !important;
+        }
+        
+        <?php if (is_singular('property')): ?>
             /* Frontend Property Features Styles */
             .resbs-property-features {
                 margin: 30px 0;
@@ -1490,8 +1534,32 @@ class RESBS_Frontend {
                 border: 2px dashed #dee2e6;
             }
             </style>
-            <?php
+        <?php endif; ?>
+        <?php
+    }
+    
+    /**
+     * Darken a hex color by a percentage
+     * @param string $color Hex color (e.g., #0073aa)
+     * @param int $percent Percentage to darken (0-100)
+     * @return string Darkened hex color
+     */
+    private function darken_color($color, $percent) {
+        $color = str_replace('#', '', $color);
+        $rgb = array(
+            hexdec(substr($color, 0, 2)),
+            hexdec(substr($color, 2, 2)),
+            hexdec(substr($color, 4, 2))
+        );
+        
+        for ($i = 0; $i < 3; $i++) {
+            $rgb[$i] = round($rgb[$i] * (1 - $percent / 100));
+            $rgb[$i] = max(0, min(255, $rgb[$i]));
         }
+        
+        return '#' . str_pad(dechex($rgb[0]), 2, '0', STR_PAD_LEFT) .
+                   str_pad(dechex($rgb[1]), 2, '0', STR_PAD_LEFT) .
+                   str_pad(dechex($rgb[2]), 2, '0', STR_PAD_LEFT);
     }
     
     /**
@@ -1790,7 +1858,8 @@ class RESBS_Frontend {
                 $price = get_post_meta($property_id, '_property_price', true);
                 $bedrooms = get_post_meta($property_id, '_property_bedrooms', true);
                 $bathrooms = get_post_meta($property_id, '_property_bathrooms', true);
-                $area_sqft = get_post_meta($property_id, '_property_area_sqft', true);
+                // Get area using helper function
+                $area_value = resbs_get_property_area($property_id, '_property_area_sqft');
                 $location = get_the_terms($property_id, 'property_location');
                 $featured_image = get_the_post_thumbnail_url($property_id, 'medium_large');
                 
@@ -1818,8 +1887,8 @@ class RESBS_Frontend {
                 if ($bathrooms) {
                     echo '<span class="resbs-meta-item"><span class="dashicons dashicons-bath"></span>' . esc_html($bathrooms) . ' baths</span>';
                 }
-                if ($area_sqft) {
-                    echo '<span class="resbs-meta-item"><span class="dashicons dashicons-admin-home"></span>' . esc_html(number_format($area_sqft)) . ' sq ft</span>';
+                if ($area_value) {
+                    echo '<span class="resbs-meta-item"><span class="dashicons dashicons-admin-home"></span>' . resbs_format_area($area_value) . '</span>';
                 }
                 echo '</div></div></div>';
             }

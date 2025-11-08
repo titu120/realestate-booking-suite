@@ -938,7 +938,8 @@ class RESBS_Property_Carousel_Widget extends \Elementor\Widget_Base {
                         $property_price = get_post_meta($property->ID, '_property_price', true);
                         $property_bedrooms = get_post_meta($property->ID, '_property_bedrooms', true);
                         $property_bathrooms = get_post_meta($property->ID, '_property_bathrooms', true);
-                        $property_area = get_post_meta($property->ID, '_property_area_sqft', true);
+                        // Get area using helper function that handles unit conversion
+                        $property_area = resbs_get_property_area($property->ID, '_property_area_sqft');
                         $property_city = get_post_meta($property->ID, '_property_city', true);
                         $property_state = get_post_meta($property->ID, '_property_state', true);
                         $property_featured_image = get_the_post_thumbnail_url($property->ID, 'medium');
@@ -988,7 +989,7 @@ class RESBS_Property_Carousel_Widget extends \Elementor\Widget_Base {
                                             <span><i class="fas fa-bath mr-1"></i><?php echo esc_html($property_bathrooms); ?> Bath<?php echo $property_bathrooms != 1 ? 's' : ''; ?></span>
                                         <?php endif; ?>
                                         <?php if ($property_area): ?>
-                                            <span><i class="fas fa-ruler-combined mr-1"></i><?php echo esc_html($property_area); ?> sqft</span>
+                                            <span><i class="fas fa-ruler-combined mr-1"></i><?php echo resbs_format_area($property_area); ?></span>
                                         <?php endif; ?>
             </div>
                                 <?php endif; ?>

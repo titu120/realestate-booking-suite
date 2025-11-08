@@ -138,7 +138,7 @@ if ($featured) {
             <?php if ($area) : ?>
                 <div class="resbs-property-detail">
                     <i class="fas fa-ruler-combined"></i>
-                    <span><?php echo esc_html($area); ?> sq ft</span>
+                    <span><?php echo resbs_format_area($area); ?></span>
                 </div>
             <?php endif; ?>
         </div>

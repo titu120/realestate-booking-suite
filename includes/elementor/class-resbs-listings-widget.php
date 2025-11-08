@@ -1487,7 +1487,8 @@ class RESBS_Listings_Widget extends \Elementor\Widget_Base {
         $price = get_post_meta($property_id, '_property_price', true);
         $bedrooms = get_post_meta($property_id, '_property_bedrooms', true);
         $bathrooms = get_post_meta($property_id, '_property_bathrooms', true);
-        $area_sqft = get_post_meta($property_id, '_property_area_sqft', true);
+        // Get area using helper function that handles unit conversion
+        $area_value = resbs_get_property_area($property_id, '_property_area_sqft');
         $city = get_post_meta($property_id, '_property_city', true);
         $state = get_post_meta($property_id, '_property_state', true);
         $property_status_meta = get_post_meta($property_id, '_property_status', true);
@@ -1565,10 +1566,10 @@ class RESBS_Listings_Widget extends \Elementor\Widget_Base {
                         </span>
                     <?php endif; ?>
                     
-                    <?php if (!empty($area_sqft)): ?>
+                    <?php if (!empty($area_value)): ?>
                         <span class="resbs-meta-item">
                             <i class="fas fa-ruler-combined"></i>
-                            <?php echo esc_html($area_sqft); ?> sqft
+                            <?php echo resbs_format_area($area_value); ?>
                         </span>
                     <?php endif; ?>
                 </div>

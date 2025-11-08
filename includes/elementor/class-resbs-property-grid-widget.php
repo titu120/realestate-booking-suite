@@ -717,11 +717,14 @@ class RESBS_Property_Grid_Widget extends \Elementor\Widget_Base {
         $property_price = get_post_meta($property_id, '_property_price', true);
         $property_bedrooms = get_post_meta($property_id, '_property_bedrooms', true);
         $property_bathrooms = get_post_meta($property_id, '_property_bathrooms', true);
-        $property_area_sqft = get_post_meta($property_id, '_property_area_sqft', true);
-        // Fallback to _property_size if _property_area_sqft doesn't exist
-        if (empty($property_area_sqft)) {
+        // Get area using helper function that handles unit conversion
+        $property_area_value = resbs_get_property_area($property_id, '_property_area_sqft');
+        // Fallback to _property_size if area not found
+        if (empty($property_area_value)) {
             $property_size = get_post_meta($property_id, '_property_size', true);
-            $property_area_sqft = $property_size;
+            if (!empty($property_size)) {
+                $property_area_value = resbs_get_area_unit() === 'sqm' ? resbs_convert_area($property_size, 'sqft', 'sqm') : floatval($property_size);
+            }
         }
         $property_featured = get_post_meta($property_id, '_property_featured', true);
         $property_status = get_the_terms($property_id, 'property_status');
@@ -799,10 +802,10 @@ class RESBS_Property_Grid_Widget extends \Elementor\Widget_Base {
                             </div>
                         <?php endif; ?>
 
-                        <?php if (!empty($property_area_sqft)): ?>
+                        <?php if (!empty($property_area_value)): ?>
                             <div class="resbs-property-meta-item">
                                 <span class="dashicons dashicons-admin-home"></span>
-                                <span><?php echo esc_html(number_format(floatval($property_area_sqft))); ?> <?php esc_html_e('sq ft', 'realestate-booking-suite'); ?></span>
+                                <span><?php echo resbs_format_area($property_area_value); ?></span>
                             </div>
                         <?php endif; ?>
 

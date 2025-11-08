@@ -694,7 +694,8 @@ class RESBS_Slider_Widget extends \Elementor\Widget_Base {
         $price = get_post_meta($property_id, '_property_price', true);
         $bedrooms = get_post_meta($property_id, '_property_bedrooms', true);
         $bathrooms = get_post_meta($property_id, '_property_bathrooms', true);
-        $area_sqft = get_post_meta($property_id, '_property_area_sqft', true);
+        // Get area using helper function that handles unit conversion
+        $area_value = resbs_get_property_area($property_id, '_property_area_sqft');
         $city = get_post_meta($property_id, '_property_city', true);
         $state = get_post_meta($property_id, '_property_state', true);
         $property_status_meta = get_post_meta($property_id, '_property_status', true);
@@ -740,8 +741,8 @@ class RESBS_Slider_Widget extends \Elementor\Widget_Base {
                     <?php if ($bathrooms): ?>
                         <span><i class="fas fa-bath mr-1"></i><?php echo esc_html($bathrooms); ?> Bath<?php echo $bathrooms != 1 ? 's' : ''; ?></span>
                     <?php endif; ?>
-                    <?php if ($area_sqft): ?>
-                        <span><i class="fas fa-ruler-combined mr-1"></i><?php echo esc_html($area_sqft); ?> sqft</span>
+                    <?php if (!empty($area_value)): ?>
+                        <span><i class="fas fa-ruler-combined mr-1"></i><?php echo resbs_format_area($area_value); ?></span>
                     <?php endif; ?>
                 </div>
             </div>
@@ -757,7 +758,8 @@ class RESBS_Slider_Widget extends \Elementor\Widget_Base {
         $price = get_post_meta($property_id, '_property_price', true);
         $bedrooms = get_post_meta($property_id, '_property_bedrooms', true);
         $bathrooms = get_post_meta($property_id, '_property_bathrooms', true);
-        $area_sqft = get_post_meta($property_id, '_property_area_sqft', true);
+        // Get area using helper function that handles unit conversion
+        $area_value = resbs_get_property_area($property_id, '_property_area_sqft');
         $location = get_the_terms($property_id, 'property_location');
         $property_type = get_the_terms($property_id, 'property_type');
         $property_status = get_the_terms($property_id, 'property_status');
@@ -810,10 +812,10 @@ class RESBS_Slider_Widget extends \Elementor\Widget_Base {
                         </span>
                     <?php endif; ?>
                     
-                    <?php if (!empty($area_sqft)): ?>
+                    <?php if (!empty($area_value)): ?>
                         <span class="resbs-meta-item">
                             <span class="dashicons dashicons-admin-home"></span>
-                            <?php echo esc_html($area_sqft); ?> <?php esc_html_e('sq ft', 'realestate-booking-suite'); ?>
+                            <?php echo resbs_format_area($area_value); ?>
                         </span>
                     <?php endif; ?>
                 </div>

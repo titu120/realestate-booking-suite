@@ -118,13 +118,9 @@ class RESBS_Enhanced_Settings {
      */
     public function register_settings() {
         // General Settings
-        register_setting('resbs_enhanced_settings', 'resbs_language');
         register_setting('resbs_enhanced_settings', 'resbs_area_unit');
         register_setting('resbs_enhanced_settings', 'resbs_lot_size_unit');
         register_setting('resbs_enhanced_settings', 'resbs_date_format');
-        register_setting('resbs_enhanced_settings', 'resbs_time_format');
-        register_setting('resbs_enhanced_settings', 'resbs_enable_white_label');
-        register_setting('resbs_enhanced_settings', 'resbs_enable_rest_support');
         register_setting('resbs_enhanced_settings', 'resbs_logo_image');
         register_setting('resbs_enhanced_settings', 'resbs_main_color');
         register_setting('resbs_enhanced_settings', 'resbs_secondary_color');
@@ -273,22 +269,7 @@ class RESBS_Enhanced_Settings {
         $this->current_tab = isset($_GET['tab']) ? sanitize_text_field($_GET['tab']) : 'general';
         ?>
         <div class="wrap resbs-enhanced-settings">
-            <div class="resbs-settings-header">
-                <div class="resbs-header-left">
-                    <h1><?php esc_html_e('Settings', 'realestate-booking-suite'); ?></h1>
-                </div>
-                <div class="resbs-header-right">
-                    <div class="resbs-plugin-branding">
-                        <div class="resbs-logo-container">
-                            <div class="resbs-logo-icon">🏢</div>
-                            <div class="resbs-logo-text">
-                                <span class="resbs-plugin-name">REALESTATE BOOKING SUITE</span>
-                                <span class="resbs-plugin-version">Version 1.0.0</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+
             
             <div class="resbs-settings-container">
                 <div class="resbs-settings-sidebar">
@@ -524,105 +505,37 @@ class RESBS_Enhanced_Settings {
             background: linear-gradient(90deg, #667eea, #764ba2);
         }
         
-        /* Form Styling - Modern Professional */
-        .resbs-form-group {
-            margin-bottom: 25px;
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
-            border: 1px solid #e9ecef;
-            transition: all 0.3s ease;
+        /* Form Styling - Simple WordPress Table Style */
+        .resbs-settings-content .form-table {
+            margin-top: 0;
         }
         
-        .resbs-form-group:hover {
-            border-color: #667eea;
-            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
-        }
-        
-        .resbs-form-group label {
-            display: block;
+        .resbs-settings-content .form-table th {
+            width: 200px;
+            padding: 20px 10px 20px 0;
             font-weight: 600;
-            margin-bottom: 10px;
-            color: #2c3e50;
-            font-size: 14px;
         }
         
-        .resbs-form-group input[type="text"],
-        .resbs-form-group input[type="email"],
-        .resbs-form-group input[type="number"],
-        .resbs-form-group input[type="color"],
-        .resbs-form-group select,
-        .resbs-form-group textarea {
-            width: 100%;
-            max-width: 400px;
-            padding: 12px 16px;
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            font-size: 14px;
-            background: white;
-            transition: all 0.3s ease;
+        .resbs-settings-content .form-table td {
+            padding: 15px 10px;
         }
         
-        .resbs-form-group input[type="text"]:focus,
-        .resbs-form-group input[type="email"]:focus,
-        .resbs-form-group input[type="number"]:focus,
-        .resbs-form-group input[type="color"]:focus,
-        .resbs-form-group select:focus,
-        .resbs-form-group textarea:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-            outline: none;
+        .resbs-settings-content .form-table fieldset {
+            margin: 0;
+            padding: 0;
+            border: none;
         }
         
-        /* Toggle Switch - Modern Professional */
-        .resbs-toggle-switch {
-            position: relative;
-            display: inline-block;
-            width: 60px;
-            height: 30px;
-            margin-right: 15px;
+        .resbs-settings-content .form-table fieldset label {
+            display: block;
+            margin-bottom: 8px;
         }
         
-        .resbs-toggle-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
+        .resbs-color-hex {
+            font-family: 'Courier New', monospace;
+            text-transform: uppercase;
         }
         
-        .resbs-slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(45deg, #e9ecef, #dee2e6);
-            transition: all 0.4s ease;
-            border-radius: 30px;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
-        }
-        
-        .resbs-slider:before {
-            position: absolute;
-            content: "";
-            height: 24px;
-            width: 24px;
-            left: 3px;
-            bottom: 3px;
-            background: white;
-            transition: all 0.4s ease;
-            border-radius: 50%;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-        }
-        
-        input:checked + .resbs-slider {
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
-        }
-        
-        input:checked + .resbs-slider:before {
-            transform: translateX(30px);
-        }
         
         /* Layout Options - Simple Style */
         .resbs-layout-options {
@@ -675,83 +588,6 @@ class RESBS_Enhanced_Settings {
             margin-top: 15px;
         }
         
-        .resbs-checkbox-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 15px 20px;
-            background: white;
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            position: relative;
-            min-width: 120px;
-        }
-        
-        .resbs-checkbox-item:hover {
-            border-color: #667eea;
-            background: rgba(102, 126, 234, 0.05);
-            transform: translateY(-1px);
-            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
-        }
-        
-        .resbs-checkbox-item input[type="checkbox"],
-        .resbs-checkbox-item input[type="radio"] {
-            margin: 0;
-            width: 18px;
-            height: 18px;
-            cursor: pointer;
-            accent-color: #667eea;
-        }
-        
-        .resbs-checkbox-item label {
-            margin: 0;
-            font-weight: 500;
-            cursor: pointer;
-            color: #6c757d;
-            font-size: 14px;
-            flex: 1;
-        }
-        
-        .resbs-checkbox-item input[type="checkbox"]:checked + label,
-        .resbs-checkbox-item input[type="radio"]:checked + label {
-            color: #667eea;
-            font-weight: 600;
-        }
-        
-        .resbs-checkbox-item:has(input[type="radio"]:checked) {
-            border-color: #667eea;
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
-            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
-        }
-        
-        .resbs-checkbox-item:has(input[type="checkbox"]:checked) {
-            border-color: #667eea;
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
-            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
-        }
-        
-        /* Add a checkmark icon for selected items */
-        .resbs-checkbox-item:has(input[type="radio"]:checked)::after {
-            content: "✓";
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            color: #667eea;
-            font-weight: bold;
-            font-size: 12px;
-        }
-        
-        .resbs-checkbox-item:has(input[type="checkbox"]:checked)::after {
-            content: "✓";
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            color: #667eea;
-            font-weight: bold;
-            font-size: 12px;
-        }
         
         /* Page Creation Cards - Simple Style */
         .resbs-page-creation-card {
@@ -803,48 +639,39 @@ class RESBS_Enhanced_Settings {
             background: #0085ba;
         }
         
-        /* Save Button - Modern Professional */
+        /* Save Button - WordPress Style */
         .resbs-save-button {
-            background: linear-gradient(45deg, #667eea, #764ba2);
+            background: #2271b1;
             color: white;
             border: none;
-            padding: 15px 30px;
-            border-radius: 8px;
+            padding: 10px 20px;
+            border-radius: 4px;
             cursor: pointer;
-            font-size: 16px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            font-size: 14px;
+            font-weight: 400;
         }
         
         .resbs-save-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+            background: #135e96;
         }
         
-        /* Description Text - Modern */
+        /* Description Text - Simple */
         .resbs-description {
             font-size: 13px;
-            color: #6c757d;
-            margin-top: 8px;
-            font-style: italic;
+            color: #646970;
+            margin-top: 6px;
             line-height: 1.5;
         }
         
-        /* Pro Tag - Modern */
+        /* Pro Tag - Simple */
         .resbs-pro-tag {
-            background: linear-gradient(45deg, #ff6b35, #f7931e);
-            color: white;
-            font-size: 10px;
-            padding: 4px 8px;
-            border-radius: 12px;
-            margin-left: 10px;
+            background: #f0b849;
+            color: #23282d;
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 3px;
+            margin-left: 8px;
             font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            box-shadow: 0 2px 4px rgba(255, 107, 53, 0.3);
         }
         
         /* Success Messages */
@@ -856,6 +683,7 @@ class RESBS_Enhanced_Settings {
             padding: 12px;
             margin: 15px 0;
         }
+        
         
         /* Responsive Design */
         @media (max-width: 1200px) {
@@ -881,7 +709,9 @@ class RESBS_Enhanced_Settings {
                 border-bottom: none;
                 border-right: 1px solid #e1e1e1;
             }
+            
         }
+        
         
         /* Loading animation */
         @keyframes spin {
@@ -955,6 +785,38 @@ class RESBS_Enhanced_Settings {
             });
             
             console.log('=== EVENT HANDLERS ATTACHED ===');
+            
+            // Enhanced Color Picker Functionality
+            function updateColorHex(colorInput, hexInput) {
+                var color = colorInput.val();
+                hexInput.val(color.toUpperCase());
+            }
+            
+            // Initialize color pickers
+            $('input[type="color"]').each(function() {
+                var $colorInput = $(this);
+                var $hexInput = $colorInput.siblings('.resbs-color-hex');
+                
+                // Update on color input change
+                $colorInput.on('input change', function() {
+                    updateColorHex($colorInput, $hexInput);
+                });
+                
+                // Update on hex input change
+                $hexInput.on('input', function() {
+                    var hex = $(this).val();
+                    if (/^#[0-9A-F]{6}$/i.test(hex)) {
+                        $colorInput.val(hex);
+                    }
+                });
+                
+                // Reset button
+                $colorInput.siblings('.resbs-color-reset').on('click', function() {
+                    var defaultColor = $(this).data('default');
+                    $colorInput.val(defaultColor);
+                    updateColorHex($colorInput, $hexInput);
+                });
+            });
         });
         </script>
         <?php
@@ -1041,109 +903,64 @@ class RESBS_Enhanced_Settings {
             <input type="hidden" name="action" value="resbs_save_settings">
             <input type="hidden" name="current_tab" value="general">
             
-            <div class="resbs-form-group">
-                <label for="resbs_language"><?php esc_html_e('Language', 'realestate-booking-suite'); ?></label>
-                <select id="resbs_language" name="resbs_language">
-                    <option value="en" <?php selected(get_option('resbs_language'), 'en'); ?>><?php esc_html_e('English', 'realestate-booking-suite'); ?></option>
-                    <option value="es" <?php selected(get_option('resbs_language'), 'es'); ?>><?php esc_html_e('Spanish', 'realestate-booking-suite'); ?></option>
-                    <option value="fr" <?php selected(get_option('resbs_language'), 'fr'); ?>><?php esc_html_e('French', 'realestate-booking-suite'); ?></option>
-                    <option value="de" <?php selected(get_option('resbs_language'), 'de'); ?>><?php esc_html_e('German', 'realestate-booking-suite'); ?></option>
-                </select>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label><?php esc_html_e('Units', 'realestate-booking-suite'); ?></label>
-                <div class="resbs-checkbox-group">
-                    <div class="resbs-checkbox-item">
-                        <input type="radio" id="area_sqft" name="resbs_area_unit" value="sqft" <?php checked(get_option('resbs_area_unit'), 'sqft'); ?>>
-                        <label for="area_sqft"><?php esc_html_e('sq ft', 'realestate-booking-suite'); ?></label>
-                    </div>
-                    <div class="resbs-checkbox-item">
-                        <input type="radio" id="area_sqm" name="resbs_area_unit" value="sqm" <?php checked(get_option('resbs_area_unit'), 'sqm'); ?>>
-                        <label for="area_sqm"><?php esc_html_e('sq m', 'realestate-booking-suite'); ?></label>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label><?php esc_html_e('Lot size unit', 'realestate-booking-suite'); ?></label>
-                <div class="resbs-checkbox-group">
-                    <div class="resbs-checkbox-item">
-                        <input type="radio" id="lot_sqft" name="resbs_lot_size_unit" value="sqft" <?php checked(get_option('resbs_lot_size_unit'), 'sqft'); ?>>
-                        <label for="lot_sqft"><?php esc_html_e('sq ft', 'realestate-booking-suite'); ?></label>
-                    </div>
-                    <div class="resbs-checkbox-item">
-                        <input type="radio" id="lot_sqm" name="resbs_lot_size_unit" value="sqm" <?php checked(get_option('resbs_lot_size_unit'), 'sqm'); ?>>
-                        <label for="lot_sqm"><?php esc_html_e('sq m', 'realestate-booking-suite'); ?></label>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label for="resbs_date_format"><?php esc_html_e('Date format', 'realestate-booking-suite'); ?></label>
-                <input type="text" id="resbs_date_format" name="resbs_date_format" value="<?php echo esc_attr(get_option('resbs_date_format', 'm/d/Y')); ?>" class="regular-text">
-            </div>
-            
-            <div class="resbs-form-group">
-                <label><?php esc_html_e('Time format', 'realestate-booking-suite'); ?></label>
-                <div class="resbs-checkbox-group">
-                    <div class="resbs-checkbox-item">
-                        <input type="radio" id="time_12h" name="resbs_time_format" value="12h" <?php checked(get_option('resbs_time_format'), '12h'); ?>>
-                        <label for="time_12h"><?php esc_html_e('12h 12-hour clock', 'realestate-booking-suite'); ?></label>
-                    </div>
-                    <div class="resbs-checkbox-item">
-                        <input type="radio" id="time_24h" name="resbs_time_format" value="24h" <?php checked(get_option('resbs_time_format'), '24h'); ?>>
-                        <label for="time_24h"><?php esc_html_e('24h 24-hour clock', 'realestate-booking-suite'); ?></label>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label>
-                    <div class="resbs-toggle-switch">
-                        <input type="checkbox" name="resbs_enable_white_label" value="1" <?php checked(get_option('resbs_enable_white_label'), 1); ?>>
-                        <span class="resbs-slider"></span>
-                    </div>
-                    <?php esc_html_e('Enable white label', 'realestate-booking-suite'); ?>
-                    <span class="resbs-pro-tag">PRO</span>
-                </label>
-                <p class="resbs-description"><?php esc_html_e('Enable this option if you want to remove RealEstate Booking Suite logo and "Powered by" link on plugin pages.', 'realestate-booking-suite'); ?></p>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label>
-                    <div class="resbs-toggle-switch">
-                        <input type="checkbox" name="resbs_enable_rest_support" value="1" <?php checked(get_option('resbs_enable_rest_support'), 1); ?>>
-                        <span class="resbs-slider"></span>
-                    </div>
-                    <?php esc_html_e('Enable REST Support', 'realestate-booking-suite'); ?>
-                </label>
-                <p class="resbs-description"><?php esc_html_e('Please enable REST support if you need to use Gutenberg or pull your listings via wp api.', 'realestate-booking-suite'); ?></p>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label for="resbs_main_color"><?php esc_html_e('Main color', 'realestate-booking-suite'); ?></label>
-                <input type="color" id="resbs_main_color" name="resbs_main_color" value="<?php echo esc_attr(get_option('resbs_main_color', '#0073aa')); ?>">
-                <button type="button" class="button"><?php esc_html_e('Reset', 'realestate-booking-suite'); ?></button>
-                <p class="resbs-description"><?php esc_html_e('For large buttons like Search, Request info, etc.', 'realestate-booking-suite'); ?></p>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label for="resbs_secondary_color"><?php esc_html_e('Secondary color', 'realestate-booking-suite'); ?></label>
-                <input type="color" id="resbs_secondary_color" name="resbs_secondary_color" value="<?php echo esc_attr(get_option('resbs_secondary_color', '#28a745')); ?>">
-                <button type="button" class="button"><?php esc_html_e('Reset', 'realestate-booking-suite'); ?></button>
-                <p class="resbs-description"><?php esc_html_e('For smaller buttons like Search on results page, Contact, etc.', 'realestate-booking-suite'); ?></p>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label>
-                    <div class="resbs-toggle-switch">
-                        <input type="checkbox" name="resbs_disable_tel_country_code" value="1" <?php checked(get_option('resbs_disable_tel_country_code'), 1); ?>>
-                        <span class="resbs-slider"></span>
-                    </div>
-                    <?php esc_html_e('Disable tel country code', 'realestate-booking-suite'); ?>
-                </label>
-            </div>
+            <table class="form-table">
+                <tr>
+                    <th scope="row"><?php esc_html_e('Units', 'realestate-booking-suite'); ?></th>
+                    <td>
+                        <fieldset>
+                            <?php $current_area_unit = get_option('resbs_area_unit', 'sqft'); ?>
+                            <label><input type="radio" id="area_sqft" name="resbs_area_unit" value="sqft" <?php checked($current_area_unit, 'sqft'); ?>> <?php esc_html_e('sq ft', 'realestate-booking-suite'); ?></label><br>
+                            <label><input type="radio" id="area_sqm" name="resbs_area_unit" value="sqm" <?php checked($current_area_unit, 'sqm'); ?>> <?php esc_html_e('sq m', 'realestate-booking-suite'); ?></label>
+                        </fieldset>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th scope="row"><?php esc_html_e('Lot size unit', 'realestate-booking-suite'); ?></th>
+                    <td>
+                        <fieldset>
+                            <?php $current_lot_unit = get_option('resbs_lot_size_unit', 'sqft'); ?>
+                            <label><input type="radio" id="lot_sqft" name="resbs_lot_size_unit" value="sqft" <?php checked($current_lot_unit, 'sqft'); ?>> <?php esc_html_e('sq ft', 'realestate-booking-suite'); ?></label><br>
+                            <label><input type="radio" id="lot_sqm" name="resbs_lot_size_unit" value="sqm" <?php checked($current_lot_unit, 'sqm'); ?>> <?php esc_html_e('sq m', 'realestate-booking-suite'); ?></label>
+                        </fieldset>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th scope="row"><label for="resbs_date_format"><?php esc_html_e('Date format', 'realestate-booking-suite'); ?></label></th>
+                    <td><input type="text" id="resbs_date_format" name="resbs_date_format" value="<?php echo esc_attr(get_option('resbs_date_format', 'm/d/Y')); ?>" class="regular-text"></td>
+                </tr>
+                
+                <tr>
+                    <th scope="row"><?php esc_html_e('Disable tel country code', 'realestate-booking-suite'); ?></th>
+                    <td>
+                        <label>
+                            <input type="checkbox" name="resbs_disable_tel_country_code" value="1" <?php checked(get_option('resbs_disable_tel_country_code'), 1); ?>>
+                            <?php esc_html_e('Disable tel country code', 'realestate-booking-suite'); ?>
+                        </label>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th scope="row"><label for="resbs_main_color"><?php esc_html_e('Main color', 'realestate-booking-suite'); ?></label></th>
+                    <td>
+                        <input type="color" id="resbs_main_color" name="resbs_main_color" value="<?php echo esc_attr(get_option('resbs_main_color', '#0073aa')); ?>" style="width: 60px; height: 30px; vertical-align: middle;">
+                        <input type="text" class="resbs-color-hex" value="<?php echo esc_attr(get_option('resbs_main_color', '#0073aa')); ?>" placeholder="#0073aa" maxlength="7" style="width: 100px; margin-left: 10px;">
+                        <button type="button" class="resbs-color-reset button" data-default="#0073aa" style="margin-left: 10px;"><?php esc_html_e('Reset', 'realestate-booking-suite'); ?></button>
+                        <p class="description"><?php esc_html_e('Large buttons', 'realestate-booking-suite'); ?></p>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th scope="row"><label for="resbs_secondary_color"><?php esc_html_e('Secondary color', 'realestate-booking-suite'); ?></label></th>
+                    <td>
+                        <input type="color" id="resbs_secondary_color" name="resbs_secondary_color" value="<?php echo esc_attr(get_option('resbs_secondary_color', '#28a745')); ?>" style="width: 60px; height: 30px; vertical-align: middle;">
+                        <input type="text" class="resbs-color-hex" value="<?php echo esc_attr(get_option('resbs_secondary_color', '#28a745')); ?>" placeholder="#28a745" maxlength="7" style="width: 100px; margin-left: 10px;">
+                        <button type="button" class="resbs-color-reset button" data-default="#28a745" style="margin-left: 10px;"><?php esc_html_e('Reset', 'realestate-booking-suite'); ?></button>
+                        <p class="description"><?php esc_html_e('Small buttons', 'realestate-booking-suite'); ?></p>
+                    </td>
+                </tr>
+            </table>
             
             <button type="submit" class="resbs-save-button"><?php esc_html_e('SAVE CHANGES', 'realestate-booking-suite'); ?></button>
         </form>
@@ -1487,141 +1304,105 @@ class RESBS_Enhanced_Settings {
             <?php wp_nonce_field('resbs_enhanced_settings-options'); ?>
             <input type="hidden" name="action" value="resbs_save_settings">
             <input type="hidden" name="current_tab" value="map">
-            
-            <div class="resbs-form-group" style="padding: 20px; background: #f0fdf4; border-left: 4px solid #10b981; border-radius: 6px; margin-bottom: 20px;">
-                <h3 style="margin: 0 0 10px 0; font-size: 16px; color: #166534; display: flex; align-items: center;">
-                    <span style="font-size: 24px; margin-right: 8px;">✅</span>
-                    <?php esc_html_e('Free OpenStreetMap Maps (No Setup Required!)', 'realestate-booking-suite'); ?>
-                </h3>
-                <p style="margin: 0; color: #166534; font-size: 14px; line-height: 1.6;">
-                    <?php esc_html_e('Your site is using OpenStreetMap with Leaflet.js - completely FREE with no API keys, no billing, and unlimited usage!', 'realestate-booking-suite'); ?>
-                </p>
-                <p style="margin: 10px 0 0 0; color: #15803d; font-size: 13px;">
-                    <strong>✨ Features:</strong> <?php esc_html_e('No setup needed • Unlimited map views • Free geocoding • Works everywhere • No restrictions', 'realestate-booking-suite'); ?>
-                </p>
-            </div>
-            
-            <!-- Hidden field for backwards compatibility (not used anymore) -->
             <input type="hidden" name="resbs_mapbox_access_token" value="">
-            <?php if (!empty(get_option('resbs_mapbox_access_token', '')) || !empty(get_option('resbs_google_api_key', ''))): ?>
-                <div class="resbs-form-group" style="padding: 15px; background: #fffbeb; border-left: 4px solid #f59e0b; border-radius: 6px; margin-top: 15px;">
-                    <p style="margin: 0; color: #92400e; font-size: 13px;">
-                        <strong>ℹ️ Note:</strong> <?php esc_html_e('You previously had Mapbox or Google Maps configured. The system now uses free OpenStreetMap automatically - no action needed!', 'realestate-booking-suite'); ?>
-                    </p>
-                </div>
-            <?php endif; ?>
             
-            <!-- Default Latitude/Longitude removed - Maps now use individual property coordinates -->
+
             
-            <div class="resbs-form-group">
-                <label for="resbs_default_zoom_level"><?php esc_html_e('Default zoom level', 'realestate-booking-suite'); ?></label>
-                <p><?php esc_html_e('Choose the zoom level for the map. 0 corresponds to a map of the earth fully zoomed out, and larger zoom levels zoom in at a higher resolution.', 'realestate-booking-suite'); ?></p>
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <button type="button" class="button" onclick="document.getElementById('resbs_default_zoom_level').stepDown()">-</button>
-                    <input type="number" id="resbs_default_zoom_level" name="resbs_default_zoom_level" value="<?php echo esc_attr(get_option('resbs_default_zoom_level', '12')); ?>" min="0" max="20" style="width: 80px;">
-                    <button type="button" class="button" onclick="document.getElementById('resbs_default_zoom_level').stepUp()">+</button>
-                </div>
-            </div>
+            <table class="form-table">
+                <tr>
+                    <th scope="row"><label for="resbs_default_zoom_level"><?php esc_html_e('Default zoom level', 'realestate-booking-suite'); ?></label></th>
+                    <td>
+                        <input type="number" id="resbs_default_zoom_level" name="resbs_default_zoom_level" value="<?php echo esc_attr(get_option('resbs_default_zoom_level', '12')); ?>" min="0" max="20" class="small-text">
+                        <button type="button" class="button" onclick="document.getElementById('resbs_default_zoom_level').stepDown()" style="margin-left: 5px;">-</button>
+                        <button type="button" class="button" onclick="document.getElementById('resbs_default_zoom_level').stepUp()" style="margin-left: 5px;">+</button>
+                        <p class="description"><?php esc_html_e('Choose the zoom level for the map. 0 corresponds to a map of the earth fully zoomed out, and larger zoom levels zoom in at a higher resolution.', 'realestate-booking-suite'); ?></p>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th scope="row"><label for="resbs_single_property_zoom_level"><?php esc_html_e('Zoom level for single property page', 'realestate-booking-suite'); ?></label></th>
+                    <td>
+                        <input type="number" id="resbs_single_property_zoom_level" name="resbs_single_property_zoom_level" value="<?php echo esc_attr(get_option('resbs_single_property_zoom_level', '16')); ?>" min="0" max="20" class="small-text">
+                        <button type="button" class="button" onclick="document.getElementById('resbs_single_property_zoom_level').stepDown()" style="margin-left: 5px;">-</button>
+                        <button type="button" class="button" onclick="document.getElementById('resbs_single_property_zoom_level').stepUp()" style="margin-left: 5px;">+</button>
+                        <p class="description"><?php esc_html_e('Choose the zoom level for the map on single property page.', 'realestate-booking-suite'); ?></p>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th scope="row"><?php esc_html_e('Enable markers cluster', 'realestate-booking-suite'); ?></th>
+                    <td>
+                        <label>
+                            <input type="checkbox" name="resbs_enable_markers_cluster" value="1" <?php checked(get_option('resbs_enable_markers_cluster'), 1); ?>>
+                            <?php esc_html_e('Enable markers cluster', 'realestate-booking-suite'); ?>
+                        </label>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th scope="row"><?php esc_html_e('Select icon (for markers cluster)', 'realestate-booking-suite'); ?></th>
+                    <td>
+                        <fieldset>
+                            <label><input type="radio" id="cluster_circle" name="resbs_cluster_icon" value="circle" <?php checked(get_option('resbs_cluster_icon'), 'circle'); ?>> ● <?php esc_html_e('Circle', 'realestate-booking-suite'); ?></label><br>
+                            <label><input type="radio" id="cluster_bubble" name="resbs_cluster_icon" value="bubble" <?php checked(get_option('resbs_cluster_icon'), 'bubble'); ?>> 💬 <?php esc_html_e('Bubble', 'realestate-booking-suite'); ?></label><br>
+                            <label><input type="radio" id="cluster_outline" name="resbs_cluster_icon" value="outline" <?php checked(get_option('resbs_cluster_icon'), 'outline'); ?>> ○ <?php esc_html_e('Outline', 'realestate-booking-suite'); ?></label>
+                        </fieldset>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th scope="row"><label for="resbs_cluster_icon_color"><?php esc_html_e('Icon color (for markers cluster)', 'realestate-booking-suite'); ?></label></th>
+                    <td>
+                        <input type="color" id="resbs_cluster_icon_color" name="resbs_cluster_icon_color" value="<?php echo esc_attr(get_option('resbs_cluster_icon_color', '#333333')); ?>" style="width: 60px; height: 30px; vertical-align: middle;">
+                        <input type="text" class="resbs-color-hex" value="<?php echo esc_attr(get_option('resbs_cluster_icon_color', '#333333')); ?>" placeholder="#333333" maxlength="7" style="width: 100px; margin-left: 10px;">
+                        <button type="button" class="resbs-color-reset button" data-default="#333333" style="margin-left: 10px;"><?php esc_html_e('Reset', 'realestate-booking-suite'); ?></button>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th scope="row"><?php esc_html_e('What to use as map marker?', 'realestate-booking-suite'); ?></th>
+                    <td>
+                        <fieldset>
+                            <label><input type="radio" id="marker_icon" name="resbs_map_marker_type" value="icon" <?php checked(get_option('resbs_map_marker_type'), 'icon'); ?>> 📍 <?php esc_html_e('Icon', 'realestate-booking-suite'); ?></label><br>
+                            <label><input type="radio" id="marker_price" name="resbs_map_marker_type" value="price" <?php checked(get_option('resbs_map_marker_type'), 'price'); ?>> $ <?php esc_html_e('Price', 'realestate-booking-suite'); ?></label>
+                        </fieldset>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th scope="row"><?php esc_html_e('Use single map marker?', 'realestate-booking-suite'); ?></th>
+                    <td>
+                        <label>
+                            <input type="checkbox" name="resbs_use_single_map_marker" value="1" <?php checked(get_option('resbs_use_single_map_marker'), 1); ?>>
+                            <?php esc_html_e('Use single map marker?', 'realestate-booking-suite'); ?>
+                        </label>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th scope="row"><?php esc_html_e('Select icon (for single map marker)', 'realestate-booking-suite'); ?></th>
+                    <td>
+                        <fieldset>
+                            <label><input type="radio" id="single_pin" name="resbs_single_marker_icon" value="pin" <?php checked(get_option('resbs_single_marker_icon'), 'pin'); ?>> 📍 <?php esc_html_e('Pin', 'realestate-booking-suite'); ?></label><br>
+                            <label><input type="radio" id="single_outline" name="resbs_single_marker_icon" value="outline" <?php checked(get_option('resbs_single_marker_icon'), 'outline'); ?>> 📍 <?php esc_html_e('Outline Pin', 'realestate-booking-suite'); ?></label><br>
+                            <label><input type="radio" id="single_person" name="resbs_single_marker_icon" value="person" <?php checked(get_option('resbs_single_marker_icon'), 'person'); ?>> 👤 <?php esc_html_e('Person', 'realestate-booking-suite'); ?></label>
+                        </fieldset>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th scope="row"><label for="resbs_single_marker_color"><?php esc_html_e('Icon color (for single map marker)', 'realestate-booking-suite'); ?></label></th>
+                    <td>
+                        <input type="color" id="resbs_single_marker_color" name="resbs_single_marker_color" value="<?php echo esc_attr(get_option('resbs_single_marker_color', '#333333')); ?>" style="width: 60px; height: 30px; vertical-align: middle;">
+                        <input type="text" class="resbs-color-hex" value="<?php echo esc_attr(get_option('resbs_single_marker_color', '#333333')); ?>" placeholder="#333333" maxlength="7" style="width: 100px; margin-left: 10px;">
+                        <button type="button" class="resbs-color-reset button" data-default="#333333" style="margin-left: 10px;"><?php esc_html_e('Reset', 'realestate-booking-suite'); ?></button>
+                    </td>
+                </tr>
+            </table>
             
-            <div class="resbs-form-group">
-                <label for="resbs_single_property_zoom_level"><?php esc_html_e('Single property map zoom level', 'realestate-booking-suite'); ?></label>
-                <p><?php esc_html_e('Choose the zoom level for the map on single property page. 0 corresponds to a map of the earth fully zoomed out, and larger zoom levels zoom in at a higher resolution.', 'realestate-booking-suite'); ?></p>
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <button type="button" class="button" onclick="document.getElementById('resbs_single_property_zoom_level').stepDown()">-</button>
-                    <input type="number" id="resbs_single_property_zoom_level" name="resbs_single_property_zoom_level" value="<?php echo esc_attr(get_option('resbs_single_property_zoom_level', '16')); ?>" min="0" max="20" style="width: 80px;">
-                    <button type="button" class="button" onclick="document.getElementById('resbs_single_property_zoom_level').stepUp()">+</button>
-                </div>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label>
-                    <div class="resbs-toggle-switch">
-                        <input type="checkbox" name="resbs_enable_markers_cluster" value="1" <?php checked(get_option('resbs_enable_markers_cluster'), 1); ?>>
-                        <span class="resbs-slider"></span>
-                    </div>
-                    <?php esc_html_e('Enable markers cluster', 'realestate-booking-suite'); ?>
-                </label>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label><?php esc_html_e('Select icon (for markers cluster)', 'realestate-booking-suite'); ?></label>
-                <div class="resbs-layout-options">
-                    <div class="resbs-layout-option">
-                        <input type="radio" id="cluster_circle" name="resbs_cluster_icon" value="circle" <?php checked(get_option('resbs_cluster_icon'), 'circle'); ?>>
-                        <div class="resbs-layout-preview">●</div>
-                        <label for="cluster_circle"><?php esc_html_e('Circle', 'realestate-booking-suite'); ?></label>
-                    </div>
-                    <div class="resbs-layout-option">
-                        <input type="radio" id="cluster_bubble" name="resbs_cluster_icon" value="bubble" <?php checked(get_option('resbs_cluster_icon'), 'bubble'); ?>>
-                        <div class="resbs-layout-preview">💬</div>
-                        <label for="cluster_bubble"><?php esc_html_e('Bubble', 'realestate-booking-suite'); ?></label>
-                    </div>
-                    <div class="resbs-layout-option">
-                        <input type="radio" id="cluster_outline" name="resbs_cluster_icon" value="outline" <?php checked(get_option('resbs_cluster_icon'), 'outline'); ?>>
-                        <div class="resbs-layout-preview">○</div>
-                        <label for="cluster_outline"><?php esc_html_e('Outline', 'realestate-booking-suite'); ?></label>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label for="resbs_cluster_icon_color"><?php esc_html_e('Icon color (for markers cluster)', 'realestate-booking-suite'); ?></label>
-                <input type="color" id="resbs_cluster_icon_color" name="resbs_cluster_icon_color" value="<?php echo esc_attr(get_option('resbs_cluster_icon_color', '#333333')); ?>">
-            </div>
-            
-            <div class="resbs-form-group">
-                <label><?php esc_html_e('What to use as map marker?', 'realestate-booking-suite'); ?></label>
-                <div class="resbs-layout-options">
-                    <div class="resbs-layout-option">
-                        <input type="radio" id="marker_icon" name="resbs_map_marker_type" value="icon" <?php checked(get_option('resbs_map_marker_type'), 'icon'); ?>>
-                        <div class="resbs-layout-preview">📍</div>
-                        <label for="marker_icon"><?php esc_html_e('Icon', 'realestate-booking-suite'); ?></label>
-                    </div>
-                    <div class="resbs-layout-option">
-                        <input type="radio" id="marker_price" name="resbs_map_marker_type" value="price" <?php checked(get_option('resbs_map_marker_type'), 'price'); ?>>
-                        <div class="resbs-layout-preview">$</div>
-                        <label for="marker_price"><?php esc_html_e('Price', 'realestate-booking-suite'); ?></label>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label>
-                    <div class="resbs-toggle-switch">
-                        <input type="checkbox" name="resbs_use_single_map_marker" value="1" <?php checked(get_option('resbs_use_single_map_marker'), 1); ?>>
-                        <span class="resbs-slider"></span>
-                    </div>
-                    <?php esc_html_e('Use single map marker?', 'realestate-booking-suite'); ?>
-                </label>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label><?php esc_html_e('Select icon (for single map marker)', 'realestate-booking-suite'); ?></label>
-                <div class="resbs-layout-options">
-                    <div class="resbs-layout-option">
-                        <input type="radio" id="single_pin" name="resbs_single_marker_icon" value="pin" <?php checked(get_option('resbs_single_marker_icon'), 'pin'); ?>>
-                        <div class="resbs-layout-preview">📍</div>
-                        <label for="single_pin"><?php esc_html_e('Pin', 'realestate-booking-suite'); ?></label>
-                    </div>
-                    <div class="resbs-layout-option">
-                        <input type="radio" id="single_outline" name="resbs_single_marker_icon" value="outline" <?php checked(get_option('resbs_single_marker_icon'), 'outline'); ?>>
-                        <div class="resbs-layout-preview">📍</div>
-                        <label for="single_outline"><?php esc_html_e('Outline Pin', 'realestate-booking-suite'); ?></label>
-                    </div>
-                    <div class="resbs-layout-option">
-                        <input type="radio" id="single_person" name="resbs_single_marker_icon" value="person" <?php checked(get_option('resbs_single_marker_icon'), 'person'); ?>>
-                        <div class="resbs-layout-preview">👤</div>
-                        <label for="single_person"><?php esc_html_e('Person', 'realestate-booking-suite'); ?></label>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label for="resbs_single_marker_color"><?php esc_html_e('Icon color (for single map marker)', 'realestate-booking-suite'); ?></label>
-                <input type="color" id="resbs_single_marker_color" name="resbs_single_marker_color" value="<?php echo esc_attr(get_option('resbs_single_marker_color', '#333333')); ?>">
-            </div>
-            
-            <button type="submit" class="resbs-save-button"><?php esc_html_e('SAVE CHANGES', 'realestate-booking-suite'); ?></button>
+            <p class="submit">
+                <button type="submit" class="resbs-save-button button button-primary"><?php esc_html_e('Save Changes', 'realestate-booking-suite'); ?></button>
+            </p>
         </form>
         <?php
     }
@@ -1638,341 +1419,311 @@ class RESBS_Enhanced_Settings {
             <div class="notice notice-success"><p><?php esc_html_e('Settings saved successfully!', 'realestate-booking-suite'); ?></p></div>
         <?php endif; ?>
         
-        <form method="post" action="<?php echo admin_url('admin-post.php'); ?>">
+        <form method="post" action="<?php echo admin_url('admin-post.php'); ?>" enctype="multipart/form-data">
             <?php wp_nonce_field('resbs_enhanced_settings-options'); ?>
             <input type="hidden" name="action" value="resbs_save_settings">
             <input type="hidden" name="current_tab" value="listings">
             
-            <div class="resbs-form-group">
-                <label for="resbs_general_listing_name"><?php esc_html_e('General listing name', 'realestate-booking-suite'); ?></label>
-                <input type="text" id="resbs_general_listing_name" name="resbs_general_listing_name" value="<?php echo esc_attr(get_option('resbs_general_listing_name', 'Property')); ?>" class="regular-text">
-            </div>
+            <table class="form-table">
+                <tr>
+                    <th scope="row"><label for="resbs_general_listing_name"><?php esc_html_e('General listing name', 'realestate-booking-suite'); ?></label></th>
+                    <td><input type="text" id="resbs_general_listing_name" name="resbs_general_listing_name" value="<?php echo esc_attr(get_option('resbs_general_listing_name', 'Property')); ?>" class="regular-text"></td>
+                </tr>
+                
+                <tr>
+                    <th scope="row"><label for="resbs_default_property_image"><?php esc_html_e('Default Property Image', 'realestate-booking-suite'); ?></label></th>
+                    <td>
+                        <input type="button" class="button" value="<?php esc_html_e('Upload', 'realestate-booking-suite'); ?>" onclick="document.getElementById('resbs_default_property_image').click();">
+                        <input type="file" id="resbs_default_property_image" name="resbs_default_property_image" style="display: none;">
+                        <p class="description"><?php esc_html_e('Maximum file size - 2MB. Allowed file types: JPG, PNG, GIF.', 'realestate-booking-suite'); ?></p>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th scope="row"><?php esc_html_e('Default Layout for Listings Pages', 'realestate-booking-suite'); ?></th>
+                    <td>
+                        <fieldset>
+                            <label><input type="radio" id="layout_grid" name="resbs_default_layout_listings" value="grid" <?php checked(get_option('resbs_default_layout_listings'), 'grid'); ?>> <?php esc_html_e('Grid', 'realestate-booking-suite'); ?></label><br>
+                            <label><input type="radio" id="layout_large_grid" name="resbs_default_layout_listings" value="large-grid" <?php checked(get_option('resbs_default_layout_listings'), 'large-grid'); ?>> <?php esc_html_e('Large Grid', 'realestate-booking-suite'); ?></label><br>
+                            <label><input type="radio" id="layout_list" name="resbs_default_layout_listings" value="list" <?php checked(get_option('resbs_default_layout_listings'), 'list'); ?>> <?php esc_html_e('List', 'realestate-booking-suite'); ?></label>
+                        </fieldset>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th scope="row"><?php esc_html_e('Enable Grid View', 'realestate-booking-suite'); ?></th>
+                    <td>
+                        <label>
+                            <input type="checkbox" name="resbs_enable_grid_view" value="1" <?php checked(get_option('resbs_enable_grid_view'), 1); ?>>
+                            <?php esc_html_e('Enable Grid View', 'realestate-booking-suite'); ?>
+                        </label>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th scope="row"><?php esc_html_e('Default Layout for Single Listing Pages', 'realestate-booking-suite'); ?></th>
+                    <td>
+                        <fieldset>
+                            <label><input type="radio" id="single_slider" name="resbs_default_layout_single" value="slider" <?php checked(get_option('resbs_default_layout_single'), 'slider'); ?>> <?php esc_html_e('Slider', 'realestate-booking-suite'); ?></label><br>
+                            <label><input type="radio" id="single_tiled" name="resbs_default_layout_single" value="tiled" <?php checked(get_option('resbs_default_layout_single'), 'tiled'); ?>> <?php esc_html_e('Tiled', 'realestate-booking-suite'); ?></label><br>
+                            <label><input type="radio" id="single_left" name="resbs_default_layout_single" value="left-slider" <?php checked(get_option('resbs_default_layout_single'), 'left-slider'); ?>> <?php esc_html_e('Left', 'realestate-booking-suite'); ?></label>
+                        </fieldset>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th scope="row"><?php esc_html_e('Enable default archive template', 'realestate-booking-suite'); ?></th>
+                    <td>
+                        <label>
+                            <input type="checkbox" name="resbs_enable_default_archive_template" value="1" <?php checked(get_option('resbs_enable_default_archive_template'), 1); ?>>
+                            <?php esc_html_e('Enable default archive template', 'realestate-booking-suite'); ?>
+                        </label>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th scope="row"><?php esc_html_e('Enable collapsed description', 'realestate-booking-suite'); ?></th>
+                    <td>
+                        <label>
+                            <input type="checkbox" name="resbs_enable_collapsed_description" value="1" <?php checked(get_option('resbs_enable_collapsed_description'), 1); ?>>
+                            <?php esc_html_e('Enable collapsed description', 'realestate-booking-suite'); ?>
+                        </label>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th scope="row"><?php esc_html_e('Disable lightBox on single page', 'realestate-booking-suite'); ?></th>
+                    <td>
+                        <label>
+                            <input type="checkbox" name="resbs_disable_lightbox_single_page" value="1" <?php checked(get_option('resbs_disable_lightbox_single_page'), 1); ?>>
+                            <?php esc_html_e('Disable lightBox on single page', 'realestate-booking-suite'); ?>
+                        </label>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th scope="row"><?php esc_html_e('Enable request form geolocation', 'realestate-booking-suite'); ?></th>
+                    <td>
+                        <label>
+                            <input type="checkbox" name="resbs_enable_request_form_geolocation" value="1" <?php checked(get_option('resbs_enable_request_form_geolocation'), 1); ?>>
+                            <?php esc_html_e('Enable request form geolocation', 'realestate-booking-suite'); ?>
+                        </label>
+                        <p class="description"><?php esc_html_e('This option uses for autofill tel code field by user location.', 'realestate-booking-suite'); ?></p>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th scope="row"><label for="resbs_default_tel_code"><?php esc_html_e('Selecting a default tel code in the request form', 'realestate-booking-suite'); ?></label></th>
+                    <td>
+                        <select id="resbs_default_tel_code" name="resbs_default_tel_code">
+                            <option value="+1" <?php selected(get_option('resbs_default_tel_code'), '+1'); ?>>+1 (US/Canada)</option>
+                            <option value="+44" <?php selected(get_option('resbs_default_tel_code'), '+44'); ?>>+44 (UK)</option>
+                            <option value="+33" <?php selected(get_option('resbs_default_tel_code'), '+33'); ?>>+33 (France)</option>
+                            <option value="+49" <?php selected(get_option('resbs_default_tel_code'), '+49'); ?>>+49 (Germany)</option>
+                        </select>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th scope="row"><?php esc_html_e('Hide Request Info button', 'realestate-booking-suite'); ?></th>
+                    <td>
+                        <label>
+                            <input type="checkbox" name="resbs_hide_request_info_button" value="1" <?php checked(get_option('resbs_hide_request_info_button'), 1); ?>>
+                            <?php esc_html_e('Hide Request Info button', 'realestate-booking-suite'); ?>
+                        </label>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th scope="row"><label for="resbs_property_headings_font"><?php esc_html_e('Property headings font', 'realestate-booking-suite'); ?></label></th>
+                    <td>
+                        <select id="resbs_property_headings_font" name="resbs_property_headings_font">
+                            <option value="Lato" <?php selected(get_option('resbs_property_headings_font'), 'Lato'); ?>>Lato</option>
+                            <option value="Open Sans" <?php selected(get_option('resbs_property_headings_font'), 'Open Sans'); ?>>Open Sans</option>
+                            <option value="Roboto" <?php selected(get_option('resbs_property_headings_font'), 'Roboto'); ?>>Roboto</option>
+                            <option value="Montserrat" <?php selected(get_option('resbs_property_headings_font'), 'Montserrat'); ?>>Montserrat</option>
+                        </select>
+                        <button type="button" class="button" onclick="document.getElementById('resbs_property_headings_font').value='Lato';"><?php esc_html_e('Reset', 'realestate-booking-suite'); ?></button>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th scope="row"><label for="resbs_property_content_font"><?php esc_html_e('Property content font', 'realestate-booking-suite'); ?></label></th>
+                    <td>
+                        <select id="resbs_property_content_font" name="resbs_property_content_font">
+                            <option value="Open Sans" <?php selected(get_option('resbs_property_content_font'), 'Open Sans'); ?>>Open Sans</option>
+                            <option value="Lato" <?php selected(get_option('resbs_property_content_font'), 'Lato'); ?>>Lato</option>
+                            <option value="Roboto" <?php selected(get_option('resbs_property_content_font'), 'Roboto'); ?>>Roboto</option>
+                            <option value="Montserrat" <?php selected(get_option('resbs_property_content_font'), 'Montserrat'); ?>>Montserrat</option>
+                        </select>
+                        <button type="button" class="button" onclick="document.getElementById('resbs_property_content_font').value='Open Sans';"><?php esc_html_e('Reset', 'realestate-booking-suite'); ?></button>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th scope="row"><?php esc_html_e('Property Item Carousel', 'realestate-booking-suite'); ?></th>
+                    <td>
+                        <label>
+                            <input type="checkbox" name="resbs_property_item_carousel" value="1" <?php checked(get_option('resbs_property_item_carousel'), 1); ?>>
+                            <?php esc_html_e('Property Item Carousel', 'realestate-booking-suite'); ?>
+                        </label>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th scope="row"><label for="resbs_property_item_image_size"><?php esc_html_e('Property Item Image Size', 'realestate-booking-suite'); ?></label></th>
+                    <td>
+                        <select id="resbs_property_item_image_size" name="resbs_property_item_image_size">
+                            <option value="1024x1024" <?php selected(get_option('resbs_property_item_image_size'), '1024x1024'); ?>><?php esc_html_e('1024x1024 - Without crop (large)', 'realestate-booking-suite'); ?></option>
+                            <option value="800x600" <?php selected(get_option('resbs_property_item_image_size'), '800x600'); ?>><?php esc_html_e('800x600 - With crop', 'realestate-booking-suite'); ?></option>
+                            <option value="600x400" <?php selected(get_option('resbs_property_item_image_size'), '600x400'); ?>><?php esc_html_e('600x400 - With crop', 'realestate-booking-suite'); ?></option>
+                        </select>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th scope="row"><label for="resbs_properties_per_page"><?php esc_html_e('Properties Number Per Page', 'realestate-booking-suite'); ?></label></th>
+                    <td><input type="number" id="resbs_properties_per_page" name="resbs_properties_per_page" value="<?php echo esc_attr(get_option('resbs_properties_per_page', '40')); ?>" min="1" max="100" class="small-text"></td>
+                </tr>
+                
+                <tr>
+                    <th scope="row"><?php esc_html_e('Enable Sorting', 'realestate-booking-suite'); ?></th>
+                    <td>
+                        <label>
+                            <input type="checkbox" name="resbs_enable_sorting" value="1" <?php checked(get_option('resbs_enable_sorting'), 1); ?>>
+                            <?php esc_html_e('Enable Sorting', 'realestate-booking-suite'); ?>
+                        </label>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th scope="row"><?php esc_html_e('Sort Options', 'realestate-booking-suite'); ?></th>
+                    <td>
+                        <fieldset>
+                            <label><input type="checkbox" id="sort_newest" name="resbs_sort_options[]" value="newest" <?php echo in_array('newest', (array)get_option('resbs_sort_options', array())) ? 'checked' : ''; ?>> <?php esc_html_e('Newest', 'realestate-booking-suite'); ?></label><br>
+                            <label><input type="checkbox" id="sort_oldest" name="resbs_sort_options[]" value="oldest" <?php echo in_array('oldest', (array)get_option('resbs_sort_options', array())) ? 'checked' : ''; ?>> <?php esc_html_e('Oldest', 'realestate-booking-suite'); ?></label><br>
+                            <label><input type="checkbox" id="sort_lowest_price" name="resbs_sort_options[]" value="lowest_price" <?php echo in_array('lowest_price', (array)get_option('resbs_sort_options', array())) ? 'checked' : ''; ?>> <?php esc_html_e('Lowest price', 'realestate-booking-suite'); ?></label><br>
+                            <label><input type="checkbox" id="sort_highest_price" name="resbs_sort_options[]" value="highest_price" <?php echo in_array('highest_price', (array)get_option('resbs_sort_options', array())) ? 'checked' : ''; ?>> <?php esc_html_e('Highest price', 'realestate-booking-suite'); ?></label><br>
+                            <label><input type="checkbox" id="sort_largest_sqft" name="resbs_sort_options[]" value="largest_sqft" <?php echo in_array('largest_sqft', (array)get_option('resbs_sort_options', array())) ? 'checked' : ''; ?>> <?php esc_html_e('Largest sq ft', 'realestate-booking-suite'); ?></label><br>
+                            <label><input type="checkbox" id="sort_lowest_sqft" name="resbs_sort_options[]" value="lowest_sqft" <?php echo in_array('lowest_sqft', (array)get_option('resbs_sort_options', array())) ? 'checked' : ''; ?>> <?php esc_html_e('Lowest sq ft', 'realestate-booking-suite'); ?></label><br>
+                            <label><input type="checkbox" id="sort_bedrooms" name="resbs_sort_options[]" value="bedrooms" <?php echo in_array('bedrooms', (array)get_option('resbs_sort_options', array())) ? 'checked' : ''; ?>> <?php esc_html_e('Bedrooms', 'realestate-booking-suite'); ?></label><br>
+                            <label><input type="checkbox" id="sort_bathrooms" name="resbs_sort_options[]" value="bathrooms" <?php echo in_array('bathrooms', (array)get_option('resbs_sort_options', array())) ? 'checked' : ''; ?>> <?php esc_html_e('Bathrooms', 'realestate-booking-suite'); ?></label><br>
+                            <label><input type="checkbox" id="sort_featured" name="resbs_sort_options[]" value="featured" <?php echo in_array('featured', (array)get_option('resbs_sort_options', array())) ? 'checked' : ''; ?>> <?php esc_html_e('Featured', 'realestate-booking-suite'); ?></label>
+                        </fieldset>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th scope="row"><label for="resbs_default_sort_option"><?php esc_html_e('Default Sort Options', 'realestate-booking-suite'); ?></label></th>
+                    <td>
+                        <select id="resbs_default_sort_option" name="resbs_default_sort_option">
+                            <option value="newest" <?php selected(get_option('resbs_default_sort_option'), 'newest'); ?>><?php esc_html_e('Newest', 'realestate-booking-suite'); ?></option>
+                            <option value="oldest" <?php selected(get_option('resbs_default_sort_option'), 'oldest'); ?>><?php esc_html_e('Oldest', 'realestate-booking-suite'); ?></option>
+                            <option value="lowest_price" <?php selected(get_option('resbs_default_sort_option'), 'lowest_price'); ?>><?php esc_html_e('Lowest price', 'realestate-booking-suite'); ?></option>
+                            <option value="highest_price" <?php selected(get_option('resbs_default_sort_option'), 'highest_price'); ?>><?php esc_html_e('Highest price', 'realestate-booking-suite'); ?></option>
+                            <option value="largest_sqft" <?php selected(get_option('resbs_default_sort_option'), 'largest_sqft'); ?>><?php esc_html_e('Largest sq ft', 'realestate-booking-suite'); ?></option>
+                            <option value="lowest_sqft" <?php selected(get_option('resbs_default_sort_option'), 'lowest_sqft'); ?>><?php esc_html_e('Lowest sq ft', 'realestate-booking-suite'); ?></option>
+                            <option value="bedrooms" <?php selected(get_option('resbs_default_sort_option'), 'bedrooms'); ?>><?php esc_html_e('Bedrooms', 'realestate-booking-suite'); ?></option>
+                            <option value="bathrooms" <?php selected(get_option('resbs_default_sort_option'), 'bathrooms'); ?>><?php esc_html_e('Bathrooms', 'realestate-booking-suite'); ?></option>
+                            <option value="featured" <?php selected(get_option('resbs_default_sort_option'), 'featured'); ?>><?php esc_html_e('Featured', 'realestate-booking-suite'); ?></option>
+                        </select>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th scope="row"><?php esc_html_e('Show price', 'realestate-booking-suite'); ?></th>
+                    <td>
+                        <label>
+                            <input type="checkbox" name="resbs_show_price" value="1" <?php checked(get_option('resbs_show_price'), 1); ?>>
+                            <?php esc_html_e('Show price', 'realestate-booking-suite'); ?>
+                        </label>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th scope="row"><?php esc_html_e('Show listing address', 'realestate-booking-suite'); ?></th>
+                    <td>
+                        <label>
+                            <input type="checkbox" name="resbs_show_listing_address" value="1" <?php checked(get_option('resbs_show_listing_address'), 1); ?>>
+                            <?php esc_html_e('Show listing address', 'realestate-booking-suite'); ?>
+                        </label>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th scope="row"><?php esc_html_e('What to show on the listing preview block?', 'realestate-booking-suite'); ?></th>
+                    <td>
+                        <fieldset>
+                            <label><input type="radio" id="preview_address" name="resbs_listing_preview_block" value="address" <?php checked(get_option('resbs_listing_preview_block'), 'address'); ?>> <?php esc_html_e('Address', 'realestate-booking-suite'); ?></label><br>
+                            <label><input type="radio" id="preview_title" name="resbs_listing_preview_block" value="title" <?php checked(get_option('resbs_listing_preview_block'), 'title'); ?>> <?php esc_html_e('Title', 'realestate-booking-suite'); ?></label>
+                        </fieldset>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th scope="row"><?php esc_html_e('Show description in listing box', 'realestate-booking-suite'); ?></th>
+                    <td>
+                        <label>
+                            <input type="checkbox" name="resbs_show_description_listing_box" value="1" <?php checked(get_option('resbs_show_description_listing_box'), 1); ?>>
+                            <?php esc_html_e('Show description in listing box', 'realestate-booking-suite'); ?>
+                        </label>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th scope="row"><?php esc_html_e('Enable map on single listing page', 'realestate-booking-suite'); ?></th>
+                    <td>
+                        <label>
+                            <input type="checkbox" name="resbs_enable_map_single_listing" value="1" <?php checked(get_option('resbs_enable_map_single_listing'), 1); ?>>
+                            <?php esc_html_e('Enable map on single listing page', 'realestate-booking-suite'); ?>
+                        </label>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th scope="row"><?php esc_html_e('Enable wishlist', 'realestate-booking-suite'); ?></th>
+                    <td>
+                        <label>
+                            <input type="checkbox" name="resbs_enable_wishlist" value="1" <?php checked(get_option('resbs_enable_wishlist'), 1); ?>>
+                            <?php esc_html_e('Enable wishlist', 'realestate-booking-suite'); ?>
+                        </label>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th scope="row"><?php esc_html_e('Enable labels', 'realestate-booking-suite'); ?></th>
+                    <td>
+                        <label>
+                            <input type="checkbox" name="resbs_enable_labels" value="1" <?php checked(get_option('resbs_enable_labels'), 1); ?>>
+                            <?php esc_html_e('Enable labels', 'realestate-booking-suite'); ?>
+                        </label>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th scope="row"><?php esc_html_e('Enable sharing', 'realestate-booking-suite'); ?></th>
+                    <td>
+                        <label>
+                            <input type="checkbox" name="resbs_enable_sharing" value="1" <?php checked(get_option('resbs_enable_sharing'), 1); ?>>
+                            <?php esc_html_e('Enable sharing', 'realestate-booking-suite'); ?>
+                        </label>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th scope="row"><?php esc_html_e('Show date added', 'realestate-booking-suite'); ?></th>
+                    <td>
+                        <label>
+                            <input type="checkbox" name="resbs_show_date_added" value="1" <?php checked(get_option('resbs_show_date_added'), 1); ?>>
+                            <?php esc_html_e('Show date added', 'realestate-booking-suite'); ?>
+                        </label>
+                    </td>
+                </tr>
+            </table>
             
-            <div class="resbs-form-group">
-                <label for="resbs_default_property_image"><?php esc_html_e('Default Property Image', 'realestate-booking-suite'); ?></label>
-                <input type="button" class="button" value="<?php esc_html_e('Upload', 'realestate-booking-suite'); ?>" onclick="document.getElementById('resbs_default_property_image').click();">
-                <input type="file" id="resbs_default_property_image" name="resbs_default_property_image" style="display: none;">
-                <p class="resbs-description"><?php esc_html_e('Maximum file size - 2MB. Allowed file types: JPG, PNG, GIF.', 'realestate-booking-suite'); ?></p>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label><?php esc_html_e('Default Layout for Listings Pages', 'realestate-booking-suite'); ?></label>
-                <div class="resbs-layout-options">
-                    <div class="resbs-layout-option <?php echo get_option('resbs_default_layout_listings') === 'grid' ? 'selected' : ''; ?>">
-                        <input type="radio" id="layout_grid" name="resbs_default_layout_listings" value="grid" <?php checked(get_option('resbs_default_layout_listings'), 'grid'); ?>>
-                        <div class="resbs-layout-preview">Grid</div>
-                        <label for="layout_grid"><?php esc_html_e('Grid layout', 'realestate-booking-suite'); ?></label>
-                    </div>
-                    <div class="resbs-layout-option <?php echo get_option('resbs_default_layout_listings') === 'large-grid' ? 'selected' : ''; ?>">
-                        <input type="radio" id="layout_large_grid" name="resbs_default_layout_listings" value="large-grid" <?php checked(get_option('resbs_default_layout_listings'), 'large-grid'); ?>>
-                        <div class="resbs-layout-preview">Large Grid</div>
-                        <label for="layout_large_grid"><?php esc_html_e('Large grid layout', 'realestate-booking-suite'); ?></label>
-                    </div>
-                    <div class="resbs-layout-option <?php echo get_option('resbs_default_layout_listings') === 'list' ? 'selected' : ''; ?>">
-                        <input type="radio" id="layout_list" name="resbs_default_layout_listings" value="list" <?php checked(get_option('resbs_default_layout_listings'), 'list'); ?>>
-                        <div class="resbs-layout-preview">List</div>
-                        <label for="layout_list"><?php esc_html_e('List layout', 'realestate-booking-suite'); ?></label>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label>
-                    <div class="resbs-toggle-switch">
-                        <input type="checkbox" name="resbs_enable_grid_view" value="1" <?php checked(get_option('resbs_enable_grid_view'), 1); ?>>
-                        <span class="resbs-slider"></span>
-                    </div>
-                    <?php esc_html_e('Enable Grid View', 'realestate-booking-suite'); ?>
-                </label>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label><?php esc_html_e('Default Layout for Single Listing Pages', 'realestate-booking-suite'); ?></label>
-                <div class="resbs-layout-options">
-                    <div class="resbs-layout-option">
-                        <input type="radio" id="single_slider" name="resbs_default_layout_single" value="slider" <?php checked(get_option('resbs_default_layout_single'), 'slider'); ?>>
-                        <div class="resbs-layout-preview">Slider</div>
-                        <label for="single_slider"><?php esc_html_e('Single listing with slider', 'realestate-booking-suite'); ?></label>
-                    </div>
-                    <div class="resbs-layout-option">
-                        <input type="radio" id="single_tiled" name="resbs_default_layout_single" value="tiled" <?php checked(get_option('resbs_default_layout_single'), 'tiled'); ?>>
-                        <div class="resbs-layout-preview">Tiled</div>
-                        <label for="single_tiled"><?php esc_html_e('With tiled gallery', 'realestate-booking-suite'); ?></label>
-                    </div>
-                    <div class="resbs-layout-option">
-                        <input type="radio" id="single_left" name="resbs_default_layout_single" value="left-slider" <?php checked(get_option('resbs_default_layout_single'), 'left-slider'); ?>>
-                        <div class="resbs-layout-preview">Left</div>
-                        <label for="single_left"><?php esc_html_e('With left slider', 'realestate-booking-suite'); ?></label>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label>
-                    <div class="resbs-toggle-switch">
-                        <input type="checkbox" name="resbs_enable_default_archive_template" value="1" <?php checked(get_option('resbs_enable_default_archive_template'), 1); ?>>
-                        <span class="resbs-slider"></span>
-                    </div>
-                    <?php esc_html_e('Enable default archive template', 'realestate-booking-suite'); ?>
-                </label>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label>
-                    <div class="resbs-toggle-switch">
-                        <input type="checkbox" name="resbs_enable_collapsed_description" value="1" <?php checked(get_option('resbs_enable_collapsed_description'), 1); ?>>
-                        <span class="resbs-slider"></span>
-                    </div>
-                    <?php esc_html_e('Enable collapsed description', 'realestate-booking-suite'); ?>
-                </label>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label>
-                    <div class="resbs-toggle-switch">
-                        <input type="checkbox" name="resbs_disable_lightbox_single_page" value="1" <?php checked(get_option('resbs_disable_lightbox_single_page'), 1); ?>>
-                        <span class="resbs-slider"></span>
-                    </div>
-                    <?php esc_html_e('Disable lightBox on single page', 'realestate-booking-suite'); ?>
-                </label>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label>
-                    <div class="resbs-toggle-switch">
-                        <input type="checkbox" name="resbs_enable_request_form_geolocation" value="1" <?php checked(get_option('resbs_enable_request_form_geolocation'), 1); ?>>
-                        <span class="resbs-slider"></span>
-                    </div>
-                    <?php esc_html_e('Enable request form geolocation', 'realestate-booking-suite'); ?>
-                </label>
-                <p class="resbs-description"><?php esc_html_e('This option uses for autofill tel code field by user location.', 'realestate-booking-suite'); ?></p>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label for="resbs_default_tel_code"><?php esc_html_e('Selecting a default tel code in the request form', 'realestate-booking-suite'); ?></label>
-                <select id="resbs_default_tel_code" name="resbs_default_tel_code">
-                    <option value="+1" <?php selected(get_option('resbs_default_tel_code'), '+1'); ?>>+1 (US/Canada)</option>
-                    <option value="+44" <?php selected(get_option('resbs_default_tel_code'), '+44'); ?>>+44 (UK)</option>
-                    <option value="+33" <?php selected(get_option('resbs_default_tel_code'), '+33'); ?>>+33 (France)</option>
-                    <option value="+49" <?php selected(get_option('resbs_default_tel_code'), '+49'); ?>>+49 (Germany)</option>
-                </select>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label>
-                    <div class="resbs-toggle-switch">
-                        <input type="checkbox" name="resbs_hide_request_info_button" value="1" <?php checked(get_option('resbs_hide_request_info_button'), 1); ?>>
-                        <span class="resbs-slider"></span>
-                    </div>
-                    <?php esc_html_e('Hide Request Info button', 'realestate-booking-suite'); ?>
-                </label>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label for="resbs_property_headings_font"><?php esc_html_e('Property headings font', 'realestate-booking-suite'); ?></label>
-                <select id="resbs_property_headings_font" name="resbs_property_headings_font">
-                    <option value="Lato" <?php selected(get_option('resbs_property_headings_font'), 'Lato'); ?>>Lato</option>
-                    <option value="Open Sans" <?php selected(get_option('resbs_property_headings_font'), 'Open Sans'); ?>>Open Sans</option>
-                    <option value="Roboto" <?php selected(get_option('resbs_property_headings_font'), 'Roboto'); ?>>Roboto</option>
-                    <option value="Montserrat" <?php selected(get_option('resbs_property_headings_font'), 'Montserrat'); ?>>Montserrat</option>
-                </select>
-                <button type="button" class="button"><?php esc_html_e('Reset', 'realestate-booking-suite'); ?></button>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label for="resbs_property_content_font"><?php esc_html_e('Property content font', 'realestate-booking-suite'); ?></label>
-                <select id="resbs_property_content_font" name="resbs_property_content_font">
-                    <option value="Open Sans" <?php selected(get_option('resbs_property_content_font'), 'Open Sans'); ?>>Open Sans</option>
-                    <option value="Lato" <?php selected(get_option('resbs_property_content_font'), 'Lato'); ?>>Lato</option>
-                    <option value="Roboto" <?php selected(get_option('resbs_property_content_font'), 'Roboto'); ?>>Roboto</option>
-                    <option value="Montserrat" <?php selected(get_option('resbs_property_content_font'), 'Montserrat'); ?>>Montserrat</option>
-                </select>
-                <button type="button" class="button"><?php esc_html_e('Reset', 'realestate-booking-suite'); ?></button>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label>
-                    <div class="resbs-toggle-switch">
-                        <input type="checkbox" name="resbs_property_item_carousel" value="1" <?php checked(get_option('resbs_property_item_carousel'), 1); ?>>
-                        <span class="resbs-slider"></span>
-                    </div>
-                    <?php esc_html_e('Property Item Carousel', 'realestate-booking-suite'); ?>
-                </label>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label for="resbs_property_item_image_size"><?php esc_html_e('Property Item Image Size', 'realestate-booking-suite'); ?></label>
-                <select id="resbs_property_item_image_size" name="resbs_property_item_image_size">
-                    <option value="1024x1024" <?php selected(get_option('resbs_property_item_image_size'), '1024x1024'); ?>><?php esc_html_e('1024x1024 - Without crop (large)', 'realestate-booking-suite'); ?></option>
-                    <option value="800x600" <?php selected(get_option('resbs_property_item_image_size'), '800x600'); ?>><?php esc_html_e('800x600 - With crop', 'realestate-booking-suite'); ?></option>
-                    <option value="600x400" <?php selected(get_option('resbs_property_item_image_size'), '600x400'); ?>><?php esc_html_e('600x400 - With crop', 'realestate-booking-suite'); ?></option>
-                </select>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label for="resbs_properties_per_page"><?php esc_html_e('Properties Number Per Page', 'realestate-booking-suite'); ?></label>
-                <input type="number" id="resbs_properties_per_page" name="resbs_properties_per_page" value="<?php echo esc_attr(get_option('resbs_properties_per_page', '40')); ?>" min="1" max="100">
-            </div>
-            
-            <div class="resbs-form-group">
-                <label>
-                    <div class="resbs-toggle-switch">
-                        <input type="checkbox" name="resbs_enable_sorting" value="1" <?php checked(get_option('resbs_enable_sorting'), 1); ?>>
-                        <span class="resbs-slider"></span>
-                    </div>
-                    <?php esc_html_e('Enable Sorting', 'realestate-booking-suite'); ?>
-                </label>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label><?php esc_html_e('Sort Options', 'realestate-booking-suite'); ?></label>
-                <div class="resbs-checkbox-group">
-                    <div class="resbs-checkbox-item">
-                        <input type="checkbox" id="sort_newest" name="resbs_sort_options[]" value="newest" <?php echo in_array('newest', (array)get_option('resbs_sort_options', array())) ? 'checked' : ''; ?>>
-                        <label for="sort_newest"><?php esc_html_e('Newest', 'realestate-booking-suite'); ?></label>
-                    </div>
-                    <div class="resbs-checkbox-item">
-                        <input type="checkbox" id="sort_oldest" name="resbs_sort_options[]" value="oldest" <?php echo in_array('oldest', (array)get_option('resbs_sort_options', array())) ? 'checked' : ''; ?>>
-                        <label for="sort_oldest"><?php esc_html_e('Oldest', 'realestate-booking-suite'); ?></label>
-                    </div>
-                    <div class="resbs-checkbox-item">
-                        <input type="checkbox" id="sort_lowest_price" name="resbs_sort_options[]" value="lowest_price" <?php echo in_array('lowest_price', (array)get_option('resbs_sort_options', array())) ? 'checked' : ''; ?>>
-                        <label for="sort_lowest_price"><?php esc_html_e('Lowest price', 'realestate-booking-suite'); ?></label>
-                    </div>
-                    <div class="resbs-checkbox-item">
-                        <input type="checkbox" id="sort_highest_price" name="resbs_sort_options[]" value="highest_price" <?php echo in_array('highest_price', (array)get_option('resbs_sort_options', array())) ? 'checked' : ''; ?>>
-                        <label for="sort_highest_price"><?php esc_html_e('Highest price', 'realestate-booking-suite'); ?></label>
-                    </div>
-                    <div class="resbs-checkbox-item">
-                        <input type="checkbox" id="sort_largest_sqft" name="resbs_sort_options[]" value="largest_sqft" <?php echo in_array('largest_sqft', (array)get_option('resbs_sort_options', array())) ? 'checked' : ''; ?>>
-                        <label for="sort_largest_sqft"><?php esc_html_e('Largest sq ft', 'realestate-booking-suite'); ?></label>
-                    </div>
-                    <div class="resbs-checkbox-item">
-                        <input type="checkbox" id="sort_lowest_sqft" name="resbs_sort_options[]" value="lowest_sqft" <?php echo in_array('lowest_sqft', (array)get_option('resbs_sort_options', array())) ? 'checked' : ''; ?>>
-                        <label for="sort_lowest_sqft"><?php esc_html_e('Lowest sq ft', 'realestate-booking-suite'); ?></label>
-                    </div>
-                    <div class="resbs-checkbox-item">
-                        <input type="checkbox" id="sort_bedrooms" name="resbs_sort_options[]" value="bedrooms" <?php echo in_array('bedrooms', (array)get_option('resbs_sort_options', array())) ? 'checked' : ''; ?>>
-                        <label for="sort_bedrooms"><?php esc_html_e('Bedrooms', 'realestate-booking-suite'); ?></label>
-                    </div>
-                    <div class="resbs-checkbox-item">
-                        <input type="checkbox" id="sort_bathrooms" name="resbs_sort_options[]" value="bathrooms" <?php echo in_array('bathrooms', (array)get_option('resbs_sort_options', array())) ? 'checked' : ''; ?>>
-                        <label for="sort_bathrooms"><?php esc_html_e('Bathrooms', 'realestate-booking-suite'); ?></label>
-                    </div>
-                    <div class="resbs-checkbox-item">
-                        <input type="checkbox" id="sort_featured" name="resbs_sort_options[]" value="featured" <?php echo in_array('featured', (array)get_option('resbs_sort_options', array())) ? 'checked' : ''; ?>>
-                        <label for="sort_featured"><?php esc_html_e('Featured', 'realestate-booking-suite'); ?></label>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label for="resbs_default_sort_option"><?php esc_html_e('Default Sort Options', 'realestate-booking-suite'); ?></label>
-                <select id="resbs_default_sort_option" name="resbs_default_sort_option">
-                    <option value="newest" <?php selected(get_option('resbs_default_sort_option'), 'newest'); ?>><?php esc_html_e('Newest', 'realestate-booking-suite'); ?></option>
-                    <option value="oldest" <?php selected(get_option('resbs_default_sort_option'), 'oldest'); ?>><?php esc_html_e('Oldest', 'realestate-booking-suite'); ?></option>
-                    <option value="lowest_price" <?php selected(get_option('resbs_default_sort_option'), 'lowest_price'); ?>><?php esc_html_e('Lowest price', 'realestate-booking-suite'); ?></option>
-                    <option value="highest_price" <?php selected(get_option('resbs_default_sort_option'), 'highest_price'); ?>><?php esc_html_e('Highest price', 'realestate-booking-suite'); ?></option>
-                </select>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label>
-                    <div class="resbs-toggle-switch">
-                        <input type="checkbox" name="resbs_show_price" value="1" <?php checked(get_option('resbs_show_price'), 1); ?>>
-                        <span class="resbs-slider"></span>
-                    </div>
-                    <?php esc_html_e('Show price', 'realestate-booking-suite'); ?>
-                </label>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label>
-                    <div class="resbs-toggle-switch">
-                        <input type="checkbox" name="resbs_show_listing_address" value="1" <?php checked(get_option('resbs_show_listing_address'), 1); ?>>
-                        <span class="resbs-slider"></span>
-                    </div>
-                    <?php esc_html_e('Show listing address', 'realestate-booking-suite'); ?>
-                </label>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label><?php esc_html_e('What to show on the listing preview block?', 'realestate-booking-suite'); ?></label>
-                <div class="resbs-layout-options">
-                    <div class="resbs-layout-option">
-                        <input type="radio" id="preview_address" name="resbs_listing_preview_block" value="address" <?php checked(get_option('resbs_listing_preview_block'), 'address'); ?>>
-                        <div class="resbs-layout-preview">Address</div>
-                        <label for="preview_address"><?php esc_html_e('Address', 'realestate-booking-suite'); ?></label>
-                    </div>
-                    <div class="resbs-layout-option">
-                        <input type="radio" id="preview_title" name="resbs_listing_preview_block" value="title" <?php checked(get_option('resbs_listing_preview_block'), 'title'); ?>>
-                        <div class="resbs-layout-preview">Title</div>
-                        <label for="preview_title"><?php esc_html_e('Title', 'realestate-booking-suite'); ?></label>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label>
-                    <div class="resbs-toggle-switch">
-                        <input type="checkbox" name="resbs_show_description_listing_box" value="1" <?php checked(get_option('resbs_show_description_listing_box'), 1); ?>>
-                        <span class="resbs-slider"></span>
-                    </div>
-                    <?php esc_html_e('Show description in listing box', 'realestate-booking-suite'); ?>
-                </label>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label>
-                    <div class="resbs-toggle-switch">
-                        <input type="checkbox" name="resbs_enable_map_single_listing" value="1" <?php checked(get_option('resbs_enable_map_single_listing'), 1); ?>>
-                        <span class="resbs-slider"></span>
-                    </div>
-                    <?php esc_html_e('Enable map on single listing page', 'realestate-booking-suite'); ?>
-                </label>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label>
-                    <div class="resbs-toggle-switch">
-                        <input type="checkbox" name="resbs_enable_wishlist" value="1" <?php checked(get_option('resbs_enable_wishlist'), 1); ?>>
-                        <span class="resbs-slider"></span>
-                    </div>
-                    <?php esc_html_e('Enable wishlist', 'realestate-booking-suite'); ?>
-                </label>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label>
-                    <div class="resbs-toggle-switch">
-                        <input type="checkbox" name="resbs_enable_labels" value="1" <?php checked(get_option('resbs_enable_labels'), 1); ?>>
-                        <span class="resbs-slider"></span>
-                    </div>
-                    <?php esc_html_e('Enable labels', 'realestate-booking-suite'); ?>
-                </label>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label>
-                    <div class="resbs-toggle-switch">
-                        <input type="checkbox" name="resbs_enable_sharing" value="1" <?php checked(get_option('resbs_enable_sharing'), 1); ?>>
-                        <span class="resbs-slider"></span>
-                    </div>
-                    <?php esc_html_e('Enable sharing', 'realestate-booking-suite'); ?>
-                </label>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label>
-                    <div class="resbs-toggle-switch">
-                        <input type="checkbox" name="resbs_show_date_added" value="1" <?php checked(get_option('resbs_show_date_added'), 1); ?>>
-                        <span class="resbs-slider"></span>
-                    </div>
-                    <?php esc_html_e('Show date added', 'realestate-booking-suite'); ?>
-                </label>
-            </div>
-            
-            <button type="submit" class="resbs-save-button"><?php esc_html_e('SAVE CHANGES', 'realestate-booking-suite'); ?></button>
+            <p class="submit">
+                <button type="submit" class="resbs-save-button button button-primary"><?php esc_html_e('Save Changes', 'realestate-booking-suite'); ?></button>
+            </p>
         </form>
         <?php
     }
@@ -1993,115 +1744,76 @@ class RESBS_Enhanced_Settings {
             <input type="hidden" name="action" value="resbs_save_settings">
             <input type="hidden" name="current_tab" value="search">
             
-            <div class="resbs-form-group">
-                <label for="resbs_address_field_placeholder"><?php esc_html_e('Address field search placeholder', 'realestate-booking-suite'); ?></label>
-                <input type="text" id="resbs_address_field_placeholder" name="resbs_address_field_placeholder" value="<?php echo esc_attr(get_option('resbs_address_field_placeholder', 'Address, City, ZIP')); ?>" class="regular-text">
-            </div>
+            <table class="form-table">
+                <tr>
+                    <th scope="row"><label for="resbs_address_field_placeholder"><?php esc_html_e('Address field search placeholder', 'realestate-booking-suite'); ?></label></th>
+                    <td><input type="text" id="resbs_address_field_placeholder" name="resbs_address_field_placeholder" value="<?php echo esc_attr(get_option('resbs_address_field_placeholder', 'Address, City, ZIP')); ?>" class="regular-text"></td>
+                </tr>
+                
+                <tr>
+                    <th scope="row"><?php esc_html_e('Add recommended page', 'realestate-booking-suite'); ?></th>
+                    <td>
+                        <p><?php esc_html_e('Default Search results', 'realestate-booking-suite'); ?></p>
+                        <button type="button" class="button resbs-create-page-btn" data-page-type="search"><?php esc_html_e('Create page', 'realestate-booking-suite'); ?></button>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th scope="row"><?php esc_html_e('Enable saved search', 'realestate-booking-suite'); ?></th>
+                    <td>
+                        <label>
+                            <input type="checkbox" name="resbs_enable_saved_search" value="1" <?php checked(get_option('resbs_enable_saved_search'), 1); ?>>
+                            <?php esc_html_e('Enable saved search', 'realestate-booking-suite'); ?>
+                        </label>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th scope="row"><?php esc_html_e('Enable auto-update search results', 'realestate-booking-suite'); ?></th>
+                    <td>
+                        <label>
+                            <input type="checkbox" name="resbs_enable_auto_update_search" value="1" <?php checked(get_option('resbs_enable_auto_update_search'), 1); ?>>
+                            <?php esc_html_e('Enable auto-update search results for Simple and Advanced RealEstate Booking Suite search', 'realestate-booking-suite'); ?>
+                        </label>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th scope="row"><?php esc_html_e('Enable autocomplete locations for search', 'realestate-booking-suite'); ?></th>
+                    <td>
+                        <label>
+                            <input type="checkbox" name="resbs_enable_autocomplete_locations" value="1" <?php checked(get_option('resbs_enable_autocomplete_locations'), 1); ?>>
+                            <?php esc_html_e('Enable autocomplete locations for search', 'realestate-booking-suite'); ?>
+                        </label>
+                        <p class="description"><?php esc_html_e('Autocomplete will be done with data used on your database.', 'realestate-booking-suite'); ?></p>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th scope="row"><?php esc_html_e('Filters Options', 'realestate-booking-suite'); ?></th>
+                    <td>
+                        <fieldset>
+                            <label><input type="checkbox" id="filter_price" name="resbs_search_filters[]" value="price" <?php echo in_array('price', (array)get_option('resbs_search_filters', array())) ? 'checked' : ''; ?>> <?php esc_html_e('Price', 'realestate-booking-suite'); ?></label><br>
+                            <label><input type="checkbox" id="filter_categories" name="resbs_search_filters[]" value="categories" <?php echo in_array('categories', (array)get_option('resbs_search_filters', array())) ? 'checked' : ''; ?>> <?php esc_html_e('Categories', 'realestate-booking-suite'); ?> <a href="<?php echo admin_url('admin.php?page=resbs-data-manager'); ?>" target="_blank"><?php esc_html_e('Go to Data manager to edit options.', 'realestate-booking-suite'); ?></a></label><br>
+                            <label><input type="checkbox" id="filter_types" name="resbs_search_filters[]" value="types" <?php echo in_array('types', (array)get_option('resbs_search_filters', array())) ? 'checked' : ''; ?>> <?php esc_html_e('Types', 'realestate-booking-suite'); ?> <a href="<?php echo admin_url('admin.php?page=resbs-data-manager'); ?>" target="_blank"><?php esc_html_e('Go to Data manager to edit options.', 'realestate-booking-suite'); ?></a></label><br>
+                            <label><input type="checkbox" id="filter_rent_periods" name="resbs_search_filters[]" value="rent_periods" <?php echo in_array('rent_periods', (array)get_option('resbs_search_filters', array())) ? 'checked' : ''; ?>> <?php esc_html_e('Rent Periods', 'realestate-booking-suite'); ?> <a href="<?php echo admin_url('admin.php?page=resbs-data-manager'); ?>" target="_blank"><?php esc_html_e('Go to Data manager to edit options.', 'realestate-booking-suite'); ?></a></label><br>
+                            <label><input type="checkbox" id="filter_bedrooms" name="resbs_search_filters[]" value="bedrooms" <?php echo in_array('bedrooms', (array)get_option('resbs_search_filters', array())) ? 'checked' : ''; ?>> <?php esc_html_e('Bedrooms', 'realestate-booking-suite'); ?></label><br>
+                            <label><input type="checkbox" id="filter_bathrooms" name="resbs_search_filters[]" value="bathrooms" <?php echo in_array('bathrooms', (array)get_option('resbs_search_filters', array())) ? 'checked' : ''; ?>> <?php esc_html_e('Bathrooms', 'realestate-booking-suite'); ?></label><br>
+                            <label><input type="checkbox" id="filter_half_baths" name="resbs_search_filters[]" value="half_baths" <?php echo in_array('half_baths', (array)get_option('resbs_search_filters', array())) ? 'checked' : ''; ?>> <?php esc_html_e('Half baths', 'realestate-booking-suite'); ?></label><br>
+                            <label><input type="checkbox" id="filter_amenities" name="resbs_search_filters[]" value="amenities" <?php echo in_array('amenities', (array)get_option('resbs_search_filters', array())) ? 'checked' : ''; ?>> <?php esc_html_e('Amenities', 'realestate-booking-suite'); ?> <a href="<?php echo admin_url('admin.php?page=resbs-data-manager'); ?>" target="_blank"><?php esc_html_e('Go to Data manager to edit options.', 'realestate-booking-suite'); ?></a></label><br>
+                            <label><input type="checkbox" id="filter_features" name="resbs_search_filters[]" value="features" <?php echo in_array('features', (array)get_option('resbs_search_filters', array())) ? 'checked' : ''; ?>> <?php esc_html_e('Features', 'realestate-booking-suite'); ?> <a href="<?php echo admin_url('admin.php?page=resbs-data-manager'); ?>" target="_blank"><?php esc_html_e('Go to Data manager to edit options.', 'realestate-booking-suite'); ?></a></label><br>
+                            <label><input type="checkbox" id="filter_area" name="resbs_search_filters[]" value="area" <?php echo in_array('area', (array)get_option('resbs_search_filters', array())) ? 'checked' : ''; ?>> <?php esc_html_e('Area', 'realestate-booking-suite'); ?></label><br>
+                            <label><input type="checkbox" id="filter_lot_size" name="resbs_search_filters[]" value="lot_size" <?php echo in_array('lot_size', (array)get_option('resbs_search_filters', array())) ? 'checked' : ''; ?>> <?php esc_html_e('Lot size', 'realestate-booking-suite'); ?></label><br>
+                            <label><input type="checkbox" id="filter_floors" name="resbs_search_filters[]" value="floors" <?php echo in_array('floors', (array)get_option('resbs_search_filters', array())) ? 'checked' : ''; ?>> <?php esc_html_e('Floors', 'realestate-booking-suite'); ?></label><br>
+                            <label><input type="checkbox" id="filter_floor_level" name="resbs_search_filters[]" value="floor_level" <?php echo in_array('floor_level', (array)get_option('resbs_search_filters', array())) ? 'checked' : ''; ?>> <?php esc_html_e('Floor Level', 'realestate-booking-suite'); ?></label>
+                        </fieldset>
+                    </td>
+                </tr>
+            </table>
             
-            <div class="resbs-page-creation-card">
-                <div class="resbs-page-icon">🔑</div>
-                <div class="resbs-page-info">
-                    <h4><?php esc_html_e('Add recommended page', 'realestate-booking-suite'); ?></h4>
-                    <p><?php esc_html_e('Default Search results', 'realestate-booking-suite'); ?></p>
-                </div>
-                <button type="button" class="resbs-create-page-btn"><?php esc_html_e('Create page', 'realestate-booking-suite'); ?></button>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label>
-                    <div class="resbs-toggle-switch">
-                        <input type="checkbox" name="resbs_enable_saved_search" value="1" <?php checked(get_option('resbs_enable_saved_search'), 1); ?>>
-                        <span class="resbs-slider"></span>
-                    </div>
-                    <?php esc_html_e('Enable saved search', 'realestate-booking-suite'); ?>
-                </label>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label>
-                    <div class="resbs-toggle-switch">
-                        <input type="checkbox" name="resbs_enable_auto_update_search" value="1" <?php checked(get_option('resbs_enable_auto_update_search'), 1); ?>>
-                        <span class="resbs-slider"></span>
-                    </div>
-                    <?php esc_html_e('Enable auto-update search results for Simple and Advanced RealEstate Booking Suite search', 'realestate-booking-suite'); ?>
-                </label>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label>
-                    <div class="resbs-toggle-switch">
-                        <input type="checkbox" name="resbs_enable_autocomplete_locations" value="1" <?php checked(get_option('resbs_enable_autocomplete_locations'), 1); ?>>
-                        <span class="resbs-slider"></span>
-                    </div>
-                    <?php esc_html_e('Enable autocomplete locations for search', 'realestate-booking-suite'); ?>
-                </label>
-                <p class="resbs-description"><?php esc_html_e('Autocomplete will be done with data used on your database.', 'realestate-booking-suite'); ?></p>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label><?php esc_html_e('Filters Options', 'realestate-booking-suite'); ?></label>
-                <div class="resbs-checkbox-group">
-                    <div class="resbs-checkbox-item">
-                        <input type="checkbox" id="filter_price" name="resbs_search_filters[]" value="price" <?php echo in_array('price', (array)get_option('resbs_search_filters', array())) ? 'checked' : ''; ?>>
-                        <label for="filter_price"><?php esc_html_e('Price', 'realestate-booking-suite'); ?></label>
-                    </div>
-                    <div class="resbs-checkbox-item">
-                        <input type="checkbox" id="filter_categories" name="resbs_search_filters[]" value="categories" <?php echo in_array('categories', (array)get_option('resbs_search_filters', array())) ? 'checked' : ''; ?>>
-                        <label for="filter_categories"><?php esc_html_e('Categories', 'realestate-booking-suite'); ?></label>
-                        <a href="#" target="_blank"><?php esc_html_e('Go to Data manager to edit options.', 'realestate-booking-suite'); ?></a>
-                    </div>
-                    <div class="resbs-checkbox-item">
-                        <input type="checkbox" id="filter_types" name="resbs_search_filters[]" value="types" <?php echo in_array('types', (array)get_option('resbs_search_filters', array())) ? 'checked' : ''; ?>>
-                        <label for="filter_types"><?php esc_html_e('Types', 'realestate-booking-suite'); ?></label>
-                        <a href="#" target="_blank"><?php esc_html_e('Go to Data manager to edit options.', 'realestate-booking-suite'); ?></a>
-                    </div>
-                    <div class="resbs-checkbox-item">
-                        <input type="checkbox" id="filter_rent_periods" name="resbs_search_filters[]" value="rent_periods" <?php echo in_array('rent_periods', (array)get_option('resbs_search_filters', array())) ? 'checked' : ''; ?>>
-                        <label for="filter_rent_periods"><?php esc_html_e('Rent Periods', 'realestate-booking-suite'); ?></label>
-                        <a href="#" target="_blank"><?php esc_html_e('Go to Data manager to edit options.', 'realestate-booking-suite'); ?></a>
-                    </div>
-                    <div class="resbs-checkbox-item">
-                        <input type="checkbox" id="filter_bedrooms" name="resbs_search_filters[]" value="bedrooms" <?php echo in_array('bedrooms', (array)get_option('resbs_search_filters', array())) ? 'checked' : ''; ?>>
-                        <label for="filter_bedrooms"><?php esc_html_e('Bedrooms', 'realestate-booking-suite'); ?></label>
-                    </div>
-                    <div class="resbs-checkbox-item">
-                        <input type="checkbox" id="filter_bathrooms" name="resbs_search_filters[]" value="bathrooms" <?php echo in_array('bathrooms', (array)get_option('resbs_search_filters', array())) ? 'checked' : ''; ?>>
-                        <label for="filter_bathrooms"><?php esc_html_e('Bathrooms', 'realestate-booking-suite'); ?></label>
-                    </div>
-                    <div class="resbs-checkbox-item">
-                        <input type="checkbox" id="filter_half_baths" name="resbs_search_filters[]" value="half_baths" <?php echo in_array('half_baths', (array)get_option('resbs_search_filters', array())) ? 'checked' : ''; ?>>
-                        <label for="filter_half_baths"><?php esc_html_e('Half baths', 'realestate-booking-suite'); ?></label>
-                    </div>
-                    <div class="resbs-checkbox-item">
-                        <input type="checkbox" id="filter_amenities" name="resbs_search_filters[]" value="amenities" <?php echo in_array('amenities', (array)get_option('resbs_search_filters', array())) ? 'checked' : ''; ?>>
-                        <label for="filter_amenities"><?php esc_html_e('Amenities', 'realestate-booking-suite'); ?></label>
-                        <a href="#" target="_blank"><?php esc_html_e('Go to Data manager to edit options.', 'realestate-booking-suite'); ?></a>
-                    </div>
-                    <div class="resbs-checkbox-item">
-                        <input type="checkbox" id="filter_features" name="resbs_search_filters[]" value="features" <?php echo in_array('features', (array)get_option('resbs_search_filters', array())) ? 'checked' : ''; ?>>
-                        <label for="filter_features"><?php esc_html_e('Features', 'realestate-booking-suite'); ?></label>
-                        <a href="#" target="_blank"><?php esc_html_e('Go to Data manager to edit options.', 'realestate-booking-suite'); ?></a>
-                    </div>
-                    <div class="resbs-checkbox-item">
-                        <input type="checkbox" id="filter_area" name="resbs_search_filters[]" value="area" <?php echo in_array('area', (array)get_option('resbs_search_filters', array())) ? 'checked' : ''; ?>>
-                        <label for="filter_area"><?php esc_html_e('Area', 'realestate-booking-suite'); ?></label>
-                    </div>
-                    <div class="resbs-checkbox-item">
-                        <input type="checkbox" id="filter_lot_size" name="resbs_search_filters[]" value="lot_size" <?php echo in_array('lot_size', (array)get_option('resbs_search_filters', array())) ? 'checked' : ''; ?>>
-                        <label for="filter_lot_size"><?php esc_html_e('Lot size', 'realestate-booking-suite'); ?></label>
-                    </div>
-                    <div class="resbs-checkbox-item">
-                        <input type="checkbox" id="filter_floors" name="resbs_search_filters[]" value="floors" <?php echo in_array('floors', (array)get_option('resbs_search_filters', array())) ? 'checked' : ''; ?>>
-                        <label for="filter_floors"><?php esc_html_e('Floors', 'realestate-booking-suite'); ?></label>
-                    </div>
-                    <div class="resbs-checkbox-item">
-                        <input type="checkbox" id="filter_floor_level" name="resbs_search_filters[]" value="floor_level" <?php echo in_array('floor_level', (array)get_option('resbs_search_filters', array())) ? 'checked' : ''; ?>>
-                        <label for="filter_floor_level"><?php esc_html_e('Floor Level', 'realestate-booking-suite'); ?></label>
-                    </div>
-                </div>
-            </div>
-            
-            <button type="submit" class="resbs-save-button"><?php esc_html_e('SAVE CHANGES', 'realestate-booking-suite'); ?></button>
+            <p class="submit">
+                <button type="submit" class="resbs-save-button button button-primary"><?php esc_html_e('Save Changes', 'realestate-booking-suite'); ?></button>
+            </p>
         </form>
         <?php
     }
@@ -2122,36 +1834,39 @@ class RESBS_Enhanced_Settings {
             <input type="hidden" name="action" value="resbs_save_settings">
             <input type="hidden" name="current_tab" value="user-profile">
             
-            <div class="resbs-form-group">
-                <label>
-                    <div class="resbs-toggle-switch">
-                        <input type="checkbox" name="resbs_enable_user_profile" value="1" <?php checked(get_option('resbs_enable_user_profile'), 1); ?>>
-                        <span class="resbs-slider"></span>
-                    </div>
-                    <?php esc_html_e('Enable User Profile', 'realestate-booking-suite'); ?>
-                </label>
-            </div>
+            <table class="form-table">
+                <tr>
+                    <th scope="row"><?php esc_html_e('Enable User Profile', 'realestate-booking-suite'); ?></th>
+                    <td>
+                        <label>
+                            <input type="checkbox" name="resbs_enable_user_profile" value="1" <?php checked(get_option('resbs_enable_user_profile'), 1); ?>>
+                            <?php esc_html_e('Enable User Profile', 'realestate-booking-suite'); ?>
+                        </label>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th scope="row"><?php esc_html_e('Add recommended page', 'realestate-booking-suite'); ?></th>
+                    <td>
+                        <p><?php esc_html_e('Profile', 'realestate-booking-suite'); ?></p>
+                        <button type="button" class="button resbs-create-page-btn" data-page-type="profile"><?php esc_html_e('Create page', 'realestate-booking-suite'); ?></button>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th scope="row"><label for="resbs_profile_page_title"><?php esc_html_e('Profile Page Title', 'realestate-booking-suite'); ?></label></th>
+                    <td><input type="text" id="resbs_profile_page_title" name="resbs_profile_page_title" value="<?php echo esc_attr(get_option('resbs_profile_page_title', 'User Profile')); ?>" class="regular-text"></td>
+                </tr>
+                
+                <tr>
+                    <th scope="row"><label for="resbs_profile_page_subtitle"><?php esc_html_e('Profile Page Subtitle', 'realestate-booking-suite'); ?></label></th>
+                    <td><input type="text" id="resbs_profile_page_subtitle" name="resbs_profile_page_subtitle" value="<?php echo esc_attr(get_option('resbs_profile_page_subtitle', 'Manage your account and preferences')); ?>" class="regular-text"></td>
+                </tr>
+            </table>
             
-            <div class="resbs-page-creation-card">
-                <div class="resbs-page-icon">🔑</div>
-                <div class="resbs-page-info">
-                    <h4><?php esc_html_e('Add recommended page', 'realestate-booking-suite'); ?></h4>
-                    <p><?php esc_html_e('Profile', 'realestate-booking-suite'); ?></p>
-                </div>
-                <button type="button" class="resbs-create-page-btn"><?php esc_html_e('Create page', 'realestate-booking-suite'); ?></button>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label for="resbs_profile_page_title"><?php esc_html_e('Profile Page Title', 'realestate-booking-suite'); ?></label>
-                <input type="text" id="resbs_profile_page_title" name="resbs_profile_page_title" value="<?php echo esc_attr(get_option('resbs_profile_page_title', 'User Profile')); ?>" class="regular-text">
-            </div>
-            
-            <div class="resbs-form-group">
-                <label for="resbs_profile_page_subtitle"><?php esc_html_e('Profile Page Subtitle', 'realestate-booking-suite'); ?></label>
-                <input type="text" id="resbs_profile_page_subtitle" name="resbs_profile_page_subtitle" value="<?php echo esc_attr(get_option('resbs_profile_page_subtitle', 'Manage your account and preferences')); ?>" class="regular-text">
-            </div>
-            
-            <button type="submit" class="resbs-save-button"><?php esc_html_e('SAVE CHANGES', 'realestate-booking-suite'); ?></button>
+            <p class="submit">
+                <button type="submit" class="resbs-save-button button button-primary"><?php esc_html_e('Save Changes', 'realestate-booking-suite'); ?></button>
+            </p>
         </form>
         <?php
     }
@@ -2172,96 +1887,98 @@ class RESBS_Enhanced_Settings {
             <input type="hidden" name="action" value="resbs_save_settings">
             <input type="hidden" name="current_tab" value="login-signup">
             
-            <div class="resbs-form-group">
-                <label>
-                    <div class="resbs-toggle-switch">
-                        <input type="checkbox" name="resbs_enable_login_form" value="1" <?php checked(get_option('resbs_enable_login_form'), 1); ?>>
-                        <span class="resbs-slider"></span>
-                    </div>
-                    <?php esc_html_e('Enable log in form', 'realestate-booking-suite'); ?>
-                </label>
-            </div>
+            <table class="form-table">
+                <tr>
+                    <th scope="row"><?php esc_html_e('Enable log in form', 'realestate-booking-suite'); ?></th>
+                    <td>
+                        <label>
+                            <input type="checkbox" name="resbs_enable_login_form" value="1" <?php checked(get_option('resbs_enable_login_form'), 1); ?>>
+                            <?php esc_html_e('Enable log in form', 'realestate-booking-suite'); ?>
+                        </label>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th scope="row"><?php esc_html_e('Add recommended page', 'realestate-booking-suite'); ?></th>
+                    <td>
+                        <p><?php esc_html_e('Log in page', 'realestate-booking-suite'); ?></p>
+                        <button type="button" class="button resbs-create-page-btn" data-page-type="login"><?php esc_html_e('Create page', 'realestate-booking-suite'); ?></button>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th scope="row"><?php esc_html_e('Enable log in with Facebook', 'realestate-booking-suite'); ?></th>
+                    <td>
+                        <label>
+                            <input type="checkbox" name="resbs_enable_login_facebook" value="1" <?php checked(get_option('resbs_enable_login_facebook'), 1); ?>>
+                            <?php esc_html_e('Enable log in with Facebook', 'realestate-booking-suite'); ?>
+                        </label>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th scope="row"><?php esc_html_e('Enable log in with Google', 'realestate-booking-suite'); ?></th>
+                    <td>
+                        <label>
+                            <input type="checkbox" name="resbs_enable_login_google" value="1" <?php checked(get_option('resbs_enable_login_google'), 1); ?>>
+                            <?php esc_html_e('Enable log in with Google', 'realestate-booking-suite'); ?>
+                        </label>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th scope="row"><label for="resbs_signin_page_title"><?php esc_html_e('Title for sign in page', 'realestate-booking-suite'); ?></label></th>
+                    <td><input type="text" id="resbs_signin_page_title" name="resbs_signin_page_title" value="<?php echo esc_attr(get_option('resbs_signin_page_title', 'Sign in or register')); ?>" class="regular-text"></td>
+                </tr>
+                
+                <tr>
+                    <th scope="row"><label for="resbs_signin_page_subtitle"><?php esc_html_e('Subtitle for sign in page', 'realestate-booking-suite'); ?></label></th>
+                    <td><input type="text" id="resbs_signin_page_subtitle" name="resbs_signin_page_subtitle" value="<?php echo esc_attr(get_option('resbs_signin_page_subtitle', 'to save your favourite homes and more')); ?>" class="regular-text"></td>
+                </tr>
+                
+                <tr>
+                    <th scope="row"><?php esc_html_e('Enable sign up form for buyers', 'realestate-booking-suite'); ?></th>
+                    <td>
+                        <label>
+                            <input type="checkbox" name="resbs_enable_signup_buyers" value="1" <?php checked(get_option('resbs_enable_signup_buyers'), 1); ?>>
+                            <?php esc_html_e('Enable sign up form for buyers', 'realestate-booking-suite'); ?>
+                        </label>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th scope="row"><?php esc_html_e('Add recommended page', 'realestate-booking-suite'); ?></th>
+                    <td>
+                        <p><?php esc_html_e('Buyer registration page', 'realestate-booking-suite'); ?></p>
+                        <button type="button" class="button resbs-create-page-btn" data-page-type="buyer-registration"><?php esc_html_e('Create page', 'realestate-booking-suite'); ?></button>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th scope="row"><label for="resbs_buyer_signup_title"><?php esc_html_e('Title for buyer sign up page', 'realestate-booking-suite'); ?></label></th>
+                    <td><input type="text" id="resbs_buyer_signup_title" name="resbs_buyer_signup_title" value="<?php echo esc_attr(get_option('resbs_buyer_signup_title', 'Get started with your account')); ?>" class="regular-text"></td>
+                </tr>
+                
+                <tr>
+                    <th scope="row"><label for="resbs_buyer_signup_subtitle"><?php esc_html_e('Subtitle for buyer sign up page', 'realestate-booking-suite'); ?></label></th>
+                    <td><input type="text" id="resbs_buyer_signup_subtitle" name="resbs_buyer_signup_subtitle" value="<?php echo esc_attr(get_option('resbs_buyer_signup_subtitle', 'to save your favourite homes and more')); ?>" class="regular-text"></td>
+                </tr>
+                
+                <tr>
+                    <th scope="row"><?php esc_html_e('Enable sign up form for agents', 'realestate-booking-suite'); ?></th>
+                    <td>
+                        <label>
+                            <input type="checkbox" name="resbs_enable_signup_agents" value="1" <?php checked(get_option('resbs_enable_signup_agents'), 1); ?>>
+                            <?php esc_html_e('Enable sign up form for agents', 'realestate-booking-suite'); ?>
+                            <span class="description"><?php esc_html_e('PRO', 'realestate-booking-suite'); ?></span>
+                        </label>
+                    </td>
+                </tr>
+            </table>
             
-            <div class="resbs-page-creation-card">
-                <div class="resbs-page-icon">🔑</div>
-                <div class="resbs-page-info">
-                    <h4><?php esc_html_e('Add recommended page', 'realestate-booking-suite'); ?></h4>
-                    <p><?php esc_html_e('Log in page', 'realestate-booking-suite'); ?></p>
-                </div>
-                <button type="button" class="resbs-create-page-btn"><?php esc_html_e('Create page', 'realestate-booking-suite'); ?></button>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label>
-                    <div class="resbs-toggle-switch">
-                        <input type="checkbox" name="resbs_enable_login_facebook" value="1" <?php checked(get_option('resbs_enable_login_facebook'), 1); ?>>
-                        <span class="resbs-slider"></span>
-                    </div>
-                    <?php esc_html_e('Enable log in with Facebook', 'realestate-booking-suite'); ?>
-                </label>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label>
-                    <div class="resbs-toggle-switch">
-                        <input type="checkbox" name="resbs_enable_login_google" value="1" <?php checked(get_option('resbs_enable_login_google'), 1); ?>>
-                        <span class="resbs-slider"></span>
-                    </div>
-                    <?php esc_html_e('Enable log in with Google', 'realestate-booking-suite'); ?>
-                </label>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label for="resbs_signin_page_title"><?php esc_html_e('Title for sign in page', 'realestate-booking-suite'); ?></label>
-                <input type="text" id="resbs_signin_page_title" name="resbs_signin_page_title" value="<?php echo esc_attr(get_option('resbs_signin_page_title', 'Sign in or register')); ?>" class="regular-text">
-            </div>
-            
-            <div class="resbs-form-group">
-                <label for="resbs_signin_page_subtitle"><?php esc_html_e('Subtitle for sign in page', 'realestate-booking-suite'); ?></label>
-                <input type="text" id="resbs_signin_page_subtitle" name="resbs_signin_page_subtitle" value="<?php echo esc_attr(get_option('resbs_signin_page_subtitle', 'to save your favourite homes and more')); ?>" class="regular-text">
-            </div>
-            
-            <div class="resbs-form-group">
-                <label>
-                    <div class="resbs-toggle-switch">
-                        <input type="checkbox" name="resbs_enable_signup_buyers" value="1" <?php checked(get_option('resbs_enable_signup_buyers'), 1); ?>>
-                        <span class="resbs-slider"></span>
-                    </div>
-                    <?php esc_html_e('Enable sign up form for buyers', 'realestate-booking-suite'); ?>
-                </label>
-            </div>
-            
-            <div class="resbs-page-creation-card">
-                <div class="resbs-page-icon">🔑</div>
-                <div class="resbs-page-info">
-                    <h4><?php esc_html_e('Add recommended page', 'realestate-booking-suite'); ?></h4>
-                    <p><?php esc_html_e('Buyer registration page', 'realestate-booking-suite'); ?></p>
-                </div>
-                <button type="button" class="resbs-create-page-btn"><?php esc_html_e('Create page', 'realestate-booking-suite'); ?></button>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label for="resbs_buyer_signup_title"><?php esc_html_e('Title for buyer sign up page', 'realestate-booking-suite'); ?></label>
-                <input type="text" id="resbs_buyer_signup_title" name="resbs_buyer_signup_title" value="<?php echo esc_attr(get_option('resbs_buyer_signup_title', 'Get started with your account')); ?>" class="regular-text">
-            </div>
-            
-            <div class="resbs-form-group">
-                <label for="resbs_buyer_signup_subtitle"><?php esc_html_e('Subtitle for buyer sign up page', 'realestate-booking-suite'); ?></label>
-                <input type="text" id="resbs_buyer_signup_subtitle" name="resbs_buyer_signup_subtitle" value="<?php echo esc_attr(get_option('resbs_buyer_signup_subtitle', 'to save your favourite homes and more')); ?>" class="regular-text">
-            </div>
-            
-            <div class="resbs-form-group">
-                <label>
-                    <div class="resbs-toggle-switch">
-                        <input type="checkbox" name="resbs_enable_signup_agents" value="1" <?php checked(get_option('resbs_enable_signup_agents'), 1); ?>>
-                        <span class="resbs-slider"></span>
-                    </div>
-                    <?php esc_html_e('Enable sign up form for agents', 'realestate-booking-suite'); ?>
-                    <span class="resbs-pro-tag">PRO</span>
-                </label>
-            </div>
-            
-            <button type="submit" class="resbs-save-button"><?php esc_html_e('SAVE CHANGES', 'realestate-booking-suite'); ?></button>
+            <p class="submit">
+                <button type="submit" class="resbs-save-button button button-primary"><?php esc_html_e('Save Changes', 'realestate-booking-suite'); ?></button>
+            </p>
         </form>
         <?php
     }
@@ -2282,49 +1999,55 @@ class RESBS_Enhanced_Settings {
             <input type="hidden" name="action" value="resbs_save_settings">
             <input type="hidden" name="current_tab" value="seo">
             
-            <div class="resbs-form-group">
-                <label>
-                    <div class="resbs-toggle-switch">
-                        <input type="checkbox" name="resbs_enable_auto_tags" value="1" <?php checked(get_option('resbs_enable_auto_tags'), 1); ?>>
-                        <span class="resbs-slider"></span>
-                    </div>
-                    <?php esc_html_e('Enable auto tags', 'realestate-booking-suite'); ?>
-                </label>
-            </div>
+            <table class="form-table">
+                <tr>
+                    <th scope="row"><?php esc_html_e('Enable auto tags', 'realestate-booking-suite'); ?></th>
+                    <td>
+                        <label>
+                            <input type="checkbox" name="resbs_enable_auto_tags" value="1" <?php checked(get_option('resbs_enable_auto_tags'), 1); ?>>
+                            <?php esc_html_e('Enable auto tags', 'realestate-booking-suite'); ?>
+                        </label>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th scope="row"><?php esc_html_e('Enable clickable tags', 'realestate-booking-suite'); ?></th>
+                    <td>
+                        <label>
+                            <input type="checkbox" name="resbs_enable_clickable_tags" value="1" <?php checked(get_option('resbs_enable_clickable_tags'), 1); ?>>
+                            <?php esc_html_e('Enable clickable tags', 'realestate-booking-suite'); ?>
+                        </label>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th scope="row"><label for="resbs_heading_tag_posts_title"><?php esc_html_e('Heading Tag for Posts Title', 'realestate-booking-suite'); ?></label></th>
+                    <td>
+                        <select id="resbs_heading_tag_posts_title" name="resbs_heading_tag_posts_title">
+                            <option value="h1" <?php selected(get_option('resbs_heading_tag_posts_title'), 'h1'); ?>>H1</option>
+                            <option value="h2" <?php selected(get_option('resbs_heading_tag_posts_title'), 'h2'); ?>>H2</option>
+                            <option value="h3" <?php selected(get_option('resbs_heading_tag_posts_title'), 'h3'); ?>>H3</option>
+                            <option value="h4" <?php selected(get_option('resbs_heading_tag_posts_title'), 'h4'); ?>>H4</option>
+                            <option value="h5" <?php selected(get_option('resbs_heading_tag_posts_title'), 'h5'); ?>>H5</option>
+                            <option value="h6" <?php selected(get_option('resbs_heading_tag_posts_title'), 'h6'); ?>>H6</option>
+                        </select>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th scope="row"><?php esc_html_e('Enable dynamic content', 'realestate-booking-suite'); ?></th>
+                    <td>
+                        <label>
+                            <input type="checkbox" name="resbs_enable_dynamic_content" value="1" <?php checked(get_option('resbs_enable_dynamic_content'), 1); ?>>
+                            <?php esc_html_e('Enable dynamic content', 'realestate-booking-suite'); ?>
+                        </label>
+                    </td>
+                </tr>
+            </table>
             
-            <div class="resbs-form-group">
-                <label>
-                    <div class="resbs-toggle-switch">
-                        <input type="checkbox" name="resbs_enable_clickable_tags" value="1" <?php checked(get_option('resbs_enable_clickable_tags'), 1); ?>>
-                        <span class="resbs-slider"></span>
-                    </div>
-                    <?php esc_html_e('Enable clickable tags', 'realestate-booking-suite'); ?>
-                </label>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label for="resbs_heading_tag_posts_title"><?php esc_html_e('Heading Tag for Posts Title', 'realestate-booking-suite'); ?></label>
-                <select id="resbs_heading_tag_posts_title" name="resbs_heading_tag_posts_title">
-                    <option value="h1" <?php selected(get_option('resbs_heading_tag_posts_title'), 'h1'); ?>>H1</option>
-                    <option value="h2" <?php selected(get_option('resbs_heading_tag_posts_title'), 'h2'); ?>>H2</option>
-                    <option value="h3" <?php selected(get_option('resbs_heading_tag_posts_title'), 'h3'); ?>>H3</option>
-                    <option value="h4" <?php selected(get_option('resbs_heading_tag_posts_title'), 'h4'); ?>>H4</option>
-                    <option value="h5" <?php selected(get_option('resbs_heading_tag_posts_title'), 'h5'); ?>>H5</option>
-                    <option value="h6" <?php selected(get_option('resbs_heading_tag_posts_title'), 'h6'); ?>>H6</option>
-                </select>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label>
-                    <div class="resbs-toggle-switch">
-                        <input type="checkbox" name="resbs_enable_dynamic_content" value="1" <?php checked(get_option('resbs_enable_dynamic_content'), 1); ?>>
-                        <span class="resbs-slider"></span>
-                    </div>
-                    <?php esc_html_e('Enable dynamic content', 'realestate-booking-suite'); ?>
-                </label>
-            </div>
-            
-            <button type="submit" class="resbs-save-button"><?php esc_html_e('SAVE CHANGES', 'realestate-booking-suite'); ?></button>
+            <p class="submit">
+                <button type="submit" class="resbs-save-button button button-primary"><?php esc_html_e('Save Changes', 'realestate-booking-suite'); ?></button>
+            </p>
         </form>
         <?php
     }
@@ -2385,25 +2108,56 @@ class RESBS_Enhanced_Settings {
      * Save general settings
      */
     private function save_general_settings() {
-        $settings = array(
-            'resbs_language',
-            'resbs_area_unit',
-            'resbs_lot_size_unit',
-            'resbs_date_format',
-            'resbs_time_format',
-            'resbs_enable_white_label',
-            'resbs_enable_rest_support',
-            'resbs_main_color',
-            'resbs_secondary_color',
+        // Handle area unit radio button (always present in form, so always check)
+        if (isset($_POST['resbs_area_unit'])) {
+            $area_unit = sanitize_text_field($_POST['resbs_area_unit']);
+            // Validate it's either sqft or sqm
+            if (in_array($area_unit, array('sqft', 'sqm'))) {
+                update_option('resbs_area_unit', $area_unit);
+            }
+        }
+        
+        // Handle lot size unit radio button (always present in form, so always check)
+        if (isset($_POST['resbs_lot_size_unit'])) {
+            $lot_unit = sanitize_text_field($_POST['resbs_lot_size_unit']);
+            // Validate it's either sqft or sqm
+            if (in_array($lot_unit, array('sqft', 'sqm'))) {
+                update_option('resbs_lot_size_unit', $lot_unit);
+            }
+        }
+        
+        // Handle date format
+        if (isset($_POST['resbs_date_format'])) {
+            update_option('resbs_date_format', sanitize_text_field($_POST['resbs_date_format']));
+        }
+        
+        // Handle colors
+        if (isset($_POST['resbs_main_color'])) {
+            $main_color = sanitize_text_field($_POST['resbs_main_color']);
+            // Validate hex color
+            if (preg_match('/^#[a-fA-F0-9]{6}$/', $main_color)) {
+                update_option('resbs_main_color', $main_color);
+            }
+        }
+        
+        if (isset($_POST['resbs_secondary_color'])) {
+            $secondary_color = sanitize_text_field($_POST['resbs_secondary_color']);
+            // Validate hex color
+            if (preg_match('/^#[a-fA-F0-9]{6}$/', $secondary_color)) {
+                update_option('resbs_secondary_color', $secondary_color);
+            }
+        }
+        
+        // Handle checkboxes - they only appear in POST if checked
+        $checkbox_settings = array(
             'resbs_disable_tel_country_code'
         );
         
-        foreach ($settings as $setting) {
-            if (isset($_POST[$setting])) {
-                $value = sanitize_text_field($_POST[$setting]);
-                update_option($setting, $value);
+        foreach ($checkbox_settings as $setting) {
+            if (isset($_POST[$setting]) && $_POST[$setting] == '1') {
+                update_option($setting, '1');
             } else {
-                update_option($setting, '');
+                update_option($setting, '0');
             }
         }
     }
@@ -2412,28 +2166,82 @@ class RESBS_Enhanced_Settings {
      * Save map settings
      */
     private function save_map_settings() {
-        $settings = array(
-            'resbs_mapbox_access_token',
-            'resbs_google_api_key', // Keep for backwards compatibility
-            // 'resbs_default_latitude' and 'resbs_default_longitude' removed - maps now use individual property coordinates
-            'resbs_default_zoom_level',
-            'resbs_single_property_zoom_level',
-            'resbs_enable_markers_cluster',
-            'resbs_cluster_icon',
-            'resbs_cluster_icon_color',
-            'resbs_map_marker_type',
-            'resbs_use_single_map_marker',
-            'resbs_single_marker_icon',
-            'resbs_single_marker_color'
-        );
-        
-        foreach ($settings as $setting) {
-            if (isset($_POST[$setting])) {
-                $value = sanitize_text_field($_POST[$setting]);
-                update_option($setting, $value);
-            } else {
-                update_option($setting, '');
+        // Handle default zoom level
+        if (isset($_POST['resbs_default_zoom_level'])) {
+            $zoom = intval($_POST['resbs_default_zoom_level']);
+            if ($zoom >= 0 && $zoom <= 20) {
+                update_option('resbs_default_zoom_level', $zoom);
             }
+        }
+        
+        // Handle single property zoom level
+        if (isset($_POST['resbs_single_property_zoom_level'])) {
+            $zoom = intval($_POST['resbs_single_property_zoom_level']);
+            if ($zoom >= 0 && $zoom <= 20) {
+                update_option('resbs_single_property_zoom_level', $zoom);
+            }
+        }
+        
+        // Handle markers cluster checkbox
+        if (isset($_POST['resbs_enable_markers_cluster']) && $_POST['resbs_enable_markers_cluster'] == '1') {
+            update_option('resbs_enable_markers_cluster', '1');
+        } else {
+            update_option('resbs_enable_markers_cluster', '0');
+        }
+        
+        // Handle cluster icon radio button
+        if (isset($_POST['resbs_cluster_icon'])) {
+            $cluster_icon = sanitize_text_field($_POST['resbs_cluster_icon']);
+            if (in_array($cluster_icon, array('circle', 'bubble', 'outline'))) {
+                update_option('resbs_cluster_icon', $cluster_icon);
+            }
+        }
+        
+        // Handle cluster icon color
+        if (isset($_POST['resbs_cluster_icon_color'])) {
+            $cluster_color = sanitize_text_field($_POST['resbs_cluster_icon_color']);
+            if (preg_match('/^#[a-fA-F0-9]{6}$/', $cluster_color)) {
+                update_option('resbs_cluster_icon_color', $cluster_color);
+            }
+        }
+        
+        // Handle map marker type radio button
+        if (isset($_POST['resbs_map_marker_type'])) {
+            $marker_type = sanitize_text_field($_POST['resbs_map_marker_type']);
+            if (in_array($marker_type, array('icon', 'price'))) {
+                update_option('resbs_map_marker_type', $marker_type);
+            }
+        }
+        
+        // Handle use single map marker checkbox
+        if (isset($_POST['resbs_use_single_map_marker']) && $_POST['resbs_use_single_map_marker'] == '1') {
+            update_option('resbs_use_single_map_marker', '1');
+        } else {
+            update_option('resbs_use_single_map_marker', '0');
+        }
+        
+        // Handle single marker icon radio button
+        if (isset($_POST['resbs_single_marker_icon'])) {
+            $single_icon = sanitize_text_field($_POST['resbs_single_marker_icon']);
+            if (in_array($single_icon, array('pin', 'outline', 'person'))) {
+                update_option('resbs_single_marker_icon', $single_icon);
+            }
+        }
+        
+        // Handle single marker color
+        if (isset($_POST['resbs_single_marker_color'])) {
+            $marker_color = sanitize_text_field($_POST['resbs_single_marker_color']);
+            if (preg_match('/^#[a-fA-F0-9]{6}$/', $marker_color)) {
+                update_option('resbs_single_marker_color', $marker_color);
+            }
+        }
+        
+        // Legacy settings (keep for backwards compatibility)
+        if (isset($_POST['resbs_mapbox_access_token'])) {
+            update_option('resbs_mapbox_access_token', sanitize_text_field($_POST['resbs_mapbox_access_token']));
+        }
+        if (isset($_POST['resbs_google_api_key'])) {
+            update_option('resbs_google_api_key', sanitize_text_field($_POST['resbs_google_api_key']));
         }
     }
     
