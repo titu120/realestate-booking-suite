@@ -104,7 +104,9 @@ if ($featured) {
                 <a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
             </h3>
             
-            <?php if ($address) : ?>
+            <?php 
+            // Show address only if setting allows (dynamically from Listings settings)
+            if ($address && resbs_should_show_listing_address()) : ?>
                 <p class="resbs-property-location">
                     <i class="fas fa-map-marker-alt"></i>
                     <?php echo esc_html($address); ?>
@@ -113,7 +115,9 @@ if ($featured) {
         </div>
         
         <!-- Property Price -->
-        <?php if ($formatted_price) : ?>
+        <?php 
+        // Show price only if setting allows (dynamically from Listings settings)
+        if ($formatted_price && resbs_should_show_price()) : ?>
             <div class="resbs-property-price">
                 <?php echo esc_html($formatted_price); ?>
             </div>

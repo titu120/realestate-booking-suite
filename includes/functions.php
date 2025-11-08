@@ -443,3 +443,169 @@ function resbs_get_map_settings($context = 'archive') {
     
     return $settings;
 }
+
+/**
+ * Helper Functions for Listings Settings
+ * These functions make it easy to retrieve Listings settings throughout the plugin
+ * Listings settings apply dynamically to archive pages, single pages, widgets, etc.
+ */
+
+/**
+ * Get properties per page
+ * @return int Number of properties per page
+ */
+function resbs_get_properties_per_page() {
+    return intval(get_option('resbs_properties_per_page', 40));
+}
+
+/**
+ * Get default layout for listings (archive) pages
+ * @return string Layout type (grid, large-grid, list)
+ */
+function resbs_get_default_layout_listings() {
+    return get_option('resbs_default_layout_listings', 'grid');
+}
+
+/**
+ * Get default layout for single property pages
+ * @return string Layout type (slider, tiled, left-slider)
+ */
+function resbs_get_default_layout_single() {
+    return get_option('resbs_default_layout_single', 'slider');
+}
+
+/**
+ * Check if price should be shown
+ * @return bool True if price should be shown
+ */
+function resbs_should_show_price() {
+    return (bool) get_option('resbs_show_price', true);
+}
+
+/**
+ * Check if listing address should be shown
+ * @return bool True if address should be shown
+ */
+function resbs_should_show_listing_address() {
+    return (bool) get_option('resbs_show_listing_address', true);
+}
+
+/**
+ * Get what to show on listing preview block
+ * @return string Preview type (address or title)
+ */
+function resbs_get_listing_preview_block() {
+    return get_option('resbs_listing_preview_block', 'title');
+}
+
+/**
+ * Check if description should be shown in listing box
+ * @return bool True if description should be shown
+ */
+function resbs_should_show_description_listing_box() {
+    return (bool) get_option('resbs_show_description_listing_box', false);
+}
+
+/**
+ * Check if sorting is enabled
+ * @return bool True if sorting is enabled
+ */
+function resbs_is_sorting_enabled() {
+    return (bool) get_option('resbs_enable_sorting', false);
+}
+
+/**
+ * Get sort options
+ * @return array Array of enabled sort options
+ */
+function resbs_get_sort_options() {
+    return (array) get_option('resbs_sort_options', array('newest', 'oldest', 'lowest_price', 'highest_price'));
+}
+
+/**
+ * Get default sort option
+ * @return string Default sort option
+ */
+function resbs_get_default_sort_option() {
+    return get_option('resbs_default_sort_option', 'newest');
+}
+
+/**
+ * Check if labels should be shown (Featured, New, etc.)
+ * @return bool True if labels should be shown
+ */
+function resbs_should_show_labels() {
+    return (bool) get_option('resbs_enable_labels', true);
+}
+
+/**
+ * Check if date added should be shown
+ * @return bool True if date should be shown
+ */
+function resbs_should_show_date_added() {
+    return (bool) get_option('resbs_show_date_added', false);
+}
+
+/**
+ * Check if map should be shown on single listing page
+ * @return bool True if map should be shown
+ */
+function resbs_should_show_map_single_listing() {
+    return (bool) get_option('resbs_enable_map_single_listing', true);
+}
+
+/**
+ * Check if sharing is enabled
+ * @return bool True if sharing is enabled
+ */
+function resbs_is_sharing_enabled() {
+    return (bool) get_option('resbs_enable_sharing', true);
+}
+
+/**
+ * Check if collapsed description is enabled
+ * @return bool True if collapsed description is enabled
+ */
+function resbs_is_collapsed_description_enabled() {
+    return (bool) get_option('resbs_enable_collapsed_description', false);
+}
+
+/**
+ * Check if lightbox is disabled on single page
+ * @return bool True if lightbox is disabled
+ */
+function resbs_is_lightbox_disabled_single_page() {
+    return (bool) get_option('resbs_disable_lightbox_single_page', false);
+}
+
+/**
+ * Check if Request Info button should be hidden
+ * @return bool True if button should be hidden
+ */
+function resbs_is_request_info_button_hidden() {
+    return (bool) get_option('resbs_hide_request_info_button', false);
+}
+
+/**
+ * Get property headings font
+ * @return string Font name
+ */
+function resbs_get_property_headings_font() {
+    return get_option('resbs_property_headings_font', 'Lato');
+}
+
+/**
+ * Get property content font
+ * @return string Font name
+ */
+function resbs_get_property_content_font() {
+    return get_option('resbs_property_content_font', 'Open Sans');
+}
+
+/**
+ * Get property item image size
+ * @return string Image size (1024x1024, 800x600, 600x400)
+ */
+function resbs_get_property_item_image_size() {
+    return get_option('resbs_property_item_image_size', '1024x1024');
+}

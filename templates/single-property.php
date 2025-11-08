@@ -329,10 +329,14 @@
                     </div>
 
                     <div class="property-actions no-print">
+                        <?php 
+                        // Show sharing button only if enabled (dynamically from Listings settings)
+                        if (resbs_is_sharing_enabled()) : ?>
                         <button onclick="shareProperty()" class="tooltip action-btn" data-tooltip="Share Property">
                             <i class="fas fa-share-alt text-gray-600"></i>
                             <span class="text-gray-700">Share</span>
                         </button>
+                        <?php endif; ?>
                         <button onclick="printPage()" class="tooltip action-btn" data-tooltip="Print Details">
                             <i class="fas fa-print text-gray-600"></i>
                             <span class="text-gray-700">Print</span>
@@ -932,7 +936,9 @@
                             </div>
                             
                             <!-- Map -->
-                            <?php if ($map_iframe): ?>
+                            <?php 
+                            // Show map only if enabled in settings and map iframe exists (dynamically from Listings settings)
+                            if ($map_iframe && resbs_should_show_map_single_listing()): ?>
                             <div class="mb-6">
                                 <h4 class="text-lg font-semibold mb-4">Map Location</h4>
                                 <div class="map-container" style="width: 100%; height: 400px; border-radius: 8px; overflow: hidden;">

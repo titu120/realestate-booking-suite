@@ -23,10 +23,12 @@ $sort_by = isset($_GET['sort_by']) ? sanitize_text_field($_GET['sort_by']) : 'da
 $paged = (get_query_var('paged')) ? get_query_var('paged') : 1;
 
 // Build WP_Query arguments
+// Get properties per page from Listings settings (dynamically applied)
+$properties_per_page = resbs_get_properties_per_page();
 $args = array(
     'post_type' => 'property',
     'post_status' => 'publish',
-    'posts_per_page' => 12,
+    'posts_per_page' => $properties_per_page,
     'paged' => $paged,
     'meta_query' => array(),
 );
@@ -152,28 +154,66 @@ if (!empty($property_status)) {
 
 // Property type filter will be handled by database query below
 
-// Add sorting
-switch ($sort_by) {
-    case 'price_low':
-        $args['meta_key'] = '_property_price';
-        $args['orderby'] = 'meta_value_num';
-        $args['order'] = 'ASC';
-        break;
-    case 'price_high':
-        $args['meta_key'] = '_property_price';
-        $args['orderby'] = 'meta_value_num';
-        $args['order'] = 'DESC';
-        break;
-    case 'popular':
-        // Sort by comment count (popularity indicator)
-        $args['orderby'] = 'comment_count';
-        $args['order'] = 'DESC';
-        break;
-    case 'newest':
-    default:
-        $args['orderby'] = 'date';
-        $args['order'] = 'DESC';
-        break;
+// Add sorting (dynamically from Listings settings)
+// Get default sort if not specified
+if (empty($sort_by) || $sort_by === 'date') {
+    $sort_by = resbs_get_default_sort_option();
+}
+
+// Only apply sorting if enabled in settings
+if (resbs_is_sorting_enabled()) {
+    switch ($sort_by) {
+        case 'lowest_price':
+        case 'price_low':
+            $args['meta_key'] = '_property_price';
+            $args['orderby'] = 'meta_value_num';
+            $args['order'] = 'ASC';
+            break;
+        case 'highest_price':
+        case 'price_high':
+            $args['meta_key'] = '_property_price';
+            $args['orderby'] = 'meta_value_num';
+            $args['order'] = 'DESC';
+            break;
+        case 'largest_sqft':
+            $args['meta_key'] = '_property_area_sqft';
+            $args['orderby'] = 'meta_value_num';
+            $args['order'] = 'DESC';
+            break;
+        case 'lowest_sqft':
+            $args['meta_key'] = '_property_area_sqft';
+            $args['orderby'] = 'meta_value_num';
+            $args['order'] = 'ASC';
+            break;
+        case 'bedrooms':
+            $args['meta_key'] = '_property_bedrooms';
+            $args['orderby'] = 'meta_value_num';
+            $args['order'] = 'DESC';
+            break;
+        case 'bathrooms':
+            $args['meta_key'] = '_property_bathrooms';
+            $args['orderby'] = 'meta_value_num';
+            $args['order'] = 'DESC';
+            break;
+        case 'featured':
+            $args['meta_key'] = '_property_featured';
+            $args['orderby'] = 'meta_value';
+            $args['order'] = 'DESC';
+            break;
+        case 'oldest':
+            $args['orderby'] = 'date';
+            $args['order'] = 'ASC';
+            break;
+        case 'newest':
+        default:
+            $args['orderby'] = 'date';
+            $args['order'] = 'DESC';
+            break;
+    }
+} else {
+    // Default sorting when disabled
+    $args['orderby'] = 'date';
+    $args['order'] = 'DESC';
 }
 
 // Set meta_query relation
@@ -446,14 +486,45 @@ $property_statuses = get_terms(array(
             </div>
 
             <!-- Right Side -->
-            <div class="sort-controls">
-                <span class="sort-label">Sort by:</span>
-                <select class="sort-select" name="sort_by" id="sortSelect" onchange="handleSortChange(this.value)">
-                    <option value="newest" <?php selected($sort_by, 'newest'); ?>>Newest</option>
-                    <option value="price_low" <?php selected($sort_by, 'price_low'); ?>>Price: Low to High</option>
-                    <option value="price_high" <?php selected($sort_by, 'price_high'); ?>>Price: High to Low</option>
-                    <option value="popular" <?php selected($sort_by, 'popular'); ?>>Most Popular</option>
-                </select>
+            <div class="right-controls">
+                <?php 
+                // Show sort controls only if sorting is enabled (dynamically from Listings settings)
+                if (resbs_is_sorting_enabled()) : 
+                    $enabled_sort_options = resbs_get_sort_options();
+                ?>
+                <div class="sort-controls">
+                    <span class="sort-label">Sort by:</span>
+                    <select class="sort-select" name="sort_by" id="sortSelect" onchange="handleSortChange(this.value)">
+                        <?php if (in_array('newest', $enabled_sort_options)) : ?>
+                            <option value="newest" <?php selected($sort_by, 'newest'); ?>>Newest</option>
+                        <?php endif; ?>
+                        <?php if (in_array('oldest', $enabled_sort_options)) : ?>
+                            <option value="oldest" <?php selected($sort_by, 'oldest'); ?>>Oldest</option>
+                        <?php endif; ?>
+                        <?php if (in_array('lowest_price', $enabled_sort_options)) : ?>
+                            <option value="lowest_price" <?php selected($sort_by, 'lowest_price'); ?>>Price: Low to High</option>
+                        <?php endif; ?>
+                        <?php if (in_array('highest_price', $enabled_sort_options)) : ?>
+                            <option value="highest_price" <?php selected($sort_by, 'highest_price'); ?>>Price: High to Low</option>
+                        <?php endif; ?>
+                        <?php if (in_array('largest_sqft', $enabled_sort_options)) : ?>
+                            <option value="largest_sqft" <?php selected($sort_by, 'largest_sqft'); ?>>Largest sq ft</option>
+                        <?php endif; ?>
+                        <?php if (in_array('lowest_sqft', $enabled_sort_options)) : ?>
+                            <option value="lowest_sqft" <?php selected($sort_by, 'lowest_sqft'); ?>>Lowest sq ft</option>
+                        <?php endif; ?>
+                        <?php if (in_array('bedrooms', $enabled_sort_options)) : ?>
+                            <option value="bedrooms" <?php selected($sort_by, 'bedrooms'); ?>>Bedrooms</option>
+                        <?php endif; ?>
+                        <?php if (in_array('bathrooms', $enabled_sort_options)) : ?>
+                            <option value="bathrooms" <?php selected($sort_by, 'bathrooms'); ?>>Bathrooms</option>
+                        <?php endif; ?>
+                        <?php if (in_array('featured', $enabled_sort_options)) : ?>
+                            <option value="featured" <?php selected($sort_by, 'featured'); ?>>Featured</option>
+                        <?php endif; ?>
+                    </select>
+                </div>
+                <?php endif; ?>
 
                 <div class="layout-toggle">
                     <button onclick="showGridLayout()" class="layout-btn" id="gridBtn">
@@ -908,7 +979,28 @@ $property_statuses = get_terms(array(
 .container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0 20px;
+    padding: 0 20px !important; /* Ensure padding is always applied */
+}
+
+/* Ensure main-content container maintains padding */
+.container.main-content {
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+}
+
+/* Ensure property grid respects container padding */
+.listings-container {
+    width: 100%;
+    margin-bottom: 40px;
+}
+
+.properties-list {
+    width: 100%;
+}
+
+.property-grid {
+    width: 100%;
+    box-sizing: border-box;
 }
 
 /* Ensure proper footer spacing */
