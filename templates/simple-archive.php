@@ -530,11 +530,10 @@ $property_statuses = get_terms(array(
                     <button onclick="showGridLayout()" class="layout-btn" id="gridBtn">
                         <i class="fas fa-th-large"></i>
                     </button>
+                    <button class="filter-toggle" onclick="showMap()" id="mapToggleBtn">
+                        <i class="fas fa-map-marked-alt"></i>
+                    </button>
                 </div>
-
-                <button class="filter-toggle" onclick="showMap()" id="mapToggleBtn">
-                    <i class="fas fa-map-marked-alt"></i>
-                </button>
             </div>
         </div>
 
@@ -1307,6 +1306,8 @@ body {
 .layout-toggle {
     display: flex;
     align-items: center;
+    gap: 10px;
+    flex-direction: row;
 }
 
 .layout-btn,
