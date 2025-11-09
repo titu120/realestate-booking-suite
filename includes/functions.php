@@ -309,34 +309,6 @@ function resbs_format_time($time, $format = null) {
     return date($format, $timestamp);
 }
 
-/**
- * Check if tel country code is disabled
- * @return bool True if disabled, false otherwise
- */
-function resbs_is_tel_country_code_disabled() {
-    return (bool) get_option('resbs_disable_tel_country_code', false);
-}
-
-/**
- * Format phone number - remove country code if setting is enabled
- * @param string $phone Phone number
- * @return string Formatted phone number
- */
-function resbs_format_phone($phone) {
-    if (empty($phone)) {
-        return '';
-    }
-    
-    // If country code should be disabled, remove it
-    if (resbs_is_tel_country_code_disabled()) {
-        // Remove common country code patterns (+1, +44, etc.)
-        $phone = preg_replace('/^\+\d{1,3}\s*/', '', $phone);
-        // Remove leading 1 for US numbers (if followed by space or dash)
-        $phone = preg_replace('/^1[\s\-]/', '', $phone);
-    }
-    
-    return esc_html($phone);
-}
 
 /**
  * Helper Functions for Map Settings

@@ -124,7 +124,6 @@ class RESBS_Enhanced_Settings {
         register_setting('resbs_enhanced_settings', 'resbs_logo_image');
         register_setting('resbs_enhanced_settings', 'resbs_main_color');
         register_setting('resbs_enhanced_settings', 'resbs_secondary_color');
-        register_setting('resbs_enhanced_settings', 'resbs_disable_tel_country_code');
         
         // Map Settings
         register_setting('resbs_enhanced_settings', 'resbs_mapbox_access_token');
@@ -932,31 +931,21 @@ class RESBS_Enhanced_Settings {
                 </tr>
                 
                 <tr>
-                    <th scope="row"><?php esc_html_e('Disable tel country code', 'realestate-booking-suite'); ?></th>
-                    <td>
-                        <label>
-                            <input type="checkbox" name="resbs_disable_tel_country_code" value="1" <?php checked(get_option('resbs_disable_tel_country_code'), 1); ?>>
-                            <?php esc_html_e('Disable tel country code', 'realestate-booking-suite'); ?>
-                        </label>
-                    </td>
-                </tr>
-                
-                <tr>
                     <th scope="row"><label for="resbs_main_color"><?php esc_html_e('Main color', 'realestate-booking-suite'); ?></label></th>
                     <td>
-                        <input type="color" id="resbs_main_color" name="resbs_main_color" value="<?php echo esc_attr(get_option('resbs_main_color', '#0073aa')); ?>" style="width: 60px; height: 30px; vertical-align: middle;">
-                        <input type="text" class="resbs-color-hex" value="<?php echo esc_attr(get_option('resbs_main_color', '#0073aa')); ?>" placeholder="#0073aa" maxlength="7" style="width: 100px; margin-left: 10px;">
-                        <button type="button" class="resbs-color-reset button" data-default="#0073aa" style="margin-left: 10px;"><?php esc_html_e('Reset', 'realestate-booking-suite'); ?></button>
+                        <input type="color" id="resbs_main_color" name="resbs_main_color" value="<?php echo esc_attr(get_option('resbs_main_color', '#28a745')); ?>" style="width: 60px; height: 30px; vertical-align: middle;">
+                        <input type="text" class="resbs-color-hex" value="<?php echo esc_attr(get_option('resbs_main_color', '#28a745')); ?>" placeholder="#28a745" maxlength="7" style="width: 100px; margin-left: 10px;">
+                        <button type="button" class="resbs-color-reset button" data-default="#28a745" style="margin-left: 10px;"><?php esc_html_e('Reset', 'realestate-booking-suite'); ?></button>
                         <p class="description"><?php esc_html_e('Large buttons', 'realestate-booking-suite'); ?></p>
                     </td>
                 </tr>
-                
+                28a745
                 <tr>
                     <th scope="row"><label for="resbs_secondary_color"><?php esc_html_e('Secondary color', 'realestate-booking-suite'); ?></label></th>
                     <td>
-                        <input type="color" id="resbs_secondary_color" name="resbs_secondary_color" value="<?php echo esc_attr(get_option('resbs_secondary_color', '#28a745')); ?>" style="width: 60px; height: 30px; vertical-align: middle;">
-                        <input type="text" class="resbs-color-hex" value="<?php echo esc_attr(get_option('resbs_secondary_color', '#28a745')); ?>" placeholder="#28a745" maxlength="7" style="width: 100px; margin-left: 10px;">
-                        <button type="button" class="resbs-color-reset button" data-default="#28a745" style="margin-left: 10px;"><?php esc_html_e('Reset', 'realestate-booking-suite'); ?></button>
+                        <input type="color" id="resbs_secondary_color" name="resbs_secondary_color" value="<?php echo esc_attr(get_option('resbs_secondary_color', '#0073aa')); ?>" style="width: 60px; height: 30px; vertical-align: middle;">
+                        <input type="text" class="resbs-color-hex" value="<?php echo esc_attr(get_option('resbs_secondary_color', '#0073aa')); ?>" placeholder="#0073aa" maxlength="7" style="width: 100px; margin-left: 10px;">
+                        <button type="button" class="resbs-color-reset button" data-default="#0073aa" style="margin-left: 10px;"><?php esc_html_e('Reset', 'realestate-booking-suite'); ?></button>
                         <p class="description"><?php esc_html_e('Small buttons', 'realestate-booking-suite'); ?></p>
                     </td>
                 </tr>
@@ -990,7 +979,7 @@ class RESBS_Enhanced_Settings {
             
             <div class="resbs-form-group">
                 <label for="resbs_secondary_color"><?php esc_html_e('Secondary Color', 'realestate-booking-suite'); ?></label>
-                <input type="color" id="resbs_secondary_color" name="resbs_secondary_color" value="<?php echo esc_attr(get_option('resbs_secondary_color', '#666666')); ?>">
+                <input type="color" id="resbs_secondary_color" name="resbs_secondary_color" value="<?php echo esc_attr(get_option('resbs_secondary_color', '#28a745')); ?>">
             </div>
             
             <div class="resbs-form-group">
@@ -2150,7 +2139,6 @@ class RESBS_Enhanced_Settings {
         
         // Handle checkboxes - they only appear in POST if checked
         $checkbox_settings = array(
-            'resbs_disable_tel_country_code'
         );
         
         foreach ($checkbox_settings as $setting) {

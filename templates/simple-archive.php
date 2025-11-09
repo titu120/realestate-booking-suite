@@ -895,6 +895,36 @@ $property_statuses = get_terms(array(
 </div>
 
 <style>
+<?php
+// Get color settings from General Settings
+$main_color = resbs_get_main_color();
+$secondary_color = resbs_get_secondary_color();
+
+// Helper function to darken color for hover states
+function darken_color($color, $percent = 10) {
+    $color = ltrim($color, '#');
+    $r = hexdec(substr($color, 0, 2));
+    $g = hexdec(substr($color, 2, 2));
+    $b = hexdec(substr($color, 4, 2));
+    $r = max(0, min(255, $r - ($r * $percent / 100)));
+    $g = max(0, min(255, $g - ($g * $percent / 100)));
+    $b = max(0, min(255, $b - ($b * $percent / 100)));
+    return '#' . str_pad(dechex($r), 2, '0', STR_PAD_LEFT) . str_pad(dechex($g), 2, '0', STR_PAD_LEFT) . str_pad(dechex($b), 2, '0', STR_PAD_LEFT);
+}
+
+// Helper function to convert hex to rgba for box-shadow
+function hex_to_rgba($hex, $alpha = 0.3) {
+    $hex = ltrim($hex, '#');
+    $r = hexdec(substr($hex, 0, 2));
+    $g = hexdec(substr($hex, 2, 2));
+    $b = hexdec(substr($hex, 4, 2));
+    return "rgba($r, $g, $b, $alpha)";
+}
+
+$main_color_dark = darken_color($main_color, 10);
+$secondary_color_dark = darken_color($secondary_color, 10);
+$main_color_rgba = hex_to_rgba($main_color, 0.3);
+?>
 /* Main Layout Fixes */
 .rbs-archive {
     min-height: 100vh;
@@ -1228,23 +1258,23 @@ body {
 }
 
 .view-btn:hover {
-    border-color: #10b981;
-    color: #10b981;
+    border-color: <?php echo esc_attr($main_color); ?>;
+    color: <?php echo esc_attr($main_color); ?>;
     background: #f0fdf4;
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
+    box-shadow: 0 4px 12px <?php echo esc_attr($main_color_rgba); ?>;
 }
 
 .view-btn.active {
-    background: #10b981;
-    border-color: #10b981;
+    background: <?php echo esc_attr($main_color); ?>;
+    border-color: <?php echo esc_attr($main_color); ?>;
     color: white;
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    box-shadow: 0 4px 12px <?php echo esc_attr($main_color_rgba); ?>;
 }
 
 .view-btn.active:hover {
-    background: #059669;
-    border-color: #059669;
+    background: <?php echo esc_attr($main_color_dark); ?>;
+    border-color: <?php echo esc_attr($main_color_dark); ?>;
     color: white;
 }
 
@@ -1300,7 +1330,7 @@ body {
 
 .sort-select:hover,
 .sort-select:focus {
-    border-color: #10b981;
+    border-color: <?php echo esc_attr($main_color); ?>;
 }
 
 .layout-toggle {
@@ -1330,25 +1360,25 @@ body {
 
 .layout-btn:hover,
 .filter-toggle:hover {
-    border-color: #10b981;
-    color: #10b981;
+    border-color: <?php echo esc_attr($main_color); ?>;
+    color: <?php echo esc_attr($main_color); ?>;
     background: #f0fdf4;
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
+    box-shadow: 0 4px 12px <?php echo esc_attr($main_color_rgba); ?>;
 }
 
 .layout-btn.active,
 .filter-toggle.active {
-    background: #10b981;
-    border-color: #10b981;
+    background: <?php echo esc_attr($main_color); ?>;
+    border-color: <?php echo esc_attr($main_color); ?>;
     color: white;
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    box-shadow: 0 4px 12px <?php echo esc_attr($main_color_rgba); ?>;
 }
 
 .layout-btn.active:hover,
 .filter-toggle.active:hover {
-    background: #059669;
-    border-color: #059669;
+    background: <?php echo esc_attr($main_color_dark); ?>;
+    border-color: <?php echo esc_attr($main_color_dark); ?>;
     color: white;
 }
 
@@ -1382,13 +1412,13 @@ body {
 }
 
 .apply-filter-btn {
-    background-color: #10b981;
+    background-color: <?php echo esc_attr($main_color); ?>;
     color: white;
     font-weight: 600;
 }
 
 .apply-filter-btn:hover {
-    background-color: #059669;
+    background-color: <?php echo esc_attr($main_color_dark); ?>;
     color: white;
 }
 
@@ -1405,6 +1435,91 @@ body {
 
 .apply-filter-btn i, .clear-filter-btn i {
     font-size: 12px;
+}
+
+/* Property Footer Meta Styling */
+.property-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.property-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.property-type {
+    color: #6b7280;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.property-date {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #6b7280;
+    font-size: 12px;
+}
+
+.property-date i {
+    font-size: 11px;
+    color: #9ca3af;
+}
+
+.view-details-btn {
+    padding: 6px 12px;
+    background: <?php echo esc_attr($main_color); ?>;
+    color: white;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.view-details-btn:hover {
+    background: <?php echo esc_attr($main_color_dark); ?>;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px <?php echo esc_attr($main_color_rgba); ?>;
+}
+
+.view-details-btn i {
+    font-size: 11px;
+}
+
+/* Search Button */
+.search-btn {
+    padding: 12px 24px;
+    background: <?php echo esc_attr($main_color); ?>;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.search-btn:hover {
+    background: <?php echo esc_attr($main_color_dark); ?>;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px <?php echo esc_attr($main_color_rgba); ?>;
+}
+
+.search-btn i {
+    font-size: 14px;
 }
 </style>
 

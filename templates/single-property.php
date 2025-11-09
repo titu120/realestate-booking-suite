@@ -283,6 +283,115 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <link rel="stylesheet" href="<?php echo RESBS_URL; ?>assets/css/single-property.css" />
 
+<?php
+// Get color settings from General Settings
+$main_color = resbs_get_main_color();
+$secondary_color = resbs_get_secondary_color();
+
+// Helper function to darken color for hover states
+function resbs_darken_color($color, $percent = 10) {
+    $color = ltrim($color, '#');
+    $r = hexdec(substr($color, 0, 2));
+    $g = hexdec(substr($color, 2, 2));
+    $b = hexdec(substr($color, 4, 2));
+    $r = max(0, min(255, $r - ($r * $percent / 100)));
+    $g = max(0, min(255, $g - ($g * $percent / 100)));
+    $b = max(0, min(255, $b - ($b * $percent / 100)));
+    return '#' . str_pad(dechex($r), 2, '0', STR_PAD_LEFT) . str_pad(dechex($g), 2, '0', STR_PAD_LEFT) . str_pad(dechex($b), 2, '0', STR_PAD_LEFT);
+}
+
+// Helper function to convert hex to rgba
+function resbs_hex_to_rgba($hex, $alpha = 0.3) {
+    $hex = ltrim($hex, '#');
+    $r = hexdec(substr($hex, 0, 2));
+    $g = hexdec(substr($hex, 2, 2));
+    $b = hexdec(substr($hex, 4, 2));
+    return "rgba($r, $g, $b, $alpha)";
+}
+
+$main_color_dark = resbs_darken_color($main_color, 10);
+$secondary_color_dark = resbs_darken_color($secondary_color, 10);
+$main_color_rgba = resbs_hex_to_rgba($main_color, 0.3);
+$main_color_light = resbs_hex_to_rgba($main_color, 0.1);
+?>
+
+<style>
+/* Override CSS variables with dynamic colors from General Settings */
+:root {
+    --rebs-primary-color: <?php echo esc_attr($main_color); ?> !important;
+    --rebs-primary-dark: <?php echo esc_attr($main_color_dark); ?> !important;
+    --rebs-primary-light: <?php echo esc_attr($main_color_light); ?> !important;
+    --rebs-secondary-color: <?php echo esc_attr($secondary_color); ?> !important;
+    --resbs-main-color: <?php echo esc_attr($main_color); ?> !important;
+    --resbs-secondary-color: <?php echo esc_attr($secondary_color); ?> !important;
+}
+
+/* Update all buttons to use dynamic colors */
+.single-property .btn-primary,
+.single-property .btn.btn-primary,
+.single-property button.btn-primary,
+.single-property .agent-action-primary,
+.single-property .agent-action.agent-action-primary,
+.single-property a.agent-action-primary {
+    background-color: <?php echo esc_attr($main_color); ?> !important;
+    border-color: <?php echo esc_attr($main_color); ?> !important;
+    color: white !important;
+}
+
+.single-property .btn-primary:hover,
+.single-property .btn.btn-primary:hover,
+.single-property button.btn-primary:hover,
+.single-property .agent-action-primary:hover,
+.single-property .agent-action.agent-action-primary:hover,
+.single-property a.agent-action-primary:hover {
+    background-color: <?php echo esc_attr($main_color_dark); ?> !important;
+    border-color: <?php echo esc_attr($main_color_dark); ?> !important;
+}
+
+.single-property .agent-action-secondary,
+.single-property .agent-action.agent-action-secondary,
+.single-property button.agent-action-secondary {
+    background-color: <?php echo esc_attr($secondary_color); ?> !important;
+    border-color: <?php echo esc_attr($secondary_color); ?> !important;
+    color: white !important;
+}
+
+.single-property .agent-action-secondary:hover,
+.single-property .agent-action.agent-action-secondary:hover,
+.single-property button.agent-action-secondary:hover {
+    background-color: <?php echo esc_attr($secondary_color_dark); ?> !important;
+    border-color: <?php echo esc_attr($secondary_color_dark); ?> !important;
+}
+
+/* Update inline styles */
+.single-property a[style*="background: #007cba"],
+.single-property a[style*="background:#007cba"] {
+    background: <?php echo esc_attr($main_color); ?> !important;
+}
+
+/* Update booking form button */
+.single-property button[type="submit"].bg-white.hover\:bg-green-700,
+.single-property button[type="submit"][class*="bg-white"] {
+    background-color: <?php echo esc_attr($main_color); ?> !important;
+}
+
+.single-property button[type="submit"][class*="bg-white"]:hover {
+    background-color: <?php echo esc_attr($main_color_dark); ?> !important;
+}
+
+/* Update focus rings */
+.single-property .focus\:ring-green-500:focus,
+.single-property [class*="focus:ring-green"]:focus {
+    --tw-ring-color: <?php echo esc_attr($main_color); ?> !important;
+    border-color: <?php echo esc_attr($main_color); ?> !important;
+}
+
+.single-property .focus\:border-green-500:focus,
+.single-property [class*="focus:border-green"]:focus {
+    border-color: <?php echo esc_attr($main_color); ?> !important;
+}
+</style>
+
 <!-- Single Property Template Scripts -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="<?php echo RESBS_URL; ?>assets/js/single-property-template.js"></script>
@@ -318,6 +427,10 @@
                             <p class="property-location">
                                 <i class="fas fa-map-marker-alt text-emerald-500"></i>
                                 <?php echo esc_html($full_address ? $full_address : 'Location not specified'); ?>
+                            </p>
+                            <p class="property-date" style="color: #6b7280; font-size: 14px; margin-top: 8px;">
+                                <i class="fas fa-calendar-alt"></i>
+                                Listed on <?php echo esc_html(resbs_format_date(get_the_date('Y-m-d'))); ?>
                             </p>
                         </div>
                         <div class="mt-4 md:mt-0">
@@ -866,7 +979,7 @@
                                         <button onclick="downloadFloorPlan()" class="btn btn-primary">
                                             <i class="fas fa-download mr-2"></i>Download Floor Plan
                                         </button>
-                                        <button onclick="requestCustomPlan()" class="btn" style="background-color: var(--secondary-color); color: var(--white);">
+                                        <button onclick="requestCustomPlan()" class="btn" style="background-color: <?php echo esc_attr($secondary_color); ?>; color: white;">
                                             <i class="fas fa-envelope mr-2"></i>Request Custom Plan
                                         </button>
                                     </div>
@@ -1290,7 +1403,7 @@
                                         <i class="fas fa-phone agent-detail-icon"></i>
                                         <div class="agent-detail-content">
                                             <span class="agent-detail-label">Phone</span>
-                                            <span class="agent-detail-value"><?php echo resbs_format_phone($agent_phone); ?></span>
+                                            <span class="agent-detail-value"><?php echo esc_html($agent_phone); ?></span>
                                         </div>
                                     </div>
                                     <?php endif; ?>
@@ -1577,7 +1690,7 @@
                         <?php if ($agent_photo): ?>
                             <img src="<?php echo esc_url($agent_photo); ?>" alt="<?php echo esc_attr($agent_name); ?>" class="agent-avatar">
                         <?php else: ?>
-                            <div class="agent-avatar" style="background-color: var(--primary-color); color: white; display: flex; align-items: center; justify-content: center; font-size: 2rem;">
+                            <div class="agent-avatar" style="background-color: <?php echo esc_attr($main_color); ?>; color: white; display: flex; align-items: center; justify-content: center; font-size: 2rem;">
                                 <i class="fas fa-user"></i>
                             </div>
                         <?php endif; ?>
@@ -1856,7 +1969,7 @@
     <div class="container" style="padding: 20px;">
         <h1>Property Not Found</h1>
         <p>Sorry, the property you're looking for doesn't exist or has been removed.</p>
-        <a href="<?php echo home_url('/property/'); ?>" style="background: #007cba; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">Back to Properties</a>
+        <a href="<?php echo home_url('/property/'); ?>" style="background: <?php echo esc_attr(resbs_get_main_color()); ?>; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">Back to Properties</a>
     </div>
 <?php endif; ?>
 
