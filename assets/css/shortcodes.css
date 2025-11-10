@@ -916,6 +916,64 @@
     line-height: 1.6;
 }
 
+/* Checkbox styling improvements */
+.resbs-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: normal !important;
+    margin-top: 0 !important;
+    padding: 0;
+    background: transparent !important;
+    border: none !important;
+    cursor: pointer;
+    transition: none;
+    min-height: auto;
+    height: auto;
+}
+
+.resbs-checkbox-label:hover {
+    background: transparent !important;
+    border: none !important;
+}
+
+.resbs-checkbox-input {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    cursor: pointer;
+    accent-color: #0073aa;
+    flex-shrink: 0;
+}
+
+.resbs-checkbox-label span {
+    font-size: 14px;
+    color: #374151;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.resbs-checkbox-input:checked ~ span {
+    color: #0073aa;
+    font-weight: 600;
+}
+
+.resbs-checkbox-input:checked + span {
+    color: #0073aa;
+    font-weight: 600;
+}
+
+/* Ensure checkbox label aligns properly with other form fields */
+.resbs-form-group .resbs-checkbox-label {
+    margin-top: 0;
+    padding-top: 0;
+    align-items: center;
+    justify-content: flex-start;
+    width: 20px !important;
+    margin-top: 52px !important;
+    display: flex;
+}
+
 .resbs-gallery-upload {
     border: 2px dashed #d1d5db;
     border-radius: 10px;

@@ -704,9 +704,9 @@ class RESBS_Shortcodes {
                         </div>
 
                         <div class="resbs-form-group">
-                            <label style="display: flex; align-items: center; gap: 8px;">
-                                <input type="checkbox" name="property_call_for_price" id="property_call_for_price_<?php echo esc_attr($shortcode_id); ?>" value="1">
-                                <?php esc_html_e('Call for Price', 'realestate-booking-suite'); ?>
+                            <label class="resbs-checkbox-label">
+                                <input type="checkbox" name="property_call_for_price" id="property_call_for_price_<?php echo esc_attr($shortcode_id); ?>" value="1" class="resbs-checkbox-input">
+                                <span><?php esc_html_e('Call for Price', 'realestate-booking-suite'); ?></span>
                             </label>
                         </div>
                     </div>
@@ -896,9 +896,9 @@ class RESBS_Shortcodes {
                                    placeholder="<?php esc_attr_e('e.g., United States', 'realestate-booking-suite'); ?>">
                         </div>
                         <div class="resbs-form-group">
-                            <label style="display: flex; align-items: center; gap: 8px;">
-                                <input type="checkbox" name="property_hide_address" id="property_hide_address_<?php echo esc_attr($shortcode_id); ?>" value="1">
-                                <?php esc_html_e('Hide Address on Public Listing', 'realestate-booking-suite'); ?>
+                            <label class="resbs-checkbox-label">
+                                <input type="checkbox" name="property_hide_address" id="property_hide_address_<?php echo esc_attr($shortcode_id); ?>" value="1" class="resbs-checkbox-input">
+                                <span><?php esc_html_e('Hide Address on Public Listing', 'realestate-booking-suite'); ?></span>
                             </label>
                         </div>
                     </div>
