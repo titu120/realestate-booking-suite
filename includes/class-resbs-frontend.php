@@ -1248,9 +1248,17 @@ class RESBS_Frontend {
      * Handle toggle favorite
      */
     public function handle_toggle_favorite() {
-        // Verify nonce
-        if (!wp_verify_nonce($_POST['nonce'], 'resbs_elementor_nonce')) {
-            wp_send_json_error(esc_html__('Security check failed.', 'realestate-booking-suite'));
+        // Check if nonce exists
+        if (!isset($_POST['nonce']) || empty($_POST['nonce'])) {
+            return; // Let other handlers process it
+        }
+        
+        // Only process if this handler's nonce matches
+        // If not, let other handlers (Favorites Manager) process it
+        $nonce = sanitize_text_field($_POST['nonce']);
+        if (!wp_verify_nonce($nonce, 'resbs_elementor_nonce')) {
+            // Not our nonce - let other handlers process it
+            return;
         }
         
         if (!is_user_logged_in()) {

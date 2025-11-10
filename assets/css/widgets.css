@@ -261,25 +261,38 @@
 
 .resbs-favorite-btn {
     background: rgba(255, 255, 255, 0.9);
-    border: none;
-    border-radius: 50%;
+    border: none !important;
+    border-radius: 50% !important;
     width: 40px;
     height: 40px;
+    min-width: 40px;
+    min-height: 40px;
+    max-width: 40px;
+    max-height: 40px;
+    padding: 0;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    outline: none;
 }
 
 .resbs-favorite-btn:hover {
     background: #fff;
     transform: scale(1.1);
+    border-radius: 50% !important;
 }
 
 .resbs-favorite-btn.active {
     color: #ff6b35;
+    border-radius: 50% !important;
+}
+
+.resbs-favorite-btn i {
+    font-size: 16px;
+    line-height: 1;
 }
 
 /* Property Content */

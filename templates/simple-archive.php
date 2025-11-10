@@ -614,17 +614,26 @@ $property_statuses = get_terms(array(
                                     <img src="<?php echo esc_url($featured_image); ?>" alt="<?php echo esc_attr(get_the_title()); ?>">
                             <div class="gradient-overlay"></div>
                                     <div class="property-badge <?php echo esc_attr($badge_class); ?>"><?php echo esc_html($badge_text); ?></div>
-                            <button class="favorite-btn">
-                                <i class="far fa-heart"></i>
+                            <?php if (resbs_is_wishlist_enabled()): 
+                                $property_id = get_the_ID();
+                                $is_favorited = resbs_is_property_favorited($property_id);
+                            ?>
+                            <button class="favorite-btn resbs-favorite-btn <?php echo $is_favorited ? 'favorited' : ''; ?>" data-property-id="<?php echo esc_attr($property_id); ?>">
+                                <i class="<?php echo $is_favorited ? 'fas' : 'far'; ?> fa-heart"></i>
                             </button>
+                            <?php endif; ?>
                             <div class="property-info-overlay">
                                         <h3 class="property-title"><?php echo esc_html(get_the_title()); ?></h3>
-                                        <p class="property-location"><?php echo esc_html($location); ?></p>
+                                        <?php if (resbs_should_show_listing_address() && $location): ?>
+                                            <p class="property-location"><?php echo esc_html($location); ?></p>
+                                        <?php endif; ?>
                             </div>
                         </div>
                         <div class="property-details">
                             <div class="property-price-container">
-                                        <span class="property-price"><?php echo esc_html($formatted_price); ?></span>
+                                        <?php if (resbs_should_show_price() && $formatted_price): ?>
+                                            <span class="property-price"><?php echo esc_html($formatted_price); ?></span>
+                                        <?php endif; ?>
                                         <span class="property-status"><?php echo esc_html($property_status_name); ?></span>
                             </div>
                             <div class="property-features">
@@ -1778,8 +1787,151 @@ function highlightProperty(propertyId) {
     }
 }
 
-// Initialize map state on page load
+// Favorite button functionality
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize favorite button states on page load
+    function initializeFavoriteButtons() {
+        const favoriteButtons = document.querySelectorAll('.favorite-btn, .resbs-favorite-btn');
+        favoriteButtons.forEach(function(btn) {
+            const propertyId = btn.getAttribute('data-property-id');
+            if (!propertyId) return;
+            
+            const icon = btn.querySelector('i');
+            if (!icon) return;
+            
+            // Check if button already has favorited class (set by PHP)
+            if (btn.classList.contains('favorited')) {
+                icon.classList.remove('far');
+                icon.classList.add('fas');
+            } else {
+                icon.classList.remove('fas');
+                icon.classList.add('far');
+            }
+        });
+    }
+    
+    // Initialize buttons on page load
+    initializeFavoriteButtons();
+    
+    // Handle favorite button clicks
+    document.addEventListener('click', function(e) {
+        const favoriteBtn = e.target.closest('.favorite-btn, .resbs-favorite-btn');
+        if (!favoriteBtn) return;
+        
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const propertyId = favoriteBtn.getAttribute('data-property-id');
+        if (!propertyId) {
+            console.error('Property ID not found');
+            return;
+        }
+        
+        const icon = favoriteBtn.querySelector('i');
+        if (!icon) return;
+        
+        // Toggle visual state immediately for better UX
+        const isFavorited = favoriteBtn.classList.contains('favorited');
+        if (isFavorited) {
+            favoriteBtn.classList.remove('favorited');
+            icon.classList.remove('fas');
+            icon.classList.add('far');
+        } else {
+            favoriteBtn.classList.add('favorited');
+            icon.classList.remove('far');
+            icon.classList.add('fas');
+        }
+        
+        // Make AJAX request
+        const formData = new FormData();
+        formData.append('action', 'resbs_toggle_favorite');
+        formData.append('property_id', propertyId);
+        
+        // Generate nonce - ensure it's fresh
+        const nonce = '<?php echo esc_js(wp_create_nonce('resbs_favorites_nonce')); ?>';
+        if (!nonce) {
+            alert('<?php echo esc_js(__('Unable to generate security token. Please refresh the page.', 'realestate-booking-suite')); ?>');
+            return;
+        }
+        formData.append('nonce', nonce);
+        
+        fetch('<?php echo esc_url(admin_url('admin-ajax.php')); ?>', {
+            method: 'POST',
+            body: formData,
+            credentials: 'same-origin'
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (!data) {
+                throw new Error('Invalid response from server');
+            }
+            
+            if (data.success) {
+                // Success - update button state
+                if (data.data && data.data.is_favorite) {
+                    favoriteBtn.classList.add('favorited');
+                    icon.classList.remove('far');
+                    icon.classList.add('fas');
+                } else {
+                    favoriteBtn.classList.remove('favorited');
+                    icon.classList.remove('fas');
+                    icon.classList.add('far');
+                }
+                
+                // Show success message if available
+                if (data.data && data.data.message) {
+                    console.log(data.data.message);
+                }
+            } else {
+                // Error - revert visual state
+                if (isFavorited) {
+                    favoriteBtn.classList.add('favorited');
+                    icon.classList.remove('far');
+                    icon.classList.add('fas');
+                } else {
+                    favoriteBtn.classList.remove('favorited');
+                    icon.classList.remove('fas');
+                    icon.classList.add('far');
+                }
+                
+                // Show error message
+                let errorMessage = '<?php echo esc_js(__('An error occurred. Please try again.', 'realestate-booking-suite')); ?>';
+                
+                if (data && data.data) {
+                    // data.data can be a string or an object
+                    if (typeof data.data === 'string') {
+                        errorMessage = data.data;
+                    } else if (data.data.message) {
+                        errorMessage = data.data.message;
+                    }
+                }
+                
+                alert(errorMessage);
+            }
+        })
+        .catch(error => {
+            console.error('Favorite button error:', error);
+            
+            // Revert visual state on error
+            if (isFavorited) {
+                favoriteBtn.classList.add('favorited');
+                icon.classList.remove('far');
+                icon.classList.add('fas');
+            } else {
+                favoriteBtn.classList.remove('favorited');
+                icon.classList.remove('fas');
+                icon.classList.add('far');
+            }
+            
+            alert('<?php echo esc_js(__('An error occurred. Please try again.', 'realestate-booking-suite')); ?>');
+        });
+    });
+    
     const mapSection = document.querySelector('.map-section');
     const listingsContainer = document.querySelector('.listings-container');
     

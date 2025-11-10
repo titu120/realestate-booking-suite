@@ -1014,8 +1014,18 @@ class RESBS_Property_Grid_Widget extends WP_Widget {
      * AJAX handler for toggling favorite
      */
     public function ajax_toggle_favorite() {
-        // Verify nonce using security helper
-        RESBS_Security::verify_ajax_nonce($_POST['nonce'], 'resbs_widget_nonce');
+        // Check if nonce exists
+        if (!isset($_POST['nonce']) || empty($_POST['nonce'])) {
+            return; // Let other handlers process it
+        }
+        
+        // Only process if this handler's nonce matches
+        // If not, let other handlers (Favorites Manager) process it
+        $nonce = sanitize_text_field($_POST['nonce']);
+        if (!wp_verify_nonce($nonce, 'resbs_widget_nonce')) {
+            // Not our nonce - let other handlers process it
+            return;
+        }
         
         // Rate limiting check
         if (!RESBS_Security::check_rate_limit('toggle_favorite', 30, 300)) {

@@ -23,7 +23,67 @@ define('RESBS_URL', plugin_dir_url(__FILE__));
 function resbs_flush_rewrite_rules() {
     flush_rewrite_rules();
 }
-register_activation_hook(__FILE__, 'resbs_flush_rewrite_rules');
+
+/**
+ * Create wishlist page on plugin activation
+ * Uses slug "saved-properties" to avoid conflicts with other plugins
+ */
+function resbs_create_wishlist_page() {
+    // Check if page already exists
+    $page_slug = 'saved-properties';
+    $existing_page = get_page_by_path($page_slug);
+    
+    // Also check if we stored the page ID in options
+    $stored_page_id = get_option('resbs_wishlist_page_id');
+    
+    if ($stored_page_id) {
+        $existing_page = get_post($stored_page_id);
+        if ($existing_page && $existing_page->post_status !== 'trash') {
+            // Page exists and is not trashed, don't create again
+            return $stored_page_id;
+        }
+    }
+    
+    // If page exists but not in our option, use it
+    if ($existing_page && $existing_page->post_status !== 'trash') {
+        update_option('resbs_wishlist_page_id', $existing_page->ID);
+        return $existing_page->ID;
+    }
+    
+    // Create the page
+    $page_data = array(
+        'post_title'    => __('My Saved Properties', 'realestate-booking-suite'),
+        'post_content'  => '[resbs_favorites]',
+        'post_status'   => 'publish',
+        'post_type'     => 'page',
+        'post_name'     => $page_slug,
+        'post_author'   => 1,
+        'comment_status' => 'closed',
+        'ping_status'   => 'closed'
+    );
+    
+    $page_id = wp_insert_post($page_data);
+    
+    if ($page_id && !is_wp_error($page_id)) {
+        // Store the page ID in options
+        update_option('resbs_wishlist_page_id', $page_id);
+        return $page_id;
+    }
+    
+    return false;
+}
+
+/**
+ * Plugin activation hook
+ */
+function resbs_plugin_activation() {
+    // Flush rewrite rules
+    flush_rewrite_rules();
+    
+    // Create wishlist page
+    resbs_create_wishlist_page();
+}
+register_activation_hook(__FILE__, 'resbs_plugin_activation');
 
 // Manual flush rewrite rules function (for debugging)
 function resbs_manual_flush_rewrite_rules() {

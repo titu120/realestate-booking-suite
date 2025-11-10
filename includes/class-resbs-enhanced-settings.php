@@ -152,8 +152,6 @@ class RESBS_Enhanced_Settings {
         register_setting('resbs_enhanced_settings', 'resbs_default_sort_option');
         register_setting('resbs_enhanced_settings', 'resbs_show_price');
         register_setting('resbs_enhanced_settings', 'resbs_show_listing_address');
-        register_setting('resbs_enhanced_settings', 'resbs_listing_preview_block');
-        register_setting('resbs_enhanced_settings', 'resbs_show_description_listing_box');
         register_setting('resbs_enhanced_settings', 'resbs_enable_map_single_listing');
         register_setting('resbs_enhanced_settings', 'resbs_enable_wishlist');
         register_setting('resbs_enhanced_settings', 'resbs_enable_labels');
@@ -931,7 +929,7 @@ class RESBS_Enhanced_Settings {
                         <p class="description"><?php esc_html_e('Large buttons', 'realestate-booking-suite'); ?></p>
                     </td>
                 </tr>
-                28a745
+          
                 <tr>
                     <th scope="row"><label for="resbs_secondary_color"><?php esc_html_e('Secondary color', 'realestate-booking-suite'); ?></label></th>
                     <td>
@@ -1523,7 +1521,7 @@ class RESBS_Enhanced_Settings {
                     <th scope="row"><?php esc_html_e('Show price', 'realestate-booking-suite'); ?></th>
                     <td>
                         <label>
-                            <input type="checkbox" name="resbs_show_price" value="1" <?php checked(get_option('resbs_show_price'), 1); ?>>
+                            <input type="checkbox" name="resbs_show_price" value="1" <?php checked(get_option('resbs_show_price', 1), 1); ?>>
                             <?php esc_html_e('Show price', 'realestate-booking-suite'); ?>
                         </label>
                     </td>
@@ -1533,28 +1531,8 @@ class RESBS_Enhanced_Settings {
                     <th scope="row"><?php esc_html_e('Show listing address', 'realestate-booking-suite'); ?></th>
                     <td>
                         <label>
-                            <input type="checkbox" name="resbs_show_listing_address" value="1" <?php checked(get_option('resbs_show_listing_address'), 1); ?>>
+                            <input type="checkbox" name="resbs_show_listing_address" value="1" <?php checked(get_option('resbs_show_listing_address', 1), 1); ?>>
                             <?php esc_html_e('Show listing address', 'realestate-booking-suite'); ?>
-                        </label>
-                    </td>
-                </tr>
-                
-                <tr>
-                    <th scope="row"><?php esc_html_e('What to show on the listing preview block?', 'realestate-booking-suite'); ?></th>
-                    <td>
-                        <fieldset>
-                            <label><input type="radio" id="preview_address" name="resbs_listing_preview_block" value="address" <?php checked(get_option('resbs_listing_preview_block'), 'address'); ?>> <?php esc_html_e('Address', 'realestate-booking-suite'); ?></label><br>
-                            <label><input type="radio" id="preview_title" name="resbs_listing_preview_block" value="title" <?php checked(get_option('resbs_listing_preview_block'), 'title'); ?>> <?php esc_html_e('Title', 'realestate-booking-suite'); ?></label>
-                        </fieldset>
-                    </td>
-                </tr>
-                
-                <tr>
-                    <th scope="row"><?php esc_html_e('Show description in listing box', 'realestate-booking-suite'); ?></th>
-                    <td>
-                        <label>
-                            <input type="checkbox" name="resbs_show_description_listing_box" value="1" <?php checked(get_option('resbs_show_description_listing_box'), 1); ?>>
-                            <?php esc_html_e('Show description in listing box', 'realestate-booking-suite'); ?>
                         </label>
                     </td>
                 </tr>
@@ -1576,6 +1554,23 @@ class RESBS_Enhanced_Settings {
                             <input type="checkbox" name="resbs_enable_wishlist" value="1" <?php checked(get_option('resbs_enable_wishlist'), 1); ?>>
                             <?php esc_html_e('Enable wishlist', 'realestate-booking-suite'); ?>
                         </label>
+                        <?php 
+                        $wishlist_page_id = get_option('resbs_wishlist_page_id');
+                        $wishlist_page_url = resbs_get_wishlist_page_url();
+                        if ($wishlist_page_url): 
+                        ?>
+                        <p class="description" style="margin-top: 8px;">
+                            <?php esc_html_e('Wishlist page:', 'realestate-booking-suite'); ?> 
+                            <a href="<?php echo esc_url($wishlist_page_url); ?>" target="_blank"><?php echo esc_html($wishlist_page_url); ?></a>
+                            <?php if ($wishlist_page_id): ?>
+                                | <a href="<?php echo esc_url(admin_url('post.php?post=' . $wishlist_page_id . '&action=edit')); ?>"><?php esc_html_e('Edit Page', 'realestate-booking-suite'); ?></a>
+                            <?php endif; ?>
+                        </p>
+                        <?php else: ?>
+                        <p class="description" style="margin-top: 8px; color: #d63638;">
+                            <?php esc_html_e('Wishlist page not found. Please deactivate and reactivate the plugin to create it.', 'realestate-booking-suite'); ?>
+                        </p>
+                        <?php endif; ?>
                     </td>
                 </tr>
                 
@@ -2109,8 +2104,6 @@ class RESBS_Enhanced_Settings {
             'resbs_default_sort_option' => 'newest',
             'resbs_show_price' => '1',
             'resbs_show_listing_address' => '1',
-            'resbs_listing_preview_block' => '',
-            'resbs_show_description_listing_box' => '',
             'resbs_enable_map_single_listing' => '1',
             'resbs_enable_wishlist' => '1',
             'resbs_enable_labels' => '1',
@@ -2352,8 +2345,6 @@ class RESBS_Enhanced_Settings {
             'resbs_default_sort_option',
             'resbs_show_price',
             'resbs_show_listing_address',
-            'resbs_listing_preview_block',
-            'resbs_show_description_listing_box',
             'resbs_enable_map_single_listing',
             'resbs_enable_wishlist',
             'resbs_enable_labels',

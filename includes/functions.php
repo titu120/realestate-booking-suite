@@ -72,7 +72,7 @@ new RESBS_Maps_Manager();
 
 // Load Favorites Manager
 require_once RESBS_PATH . 'includes/class-resbs-favorites.php';
-new RESBS_Favorites_Manager();
+$GLOBALS['resbs_favorites_manager'] = new RESBS_Favorites_Manager();
 
 // Load Contact Settings
 require_once RESBS_PATH . 'includes/class-resbs-contact-settings.php';
@@ -564,4 +564,70 @@ function resbs_is_request_form_geolocation_enabled() {
  */
 function resbs_show_phone_country_code() {
     return (bool) get_option('resbs_show_phone_country_code', true);
+}
+
+/**
+ * Check if wishlist is enabled
+ * @return bool True if wishlist is enabled
+ */
+function resbs_is_wishlist_enabled() {
+    return (bool) get_option('resbs_enable_wishlist', true);
+}
+
+/**
+ * Get wishlist page URL
+ * @return string|false Wishlist page URL or false if page doesn't exist
+ */
+function resbs_get_wishlist_page_url() {
+    $page_id = get_option('resbs_wishlist_page_id');
+    
+    if ($page_id) {
+        $page_url = get_permalink($page_id);
+        if ($page_url) {
+            return $page_url;
+        }
+    }
+    
+    // Fallback: try to find page by slug
+    $page = get_page_by_path('saved-properties');
+    if ($page && $page->post_status === 'publish') {
+        update_option('resbs_wishlist_page_id', $page->ID);
+        return get_permalink($page->ID);
+    }
+    
+    return false;
+}
+
+/**
+ * Get wishlist page ID
+ * @return int|false Wishlist page ID or false if page doesn't exist
+ */
+function resbs_get_wishlist_page_id() {
+    $page_id = get_option('resbs_wishlist_page_id');
+    
+    if ($page_id && get_post($page_id)) {
+        return $page_id;
+    }
+    
+    // Fallback: try to find page by slug
+    $page = get_page_by_path('saved-properties');
+    if ($page && $page->post_status === 'publish') {
+        update_option('resbs_wishlist_page_id', $page->ID);
+        return $page->ID;
+    }
+    
+    return false;
+}
+
+/**
+ * Check if a property is in favorites
+ * @param int $property_id Property ID
+ * @return bool True if property is favorited
+ */
+function resbs_is_property_favorited($property_id) {
+    if (!isset($GLOBALS['resbs_favorites_manager'])) {
+        return false;
+    }
+    
+    return $GLOBALS['resbs_favorites_manager']->is_favorite($property_id);
 }

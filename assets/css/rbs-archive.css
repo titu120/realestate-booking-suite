@@ -635,20 +635,32 @@
         right: 16px;
         width: 40px;
         height: 40px;
+        min-width: 40px;
+        min-height: 40px;
+        max-width: 40px;
+        max-height: 40px;
+        padding: 0;
         background-color: white;
-        border-radius: 50%;
+        border-radius: 50% !important;
         display: flex;
         align-items: center;
         justify-content: center;
         cursor: pointer;
         transition: all 0.3s;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        border: unset;
+        border: none !important;
+        outline: none;
     }
 
     .rbs-archive .favorite-btn:hover {
         background-color: #0f766e;
         color: white;
+        border-radius: 50% !important;
+    }
+    
+    .rbs-archive .favorite-btn i {
+        font-size: 16px;
+        line-height: 1;
     }
 
     .rbs-archive .property-info-overlay {

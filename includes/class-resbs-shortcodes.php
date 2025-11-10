@@ -29,7 +29,8 @@ class RESBS_Shortcodes {
         add_shortcode('resbs_search', array($this, 'search_shortcode'));
         add_shortcode('resbs_dashboard', array($this, 'dashboard_shortcode'));
         add_shortcode('resbs_submit_property', array($this, 'submit_property_shortcode'));
-        add_shortcode('resbs_favorites', array($this, 'favorites_shortcode'));
+        // Note: resbs_favorites shortcode is handled by RESBS_Favorites_Manager class
+        // Removed duplicate registration to avoid conflicts
     }
 
     /**

@@ -19,9 +19,9 @@ class RESBS_Favorites_Manager {
         add_action('init', array($this, 'init'));
         add_action('wp_enqueue_scripts', array($this, 'enqueue_assets'));
         
-        // AJAX handlers
-        add_action('wp_ajax_resbs_toggle_favorite', array($this, 'ajax_toggle_favorite'));
-        add_action('wp_ajax_nopriv_resbs_toggle_favorite', array($this, 'ajax_toggle_favorite'));
+        // AJAX handlers - use priority 5 to run before other handlers
+        add_action('wp_ajax_resbs_toggle_favorite', array($this, 'ajax_toggle_favorite'), 5);
+        add_action('wp_ajax_nopriv_resbs_toggle_favorite', array($this, 'ajax_toggle_favorite'), 5);
         add_action('wp_ajax_resbs_get_favorites', array($this, 'ajax_get_favorites'));
         add_action('wp_ajax_nopriv_resbs_get_favorites', array($this, 'ajax_get_favorites'));
         add_action('wp_ajax_resbs_clear_favorites', array($this, 'ajax_clear_favorites'));
@@ -50,11 +50,39 @@ class RESBS_Favorites_Manager {
      * Enqueue assets
      */
     public function enqueue_assets() {
+        global $post;
+        
+        // Always enqueue - the shortcode will be on the saved properties page
+        // This ensures CSS is loaded regardless of detection method
+        
+        // Enqueue archive CSS files (needed for property card styling)
+        wp_enqueue_style(
+            'resbs-archive',
+            RESBS_URL . 'assets/css/archive.css',
+            array(),
+            '1.0.0'
+        );
+        
+        wp_enqueue_style(
+            'resbs-rbs-archive',
+            RESBS_URL . 'assets/css/rbs-archive.css',
+            array('resbs-archive'),
+            '1.0.0'
+        );
+        
+        // Enqueue main style.css for general styles
+        wp_enqueue_style(
+            'resbs-style',
+            RESBS_URL . 'assets/css/style.css',
+            array('resbs-archive', 'resbs-rbs-archive'),
+            '1.0.0'
+        );
+        
         // Enqueue favorites styles
         wp_enqueue_style(
             'resbs-favorites',
             RESBS_URL . 'assets/css/favorites.css',
-            array(),
+            array('resbs-archive', 'resbs-rbs-archive', 'resbs-style'),
             '1.0.0'
         );
 
@@ -62,6 +90,15 @@ class RESBS_Favorites_Manager {
         wp_enqueue_script(
             'resbs-favorites',
             RESBS_URL . 'assets/js/favorites.js',
+            array('jquery'),
+            '1.0.0',
+            true
+        );
+        
+        // Enqueue archive JS for wishlist button functionality
+        wp_enqueue_script(
+            'resbs-archive',
+            RESBS_URL . 'assets/js/archive.js',
             array('jquery'),
             '1.0.0',
             true
@@ -96,8 +133,36 @@ class RESBS_Favorites_Manager {
      * AJAX handler for toggling favorites
      */
     public function ajax_toggle_favorite() {
-        // Verify nonce using security helper
-        RESBS_Security::verify_ajax_nonce($_POST['nonce'], 'resbs_favorites_nonce');
+        // Check if nonce exists
+        if (!isset($_POST['nonce']) || empty($_POST['nonce'])) {
+            wp_send_json_error(array(
+                'message' => esc_html__('Security token missing.', 'realestate-booking-suite')
+            ));
+        }
+        
+        $nonce = sanitize_text_field($_POST['nonce']);
+        
+        // Check which nonce was sent - only process if it's our nonce
+        // This prevents conflicts with other handlers (Frontend and Widgets classes)
+        $nonce_verified = wp_verify_nonce($nonce, 'resbs_favorites_nonce');
+        
+        // If this handler's nonce doesn't match, let other handlers process it
+        // Don't send error, just return early (other handlers will process it)
+        if ($nonce_verified === false) {
+            // Check if it's a different nonce (from other handlers)
+            $elementor_nonce = wp_verify_nonce($nonce, 'resbs_elementor_nonce');
+            $widget_nonce = wp_verify_nonce($nonce, 'resbs_widget_nonce');
+            
+            // If it's a valid nonce from another handler, let that handler process it
+            if ($elementor_nonce !== false || $widget_nonce !== false) {
+                return; // Let other handler process it
+            }
+            
+            // If none of the nonces match, it's invalid
+            wp_send_json_error(array(
+                'message' => esc_html__('Security check failed. Please refresh the page and try again.', 'realestate-booking-suite')
+            ));
+        }
         
         // Rate limiting check
         if (!RESBS_Security::check_rate_limit('toggle_favorite', 30, 300)) {
@@ -131,31 +196,63 @@ class RESBS_Favorites_Manager {
                 $favorites = array();
             }
 
-            if (in_array($property_id, $favorites)) {
-                // Remove from favorites
-                $favorites = array_diff($favorites, array($property_id));
-                $is_favorite = false;
-            } else {
-                // Add to favorites
-                $favorites[] = $property_id;
-                $is_favorite = true;
-            }
-
-            update_user_meta($user_id, 'resbs_favorites', $favorites);
-        } else {
-            // User not logged in - use session/cookies
-            $favorites = $this->get_session_favorites();
+            // Ensure all favorites are integers for proper comparison
+            $favorites = array_map('intval', $favorites);
+            $property_id = intval($property_id);
             
             if (in_array($property_id, $favorites)) {
                 // Remove from favorites
                 $favorites = array_diff($favorites, array($property_id));
+                $favorites = array_values($favorites); // Re-index array
                 $is_favorite = false;
             } else {
                 // Add to favorites
                 $favorites[] = $property_id;
+                $favorites = array_unique($favorites); // Remove duplicates
+                $favorites = array_values($favorites); // Re-index array
                 $is_favorite = true;
             }
 
+            // Save favorites - ensure it's saved as array
+            // Make sure it's a proper array before saving
+            $favorites = array_filter($favorites, 'is_numeric'); // Remove any non-numeric values
+            $favorites = array_map('intval', $favorites); // Ensure all are integers
+            $favorites = array_values(array_unique($favorites)); // Remove duplicates and re-index
+            
+            $saved = update_user_meta($user_id, 'resbs_favorites', $favorites);
+            
+            // Verify it was saved correctly
+            $verify = get_user_meta($user_id, 'resbs_favorites', true);
+            if (!is_array($verify) || !in_array($property_id, $verify)) {
+                // If save failed, try again with explicit array
+                update_user_meta($user_id, 'resbs_favorites', $favorites, false);
+            }
+        } else {
+            // User not logged in - use session/cookies
+            $favorites = $this->get_session_favorites();
+            
+            // Ensure all favorites are integers for proper comparison
+            $favorites = array_map('intval', $favorites);
+            $property_id = intval($property_id);
+            
+            if (in_array($property_id, $favorites)) {
+                // Remove from favorites
+                $favorites = array_diff($favorites, array($property_id));
+                $favorites = array_values($favorites); // Re-index array
+                $is_favorite = false;
+            } else {
+                // Add to favorites
+                $favorites[] = $property_id;
+                $favorites = array_unique($favorites); // Remove duplicates
+                $favorites = array_values($favorites); // Re-index array
+                $is_favorite = true;
+            }
+
+            // Make sure it's a proper array before saving
+            $favorites = array_filter($favorites, 'is_numeric'); // Remove any non-numeric values
+            $favorites = array_map('intval', $favorites); // Ensure all are integers
+            $favorites = array_values(array_unique($favorites)); // Remove duplicates and re-index
+            
             $this->set_session_favorites($favorites);
         }
 
@@ -259,7 +356,18 @@ class RESBS_Favorites_Manager {
         if (is_user_logged_in()) {
             $user_id = get_current_user_id();
             $favorites = get_user_meta($user_id, 'resbs_favorites', true);
-            return is_array($favorites) ? $favorites : array();
+            
+            // Ensure it's a proper array
+            if (!is_array($favorites)) {
+                return array();
+            }
+            
+            // Clean and normalize the array
+            $favorites = array_filter($favorites, 'is_numeric');
+            $favorites = array_map('intval', $favorites);
+            $favorites = array_values(array_unique($favorites));
+            
+            return $favorites;
         } else {
             return $this->get_session_favorites();
         }
@@ -337,13 +445,23 @@ class RESBS_Favorites_Manager {
             return $this->render_no_favorites_message();
         }
 
+        // Ensure post__in has valid IDs
+        $favorites = array_filter($favorites, 'is_numeric');
+        $favorites = array_map('intval', $favorites);
+        $favorites = array_values(array_unique($favorites));
+        
+        if (empty($favorites)) {
+            return $this->render_no_favorites_message();
+        }
+
         $query_args = array(
             'post_type' => 'property',
             'post_status' => 'publish',
             'post__in' => $favorites,
             'posts_per_page' => $posts_per_page,
             'orderby' => $orderby,
-            'order' => $order
+            'order' => $order,
+            'ignore_sticky_posts' => true
         );
 
         $properties_query = new WP_Query($query_args);
@@ -352,24 +470,33 @@ class RESBS_Favorites_Manager {
             return $this->render_no_favorites_message();
         }
 
+        // Ensure CSS is loaded when shortcode is rendered
+        wp_enqueue_style('resbs-archive', RESBS_URL . 'assets/css/archive.css', array(), '1.0.0');
+        wp_enqueue_style('resbs-rbs-archive', RESBS_URL . 'assets/css/rbs-archive.css', array('resbs-archive'), '1.0.0');
+        wp_enqueue_style('resbs-style', RESBS_URL . 'assets/css/style.css', array('resbs-archive', 'resbs-rbs-archive'), '1.0.0');
+        
+        // Enqueue Font Awesome (needed for icons)
+        wp_enqueue_style('font-awesome', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css', array(), '6.4.0');
+        
         ob_start();
         ?>
-        <div class="resbs-favorites-container" data-layout="<?php echo esc_attr($layout); ?>" data-columns="<?php echo esc_attr($columns); ?>">
-            <div class="resbs-favorites-header">
-                <h3 class="resbs-favorites-title">
-                    <?php esc_html_e('My Favorites', 'realestate-booking-suite'); ?>
-                    <span class="resbs-favorites-count">(<?php echo esc_html(count($favorites)); ?>)</span>
-                </h3>
-                
-                <?php if ($show_clear_button && !empty($favorites)): ?>
-                    <button type="button" class="resbs-clear-favorites-btn" data-nonce="<?php echo esc_attr(wp_create_nonce('resbs_favorites_nonce')); ?>">
-                        <span class="dashicons dashicons-trash"></span>
-                        <?php esc_html_e('Clear All', 'realestate-booking-suite'); ?>
-                    </button>
-                <?php endif; ?>
-            </div>
+        <div class="rbs-archive">
+            <div class="resbs-favorites-container" data-layout="<?php echo esc_attr($layout); ?>" data-columns="<?php echo esc_attr($columns); ?>">
+                <div class="resbs-favorites-header">
+                    <h3 class="resbs-favorites-title">
+                        <?php esc_html_e('My Favorites', 'realestate-booking-suite'); ?>
+                        <span class="resbs-favorites-count">(<?php echo esc_html(count($favorites)); ?>)</span>
+                    </h3>
+                    
+                    <?php if ($show_clear_button && !empty($favorites)): ?>
+                        <button type="button" class="resbs-clear-favorites-btn" data-nonce="<?php echo esc_attr(wp_create_nonce('resbs_favorites_nonce')); ?>">
+                            <span class="dashicons dashicons-trash"></span>
+                            <?php esc_html_e('Clear All', 'realestate-booking-suite'); ?>
+                        </button>
+                    <?php endif; ?>
+                </div>
 
-            <div class="resbs-favorites-grid resbs-favorites-<?php echo esc_attr($layout); ?> resbs-favorites-columns-<?php echo esc_attr($columns); ?>">
+                <div class="property-grid">
                 <?php while ($properties_query->have_posts()): $properties_query->the_post(); ?>
                     <?php $this->render_favorite_property_card(get_the_ID(), $show_image, $show_price, $show_details, $show_actions); ?>
                 <?php endwhile; ?>
@@ -388,107 +515,280 @@ class RESBS_Favorites_Manager {
                     ?>
                 </div>
             <?php endif; ?>
+            </div>
         </div>
+        
+        <script>
+        // Favorite button functionality for saved properties page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize favorite button states on page load
+            function initializeFavoriteButtons() {
+                const favoriteButtons = document.querySelectorAll('.favorite-btn, .resbs-favorite-btn');
+                favoriteButtons.forEach(function(btn) {
+                    const propertyId = btn.getAttribute('data-property-id');
+                    if (!propertyId) return;
+                    
+                    const icon = btn.querySelector('i');
+                    if (!icon) return;
+                    
+                    // Check if button already has favorited class (set by PHP)
+                    if (btn.classList.contains('favorited')) {
+                        icon.classList.remove('far');
+                        icon.classList.add('fas');
+                    } else {
+                        icon.classList.remove('fas');
+                        icon.classList.add('far');
+                    }
+                });
+            }
+            
+            // Initialize buttons on page load
+            initializeFavoriteButtons();
+            
+            // Handle favorite button clicks
+            document.addEventListener('click', function(e) {
+                const favoriteBtn = e.target.closest('.favorite-btn, .resbs-favorite-btn');
+                if (!favoriteBtn) return;
+                
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const propertyId = favoriteBtn.getAttribute('data-property-id');
+                if (!propertyId) {
+                    console.error('Property ID not found');
+                    return;
+                }
+                
+                const icon = favoriteBtn.querySelector('i');
+                if (!icon) return;
+                
+                // Toggle visual state immediately for better UX
+                const isFavorited = favoriteBtn.classList.contains('favorited');
+                if (isFavorited) {
+                    favoriteBtn.classList.remove('favorited');
+                    icon.classList.remove('fas');
+                    icon.classList.add('far');
+                } else {
+                    favoriteBtn.classList.add('favorited');
+                    icon.classList.remove('far');
+                    icon.classList.add('fas');
+                }
+                
+                // Make AJAX request
+                const formData = new FormData();
+                formData.append('action', 'resbs_toggle_favorite');
+                formData.append('property_id', propertyId);
+                
+                // Generate nonce
+                const nonce = '<?php echo esc_js(wp_create_nonce('resbs_favorites_nonce')); ?>';
+                if (!nonce) {
+                    alert('<?php echo esc_js(__('Unable to generate security token. Please refresh the page.', 'realestate-booking-suite')); ?>');
+                    return;
+                }
+                formData.append('nonce', nonce);
+                
+                fetch('<?php echo esc_url(admin_url('admin-ajax.php')); ?>', {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'same-origin'
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (!data) {
+                        throw new Error('Invalid response from server');
+                    }
+                    
+                    if (data.success) {
+                        // Success - update button state
+                        if (data.data && data.data.is_favorite) {
+                            favoriteBtn.classList.add('favorited');
+                            icon.classList.remove('far');
+                            icon.classList.add('fas');
+                        } else {
+                            favoriteBtn.classList.remove('favorited');
+                            icon.classList.remove('fas');
+                            icon.classList.add('far');
+                            // If removed from favorites, reload page to update list
+                            if (window.location.href.indexOf('saved-properties') !== -1) {
+                                setTimeout(function() {
+                                    window.location.reload();
+                                }, 500);
+                            }
+                        }
+                    } else {
+                        // Error - revert visual state
+                        if (isFavorited) {
+                            favoriteBtn.classList.add('favorited');
+                            icon.classList.remove('far');
+                            icon.classList.add('fas');
+                        } else {
+                            favoriteBtn.classList.remove('favorited');
+                            icon.classList.remove('fas');
+                            icon.classList.add('far');
+                        }
+                        
+                        // Show error message
+                        let errorMessage = '<?php echo esc_js(__('An error occurred. Please try again.', 'realestate-booking-suite')); ?>';
+                        
+                        if (data && data.data) {
+                            if (typeof data.data === 'string') {
+                                errorMessage = data.data;
+                            } else if (data.data.message) {
+                                errorMessage = data.data.message;
+                            }
+                        }
+                        
+                        alert(errorMessage);
+                    }
+                })
+                .catch(error => {
+                    console.error('Favorite button error:', error);
+                    
+                    // Revert visual state on error
+                    if (isFavorited) {
+                        favoriteBtn.classList.add('favorited');
+                        icon.classList.remove('far');
+                        icon.classList.add('fas');
+                    } else {
+                        favoriteBtn.classList.remove('favorited');
+                        icon.classList.remove('fas');
+                        icon.classList.add('far');
+                    }
+                    
+                    alert('<?php echo esc_js(__('An error occurred. Please try again.', 'realestate-booking-suite')); ?>');
+                });
+            });
+        });
+        </script>
         <?php
         wp_reset_postdata();
         return ob_get_clean();
     }
 
     /**
-     * Render favorite property card
+     * Render favorite property card - matches archive page design
      */
     private function render_favorite_property_card($property_id, $show_image, $show_price, $show_details, $show_actions) {
+        // Get property meta data (same as archive page)
         $price = get_post_meta($property_id, '_property_price', true);
         $bedrooms = get_post_meta($property_id, '_property_bedrooms', true);
         $bathrooms = get_post_meta($property_id, '_property_bathrooms', true);
-        $area = get_post_meta($property_id, '_property_area', true);
-        $property_type = wp_get_post_terms($property_id, 'property_type', array('fields' => 'names'));
-        $property_status = wp_get_post_terms($property_id, 'property_status', array('fields' => 'names'));
-        $location = wp_get_post_terms($property_id, 'property_location', array('fields' => 'names'));
+        $area_sqft = get_post_meta($property_id, '_property_area_sqft', true);
+        $address = get_post_meta($property_id, '_property_address', true);
+        $city = get_post_meta($property_id, '_property_city', true);
+        $state = get_post_meta($property_id, '_property_state', true);
+        $zip = get_post_meta($property_id, '_property_zip', true);
         
+        // Get property type and status
+        $property_types = get_the_terms($property_id, 'property_type');
+        $property_statuses = get_the_terms($property_id, 'property_status');
+        
+        $property_type_name = '';
+        if ($property_types && !is_wp_error($property_types)) {
+            $property_type_name = $property_types[0]->name;
+        }
+        
+        $property_status_name = '';
+        if ($property_statuses && !is_wp_error($property_statuses)) {
+            $property_status_name = $property_statuses[0]->name;
+        }
+        
+        // Get featured image
+        $featured_image = get_the_post_thumbnail_url($property_id, 'large');
+        if (!$featured_image) {
+            $featured_image = 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800';
+        }
+        
+        // Format price
+        $formatted_price = '';
+        if ($price) {
+            $formatted_price = '$' . number_format($price);
+        }
+        
+        // Format location
+        $location = '';
+        if ($address) $location .= $address;
+        if ($city) $location .= ($location ? ', ' : '') . $city;
+        if ($state) $location .= ($location ? ', ' : '') . $state;
+        if ($zip) $location .= ($location ? ' ' : '') . $zip;
+        
+        // Determine badge (same logic as archive page)
+        $badge_class = 'badge-new';
+        $badge_text = 'Just listed';
+        $post_date = get_the_date('Y-m-d', $property_id);
+        $days_old = (time() - strtotime($post_date)) / (60 * 60 * 24);
+        
+        if ($days_old < 7) {
+            $badge_class = 'badge-new';
+            $badge_text = 'Just listed';
+        } elseif ($days_old < 30) {
+            $badge_class = 'badge-featured';
+            $badge_text = 'Featured';
+        } else {
+            $badge_class = 'badge-standard';
+            $badge_text = 'Available';
+        }
+        
+        // Check if favorited
+        $is_favorited = resbs_is_property_favorited($property_id);
+        
+        // Use same HTML structure as archive page
         ?>
-        <div class="resbs-favorite-property-card" data-property-id="<?php echo esc_attr($property_id); ?>">
-            <?php if ($show_image): ?>
-                <div class="resbs-favorite-property-image">
-                    <a href="<?php echo esc_url(get_permalink($property_id)); ?>">
-                        <?php if (has_post_thumbnail($property_id)): ?>
-                            <?php echo get_the_post_thumbnail($property_id, 'medium', array('alt' => get_the_title($property_id))); ?>
-                        <?php else: ?>
-                            <div class="resbs-favorite-property-placeholder">
-                                <span class="dashicons dashicons-camera"></span>
-                            </div>
-                        <?php endif; ?>
-                    </a>
-                    
-                    <!-- Property Badges -->
-                    <?php do_action('resbs_property_badges', $property_id, 'favorites'); ?>
-                    
-                    <!-- Favorite Button -->
-                    <?php if ($show_actions): ?>
-                        <button type="button" class="resbs-favorite-btn resbs-favorite-btn-active" data-property-id="<?php echo esc_attr($property_id); ?>">
-                            <span class="dashicons dashicons-heart-filled"></span>
-                        </button>
+        <div class="property-card" data-property-id="<?php echo esc_attr($property_id); ?>">
+            <div class="property-image">
+                <img src="<?php echo esc_url($featured_image); ?>" alt="<?php echo esc_attr(get_the_title($property_id)); ?>">
+                <div class="gradient-overlay"></div>
+                <div class="property-badge <?php echo esc_attr($badge_class); ?>"><?php echo esc_html($badge_text); ?></div>
+                <?php if (resbs_is_wishlist_enabled()): ?>
+                <button class="favorite-btn resbs-favorite-btn <?php echo $is_favorited ? 'favorited' : ''; ?>" data-property-id="<?php echo esc_attr($property_id); ?>">
+                    <i class="<?php echo $is_favorited ? 'fas' : 'far'; ?> fa-heart"></i>
+                </button>
+                <?php endif; ?>
+                <div class="property-info-overlay">
+                    <h3 class="property-title"><?php echo esc_html(get_the_title($property_id)); ?></h3>
+                    <?php if (resbs_should_show_listing_address() && $location): ?>
+                        <p class="property-location"><?php echo esc_html($location); ?></p>
                     <?php endif; ?>
                 </div>
-            <?php endif; ?>
-
-            <div class="resbs-favorite-property-content">
-                <h4 class="resbs-favorite-property-title">
-                    <a href="<?php echo esc_url(get_permalink($property_id)); ?>">
-                        <?php echo esc_html(get_the_title($property_id)); ?>
+            </div>
+            <div class="property-details">
+                <div class="property-price-container">
+                    <?php if (resbs_should_show_price() && $formatted_price): ?>
+                        <span class="property-price"><?php echo esc_html($formatted_price); ?></span>
+                    <?php endif; ?>
+                    <span class="property-status"><?php echo esc_html($property_status_name); ?></span>
+                </div>
+                <div class="property-features">
+                    <?php if ($bedrooms): ?>
+                        <div class="property-feature">
+                            <i class="fas fa-bed"></i>
+                            <span><?php echo esc_html($bedrooms); ?> beds</span>
+                        </div>
+                    <?php endif; ?>
+                    <?php if ($bathrooms): ?>
+                        <div class="property-feature">
+                            <i class="fas fa-bath"></i>
+                            <span><?php echo esc_html($bathrooms); ?> baths</span>
+                        </div>
+                    <?php endif; ?>
+                    <?php if ($area_sqft): ?>
+                        <div class="property-feature">
+                            <i class="fas fa-ruler-combined"></i>
+                            <span><?php echo resbs_format_area($area_sqft); ?></span>
+                        </div>
+                    <?php endif; ?>
+                </div>
+                <div class="property-footer">
+                    <span class="property-type"><?php echo esc_html($property_type_name); ?></span>
+                    <a href="<?php echo esc_url(get_permalink($property_id)); ?>" class="view-details-btn">
+                        View Details <i class="fas fa-arrow-right"></i>
                     </a>
-                </h4>
-
-                <?php if ($show_price && $price): ?>
-                    <div class="resbs-favorite-property-price">
-                        <?php echo esc_html($this->format_price($price)); ?>
-                    </div>
-                <?php endif; ?>
-
-                <?php if ($show_details): ?>
-                    <div class="resbs-favorite-property-details">
-                        <?php if ($bedrooms): ?>
-                            <span class="resbs-favorite-property-detail">
-                                <span class="dashicons dashicons-bed-alt"></span>
-                                <?php echo esc_html($bedrooms); ?> <?php esc_html_e('Bed', 'realestate-booking-suite'); ?>
-                            </span>
-                        <?php endif; ?>
-
-                        <?php if ($bathrooms): ?>
-                            <span class="resbs-favorite-property-detail">
-                                <span class="dashicons dashicons-bath"></span>
-                                <?php echo esc_html($bathrooms); ?> <?php esc_html_e('Bath', 'realestate-booking-suite'); ?>
-                            </span>
-                        <?php endif; ?>
-
-                        <?php if ($area): ?>
-                            <span class="resbs-favorite-property-detail">
-                                <span class="dashicons dashicons-fullscreen-alt"></span>
-                                <?php echo esc_html($area); ?> <?php esc_html_e('sq ft', 'realestate-booking-suite'); ?>
-                            </span>
-                        <?php endif; ?>
-                    </div>
-                <?php endif; ?>
-
-                <?php if ($location): ?>
-                    <div class="resbs-favorite-property-location">
-                        <span class="dashicons dashicons-location"></span>
-                        <?php echo esc_html(implode(', ', $location)); ?>
-                    </div>
-                <?php endif; ?>
-
-                <?php if ($show_actions): ?>
-                    <div class="resbs-favorite-property-actions">
-                        <a href="<?php echo esc_url(get_permalink($property_id)); ?>" class="resbs-favorite-view-btn">
-                            <?php esc_html_e('View Property', 'realestate-booking-suite'); ?>
-                        </a>
-                        
-                        <button type="button" class="resbs-favorite-remove-btn" data-property-id="<?php echo esc_attr($property_id); ?>">
-                            <span class="dashicons dashicons-heart-filled"></span>
-                            <?php esc_html_e('Remove', 'realestate-booking-suite'); ?>
-                        </button>
-                    </div>
-                <?php endif; ?>
+                </div>
             </div>
         </div>
         <?php
