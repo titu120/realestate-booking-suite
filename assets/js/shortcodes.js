@@ -25,6 +25,7 @@
             this.initSubmitProperty();
             this.initFavorites();
             this.initTabs();
+            this.initPublishButtons();
         },
 
         /**
@@ -106,12 +107,6 @@
                 $widget.find('.resbs-gallery-input').on('change', function() {
                     RESBS_Shortcodes.handleGalleryUpload($widget, this);
                 });
-
-                // Initialize map if present
-                var $mapContainer = $widget.find('.resbs-map-container');
-                if ($mapContainer.length) {
-                    RESBS_Shortcodes.initSubmitMap($mapContainer);
-                }
             });
         },
 
@@ -132,6 +127,85 @@
         /**
          * Initialize tabs functionality
          */
+        initPublishButtons: function() {
+            var self = this;
+            $(document).on('click', '.publish-property-btn', function(e) {
+                e.preventDefault();
+                var $btn = $(this);
+                var propertyId = $btn.data('property-id');
+                
+                if (!propertyId) {
+                    return;
+                }
+                
+                // Disable button
+                $btn.prop('disabled', true);
+                var originalHtml = $btn.html();
+                $btn.html('<i class="fas fa-spinner fa-spin"></i> Publishing...');
+                
+                // Get nonce
+                var nonce = '';
+                if (typeof resbsShortcodes !== 'undefined' && resbsShortcodes.publish_nonce) {
+                    nonce = resbsShortcodes.publish_nonce;
+                } else {
+                    console.error('Nonce not found for publish action');
+                    $btn.prop('disabled', false);
+                    $btn.html(originalHtml);
+                    return;
+                }
+                
+                // AJAX request
+                $.ajax({
+                    url: resbsShortcodes.ajax_url,
+                    type: 'POST',
+                    data: {
+                        action: 'resbs_publish_property',
+                        property_id: propertyId,
+                        nonce: nonce
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            // Show success message
+                            if (typeof showToastNotification === 'function') {
+                                showToastNotification(response.data.message, 'success');
+                            } else {
+                                alert(response.data.message);
+                            }
+                            
+                            // Reload page after short delay
+                            setTimeout(function() {
+                                window.location.reload();
+                            }, 1000);
+                        } else {
+                            // Show error message
+                            var errorMsg = response.data && response.data.message ? response.data.message : 'Failed to publish property.';
+                            if (typeof showToastNotification === 'function') {
+                                showToastNotification(errorMsg, 'error');
+                            } else {
+                                alert(errorMsg);
+                            }
+                            
+                            // Re-enable button
+                            $btn.prop('disabled', false);
+                            $btn.html(originalHtml);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error:', error);
+                        if (typeof showToastNotification === 'function') {
+                            showToastNotification('An error occurred. Please try again.', 'error');
+                        } else {
+                            alert('An error occurred. Please try again.');
+                        }
+                        
+                        // Re-enable button
+                        $btn.prop('disabled', false);
+                        $btn.html(originalHtml);
+                    }
+                });
+            });
+        },
+
         initTabs: function() {
             // Use event delegation to handle dynamically loaded content
             $(document).on('click', '.resbs-tab-btn', function(e) {
@@ -279,34 +353,62 @@
         submitProperty: function($widget, $form) {
             var formData = new FormData($form[0]);
             var $loading = $widget.find('.resbs-submit-loading');
+            var $submitBtn = $form.find('button[type="submit"]');
+            
+            // Get nonce from form
+            var nonce = $form.find('input[name="resbs_submit_nonce"]').val();
+            if (!nonce) {
+                RESBS_Shortcodes.showMessage($widget, 'Security check failed. Please refresh the page.', 'error');
+                return;
+            }
+            
+            // Add action and nonce to FormData
+            formData.append('action', 'resbs_submit_property');
+            formData.append('nonce', nonce);
             
             // Show loading
             $loading.show();
+            $submitBtn.prop('disabled', true).text('Submitting...');
             
             $.ajax({
-                url: resbs_ajax.ajax_url,
+                url: (typeof resbs_ajax !== 'undefined' && resbs_ajax.ajax_url) ? resbs_ajax.ajax_url : ajaxurl,
                 type: 'POST',
-                data: {
-                    action: 'resbs_submit_property',
-                    nonce: resbs_ajax.nonce,
-                    form_data: formData
-                },
+                data: formData,
                 processData: false,
                 contentType: false,
                 success: function(response) {
                     $loading.hide();
+                    $submitBtn.prop('disabled', false).text('Submit Property');
                     
                     if (response.success) {
-                        RESBS_Shortcodes.showMessage($widget, response.data.message, 'success');
+                        var message = response.data.message || 'Property submitted successfully!';
+                        // If message contains HTML (like links), allow it
+                        var $messageDiv = $('<div class="resbs-message resbs-message-success">' + message + '</div>');
+                        $widget.prepend($messageDiv);
+                        
+                        // Auto-hide after 8 seconds
+                        setTimeout(function() {
+                            $messageDiv.fadeOut(function() {
+                                $messageDiv.remove();
+                            });
+                        }, 8000);
+                        
                         $form[0].reset();
                         $widget.find('.resbs-gallery-preview').empty();
                     } else {
-                        RESBS_Shortcodes.showMessage($widget, response.data.message, 'error');
+                        RESBS_Shortcodes.showMessage($widget, response.data && response.data.message ? response.data.message : 'An error occurred. Please try again.', 'error');
                     }
                 },
-                error: function() {
+                error: function(xhr, status, error) {
                     $loading.hide();
-                    RESBS_Shortcodes.showMessage($widget, 'An error occurred. Please try again.', 'error');
+                    $submitBtn.prop('disabled', false).text('Submit Property');
+                    
+                    var errorMessage = 'An error occurred. Please try again.';
+                    if (xhr.responseJSON && xhr.responseJSON.data && xhr.responseJSON.data.message) {
+                        errorMessage = xhr.responseJSON.data.message;
+                    }
+                    RESBS_Shortcodes.showMessage($widget, errorMessage, 'error');
+                    console.error('Submit property error:', status, error, xhr);
                 }
             });
         },
@@ -434,15 +536,6 @@
             }
         },
 
-        /**
-         * Initialize submit map
-         */
-        initSubmitMap: function($container) {
-            // This would integrate with the existing maps functionality
-            if (typeof RESBS_Maps !== 'undefined') {
-                RESBS_Maps.initSubmitMap($container);
-            }
-        },
 
         /**
          * Update map markers

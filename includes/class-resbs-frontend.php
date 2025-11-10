@@ -291,8 +291,15 @@ class RESBS_Frontend {
      * Handle property submission
      */
     public function handle_property_submission() {
-        // Verify nonce
-        if (!wp_verify_nonce($_POST['resbs_nonce'], 'resbs_submit_property')) {
+        // Check if this is for the shortcode form (different nonce)
+        // If nonce is 'resbs_submit_nonce', let the shortcode handler process it
+        if (isset($_POST['resbs_submit_nonce']) || isset($_POST['nonce'])) {
+            // This is for the shortcode form, let RESBS_Shortcode_AJAX handle it
+            return;
+        }
+        
+        // Verify nonce for this handler
+        if (!isset($_POST['resbs_nonce']) || !wp_verify_nonce($_POST['resbs_nonce'], 'resbs_submit_property')) {
             wp_die(esc_html__('Security check failed.', 'realestate-booking-suite'));
         }
         
@@ -337,9 +344,10 @@ class RESBS_Frontend {
         // Save meta fields
         $meta_fields = array(
             'property_price' => 'floatval',
-            'property_bedrooms' => 'absint',
-            'property_bathrooms' => 'sanitize_text_field',
+            'property_bedrooms' => 'floatval',
+            'property_bathrooms' => 'floatval',
             'property_area' => 'absint',
+            'property_size' => 'absint',
             'property_latitude' => 'sanitize_text_field',
             'property_longitude' => 'sanitize_text_field',
             'property_video_url' => 'esc_url_raw',
@@ -349,7 +357,41 @@ class RESBS_Frontend {
         foreach ($meta_fields as $field => $sanitize_function) {
             if (isset($_POST[$field])) {
                 $value = call_user_func($sanitize_function, $_POST[$field]);
-                update_post_meta($post_id, '_resbs_' . str_replace('property_', '', $field), $value);
+                $meta_key = '_property_' . str_replace('property_', '', $field);
+                update_post_meta($post_id, $meta_key, $value);
+            }
+        }
+        
+        // Save address
+        if (!empty($_POST['property_address'])) {
+            update_post_meta($post_id, '_property_address', sanitize_text_field($_POST['property_address']));
+        }
+        
+        // Handle location - if it's text, create or find term
+        if (!empty($_POST['property_location'])) {
+            $location_text = trim(sanitize_text_field($_POST['property_location']));
+            
+            // Check if it's a number (old term ID format) or text
+            if (is_numeric($location_text)) {
+                // Old format: term ID
+                wp_set_post_terms($post_id, array(intval($location_text)), 'property_location');
+            } else {
+                // New format: text location - create term if doesn't exist
+                $term = term_exists($location_text, 'property_location');
+                if ($term === 0 || $term === null) {
+                    // Create new term
+                    $term = wp_insert_term($location_text, 'property_location');
+                    if (!is_wp_error($term)) {
+                        wp_set_post_terms($post_id, array($term['term_id']), 'property_location');
+                    }
+                } else {
+                    // Use existing term
+                    $term_id = is_array($term) ? $term['term_id'] : $term;
+                    wp_set_post_terms($post_id, array($term_id), 'property_location');
+                }
+                
+                // Also save as meta for easy access
+                update_post_meta($post_id, '_property_location_text', $location_text);
             }
         }
         
@@ -363,8 +405,8 @@ class RESBS_Frontend {
             $this->handle_gallery_upload($post_id);
         }
         
-        // Set taxonomies
-        $taxonomies = array('property_type', 'property_status', 'property_location');
+        // Set other taxonomies
+        $taxonomies = array('property_type', 'property_status');
         foreach ($taxonomies as $taxonomy) {
             if (!empty($_POST[$taxonomy])) {
                 $term_id = intval($_POST[$taxonomy]);
@@ -1448,6 +1490,7 @@ class RESBS_Frontend {
         button.resbs-primary {
             background-color: var(--resbs-main-color) !important;
             border-color: var(--resbs-main-color) !important;
+            color: #fff !important;
         }
         
         .resbs-btn-primary:hover,

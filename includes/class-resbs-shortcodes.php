@@ -60,6 +60,16 @@ class RESBS_Shortcodes {
                 );
             }
             
+            // Enqueue archive CSS for property grid design
+            if (!wp_style_is('resbs-rbs-archive', 'enqueued')) {
+                wp_enqueue_style(
+                    'resbs-rbs-archive',
+                    RESBS_URL . 'assets/css/rbs-archive.css',
+                    array(),
+                    '1.0.0'
+                );
+            }
+            
             // Register and enqueue shortcodes JS if not already done
             if (!wp_script_is('resbs-shortcodes', 'enqueued')) {
                 wp_enqueue_script(
@@ -69,12 +79,29 @@ class RESBS_Shortcodes {
                     '1.0.0',
                     true
                 );
+                
+                // Localize script with AJAX data
+                wp_localize_script('resbs-shortcodes', 'resbsShortcodes', array(
+                    'ajax_url' => admin_url('admin-ajax.php'),
+                    'publish_nonce' => wp_create_nonce('resbs_publish_property')
+                ));
             }
         }
         
         if (is_a($post, 'WP_Post') && has_shortcode($post->post_content, 'resbs_submit_property')) {
             wp_enqueue_style('resbs-forms');
             wp_enqueue_script('resbs-forms');
+            
+            // Also enqueue shortcodes script for submit functionality
+            if (!wp_script_is('resbs-shortcodes', 'enqueued')) {
+                wp_enqueue_script(
+                    'resbs-shortcodes',
+                    RESBS_URL . 'assets/js/shortcodes.js',
+                    array('jquery'),
+                    '1.0.0',
+                    true
+                );
+            }
         }
         
         if (is_a($post, 'WP_Post') && has_shortcode($post->post_content, 'resbs_favorites')) {
@@ -519,8 +546,14 @@ class RESBS_Shortcodes {
                         <div class="resbs-tab-panel active" id="properties">
                             <div class="resbs-dashboard-section">
                                 <h4><?php esc_html_e('My Properties', 'realestate-booking-suite'); ?></h4>
-                                <div class="resbs-properties-list">
-                                    <?php $this->render_user_properties($user_id); ?>
+                                <div class="rbs-archive">
+                                    <div class="listings-container">
+                                        <div class="properties-list">
+                                            <div id="propertyGrid" class="property-grid">
+                                                <?php $this->render_user_properties($user_id); ?>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -590,7 +623,6 @@ class RESBS_Shortcodes {
         $default_atts = array(
             'title' => esc_html__('Submit Property', 'realestate-booking-suite'),
             'show_gallery' => 'yes',
-            'show_map' => 'yes',
             'show_amenities' => 'yes',
             'show_video' => 'yes'
         );
@@ -601,7 +633,6 @@ class RESBS_Shortcodes {
         $sanitized_atts = array(
             'title' => RESBS_Security::sanitize_text($atts['title']),
             'show_gallery' => RESBS_Security::sanitize_bool($atts['show_gallery']),
-            'show_map' => RESBS_Security::sanitize_bool($atts['show_map']),
             'show_amenities' => RESBS_Security::sanitize_bool($atts['show_amenities']),
             'show_video' => RESBS_Security::sanitize_bool($atts['show_video'])
         );
@@ -611,10 +642,6 @@ class RESBS_Shortcodes {
         ob_start();
         ?>
         <div class="resbs-submit-widget resbs-shortcode" id="<?php echo esc_attr($shortcode_id); ?>">
-            <?php if (!empty($sanitized_atts['title'])): ?>
-                <h3 class="resbs-widget-title"><?php echo esc_html($sanitized_atts['title']); ?></h3>
-            <?php endif; ?>
-
             <form class="resbs-submit-form" data-target="<?php echo esc_attr($shortcode_id); ?>">
                 <?php wp_nonce_field('resbs_submit_property', 'resbs_submit_nonce'); ?>
                 
@@ -659,11 +686,46 @@ class RESBS_Shortcodes {
                         </div>
 
                         <div class="resbs-form-group">
+                            <label for="property_price_per_sqft_<?php echo esc_attr($shortcode_id); ?>">
+                                <?php esc_html_e('Price per sq ft', 'realestate-booking-suite'); ?>
+                            </label>
+                            <input type="number" name="property_price_per_sqft" id="property_price_per_sqft_<?php echo esc_attr($shortcode_id); ?>" 
+                                   placeholder="<?php esc_attr_e('Enter price per sq ft', 'realestate-booking-suite'); ?>">
+                        </div>
+                    </div>
+
+                    <div class="resbs-form-row">
+                        <div class="resbs-form-group">
+                            <label for="property_price_note_<?php echo esc_attr($shortcode_id); ?>">
+                                <?php esc_html_e('Price Note', 'realestate-booking-suite'); ?>
+                            </label>
+                            <input type="text" name="property_price_note" id="property_price_note_<?php echo esc_attr($shortcode_id); ?>" 
+                                   placeholder="<?php esc_attr_e('e.g., Negotiable, Best Offer', 'realestate-booking-suite'); ?>">
+                        </div>
+
+                        <div class="resbs-form-group">
+                            <label style="display: flex; align-items: center; gap: 8px;">
+                                <input type="checkbox" name="property_call_for_price" id="property_call_for_price_<?php echo esc_attr($shortcode_id); ?>" value="1">
+                                <?php esc_html_e('Call for Price', 'realestate-booking-suite'); ?>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="resbs-form-row">
+                        <div class="resbs-form-group">
                             <label for="property_size_<?php echo esc_attr($shortcode_id); ?>">
                                 <?php esc_html_e('Size (sq ft)', 'realestate-booking-suite'); ?>
                             </label>
                             <input type="number" name="property_size" id="property_size_<?php echo esc_attr($shortcode_id); ?>" 
                                    placeholder="<?php esc_attr_e('Enter size', 'realestate-booking-suite'); ?>">
+                        </div>
+
+                        <div class="resbs-form-group">
+                            <label for="property_lot_size_<?php echo esc_attr($shortcode_id); ?>">
+                                <?php esc_html_e('Lot Size (sq ft)', 'realestate-booking-suite'); ?>
+                            </label>
+                            <input type="number" name="property_lot_size_sqft" id="property_lot_size_<?php echo esc_attr($shortcode_id); ?>" 
+                                   placeholder="<?php esc_attr_e('Enter lot size', 'realestate-booking-suite'); ?>">
                         </div>
                     </div>
 
@@ -672,33 +734,112 @@ class RESBS_Shortcodes {
                             <label for="property_bedrooms_<?php echo esc_attr($shortcode_id); ?>">
                                 <?php esc_html_e('Bedrooms', 'realestate-booking-suite'); ?>
                             </label>
-                            <select name="property_bedrooms" id="property_bedrooms_<?php echo esc_attr($shortcode_id); ?>">
-                                <option value=""><?php esc_html_e('Select Bedrooms', 'realestate-booking-suite'); ?></option>
-                                <?php for ($i = 1; $i <= 10; $i++): ?>
-                                    <option value="<?php echo esc_attr($i); ?>"><?php echo esc_html($i); ?></option>
-                                <?php endfor; ?>
-                            </select>
+                            <input type="number" name="property_bedrooms" id="property_bedrooms_<?php echo esc_attr($shortcode_id); ?>" 
+                                   min="0" step="1" placeholder="<?php esc_attr_e('Enter number of bedrooms', 'realestate-booking-suite'); ?>">
                         </div>
 
                         <div class="resbs-form-group">
                             <label for="property_bathrooms_<?php echo esc_attr($shortcode_id); ?>">
                                 <?php esc_html_e('Bathrooms', 'realestate-booking-suite'); ?>
                             </label>
-                            <select name="property_bathrooms" id="property_bathrooms_<?php echo esc_attr($shortcode_id); ?>">
-                                <option value=""><?php esc_html_e('Select Bathrooms', 'realestate-booking-suite'); ?></option>
-                                <?php for ($i = 1; $i <= 10; $i++): ?>
-                                    <option value="<?php echo esc_attr($i); ?>"><?php echo esc_html($i); ?></option>
-                                <?php endfor; ?>
+                            <input type="number" name="property_bathrooms" id="property_bathrooms_<?php echo esc_attr($shortcode_id); ?>" 
+                                   min="0" step="0.5" placeholder="<?php esc_attr_e('Enter number of bathrooms', 'realestate-booking-suite'); ?>">
+                        </div>
+                    </div>
+
+                    <div class="resbs-form-row">
+                        <div class="resbs-form-group">
+                            <label for="property_half_baths_<?php echo esc_attr($shortcode_id); ?>">
+                                <?php esc_html_e('Half Baths', 'realestate-booking-suite'); ?>
+                            </label>
+                            <input type="number" name="property_half_baths" id="property_half_baths_<?php echo esc_attr($shortcode_id); ?>" 
+                                   min="0" step="1" placeholder="<?php esc_attr_e('Enter number of half baths', 'realestate-booking-suite'); ?>">
+                        </div>
+
+                        <div class="resbs-form-group">
+                            <label for="property_total_rooms_<?php echo esc_attr($shortcode_id); ?>">
+                                <?php esc_html_e('Total Rooms', 'realestate-booking-suite'); ?>
+                            </label>
+                            <input type="number" name="property_total_rooms" id="property_total_rooms_<?php echo esc_attr($shortcode_id); ?>" 
+                                   min="0" step="1" placeholder="<?php esc_attr_e('Enter total number of rooms', 'realestate-booking-suite'); ?>">
+                        </div>
+                    </div>
+
+                    <div class="resbs-form-row">
+                        <div class="resbs-form-group">
+                            <label for="property_floors_<?php echo esc_attr($shortcode_id); ?>">
+                                <?php esc_html_e('Floors', 'realestate-booking-suite'); ?>
+                            </label>
+                            <input type="number" name="property_floors" id="property_floors_<?php echo esc_attr($shortcode_id); ?>" 
+                                   min="0" step="1" placeholder="<?php esc_attr_e('Enter number of floors', 'realestate-booking-suite'); ?>">
+                        </div>
+
+                        <div class="resbs-form-group">
+                            <label for="property_floor_level_<?php echo esc_attr($shortcode_id); ?>">
+                                <?php esc_html_e('Floor Level', 'realestate-booking-suite'); ?>
+                            </label>
+                            <input type="text" name="property_floor_level" id="property_floor_level_<?php echo esc_attr($shortcode_id); ?>" 
+                                   placeholder="<?php esc_attr_e('e.g., Ground Floor, 2nd Floor', 'realestate-booking-suite'); ?>">
+                        </div>
+                    </div>
+
+                    <div class="resbs-form-row">
+                        <div class="resbs-form-group">
+                            <label for="property_year_built_<?php echo esc_attr($shortcode_id); ?>">
+                                <?php esc_html_e('Year Built', 'realestate-booking-suite'); ?>
+                            </label>
+                            <input type="number" name="property_year_built" id="property_year_built_<?php echo esc_attr($shortcode_id); ?>" 
+                                   min="1800" max="<?php echo date('Y'); ?>" placeholder="<?php esc_attr_e('e.g., 2020', 'realestate-booking-suite'); ?>">
+                        </div>
+
+                        <div class="resbs-form-group">
+                            <label for="property_year_remodeled_<?php echo esc_attr($shortcode_id); ?>">
+                                <?php esc_html_e('Year Remodeled', 'realestate-booking-suite'); ?>
+                            </label>
+                            <input type="number" name="property_year_remodeled" id="property_year_remodeled_<?php echo esc_attr($shortcode_id); ?>" 
+                                   min="1800" max="<?php echo date('Y'); ?>" placeholder="<?php esc_attr_e('e.g., 2023', 'realestate-booking-suite'); ?>">
+                        </div>
+                    </div>
+
+                    <div class="resbs-form-row">
+                        <div class="resbs-form-group">
+                            <label for="property_status_<?php echo esc_attr($shortcode_id); ?>">
+                                <?php esc_html_e('Property Status', 'realestate-booking-suite'); ?>
+                            </label>
+                            <select name="property_status" id="property_status_<?php echo esc_attr($shortcode_id); ?>">
+                                <option value=""><?php esc_html_e('Select Status', 'realestate-booking-suite'); ?></option>
+                                <?php
+                                $property_statuses = get_terms(array(
+                                    'taxonomy' => 'property_status',
+                                    'hide_empty' => false,
+                                ));
+                                foreach ($property_statuses as $status) {
+                                    echo '<option value="' . esc_attr($status->term_id) . '">' . esc_html($status->name) . '</option>';
+                                }
+                                ?>
+                            </select>
+                        </div>
+
+                        <div class="resbs-form-group">
+                            <label for="property_condition_<?php echo esc_attr($shortcode_id); ?>">
+                                <?php esc_html_e('Property Condition', 'realestate-booking-suite'); ?>
+                            </label>
+                            <select name="property_condition" id="property_condition_<?php echo esc_attr($shortcode_id); ?>">
+                                <option value=""><?php esc_html_e('Select Condition', 'realestate-booking-suite'); ?></option>
+                                <option value="excellent"><?php esc_html_e('Excellent', 'realestate-booking-suite'); ?></option>
+                                <option value="good"><?php esc_html_e('Good', 'realestate-booking-suite'); ?></option>
+                                <option value="fair"><?php esc_html_e('Fair', 'realestate-booking-suite'); ?></option>
+                                <option value="needs-renovation"><?php esc_html_e('Needs Renovation', 'realestate-booking-suite'); ?></option>
                             </select>
                         </div>
                     </div>
 
-                    <div class="resbs-form-group">
+                    <div class="resbs-form-group" style="grid-column: 1 / -1;">
                         <label for="property_description_<?php echo esc_attr($shortcode_id); ?>">
                             <?php esc_html_e('Description', 'realestate-booking-suite'); ?> <span class="required">*</span>
                         </label>
                         <textarea name="property_description" id="property_description_<?php echo esc_attr($shortcode_id); ?>" 
-                                  required rows="5" placeholder="<?php esc_attr_e('Enter property description', 'realestate-booking-suite'); ?>"></textarea>
+                                  required rows="6" placeholder="<?php esc_attr_e('Enter property description', 'realestate-booking-suite'); ?>"></textarea>
                     </div>
                 </div>
 
@@ -712,40 +853,233 @@ class RESBS_Shortcodes {
                     </div>
                 <?php endif; ?>
 
-                <?php if ($sanitized_atts['show_map']): ?>
-                    <div class="resbs-form-section">
-                        <h4><?php esc_html_e('Location', 'realestate-booking-suite'); ?></h4>
-                        <div class="resbs-form-row">
-                            <div class="resbs-form-group">
-                                <label for="property_address_<?php echo esc_attr($shortcode_id); ?>">
-                                    <?php esc_html_e('Address', 'realestate-booking-suite'); ?>
-                                </label>
-                                <input type="text" name="property_address" id="property_address_<?php echo esc_attr($shortcode_id); ?>" 
-                                       placeholder="<?php esc_attr_e('Enter address', 'realestate-booking-suite'); ?>">
-                            </div>
-                            <div class="resbs-form-group">
-                                <label for="property_location_<?php echo esc_attr($shortcode_id); ?>">
-                                    <?php esc_html_e('Location', 'realestate-booking-suite'); ?>
-                                </label>
-                                <select name="property_location" id="property_location_<?php echo esc_attr($shortcode_id); ?>">
-                                    <option value=""><?php esc_html_e('Select Location', 'realestate-booking-suite'); ?></option>
-                                    <?php
-                                    $locations = get_terms(array(
-                                        'taxonomy' => 'property_location',
-                                        'hide_empty' => false,
-                                    ));
-                                    foreach ($locations as $location) {
-                                        echo '<option value="' . esc_attr($location->term_id) . '">' . esc_html($location->name) . '</option>';
-                                    }
-                                    ?>
-                                </select>
-                            </div>
+                <div class="resbs-form-section">
+                    <h4><?php esc_html_e('Location', 'realestate-booking-suite'); ?></h4>
+                    <div class="resbs-form-row">
+                        <div class="resbs-form-group">
+                            <label for="property_address_<?php echo esc_attr($shortcode_id); ?>">
+                                <?php esc_html_e('Address', 'realestate-booking-suite'); ?>
+                            </label>
+                            <input type="text" name="property_address" id="property_address_<?php echo esc_attr($shortcode_id); ?>" 
+                                   placeholder="<?php esc_attr_e('e.g., 123 Main Street, Apt 4B', 'realestate-booking-suite'); ?>">
                         </div>
-                        <div class="resbs-map-container" style="height: 300px;">
-                            <div id="resbs-submit-map-<?php echo esc_attr($shortcode_id); ?>"></div>
+                        <div class="resbs-form-group">
+                            <label for="property_city_<?php echo esc_attr($shortcode_id); ?>">
+                                <?php esc_html_e('City', 'realestate-booking-suite'); ?>
+                            </label>
+                            <input type="text" name="property_city" id="property_city_<?php echo esc_attr($shortcode_id); ?>" 
+                                   placeholder="<?php esc_attr_e('e.g., New York', 'realestate-booking-suite'); ?>">
                         </div>
                     </div>
+                    <div class="resbs-form-row">
+                        <div class="resbs-form-group">
+                            <label for="property_state_<?php echo esc_attr($shortcode_id); ?>">
+                                <?php esc_html_e('State/Province', 'realestate-booking-suite'); ?>
+                            </label>
+                            <input type="text" name="property_state" id="property_state_<?php echo esc_attr($shortcode_id); ?>" 
+                                   placeholder="<?php esc_attr_e('e.g., NY, California', 'realestate-booking-suite'); ?>">
+                        </div>
+                        <div class="resbs-form-group">
+                            <label for="property_zip_<?php echo esc_attr($shortcode_id); ?>">
+                                <?php esc_html_e('ZIP/Postal Code', 'realestate-booking-suite'); ?>
+                            </label>
+                            <input type="text" name="property_zip" id="property_zip_<?php echo esc_attr($shortcode_id); ?>" 
+                                   placeholder="<?php esc_attr_e('e.g., 10001', 'realestate-booking-suite'); ?>">
+                        </div>
+                    </div>
+                    <div class="resbs-form-row">
+                        <div class="resbs-form-group">
+                            <label for="property_country_<?php echo esc_attr($shortcode_id); ?>">
+                                <?php esc_html_e('Country', 'realestate-booking-suite'); ?>
+                            </label>
+                            <input type="text" name="property_country" id="property_country_<?php echo esc_attr($shortcode_id); ?>" 
+                                   placeholder="<?php esc_attr_e('e.g., United States', 'realestate-booking-suite'); ?>">
+                        </div>
+                        <div class="resbs-form-group">
+                            <label style="display: flex; align-items: center; gap: 8px;">
+                                <input type="checkbox" name="property_hide_address" id="property_hide_address_<?php echo esc_attr($shortcode_id); ?>" value="1">
+                                <?php esc_html_e('Hide Address on Public Listing', 'realestate-booking-suite'); ?>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="resbs-form-row">
+                        <div class="resbs-form-group">
+                            <label for="property_latitude_<?php echo esc_attr($shortcode_id); ?>">
+                                <?php esc_html_e('Latitude (optional)', 'realestate-booking-suite'); ?>
+                            </label>
+                            <input type="text" name="property_latitude" id="property_latitude_<?php echo esc_attr($shortcode_id); ?>" 
+                                   placeholder="<?php esc_attr_e('e.g., 40.7128', 'realestate-booking-suite'); ?>">
+                        </div>
+                        <div class="resbs-form-group">
+                            <label for="property_longitude_<?php echo esc_attr($shortcode_id); ?>">
+                                <?php esc_html_e('Longitude (optional)', 'realestate-booking-suite'); ?>
+                            </label>
+                            <input type="text" name="property_longitude" id="property_longitude_<?php echo esc_attr($shortcode_id); ?>" 
+                                   placeholder="<?php esc_attr_e('e.g., -74.0060', 'realestate-booking-suite'); ?>">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="resbs-form-section">
+                    <h4><?php esc_html_e('Property Features & Amenities', 'realestate-booking-suite'); ?></h4>
+                    <div class="resbs-form-group" style="grid-column: 1 / -1;">
+                        <label for="property_features_<?php echo esc_attr($shortcode_id); ?>">
+                            <?php esc_html_e('Features (comma separated)', 'realestate-booking-suite'); ?>
+                        </label>
+                        <input type="text" name="property_features" id="property_features_<?php echo esc_attr($shortcode_id); ?>" 
+                               placeholder="<?php esc_attr_e('e.g., Swimming Pool, Garage, Garden, Fireplace', 'realestate-booking-suite'); ?>">
+                    </div>
+                    <div class="resbs-form-group" style="grid-column: 1 / -1;">
+                        <label for="property_amenities_<?php echo esc_attr($shortcode_id); ?>">
+                            <?php esc_html_e('Amenities (comma separated)', 'realestate-booking-suite'); ?>
+                        </label>
+                        <input type="text" name="property_amenities" id="property_amenities_<?php echo esc_attr($shortcode_id); ?>" 
+                               placeholder="<?php esc_attr_e('e.g., Gym, Security, Elevator, Parking', 'realestate-booking-suite'); ?>">
+                    </div>
+                    <div class="resbs-form-row">
+                        <div class="resbs-form-group">
+                            <label for="property_parking_<?php echo esc_attr($shortcode_id); ?>">
+                                <?php esc_html_e('Parking', 'realestate-booking-suite'); ?>
+                            </label>
+                            <input type="text" name="property_parking" id="property_parking_<?php echo esc_attr($shortcode_id); ?>" 
+                                   placeholder="<?php esc_attr_e('e.g., 2 Car Garage, Street Parking', 'realestate-booking-suite'); ?>">
+                        </div>
+                        <div class="resbs-form-group">
+                            <label for="property_heating_<?php echo esc_attr($shortcode_id); ?>">
+                                <?php esc_html_e('Heating', 'realestate-booking-suite'); ?>
+                            </label>
+                            <input type="text" name="property_heating" id="property_heating_<?php echo esc_attr($shortcode_id); ?>" 
+                                   placeholder="<?php esc_attr_e('e.g., Central Heating, Gas', 'realestate-booking-suite'); ?>">
+                        </div>
+                    </div>
+                    <div class="resbs-form-row">
+                        <div class="resbs-form-group">
+                            <label for="property_cooling_<?php echo esc_attr($shortcode_id); ?>">
+                                <?php esc_html_e('Cooling', 'realestate-booking-suite'); ?>
+                            </label>
+                            <input type="text" name="property_cooling" id="property_cooling_<?php echo esc_attr($shortcode_id); ?>" 
+                                   placeholder="<?php esc_attr_e('e.g., Central Air, AC Units', 'realestate-booking-suite'); ?>">
+                        </div>
+                        <div class="resbs-form-group">
+                            <label for="property_basement_<?php echo esc_attr($shortcode_id); ?>">
+                                <?php esc_html_e('Basement', 'realestate-booking-suite'); ?>
+                            </label>
+                            <input type="text" name="property_basement" id="property_basement_<?php echo esc_attr($shortcode_id); ?>" 
+                                   placeholder="<?php esc_attr_e('e.g., Finished, Unfinished, None', 'realestate-booking-suite'); ?>">
+                        </div>
+                    </div>
+                    <div class="resbs-form-row">
+                        <div class="resbs-form-group">
+                            <label for="property_roof_<?php echo esc_attr($shortcode_id); ?>">
+                                <?php esc_html_e('Roof', 'realestate-booking-suite'); ?>
+                            </label>
+                            <input type="text" name="property_roof" id="property_roof_<?php echo esc_attr($shortcode_id); ?>" 
+                                   placeholder="<?php esc_attr_e('e.g., Shingle, Tile, Metal', 'realestate-booking-suite'); ?>">
+                        </div>
+                        <div class="resbs-form-group">
+                            <label for="property_exterior_material_<?php echo esc_attr($shortcode_id); ?>">
+                                <?php esc_html_e('Exterior Material', 'realestate-booking-suite'); ?>
+                            </label>
+                            <input type="text" name="property_exterior_material" id="property_exterior_material_<?php echo esc_attr($shortcode_id); ?>" 
+                                   placeholder="<?php esc_attr_e('e.g., Brick, Vinyl, Stucco', 'realestate-booking-suite'); ?>">
+                        </div>
+                    </div>
+                    <div class="resbs-form-group" style="grid-column: 1 / -1;">
+                        <label for="property_floor_covering_<?php echo esc_attr($shortcode_id); ?>">
+                            <?php esc_html_e('Floor Covering', 'realestate-booking-suite'); ?>
+                        </label>
+                        <input type="text" name="property_floor_covering" id="property_floor_covering_<?php echo esc_attr($shortcode_id); ?>" 
+                               placeholder="<?php esc_attr_e('e.g., Hardwood, Carpet, Tile', 'realestate-booking-suite'); ?>">
+                    </div>
+                </div>
+
+                <div class="resbs-form-section">
+                    <h4><?php esc_html_e('Nearby Features', 'realestate-booking-suite'); ?></h4>
+                    <div class="resbs-form-group" style="grid-column: 1 / -1;">
+                        <label for="property_nearby_schools_<?php echo esc_attr($shortcode_id); ?>">
+                            <?php esc_html_e('Nearby Schools', 'realestate-booking-suite'); ?>
+                        </label>
+                        <textarea name="property_nearby_schools" id="property_nearby_schools_<?php echo esc_attr($shortcode_id); ?>" 
+                                  rows="3" placeholder="<?php esc_attr_e('List nearby schools and their distances', 'realestate-booking-suite'); ?>"></textarea>
+                    </div>
+                    <div class="resbs-form-group" style="grid-column: 1 / -1;">
+                        <label for="property_nearby_shopping_<?php echo esc_attr($shortcode_id); ?>">
+                            <?php esc_html_e('Nearby Shopping', 'realestate-booking-suite'); ?>
+                        </label>
+                        <textarea name="property_nearby_shopping" id="property_nearby_shopping_<?php echo esc_attr($shortcode_id); ?>" 
+                                  rows="3" placeholder="<?php esc_attr_e('List nearby shopping centers and malls', 'realestate-booking-suite'); ?>"></textarea>
+                    </div>
+                    <div class="resbs-form-group" style="grid-column: 1 / -1;">
+                        <label for="property_nearby_restaurants_<?php echo esc_attr($shortcode_id); ?>">
+                            <?php esc_html_e('Nearby Restaurants', 'realestate-booking-suite'); ?>
+                        </label>
+                        <textarea name="property_nearby_restaurants" id="property_nearby_restaurants_<?php echo esc_attr($shortcode_id); ?>" 
+                                  rows="3" placeholder="<?php esc_attr_e('List nearby restaurants and dining options', 'realestate-booking-suite'); ?>"></textarea>
+                    </div>
+                </div>
+
+                <?php if ($sanitized_atts['show_video']): ?>
+                <div class="resbs-form-section">
+                    <h4><?php esc_html_e('Video & Virtual Tour', 'realestate-booking-suite'); ?></h4>
+                    <div class="resbs-form-group" style="grid-column: 1 / -1;">
+                        <label for="property_video_url_<?php echo esc_attr($shortcode_id); ?>">
+                            <?php esc_html_e('Video URL', 'realestate-booking-suite'); ?>
+                        </label>
+                        <input type="url" name="property_video_url" id="property_video_url_<?php echo esc_attr($shortcode_id); ?>" 
+                               placeholder="<?php esc_attr_e('e.g., https://www.youtube.com/watch?v=...', 'realestate-booking-suite'); ?>">
+                    </div>
+                    <div class="resbs-form-group" style="grid-column: 1 / -1;">
+                        <label for="property_video_embed_<?php echo esc_attr($shortcode_id); ?>">
+                            <?php esc_html_e('Video Embed Code', 'realestate-booking-suite'); ?>
+                        </label>
+                        <textarea name="property_video_embed" id="property_video_embed_<?php echo esc_attr($shortcode_id); ?>" 
+                                  rows="4" placeholder="<?php esc_attr_e('Paste iframe embed code here', 'realestate-booking-suite'); ?>"></textarea>
+                    </div>
+                    <div class="resbs-form-group" style="grid-column: 1 / -1;">
+                        <label for="property_virtual_tour_<?php echo esc_attr($shortcode_id); ?>">
+                            <?php esc_html_e('Virtual Tour URL', 'realestate-booking-suite'); ?>
+                        </label>
+                        <input type="url" name="property_virtual_tour" id="property_virtual_tour_<?php echo esc_attr($shortcode_id); ?>" 
+                               placeholder="<?php esc_attr_e('e.g., https://my360tour.com/...', 'realestate-booking-suite'); ?>">
+                    </div>
+                </div>
                 <?php endif; ?>
+
+                <div class="resbs-form-section">
+                    <h4><?php esc_html_e('Agent Information', 'realestate-booking-suite'); ?></h4>
+                    <div class="resbs-form-row">
+                        <div class="resbs-form-group">
+                            <label for="property_agent_name_<?php echo esc_attr($shortcode_id); ?>">
+                                <?php esc_html_e('Agent Name', 'realestate-booking-suite'); ?>
+                            </label>
+                            <input type="text" name="property_agent_name" id="property_agent_name_<?php echo esc_attr($shortcode_id); ?>" 
+                                   placeholder="<?php esc_attr_e('Enter agent name', 'realestate-booking-suite'); ?>">
+                        </div>
+                        <div class="resbs-form-group">
+                            <label for="property_agent_phone_<?php echo esc_attr($shortcode_id); ?>">
+                                <?php esc_html_e('Agent Phone', 'realestate-booking-suite'); ?>
+                            </label>
+                            <input type="tel" name="property_agent_phone" id="property_agent_phone_<?php echo esc_attr($shortcode_id); ?>" 
+                                   placeholder="<?php esc_attr_e('e.g., +1 234 567 8900', 'realestate-booking-suite'); ?>">
+                        </div>
+                    </div>
+                    <div class="resbs-form-row">
+                        <div class="resbs-form-group">
+                            <label for="property_agent_email_<?php echo esc_attr($shortcode_id); ?>">
+                                <?php esc_html_e('Agent Email', 'realestate-booking-suite'); ?>
+                            </label>
+                            <input type="email" name="property_agent_email" id="property_agent_email_<?php echo esc_attr($shortcode_id); ?>" 
+                                   placeholder="<?php esc_attr_e('e.g., agent@example.com', 'realestate-booking-suite'); ?>">
+                        </div>
+                        <div class="resbs-form-group">
+                            <label for="property_agent_experience_<?php echo esc_attr($shortcode_id); ?>">
+                                <?php esc_html_e('Years of Experience', 'realestate-booking-suite'); ?>
+                            </label>
+                            <input type="number" name="property_agent_experience" id="property_agent_experience_<?php echo esc_attr($shortcode_id); ?>" 
+                                   min="0" placeholder="<?php esc_attr_e('e.g., 10', 'realestate-booking-suite'); ?>">
+                        </div>
+                    </div>
+                </div>
 
                 <div class="resbs-form-actions">
                     <button type="submit" class="resbs-submit-btn">
@@ -1056,23 +1390,210 @@ class RESBS_Shortcodes {
     private function render_user_properties($user_id) {
         $properties = get_posts(array(
             'post_type' => 'property',
-            'post_status' => 'publish',
+            'post_status' => array('publish', 'pending', 'draft'), // Show all statuses
             'author' => $user_id,
-            'posts_per_page' => -1
+            'posts_per_page' => -1,
+            'orderby' => 'date',
+            'order' => 'DESC'
         ));
 
         if (!empty($properties)) {
-            echo '<div class="resbs-user-properties">';
             foreach ($properties as $property) {
-                echo '<div class="resbs-user-property-item">';
-                echo '<h5><a href="' . esc_url(get_permalink($property->ID)) . '">' . esc_html($property->post_title) . '</a></h5>';
-                echo '<p>' . esc_html__('Status:', 'realestate-booking-suite') . ' ' . esc_html($property->post_status) . '</p>';
-                echo '</div>';
+                $this->render_property_card_for_user($property);
+            }
+        } else {
+            echo '<div class="resbs-no-properties">';
+            echo '<i class="fas fa-home" style="font-size: 48px; color: #ccc; margin-bottom: 20px;"></i>';
+            echo '<p>' . esc_html__('You haven\'t submitted any properties yet.', 'realestate-booking-suite') . '</p>';
+            $submit_url = resbs_get_submit_property_page_url();
+            if ($submit_url) {
+                echo '<a href="' . esc_url($submit_url) . '" class="resbs-submit-first-btn">';
+                echo esc_html__('Submit Your First Property', 'realestate-booking-suite');
+                echo '</a>';
             }
             echo '</div>';
-        } else {
-            echo '<p>' . esc_html__('No properties found.', 'realestate-booking-suite') . '</p>';
         }
+    }
+    
+    /**
+     * Render property card for user dashboard - using archive page design EXACTLY
+     */
+    private function render_property_card_for_user($property) {
+        $property_id = $property->ID;
+        
+        // Get featured image - same as archive
+        $featured_image = get_the_post_thumbnail_url($property_id, 'medium');
+        if (!$featured_image) {
+            $gallery = get_post_meta($property_id, '_property_gallery', true);
+            if ($gallery) {
+                $gallery_array = is_array($gallery) ? $gallery : explode(',', $gallery);
+                if (!empty($gallery_array[0])) {
+                    $featured_image = wp_get_attachment_image_url($gallery_array[0], 'medium');
+                }
+            }
+        }
+        
+        // Get meta data - using EXACT same keys as archive
+        $price = get_post_meta($property_id, '_property_price', true);
+        $bedrooms = get_post_meta($property_id, '_property_bedrooms', true);
+        $bathrooms = get_post_meta($property_id, '_property_bathrooms', true);
+        $area_sqft = get_post_meta($property_id, '_property_area_sqft', true);
+        if (!$area_sqft) {
+            $area_sqft = get_post_meta($property_id, '_property_size', true);
+        }
+        
+        // Get address and location - same as archive
+        $address = get_post_meta($property_id, '_property_address', true);
+        $city = get_post_meta($property_id, '_property_city', true);
+        $state = get_post_meta($property_id, '_property_state', true);
+        $zip = get_post_meta($property_id, '_property_zip', true);
+        
+        // Build location string like archive does
+        $location_parts = array();
+        if ($address) $location_parts[] = $address;
+        if ($city) $location_parts[] = $city;
+        if ($state) $location_parts[] = $state;
+        if ($zip) $location_parts[] = $zip;
+        $location = !empty($location_parts) ? implode(', ', $location_parts) : '';
+        
+        // If no location from meta, try location taxonomy
+        if (empty($location)) {
+            $location_terms = get_the_terms($property_id, 'property_location');
+            if ($location_terms && !is_wp_error($location_terms)) {
+                $location = $location_terms[0]->name;
+            }
+        }
+        
+        // Get property type and status from taxonomies - same as archive
+        $property_types = get_the_terms($property_id, 'property_type');
+        $property_statuses = get_the_terms($property_id, 'property_status');
+        
+        $property_type_name = '';
+        if ($property_types && !is_wp_error($property_types)) {
+            $property_type_name = $property_types[0]->name;
+        }
+        
+        $property_status_name = '';
+        if ($property_statuses && !is_wp_error($property_statuses)) {
+            $property_status_name = $property_statuses[0]->name;
+        }
+        
+        // If no status from taxonomy, use post status
+        if (empty($property_status_name)) {
+            $status = $property->post_status;
+            $status_labels = array(
+                'publish' => __('Published', 'realestate-booking-suite'),
+                'pending' => __('Pending Review', 'realestate-booking-suite'),
+                'draft' => __('Draft', 'realestate-booking-suite')
+            );
+            $property_status_name = isset($status_labels[$status]) ? $status_labels[$status] : ucfirst($status);
+        }
+        
+        // Format price - same as archive
+        $formatted_price = '';
+        if ($price) {
+            $formatted_price = '$' . number_format(floatval($price), 0, '.', ',');
+        }
+        
+        // Badge class based on post status
+        $status = $property->post_status;
+        $post_date = get_the_date('Y-m-d', $property_id);
+        $days_old = (time() - strtotime($post_date)) / (60 * 60 * 24);
+        
+        if ($status === 'pending') {
+            $badge_class = 'badge-new';
+            $badge_text = 'Pending Review';
+        } elseif ($status === 'draft') {
+            $badge_class = 'badge-standard';
+            $badge_text = 'Draft';
+        } elseif ($days_old < 7) {
+            $badge_class = 'badge-new';
+            $badge_text = 'Just listed';
+        } elseif ($days_old < 30) {
+            $badge_class = 'badge-featured';
+            $badge_text = 'Featured';
+        } else {
+            $badge_class = 'badge-standard';
+            $badge_text = 'Available';
+        }
+        ?>
+        <div class="property-card" data-property-id="<?php echo esc_attr($property_id); ?>">
+            <div class="property-image">
+                <?php if ($featured_image): ?>
+                    <img src="<?php echo esc_url($featured_image); ?>" alt="<?php echo esc_attr($property->post_title); ?>">
+                <?php else: ?>
+                    <div class="no-image-placeholder" style="background: #f3f4f6; display: flex; align-items: center; justify-content: center; min-height: 250px;">
+                        <i class="fas fa-home" style="font-size: 48px; color: #9ca3af;"></i>
+                    </div>
+                <?php endif; ?>
+                <div class="gradient-overlay"></div>
+                <div class="property-badge <?php echo esc_attr($badge_class); ?>"><?php echo esc_html($badge_text); ?></div>
+                
+                <?php if (resbs_is_wishlist_enabled()): 
+                    $is_favorited = resbs_is_property_favorited($property_id);
+                ?>
+                <button class="favorite-btn resbs-favorite-btn <?php echo $is_favorited ? 'favorited' : ''; ?>" data-property-id="<?php echo esc_attr($property_id); ?>">
+                    <i class="<?php echo $is_favorited ? 'fas' : 'far'; ?> fa-heart"></i>
+                </button>
+                <?php endif; ?>
+                
+                <div class="property-info-overlay">
+                    <h3 class="property-title"><?php echo esc_html($property->post_title); ?></h3>
+                    <?php if (resbs_should_show_listing_address() && $location): ?>
+                        <p class="property-location"><?php echo esc_html($location); ?></p>
+                    <?php endif; ?>
+                </div>
+            </div>
+            
+            <div class="property-details">
+                <div class="property-price-container">
+                    <?php if (resbs_should_show_price() && $formatted_price): ?>
+                        <span class="property-price"><?php echo esc_html($formatted_price); ?></span>
+                    <?php endif; ?>
+                    <span class="property-status"><?php echo esc_html($property_status_name); ?></span>
+                </div>
+                
+                <div class="property-features">
+                    <?php if ($bedrooms): ?>
+                        <div class="property-feature">
+                            <i class="fas fa-bed"></i>
+                            <span><?php echo esc_html($bedrooms); ?> beds</span>
+                        </div>
+                    <?php endif; ?>
+                    
+                    <?php if ($bathrooms): ?>
+                        <div class="property-feature">
+                            <i class="fas fa-bath"></i>
+                            <span><?php echo esc_html($bathrooms); ?> baths</span>
+                        </div>
+                    <?php endif; ?>
+                    
+                    <?php if ($area_sqft): ?>
+                        <div class="property-feature">
+                            <i class="fas fa-ruler-combined"></i>
+                            <span><?php echo resbs_format_area($area_sqft); ?></span>
+                        </div>
+                    <?php endif; ?>
+                </div>
+                
+                <div class="property-footer">
+                    <?php if ($property_type_name): ?>
+                        <span class="property-type"><?php echo esc_html($property_type_name); ?></span>
+                    <?php endif; ?>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <?php if ($status === 'pending' && current_user_can('publish_posts')): ?>
+                            <button class="publish-property-btn" data-property-id="<?php echo esc_attr($property_id); ?>" style="background: #10b981; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.3s;">
+                                <i class="fas fa-check"></i> Publish
+                            </button>
+                        <?php endif; ?>
+                        <a href="<?php echo esc_url(get_permalink($property_id)); ?>" class="view-details-btn">
+                            View Details <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <?php
     }
 
     /**

@@ -201,7 +201,7 @@
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     overflow: hidden;
     margin: 30px 0;
-    max-width: 1200px;
+    max-width: 1320px;
     margin-left: auto;
     margin-right: auto;
 }
@@ -803,139 +803,253 @@
 /* Submit Property Widget */
 .resbs-submit-widget {
     background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
     overflow: hidden;
+    padding: 50px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.resbs-submit-widget .resbs-widget-title {
+    margin: 0 0 35px 0;
+    padding: 0;
+    border: none;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1f2937;
 }
 
 .resbs-submit-form {
-    padding: 20px;
+    padding: 0;
 }
 
 .resbs-form-section {
-    margin-bottom: 30px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid #eee;
+    margin-bottom: 50px;
+    padding-bottom: 40px;
+    border-bottom: 1px solid #e5e7eb;
 }
 
 .resbs-form-section:last-child {
     border-bottom: none;
     margin-bottom: 0;
+    padding-bottom: 0;
 }
 
 .resbs-form-section h4 {
-    margin: 0 0 20px 0;
-    color: #333;
-    font-size: 1.2rem;
-    padding-bottom: 10px;
-    border-bottom: 2px solid #0073aa;
+    margin: 0 0 30px 0;
+    color: #1f2937;
+    font-size: 1.4rem;
+    font-weight: 700;
+    padding-bottom: 12px;
+    border-bottom: 3px solid #0073aa;
 }
 
 .resbs-form-row {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 15px;
-    margin-bottom: 15px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.resbs-form-row:last-child {
+    margin-bottom: 0;
 }
 
 .resbs-form-group {
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 8px;
 }
 
 .resbs-form-group label {
     font-weight: 600;
-    color: #333;
-    font-size: 14px;
+    color: #374151;
+    font-size: 15px;
+    margin-bottom: 0;
 }
 
 .resbs-form-group label .required {
     color: #dc3545;
+    margin-left: 3px;
 }
 
 .resbs-form-group input,
 .resbs-form-group select,
 .resbs-form-group textarea {
-    padding: 10px 12px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 14px;
+    width: 100%;
+    padding: 14px 16px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 15px;
     background: #fff;
-    transition: border-color 0.3s ease;
+    transition: all 0.3s ease;
     font-family: inherit;
+    color: #1f2937;
+}
+
+.resbs-form-group input:focus,
+.resbs-form-group select:focus,
+.resbs-form-group textarea:focus {
+    outline: none;
+    border-color: #0073aa;
+    box-shadow: 0 0 0 3px rgba(0, 115, 170, 0.1);
+}
+
+.resbs-form-group input::placeholder,
+.resbs-form-group textarea::placeholder {
+    color: #9ca3af;
+}
+
+.resbs-form-group select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23374151' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    padding-right: 40px;
 }
 
 .resbs-form-group textarea {
     resize: vertical;
-    min-height: 100px;
+    min-height: 120px;
+    line-height: 1.6;
 }
 
 .resbs-gallery-upload {
-    border: 2px dashed #ddd;
-    border-radius: 6px;
-    padding: 20px;
+    border: 2px dashed #d1d5db;
+    border-radius: 10px;
+    padding: 40px 20px;
     text-align: center;
-    transition: border-color 0.3s ease;
+    transition: all 0.3s ease;
+    background: #f9fafb;
 }
 
 .resbs-gallery-upload:hover {
     border-color: #0073aa;
+    background: #f0f9ff;
 }
 
 .resbs-gallery-input {
-    margin-bottom: 15px;
+    margin-bottom: 20px;
 }
 
 .resbs-gallery-preview {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-    gap: 10px;
-    margin-top: 15px;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
 }
 
 .resbs-gallery-preview img {
     width: 100%;
-    height: 100px;
+    height: 120px;
     object-fit: cover;
-    border-radius: 4px;
-    border: 1px solid #ddd;
+    border-radius: 8px;
+    border: 2px solid #e5e7eb;
+    transition: all 0.3s ease;
+}
+
+.resbs-gallery-preview img:hover {
+    border-color: #0073aa;
+    transform: scale(1.05);
+}
+
+.resbs-map-container {
+    margin-top: 20px;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+    background: #f9fafb;
+    min-height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.resbs-map-container:empty::before,
+.resbs-map-container > div:empty::before {
+    content: 'Map will be displayed here';
+    color: #9ca3af;
+    font-size: 14px;
+    font-style: italic;
+}
+
+.resbs-map-container > div {
+    width: 100%;
+    height: 100%;
+    min-height: 300px;
 }
 
 .resbs-form-actions {
     display: flex;
     gap: 15px;
     justify-content: flex-start;
-    margin-top: 20px;
+    margin-top: 40px;
+    padding-top: 30px;
+    border-top: 1px solid #e5e7eb;
 }
 
 .resbs-submit-btn,
 .resbs-reset-btn {
-    padding: 12px 24px;
+    padding: 16px 32px;
     border: none;
-    border-radius: 4px;
-    font-size: 14px;
+    border-radius: 8px;
+    font-size: 15px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
+    min-width: 150px;
 }
 
 .resbs-submit-btn {
     background: #0073aa;
     color: #fff;
+    box-shadow: 0 4px 12px rgba(0, 115, 170, 0.25);
 }
 
 .resbs-submit-btn:hover {
     background: #005a87;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 115, 170, 0.35);
 }
 
 .resbs-reset-btn {
-    background: #6c757d;
+    background: #6b7280;
     color: #fff;
 }
 
 .resbs-reset-btn:hover {
-    background: #545b62;
+    background: #4b5563;
+    transform: translateY(-2px);
+}
+
+/* Responsive Design for Submit Form */
+@media (max-width: 768px) {
+    .resbs-submit-widget {
+        padding: 30px 20px;
+        border-radius: 8px;
+    }
+    
+    .resbs-form-row {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .resbs-form-section {
+        margin-bottom: 35px;
+        padding-bottom: 30px;
+    }
+    
+    .resbs-form-actions {
+        flex-direction: column;
+    }
+    
+    .resbs-submit-btn,
+    .resbs-reset-btn {
+        width: 100%;
+    }
 }
 
 /* Favorites Widget */
