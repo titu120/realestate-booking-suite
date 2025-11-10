@@ -3172,3 +3172,15 @@ span.page-numbers.current {
     line-height: 40px;
     color: #fff;
 }
+
+p.property-date {
+    margin-top: 4px !important;
+}
+
+p.property-date i {
+    color: #28a745 !important
+}
+
+p.property-location {
+    margin: 0;
+}

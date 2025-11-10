@@ -428,10 +428,12 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
                                 <i class="fas fa-map-marker-alt text-emerald-500"></i>
                                 <?php echo esc_html($full_address ? $full_address : 'Location not specified'); ?>
                             </p>
+                            <?php if (resbs_should_show_date_added()): ?>
                             <p class="property-date" style="color: #6b7280; font-size: 14px; margin-top: 8px;">
                                 <i class="fas fa-calendar-alt"></i>
                                 Listed on <?php echo esc_html(resbs_format_date(get_the_date('Y-m-d'))); ?>
                             </p>
+                            <?php endif; ?>
                         </div>
                         <div class="mt-4 md:mt-0">
                             <p class="property-price"><?php echo esc_html($formatted_price); ?></p>
