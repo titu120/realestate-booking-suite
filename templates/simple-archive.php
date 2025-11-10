@@ -1302,22 +1302,35 @@ body {
     margin: 30px 0;
     padding: 20px 0;
     border-bottom: 1px solid #e5e7eb;
+    position: relative;
+    overflow: visible;
+    z-index: 10;
+}
+
+.right-controls {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
 }
 
 .sort-controls {
     display: flex;
     align-items: center;
     gap: 15px;
+    position: relative;
+    z-index: 100;
 }
 
 .sort-label {
     color: #6b7280;
     font-size: 14px;
     font-weight: 500;
+    white-space: nowrap;
 }
 
 .sort-select {
-    padding: 8px 12px;
+    padding: 8px 35px 8px 12px;
     border: 1px solid #d1d5db;
     border-radius: 6px;
     background: white;
@@ -1326,11 +1339,27 @@ body {
     cursor: pointer;
     outline: none;
     transition: border-color 0.2s ease;
+    min-width: 150px;
+    width: auto;
+    position: relative;
+    z-index: 101;
+    appearance: none;
+    background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23374151\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3e%3cpolyline points=\'6 9 12 15 18 9\'%3e%3c/polyline%3e%3c/svg%3e');
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 16px;
 }
 
 .sort-select:hover,
 .sort-select:focus {
     border-color: <?php echo esc_attr($main_color); ?>;
+    z-index: 102;
+}
+
+.sort-select option {
+    padding: 8px 12px;
+    background: white;
+    color: #374151;
 }
 
 .layout-toggle {

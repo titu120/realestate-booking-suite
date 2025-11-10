@@ -483,7 +483,7 @@ function resbs_should_show_description_listing_box() {
  * @return bool True if sorting is enabled
  */
 function resbs_is_sorting_enabled() {
-    return (bool) get_option('resbs_enable_sorting', false);
+    return (bool) get_option('resbs_enable_sorting', true);
 }
 
 /**

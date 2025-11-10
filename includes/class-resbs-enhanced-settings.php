@@ -24,6 +24,7 @@ class RESBS_Enhanced_Settings {
         
         // Add AJAX handlers
         add_action('admin_post_resbs_save_settings', array($this, 'handle_settings_save'));
+        add_action('admin_post_resbs_reset_settings', array($this, 'handle_reset_settings'));
         add_action('wp_ajax_resbs_create_page', array($this, 'handle_create_page'));
         add_action('wp_ajax_resbs_load_tab_content', array($this, 'handle_load_tab_content'));
         add_action('wp_ajax_resbs_test_ajax', array($this, 'handle_test_ajax'));
@@ -884,6 +885,10 @@ class RESBS_Enhanced_Settings {
             <div class="notice notice-success"><p><?php esc_html_e('Settings saved successfully!', 'realestate-booking-suite'); ?></p></div>
         <?php endif; ?>
         
+        <?php if (isset($_GET['reset']) && $_GET['reset'] == '1'): ?>
+            <div class="notice notice-success"><p><?php esc_html_e('Settings reset to defaults successfully!', 'realestate-booking-suite'); ?></p></div>
+        <?php endif; ?>
+        
         <form method="post" action="<?php echo admin_url('admin-post.php'); ?>">
             <?php wp_nonce_field('resbs_enhanced_settings-options'); ?>
             <input type="hidden" name="action" value="resbs_save_settings">
@@ -938,7 +943,17 @@ class RESBS_Enhanced_Settings {
                 </tr>
             </table>
             
-            <button type="submit" class="resbs-save-button"><?php esc_html_e('SAVE CHANGES', 'realestate-booking-suite'); ?></button>
+            <div style="margin-top: 20px;">
+                <button type="submit" class="resbs-save-button"><?php esc_html_e('SAVE CHANGES', 'realestate-booking-suite'); ?></button>
+                <button type="button" class="button button-secondary resbs-reset-button" onclick="if(confirm('<?php esc_attr_e('Are you sure you want to reset all General settings to default values? This cannot be undone.', 'realestate-booking-suite'); ?>')) { document.getElementById('resetGeneralForm').submit(); }" style="margin-left: 10px;"><?php esc_html_e('Reset to Defaults', 'realestate-booking-suite'); ?></button>
+            </div>
+        </form>
+        
+        <!-- Reset Form -->
+        <form method="post" action="<?php echo admin_url('admin-post.php'); ?>" id="resetGeneralForm" style="display: none;">
+            <?php wp_nonce_field('resbs_enhanced_settings-options'); ?>
+            <input type="hidden" name="action" value="resbs_reset_settings">
+            <input type="hidden" name="current_tab" value="general">
         </form>
         <?php
     }
@@ -1107,6 +1122,10 @@ class RESBS_Enhanced_Settings {
             <div class="notice notice-success"><p><?php esc_html_e('Settings saved successfully!', 'realestate-booking-suite'); ?></p></div>
         <?php endif; ?>
         
+        <?php if (isset($_GET['reset']) && $_GET['reset'] == '1'): ?>
+            <div class="notice notice-success"><p><?php esc_html_e('Settings reset to defaults successfully!', 'realestate-booking-suite'); ?></p></div>
+        <?php endif; ?>
+        
         <form method="post" action="<?php echo admin_url('admin-post.php'); ?>">
             <?php wp_nonce_field('resbs_enhanced_settings-options'); ?>
             <input type="hidden" name="action" value="resbs_save_settings">
@@ -1250,7 +1269,17 @@ class RESBS_Enhanced_Settings {
                 </div>
             </div>
             
-            <button type="submit" class="resbs-save-button"><?php esc_html_e('SAVE CHANGES', 'realestate-booking-suite'); ?></button>
+            <div style="margin-top: 20px;">
+                <button type="submit" class="resbs-save-button"><?php esc_html_e('SAVE CHANGES', 'realestate-booking-suite'); ?></button>
+                <button type="button" class="button button-secondary resbs-reset-button" onclick="if(confirm('<?php esc_attr_e('Are you sure you want to reset all Archive Pages settings to default values? This cannot be undone.', 'realestate-booking-suite'); ?>')) { document.getElementById('resetArchiveForm').submit(); }" style="margin-left: 10px;"><?php esc_html_e('Reset to Defaults', 'realestate-booking-suite'); ?></button>
+            </div>
+        </form>
+        
+        <!-- Reset Form -->
+        <form method="post" action="<?php echo admin_url('admin-post.php'); ?>" id="resetArchiveForm" style="display: none;">
+            <?php wp_nonce_field('resbs_enhanced_settings-options'); ?>
+            <input type="hidden" name="action" value="resbs_reset_settings">
+            <input type="hidden" name="current_tab" value="archive">
         </form>
         <?php
     }
@@ -1266,6 +1295,10 @@ class RESBS_Enhanced_Settings {
         
         <?php if (isset($_GET['updated']) && $_GET['updated'] == '1'): ?>
             <div class="notice notice-success"><p><?php esc_html_e('Settings saved successfully!', 'realestate-booking-suite'); ?></p></div>
+        <?php endif; ?>
+        
+        <?php if (isset($_GET['reset']) && $_GET['reset'] == '1'): ?>
+            <div class="notice notice-success"><p><?php esc_html_e('Settings reset to defaults successfully!', 'realestate-booking-suite'); ?></p></div>
         <?php endif; ?>
         
         <form method="post" action="<?php echo admin_url('admin-post.php'); ?>">
@@ -1370,7 +1403,15 @@ class RESBS_Enhanced_Settings {
             
             <p class="submit">
                 <button type="submit" class="resbs-save-button button button-primary"><?php esc_html_e('Save Changes', 'realestate-booking-suite'); ?></button>
+                <button type="button" class="button button-secondary resbs-reset-button" onclick="if(confirm('<?php esc_attr_e('Are you sure you want to reset all Map settings to default values? This cannot be undone.', 'realestate-booking-suite'); ?>')) { document.getElementById('resetMapForm').submit(); }" style="margin-left: 10px;"><?php esc_html_e('Reset to Defaults', 'realestate-booking-suite'); ?></button>
             </p>
+        </form>
+        
+        <!-- Reset Form -->
+        <form method="post" action="<?php echo admin_url('admin-post.php'); ?>" id="resetMapForm" style="display: none;">
+            <?php wp_nonce_field('resbs_enhanced_settings-options'); ?>
+            <input type="hidden" name="action" value="resbs_reset_settings">
+            <input type="hidden" name="current_tab" value="map">
         </form>
         <?php
     }
@@ -1385,6 +1426,10 @@ class RESBS_Enhanced_Settings {
         
         <?php if (isset($_GET['updated']) && $_GET['updated'] == '1'): ?>
             <div class="notice notice-success"><p><?php esc_html_e('Settings saved successfully!', 'realestate-booking-suite'); ?></p></div>
+        <?php endif; ?>
+        
+        <?php if (isset($_GET['reset']) && $_GET['reset'] == '1'): ?>
+            <div class="notice notice-success"><p><?php esc_html_e('Settings reset to defaults successfully!', 'realestate-booking-suite'); ?></p></div>
         <?php endif; ?>
         
         <form method="post" action="<?php echo admin_url('admin-post.php'); ?>" enctype="multipart/form-data">
@@ -1434,7 +1479,7 @@ class RESBS_Enhanced_Settings {
                     <th scope="row"><?php esc_html_e('Enable Sorting', 'realestate-booking-suite'); ?></th>
                     <td>
                         <label>
-                            <input type="checkbox" name="resbs_enable_sorting" value="1" <?php checked(get_option('resbs_enable_sorting'), 1); ?>>
+                            <input type="checkbox" name="resbs_enable_sorting" value="1" <?php checked(get_option('resbs_enable_sorting', 1), 1); ?>>
                             <?php esc_html_e('Enable Sorting', 'realestate-booking-suite'); ?>
                         </label>
                     </td>
@@ -1567,7 +1612,15 @@ class RESBS_Enhanced_Settings {
             
             <p class="submit">
                 <button type="submit" class="resbs-save-button button button-primary"><?php esc_html_e('Save Changes', 'realestate-booking-suite'); ?></button>
+                <button type="button" class="button button-secondary resbs-reset-button" onclick="if(confirm('<?php esc_attr_e('Are you sure you want to reset all Listings settings to default values? This cannot be undone.', 'realestate-booking-suite'); ?>')) { document.getElementById('resetListingsForm').submit(); }"><?php esc_html_e('Reset to Defaults', 'realestate-booking-suite'); ?></button>
             </p>
+        </form>
+        
+        <!-- Reset Form -->
+        <form method="post" action="<?php echo admin_url('admin-post.php'); ?>" id="resetListingsForm" style="display: none;">
+            <?php wp_nonce_field('resbs_enhanced_settings-options'); ?>
+            <input type="hidden" name="action" value="resbs_reset_settings">
+            <input type="hidden" name="current_tab" value="listings">
         </form>
         <?php
     }
@@ -1581,6 +1634,10 @@ class RESBS_Enhanced_Settings {
         
         <?php if (isset($_GET['updated']) && $_GET['updated'] == '1'): ?>
             <div class="notice notice-success"><p><?php esc_html_e('Settings saved successfully!', 'realestate-booking-suite'); ?></p></div>
+        <?php endif; ?>
+        
+        <?php if (isset($_GET['reset']) && $_GET['reset'] == '1'): ?>
+            <div class="notice notice-success"><p><?php esc_html_e('Settings reset to defaults successfully!', 'realestate-booking-suite'); ?></p></div>
         <?php endif; ?>
         
         <form method="post" action="<?php echo admin_url('admin-post.php'); ?>">
@@ -1657,7 +1714,15 @@ class RESBS_Enhanced_Settings {
             
             <p class="submit">
                 <button type="submit" class="resbs-save-button button button-primary"><?php esc_html_e('Save Changes', 'realestate-booking-suite'); ?></button>
+                <button type="button" class="button button-secondary resbs-reset-button" onclick="if(confirm('<?php esc_attr_e('Are you sure you want to reset all Listing Search settings to default values? This cannot be undone.', 'realestate-booking-suite'); ?>')) { document.getElementById('resetSearchForm').submit(); }" style="margin-left: 10px;"><?php esc_html_e('Reset to Defaults', 'realestate-booking-suite'); ?></button>
             </p>
+        </form>
+        
+        <!-- Reset Form -->
+        <form method="post" action="<?php echo admin_url('admin-post.php'); ?>" id="resetSearchForm" style="display: none;">
+            <?php wp_nonce_field('resbs_enhanced_settings-options'); ?>
+            <input type="hidden" name="action" value="resbs_reset_settings">
+            <input type="hidden" name="current_tab" value="search">
         </form>
         <?php
     }
@@ -1671,6 +1736,10 @@ class RESBS_Enhanced_Settings {
         
         <?php if (isset($_GET['updated']) && $_GET['updated'] == '1'): ?>
             <div class="notice notice-success"><p><?php esc_html_e('Settings saved successfully!', 'realestate-booking-suite'); ?></p></div>
+        <?php endif; ?>
+        
+        <?php if (isset($_GET['reset']) && $_GET['reset'] == '1'): ?>
+            <div class="notice notice-success"><p><?php esc_html_e('Settings reset to defaults successfully!', 'realestate-booking-suite'); ?></p></div>
         <?php endif; ?>
         
         <form method="post" action="<?php echo admin_url('admin-post.php'); ?>">
@@ -1710,7 +1779,15 @@ class RESBS_Enhanced_Settings {
             
             <p class="submit">
                 <button type="submit" class="resbs-save-button button button-primary"><?php esc_html_e('Save Changes', 'realestate-booking-suite'); ?></button>
+                <button type="button" class="button button-secondary resbs-reset-button" onclick="if(confirm('<?php esc_attr_e('Are you sure you want to reset all User Profile settings to default values? This cannot be undone.', 'realestate-booking-suite'); ?>')) { document.getElementById('resetUserProfileForm').submit(); }" style="margin-left: 10px;"><?php esc_html_e('Reset to Defaults', 'realestate-booking-suite'); ?></button>
             </p>
+        </form>
+        
+        <!-- Reset Form -->
+        <form method="post" action="<?php echo admin_url('admin-post.php'); ?>" id="resetUserProfileForm" style="display: none;">
+            <?php wp_nonce_field('resbs_enhanced_settings-options'); ?>
+            <input type="hidden" name="action" value="resbs_reset_settings">
+            <input type="hidden" name="current_tab" value="user-profile">
         </form>
         <?php
     }
@@ -1724,6 +1801,10 @@ class RESBS_Enhanced_Settings {
         
         <?php if (isset($_GET['updated']) && $_GET['updated'] == '1'): ?>
             <div class="notice notice-success"><p><?php esc_html_e('Settings saved successfully!', 'realestate-booking-suite'); ?></p></div>
+        <?php endif; ?>
+        
+        <?php if (isset($_GET['reset']) && $_GET['reset'] == '1'): ?>
+            <div class="notice notice-success"><p><?php esc_html_e('Settings reset to defaults successfully!', 'realestate-booking-suite'); ?></p></div>
         <?php endif; ?>
         
         <form method="post" action="<?php echo admin_url('admin-post.php'); ?>">
@@ -1822,7 +1903,15 @@ class RESBS_Enhanced_Settings {
             
             <p class="submit">
                 <button type="submit" class="resbs-save-button button button-primary"><?php esc_html_e('Save Changes', 'realestate-booking-suite'); ?></button>
+                <button type="button" class="button button-secondary resbs-reset-button" onclick="if(confirm('<?php esc_attr_e('Are you sure you want to reset all Log in & Sign up settings to default values? This cannot be undone.', 'realestate-booking-suite'); ?>')) { document.getElementById('resetLoginSignupForm').submit(); }" style="margin-left: 10px;"><?php esc_html_e('Reset to Defaults', 'realestate-booking-suite'); ?></button>
             </p>
+        </form>
+        
+        <!-- Reset Form -->
+        <form method="post" action="<?php echo admin_url('admin-post.php'); ?>" id="resetLoginSignupForm" style="display: none;">
+            <?php wp_nonce_field('resbs_enhanced_settings-options'); ?>
+            <input type="hidden" name="action" value="resbs_reset_settings">
+            <input type="hidden" name="current_tab" value="login-signup">
         </form>
         <?php
     }
@@ -1836,6 +1925,10 @@ class RESBS_Enhanced_Settings {
         
         <?php if (isset($_GET['updated']) && $_GET['updated'] == '1'): ?>
             <div class="notice notice-success"><p><?php esc_html_e('Settings saved successfully!', 'realestate-booking-suite'); ?></p></div>
+        <?php endif; ?>
+        
+        <?php if (isset($_GET['reset']) && $_GET['reset'] == '1'): ?>
+            <div class="notice notice-success"><p><?php esc_html_e('Settings reset to defaults successfully!', 'realestate-booking-suite'); ?></p></div>
         <?php endif; ?>
         
         <form method="post" action="<?php echo admin_url('admin-post.php'); ?>">
@@ -1891,7 +1984,15 @@ class RESBS_Enhanced_Settings {
             
             <p class="submit">
                 <button type="submit" class="resbs-save-button button button-primary"><?php esc_html_e('Save Changes', 'realestate-booking-suite'); ?></button>
+                <button type="button" class="button button-secondary resbs-reset-button" onclick="if(confirm('<?php esc_attr_e('Are you sure you want to reset all SEO settings to default values? This cannot be undone.', 'realestate-booking-suite'); ?>')) { document.getElementById('resetSeoForm').submit(); }" style="margin-left: 10px;"><?php esc_html_e('Reset to Defaults', 'realestate-booking-suite'); ?></button>
             </p>
+        </form>
+        
+        <!-- Reset Form -->
+        <form method="post" action="<?php echo admin_url('admin-post.php'); ?>" id="resetSeoForm" style="display: none;">
+            <?php wp_nonce_field('resbs_enhanced_settings-options'); ?>
+            <input type="hidden" name="action" value="resbs_reset_settings">
+            <input type="hidden" name="current_tab" value="seo">
         </form>
         <?php
     }
@@ -1946,6 +2047,155 @@ class RESBS_Enhanced_Settings {
         
         wp_redirect(add_query_arg(array('page' => 'resbs-settings', 'tab' => $tab, 'updated' => '1'), admin_url('admin.php')));
         exit;
+    }
+    
+    /**
+     * Handle reset settings
+     */
+    public function handle_reset_settings() {
+        if (!current_user_can('manage_options')) {
+            wp_die('Unauthorized');
+        }
+        
+        if (!wp_verify_nonce($_POST['_wpnonce'], 'resbs_enhanced_settings-options')) {
+            wp_die('Security check failed');
+        }
+        
+        $tab = sanitize_text_field($_POST['current_tab']);
+        
+        // Handle different tabs
+        switch ($tab) {
+            case 'listings':
+                $this->reset_listings_settings();
+                break;
+            case 'archive':
+                $this->reset_archive_settings();
+                break;
+            case 'general':
+                $this->reset_general_settings();
+                break;
+            case 'map':
+                $this->reset_map_settings();
+                break;
+            case 'search':
+                $this->reset_search_settings();
+                break;
+            case 'user-profile':
+                $this->reset_user_profile_settings();
+                break;
+            case 'login-signup':
+                $this->reset_login_signup_settings();
+                break;
+            case 'seo':
+                $this->reset_seo_settings();
+                break;
+        }
+        
+        wp_redirect(add_query_arg(array('page' => 'resbs-settings', 'tab' => $tab, 'reset' => '1'), admin_url('admin.php')));
+        exit;
+    }
+    
+    /**
+     * Reset listings settings to defaults
+     */
+    private function reset_listings_settings() {
+        // Default values for Listings settings
+        $defaults = array(
+            'resbs_disable_lightbox_single_page' => '',
+            'resbs_enable_request_form_geolocation' => '1',
+            'resbs_show_phone_country_code' => '1',
+            'resbs_properties_per_page' => '40',
+            'resbs_enable_sorting' => '1',
+            'resbs_default_sort_option' => 'newest',
+            'resbs_show_price' => '1',
+            'resbs_show_listing_address' => '1',
+            'resbs_listing_preview_block' => '',
+            'resbs_show_description_listing_box' => '',
+            'resbs_enable_map_single_listing' => '1',
+            'resbs_enable_wishlist' => '1',
+            'resbs_enable_labels' => '1',
+            'resbs_enable_sharing' => '1',
+            'resbs_show_date_added' => ''
+        );
+        
+        foreach ($defaults as $key => $value) {
+            update_option($key, $value);
+        }
+        
+        // Reset sort options to defaults
+        update_option('resbs_sort_options', array('newest', 'oldest', 'lowest_price', 'highest_price', 'largest_sqft'));
+    }
+    
+    /**
+     * Reset archive settings to defaults
+     */
+    private function reset_archive_settings() {
+        // Default values for Archive settings
+        $defaults = array(
+            'resbs_archive_layout' => 'grid',
+            'resbs_archive_grid_columns' => '3',
+            'resbs_archive_items_per_page' => '12',
+            'resbs_archive_show_filters' => '1',
+            'resbs_archive_show_search' => '1',
+            'resbs_archive_show_sorting' => '1',
+            'resbs_archive_show_pagination' => '1',
+            'resbs_archive_card_style' => 'modern',
+            'resbs_archive_image_size' => 'medium',
+            'resbs_archive_show_excerpt' => '1',
+            'resbs_archive_excerpt_length' => '150'
+        );
+        
+        foreach ($defaults as $key => $value) {
+            update_option($key, $value);
+        }
+    }
+    
+    /**
+     * Reset general settings to defaults
+     */
+    private function reset_general_settings() {
+        // Add default values for General settings if needed
+        // This is a placeholder - add actual defaults based on your General settings
+    }
+    
+    /**
+     * Reset map settings to defaults
+     */
+    private function reset_map_settings() {
+        // Add default values for Map settings if needed
+        // This is a placeholder - add actual defaults based on your Map settings
+    }
+    
+    /**
+     * Reset search settings to defaults
+     */
+    private function reset_search_settings() {
+        // Add default values for Search settings if needed
+        // This is a placeholder - add actual defaults based on your Search settings
+    }
+    
+    /**
+     * Reset user profile settings to defaults
+     */
+    private function reset_user_profile_settings() {
+        // Add default values for User Profile settings if needed
+        // This is a placeholder - add actual defaults based on your User Profile settings
+    }
+    
+    /**
+     * Reset login/signup settings to defaults
+     */
+    private function reset_login_signup_settings() {
+        // Add default values for Login/Signup settings if needed
+        // This is a placeholder - add actual defaults based on your Login/Signup settings
+    }
+    
+    /**
+     * Reset SEO settings to defaults
+     */
+    private function reset_seo_settings() {
+        // Add default values for SEO settings if needed
+        // This is a placeholder - add actual defaults based on your SEO settings
     }
     
     /**
