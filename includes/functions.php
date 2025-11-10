@@ -551,27 +551,19 @@ function resbs_is_lightbox_disabled_single_page() {
 }
 
 /**
- * Check if Request Info button should be hidden
- * @return bool True if button should be hidden
+ * Check if request form geolocation is enabled
+ * @return bool True if geolocation is enabled
  */
-function resbs_is_request_info_button_hidden() {
-    return (bool) get_option('resbs_hide_request_info_button', false);
+function resbs_is_request_form_geolocation_enabled() {
+    return (bool) get_option('resbs_enable_request_form_geolocation', false);
 }
 
 /**
- * Get property headings font
- * @return string Font name
+ * Check if phone country code dropdown should be shown
+ * @return bool True if country code dropdown should be shown
  */
-function resbs_get_property_headings_font() {
-    return get_option('resbs_property_headings_font', 'Lato');
-}
-
-/**
- * Get property content font
- * @return string Font name
- */
-function resbs_get_property_content_font() {
-    return get_option('resbs_property_content_font', 'Open Sans');
+function resbs_show_phone_country_code() {
+    return (bool) get_option('resbs_show_phone_country_code', true);
 }
 
 /**

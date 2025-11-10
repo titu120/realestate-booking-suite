@@ -142,19 +142,9 @@ class RESBS_Enhanced_Settings {
         
         
         // Listings Settings
-        register_setting('resbs_enhanced_settings', 'resbs_general_listing_name');
-        register_setting('resbs_enhanced_settings', 'resbs_default_property_image');
-        register_setting('resbs_enhanced_settings', 'resbs_default_layout_listings');
-        register_setting('resbs_enhanced_settings', 'resbs_enable_grid_view');
-        register_setting('resbs_enhanced_settings', 'resbs_default_layout_single');
-        register_setting('resbs_enhanced_settings', 'resbs_enable_default_archive_template');
-        register_setting('resbs_enhanced_settings', 'resbs_enable_collapsed_description');
         register_setting('resbs_enhanced_settings', 'resbs_disable_lightbox_single_page');
         register_setting('resbs_enhanced_settings', 'resbs_enable_request_form_geolocation');
-        register_setting('resbs_enhanced_settings', 'resbs_default_tel_code');
-        register_setting('resbs_enhanced_settings', 'resbs_hide_request_info_button');
-        register_setting('resbs_enhanced_settings', 'resbs_property_headings_font');
-        register_setting('resbs_enhanced_settings', 'resbs_property_content_font');
+        register_setting('resbs_enhanced_settings', 'resbs_show_phone_country_code');
         register_setting('resbs_enhanced_settings', 'resbs_property_item_carousel');
         register_setting('resbs_enhanced_settings', 'resbs_property_item_image_size');
         register_setting('resbs_enhanced_settings', 'resbs_properties_per_page');
@@ -172,7 +162,6 @@ class RESBS_Enhanced_Settings {
         register_setting('resbs_enhanced_settings', 'resbs_show_date_added');
         
         // Archive Page Settings
-        register_setting('resbs_enhanced_settings', 'resbs_enable_default_archive_template');
         register_setting('resbs_enhanced_settings', 'resbs_archive_layout');
         register_setting('resbs_enhanced_settings', 'resbs_archive_grid_columns');
         register_setting('resbs_enhanced_settings', 'resbs_archive_items_per_page');
@@ -1147,14 +1136,6 @@ class RESBS_Enhanced_Settings {
             </div>
             
             <div class="resbs-form-group">
-                <label>
-                    <input type="checkbox" name="resbs_enable_default_archive_template" value="1" <?php checked(get_option('resbs_enable_default_archive_template', true), 1); ?>>
-                    <?php esc_html_e('Use Plugin Archive Template', 'realestate-booking-suite'); ?>
-                </label>
-                <p class="resbs-description"><?php esc_html_e('Override theme archive pages with plugin\'s custom archive template', 'realestate-booking-suite'); ?></p>
-            </div>
-            
-            <div class="resbs-form-group">
                 <label for="resbs_archive_grid_columns"><?php esc_html_e('Grid Columns', 'realestate-booking-suite'); ?></label>
                 <select id="resbs_archive_grid_columns" name="resbs_archive_grid_columns">
                     <option value="2" <?php selected(get_option('resbs_archive_grid_columns'), '2'); ?>><?php esc_html_e('2 Columns', 'realestate-booking-suite'); ?></option>
@@ -1415,72 +1396,6 @@ class RESBS_Enhanced_Settings {
             
             <table class="form-table">
                 <tr>
-                    <th scope="row"><label for="resbs_general_listing_name"><?php esc_html_e('General listing name', 'realestate-booking-suite'); ?></label></th>
-                    <td><input type="text" id="resbs_general_listing_name" name="resbs_general_listing_name" value="<?php echo esc_attr(get_option('resbs_general_listing_name', 'Property')); ?>" class="regular-text"></td>
-                </tr>
-                
-                <tr>
-                    <th scope="row"><label for="resbs_default_property_image"><?php esc_html_e('Default Property Image', 'realestate-booking-suite'); ?></label></th>
-                    <td>
-                        <input type="button" class="button" value="<?php esc_html_e('Upload', 'realestate-booking-suite'); ?>" onclick="document.getElementById('resbs_default_property_image').click();">
-                        <input type="file" id="resbs_default_property_image" name="resbs_default_property_image" style="display: none;">
-                        <p class="description"><?php esc_html_e('Maximum file size - 2MB. Allowed file types: JPG, PNG, GIF.', 'realestate-booking-suite'); ?></p>
-                    </td>
-                </tr>
-                
-                <tr>
-                    <th scope="row"><?php esc_html_e('Default Layout for Listings Pages', 'realestate-booking-suite'); ?></th>
-                    <td>
-                        <fieldset>
-                            <label><input type="radio" id="layout_grid" name="resbs_default_layout_listings" value="grid" <?php checked(get_option('resbs_default_layout_listings'), 'grid'); ?>> <?php esc_html_e('Grid', 'realestate-booking-suite'); ?></label><br>
-                            <label><input type="radio" id="layout_large_grid" name="resbs_default_layout_listings" value="large-grid" <?php checked(get_option('resbs_default_layout_listings'), 'large-grid'); ?>> <?php esc_html_e('Large Grid', 'realestate-booking-suite'); ?></label><br>
-                            <label><input type="radio" id="layout_list" name="resbs_default_layout_listings" value="list" <?php checked(get_option('resbs_default_layout_listings'), 'list'); ?>> <?php esc_html_e('List', 'realestate-booking-suite'); ?></label>
-                        </fieldset>
-                    </td>
-                </tr>
-                
-                <tr>
-                    <th scope="row"><?php esc_html_e('Enable Grid View', 'realestate-booking-suite'); ?></th>
-                    <td>
-                        <label>
-                            <input type="checkbox" name="resbs_enable_grid_view" value="1" <?php checked(get_option('resbs_enable_grid_view'), 1); ?>>
-                            <?php esc_html_e('Enable Grid View', 'realestate-booking-suite'); ?>
-                        </label>
-                    </td>
-                </tr>
-                
-                <tr>
-                    <th scope="row"><?php esc_html_e('Default Layout for Single Listing Pages', 'realestate-booking-suite'); ?></th>
-                    <td>
-                        <fieldset>
-                            <label><input type="radio" id="single_slider" name="resbs_default_layout_single" value="slider" <?php checked(get_option('resbs_default_layout_single'), 'slider'); ?>> <?php esc_html_e('Slider', 'realestate-booking-suite'); ?></label><br>
-                            <label><input type="radio" id="single_tiled" name="resbs_default_layout_single" value="tiled" <?php checked(get_option('resbs_default_layout_single'), 'tiled'); ?>> <?php esc_html_e('Tiled', 'realestate-booking-suite'); ?></label><br>
-                            <label><input type="radio" id="single_left" name="resbs_default_layout_single" value="left-slider" <?php checked(get_option('resbs_default_layout_single'), 'left-slider'); ?>> <?php esc_html_e('Left', 'realestate-booking-suite'); ?></label>
-                        </fieldset>
-                    </td>
-                </tr>
-                
-                <tr>
-                    <th scope="row"><?php esc_html_e('Enable default archive template', 'realestate-booking-suite'); ?></th>
-                    <td>
-                        <label>
-                            <input type="checkbox" name="resbs_enable_default_archive_template" value="1" <?php checked(get_option('resbs_enable_default_archive_template'), 1); ?>>
-                            <?php esc_html_e('Enable default archive template', 'realestate-booking-suite'); ?>
-                        </label>
-                    </td>
-                </tr>
-                
-                <tr>
-                    <th scope="row"><?php esc_html_e('Enable collapsed description', 'realestate-booking-suite'); ?></th>
-                    <td>
-                        <label>
-                            <input type="checkbox" name="resbs_enable_collapsed_description" value="1" <?php checked(get_option('resbs_enable_collapsed_description'), 1); ?>>
-                            <?php esc_html_e('Enable collapsed description', 'realestate-booking-suite'); ?>
-                        </label>
-                    </td>
-                </tr>
-                
-                <tr>
                     <th scope="row"><?php esc_html_e('Disable lightBox on single page', 'realestate-booking-suite'); ?></th>
                     <td>
                         <label>
@@ -1502,50 +1417,13 @@ class RESBS_Enhanced_Settings {
                 </tr>
                 
                 <tr>
-                    <th scope="row"><label for="resbs_default_tel_code"><?php esc_html_e('Selecting a default tel code in the request form', 'realestate-booking-suite'); ?></label></th>
-                    <td>
-                        <select id="resbs_default_tel_code" name="resbs_default_tel_code">
-                            <option value="+1" <?php selected(get_option('resbs_default_tel_code'), '+1'); ?>>+1 (US/Canada)</option>
-                            <option value="+44" <?php selected(get_option('resbs_default_tel_code'), '+44'); ?>>+44 (UK)</option>
-                            <option value="+33" <?php selected(get_option('resbs_default_tel_code'), '+33'); ?>>+33 (France)</option>
-                            <option value="+49" <?php selected(get_option('resbs_default_tel_code'), '+49'); ?>>+49 (Germany)</option>
-                        </select>
-                    </td>
-                </tr>
-                
-                <tr>
-                    <th scope="row"><?php esc_html_e('Hide Request Info button', 'realestate-booking-suite'); ?></th>
+                    <th scope="row"><?php esc_html_e('Show phone country code dropdown', 'realestate-booking-suite'); ?></th>
                     <td>
                         <label>
-                            <input type="checkbox" name="resbs_hide_request_info_button" value="1" <?php checked(get_option('resbs_hide_request_info_button'), 1); ?>>
-                            <?php esc_html_e('Hide Request Info button', 'realestate-booking-suite'); ?>
+                            <input type="checkbox" name="resbs_show_phone_country_code" value="1" <?php checked(get_option('resbs_show_phone_country_code', true), 1); ?>>
+                            <?php esc_html_e('Show phone country code dropdown', 'realestate-booking-suite'); ?>
                         </label>
-                    </td>
-                </tr>
-                
-                <tr>
-                    <th scope="row"><label for="resbs_property_headings_font"><?php esc_html_e('Property headings font', 'realestate-booking-suite'); ?></label></th>
-                    <td>
-                        <select id="resbs_property_headings_font" name="resbs_property_headings_font">
-                            <option value="Lato" <?php selected(get_option('resbs_property_headings_font'), 'Lato'); ?>>Lato</option>
-                            <option value="Open Sans" <?php selected(get_option('resbs_property_headings_font'), 'Open Sans'); ?>>Open Sans</option>
-                            <option value="Roboto" <?php selected(get_option('resbs_property_headings_font'), 'Roboto'); ?>>Roboto</option>
-                            <option value="Montserrat" <?php selected(get_option('resbs_property_headings_font'), 'Montserrat'); ?>>Montserrat</option>
-                        </select>
-                        <button type="button" class="button" onclick="document.getElementById('resbs_property_headings_font').value='Lato';"><?php esc_html_e('Reset', 'realestate-booking-suite'); ?></button>
-                    </td>
-                </tr>
-                
-                <tr>
-                    <th scope="row"><label for="resbs_property_content_font"><?php esc_html_e('Property content font', 'realestate-booking-suite'); ?></label></th>
-                    <td>
-                        <select id="resbs_property_content_font" name="resbs_property_content_font">
-                            <option value="Open Sans" <?php selected(get_option('resbs_property_content_font'), 'Open Sans'); ?>>Open Sans</option>
-                            <option value="Lato" <?php selected(get_option('resbs_property_content_font'), 'Lato'); ?>>Lato</option>
-                            <option value="Roboto" <?php selected(get_option('resbs_property_content_font'), 'Roboto'); ?>>Roboto</option>
-                            <option value="Montserrat" <?php selected(get_option('resbs_property_content_font'), 'Montserrat'); ?>>Montserrat</option>
-                        </select>
-                        <button type="button" class="button" onclick="document.getElementById('resbs_property_content_font').value='Open Sans';"><?php esc_html_e('Reset', 'realestate-booking-suite'); ?></button>
+                        <p class="description"><?php esc_html_e('If enabled, users can select their country code. If disabled, shows a simple phone input field.', 'realestate-booking-suite'); ?></p>
                     </td>
                 </tr>
                 
@@ -2239,18 +2117,9 @@ class RESBS_Enhanced_Settings {
      */
     private function save_listings_settings() {
         $settings = array(
-            'resbs_general_listing_name',
-            'resbs_default_layout_listings',
-            'resbs_enable_grid_view',
-            'resbs_default_layout_single',
-            'resbs_enable_default_archive_template',
-            'resbs_enable_collapsed_description',
             'resbs_disable_lightbox_single_page',
             'resbs_enable_request_form_geolocation',
-            'resbs_default_tel_code',
-            'resbs_hide_request_info_button',
-            'resbs_property_headings_font',
-            'resbs_property_content_font',
+            'resbs_show_phone_country_code',
             'resbs_property_item_carousel',
             'resbs_property_item_image_size',
             'resbs_properties_per_page',
@@ -2287,7 +2156,6 @@ class RESBS_Enhanced_Settings {
      */
     private function save_archive_settings() {
         $settings = array(
-            'resbs_enable_default_archive_template',
             'resbs_archive_layout',
             'resbs_archive_grid_columns',
             'resbs_archive_items_per_page',

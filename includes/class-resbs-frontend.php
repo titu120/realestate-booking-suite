@@ -1416,10 +1416,6 @@ class RESBS_Frontend {
         // Get general color settings
         $main_color = resbs_get_main_color();
         $secondary_color = resbs_get_secondary_color();
-        
-        // Get Listings font settings (dynamically applied)
-        $headings_font = resbs_get_property_headings_font();
-        $content_font = resbs_get_property_content_font();
 
         ?>
         <style>
@@ -1427,41 +1423,9 @@ class RESBS_Frontend {
         :root {
             --resbs-main-color: <?php echo esc_attr($main_color); ?>;
             --resbs-secondary-color: <?php echo esc_attr($secondary_color); ?>;
-            --resbs-headings-font: <?php echo esc_attr($headings_font); ?>;
-            --resbs-content-font: <?php echo esc_attr($content_font); ?>;
         }
         
-        /* Listings Settings - Font Styles (dynamically applied) */
-        .resbs-property-title,
-        .resbs-property-title a,
-        .property-title,
-        .property-title h1,
-        .property-title h2,
-        .property-title h3,
-        .property-title h4,
-        .property-title h5,
-        .property-title h6,
-        .single-property h1,
-        .single-property h2,
-        .single-property h3,
-        .single-property h4,
-        .single-property h5,
-        .single-property h6,
-        .resbs-section-title,
-        .section-title {
-            font-family: var(--resbs-headings-font), sans-serif !important;
-        }
-        
-        .resbs-property-content,
-        .resbs-property-description,
-        .property-content,
-        .property-description,
-        .single-property p,
-        .single-property .property-details,
-        .resbs-property-details,
-        .resbs-property-meta {
-            font-family: var(--resbs-content-font), sans-serif !important;
-        }
+        /* Note: Fonts are controlled by the active theme, not the plugin */
         
         /* Apply main color to large buttons */
         .resbs-btn-primary,

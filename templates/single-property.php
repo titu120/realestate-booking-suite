@@ -469,17 +469,21 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
                             $total_images = count($all_images);
                         ?>
 
+                        <?php 
+                        // Check if lightbox is disabled
+                        $lightbox_disabled = resbs_is_lightbox_disabled_single_page();
+                        ?>
                         <?php if ($total_images > 0): ?>
                             <div class="gallery-item gallery-main">
-                                <img src="<?php echo esc_url($all_images[0]); ?>" alt="<?php echo esc_attr(get_the_title()); ?>" class="gallery-img" onclick="openImageViewer(0)">
+                                <img src="<?php echo esc_url($all_images[0]); ?>" alt="<?php echo esc_attr(get_the_title()); ?>" class="gallery-img" <?php echo $lightbox_disabled ? '' : 'onclick="openImageViewer(0)"'; ?>>
                             </div>
 
                             <?php for ($i = 1; $i < 5; $i++): ?>
                                 <?php if ($i < $total_images): ?>
                                     <div class="gallery-item <?php echo ($i == 4 && $total_images > 5) ? 'gallery-more' : ''; ?>">
-                                        <img src="<?php echo esc_url($all_images[$i]); ?>" alt="<?php echo esc_attr(get_the_title()); ?>" class="gallery-img" onclick="openImageViewer(<?php echo $i; ?>)">
+                                        <img src="<?php echo esc_url($all_images[$i]); ?>" alt="<?php echo esc_attr(get_the_title()); ?>" class="gallery-img" <?php echo $lightbox_disabled ? '' : 'onclick="openImageViewer(' . $i . ')"'; ?>>
                                         <?php if ($i == 4 && $total_images > 5): ?>
-                                            <div class="gallery-overlay" onclick="openImageViewer(4)">
+                                            <div class="gallery-overlay" <?php echo $lightbox_disabled ? '' : 'onclick="openImageViewer(4)"'; ?>>
                                                 <span>+<?php echo($total_images - 5); ?> More</span>
                                             </div>
                                         <?php endif; ?>
@@ -1237,7 +1241,7 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
                                 <?php if (!empty($gallery_urls)): ?>
                                     <div class="media-gallery-row">
                                         <?php foreach ($gallery_urls as $index => $image_url): ?>
-                                            <div class="media-gallery-item cursor-pointer" onclick="openImageViewer(<?php echo $index; ?>)">
+                                            <div class="media-gallery-item cursor-pointer" <?php echo $lightbox_disabled ? '' : 'onclick="openImageViewer(' . $index . ')"'; ?>>
                                                 <img src="<?php echo esc_url($image_url); ?>" alt="Property Image" class="media-gallery-image">
                                             </div>
                                         <?php endforeach; ?>
@@ -1509,9 +1513,242 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             <div class="space-y-2">
                                                 <label for="bookingPhone" class="block text-sm font-semibold text-gray-700"><?php echo esc_html($booking_phone_label ? $booking_phone_label : 'Phone'); ?></label>
-                                                <input type="tel" id="bookingPhone" name="bookingPhone" 
-                                                       placeholder="<?php echo esc_attr($booking_phone_label ? $booking_phone_label : 'Enter your phone number'); ?>"
-                                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200">
+                                                <?php if (resbs_show_phone_country_code()): ?>
+                                                    <div class="flex gap-2 items-stretch" style="display: flex !important; flex-wrap: nowrap !important;">
+                                                        <div class="phone-code-wrapper" style="position: relative; flex-shrink: 0; width: 160px; min-width: 160px;">
+                                                            <input type="text" id="bookingPhoneCodeSearch" 
+                                                                   placeholder="Type to search..." 
+                                                                   autocomplete="off"
+                                                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200 bg-white text-xs"
+                                                                   style="display: none; position: absolute; top: 0; left: 0; right: 0; z-index: 10; border-bottom: none; border-radius: 8px 8px 0 0;">
+                                                            <select id="bookingPhoneCode" name="bookingPhoneCode" 
+                                                                    class="px-2 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200 bg-white text-sm w-full"
+                                                                    style="appearance: none; background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3e%3cpolyline points=\'6 9 12 15 18 9\'%3e%3c/polyline%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 8px center; background-size: 16px; padding-right: 32px;">
+                                                            <?php 
+                                                            // Default to +1 (US/Canada) - can be overridden by geolocation
+                                                            $default_tel_code = '+1';
+                                                            // Complete list of ALL countries with tel codes (195+ countries)
+                                                            $tel_codes = array(
+                                                                '+1' => '+1 (US/Canada)',
+                                                                '+7' => '+7 (Russia/Kazakhstan)',
+                                                                '+20' => '+20 (Egypt)',
+                                                                '+27' => '+27 (South Africa)',
+                                                                '+30' => '+30 (Greece)',
+                                                                '+31' => '+31 (Netherlands)',
+                                                                '+32' => '+32 (Belgium)',
+                                                                '+33' => '+33 (France)',
+                                                                '+34' => '+34 (Spain)',
+                                                                '+36' => '+36 (Hungary)',
+                                                                '+39' => '+39 (Italy)',
+                                                                '+40' => '+40 (Romania)',
+                                                                '+41' => '+41 (Switzerland)',
+                                                                '+43' => '+43 (Austria)',
+                                                                '+44' => '+44 (UK)',
+                                                                '+45' => '+45 (Denmark)',
+                                                                '+46' => '+46 (Sweden)',
+                                                                '+47' => '+47 (Norway)',
+                                                                '+48' => '+48 (Poland)',
+                                                                '+49' => '+49 (Germany)',
+                                                                '+51' => '+51 (Peru)',
+                                                                '+52' => '+52 (Mexico)',
+                                                                '+53' => '+53 (Cuba)',
+                                                                '+54' => '+54 (Argentina)',
+                                                                '+55' => '+55 (Brazil)',
+                                                                '+56' => '+56 (Chile)',
+                                                                '+57' => '+57 (Colombia)',
+                                                                '+58' => '+58 (Venezuela)',
+                                                                '+60' => '+60 (Malaysia)',
+                                                                '+61' => '+61 (Australia)',
+                                                                '+62' => '+62 (Indonesia)',
+                                                                '+63' => '+63 (Philippines)',
+                                                                '+64' => '+64 (New Zealand)',
+                                                                '+65' => '+65 (Singapore)',
+                                                                '+66' => '+66 (Thailand)',
+                                                                '+81' => '+81 (Japan)',
+                                                                '+82' => '+82 (South Korea)',
+                                                                '+84' => '+84 (Vietnam)',
+                                                                '+86' => '+86 (China)',
+                                                                '+90' => '+90 (Turkey)',
+                                                                '+91' => '+91 (India)',
+                                                                '+92' => '+92 (Pakistan)',
+                                                                '+93' => '+93 (Afghanistan)',
+                                                                '+94' => '+94 (Sri Lanka)',
+                                                                '+95' => '+95 (Myanmar)',
+                                                                '+98' => '+98 (Iran)',
+                                                                '+212' => '+212 (Morocco)',
+                                                                '+213' => '+213 (Algeria)',
+                                                                '+216' => '+216 (Tunisia)',
+                                                                '+218' => '+218 (Libya)',
+                                                                '+220' => '+220 (Gambia)',
+                                                                '+221' => '+221 (Senegal)',
+                                                                '+222' => '+222 (Mauritania)',
+                                                                '+223' => '+223 (Mali)',
+                                                                '+224' => '+224 (Guinea)',
+                                                                '+225' => '+225 (Ivory Coast)',
+                                                                '+226' => '+226 (Burkina Faso)',
+                                                                '+227' => '+227 (Niger)',
+                                                                '+228' => '+228 (Togo)',
+                                                                '+229' => '+229 (Benin)',
+                                                                '+230' => '+230 (Mauritius)',
+                                                                '+231' => '+231 (Liberia)',
+                                                                '+232' => '+232 (Sierra Leone)',
+                                                                '+233' => '+233 (Ghana)',
+                                                                '+234' => '+234 (Nigeria)',
+                                                                '+235' => '+235 (Chad)',
+                                                                '+236' => '+236 (Central African Republic)',
+                                                                '+237' => '+237 (Cameroon)',
+                                                                '+238' => '+238 (Cape Verde)',
+                                                                '+239' => '+239 (São Tomé and Príncipe)',
+                                                                '+240' => '+240 (Equatorial Guinea)',
+                                                                '+241' => '+241 (Gabon)',
+                                                                '+242' => '+242 (Republic of the Congo)',
+                                                                '+243' => '+243 (DR Congo)',
+                                                                '+244' => '+244 (Angola)',
+                                                                '+245' => '+245 (Guinea-Bissau)',
+                                                                '+246' => '+246 (British Indian Ocean Territory)',
+                                                                '+248' => '+248 (Seychelles)',
+                                                                '+249' => '+249 (Sudan)',
+                                                                '+250' => '+250 (Rwanda)',
+                                                                '+251' => '+251 (Ethiopia)',
+                                                                '+252' => '+252 (Somalia)',
+                                                                '+253' => '+253 (Djibouti)',
+                                                                '+254' => '+254 (Kenya)',
+                                                                '+255' => '+255 (Tanzania)',
+                                                                '+256' => '+256 (Uganda)',
+                                                                '+257' => '+257 (Burundi)',
+                                                                '+258' => '+258 (Mozambique)',
+                                                                '+260' => '+260 (Zambia)',
+                                                                '+261' => '+261 (Madagascar)',
+                                                                '+262' => '+262 (Réunion/Mayotte)',
+                                                                '+263' => '+263 (Zimbabwe)',
+                                                                '+264' => '+264 (Namibia)',
+                                                                '+265' => '+265 (Malawi)',
+                                                                '+266' => '+266 (Lesotho)',
+                                                                '+267' => '+267 (Botswana)',
+                                                                '+268' => '+268 (Swaziland)',
+                                                                '+269' => '+269 (Comoros)',
+                                                                '+290' => '+290 (Saint Helena)',
+                                                                '+291' => '+291 (Eritrea)',
+                                                                '+297' => '+297 (Aruba)',
+                                                                '+298' => '+298 (Faroe Islands)',
+                                                                '+299' => '+299 (Greenland)',
+                                                                '+350' => '+350 (Gibraltar)',
+                                                                '+351' => '+351 (Portugal)',
+                                                                '+352' => '+352 (Luxembourg)',
+                                                                '+353' => '+353 (Ireland)',
+                                                                '+354' => '+354 (Iceland)',
+                                                                '+355' => '+355 (Albania)',
+                                                                '+356' => '+356 (Malta)',
+                                                                '+357' => '+357 (Cyprus)',
+                                                                '+358' => '+358 (Finland)',
+                                                                '+359' => '+359 (Bulgaria)',
+                                                                '+370' => '+370 (Lithuania)',
+                                                                '+371' => '+371 (Latvia)',
+                                                                '+372' => '+372 (Estonia)',
+                                                                '+373' => '+373 (Moldova)',
+                                                                '+374' => '+374 (Armenia)',
+                                                                '+375' => '+375 (Belarus)',
+                                                                '+376' => '+376 (Andorra)',
+                                                                '+377' => '+377 (Monaco)',
+                                                                '+378' => '+378 (San Marino)',
+                                                                '+380' => '+380 (Ukraine)',
+                                                                '+381' => '+381 (Serbia)',
+                                                                '+382' => '+382 (Montenegro)',
+                                                                '+383' => '+383 (Kosovo)',
+                                                                '+385' => '+385 (Croatia)',
+                                                                '+386' => '+386 (Slovenia)',
+                                                                '+387' => '+387 (Bosnia and Herzegovina)',
+                                                                '+389' => '+389 (North Macedonia)',
+                                                                '+420' => '+420 (Czech Republic)',
+                                                                '+421' => '+421 (Slovakia)',
+                                                                '+423' => '+423 (Liechtenstein)',
+                                                                '+500' => '+500 (Falkland Islands)',
+                                                                '+501' => '+501 (Belize)',
+                                                                '+502' => '+502 (Guatemala)',
+                                                                '+503' => '+503 (El Salvador)',
+                                                                '+504' => '+504 (Honduras)',
+                                                                '+505' => '+505 (Nicaragua)',
+                                                                '+506' => '+506 (Costa Rica)',
+                                                                '+507' => '+507 (Panama)',
+                                                                '+508' => '+508 (Saint Pierre and Miquelon)',
+                                                                '+509' => '+509 (Haiti)',
+                                                                '+590' => '+590 (Guadeloupe)',
+                                                                '+591' => '+591 (Bolivia)',
+                                                                '+592' => '+592 (Guyana)',
+                                                                '+593' => '+593 (Ecuador)',
+                                                                '+594' => '+594 (French Guiana)',
+                                                                '+595' => '+595 (Paraguay)',
+                                                                '+596' => '+596 (Martinique)',
+                                                                '+597' => '+597 (Suriname)',
+                                                                '+598' => '+598 (Uruguay)',
+                                                                '+599' => '+599 (Netherlands Antilles)',
+                                                                '+670' => '+670 (East Timor)',
+                                                                '+672' => '+672 (Antarctica)',
+                                                                '+673' => '+673 (Brunei)',
+                                                                '+674' => '+674 (Nauru)',
+                                                                '+675' => '+675 (Papua New Guinea)',
+                                                                '+676' => '+676 (Tonga)',
+                                                                '+677' => '+677 (Solomon Islands)',
+                                                                '+678' => '+678 (Vanuatu)',
+                                                                '+679' => '+679 (Fiji)',
+                                                                '+680' => '+680 (Palau)',
+                                                                '+681' => '+681 (Wallis and Futuna)',
+                                                                '+682' => '+682 (Cook Islands)',
+                                                                '+683' => '+683 (Niue)',
+                                                                '+685' => '+685 (Samoa)',
+                                                                '+686' => '+686 (Kiribati)',
+                                                                '+687' => '+687 (New Caledonia)',
+                                                                '+688' => '+688 (Tuvalu)',
+                                                                '+689' => '+689 (French Polynesia)',
+                                                                '+690' => '+690 (Tokelau)',
+                                                                '+691' => '+691 (Micronesia)',
+                                                                '+692' => '+692 (Marshall Islands)',
+                                                                '+850' => '+850 (North Korea)',
+                                                                '+852' => '+852 (Hong Kong)',
+                                                                '+853' => '+853 (Macau)',
+                                                                '+855' => '+855 (Cambodia)',
+                                                                '+856' => '+856 (Laos)',
+                                                                '+880' => '+880 (Bangladesh)',
+                                                                '+886' => '+886 (Taiwan)',
+                                                                '+960' => '+960 (Maldives)',
+                                                                '+961' => '+961 (Lebanon)',
+                                                                '+962' => '+962 (Jordan)',
+                                                                '+963' => '+963 (Syria)',
+                                                                '+964' => '+964 (Iraq)',
+                                                                '+965' => '+965 (Kuwait)',
+                                                                '+966' => '+966 (Saudi Arabia)',
+                                                                '+967' => '+967 (Yemen)',
+                                                                '+968' => '+968 (Oman)',
+                                                                '+970' => '+970 (Palestine)',
+                                                                '+971' => '+971 (UAE)',
+                                                                '+972' => '+972 (Israel)',
+                                                                '+973' => '+973 (Bahrain)',
+                                                                '+974' => '+974 (Qatar)',
+                                                                '+975' => '+975 (Bhutan)',
+                                                                '+976' => '+976 (Mongolia)',
+                                                                '+977' => '+977 (Nepal)',
+                                                                '+992' => '+992 (Tajikistan)',
+                                                                '+993' => '+993 (Turkmenistan)',
+                                                                '+994' => '+994 (Azerbaijan)',
+                                                                '+995' => '+995 (Georgia)',
+                                                                '+996' => '+996 (Kyrgyzstan)',
+                                                                '+998' => '+998 (Uzbekistan)',
+                                                            );
+                                                            foreach ($tel_codes as $code => $label): ?>
+                                                                <option value="<?php echo esc_attr($code); ?>" <?php selected($default_tel_code, $code); ?>><?php echo esc_html($label); ?></option>
+                                                            <?php endforeach; ?>
+                                                        </select>
+                                                        </div>
+                                                        <input type="tel" id="bookingPhone" name="bookingPhone" 
+                                                               placeholder="<?php echo esc_attr($booking_phone_label ? $booking_phone_label : 'Enter your phone number'); ?>"
+                                                               class="flex-1 min-w-0 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200"
+                                                               style="flex: 1 1 auto !important; min-width: 0 !important;">
+                                                    </div>
+                                                <?php else: ?>
+                                                    <input type="tel" id="bookingPhone" name="bookingPhone" 
+                                                           placeholder="<?php echo esc_attr($booking_phone_label ? $booking_phone_label : 'Enter your phone number'); ?>"
+                                                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200">
+                                                <?php endif; ?>
                                             </div>
                                             <div class="space-y-2">
                                                 <label for="bookingDate" class="block text-sm font-semibold text-gray-700"><?php echo esc_html($booking_date_label ? $booking_date_label : 'Preferred Date'); ?> *</label>
@@ -1893,6 +2130,354 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
     <!-- Enqueue Single Property JavaScript -->
     <script src="<?php echo esc_url(RESBS_URL . 'assets/js/single-property.js'); ?>"></script>
     
+    <?php if (resbs_show_phone_country_code()): ?>
+    <!-- Searchable Country Code Dropdown - Lightweight solution for 200+ countries -->
+    <script>
+    (function() {
+        const select = document.getElementById('bookingPhoneCode');
+        const searchInput = document.getElementById('bookingPhoneCodeSearch');
+        const wrapper = document.querySelector('.phone-code-wrapper');
+        
+        if (!select || !searchInput || !wrapper) return;
+        
+        // Store all original options with their data
+        const allOptions = Array.from(select.options).map(opt => ({
+            value: opt.value,
+            text: opt.text,
+            element: opt.cloneNode(true)
+        }));
+        
+        let isSearchVisible = false;
+        
+        // Show search input when dropdown is clicked/focused
+        function showSearch() {
+            if (isSearchVisible) return;
+            isSearchVisible = true;
+            searchInput.style.display = 'block';
+            searchInput.value = '';
+            searchInput.focus();
+            // Expand select to show filtered results
+            select.size = Math.min(allOptions.length, 8);
+            filterOptions('');
+        }
+        
+        // Hide search input
+        function hideSearch() {
+            if (!isSearchVisible) return;
+            isSearchVisible = false;
+            searchInput.style.display = 'none';
+            searchInput.value = '';
+            select.size = 1;
+            // Restore all options
+            restoreAllOptions();
+        }
+        
+        // Restore all original options
+        function restoreAllOptions() {
+            select.innerHTML = '';
+            allOptions.forEach(opt => {
+                select.appendChild(opt.element.cloneNode(true));
+            });
+        }
+        
+        // Filter options based on search term
+        function filterOptions(searchTerm) {
+            const term = searchTerm.toLowerCase().trim();
+            
+            select.innerHTML = '';
+            
+            if (term === '') {
+                // Show all options
+                allOptions.forEach(opt => {
+                    select.appendChild(opt.element.cloneNode(true));
+                });
+                select.size = Math.min(allOptions.length, 8);
+            } else {
+                // Filter options
+                const filtered = allOptions.filter(opt => {
+                    return opt.text.toLowerCase().includes(term) || 
+                           opt.value.toLowerCase().includes(term);
+                });
+                
+                if (filtered.length === 0) {
+                    const noResults = document.createElement('option');
+                    noResults.value = '';
+                    noResults.textContent = 'No country found';
+                    noResults.disabled = true;
+                    select.appendChild(noResults);
+                    select.size = 1;
+                } else {
+                    filtered.forEach(opt => {
+                        select.appendChild(opt.element.cloneNode(true));
+                    });
+                    select.size = Math.min(filtered.length, 8);
+                }
+            }
+        }
+        
+        // Show search on click/focus
+        select.addEventListener('mousedown', function(e) {
+            e.preventDefault();
+            showSearch();
+        });
+        
+        select.addEventListener('focus', showSearch);
+        
+        // Filter as user types
+        searchInput.addEventListener('input', function(e) {
+            filterOptions(e.target.value);
+        });
+        
+        // Handle option selection
+        select.addEventListener('change', function() {
+            hideSearch();
+        });
+        
+        // Hide search when clicking outside
+        let blurTimeout;
+        function handleBlur() {
+            blurTimeout = setTimeout(function() {
+                hideSearch();
+            }, 300);
+        }
+        
+        select.addEventListener('blur', handleBlur);
+        searchInput.addEventListener('blur', handleBlur);
+        
+        // Cancel blur if focusing back
+        select.addEventListener('focus', function() {
+            clearTimeout(blurTimeout);
+        });
+        
+        searchInput.addEventListener('focus', function() {
+            clearTimeout(blurTimeout);
+        });
+        
+        // Keyboard navigation
+        searchInput.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                select.focus();
+                if (select.options.length > 0) {
+                    select.selectedIndex = 0;
+                }
+            } else if (e.key === 'Escape') {
+                hideSearch();
+                select.blur();
+            }
+        });
+        
+        // Prevent select from opening natively when search is visible
+        select.addEventListener('mousedown', function(e) {
+            if (isSearchVisible) {
+                e.preventDefault();
+            }
+        });
+    })();
+    </script>
+    <?php endif; ?>
+    
+    <?php if (resbs_is_request_form_geolocation_enabled() && resbs_show_phone_country_code()): ?>
+    <!-- Geolocation for Tel Code Autofill -->
+    <script>
+    (function() {
+        // Country code to tel code mapping
+        const countryToTelCode = {
+            'US': '+1', 'CA': '+1', // United States, Canada
+            'GB': '+44', // United Kingdom
+            'FR': '+33', // France
+            'DE': '+49', // Germany
+            'JP': '+81', // Japan
+            'CN': '+86', // China
+            'IN': '+91', // India
+            'AU': '+61', // Australia
+            'RU': '+7', // Russia
+            'IT': '+39', // Italy
+            'ES': '+34', // Spain
+            'NL': '+31', // Netherlands
+            'BE': '+32', // Belgium
+            'CH': '+41', // Switzerland
+            'SE': '+46', // Sweden
+            'NO': '+47', // Norway
+            'DK': '+45', // Denmark
+            'FI': '+358', // Finland
+            'PT': '+351', // Portugal
+            'GR': '+30', // Greece
+            'PL': '+48', // Poland
+            'HU': '+36', // Hungary
+            'CZ': '+420', // Czech Republic
+            'AE': '+971', // UAE
+            'SA': '+966', // Saudi Arabia
+            'ZA': '+27', // South Africa
+            'BR': '+55', // Brazil
+            'MX': '+52', // Mexico
+            'AR': '+54', // Argentina
+            'CL': '+56', // Chile
+            'NZ': '+64', // New Zealand
+            'SG': '+65', // Singapore
+            'MY': '+60', // Malaysia
+            'TH': '+66', // Thailand
+            'VN': '+84', // Vietnam
+            'ID': '+62', // Indonesia
+            'KR': '+82', // South Korea
+            'HK': '+852', // Hong Kong
+            'TW': '+886', // Taiwan
+            'BD': '+880', // Bangladesh
+            'NP': '+977', // Nepal
+            'PK': '+92', // Pakistan
+            'LK': '+94', // Sri Lanka
+            'MM': '+95', // Myanmar
+            'KH': '+855', // Cambodia
+            'LA': '+856', // Laos
+            'BN': '+673', // Brunei
+            'TL': '+670', // East Timor
+            'AF': '+93', // Afghanistan
+            'IR': '+98', // Iran
+            'IQ': '+964', // Iraq
+            'LB': '+961', // Lebanon
+            'JO': '+962', // Jordan
+            'IL': '+972', // Israel
+            'PS': '+970', // Palestine
+            'EG': '+20', // Egypt
+            'MA': '+212', // Morocco
+            'DZ': '+213', // Algeria
+            'TN': '+216', // Tunisia
+            'LY': '+218', // Libya
+            'SD': '+249', // Sudan
+            'KE': '+254', // Kenya
+            'NG': '+234', // Nigeria
+            'GH': '+233', // Ghana
+            'UG': '+256', // Uganda
+            'TZ': '+255', // Tanzania
+            'TR': '+90', // Turkey
+            'PH': '+63', // Philippines
+            'VE': '+58', // Venezuela
+            'CO': '+57', // Colombia
+            'PE': '+51', // Peru
+            'CU': '+53', // Cuba
+            'AT': '+43', // Austria
+            'RO': '+40', // Romania
+            'UA': '+380', // Ukraine
+            'RS': '+381', // Serbia
+            'ME': '+382', // Montenegro
+            'XK': '+383', // Kosovo
+            'HR': '+385', // Croatia
+            'SI': '+386', // Slovenia
+            'BA': '+387', // Bosnia and Herzegovina
+            'MK': '+389', // North Macedonia
+            'SK': '+421', // Slovakia
+            'LI': '+423', // Liechtenstein
+            'LT': '+370', // Lithuania
+            'LV': '+371', // Latvia
+            'EE': '+372', // Estonia
+            'MD': '+373', // Moldova
+            'AM': '+374', // Armenia
+            'BY': '+375', // Belarus
+            'AD': '+376', // Andorra
+            'MC': '+377', // Monaco
+            'SM': '+378', // San Marino
+            'GI': '+350', // Gibraltar
+            'LU': '+352', // Luxembourg
+            'IE': '+353', // Ireland
+            'IS': '+354', // Iceland
+            'AL': '+355', // Albania
+            'MT': '+356', // Malta
+            'CY': '+357', // Cyprus
+            'BG': '+359', // Bulgaria
+            'TJ': '+992', // Tajikistan
+            'TM': '+993', // Turkmenistan
+            'AZ': '+994', // Azerbaijan
+            'GE': '+995', // Georgia
+            'KG': '+996', // Kyrgyzstan
+            'UZ': '+998', // Uzbekistan
+            'MV': '+960', // Maldives
+            'SY': '+963', // Syria
+            'KW': '+965', // Kuwait
+            'YE': '+967', // Yemen
+            'OM': '+968', // Oman
+            'BH': '+973', // Bahrain
+            'QA': '+974', // Qatar
+            'BT': '+975', // Bhutan
+            'MN': '+976', // Mongolia
+            'KP': '+850', // North Korea
+            'MO': '+853' // Macau
+        };
+        
+        function setTelCodeByCountry(countryCode) {
+            const telCode = countryToTelCode[countryCode];
+            const phoneCodeSelect = document.getElementById('bookingPhoneCode');
+            
+            if (telCode && phoneCodeSelect) {
+                // Find and select the matching option
+                for (let i = 0; i < phoneCodeSelect.options.length; i++) {
+                    if (phoneCodeSelect.options[i].value === telCode) {
+                        phoneCodeSelect.selectedIndex = i;
+                        break;
+                    }
+                }
+            }
+        }
+        
+        // Method 1: Try browser geolocation API (requires user permission)
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    // Use reverse geocoding to get country from coordinates
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    
+                    // Use a free reverse geocoding service
+                    fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=en`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.countryCode) {
+                                setTelCodeByCountry(data.countryCode);
+                            }
+                        })
+                        .catch(error => {
+                            console.log('Geolocation reverse lookup failed:', error);
+                            // Fallback to IP-based geolocation
+                            detectCountryByIP();
+                        });
+                },
+                function(error) {
+                    console.log('Geolocation permission denied or failed:', error);
+                    // Fallback to IP-based geolocation
+                    detectCountryByIP();
+                },
+                { timeout: 5000, enableHighAccuracy: false }
+            );
+        } else {
+            // Browser doesn't support geolocation, use IP-based
+            detectCountryByIP();
+        }
+        
+        // Method 2: IP-based geolocation (fallback, no permission needed)
+        function detectCountryByIP() {
+            fetch('https://ipapi.co/json/')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.country_code) {
+                        setTelCodeByCountry(data.country_code);
+                    }
+                })
+                .catch(error => {
+                    console.log('IP-based geolocation failed:', error);
+                    // Try alternative service
+                    fetch('https://api.country.is/')
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.country) {
+                                setTelCodeByCountry(data.country);
+                            }
+                        })
+                        .catch(err => console.log('Alternative geolocation failed:', err));
+                });
+        }
+    })();
+    </script>
+    <?php endif; ?>
+    
     <!-- Additional CSS for better filtering -->
     <style>
         .amenity-item[style*="display: none"] {
@@ -1906,6 +2491,60 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 1rem;
+        }
+        
+        /* Phone field layout - ensure one line */
+        .flex.gap-2.items-stretch {
+            display: flex !important;
+            flex-wrap: nowrap !important;
+            gap: 8px !important;
+            align-items: stretch !important;
+        }
+        
+        #bookingPhoneCode {
+            width: 160px !important;
+            max-width: 160px !important;
+            min-width: 160px !important;
+            flex: 0 0 160px !important;
+            padding-left: 8px !important;
+            padding-right: 32px !important;
+        }
+        
+        #bookingPhone {
+            flex: 1 1 auto !important;
+            min-width: 0 !important;
+            width: 100% !important;
+        }
+        
+        /* Make dropdown easier to navigate with many options */
+        #bookingPhoneCode {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        #bookingPhoneCode option {
+            padding: 6px 8px;
+        }
+        
+        /* Searchable dropdown styles */
+        .phone-code-wrapper {
+            position: relative;
+        }
+        
+        #bookingPhoneCodeSearch {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 10;
+            border-bottom: none;
+            border-radius: 8px 8px 0 0;
+        }
+        
+        #bookingPhoneCodeSearch:focus + #bookingPhoneCode,
+        #bookingPhoneCode:focus {
+            border-top-left-radius: 0;
+            border-top-right-radius: 0;
         }
     </style>
     
