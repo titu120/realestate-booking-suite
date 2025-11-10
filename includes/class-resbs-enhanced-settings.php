@@ -145,8 +145,6 @@ class RESBS_Enhanced_Settings {
         register_setting('resbs_enhanced_settings', 'resbs_disable_lightbox_single_page');
         register_setting('resbs_enhanced_settings', 'resbs_enable_request_form_geolocation');
         register_setting('resbs_enhanced_settings', 'resbs_show_phone_country_code');
-        register_setting('resbs_enhanced_settings', 'resbs_property_item_carousel');
-        register_setting('resbs_enhanced_settings', 'resbs_property_item_image_size');
         register_setting('resbs_enhanced_settings', 'resbs_properties_per_page');
         register_setting('resbs_enhanced_settings', 'resbs_enable_sorting');
         register_setting('resbs_enhanced_settings', 'resbs_sort_options');
@@ -1428,27 +1426,6 @@ class RESBS_Enhanced_Settings {
                 </tr>
                 
                 <tr>
-                    <th scope="row"><?php esc_html_e('Property Item Carousel', 'realestate-booking-suite'); ?></th>
-                    <td>
-                        <label>
-                            <input type="checkbox" name="resbs_property_item_carousel" value="1" <?php checked(get_option('resbs_property_item_carousel'), 1); ?>>
-                            <?php esc_html_e('Property Item Carousel', 'realestate-booking-suite'); ?>
-                        </label>
-                    </td>
-                </tr>
-                
-                <tr>
-                    <th scope="row"><label for="resbs_property_item_image_size"><?php esc_html_e('Property Item Image Size', 'realestate-booking-suite'); ?></label></th>
-                    <td>
-                        <select id="resbs_property_item_image_size" name="resbs_property_item_image_size">
-                            <option value="1024x1024" <?php selected(get_option('resbs_property_item_image_size'), '1024x1024'); ?>><?php esc_html_e('1024x1024 - Without crop (large)', 'realestate-booking-suite'); ?></option>
-                            <option value="800x600" <?php selected(get_option('resbs_property_item_image_size'), '800x600'); ?>><?php esc_html_e('800x600 - With crop', 'realestate-booking-suite'); ?></option>
-                            <option value="600x400" <?php selected(get_option('resbs_property_item_image_size'), '600x400'); ?>><?php esc_html_e('600x400 - With crop', 'realestate-booking-suite'); ?></option>
-                        </select>
-                    </td>
-                </tr>
-                
-                <tr>
                     <th scope="row"><label for="resbs_properties_per_page"><?php esc_html_e('Properties Number Per Page', 'realestate-booking-suite'); ?></label></th>
                     <td><input type="number" id="resbs_properties_per_page" name="resbs_properties_per_page" value="<?php echo esc_attr(get_option('resbs_properties_per_page', '40')); ?>" min="1" max="100" class="small-text"></td>
                 </tr>
@@ -2120,8 +2097,6 @@ class RESBS_Enhanced_Settings {
             'resbs_disable_lightbox_single_page',
             'resbs_enable_request_form_geolocation',
             'resbs_show_phone_country_code',
-            'resbs_property_item_carousel',
-            'resbs_property_item_image_size',
             'resbs_properties_per_page',
             'resbs_enable_sorting',
             'resbs_default_sort_option',

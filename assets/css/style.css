@@ -3152,3 +3152,23 @@
 label {
     white-space: nowrap !important;
 }
+
+
+
+.pagination-container ul.page-numbers {
+    list-style: none;
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    align-items: center;
+}
+span.page-numbers.current {
+    background: #0f766e;
+    border-radius: 50%;
+    height: 40px;
+    width: 40px;
+    display: inline-block;
+    text-align: center;
+    line-height: 40px;
+    color: #fff;
+}

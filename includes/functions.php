@@ -565,11 +565,3 @@ function resbs_is_request_form_geolocation_enabled() {
 function resbs_show_phone_country_code() {
     return (bool) get_option('resbs_show_phone_country_code', true);
 }
-
-/**
- * Get property item image size
- * @return string Image size (1024x1024, 800x600, 600x400)
- */
-function resbs_get_property_item_image_size() {
-    return get_option('resbs_property_item_image_size', '1024x1024');
-}
