@@ -158,26 +158,7 @@ class RESBS_Enhanced_Settings {
         register_setting('resbs_enhanced_settings', 'resbs_enable_sharing');
         register_setting('resbs_enhanced_settings', 'resbs_show_date_added');
         
-        // Archive Page Settings
-        register_setting('resbs_enhanced_settings', 'resbs_archive_layout');
-        register_setting('resbs_enhanced_settings', 'resbs_archive_grid_columns');
-        register_setting('resbs_enhanced_settings', 'resbs_archive_items_per_page');
-        register_setting('resbs_enhanced_settings', 'resbs_archive_show_filters');
-        register_setting('resbs_enhanced_settings', 'resbs_archive_show_search');
-        register_setting('resbs_enhanced_settings', 'resbs_archive_show_sorting');
-        register_setting('resbs_enhanced_settings', 'resbs_archive_show_pagination');
-        register_setting('resbs_enhanced_settings', 'resbs_archive_card_style');
-        register_setting('resbs_enhanced_settings', 'resbs_archive_image_size');
-        register_setting('resbs_enhanced_settings', 'resbs_archive_show_excerpt');
-        register_setting('resbs_enhanced_settings', 'resbs_archive_excerpt_length');
-        register_setting('resbs_enhanced_settings', 'resbs_archive_show_meta');
-        register_setting('resbs_enhanced_settings', 'resbs_archive_meta_fields');
-        
-        // Additional Archive Settings
-        register_setting('resbs_enhanced_settings', 'resbs_archive_title');
-        register_setting('resbs_enhanced_settings', 'resbs_archive_description');
-        register_setting('resbs_enhanced_settings', 'resbs_default_archive_layout');
-        register_setting('resbs_enhanced_settings', 'resbs_grid_columns');
+        // Archive Page Settings removed - not used in templates, causes conflicts with General/Listings settings
         register_setting('resbs_enhanced_settings', 'resbs_properties_per_page');
         register_setting('resbs_enhanced_settings', 'resbs_show_view_toggle');
         register_setting('resbs_enhanced_settings', 'resbs_show_sorting');
@@ -276,11 +257,6 @@ class RESBS_Enhanced_Settings {
                                 </a>
                             </li>
                             <li class="resbs-nav-item">
-                                <a href="#" data-tab="archive" class="resbs-nav-link <?php echo $this->current_tab === 'archive' ? 'active' : ''; ?>">
-                                    <span class="resbs-nav-text"><?php esc_html_e('Archive Pages', 'realestate-booking-suite'); ?></span>
-                                </a>
-                            </li>
-                            <li class="resbs-nav-item">
                                 <a href="#" data-tab="search" class="resbs-nav-link <?php echo $this->current_tab === 'search' ? 'active' : ''; ?>">
                                     <span class="resbs-nav-text"><?php esc_html_e('Listing search', 'realestate-booking-suite'); ?></span>
                                 </a>
@@ -315,9 +291,6 @@ class RESBS_Enhanced_Settings {
                             break;
                         case 'listings':
                             $this->listings_settings_tab();
-                            break;
-                        case 'archive':
-                            $this->archive_settings_tab();
                             break;
                         case 'search':
                             $this->search_settings_tab();
@@ -1109,179 +1082,6 @@ class RESBS_Enhanced_Settings {
         <?php
     }
     
-    /**
-     * Archive settings tab - This is the main focus for your request
-     */
-    private function archive_settings_tab() {
-        ?>
-        <h2><?php esc_html_e('Archive Pages', 'realestate-booking-suite'); ?></h2>
-        
-        <?php if (isset($_GET['updated']) && $_GET['updated'] == '1'): ?>
-            <div class="notice notice-success"><p><?php esc_html_e('Settings saved successfully!', 'realestate-booking-suite'); ?></p></div>
-        <?php endif; ?>
-        
-        <?php if (isset($_GET['reset']) && $_GET['reset'] == '1'): ?>
-            <div class="notice notice-success"><p><?php esc_html_e('Settings reset to defaults successfully!', 'realestate-booking-suite'); ?></p></div>
-        <?php endif; ?>
-        
-        <form method="post" action="<?php echo admin_url('admin-post.php'); ?>">
-            <?php wp_nonce_field('resbs_enhanced_settings-options'); ?>
-            <input type="hidden" name="action" value="resbs_save_settings">
-            <input type="hidden" name="current_tab" value="archive">
-            
-            <div class="resbs-form-group">
-                <label><?php esc_html_e('Default Layout for Archive Pages', 'realestate-booking-suite'); ?></label>
-                <div class="resbs-layout-options">
-                    <div class="resbs-layout-option <?php echo get_option('resbs_archive_layout') === 'grid' ? 'selected' : ''; ?>">
-                        <input type="radio" id="archive_grid" name="resbs_archive_layout" value="grid" <?php checked(get_option('resbs_archive_layout'), 'grid'); ?>>
-                        <div class="resbs-layout-preview">Grid</div>
-                        <label for="archive_grid"><?php esc_html_e('Grid layout', 'realestate-booking-suite'); ?></label>
-                    </div>
-                    <div class="resbs-layout-option <?php echo get_option('resbs_archive_layout') === 'large-grid' ? 'selected' : ''; ?>">
-                        <input type="radio" id="archive_large_grid" name="resbs_archive_layout" value="large-grid" <?php checked(get_option('resbs_archive_layout'), 'large-grid'); ?>>
-                        <div class="resbs-layout-preview">Large Grid</div>
-                        <label for="archive_large_grid"><?php esc_html_e('Large grid layout', 'realestate-booking-suite'); ?></label>
-                    </div>
-                    <div class="resbs-layout-option <?php echo get_option('resbs_archive_layout') === 'list' ? 'selected' : ''; ?>">
-                        <input type="radio" id="archive_list" name="resbs_archive_layout" value="list" <?php checked(get_option('resbs_archive_layout'), 'list'); ?>>
-                        <div class="resbs-layout-preview">List</div>
-                        <label for="archive_list"><?php esc_html_e('List layout', 'realestate-booking-suite'); ?></label>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label for="resbs_archive_grid_columns"><?php esc_html_e('Grid Columns', 'realestate-booking-suite'); ?></label>
-                <select id="resbs_archive_grid_columns" name="resbs_archive_grid_columns">
-                    <option value="2" <?php selected(get_option('resbs_archive_grid_columns'), '2'); ?>><?php esc_html_e('2 Columns', 'realestate-booking-suite'); ?></option>
-                    <option value="3" <?php selected(get_option('resbs_archive_grid_columns'), '3'); ?>><?php esc_html_e('3 Columns', 'realestate-booking-suite'); ?></option>
-                    <option value="4" <?php selected(get_option('resbs_archive_grid_columns'), '4'); ?>><?php esc_html_e('4 Columns', 'realestate-booking-suite'); ?></option>
-                </select>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label for="resbs_archive_items_per_page"><?php esc_html_e('Items Per Page', 'realestate-booking-suite'); ?></label>
-                <input type="number" id="resbs_archive_items_per_page" name="resbs_archive_items_per_page" value="<?php echo esc_attr(get_option('resbs_archive_items_per_page', '12')); ?>" min="1" max="100">
-            </div>
-            
-            <div class="resbs-form-group">
-                <label>
-                    <input type="checkbox" name="resbs_archive_show_filters" value="1" <?php checked(get_option('resbs_archive_show_filters'), 1); ?>>
-                    <?php esc_html_e('Show Filters', 'realestate-booking-suite'); ?>
-                </label>
-                <p class="resbs-description"><?php esc_html_e('Display filter options on archive pages', 'realestate-booking-suite'); ?></p>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label>
-                    <input type="checkbox" name="resbs_archive_show_search" value="1" <?php checked(get_option('resbs_archive_show_search'), 1); ?>>
-                    <?php esc_html_e('Show Search Bar', 'realestate-booking-suite'); ?>
-                </label>
-                <p class="resbs-description"><?php esc_html_e('Display search bar on archive pages', 'realestate-booking-suite'); ?></p>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label>
-                    <input type="checkbox" name="resbs_archive_show_sorting" value="1" <?php checked(get_option('resbs_archive_show_sorting'), 1); ?>>
-                    <?php esc_html_e('Show Sorting Options', 'realestate-booking-suite'); ?>
-                </label>
-                <p class="resbs-description"><?php esc_html_e('Display sorting dropdown on archive pages', 'realestate-booking-suite'); ?></p>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label>
-                    <input type="checkbox" name="resbs_archive_show_pagination" value="1" <?php checked(get_option('resbs_archive_show_pagination'), 1); ?>>
-                    <?php esc_html_e('Show Pagination', 'realestate-booking-suite'); ?>
-                </label>
-                <p class="resbs-description"><?php esc_html_e('Display pagination controls on archive pages', 'realestate-booking-suite'); ?></p>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label for="resbs_archive_card_style"><?php esc_html_e('Card Style', 'realestate-booking-suite'); ?></label>
-                <select id="resbs_archive_card_style" name="resbs_archive_card_style">
-                    <option value="modern" <?php selected(get_option('resbs_archive_card_style'), 'modern'); ?>><?php esc_html_e('Modern', 'realestate-booking-suite'); ?></option>
-                    <option value="classic" <?php selected(get_option('resbs_archive_card_style'), 'classic'); ?>><?php esc_html_e('Classic', 'realestate-booking-suite'); ?></option>
-                    <option value="minimal" <?php selected(get_option('resbs_archive_card_style'), 'minimal'); ?>><?php esc_html_e('Minimal', 'realestate-booking-suite'); ?></option>
-                </select>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label for="resbs_archive_image_size"><?php esc_html_e('Image Size', 'realestate-booking-suite'); ?></label>
-                <select id="resbs_archive_image_size" name="resbs_archive_image_size">
-                    <option value="thumbnail" <?php selected(get_option('resbs_archive_image_size'), 'thumbnail'); ?>><?php esc_html_e('Thumbnail (150x150)', 'realestate-booking-suite'); ?></option>
-                    <option value="medium" <?php selected(get_option('resbs_archive_image_size'), 'medium'); ?>><?php esc_html_e('Medium (300x300)', 'realestate-booking-suite'); ?></option>
-                    <option value="large" <?php selected(get_option('resbs_archive_image_size'), 'large'); ?>><?php esc_html_e('Large (1024x1024)', 'realestate-booking-suite'); ?></option>
-                    <option value="custom" <?php selected(get_option('resbs_archive_image_size'), 'custom'); ?>><?php esc_html_e('Custom Size', 'realestate-booking-suite'); ?></option>
-                </select>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label>
-                    <input type="checkbox" name="resbs_archive_show_excerpt" value="1" <?php checked(get_option('resbs_archive_show_excerpt'), 1); ?>>
-                    <?php esc_html_e('Show Excerpt', 'realestate-booking-suite'); ?>
-                </label>
-                <p class="resbs-description"><?php esc_html_e('Display property excerpt on archive cards', 'realestate-booking-suite'); ?></p>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label for="resbs_archive_excerpt_length"><?php esc_html_e('Excerpt Length', 'realestate-booking-suite'); ?></label>
-                <input type="number" id="resbs_archive_excerpt_length" name="resbs_archive_excerpt_length" value="<?php echo esc_attr(get_option('resbs_archive_excerpt_length', '150')); ?>" min="50" max="500">
-                <p class="resbs-description"><?php esc_html_e('Number of characters to show in excerpt', 'realestate-booking-suite'); ?></p>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label>
-                    <input type="checkbox" name="resbs_archive_show_meta" value="1" <?php checked(get_option('resbs_archive_show_meta'), 1); ?>>
-                    <?php esc_html_e('Show Meta Information', 'realestate-booking-suite'); ?>
-                </label>
-                <p class="resbs-description"><?php esc_html_e('Display property meta information (bedrooms, bathrooms, etc.)', 'realestate-booking-suite'); ?></p>
-            </div>
-            
-            <div class="resbs-form-group">
-                <label><?php esc_html_e('Meta Fields to Display', 'realestate-booking-suite'); ?></label>
-                <div class="resbs-checkbox-group">
-                    <div class="resbs-checkbox-item">
-                        <input type="checkbox" id="meta_bedrooms" name="resbs_archive_meta_fields[]" value="bedrooms" <?php echo in_array('bedrooms', (array)get_option('resbs_archive_meta_fields', array())) ? 'checked' : ''; ?>>
-                        <label for="meta_bedrooms"><?php esc_html_e('Bedrooms', 'realestate-booking-suite'); ?></label>
-                    </div>
-                    <div class="resbs-checkbox-item">
-                        <input type="checkbox" id="meta_bathrooms" name="resbs_archive_meta_fields[]" value="bathrooms" <?php echo in_array('bathrooms', (array)get_option('resbs_archive_meta_fields', array())) ? 'checked' : ''; ?>>
-                        <label for="meta_bathrooms"><?php esc_html_e('Bathrooms', 'realestate-booking-suite'); ?></label>
-                    </div>
-                    <div class="resbs-checkbox-item">
-                        <input type="checkbox" id="meta_area" name="resbs_archive_meta_fields[]" value="area" <?php echo in_array('area', (array)get_option('resbs_archive_meta_fields', array())) ? 'checked' : ''; ?>>
-                        <label for="meta_area"><?php esc_html_e('Area', 'realestate-booking-suite'); ?></label>
-                    </div>
-                    <div class="resbs-checkbox-item">
-                        <input type="checkbox" id="meta_price" name="resbs_archive_meta_fields[]" value="price" <?php echo in_array('price', (array)get_option('resbs_archive_meta_fields', array())) ? 'checked' : ''; ?>>
-                        <label for="meta_price"><?php esc_html_e('Price', 'realestate-booking-suite'); ?></label>
-                    </div>
-                    <div class="resbs-checkbox-item">
-                        <input type="checkbox" id="meta_type" name="resbs_archive_meta_fields[]" value="type" <?php echo in_array('type', (array)get_option('resbs_archive_meta_fields', array())) ? 'checked' : ''; ?>>
-                        <label for="meta_type"><?php esc_html_e('Property Type', 'realestate-booking-suite'); ?></label>
-                    </div>
-                    <div class="resbs-checkbox-item">
-                        <input type="checkbox" id="meta_status" name="resbs_archive_meta_fields[]" value="status" <?php echo in_array('status', (array)get_option('resbs_archive_meta_fields', array())) ? 'checked' : ''; ?>>
-                        <label for="meta_status"><?php esc_html_e('Status', 'realestate-booking-suite'); ?></label>
-                    </div>
-                </div>
-            </div>
-            
-            <div style="margin-top: 20px;">
-                <button type="submit" class="resbs-save-button"><?php esc_html_e('SAVE CHANGES', 'realestate-booking-suite'); ?></button>
-                <button type="button" class="button button-secondary resbs-reset-button" onclick="if(confirm('<?php esc_attr_e('Are you sure you want to reset all Archive Pages settings to default values? This cannot be undone.', 'realestate-booking-suite'); ?>')) { document.getElementById('resetArchiveForm').submit(); }" style="margin-left: 10px;"><?php esc_html_e('Reset to Defaults', 'realestate-booking-suite'); ?></button>
-            </div>
-        </form>
-        
-        <!-- Reset Form -->
-        <form method="post" action="<?php echo admin_url('admin-post.php'); ?>" id="resetArchiveForm" style="display: none;">
-            <?php wp_nonce_field('resbs_enhanced_settings-options'); ?>
-            <input type="hidden" name="action" value="resbs_reset_settings">
-            <input type="hidden" name="current_tab" value="archive">
-        </form>
-        <?php
-    }
-    
     // Additional tab methods will be implemented in the next part...
     
     /**
@@ -2023,9 +1823,6 @@ class RESBS_Enhanced_Settings {
             case 'listings':
                 $this->save_listings_settings();
                 break;
-            case 'archive':
-                $this->save_archive_settings();
-                break;
             case 'search':
                 $this->save_search_settings();
                 break;
@@ -2062,9 +1859,6 @@ class RESBS_Enhanced_Settings {
         switch ($tab) {
             case 'listings':
                 $this->reset_listings_settings();
-                break;
-            case 'archive':
-                $this->reset_archive_settings();
                 break;
             case 'general':
                 $this->reset_general_settings();
@@ -2117,30 +1911,6 @@ class RESBS_Enhanced_Settings {
         
         // Reset sort options to defaults
         update_option('resbs_sort_options', array('newest', 'oldest', 'lowest_price', 'highest_price', 'largest_sqft'));
-    }
-    
-    /**
-     * Reset archive settings to defaults
-     */
-    private function reset_archive_settings() {
-        // Default values for Archive settings
-        $defaults = array(
-            'resbs_archive_layout' => 'grid',
-            'resbs_archive_grid_columns' => '3',
-            'resbs_archive_items_per_page' => '12',
-            'resbs_archive_show_filters' => '1',
-            'resbs_archive_show_search' => '1',
-            'resbs_archive_show_sorting' => '1',
-            'resbs_archive_show_pagination' => '1',
-            'resbs_archive_card_style' => 'modern',
-            'resbs_archive_image_size' => 'medium',
-            'resbs_archive_show_excerpt' => '1',
-            'resbs_archive_excerpt_length' => '150'
-        );
-        
-        foreach ($defaults as $key => $value) {
-            update_option($key, $value);
-        }
     }
     
     /**
@@ -2364,70 +2134,6 @@ class RESBS_Enhanced_Settings {
         // Handle array settings
         if (isset($_POST['resbs_sort_options'])) {
             update_option('resbs_sort_options', array_map('sanitize_text_field', $_POST['resbs_sort_options']));
-        }
-    }
-    
-    /**
-     * Save archive settings
-     */
-    private function save_archive_settings() {
-        $settings = array(
-            'resbs_archive_layout',
-            'resbs_archive_grid_columns',
-            'resbs_archive_items_per_page',
-            'resbs_archive_show_filters',
-            'resbs_archive_show_search',
-            'resbs_archive_show_sorting',
-            'resbs_archive_show_pagination',
-            'resbs_archive_card_style',
-            'resbs_archive_image_size',
-            'resbs_archive_show_excerpt',
-            'resbs_archive_excerpt_length',
-            'resbs_archive_show_meta',
-            'resbs_archive_title',
-            'resbs_archive_description',
-            'resbs_default_archive_layout',
-            'resbs_grid_columns',
-            'resbs_properties_per_page',
-            'resbs_show_view_toggle',
-            'resbs_show_sorting',
-            'resbs_show_filters',
-            'resbs_show_search',
-            'resbs_show_pagination',
-            'resbs_show_property_image',
-            'resbs_show_property_price',
-            'resbs_show_property_title',
-            'resbs_show_property_location',
-            'resbs_show_property_details',
-            'resbs_show_property_type',
-            'resbs_show_property_status',
-            'resbs_show_favorite_button',
-            'resbs_show_quick_view',
-            'resbs_default_sort',
-            'resbs_filter_price',
-            'resbs_filter_type',
-            'resbs_filter_bedrooms',
-            'resbs_filter_bathrooms',
-            'resbs_filter_status',
-            'resbs_filter_area',
-            'resbs_archive_meta_description',
-            'resbs_archive_meta_keywords'
-        );
-        
-        foreach ($settings as $setting) {
-            if (isset($_POST[$setting])) {
-                $value = sanitize_text_field($_POST[$setting]);
-                update_option($setting, $value);
-            } else {
-                update_option($setting, '');
-            }
-        }
-        
-        // Handle array settings
-        if (isset($_POST['resbs_archive_meta_fields'])) {
-            update_option('resbs_archive_meta_fields', array_map('sanitize_text_field', $_POST['resbs_archive_meta_fields']));
-        } else {
-            update_option('resbs_archive_meta_fields', array());
         }
     }
     
