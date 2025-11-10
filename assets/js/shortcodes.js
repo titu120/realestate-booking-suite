@@ -133,10 +133,17 @@
          * Initialize tabs functionality
          */
         initTabs: function() {
-            $('.resbs-tab-btn').on('click', function() {
+            // Use event delegation to handle dynamically loaded content
+            $(document).on('click', '.resbs-tab-btn', function(e) {
+                e.preventDefault();
                 var $btn = $(this);
                 var $widget = $btn.closest('.resbs-dashboard-widget');
                 var tabId = $btn.data('tab');
+                
+                if (!tabId) {
+                    console.error('Tab ID not found');
+                    return;
+                }
                 
                 // Update active tab button
                 $widget.find('.resbs-tab-btn').removeClass('active');
@@ -144,7 +151,13 @@
                 
                 // Update active tab panel
                 $widget.find('.resbs-tab-panel').removeClass('active');
-                $widget.find('#' + tabId).addClass('active');
+                var $targetPanel = $widget.find('#' + tabId);
+                
+                if ($targetPanel.length) {
+                    $targetPanel.addClass('active');
+                } else {
+                    console.error('Tab panel not found:', tabId);
+                }
             });
         },
 

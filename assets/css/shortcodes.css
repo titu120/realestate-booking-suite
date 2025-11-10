@@ -197,9 +197,23 @@
 /* Dashboard Widget */
 .resbs-dashboard-widget {
     background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     overflow: hidden;
+    margin: 30px 0;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.resbs-dashboard-widget .resbs-widget-title {
+    padding: 25px 30px;
+    margin: 0;
+    background: linear-gradient(135deg, #0073aa 0%, #005a87 100%);
+    color: #fff;
+    font-size: 1.75rem;
+    font-weight: 700;
+    border-bottom: none;
 }
 
 .resbs-dashboard-tabs {
@@ -210,26 +224,30 @@
 .resbs-tab-nav {
     display: flex;
     background: #f8f9fa;
-    border-bottom: 1px solid #eee;
+    border-bottom: 2px solid #e0e0e0;
     overflow-x: auto;
+    padding: 0;
+    margin: 0;
 }
 
 .resbs-tab-btn {
-    padding: 15px 20px;
+    padding: 18px 25px;
     background: none;
     border: none;
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 600;
     color: #666;
     cursor: pointer;
     transition: all 0.3s ease;
     white-space: nowrap;
     border-bottom: 3px solid transparent;
+    position: relative;
+    margin: 0;
 }
 
 .resbs-tab-btn:hover {
     color: #0073aa;
-    background: #fff;
+    background: rgba(0, 115, 170, 0.05);
 }
 
 .resbs-tab-btn.active {
@@ -239,56 +257,493 @@
 }
 
 .resbs-tab-content {
-    padding: 20px;
+    padding: 30px;
+    min-height: 400px;
+    background: #fff;
 }
 
 .resbs-tab-panel {
     display: none;
+    animation: fadeIn 0.3s ease-in;
 }
 
 .resbs-tab-panel.active {
     display: block;
 }
 
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.resbs-dashboard-section {
+    width: 100%;
+}
+
 .resbs-dashboard-section h4 {
-    margin: 0 0 15px 0;
+    margin: 0 0 20px 0;
     color: #333;
+    font-size: 1.3rem;
+    font-weight: 700;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.resbs-profile-subtitle {
+    color: #666;
+    font-size: 14px;
+    margin: -10px 0 20px 0;
+    font-style: italic;
+}
+
+.resbs-submit-property-action {
+    margin-bottom: 30px;
+    text-align: right;
+}
+
+.resbs-submit-new-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 28px;
+    background: #0073aa;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 15px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 115, 170, 0.25);
+    border: none;
+}
+
+.resbs-submit-new-btn:hover {
+    background: #005a87;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 115, 170, 0.35);
+    color: #fff;
+}
+
+.resbs-submit-new-btn i {
+    font-size: 16px;
+}
+
+.resbs-user-properties-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 30px;
+}
+
+.resbs-user-property-card {
+    background: #fff;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid #e5e7eb;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.resbs-user-property-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 32px rgba(0, 115, 170, 0.18);
+    border-color: #0073aa;
+}
+
+.resbs-property-card-image {
+    position: relative;
+    width: 100%;
+    height: 220px;
+    overflow: hidden;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+}
+
+.resbs-property-card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.resbs-user-property-card:hover .resbs-property-card-image img {
+    transform: scale(1.08);
+}
+
+.resbs-property-card-image a {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.resbs-property-status-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    padding: 8px 16px;
+    border-radius: 24px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #fff;
+    letter-spacing: 0.8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(4px);
+}
+
+.resbs-property-card-content {
+    padding: 24px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.resbs-property-card-title {
+    margin: 0 0 16px 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+    line-height: 1.5;
+    color: #1f2937;
+}
+
+.resbs-property-card-title a {
+    color: #1f2937;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.resbs-property-card-title a:hover {
+    color: #0073aa;
+}
+
+.resbs-property-card-price {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: #0073aa;
+    margin-bottom: 12px;
+    letter-spacing: -0.5px;
+}
+
+.resbs-property-card-location {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #6b7280;
+    font-size: 14px;
+    margin-bottom: 16px;
+    font-weight: 500;
+}
+
+.resbs-property-card-location i {
+    color: #0073aa;
+    font-size: 14px;
+}
+
+.resbs-property-card-meta {
+    margin-top: auto;
+    padding-top: 16px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.resbs-property-card-date {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #9ca3af;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.resbs-property-card-date i {
+    font-size: 12px;
+    color: #9ca3af;
+}
+
+.resbs-property-card-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 18px;
+    padding-top: 18px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.resbs-action-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.resbs-view-btn {
+    background: #f9fafb;
+    color: #374151;
+    border-color: #e5e7eb;
+}
+
+.resbs-view-btn:hover {
+    background: #0073aa;
+    color: #fff;
+    border-color: #0073aa;
+    transform: translateY(-1px);
+}
+
+.resbs-edit-btn {
+    background: #0073aa;
+    color: #fff;
+    border-color: #0073aa;
+}
+
+.resbs-edit-btn:hover {
+    background: #005a87;
+    color: #fff;
+    border-color: #005a87;
+    transform: translateY(-1px);
+}
+
+.resbs-action-btn i {
+    font-size: 14px;
+}
+
+.resbs-no-properties {
+    text-align: center;
+    padding: 60px 20px;
+    background: #f8f9fa;
+    border-radius: 12px;
+    border: 2px dashed #ddd;
+}
+
+.resbs-empty-icon {
+    font-size: 64px;
+    color: #ccc;
+    margin-bottom: 20px;
+}
+
+.resbs-no-properties h4 {
+    margin: 0 0 10px 0;
+    color: #333;
+    font-size: 1.3rem;
+    font-weight: 700;
+}
+
+.resbs-no-properties p {
+    margin: 0 0 25px 0;
+    color: #666;
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+.resbs-favorites-list,
+.resbs-bookings-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.resbs-favorites-empty,
+.resbs-bookings-placeholder {
+    padding: 40px 20px;
+    text-align: center;
+    color: #999;
+    font-size: 16px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 2px dashed #ddd;
+}
+
+.resbs-booking-item {
+    padding: 20px;
+    background: #fff;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    margin-bottom: 15px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.resbs-booking-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 115, 170, 0.15);
+}
+
+.resbs-booking-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.resbs-booking-header h5 {
+    margin: 0;
     font-size: 1.1rem;
 }
 
-.resbs-user-properties,
-.resbs-favorites-list,
-.resbs-bookings-list {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-.resbs-user-property-item {
-    padding: 15px;
-    background: #f8f9fa;
-    border-radius: 6px;
-    border-left: 4px solid #0073aa;
-}
-
-.resbs-user-property-item h5 {
-    margin: 0 0 5px 0;
-    font-size: 1rem;
-}
-
-.resbs-user-property-item h5 a {
-    color: #0073aa;
+.resbs-booking-header h5 a {
+    color: #333;
     text-decoration: none;
 }
 
-.resbs-user-property-item h5 a:hover {
-    text-decoration: underline;
+.resbs-booking-header h5 a:hover {
+    color: #0073aa;
 }
 
-.resbs-user-property-item p {
-    margin: 0;
+.resbs-booking-status {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.resbs-booking-status.status-completed {
+    background: #d4edda;
+    color: #155724;
+}
+
+.resbs-booking-status.status-processing {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.resbs-booking-status.status-pending {
+    background: #cce5ff;
+    color: #004085;
+}
+
+.resbs-booking-date,
+.resbs-booking-total {
+    margin: 5px 0;
     color: #666;
     font-size: 14px;
+}
+
+.resbs-favorites-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+/* Property Card Styles for Dashboard */
+.resbs-property-card {
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    border: 1px solid #e0e0e0;
+}
+
+.resbs-property-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 16px rgba(0, 115, 170, 0.2);
+}
+
+.resbs-property-image {
+    position: relative;
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+    background: #f0f0f0;
+}
+
+.resbs-property-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.resbs-property-card:hover .resbs-property-image img {
+    transform: scale(1.05);
+}
+
+.resbs-property-content {
+    padding: 20px;
+}
+
+.resbs-property-title {
+    margin: 0 0 10px 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.resbs-property-title a {
+    color: #333;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.resbs-property-title a:hover {
+    color: #0073aa;
+}
+
+.resbs-property-price {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #0073aa;
+    margin-bottom: 15px;
+}
+
+.resbs-property-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #f0f0f0;
+}
+
+.resbs-property-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #666;
+    font-size: 13px;
+}
+
+.resbs-property-meta-item i {
+    color: #0073aa;
+    font-size: 14px;
+}
+
+.resbs-property-actions {
+    margin-top: 15px;
+}
+
+.resbs-property-btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background: #0073aa;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+}
+
+.resbs-property-btn:hover {
+    background: #005a87;
+    color: #fff;
+}
+
+.resbs-properties-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
 }
 
 /* Profile Form */

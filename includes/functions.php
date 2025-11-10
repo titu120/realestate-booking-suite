@@ -631,3 +631,111 @@ function resbs_is_property_favorited($property_id) {
     
     return $GLOBALS['resbs_favorites_manager']->is_favorite($property_id);
 }
+
+/**
+ * Check if user profile is enabled
+ * @return bool True if user profile is enabled
+ */
+function resbs_is_user_profile_enabled() {
+    return get_option('resbs_enable_user_profile', 1) == 1;
+}
+
+/**
+ * Get profile page title
+ * @return string Profile page title
+ */
+function resbs_get_profile_page_title() {
+    return get_option('resbs_profile_page_title', 'User Profile');
+}
+
+/**
+ * Get profile page subtitle
+ * @return string Profile page subtitle
+ */
+function resbs_get_profile_page_subtitle() {
+    return get_option('resbs_profile_page_subtitle', 'Manage your account and preferences');
+}
+
+/**
+ * Get profile page URL
+ * @return string|false Profile page URL or false if page doesn't exist
+ */
+function resbs_get_profile_page_url() {
+    $page_id = get_option('resbs_profile_page_id');
+    
+    if ($page_id && get_post($page_id)) {
+        return get_permalink($page_id);
+    }
+    
+    // Fallback: try to find page by slug
+    $page = get_page_by_path('profile');
+    if ($page && $page->post_status === 'publish') {
+        update_option('resbs_profile_page_id', $page->ID);
+        return get_permalink($page->ID);
+    }
+    
+    return false;
+}
+
+/**
+ * Get profile page ID
+ * @return int|false Profile page ID or false if page doesn't exist
+ */
+function resbs_get_profile_page_id() {
+    $page_id = get_option('resbs_profile_page_id');
+    
+    if ($page_id && get_post($page_id)) {
+        return $page_id;
+    }
+    
+    // Fallback: try to find page by slug
+    $page = get_page_by_path('profile');
+    if ($page && $page->post_status === 'publish') {
+        update_option('resbs_profile_page_id', $page->ID);
+        return $page->ID;
+    }
+    
+    return false;
+}
+
+/**
+ * Get submit property page URL
+ * @return string|false Submit property page URL or false if page doesn't exist
+ */
+function resbs_get_submit_property_page_url() {
+    $page_id = get_option('resbs_submit_property_page_id');
+    
+    if ($page_id && get_post($page_id)) {
+        return get_permalink($page_id);
+    }
+    
+    // Fallback: try to find page by slug
+    $page = get_page_by_path('submit-property');
+    if ($page && $page->post_status === 'publish') {
+        update_option('resbs_submit_property_page_id', $page->ID);
+        return get_permalink($page->ID);
+    }
+    
+    return false;
+}
+
+/**
+ * Get submit property page ID
+ * @return int|false Submit property page ID or false if page doesn't exist
+ */
+function resbs_get_submit_property_page_id() {
+    $page_id = get_option('resbs_submit_property_page_id');
+    
+    if ($page_id && get_post($page_id)) {
+        return $page_id;
+    }
+    
+    // Fallback: try to find page by slug
+    $page = get_page_by_path('submit-property');
+    if ($page && $page->post_status === 'publish') {
+        update_option('resbs_submit_property_page_id', $page->ID);
+        return $page->ID;
+    }
+    
+    return false;
+}

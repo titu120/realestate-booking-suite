@@ -74,6 +74,107 @@ function resbs_create_wishlist_page() {
 }
 
 /**
+ * Create profile page on plugin activation
+ * Uses slug "profile" to avoid conflicts with other plugins
+ */
+function resbs_create_profile_page() {
+    // Check if page already exists
+    $page_slug = 'profile';
+    $existing_page = get_page_by_path($page_slug);
+    
+    // Also check if we stored the page ID in options
+    $stored_page_id = get_option('resbs_profile_page_id');
+    
+    if ($stored_page_id) {
+        $existing_page = get_post($stored_page_id);
+        if ($existing_page && $existing_page->post_status !== 'trash') {
+            // Page exists and is not trashed, don't create again
+            return $stored_page_id;
+        }
+    }
+    
+    // If page exists but not in our option, use it
+    if ($existing_page && $existing_page->post_status !== 'trash') {
+        update_option('resbs_profile_page_id', $existing_page->ID);
+        return $existing_page->ID;
+    }
+    
+    // Get title and subtitle from settings or use defaults
+    $page_title = get_option('resbs_profile_page_title', 'User Profile');
+    
+    // Create the page
+    $page_data = array(
+        'post_title'    => $page_title,
+        'post_content'  => '[resbs_dashboard show_profile="yes"]',
+        'post_status'   => 'publish',
+        'post_type'     => 'page',
+        'post_name'     => $page_slug,
+        'post_author'   => 1,
+        'comment_status' => 'closed',
+        'ping_status'   => 'closed'
+    );
+    
+    $page_id = wp_insert_post($page_data);
+    
+    if ($page_id && !is_wp_error($page_id)) {
+        // Store the page ID in options
+        update_option('resbs_profile_page_id', $page_id);
+        return $page_id;
+    }
+    
+    return false;
+}
+
+/**
+ * Create submit property page on plugin activation
+ * Uses slug "submit-property" to avoid conflicts with other plugins
+ */
+function resbs_create_submit_property_page() {
+    // Check if page already exists
+    $page_slug = 'submit-property';
+    $existing_page = get_page_by_path($page_slug);
+    
+    // Also check if we stored the page ID in options
+    $stored_page_id = get_option('resbs_submit_property_page_id');
+    
+    if ($stored_page_id) {
+        $existing_page = get_post($stored_page_id);
+        if ($existing_page && $existing_page->post_status !== 'trash') {
+            // Page exists and is not trashed, don't create again
+            return $stored_page_id;
+        }
+    }
+    
+    // If page exists but not in our option, use it
+    if ($existing_page && $existing_page->post_status !== 'trash') {
+        update_option('resbs_submit_property_page_id', $existing_page->ID);
+        return $existing_page->ID;
+    }
+    
+    // Create the page
+    $page_data = array(
+        'post_title'    => __('Submit Property', 'realestate-booking-suite'),
+        'post_content'  => '[resbs_submit_property]',
+        'post_status'   => 'publish',
+        'post_type'     => 'page',
+        'post_name'     => $page_slug,
+        'post_author'   => 1,
+        'comment_status' => 'closed',
+        'ping_status'   => 'closed'
+    );
+    
+    $page_id = wp_insert_post($page_data);
+    
+    if ($page_id && !is_wp_error($page_id)) {
+        // Store the page ID in options
+        update_option('resbs_submit_property_page_id', $page_id);
+        return $page_id;
+    }
+    
+    return false;
+}
+
+/**
  * Plugin activation hook
  */
 function resbs_plugin_activation() {
@@ -82,6 +183,12 @@ function resbs_plugin_activation() {
     
     // Create wishlist page
     resbs_create_wishlist_page();
+    
+    // Create profile page
+    resbs_create_profile_page();
+    
+    // Create submit property page
+    resbs_create_submit_property_page();
 }
 register_activation_hook(__FILE__, 'resbs_plugin_activation');
 

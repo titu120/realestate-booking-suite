@@ -477,10 +477,13 @@ class RESBS_Frontend {
             </div>';
         }
         
+        // Check if user profile is enabled in settings
+        $profile_enabled = resbs_is_user_profile_enabled();
+        
         $atts = shortcode_atts(array(
             'show_properties' => 'true',
             'show_bookings' => 'true',
-            'show_profile' => 'true',
+            'show_profile' => $profile_enabled ? 'true' : 'false',
             'properties_per_page' => '10',
             'bookings_per_page' => '10'
         ), $atts);
@@ -645,7 +648,10 @@ class RESBS_Frontend {
         ?>
         <div class="resbs-dashboard-tab resbs-profile-tab">
             <div class="resbs-tab-header">
-                <h3><?php esc_html_e('My Profile', 'realestate-booking-suite'); ?></h3>
+                <h3><?php echo esc_html(resbs_get_profile_page_title()); ?></h3>
+                <?php if (resbs_get_profile_page_subtitle()): ?>
+                    <p class="resbs-profile-subtitle"><?php echo esc_html(resbs_get_profile_page_subtitle()); ?></p>
+                <?php endif; ?>
             </div>
             
             <form class="resbs-profile-form" id="resbs-profile-form">

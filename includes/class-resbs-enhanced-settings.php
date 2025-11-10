@@ -184,12 +184,7 @@ class RESBS_Enhanced_Settings {
         register_setting('resbs_enhanced_settings', 'resbs_archive_meta_description');
         register_setting('resbs_enhanced_settings', 'resbs_archive_meta_keywords');
         
-        // Listing Search Settings
-        register_setting('resbs_enhanced_settings', 'resbs_address_field_placeholder');
-        register_setting('resbs_enhanced_settings', 'resbs_enable_saved_search');
-        register_setting('resbs_enhanced_settings', 'resbs_enable_auto_update_search');
-        register_setting('resbs_enhanced_settings', 'resbs_enable_autocomplete_locations');
-        register_setting('resbs_enhanced_settings', 'resbs_search_filters');
+        // Listing Search Settings removed - not used in templates, archive page has hardcoded search
         
         // User Profile Settings
         register_setting('resbs_enhanced_settings', 'resbs_enable_user_profile');
@@ -257,11 +252,6 @@ class RESBS_Enhanced_Settings {
                                 </a>
                             </li>
                             <li class="resbs-nav-item">
-                                <a href="#" data-tab="search" class="resbs-nav-link <?php echo $this->current_tab === 'search' ? 'active' : ''; ?>">
-                                    <span class="resbs-nav-text"><?php esc_html_e('Listing search', 'realestate-booking-suite'); ?></span>
-                                </a>
-                            </li>
-                            <li class="resbs-nav-item">
                                 <a href="#" data-tab="user-profile" class="resbs-nav-link <?php echo $this->current_tab === 'user-profile' ? 'active' : ''; ?>">
                                     <span class="resbs-nav-text"><?php esc_html_e('User profile', 'realestate-booking-suite'); ?></span>
                                 </a>
@@ -291,9 +281,6 @@ class RESBS_Enhanced_Settings {
                             break;
                         case 'listings':
                             $this->listings_settings_tab();
-                            break;
-                        case 'search':
-                            $this->search_settings_tab();
                             break;
                         case 'user-profile':
                             $this->user_profile_settings_tab();
@@ -773,6 +760,58 @@ class RESBS_Enhanced_Settings {
                     var defaultColor = $(this).data('default');
                     $colorInput.val(defaultColor);
                     updateColorHex($colorInput, $hexInput);
+                });
+            });
+            
+            // Handle Create Page button
+            $(document).on('click', '.resbs-create-page-btn', function(e) {
+                e.preventDefault();
+                var $button = $(this);
+                var pageType = $button.data('page-type');
+                var originalText = $button.text();
+                
+                if (!pageType) {
+                    alert('Error: Page type not specified');
+                    return;
+                }
+                
+                // Disable button and show loading
+                $button.prop('disabled', true).text('Creating...');
+                
+                $.ajax({
+                    url: ajaxurl,
+                    type: 'POST',
+                    data: {
+                        action: 'resbs_create_page',
+                        page_type: pageType,
+                        nonce: '<?php echo wp_create_nonce('resbs_create_page_nonce'); ?>'
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            // Show success message
+                            var message = '<div class="notice notice-success inline"><p>' + response.data.message + '</p>';
+                            if (response.data.view_url) {
+                                message += '<p><a href="' + response.data.view_url + '" target="_blank">View Page</a> | ';
+                                message += '<a href="' + response.data.edit_url + '">Edit Page</a></p>';
+                            }
+                            message += '</div>';
+                            
+                            $button.closest('td').append(message);
+                            $button.hide();
+                            
+                            // Reload page after 2 seconds to show updated info
+                            setTimeout(function() {
+                                location.reload();
+                            }, 2000);
+                        } else {
+                            alert('Error: ' + (response.data.message || 'Failed to create page'));
+                            $button.prop('disabled', false).text(originalText);
+                        }
+                    },
+                    error: function() {
+                        alert('Error: Failed to create page. Please try again.');
+                        $button.prop('disabled', false).text(originalText);
+                    }
                 });
             });
         });
@@ -1421,108 +1460,6 @@ class RESBS_Enhanced_Settings {
     }
     
     /**
-     * Listing Search settings tab
-     */
-    private function search_settings_tab() {
-        ?>
-        <h2><?php esc_html_e('Listing Search', 'realestate-booking-suite'); ?></h2>
-        
-        <?php if (isset($_GET['updated']) && $_GET['updated'] == '1'): ?>
-            <div class="notice notice-success"><p><?php esc_html_e('Settings saved successfully!', 'realestate-booking-suite'); ?></p></div>
-        <?php endif; ?>
-        
-        <?php if (isset($_GET['reset']) && $_GET['reset'] == '1'): ?>
-            <div class="notice notice-success"><p><?php esc_html_e('Settings reset to defaults successfully!', 'realestate-booking-suite'); ?></p></div>
-        <?php endif; ?>
-        
-        <form method="post" action="<?php echo admin_url('admin-post.php'); ?>">
-            <?php wp_nonce_field('resbs_enhanced_settings-options'); ?>
-            <input type="hidden" name="action" value="resbs_save_settings">
-            <input type="hidden" name="current_tab" value="search">
-            
-            <table class="form-table">
-                <tr>
-                    <th scope="row"><label for="resbs_address_field_placeholder"><?php esc_html_e('Address field search placeholder', 'realestate-booking-suite'); ?></label></th>
-                    <td><input type="text" id="resbs_address_field_placeholder" name="resbs_address_field_placeholder" value="<?php echo esc_attr(get_option('resbs_address_field_placeholder', 'Address, City, ZIP')); ?>" class="regular-text"></td>
-                </tr>
-                
-                <tr>
-                    <th scope="row"><?php esc_html_e('Add recommended page', 'realestate-booking-suite'); ?></th>
-                    <td>
-                        <p><?php esc_html_e('Default Search results', 'realestate-booking-suite'); ?></p>
-                        <button type="button" class="button resbs-create-page-btn" data-page-type="search"><?php esc_html_e('Create page', 'realestate-booking-suite'); ?></button>
-                    </td>
-                </tr>
-                
-                <tr>
-                    <th scope="row"><?php esc_html_e('Enable saved search', 'realestate-booking-suite'); ?></th>
-                    <td>
-                        <label>
-                            <input type="checkbox" name="resbs_enable_saved_search" value="1" <?php checked(get_option('resbs_enable_saved_search'), 1); ?>>
-                            <?php esc_html_e('Enable saved search', 'realestate-booking-suite'); ?>
-                        </label>
-                    </td>
-                </tr>
-                
-                <tr>
-                    <th scope="row"><?php esc_html_e('Enable auto-update search results', 'realestate-booking-suite'); ?></th>
-                    <td>
-                        <label>
-                            <input type="checkbox" name="resbs_enable_auto_update_search" value="1" <?php checked(get_option('resbs_enable_auto_update_search'), 1); ?>>
-                            <?php esc_html_e('Enable auto-update search results for Simple and Advanced RealEstate Booking Suite search', 'realestate-booking-suite'); ?>
-                        </label>
-                    </td>
-                </tr>
-                
-                <tr>
-                    <th scope="row"><?php esc_html_e('Enable autocomplete locations for search', 'realestate-booking-suite'); ?></th>
-                    <td>
-                        <label>
-                            <input type="checkbox" name="resbs_enable_autocomplete_locations" value="1" <?php checked(get_option('resbs_enable_autocomplete_locations'), 1); ?>>
-                            <?php esc_html_e('Enable autocomplete locations for search', 'realestate-booking-suite'); ?>
-                        </label>
-                        <p class="description"><?php esc_html_e('Autocomplete will be done with data used on your database.', 'realestate-booking-suite'); ?></p>
-                    </td>
-                </tr>
-                
-                <tr>
-                    <th scope="row"><?php esc_html_e('Filters Options', 'realestate-booking-suite'); ?></th>
-                    <td>
-                        <fieldset>
-                            <label><input type="checkbox" id="filter_price" name="resbs_search_filters[]" value="price" <?php echo in_array('price', (array)get_option('resbs_search_filters', array())) ? 'checked' : ''; ?>> <?php esc_html_e('Price', 'realestate-booking-suite'); ?></label><br>
-                            <label><input type="checkbox" id="filter_categories" name="resbs_search_filters[]" value="categories" <?php echo in_array('categories', (array)get_option('resbs_search_filters', array())) ? 'checked' : ''; ?>> <?php esc_html_e('Categories', 'realestate-booking-suite'); ?> <a href="<?php echo admin_url('admin.php?page=resbs-data-manager'); ?>" target="_blank"><?php esc_html_e('Go to Data manager to edit options.', 'realestate-booking-suite'); ?></a></label><br>
-                            <label><input type="checkbox" id="filter_types" name="resbs_search_filters[]" value="types" <?php echo in_array('types', (array)get_option('resbs_search_filters', array())) ? 'checked' : ''; ?>> <?php esc_html_e('Types', 'realestate-booking-suite'); ?> <a href="<?php echo admin_url('admin.php?page=resbs-data-manager'); ?>" target="_blank"><?php esc_html_e('Go to Data manager to edit options.', 'realestate-booking-suite'); ?></a></label><br>
-                            <label><input type="checkbox" id="filter_rent_periods" name="resbs_search_filters[]" value="rent_periods" <?php echo in_array('rent_periods', (array)get_option('resbs_search_filters', array())) ? 'checked' : ''; ?>> <?php esc_html_e('Rent Periods', 'realestate-booking-suite'); ?> <a href="<?php echo admin_url('admin.php?page=resbs-data-manager'); ?>" target="_blank"><?php esc_html_e('Go to Data manager to edit options.', 'realestate-booking-suite'); ?></a></label><br>
-                            <label><input type="checkbox" id="filter_bedrooms" name="resbs_search_filters[]" value="bedrooms" <?php echo in_array('bedrooms', (array)get_option('resbs_search_filters', array())) ? 'checked' : ''; ?>> <?php esc_html_e('Bedrooms', 'realestate-booking-suite'); ?></label><br>
-                            <label><input type="checkbox" id="filter_bathrooms" name="resbs_search_filters[]" value="bathrooms" <?php echo in_array('bathrooms', (array)get_option('resbs_search_filters', array())) ? 'checked' : ''; ?>> <?php esc_html_e('Bathrooms', 'realestate-booking-suite'); ?></label><br>
-                            <label><input type="checkbox" id="filter_half_baths" name="resbs_search_filters[]" value="half_baths" <?php echo in_array('half_baths', (array)get_option('resbs_search_filters', array())) ? 'checked' : ''; ?>> <?php esc_html_e('Half baths', 'realestate-booking-suite'); ?></label><br>
-                            <label><input type="checkbox" id="filter_amenities" name="resbs_search_filters[]" value="amenities" <?php echo in_array('amenities', (array)get_option('resbs_search_filters', array())) ? 'checked' : ''; ?>> <?php esc_html_e('Amenities', 'realestate-booking-suite'); ?> <a href="<?php echo admin_url('admin.php?page=resbs-data-manager'); ?>" target="_blank"><?php esc_html_e('Go to Data manager to edit options.', 'realestate-booking-suite'); ?></a></label><br>
-                            <label><input type="checkbox" id="filter_features" name="resbs_search_filters[]" value="features" <?php echo in_array('features', (array)get_option('resbs_search_filters', array())) ? 'checked' : ''; ?>> <?php esc_html_e('Features', 'realestate-booking-suite'); ?> <a href="<?php echo admin_url('admin.php?page=resbs-data-manager'); ?>" target="_blank"><?php esc_html_e('Go to Data manager to edit options.', 'realestate-booking-suite'); ?></a></label><br>
-                            <label><input type="checkbox" id="filter_area" name="resbs_search_filters[]" value="area" <?php echo in_array('area', (array)get_option('resbs_search_filters', array())) ? 'checked' : ''; ?>> <?php esc_html_e('Area', 'realestate-booking-suite'); ?></label><br>
-                            <label><input type="checkbox" id="filter_lot_size" name="resbs_search_filters[]" value="lot_size" <?php echo in_array('lot_size', (array)get_option('resbs_search_filters', array())) ? 'checked' : ''; ?>> <?php esc_html_e('Lot size', 'realestate-booking-suite'); ?></label><br>
-                            <label><input type="checkbox" id="filter_floors" name="resbs_search_filters[]" value="floors" <?php echo in_array('floors', (array)get_option('resbs_search_filters', array())) ? 'checked' : ''; ?>> <?php esc_html_e('Floors', 'realestate-booking-suite'); ?></label><br>
-                            <label><input type="checkbox" id="filter_floor_level" name="resbs_search_filters[]" value="floor_level" <?php echo in_array('floor_level', (array)get_option('resbs_search_filters', array())) ? 'checked' : ''; ?>> <?php esc_html_e('Floor Level', 'realestate-booking-suite'); ?></label>
-                        </fieldset>
-                    </td>
-                </tr>
-            </table>
-            
-            <p class="submit">
-                <button type="submit" class="resbs-save-button button button-primary"><?php esc_html_e('Save Changes', 'realestate-booking-suite'); ?></button>
-                <button type="button" class="button button-secondary resbs-reset-button" onclick="if(confirm('<?php esc_attr_e('Are you sure you want to reset all Listing Search settings to default values? This cannot be undone.', 'realestate-booking-suite'); ?>')) { document.getElementById('resetSearchForm').submit(); }" style="margin-left: 10px;"><?php esc_html_e('Reset to Defaults', 'realestate-booking-suite'); ?></button>
-            </p>
-        </form>
-        
-        <!-- Reset Form -->
-        <form method="post" action="<?php echo admin_url('admin-post.php'); ?>" id="resetSearchForm" style="display: none;">
-            <?php wp_nonce_field('resbs_enhanced_settings-options'); ?>
-            <input type="hidden" name="action" value="resbs_reset_settings">
-            <input type="hidden" name="current_tab" value="search">
-        </form>
-        <?php
-    }
-    
-    /**
      * User Profile settings tab
      */
     private function user_profile_settings_tab() {
@@ -1547,7 +1484,7 @@ class RESBS_Enhanced_Settings {
                     <th scope="row"><?php esc_html_e('Enable User Profile', 'realestate-booking-suite'); ?></th>
                     <td>
                         <label>
-                            <input type="checkbox" name="resbs_enable_user_profile" value="1" <?php checked(get_option('resbs_enable_user_profile'), 1); ?>>
+                            <input type="checkbox" name="resbs_enable_user_profile" value="1" <?php checked(get_option('resbs_enable_user_profile', 1), 1); ?>>
                             <?php esc_html_e('Enable User Profile', 'realestate-booking-suite'); ?>
                         </label>
                     </td>
@@ -1557,7 +1494,21 @@ class RESBS_Enhanced_Settings {
                     <th scope="row"><?php esc_html_e('Add recommended page', 'realestate-booking-suite'); ?></th>
                     <td>
                         <p><?php esc_html_e('Profile', 'realestate-booking-suite'); ?></p>
+                        <?php 
+                        $profile_page_id = resbs_get_profile_page_id();
+                        $profile_page_url = resbs_get_profile_page_url();
+                        if ($profile_page_url): 
+                        ?>
+                        <p class="description" style="margin-top: 8px;">
+                            <?php esc_html_e('Profile page:', 'realestate-booking-suite'); ?> 
+                            <a href="<?php echo esc_url($profile_page_url); ?>" target="_blank"><?php echo esc_html($profile_page_url); ?></a>
+                            <?php if ($profile_page_id): ?>
+                                | <a href="<?php echo esc_url(admin_url('post.php?post=' . $profile_page_id . '&action=edit')); ?>"><?php esc_html_e('Edit Page', 'realestate-booking-suite'); ?></a>
+                            <?php endif; ?>
+                        </p>
+                        <?php else: ?>
                         <button type="button" class="button resbs-create-page-btn" data-page-type="profile"><?php esc_html_e('Create page', 'realestate-booking-suite'); ?></button>
+                        <?php endif; ?>
                     </td>
                 </tr>
                 
@@ -1823,9 +1774,6 @@ class RESBS_Enhanced_Settings {
             case 'listings':
                 $this->save_listings_settings();
                 break;
-            case 'search':
-                $this->save_search_settings();
-                break;
             case 'user-profile':
                 $this->save_user_profile_settings();
                 break;
@@ -1865,9 +1813,6 @@ class RESBS_Enhanced_Settings {
                 break;
             case 'map':
                 $this->reset_map_settings();
-                break;
-            case 'search':
-                $this->reset_search_settings();
                 break;
             case 'user-profile':
                 $this->reset_user_profile_settings();
@@ -1927,14 +1872,6 @@ class RESBS_Enhanced_Settings {
     private function reset_map_settings() {
         // Add default values for Map settings if needed
         // This is a placeholder - add actual defaults based on your Map settings
-    }
-    
-    /**
-     * Reset search settings to defaults
-     */
-    private function reset_search_settings() {
-        // Add default values for Search settings if needed
-        // This is a placeholder - add actual defaults based on your Search settings
     }
     
     /**
@@ -2138,32 +2075,6 @@ class RESBS_Enhanced_Settings {
     }
     
     /**
-     * Save search settings
-     */
-    private function save_search_settings() {
-        $settings = array(
-            'resbs_address_field_placeholder',
-            'resbs_enable_saved_search',
-            'resbs_enable_auto_update_search',
-            'resbs_enable_autocomplete_locations'
-        );
-        
-        foreach ($settings as $setting) {
-            if (isset($_POST[$setting])) {
-                $value = sanitize_text_field($_POST[$setting]);
-                update_option($setting, $value);
-            } else {
-                update_option($setting, '');
-            }
-        }
-        
-        // Handle array settings
-        if (isset($_POST['resbs_search_filters'])) {
-            update_option('resbs_search_filters', array_map('sanitize_text_field', $_POST['resbs_search_filters']));
-        }
-    }
-    
-    /**
      * Save user profile settings
      */
     private function save_user_profile_settings() {
@@ -2241,22 +2152,77 @@ class RESBS_Enhanced_Settings {
             wp_die('Unauthorized');
         }
         
+        check_ajax_referer('resbs_create_page_nonce', 'nonce');
+        
         $page_type = sanitize_text_field($_POST['page_type']);
-        $page_title = sanitize_text_field($_POST['page_title']);
-        $page_content = sanitize_textarea_field($_POST['page_content']);
+        
+        // Define page content based on type
+        $page_config = array();
+        
+        switch ($page_type) {
+            case 'profile':
+                $page_config = array(
+                    'title' => resbs_get_profile_page_title(),
+                    'content' => '[resbs_dashboard show_profile="yes"]',
+                    'slug' => 'profile'
+                );
+                break;
+            case 'search':
+                $page_config = array(
+                    'title' => 'Search Properties',
+                    'content' => '[resbs_search]',
+                    'slug' => 'search-properties'
+                );
+                break;
+            case 'login':
+                $page_config = array(
+                    'title' => get_option('resbs_signin_page_title', 'Sign In'),
+                    'content' => '[resbs_login_form]',
+                    'slug' => 'sign-in'
+                );
+                break;
+            case 'buyer-registration':
+                $page_config = array(
+                    'title' => get_option('resbs_buyer_signup_title', 'Get started with your account'),
+                    'content' => '[resbs_buyer_registration]',
+                    'slug' => 'register'
+                );
+                break;
+            default:
+                wp_send_json_error('Invalid page type');
+                return;
+        }
+        
+        // Check if page already exists
+        $existing_page = get_page_by_path($page_config['slug']);
+        if ($existing_page) {
+            wp_send_json_error(array('message' => 'Page already exists', 'page_id' => $existing_page->ID));
+            return;
+        }
         
         $page_data = array(
-            'post_title' => $page_title,
-            'post_content' => $page_content,
+            'post_title' => $page_config['title'],
+            'post_content' => $page_config['content'],
             'post_status' => 'publish',
             'post_type' => 'page',
+            'post_name' => $page_config['slug'],
             'post_author' => get_current_user_id()
         );
         
         $page_id = wp_insert_post($page_data);
         
-        if ($page_id) {
-            wp_send_json_success(array('page_id' => $page_id, 'message' => 'Page created successfully'));
+        if ($page_id && !is_wp_error($page_id)) {
+            // Store page ID in options for profile page
+            if ($page_type === 'profile') {
+                update_option('resbs_profile_page_id', $page_id);
+            }
+            
+            wp_send_json_success(array(
+                'page_id' => $page_id,
+                'message' => 'Page created successfully',
+                'edit_url' => admin_url('post.php?post=' . $page_id . '&action=edit'),
+                'view_url' => get_permalink($page_id)
+            ));
         } else {
             wp_send_json_error('Failed to create page');
         }
@@ -2286,9 +2252,6 @@ class RESBS_Enhanced_Settings {
                 break;
             case 'listings':
                 $this->listings_settings_tab();
-                break;
-            case 'search':
-                $this->search_settings_tab();
                 break;
             case 'user-profile':
                 $this->user_profile_settings_tab();

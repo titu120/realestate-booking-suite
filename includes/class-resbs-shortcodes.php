@@ -50,8 +50,26 @@ class RESBS_Shortcodes {
         }
         
         if (is_a($post, 'WP_Post') && has_shortcode($post->post_content, 'resbs_dashboard')) {
-            wp_enqueue_style('resbs-dashboard');
-            wp_enqueue_script('resbs-dashboard');
+            // Register and enqueue shortcodes CSS if not already done
+            if (!wp_style_is('resbs-shortcodes', 'enqueued')) {
+                wp_enqueue_style(
+                    'resbs-shortcodes',
+                    RESBS_URL . 'assets/css/shortcodes.css',
+                    array(),
+                    '1.0.0'
+                );
+            }
+            
+            // Register and enqueue shortcodes JS if not already done
+            if (!wp_script_is('resbs-shortcodes', 'enqueued')) {
+                wp_enqueue_script(
+                    'resbs-shortcodes',
+                    RESBS_URL . 'assets/js/shortcodes.js',
+                    array('jquery'),
+                    '1.0.0',
+                    true
+                );
+            }
         }
         
         if (is_a($post, 'WP_Post') && has_shortcode($post->post_content, 'resbs_submit_property')) {
@@ -436,13 +454,16 @@ class RESBS_Shortcodes {
             </div>';
         }
 
+        // Check if user profile is enabled in settings
+        $profile_enabled = resbs_is_user_profile_enabled();
+        
         // Default attributes
         $default_atts = array(
             'title' => esc_html__('My Dashboard', 'realestate-booking-suite'),
             'show_properties' => 'yes',
             'show_favorites' => 'yes',
             'show_bookings' => 'yes',
-            'show_profile' => 'yes'
+            'show_profile' => $profile_enabled ? 'yes' : 'no'
         );
 
         // Sanitize attributes
@@ -510,7 +531,7 @@ class RESBS_Shortcodes {
                             <div class="resbs-dashboard-section">
                                 <h4><?php esc_html_e('Favorite Properties', 'realestate-booking-suite'); ?></h4>
                                 <div class="resbs-favorites-list">
-                                    <?php $this->render_user_favorites($user_id); ?>
+                                    <?php $this->render_user_favorites($user_id, $sanitized_atts); ?>
                                 </div>
                             </div>
                         </div>
@@ -530,7 +551,10 @@ class RESBS_Shortcodes {
                     <?php if ($sanitized_atts['show_profile']): ?>
                         <div class="resbs-tab-panel" id="profile">
                             <div class="resbs-dashboard-section">
-                                <h4><?php esc_html_e('Profile Settings', 'realestate-booking-suite'); ?></h4>
+                                <h4><?php echo esc_html(resbs_get_profile_page_title()); ?></h4>
+                                <?php if (resbs_get_profile_page_subtitle()): ?>
+                                    <p class="resbs-profile-subtitle"><?php echo esc_html(resbs_get_profile_page_subtitle()); ?></p>
+                                <?php endif; ?>
                                 <div class="resbs-profile-form">
                                     <?php $this->render_profile_form($user_id); ?>
                                 </div>
@@ -889,16 +913,34 @@ class RESBS_Shortcodes {
      * 
      * @param array $atts Sanitized attributes
      */
-    private function render_property_card($atts) {
+    private function render_property_card($atts = array()) {
+        // Set defaults
+        $defaults = array(
+            'layout' => 'grid',
+            'show_price' => true,
+            'show_meta' => true,
+            'show_excerpt' => false,
+            'show_badges' => true,
+            'show_favorite_button' => false,
+            'show_book_button' => true
+        );
+        $atts = wp_parse_args($atts, $defaults);
+        
         $property_id = get_the_ID();
         $property_price = get_post_meta($property_id, '_property_price', true);
         $property_bedrooms = get_post_meta($property_id, '_property_bedrooms', true);
         $property_bathrooms = get_post_meta($property_id, '_property_bathrooms', true);
         $property_size = get_post_meta($property_id, '_property_size', true);
+        $property_area_sqft = get_post_meta($property_id, '_property_area_sqft', true);
         $property_featured = get_post_meta($property_id, '_property_featured', true);
         $property_status = get_the_terms($property_id, 'property_status');
         $property_type = get_the_terms($property_id, 'property_type');
         $property_location = get_the_terms($property_id, 'property_location');
+        
+        // Use area_sqft if size is not available
+        if (empty($property_size) && !empty($property_area_sqft)) {
+            $property_size = $property_area_sqft;
+        }
 
         ?>
         <div class="resbs-property-card resbs-layout-<?php echo esc_attr($atts['layout']); ?>">
@@ -934,51 +976,55 @@ class RESBS_Shortcodes {
                     </a>
                 </h3>
 
-                <?php if ($atts['show_price'] && !empty($property_price)): ?>
+                <?php if (!empty($atts['show_price']) && !empty($property_price)): ?>
                     <div class="resbs-property-price">
-                        <?php echo esc_html('$' . number_format($property_price)); ?>
+                        <?php 
+                        // Format price with currency symbol
+                        $formatted_price = '$' . number_format(floatval($property_price), 0, '.', ',');
+                        echo esc_html($formatted_price);
+                        ?>
                     </div>
                 <?php endif; ?>
 
-                <?php if ($atts['show_meta']): ?>
+                <?php if (!empty($atts['show_meta'])): ?>
                     <div class="resbs-property-meta">
                         <?php if (!empty($property_bedrooms)): ?>
                             <div class="resbs-property-meta-item">
-                                <span class="dashicons dashicons-bed-alt"></span>
+                                <i class="fas fa-bed"></i>
                                 <span><?php echo esc_html($property_bedrooms); ?> <?php esc_html_e('Bedrooms', 'realestate-booking-suite'); ?></span>
                             </div>
                         <?php endif; ?>
 
                         <?php if (!empty($property_bathrooms)): ?>
                             <div class="resbs-property-meta-item">
-                                <span class="dashicons dashicons-bath"></span>
+                                <i class="fas fa-bath"></i>
                                 <span><?php echo esc_html($property_bathrooms); ?> <?php esc_html_e('Bathrooms', 'realestate-booking-suite'); ?></span>
                             </div>
                         <?php endif; ?>
 
                         <?php if (!empty($property_size)): ?>
                             <div class="resbs-property-meta-item">
-                                <span class="dashicons dashicons-admin-home"></span>
-                                <span><?php echo esc_html($property_size); ?> <?php esc_html_e('sq ft', 'realestate-booking-suite'); ?></span>
+                                <i class="fas fa-ruler-combined"></i>
+                                <span><?php echo esc_html(resbs_format_area($property_size)); ?></span>
                             </div>
                         <?php endif; ?>
 
-                        <?php if (!empty($property_location)): ?>
+                        <?php if (!empty($property_location) && !is_wp_error($property_location)): ?>
                             <div class="resbs-property-meta-item">
-                                <span class="dashicons dashicons-location"></span>
+                                <i class="fas fa-map-marker-alt"></i>
                                 <span><?php echo esc_html($property_location[0]->name); ?></span>
                             </div>
                         <?php endif; ?>
                     </div>
                 <?php endif; ?>
 
-                <?php if ($atts['show_excerpt']): ?>
+                <?php if (!empty($atts['show_excerpt'])): ?>
                     <div class="resbs-property-excerpt">
                         <?php echo wp_kses_post(wp_trim_words(get_the_excerpt(), 20)); ?>
                     </div>
                 <?php endif; ?>
 
-                <?php if ($atts['show_book_button']): ?>
+                <?php if (!empty($atts['show_book_button'])): ?>
                     <div class="resbs-property-actions">
                         <a href="<?php echo esc_url(get_permalink()); ?>" class="resbs-property-btn primary">
                             <?php esc_html_e('View Details', 'realestate-booking-suite'); ?>
@@ -1036,25 +1082,70 @@ class RESBS_Shortcodes {
      * @param array $atts Sanitized attributes
      */
     private function render_user_favorites($user_id, $atts = array()) {
-        $favorites = get_user_meta($user_id, 'resbs_favorite_properties', true);
+        // Use global favorites manager if available
+        $favorites = array();
+        
+        if (isset($GLOBALS['resbs_favorites_manager'])) {
+            $favorites_manager = $GLOBALS['resbs_favorites_manager'];
+            // Get favorites for the specific user
+            if (is_user_logged_in() && get_current_user_id() == $user_id) {
+                $favorites = $favorites_manager->get_user_favorites();
+            } else {
+                // For other users, use user meta (correct key is 'resbs_favorites')
+                $favorites = get_user_meta($user_id, 'resbs_favorites', true);
+                if (!is_array($favorites)) {
+                    $favorites = array();
+                }
+            }
+        } else {
+            // Fallback to user meta (correct key is 'resbs_favorites')
+            $favorites = get_user_meta($user_id, 'resbs_favorites', true);
+            if (!is_array($favorites)) {
+                $favorites = array();
+            }
+        }
         
         if (!empty($favorites) && is_array($favorites)) {
-            $properties = get_posts(array(
-                'post_type' => 'property',
-                'post_status' => 'publish',
-                'post__in' => $favorites,
-                'posts_per_page' => -1
-            ));
+            // Filter out invalid IDs
+            $favorites = array_filter(array_map('intval', $favorites));
+            
+            if (!empty($favorites)) {
+                $properties = get_posts(array(
+                    'post_type' => 'property',
+                    'post_status' => 'publish',
+                    'post__in' => $favorites,
+                    'posts_per_page' => -1,
+                    'orderby' => 'post__in'
+                ));
 
-            if (!empty($properties)) {
-                foreach ($properties as $property) {
-                    setup_postdata($property);
-                    $this->render_property_card($atts);
+                if (!empty($properties)) {
+                    // Set default attributes for property cards if not provided
+                    $default_atts = array(
+                        'layout' => 'grid',
+                        'show_price' => true,
+                        'show_meta' => true,
+                        'show_excerpt' => false,
+                        'show_badges' => true,
+                        'show_favorite_button' => false,
+                        'show_book_button' => true
+                    );
+                    $card_atts = wp_parse_args($atts, $default_atts);
+                    
+                    echo '<div class="resbs-favorites-grid">';
+                    foreach ($properties as $property) {
+                        setup_postdata($property);
+                        $this->render_property_card($card_atts);
+                    }
+                    wp_reset_postdata();
+                    echo '</div>';
+                } else {
+                    echo '<div class="resbs-favorites-empty">';
+                    echo '<p>' . esc_html__('No favorite properties found.', 'realestate-booking-suite') . '</p>';
+                    echo '</div>';
                 }
-                wp_reset_postdata();
             } else {
                 echo '<div class="resbs-favorites-empty">';
-                echo '<p>' . esc_html__('No favorite properties found.', 'realestate-booking-suite') . '</p>';
+                echo '<p>' . esc_html__('You haven\'t added any properties to your favorites yet.', 'realestate-booking-suite') . '</p>';
                 echo '</div>';
             }
         } else {
@@ -1070,9 +1161,43 @@ class RESBS_Shortcodes {
      * @param int $user_id User ID
      */
     private function render_user_bookings($user_id) {
-        // This would be implemented based on the booking system
+        // Check if WooCommerce bookings exist
+        $bookings = array();
+        
+        // Try to get bookings from WooCommerce orders
+        if (class_exists('WooCommerce')) {
+            $customer_orders = wc_get_orders(array(
+                'customer_id' => $user_id,
+                'limit' => 20,
+                'orderby' => 'date',
+                'order' => 'DESC'
+            ));
+            
+            if (!empty($customer_orders)) {
+                echo '<div class="resbs-bookings-list">';
+                foreach ($customer_orders as $order) {
+                    $order_id = $order->get_id();
+                    $order_date = $order->get_date_created()->date_i18n(get_option('date_format'));
+                    $order_total = $order->get_formatted_order_total();
+                    $order_status = $order->get_status();
+                    
+                    echo '<div class="resbs-booking-item">';
+                    echo '<div class="resbs-booking-header">';
+                    echo '<h5><a href="' . esc_url($order->get_view_order_url()) . '">' . sprintf(esc_html__('Order #%s', 'realestate-booking-suite'), $order_id) . '</a></h5>';
+                    echo '<span class="resbs-booking-status status-' . esc_attr($order_status) . '">' . esc_html(ucfirst($order_status)) . '</span>';
+                    echo '</div>';
+                    echo '<p class="resbs-booking-date">' . esc_html__('Date:', 'realestate-booking-suite') . ' ' . esc_html($order_date) . '</p>';
+                    echo '<p class="resbs-booking-total">' . esc_html__('Total:', 'realestate-booking-suite') . ' ' . $order_total . '</p>';
+                    echo '</div>';
+                }
+                echo '</div>';
+                return;
+            }
+        }
+        
+        // No bookings found
         echo '<div class="resbs-bookings-placeholder">';
-        esc_html_e('Bookings will be displayed here', 'realestate-booking-suite');
+        echo '<p>' . esc_html__('No bookings found. Your booking history will appear here.', 'realestate-booking-suite') . '</p>';
         echo '</div>';
     }
 
