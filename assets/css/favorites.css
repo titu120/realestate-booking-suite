@@ -517,12 +517,9 @@
 }
 
 /* Success/Error Messages */
+/* Disabled top banner - using toast notification instead */
 .resbs-favorites-message {
-    padding: 12px 16px;
-    border-radius: 4px;
-    margin-bottom: 20px;
-    font-weight: 500;
-    display: none;
+    display: none !important;
 }
 
 .resbs-favorites-message.success {

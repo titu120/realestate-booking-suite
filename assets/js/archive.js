@@ -622,6 +622,11 @@ jQuery(document).ready(function($) {
     }
     
     function showNotification(message, type = 'info') {
+        // Use toast notification if available, otherwise use old method
+        if (typeof showToastNotification === 'function') {
+            showToastNotification(message, type);
+            return;
+        }
         const notification = `
             <div class="resbs-notification resbs-notification-${type}">
                 <span>${message}</span>

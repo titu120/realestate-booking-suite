@@ -303,6 +303,14 @@
      * Show message
      */
     function showMessage(type, message) {
+        // Use toast notification if available, otherwise show banner
+        if (typeof showToastNotification === 'function') {
+            // Use the toast notification instead of top banner
+            showToastNotification(message, type);
+            return;
+        }
+        
+        // Fallback to old banner (only if toast notification not available)
         // Remove existing messages
         $('.resbs-favorites-message').remove();
         
