@@ -956,6 +956,7 @@ class RESBS_Shortcode_AJAX {
             'property_id' => $property_id
         ));
     }
+
 }
 
 // Initialize AJAX handlers

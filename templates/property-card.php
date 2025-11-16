@@ -100,9 +100,9 @@ if ($featured) {
         
         <!-- Property Header -->
         <div class="resbs-property-header">
-            <h3 class="resbs-property-title">
+            <<?php echo esc_attr(resbs_get_title_heading_tag()); ?> class="resbs-property-title">
                 <a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
-            </h3>
+            </<?php echo esc_attr(resbs_get_title_heading_tag()); ?>>
             
             <?php 
             // Show address only if setting allows (dynamically from Listings settings)

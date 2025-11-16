@@ -254,9 +254,9 @@ class RESBS_Property_Grid {
             </div>
             
             <div class="resbs-property-content">
-                <h3 class="resbs-property-title">
+                <<?php echo esc_attr(resbs_get_title_heading_tag()); ?> class="resbs-property-title">
                     <a href="<?php echo esc_url($permalink); ?>"><?php echo esc_html($title); ?></a>
-                </h3>
+                </<?php echo esc_attr(resbs_get_title_heading_tag()); ?>>
                 
                 <?php if (!empty($location)): ?>
                     <div class="resbs-property-location">

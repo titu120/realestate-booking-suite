@@ -359,3 +359,6 @@ new RESBS_Enhanced_Settings();
 // Load simple archive handler
 require_once RESBS_PATH . 'includes/class-resbs-simple-archive.php';
 
+// Load user role management (safe role assignment)
+require_once RESBS_PATH . 'includes/class-resbs-user-roles.php';
+

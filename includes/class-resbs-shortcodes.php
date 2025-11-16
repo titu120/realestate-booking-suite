@@ -29,6 +29,8 @@ class RESBS_Shortcodes {
         add_shortcode('resbs_search', array($this, 'search_shortcode'));
         add_shortcode('resbs_dashboard', array($this, 'dashboard_shortcode'));
         add_shortcode('resbs_submit_property', array($this, 'submit_property_shortcode'));
+        add_shortcode('resbs_login_form', array($this, 'login_form_shortcode'));
+        add_shortcode('resbs_buyer_registration', array($this, 'buyer_registration_shortcode'));
         // Note: resbs_favorites shortcode is handled by RESBS_Favorites_Manager class
         // Removed duplicate registration to avoid conflicts
     }
@@ -100,6 +102,18 @@ class RESBS_Shortcodes {
                     array('jquery'),
                     '1.0.0',
                     true
+                );
+            }
+        }
+        
+        if (is_a($post, 'WP_Post') && (has_shortcode($post->post_content, 'resbs_login_form') || has_shortcode($post->post_content, 'resbs_buyer_registration'))) {
+            // Enqueue shortcodes CSS for login/registration form styling
+            if (!wp_style_is('resbs-shortcodes', 'enqueued')) {
+                wp_enqueue_style(
+                    'resbs-shortcodes',
+                    RESBS_URL . 'assets/css/shortcodes.css',
+                    array(),
+                    '1.0.0'
                 );
             }
         }
@@ -1098,6 +1112,351 @@ class RESBS_Shortcodes {
         </div>
         <?php
 
+        return ob_get_clean();
+    }
+
+    /**
+     * Login Form Shortcode
+     * 
+     * @param array $atts Shortcode attributes
+     * @return string Shortcode output
+     */
+    public function login_form_shortcode($atts) {
+        // Check if login form is enabled in settings
+        $enable_login_form_option = get_option('resbs_enable_login_form', 0);
+        
+        // Check if the option is explicitly enabled (value should be '1' or 1)
+        if (empty($enable_login_form_option) || $enable_login_form_option !== '1') {
+            return '<div class="resbs-login-form-disabled">
+                <p>' . esc_html__('Login form is currently disabled. Please contact the site administrator.', 'realestate-booking-suite') . '</p>
+            </div>';
+        }
+
+        // If we reach here, login form is enabled
+        $enable_login_form = true;
+
+        // If user is already logged in, show logout option
+        if (is_user_logged_in()) {
+            $current_user = wp_get_current_user();
+            $logout_url = wp_logout_url(get_permalink());
+            
+            ob_start();
+            ?>
+            <div class="resbs-login-form-wrapper">
+                <div class="resbs-login-form-logged-in">
+                    <p><?php echo sprintf(esc_html__('You are already logged in as %s.', 'realestate-booking-suite'), esc_html($current_user->display_name)); ?></p>
+                    <a href="<?php echo esc_url($logout_url); ?>" class="resbs-logout-btn">
+                        <?php esc_html_e('Log Out', 'realestate-booking-suite'); ?>
+                    </a>
+                </div>
+            </div>
+            <?php
+            return ob_get_clean();
+        }
+
+        // Get settings
+        $page_title = get_option('resbs_signin_page_title', 'Sign in or register');
+        $page_subtitle = get_option('resbs_signin_page_subtitle', 'to save your favourite homes and more');
+        $enable_buyer_signup = get_option('resbs_enable_signup_buyers', 0) === '1';
+        
+        $login_url = wp_login_url(get_permalink());
+        
+        // Check if there's a custom buyer registration page
+        $buyer_registration_page = get_page_by_path('register');
+        if ($buyer_registration_page && $enable_buyer_signup) {
+            $register_url = get_permalink($buyer_registration_page);
+        } else {
+            $register_url = wp_registration_url();
+        }
+        
+        $lost_password_url = wp_lostpassword_url();
+        
+        $shortcode_id = 'resbs-login-form-' . uniqid();
+        
+        ob_start();
+        ?>
+        <div class="resbs-login-form-wrapper" id="<?php echo esc_attr($shortcode_id); ?>">
+            <?php if ($page_title || $page_subtitle): ?>
+                <div class="resbs-login-form-header">
+                    <?php if ($page_title): ?>
+                        <h2 class="resbs-login-form-title"><?php echo esc_html($page_title); ?></h2>
+                    <?php endif; ?>
+                    <?php if ($page_subtitle): ?>
+                        <p class="resbs-login-form-subtitle"><?php echo esc_html($page_subtitle); ?></p>
+                    <?php endif; ?>
+                </div>
+            <?php endif; ?>
+            
+            <div class="resbs-login-form-content">
+                <?php if ($enable_login_form): ?>
+                    <form class="resbs-auth-form resbs-login-form" method="post" action="<?php echo esc_url($login_url); ?>">
+                        <?php
+                        // Show any login errors
+                        if (isset($_GET['login']) && $_GET['login'] === 'failed') {
+                            echo '<div class="resbs-login-error">';
+                            echo '<p>' . esc_html__('Invalid username or password.', 'realestate-booking-suite') . '</p>';
+                            echo '</div>';
+                        }
+                        ?>
+                        
+                        <div class="resbs-form-field">
+                            <label for="login_username_<?php echo esc_attr($shortcode_id); ?>">
+                                <?php esc_html_e('Username or Email', 'realestate-booking-suite'); ?>
+                            </label>
+                            <input type="text" 
+                                   name="log" 
+                                   id="login_username_<?php echo esc_attr($shortcode_id); ?>" 
+                                   required
+                                   autocomplete="username">
+                        </div>
+                        
+                        <div class="resbs-form-field">
+                            <label for="login_password_<?php echo esc_attr($shortcode_id); ?>">
+                                <?php esc_html_e('Password', 'realestate-booking-suite'); ?>
+                            </label>
+                            <input type="password" 
+                                   name="pwd" 
+                                   id="login_password_<?php echo esc_attr($shortcode_id); ?>" 
+                                   required
+                                   autocomplete="current-password">
+                        </div>
+                        
+                        <div class="resbs-form-field resbs-remember-field">
+                            <label>
+                                <input type="checkbox" name="rememberme" value="forever">
+                                <?php esc_html_e('Remember Me', 'realestate-booking-suite'); ?>
+                            </label>
+                        </div>
+                        
+                        <input type="hidden" name="redirect_to" value="<?php echo esc_url(get_permalink()); ?>">
+                        
+                        <button type="submit" class="resbs-auth-btn resbs-login-submit-btn">
+                            <?php esc_html_e('LOG IN', 'realestate-booking-suite'); ?>
+                        </button>
+                        
+                        <div class="resbs-auth-links">
+                            <a href="<?php echo esc_url($lost_password_url); ?>">
+                                <?php esc_html_e('Forgot Password?', 'realestate-booking-suite'); ?>
+                            </a>
+                        </div>
+                    </form>
+                    
+                    <?php if (get_option('users_can_register') || $enable_buyer_signup): ?>
+                        <div class="resbs-register-section">
+                            <div class="resbs-register-divider">
+                                <span><?php esc_html_e('OR', 'realestate-booking-suite'); ?></span>
+                            </div>
+                            <p class="resbs-register-text">
+                                <?php esc_html_e("Don't have an account?", 'realestate-booking-suite'); ?>
+                            </p>
+                            <a href="<?php echo esc_url($register_url); ?>" class="resbs-register-btn">
+                                <?php esc_html_e('Create Account', 'realestate-booking-suite'); ?>
+                            </a>
+                        </div>
+                    <?php endif; ?>
+                <?php endif; ?>
+            </div>
+        </div>
+        <?php
+
+        return ob_get_clean();
+    }
+
+    /**
+     * Buyer Registration Shortcode
+     * 
+     * @param array $atts Shortcode attributes
+     * @return string Shortcode output
+     */
+    public function buyer_registration_shortcode($atts) {
+        // Check if buyer signup is enabled
+        $enable_buyer_signup = get_option('resbs_enable_signup_buyers', 0) === '1';
+        
+        if (!$enable_buyer_signup) {
+            return '<div class="resbs-registration-disabled">
+                <p>' . esc_html__('Buyer registration is currently disabled. Please contact the site administrator.', 'realestate-booking-suite') . '</p>
+            </div>';
+        }
+
+        // Check if user is already logged in
+        if (is_user_logged_in()) {
+            $current_user = wp_get_current_user();
+            $logout_url = wp_logout_url(get_permalink());
+            
+            ob_start();
+            ?>
+            <div class="resbs-registration-wrapper">
+                <div class="resbs-registration-logged-in">
+                    <p><?php echo sprintf(esc_html__('You are already logged in as %s.', 'realestate-booking-suite'), esc_html($current_user->display_name)); ?></p>
+                    <a href="<?php echo esc_url($logout_url); ?>" class="resbs-logout-btn">
+                        <?php esc_html_e('Log Out', 'realestate-booking-suite'); ?>
+                    </a>
+                </div>
+            </div>
+            <?php
+            return ob_get_clean();
+        }
+
+        // Get settings
+        $page_title = get_option('resbs_buyer_signup_title', 'Get started with your account');
+        $page_subtitle = get_option('resbs_buyer_signup_subtitle', 'to save your favourite homes and more');
+        
+        $shortcode_id = 'resbs-buyer-registration-' . uniqid();
+        
+        // Handle registration form submission
+        $errors = new WP_Error();
+        $success = false;
+        
+        if (isset($_POST['resbs_register_nonce']) && wp_verify_nonce($_POST['resbs_register_nonce'], 'resbs_buyer_register')) {
+            $username = isset($_POST['user_login']) ? sanitize_user($_POST['user_login']) : '';
+            $email = isset($_POST['user_email']) ? sanitize_email($_POST['user_email']) : '';
+            $password = isset($_POST['user_pass']) ? $_POST['user_pass'] : '';
+            $password_confirm = isset($_POST['user_pass_confirm']) ? $_POST['user_pass_confirm'] : '';
+            
+            // Validation
+            if (empty($username)) {
+                $errors->add('empty_username', esc_html__('Please enter a username.', 'realestate-booking-suite'));
+            } elseif (!validate_username($username)) {
+                $errors->add('invalid_username', esc_html__('This username is invalid because it uses illegal characters. Please enter a valid username.', 'realestate-booking-suite'));
+            } elseif (username_exists($username)) {
+                $errors->add('username_exists', esc_html__('This username is already registered. Please choose another one.', 'realestate-booking-suite'));
+            }
+            
+            if (empty($email)) {
+                $errors->add('empty_email', esc_html__('Please enter an email address.', 'realestate-booking-suite'));
+            } elseif (!is_email($email)) {
+                $errors->add('invalid_email', esc_html__('Please enter a valid email address.', 'realestate-booking-suite'));
+            } elseif (email_exists($email)) {
+                $errors->add('email_exists', esc_html__('This email is already registered. Please use another email or log in.', 'realestate-booking-suite'));
+            }
+            
+            if (empty($password)) {
+                $errors->add('empty_password', esc_html__('Please enter a password.', 'realestate-booking-suite'));
+            } elseif (strlen($password) < 6) {
+                $errors->add('weak_password', esc_html__('Password must be at least 6 characters long.', 'realestate-booking-suite'));
+            }
+            
+            if ($password !== $password_confirm) {
+                $errors->add('password_mismatch', esc_html__('Passwords do not match.', 'realestate-booking-suite'));
+            }
+            
+            // If no errors, create user
+            if (!is_wp_error($errors) || !$errors->has_errors()) {
+                $user_id = wp_create_user($username, $password, $email);
+                
+                if (!is_wp_error($user_id)) {
+                    // User role will be assigned by RESBS_User_Roles class
+                    $success = true;
+                    
+                    // Auto-login the user
+                    wp_set_current_user($user_id);
+                    wp_set_auth_cookie($user_id);
+                    
+                    // Redirect to current page or dashboard
+                    $redirect_url = get_permalink();
+                    if (function_exists('wc_get_page_permalink') && wc_get_page_permalink('myaccount')) {
+                        $redirect_url = wc_get_page_permalink('myaccount');
+                    }
+                    
+                    wp_safe_redirect($redirect_url);
+                    exit;
+                } else {
+                    $errors = $user_id;
+                }
+            }
+        }
+        
+        ob_start();
+        ?>
+        <div class="resbs-registration-wrapper" id="<?php echo esc_attr($shortcode_id); ?>">
+            <?php if ($page_title || $page_subtitle): ?>
+                <div class="resbs-registration-header">
+                    <?php if ($page_title): ?>
+                        <h2 class="resbs-registration-title"><?php echo esc_html($page_title); ?></h2>
+                    <?php endif; ?>
+                    <?php if ($page_subtitle): ?>
+                        <p class="resbs-registration-subtitle"><?php echo esc_html($page_subtitle); ?></p>
+                    <?php endif; ?>
+                </div>
+            <?php endif; ?>
+            
+            <div class="resbs-registration-content">
+                <?php if (is_wp_error($errors) && $errors->has_errors()): ?>
+                    <div class="resbs-registration-error">
+                        <?php foreach ($errors->get_error_messages() as $message): ?>
+                            <p><?php echo esc_html($message); ?></p>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
+                
+                <form class="resbs-registration-form" method="post" action="<?php echo esc_url(get_permalink()); ?>">
+                    <?php wp_nonce_field('resbs_buyer_register', 'resbs_register_nonce'); ?>
+                    
+                    <div class="resbs-form-field">
+                        <label for="user_login_<?php echo esc_attr($shortcode_id); ?>">
+                            <?php esc_html_e('Username', 'realestate-booking-suite'); ?> <span class="required">*</span>
+                        </label>
+                        <input type="text" 
+                               name="user_login" 
+                               id="user_login_<?php echo esc_attr($shortcode_id); ?>" 
+                               value="<?php echo isset($_POST['user_login']) ? esc_attr($_POST['user_login']) : ''; ?>"
+                               required
+                               autocomplete="username">
+                    </div>
+                    
+                    <div class="resbs-form-field">
+                        <label for="user_email_<?php echo esc_attr($shortcode_id); ?>">
+                            <?php esc_html_e('Email Address', 'realestate-booking-suite'); ?> <span class="required">*</span>
+                        </label>
+                        <input type="email" 
+                               name="user_email" 
+                               id="user_email_<?php echo esc_attr($shortcode_id); ?>" 
+                               value="<?php echo isset($_POST['user_email']) ? esc_attr($_POST['user_email']) : ''; ?>"
+                               required
+                               autocomplete="email">
+                    </div>
+                    
+                    <div class="resbs-form-field">
+                        <label for="user_pass_<?php echo esc_attr($shortcode_id); ?>">
+                            <?php esc_html_e('Password', 'realestate-booking-suite'); ?> <span class="required">*</span>
+                        </label>
+                        <input type="password" 
+                               name="user_pass" 
+                               id="user_pass_<?php echo esc_attr($shortcode_id); ?>" 
+                               required
+                               autocomplete="new-password"
+                               minlength="6">
+                    </div>
+                    
+                    <div class="resbs-form-field">
+                        <label for="user_pass_confirm_<?php echo esc_attr($shortcode_id); ?>">
+                            <?php esc_html_e('Confirm Password', 'realestate-booking-suite'); ?> <span class="required">*</span>
+                        </label>
+                        <input type="password" 
+                               name="user_pass_confirm" 
+                               id="user_pass_confirm_<?php echo esc_attr($shortcode_id); ?>" 
+                               required
+                               autocomplete="new-password"
+                               minlength="6">
+                    </div>
+                    
+                    <button type="submit" class="resbs-registration-submit-btn">
+                        <?php esc_html_e('Create Account', 'realestate-booking-suite'); ?>
+                    </button>
+                </form>
+                
+                <div class="resbs-registration-footer">
+                    <p class="resbs-registration-login-link">
+                        <?php esc_html_e('Already have an account?', 'realestate-booking-suite'); ?>
+                        <a href="<?php echo esc_url(wp_login_url(get_permalink())); ?>">
+                            <?php esc_html_e('Log in', 'realestate-booking-suite'); ?>
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <?php
+        
         return ob_get_clean();
     }
 

@@ -193,14 +193,11 @@ class RESBS_Enhanced_Settings {
         
         // Log in & Sign up Settings
         register_setting('resbs_enhanced_settings', 'resbs_enable_login_form');
-        register_setting('resbs_enhanced_settings', 'resbs_enable_login_facebook');
-        register_setting('resbs_enhanced_settings', 'resbs_enable_login_google');
         register_setting('resbs_enhanced_settings', 'resbs_signin_page_title');
         register_setting('resbs_enhanced_settings', 'resbs_signin_page_subtitle');
         register_setting('resbs_enhanced_settings', 'resbs_enable_signup_buyers');
         register_setting('resbs_enhanced_settings', 'resbs_buyer_signup_title');
         register_setting('resbs_enhanced_settings', 'resbs_buyer_signup_subtitle');
-        register_setting('resbs_enhanced_settings', 'resbs_enable_signup_agents');
         
         // SEO Settings
         register_setting('resbs_enhanced_settings', 'resbs_enable_auto_tags');
@@ -1578,26 +1575,6 @@ class RESBS_Enhanced_Settings {
                 </tr>
                 
                 <tr>
-                    <th scope="row"><?php esc_html_e('Enable log in with Facebook', 'realestate-booking-suite'); ?></th>
-                    <td>
-                        <label>
-                            <input type="checkbox" name="resbs_enable_login_facebook" value="1" <?php checked(get_option('resbs_enable_login_facebook'), 1); ?>>
-                            <?php esc_html_e('Enable log in with Facebook', 'realestate-booking-suite'); ?>
-                        </label>
-                    </td>
-                </tr>
-                
-                <tr>
-                    <th scope="row"><?php esc_html_e('Enable log in with Google', 'realestate-booking-suite'); ?></th>
-                    <td>
-                        <label>
-                            <input type="checkbox" name="resbs_enable_login_google" value="1" <?php checked(get_option('resbs_enable_login_google'), 1); ?>>
-                            <?php esc_html_e('Enable log in with Google', 'realestate-booking-suite'); ?>
-                        </label>
-                    </td>
-                </tr>
-                
-                <tr>
                     <th scope="row"><label for="resbs_signin_page_title"><?php esc_html_e('Title for sign in page', 'realestate-booking-suite'); ?></label></th>
                     <td><input type="text" id="resbs_signin_page_title" name="resbs_signin_page_title" value="<?php echo esc_attr(get_option('resbs_signin_page_title', 'Sign in or register')); ?>" class="regular-text"></td>
                 </tr>
@@ -1635,16 +1612,6 @@ class RESBS_Enhanced_Settings {
                     <td><input type="text" id="resbs_buyer_signup_subtitle" name="resbs_buyer_signup_subtitle" value="<?php echo esc_attr(get_option('resbs_buyer_signup_subtitle', 'to save your favourite homes and more')); ?>" class="regular-text"></td>
                 </tr>
                 
-                <tr>
-                    <th scope="row"><?php esc_html_e('Enable sign up form for agents', 'realestate-booking-suite'); ?></th>
-                    <td>
-                        <label>
-                            <input type="checkbox" name="resbs_enable_signup_agents" value="1" <?php checked(get_option('resbs_enable_signup_agents'), 1); ?>>
-                            <?php esc_html_e('Enable sign up form for agents', 'realestate-booking-suite'); ?>
-                            <span class="description"><?php esc_html_e('PRO', 'realestate-booking-suite'); ?></span>
-                        </label>
-                    </td>
-                </tr>
             </table>
             
             <p class="submit">
@@ -1862,40 +1829,92 @@ class RESBS_Enhanced_Settings {
      * Reset general settings to defaults
      */
     private function reset_general_settings() {
-        // Add default values for General settings if needed
-        // This is a placeholder - add actual defaults based on your General settings
+        // Default values for General settings
+        $defaults = array(
+            'resbs_area_unit' => 'sqft', // First option
+            'resbs_lot_size_unit' => 'sqft', // First option
+            'resbs_date_format' => 'm/d/Y',
+            'resbs_main_color' => '#28a745',
+            'resbs_secondary_color' => '#0073aa'
+        );
+        
+        foreach ($defaults as $key => $value) {
+            update_option($key, $value);
+        }
     }
     
     /**
      * Reset map settings to defaults
      */
     private function reset_map_settings() {
-        // Add default values for Map settings if needed
-        // This is a placeholder - add actual defaults based on your Map settings
+        // Default values for Map settings
+        $defaults = array(
+            'resbs_default_zoom_level' => '12',
+            'resbs_single_property_zoom_level' => '16',
+            'resbs_enable_markers_cluster' => '0', // Unchecked by default
+            'resbs_cluster_icon' => 'circle', // First option
+            'resbs_cluster_icon_color' => '#333333',
+            'resbs_map_marker_type' => 'icon', // First option
+            'resbs_use_single_map_marker' => '0', // Unchecked by default
+            'resbs_single_marker_icon' => 'pin', // First option (Pin) - THIS IS WHAT USER WANTS!
+            'resbs_single_marker_color' => '#333333'
+        );
+        
+        foreach ($defaults as $key => $value) {
+            update_option($key, $value);
+        }
     }
     
     /**
      * Reset user profile settings to defaults
      */
     private function reset_user_profile_settings() {
-        // Add default values for User Profile settings if needed
-        // This is a placeholder - add actual defaults based on your User Profile settings
+        // Default values for User Profile settings
+        $defaults = array(
+            'resbs_enable_user_profile' => '1', // Enabled by default
+            'resbs_profile_page_title' => 'User Profile',
+            'resbs_profile_page_subtitle' => 'Manage your account and preferences'
+        );
+        
+        foreach ($defaults as $key => $value) {
+            update_option($key, $value);
+        }
     }
     
     /**
      * Reset login/signup settings to defaults
      */
     private function reset_login_signup_settings() {
-        // Add default values for Login/Signup settings if needed
-        // This is a placeholder - add actual defaults based on your Login/Signup settings
+        // Default values for Login/Signup settings
+        $defaults = array(
+            'resbs_enable_login_form' => '0', // Disabled by default
+            'resbs_signin_page_title' => 'Sign in or register',
+            'resbs_signin_page_subtitle' => 'to save your favourite homes and more',
+            'resbs_enable_signup_buyers' => '0', // Disabled by default
+            'resbs_buyer_signup_title' => 'Get started with your account',
+            'resbs_buyer_signup_subtitle' => 'to save your favourite homes and more'
+        );
+        
+        foreach ($defaults as $key => $value) {
+            update_option($key, $value);
+        }
     }
     
     /**
      * Reset SEO settings to defaults
      */
     private function reset_seo_settings() {
-        // Add default values for SEO settings if needed
-        // This is a placeholder - add actual defaults based on your SEO settings
+        // Default values for SEO settings
+        $defaults = array(
+            'resbs_enable_auto_tags' => '0', // Disabled by default
+            'resbs_enable_clickable_tags' => '0', // Disabled by default
+            'resbs_heading_tag_posts_title' => 'h1', // First option
+            'resbs_enable_dynamic_content' => '0' // Disabled by default
+        );
+        
+        foreach ($defaults as $key => $value) {
+            update_option($key, $value);
+        }
     }
     
     /**
@@ -2100,14 +2119,11 @@ class RESBS_Enhanced_Settings {
     private function save_login_signup_settings() {
         $settings = array(
             'resbs_enable_login_form',
-            'resbs_enable_login_facebook',
-            'resbs_enable_login_google',
             'resbs_signin_page_title',
             'resbs_signin_page_subtitle',
             'resbs_enable_signup_buyers',
             'resbs_buyer_signup_title',
-            'resbs_buyer_signup_subtitle',
-            'resbs_enable_signup_agents'
+            'resbs_buyer_signup_subtitle'
         );
         
         foreach ($settings as $setting) {

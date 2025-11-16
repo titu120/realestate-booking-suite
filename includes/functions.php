@@ -739,3 +739,177 @@ function resbs_get_submit_property_page_id() {
     
     return false;
 }
+
+/**
+ * SEO Helper Functions
+ */
+
+/**
+ * Get heading tag for property titles
+ * @return string Heading tag (h1, h2, h3, h4, h5, h6)
+ */
+function resbs_get_title_heading_tag() {
+    $tag = get_option('resbs_heading_tag_posts_title', 'h1');
+    // Validate tag
+    $valid_tags = array('h1', 'h2', 'h3', 'h4', 'h5', 'h6');
+    return in_array($tag, $valid_tags) ? $tag : 'h1';
+}
+
+/**
+ * Check if clickable tags are enabled
+ * @return bool
+ */
+function resbs_is_clickable_tags_enabled() {
+    return get_option('resbs_enable_clickable_tags', 0) === '1';
+}
+
+/**
+ * Check if auto tags are enabled
+ * @return bool
+ */
+function resbs_is_auto_tags_enabled() {
+    return get_option('resbs_enable_auto_tags', 0) === '1';
+}
+
+/**
+ * Check if dynamic content is enabled
+ * @return bool
+ */
+function resbs_is_dynamic_content_enabled() {
+    return get_option('resbs_enable_dynamic_content', 0) === '1';
+}
+
+/**
+ * Get property tags with clickable links if enabled
+ * @param int $post_id Property post ID
+ * @param string $before Before tags
+ * @param string $sep Separator
+ * @param string $after After tags
+ * @return string Tags HTML
+ */
+function resbs_get_property_tags($post_id = null, $before = '', $sep = ', ', $after = '') {
+    if (!$post_id) {
+        $post_id = get_the_ID();
+    }
+    
+    $tags = get_the_terms($post_id, 'property_tag');
+    
+    if (!$tags || is_wp_error($tags)) {
+        return '';
+    }
+    
+    $tag_links = array();
+    $clickable = resbs_is_clickable_tags_enabled();
+    
+    foreach ($tags as $tag) {
+        if ($clickable) {
+            $tag_links[] = '<a href="' . esc_url(get_term_link($tag)) . '" rel="tag">' . esc_html($tag->name) . '</a>';
+        } else {
+            $tag_links[] = '<span class="property-tag">' . esc_html($tag->name) . '</span>';
+        }
+    }
+    
+    return $before . implode($sep, $tag_links) . $after;
+}
+
+/**
+ * Auto-generate tags for a property post
+ * @param int $post_id Property post ID
+ */
+function resbs_auto_generate_tags($post_id) {
+    if (!resbs_is_auto_tags_enabled()) {
+        return;
+    }
+    
+    // Only for property post type
+    if (get_post_type($post_id) !== 'property') {
+        return;
+    }
+    
+    // Don't auto-tag if tags already exist
+    $existing_tags = wp_get_post_terms($post_id, 'property_tag', array('fields' => 'ids'));
+    if (!empty($existing_tags)) {
+        return;
+    }
+    
+    $tags = array();
+    
+    // Get property data
+    $status = get_post_meta($post_id, 'resbs_property_status', true);
+    $property_type = get_post_meta($post_id, 'resbs_property_type', true);
+    $location = get_post_meta($post_id, 'resbs_property_location', true);
+    
+    // Add status as tag
+    if ($status) {
+        $status_label = ucwords(str_replace('-', ' ', $status));
+        $tags[] = $status_label;
+    }
+    
+    // Add property type as tag
+    if ($property_type) {
+        $tags[] = ucwords(str_replace('-', ' ', $property_type));
+    }
+    
+    // Add location city as tag if available
+    if ($location && is_array($location) && isset($location['city'])) {
+        $tags[] = $location['city'];
+    }
+    
+    // Create/assign tags
+    if (!empty($tags)) {
+        wp_set_post_terms($post_id, $tags, 'property_tag', true);
+    }
+}
+
+/**
+ * Generate dynamic meta description for property
+ * @param int $post_id Property post ID
+ * @return string Meta description
+ */
+function resbs_generate_meta_description($post_id = null) {
+    if (!$post_id) {
+        $post_id = get_the_ID();
+    }
+    
+    if (!resbs_is_dynamic_content_enabled()) {
+        return '';
+    }
+    
+    $description = '';
+    $title = get_the_title($post_id);
+    $price = get_post_meta($post_id, 'resbs_property_price', true);
+    $location = get_post_meta($post_id, 'resbs_property_location', true);
+    $bedrooms = get_post_meta($post_id, 'resbs_property_bedrooms', true);
+    $bathrooms = get_post_meta($post_id, 'resbs_property_bathrooms', true);
+    
+    // Build description
+    $parts = array();
+    
+    if ($title) {
+        $parts[] = $title;
+    }
+    
+    if ($price) {
+        $parts[] = '$' . number_format(floatval($price));
+    }
+    
+    if ($bedrooms && $bathrooms) {
+        $parts[] = $bedrooms . ' bed, ' . $bathrooms . ' bath';
+    }
+    
+    if ($location && is_array($location)) {
+        $location_parts = array_filter(array($location['city'], $location['state'], $location['country']));
+        if (!empty($location_parts)) {
+            $parts[] = implode(', ', $location_parts);
+        }
+    }
+    
+    $description = implode(' - ', $parts);
+    
+    // Limit to 160 characters for SEO
+    if (strlen($description) > 160) {
+        $description = substr($description, 0, 157) . '...';
+    }
+    
+    return $description;
+}

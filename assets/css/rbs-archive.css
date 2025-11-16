@@ -625,6 +625,10 @@
         background-color: #10b981;
     }
 
+    .rbs-archive .badge-standard {
+        background-color: #3b82f6;
+    }
+
     .rbs-archive .property-image .favorite-btn {
         color: unset !important;
     }
@@ -778,7 +782,7 @@
     }
 
     .rbs-archive .view-details-btn {
-        color: #0f766e;
+        color: #fff;
         font-weight: 500;
         cursor: pointer;
         transition: color 0.3s;

@@ -20,6 +20,36 @@ class RESBS_CPT {
         add_action('init', array($this, 'register_property_taxonomies'));
         add_action('init', array($this, 'flush_rewrite_rules_if_needed'));
         // REMOVED: add_filter('template_include', array($this, 'property_template_include'));
+        
+        // SEO hooks
+        add_action('save_post_property', array($this, 'handle_seo_on_save'), 10, 1);
+        add_action('wp_head', array($this, 'add_seo_meta_description'));
+    }
+    
+    /**
+     * Handle SEO features on property save
+     */
+    public function handle_seo_on_save($post_id) {
+        // Auto-generate tags
+        if (function_exists('resbs_auto_generate_tags')) {
+            resbs_auto_generate_tags($post_id);
+        }
+    }
+    
+    /**
+     * Add dynamic meta description to head
+     */
+    public function add_seo_meta_description() {
+        if (!is_singular('property')) {
+            return;
+        }
+        
+        if (function_exists('resbs_generate_meta_description')) {
+            $description = resbs_generate_meta_description();
+            if ($description) {
+                echo '<meta name="description" content="' . esc_attr($description) . '">' . "\n";
+            }
+        }
     }
     
     /**

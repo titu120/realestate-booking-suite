@@ -423,7 +423,7 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
                                     <span class="badge badge-red">Sold</span>
                                 <?php endif; ?>
                             </div>
-                            <h1 class="property-title"><?php echo esc_html(get_the_title()); ?></h1>
+                            <<?php echo esc_attr(resbs_get_title_heading_tag()); ?> class="property-title"><?php echo esc_html(get_the_title()); ?></<?php echo esc_attr(resbs_get_title_heading_tag()); ?>>
                             <p class="property-location">
                                 <i class="fas fa-map-marker-alt text-emerald-500"></i>
                                 <?php echo esc_html($full_address ? $full_address : 'Location not specified'); ?>

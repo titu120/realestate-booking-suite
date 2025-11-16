@@ -7,19 +7,31 @@
 // wp_enqueue_script('resbs-dynamic-archive');
 
 // SIMPLE WORKING FILTER APPROACH
-$search_query = isset($_GET['search']) ? sanitize_text_field($_GET['search']) : '';
-$min_price = isset($_GET['min_price']) ? intval($_GET['min_price']) : '';
-$max_price = isset($_GET['max_price']) ? intval($_GET['max_price']) : '';
-$property_type_filter = isset($_GET['property_type']) ? sanitize_text_field($_GET['property_type']) : '';
-$min_bedrooms = isset($_GET['min_bedrooms']) ? intval($_GET['min_bedrooms']) : '';
-$max_bedrooms = isset($_GET['max_bedrooms']) ? intval($_GET['max_bedrooms']) : '';
-$min_bathrooms = isset($_GET['min_bathrooms']) ? floatval($_GET['min_bathrooms']) : '';
-$max_bathrooms = isset($_GET['max_bathrooms']) ? floatval($_GET['max_bathrooms']) : '';
-$min_sqft = isset($_GET['min_sqft']) ? intval($_GET['min_sqft']) : '';
-$max_sqft = isset($_GET['max_sqft']) ? intval($_GET['max_sqft']) : '';
-$year_built = isset($_GET['year_built']) ? sanitize_text_field($_GET['year_built']) : '';
-$property_status = isset($_GET['property_status']) ? sanitize_text_field($_GET['property_status']) : '';
-$sort_by = isset($_GET['sort_by']) ? sanitize_text_field($_GET['sort_by']) : 'date';
+// If reset parameter is present, redirect to clean URL and set all values to defaults
+$is_reset = isset($_GET['reset']);
+
+if ($is_reset) {
+    // Redirect to clean URL without reset parameter to show default values
+    $clean_url = remove_query_arg('reset');
+    // Also remove all filter parameters
+    $clean_url = remove_query_arg(array('search', 'min_price', 'max_price', 'property_type', 'min_bedrooms', 'max_bedrooms', 'min_bathrooms', 'max_bathrooms', 'min_sqft', 'max_sqft', 'year_built', 'property_status', 'sort_by', 'paged'), $clean_url);
+    wp_redirect($clean_url);
+    exit;
+}
+
+$search_query = !isset($_GET['search']) ? '' : sanitize_text_field($_GET['search']);
+$min_price = !isset($_GET['min_price']) ? '' : intval($_GET['min_price']);
+$max_price = !isset($_GET['max_price']) ? '' : intval($_GET['max_price']);
+$property_type_filter = !isset($_GET['property_type']) ? '' : sanitize_text_field($_GET['property_type']);
+$min_bedrooms = !isset($_GET['min_bedrooms']) ? '' : intval($_GET['min_bedrooms']);
+$max_bedrooms = !isset($_GET['max_bedrooms']) ? '' : intval($_GET['max_bedrooms']);
+$min_bathrooms = !isset($_GET['min_bathrooms']) ? '' : floatval($_GET['min_bathrooms']);
+$max_bathrooms = !isset($_GET['max_bathrooms']) ? '' : floatval($_GET['max_bathrooms']);
+$min_sqft = !isset($_GET['min_sqft']) ? '' : intval($_GET['min_sqft']);
+$max_sqft = !isset($_GET['max_sqft']) ? '' : intval($_GET['max_sqft']);
+$year_built = !isset($_GET['year_built']) ? '' : sanitize_text_field($_GET['year_built']);
+$property_status = !isset($_GET['property_status']) ? '' : sanitize_text_field($_GET['property_status']);
+$sort_by = !isset($_GET['sort_by']) ? 'newest' : sanitize_text_field($_GET['sort_by']);
 $paged = (get_query_var('paged')) ? get_query_var('paged') : 1;
 
 // Build WP_Query arguments
@@ -301,6 +313,18 @@ $property_statuses = get_terms(array(
                     <button type="submit" class="search-btn">
                         <i class="fas fa-search"></i> Search
                     </button>
+                    <?php 
+                    // Get the archive page URL and add reset parameter
+                    $archive_url = get_post_type_archive_link('property');
+                    if (!$archive_url) {
+                        $archive_url = home_url('/');
+                    }
+                    // Add reset parameter to trigger PHP reset logic
+                    $reset_url = add_query_arg('reset', '1', $archive_url);
+                    ?>
+                    <a href="<?php echo esc_url($reset_url); ?>" class="search-btn" style="background-color: #6b7280; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-redo"></i> Reset to Default
+                    </a>
                 </div>
 
                 <!-- Dropdown Panels Container -->
@@ -679,6 +703,22 @@ $property_statuses = get_terms(array(
                 <div class="map-container" style="position: relative;">
                     <div id="googleMap" style="width: 100%; height: 100%; min-height: 500px;"></div>
                     
+                    <!-- Map Controls -->
+                    <div class="map-controls">
+                        <?php 
+                        // Get the archive page URL and add reset parameter
+                        $archive_url = get_post_type_archive_link('property');
+                        if (!$archive_url) {
+                            $archive_url = home_url('/');
+                        }
+                        // Add reset parameter to trigger PHP reset logic
+                        $reset_url = add_query_arg('reset', '1', $archive_url);
+                        ?>
+                        <a href="<?php echo esc_url($reset_url); ?>" class="map-control" id="mapResetBtn" title="Reset to Default" style="cursor: pointer; z-index: 1000; text-decoration: none; color: inherit; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-redo"></i>
+                        </a>
+                    </div>
+                    
                     <!-- Map Legend -->
                     <div class="map-legend" style="position: absolute; bottom: 20px; left: 20px; z-index: 10;">
                         <h4 class="legend-title">Legend</h4>
@@ -692,7 +732,7 @@ $property_statuses = get_terms(array(
                                 <span class="legend-label">Featured</span>
                             </div>
                             <div class="legend-item">
-                                <div class="legend-color" style="background-color: #0f766e;"></div>
+                                <div class="legend-color" style="background-color: #3b82f6;"></div>
                                 <span class="legend-label">Standard</span>
                             </div>
                         </div>
@@ -760,7 +800,7 @@ $property_statuses = get_terms(array(
                     } elseif ($days_old < 30) {
                         $marker_color = '#f97316'; // Orange for featured
                     } else {
-                        $marker_color = '#0f766e'; // Teal for standard
+                        $marker_color = '#3b82f6'; // Blue for standard
                     }
                     
                 // Validate and set coordinates
@@ -1649,6 +1689,8 @@ function clearMoreFilters() {
     document.getElementById('searchForm').submit();
 }
 
+// Reset all filters to default (already defined above as window.resetAllFilters)
+
 // Handle sort change dynamically
 function handleSortChange(sortValue) {
     // Get current URL parameters
@@ -1886,6 +1928,29 @@ toastStyle.textContent = `
 `;
 document.head.appendChild(toastStyle);
 
+// Reset all filters to default - Make it global
+window.resetAllFilters = function() {
+    try {
+        console.log('resetAllFilters called - redirecting to base URL');
+        
+        // Get the base URL without any query parameters
+        const baseUrl = window.location.pathname;
+        
+        // Add cache-busting parameter to force fresh load, then redirect to clean URL
+        // This ensures browser doesn't use cached version with old filter values
+        const timestamp = Date.now();
+        window.location.href = baseUrl + '?reset=' + timestamp;
+        
+        // Note: After page loads with reset parameter, PHP will see it's not a filter
+        // and will show default/empty values since other GET params are missing
+        
+    } catch (error) {
+        console.error('Error resetting filters:', error);
+        // Fallback: reload page without query params
+        window.location.href = window.location.pathname;
+    }
+};
+
 // Favorite button functionality
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize favorite button states on page load
@@ -1911,6 +1976,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize buttons on page load
     initializeFavoriteButtons();
+    
+    // Map reset button is now a direct link, no JavaScript needed
+    // But keep the function for any other uses
     
     // Handle favorite button clicks
     document.addEventListener('click', function(e) {

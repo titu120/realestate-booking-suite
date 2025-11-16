@@ -765,11 +765,11 @@ class RESBS_Frontend {
             </div>
             
             <div class="resbs-property-details">
-                <h4 class="resbs-property-title">
+                <<?php echo esc_attr(resbs_get_title_heading_tag()); ?> class="resbs-property-title">
                     <a href="<?php echo esc_url(get_permalink($property->ID)); ?>">
                         <?php echo esc_html($property->post_title); ?>
                     </a>
-                </h4>
+                </<?php echo esc_attr(resbs_get_title_heading_tag()); ?>>
                 
                 <div class="resbs-property-meta">
                     <?php if ($price): ?>
