@@ -43,7 +43,7 @@ if (!function_exists('resbs_load_elementor_widget_files')) {
             if (file_exists($file_path)) {
                 require_once $file_path;
             } elseif (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log('RESBS Widget file not found: ' . $file_path);
+                error_log('RESBS Widget file not found: ' . esc_html($file_path));
             }
         }
         
@@ -105,12 +105,12 @@ class RESBS_Elementor_Widgets {
                         $widgets_manager->register($widget_instance);
                     } else {
                         if (defined('WP_DEBUG') && WP_DEBUG) {
-                            error_log('RESBS Widget does not extend Widget_Base: ' . $widget_class);
+                            error_log('RESBS Widget does not extend Widget_Base: ' . esc_html($widget_class));
                         }
                     }
                 } catch (\Exception $e) {
                     if (defined('WP_DEBUG') && WP_DEBUG) {
-                        error_log('RESBS Widget Registration Error (' . $widget_class . '): ' . $e->getMessage());
+                        error_log('RESBS Widget Registration Error (' . esc_html($widget_class) . '): ' . esc_html($e->getMessage()));
                     }
                 }
             }
@@ -711,7 +711,7 @@ class RESBS_Elementor_Widgets {
         }
         
         $critical_css = $this->get_critical_css();
-        echo '<style id="resbs-elementor-critical">' . $critical_css . '</style>' . "\n";
+        echo '<style id="resbs-elementor-critical">' . esc_textarea($critical_css) . '</style>' . "\n";
     }
     
     /**
@@ -743,13 +743,13 @@ class RESBS_Elementor_Widgets {
         );
 
         wp_localize_script('resbs-elementor', 'resbs_elementor_ajax', array(
-            'ajax_url' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('resbs_elementor_nonce'),
+            'ajax_url' => esc_url(admin_url('admin-ajax.php')),
+            'nonce' => esc_js(wp_create_nonce('resbs_elementor_nonce')),
             'messages' => array(
-                'loading' => esc_html__('Loading...', 'realestate-booking-suite'),
-                'no_properties' => esc_html__('No properties found.', 'realestate-booking-suite'),
-                'load_more' => esc_html__('Load More', 'realestate-booking-suite'),
-                'error' => esc_html__('An error occurred. Please try again.', 'realestate-booking-suite')
+                'loading' => esc_js(esc_html__('Loading...', 'realestate-booking-suite')),
+                'no_properties' => esc_js(esc_html__('No properties found.', 'realestate-booking-suite')),
+                'load_more' => esc_js(esc_html__('Load More', 'realestate-booking-suite')),
+                'error' => esc_js(esc_html__('An error occurred. Please try again.', 'realestate-booking-suite'))
             )
         ));
     }

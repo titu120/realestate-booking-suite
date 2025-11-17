@@ -212,7 +212,8 @@ class RESBS_Search_Alerts_Manager {
             }
         } else {
             // For non-logged in users, check email
-            if ($alert->email !== $_POST['email']) {
+            $posted_email = RESBS_Security::sanitize_email($_POST['email']);
+            if ($alert->email !== $posted_email) {
                 wp_send_json_error(array(
                     'message' => esc_html__('You do not have permission to delete this alert.', 'realestate-booking-suite')
                 ));
@@ -497,11 +498,11 @@ class RESBS_Search_Alerts_Manager {
                 $properties_query->the_post();
                 $properties[] = array(
                     'id' => get_the_ID(),
-                    'title' => get_the_title(),
-                    'url' => get_permalink(),
-                    'price' => get_post_meta(get_the_ID(), '_property_price', true),
-                    'bedrooms' => get_post_meta(get_the_ID(), '_property_bedrooms', true),
-                    'bathrooms' => get_post_meta(get_the_ID(), '_property_bathrooms', true),
+                    'title' => esc_html(get_the_title()),
+                    'url' => esc_url(get_permalink()),
+                    'price' => esc_html(get_post_meta(get_the_ID(), '_property_price', true)),
+                    'bedrooms' => esc_html(get_post_meta(get_the_ID(), '_property_bedrooms', true)),
+                    'bathrooms' => esc_html(get_post_meta(get_the_ID(), '_property_bathrooms', true)),
                     'location' => $this->get_property_location(get_the_ID())
                 );
             }
@@ -517,7 +518,7 @@ class RESBS_Search_Alerts_Manager {
     private function get_property_location($property_id) {
         $locations = get_the_terms($property_id, 'property_location');
         if ($locations && !is_wp_error($locations)) {
-            return $locations[0]->name;
+            return esc_html($locations[0]->name);
         }
         return '';
     }
@@ -531,34 +532,34 @@ class RESBS_Search_Alerts_Manager {
         if (!empty($criteria['price_min']) || !empty($criteria['price_max'])) {
             $price_range = '';
             if (!empty($criteria['price_min'])) {
-                $price_range .= '$' . number_format($criteria['price_min']);
+                $price_range .= '$' . esc_html(number_format(intval($criteria['price_min'])));
             }
             $price_range .= ' - ';
             if (!empty($criteria['price_max'])) {
-                $price_range .= '$' . number_format($criteria['price_max']);
+                $price_range .= '$' . esc_html(number_format(intval($criteria['price_max'])));
             }
             $formatted[] = esc_html__('Price', 'realestate-booking-suite') . ': ' . $price_range;
         }
         
         if (!empty($criteria['bedrooms'])) {
-            $formatted[] = esc_html__('Bedrooms', 'realestate-booking-suite') . ': ' . $criteria['bedrooms'] . '+';
+            $formatted[] = esc_html__('Bedrooms', 'realestate-booking-suite') . ': ' . esc_html(intval($criteria['bedrooms'])) . '+';
         }
         
         if (!empty($criteria['bathrooms'])) {
-            $formatted[] = esc_html__('Bathrooms', 'realestate-booking-suite') . ': ' . $criteria['bathrooms'] . '+';
+            $formatted[] = esc_html__('Bathrooms', 'realestate-booking-suite') . ': ' . esc_html(intval($criteria['bathrooms'])) . '+';
         }
         
         if (!empty($criteria['property_type'])) {
-            $type = get_term_by('slug', $criteria['property_type'], 'property_type');
+            $type = get_term_by('slug', sanitize_text_field($criteria['property_type']), 'property_type');
             if ($type) {
-                $formatted[] = esc_html__('Type', 'realestate-booking-suite') . ': ' . $type->name;
+                $formatted[] = esc_html__('Type', 'realestate-booking-suite') . ': ' . esc_html($type->name);
             }
         }
         
         if (!empty($criteria['location'])) {
-            $location = get_term_by('slug', $criteria['location'], 'property_location');
+            $location = get_term_by('slug', sanitize_text_field($criteria['location']), 'property_location');
             if ($location) {
-                $formatted[] = esc_html__('Location', 'realestate-booking-suite') . ': ' . $location->name;
+                $formatted[] = esc_html__('Location', 'realestate-booking-suite') . ': ' . esc_html($location->name);
             }
         }
         

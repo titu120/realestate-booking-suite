@@ -172,12 +172,17 @@ class RESBS_Authentication_Widget extends \Elementor\Widget_Base {
     protected function render() {
         $settings = $this->get_settings_for_display();
         
-        $form_type = sanitize_text_field($settings['form_type']);
-        $enable_facebook_auth = $settings['enable_facebook_auth'] === 'yes';
-        $enable_google_auth = $settings['enable_google_auth'] === 'yes';
-        $enable_login_form = $settings['enable_login_form'] === 'yes';
+        $form_type = isset($settings['form_type']) ? sanitize_text_field($settings['form_type']) : 'login_buttons';
+        // Validate form_type against allowed values
+        $allowed_form_types = array('login_buttons', 'login_form', 'register_form');
+        if (!in_array($form_type, $allowed_form_types, true)) {
+            $form_type = 'login_buttons';
+        }
+        $enable_facebook_auth = isset($settings['enable_facebook_auth']) && $settings['enable_facebook_auth'] === 'yes';
+        $enable_google_auth = isset($settings['enable_google_auth']) && $settings['enable_google_auth'] === 'yes';
+        $enable_login_form = isset($settings['enable_login_form']) && $settings['enable_login_form'] === 'yes';
         
-        $widget_id = 'resbs-authentication-' . $this->get_id();
+        $widget_id = 'resbs-authentication-' . sanitize_html_class($this->get_id());
         $is_logged_in = is_user_logged_in();
         $current_user = wp_get_current_user();
         $login_url = wp_login_url(get_permalink());

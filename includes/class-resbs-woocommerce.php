@@ -247,7 +247,7 @@ class RESBS_WooCommerce {
             }
             
         } catch (Exception $e) {
-            wp_send_json_error(esc_html__('An error occurred: ', 'realestate-booking-suite') . $e->getMessage());
+            wp_send_json_error(esc_html__('An error occurred: ', 'realestate-booking-suite') . esc_html($e->getMessage()));
         }
     }
     
@@ -277,8 +277,8 @@ class RESBS_WooCommerce {
         $property_price = get_post_meta($property_id, '_resbs_price', true);
         
         $product_data = array(
-            'post_title' => sprintf(esc_html__('Booking: %s', 'realestate-booking-suite'), $property->post_title),
-            'post_content' => sprintf(esc_html__('Property booking for: %s', 'realestate-booking-suite'), $property->post_title),
+            'post_title' => sprintf(esc_html__('Booking: %s', 'realestate-booking-suite'), esc_html($property->post_title)),
+            'post_content' => sprintf(esc_html__('Property booking for: %s', 'realestate-booking-suite'), esc_html($property->post_title)),
             'post_status' => 'publish',
             'post_type' => 'product'
         );
@@ -328,8 +328,8 @@ class RESBS_WooCommerce {
         $property_price = get_post_meta($property_id, '_resbs_price', true);
         
         $product_data = array(
-            'post_title' => esc_html__('Booking for', 'realestate-booking-suite') . ' ' . $property->post_title,
-            'post_content' => esc_html__('Property booking for', 'realestate-booking-suite') . ' ' . $property->post_title,
+            'post_title' => esc_html__('Booking for', 'realestate-booking-suite') . ' ' . esc_html($property->post_title),
+            'post_content' => esc_html__('Property booking for', 'realestate-booking-suite') . ' ' . esc_html($property->post_title),
             'post_status' => 'publish',
             'post_type' => 'product',
             'meta_input' => array(
@@ -545,7 +545,7 @@ class RESBS_WooCommerce {
         $user_email = $order->get_billing_email();
         
         $subject = esc_html__('Booking Confirmation', 'realestate-booking-suite');
-        $message = esc_html__('Your property booking has been confirmed. Order ID:', 'realestate-booking-suite') . ' ' . $order_id;
+        $message = esc_html__('Your property booking has been confirmed. Order ID:', 'realestate-booking-suite') . ' ' . esc_html($order_id);
         
         wp_mail($user_email, $subject, $message);
     }
@@ -623,15 +623,15 @@ class RESBS_WooCommerce {
                             <p><?php echo esc_html__('Order ID:', 'realestate-booking-suite'); ?> #<?php echo esc_html($order_id); ?></p>
                         </div>
                         <div class="resbs-booking-dates">
-                            <p><strong><?php esc_html_e('Check-in:', 'realestate-booking-suite'); ?></strong> <?php echo esc_html(date('M j, Y', strtotime($checkin_date))); ?></p>
-                            <p><strong><?php esc_html_e('Check-out:', 'realestate-booking-suite'); ?></strong> <?php echo esc_html(date('M j, Y', strtotime($checkout_date))); ?></p>
+                            <p><strong><?php esc_html_e('Check-in:', 'realestate-booking-suite'); ?></strong> <?php echo esc_html(date_i18n('M j, Y', strtotime($checkin_date))); ?></p>
+                            <p><strong><?php esc_html_e('Check-out:', 'realestate-booking-suite'); ?></strong> <?php echo esc_html(date_i18n('M j, Y', strtotime($checkout_date))); ?></p>
                             <p><strong><?php esc_html_e('Guests:', 'realestate-booking-suite'); ?></strong> <?php echo esc_html($guests); ?></p>
                         </div>
                         <div class="resbs-booking-status">
                             <span class="resbs-status resbs-status-<?php echo esc_attr($status); ?>">
                                 <?php echo esc_html(ucfirst($status)); ?>
                             </span>
-                            <p><strong><?php esc_html_e('Total:', 'realestate-booking-suite'); ?></strong> $<?php echo esc_html(number_format(floatval($total_price), 2)); ?></p>
+                            <p><strong><?php esc_html_e('Total:', 'realestate-booking-suite'); ?></strong> <?php echo wp_kses_post(wc_price($total_price)); ?></p>
                         </div>
                     </div>
                 <?php endforeach; ?>

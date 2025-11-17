@@ -195,10 +195,10 @@ class RESBS_Contact_Widget extends WP_Widget {
         $social_links = $contact_settings->get_social_links();
         $settings = $contact_settings->get_contact_settings();
         
-        echo $args['before_widget'];
+        echo wp_kses_post($args['before_widget']);
         
         if (!empty($title)) {
-            echo $args['before_title'] . esc_html($title) . $args['after_title'];
+            echo wp_kses_post($args['before_title']) . esc_html($title) . wp_kses_post($args['after_title']);
         }
         
         ?>
@@ -307,7 +307,7 @@ class RESBS_Contact_Widget extends WP_Widget {
         </div>
         <?php
         
-        echo $args['after_widget'];
+        echo wp_kses_post($args['after_widget']);
     }
 }
 

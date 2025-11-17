@@ -1028,7 +1028,7 @@ Best regards,
                                 <?php esc_html_e('Year Built', 'realestate-booking-suite'); ?>
                             </label>
                             <input type="number" name="property_year_built" id="property_year_built_<?php echo esc_attr($shortcode_id); ?>" 
-                                   min="1800" max="<?php echo date('Y'); ?>" placeholder="<?php esc_attr_e('e.g., 2020', 'realestate-booking-suite'); ?>">
+                                   min="1800" max="<?php echo esc_attr(date('Y')); ?>" placeholder="<?php esc_attr_e('e.g., 2020', 'realestate-booking-suite'); ?>">
                         </div>
 
                         <div class="resbs-form-group">
@@ -1036,7 +1036,7 @@ Best regards,
                                 <?php esc_html_e('Year Remodeled', 'realestate-booking-suite'); ?>
                             </label>
                             <input type="number" name="property_year_remodeled" id="property_year_remodeled_<?php echo esc_attr($shortcode_id); ?>" 
-                                   min="1800" max="<?php echo date('Y'); ?>" placeholder="<?php esc_attr_e('e.g., 2023', 'realestate-booking-suite'); ?>">
+                                   min="1800" max="<?php echo esc_attr(date('Y')); ?>" placeholder="<?php esc_attr_e('e.g., 2023', 'realestate-booking-suite'); ?>">
                         </div>
                     </div>
 
@@ -2375,7 +2375,7 @@ Best regards,
                     <?php if ($area_sqft): ?>
                         <div class="property-feature">
                             <i class="fas fa-ruler-combined"></i>
-                            <span><?php echo resbs_format_area($area_sqft); ?></span>
+                            <span><?php echo esc_html(resbs_format_area($area_sqft)); ?></span>
                         </div>
                     <?php endif; ?>
                 </div>
@@ -2512,7 +2512,7 @@ Best regards,
                     echo '<span class="resbs-booking-status status-' . esc_attr($order_status) . '">' . esc_html(ucfirst($order_status)) . '</span>';
                     echo '</div>';
                     echo '<p class="resbs-booking-date">' . esc_html__('Date:', 'realestate-booking-suite') . ' ' . esc_html($order_date) . '</p>';
-                    echo '<p class="resbs-booking-total">' . esc_html__('Total:', 'realestate-booking-suite') . ' ' . $order_total . '</p>';
+                    echo '<p class="resbs-booking-total">' . esc_html__('Total:', 'realestate-booking-suite') . ' ' . wp_kses_post($order_total) . '</p>';
                     echo '</div>';
                 }
                 echo '</div>';

@@ -736,13 +736,13 @@ class RESBS_Slider_Widget extends \Elementor\Widget_Base {
                 <div class="property-card-price"><?php echo esc_html($formatted_price); ?></div>
                 <div class="property-card-features">
                     <?php if ($bedrooms): ?>
-                        <span><i class="fas fa-bed mr-1"></i><?php echo esc_html($bedrooms); ?> Bed<?php echo $bedrooms != 1 ? 's' : ''; ?></span>
+                        <span><i class="fas fa-bed mr-1"></i><?php echo esc_html($bedrooms); ?> Bed<?php echo esc_html($bedrooms != 1 ? 's' : ''); ?></span>
                     <?php endif; ?>
                     <?php if ($bathrooms): ?>
-                        <span><i class="fas fa-bath mr-1"></i><?php echo esc_html($bathrooms); ?> Bath<?php echo $bathrooms != 1 ? 's' : ''; ?></span>
+                        <span><i class="fas fa-bath mr-1"></i><?php echo esc_html($bathrooms); ?> Bath<?php echo esc_html($bathrooms != 1 ? 's' : ''); ?></span>
                     <?php endif; ?>
                     <?php if (!empty($area_value)): ?>
-                        <span><i class="fas fa-ruler-combined mr-1"></i><?php echo resbs_format_area($area_value); ?></span>
+                        <span><i class="fas fa-ruler-combined mr-1"></i><?php echo esc_html(resbs_format_area($area_value)); ?></span>
                     <?php endif; ?>
                 </div>
             </div>
@@ -815,7 +815,7 @@ class RESBS_Slider_Widget extends \Elementor\Widget_Base {
                     <?php if (!empty($area_value)): ?>
                         <span class="resbs-meta-item">
                             <span class="dashicons dashicons-admin-home"></span>
-                            <?php echo resbs_format_area($area_value); ?>
+                            <?php echo esc_html(resbs_format_area($area_value)); ?>
                         </span>
                     <?php endif; ?>
                 </div>

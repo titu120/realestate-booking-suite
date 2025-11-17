@@ -447,7 +447,7 @@ class RESBS_Property_Grid_Widget extends \Elementor\Widget_Base {
         ));
         
         foreach ($property_types as $type) {
-            $types[$type->slug] = $type->name;
+            $types[$type->slug] = esc_html($type->name);
         }
         
         return $types;
@@ -465,7 +465,7 @@ class RESBS_Property_Grid_Widget extends \Elementor\Widget_Base {
         ));
         
         foreach ($property_statuses as $status) {
-            $statuses[$status->slug] = $status->name;
+            $statuses[$status->slug] = esc_html($status->name);
         }
         
         return $statuses;

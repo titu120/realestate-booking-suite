@@ -187,13 +187,13 @@ class RESBS_Request_Form_Widget extends \Elementor\Widget_Base {
     protected function render() {
         $settings = $this->get_settings_for_display();
         
-        $title = sanitize_text_field($settings['title']);
-        $default_message = sanitize_textarea_field($settings['message']);
-        $disable_name = $settings['disable_name'] === 'yes';
-        $disable_phone = $settings['disable_phone'] === 'yes';
-        $disable_email = $settings['disable_email'] === 'yes';
+        $title = isset($settings['title']) ? $settings['title'] : '';
+        $default_message = isset($settings['message']) ? $settings['message'] : '';
+        $disable_name = isset($settings['disable_name']) && $settings['disable_name'] === 'yes';
+        $disable_phone = isset($settings['disable_phone']) && $settings['disable_phone'] === 'yes';
+        $disable_email = isset($settings['disable_email']) && $settings['disable_email'] === 'yes';
         
-        $widget_id = 'resbs-request-form-' . $this->get_id();
+        $widget_id = 'resbs-request-form-' . absint($this->get_id());
         $current_user = wp_get_current_user();
         $current_property_id = get_the_ID();
         
@@ -203,7 +203,7 @@ class RESBS_Request_Form_Widget extends \Elementor\Widget_Base {
                 <?php wp_nonce_field('resbs_request_form', 'resbs_request_nonce'); ?>
                 <input type="hidden" name="action" value="resbs_submit_request_form">
                 <?php if ($current_property_id): ?>
-                    <input type="hidden" name="property_id" value="<?php echo esc_attr($current_property_id); ?>">
+                    <input type="hidden" name="property_id" value="<?php echo esc_attr(absint($current_property_id)); ?>">
                 <?php endif; ?>
                 
                 <?php if (!empty($title)): ?>

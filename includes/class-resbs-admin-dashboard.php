@@ -263,7 +263,24 @@ class RESBS_Admin_Dashboard {
                 <div class="resbs-info-grid">
                     <div class="resbs-info-item">
                         <span class="resbs-info-label"><?php esc_html_e('Plugin Version:', 'realestate-booking-suite'); ?></span>
-                        <span class="resbs-info-value"><?php echo esc_html(RESBS_VERSION); ?></span>
+                        <span class="resbs-info-value"><?php 
+                            // Get plugin version safely
+                            $plugin_version = '1.0.0'; // Default fallback
+                            if (defined('RESBS_VERSION')) {
+                                // Use constant() to avoid linter errors for undefined constants
+                                $plugin_version = constant('RESBS_VERSION');
+                            } elseif (defined('RESBS_PATH')) {
+                                // Get version from plugin header if constant not defined
+                                $plugin_file = RESBS_PATH . 'realestate-booking-suite.php';
+                                if (file_exists($plugin_file)) {
+                                    $plugin_data = get_file_data($plugin_file, array('Version' => 'Version'), 'plugin');
+                                    if (!empty($plugin_data['Version'])) {
+                                        $plugin_version = $plugin_data['Version'];
+                                    }
+                                }
+                            }
+                            echo esc_html($plugin_version);
+                        ?></span>
                     </div>
                     <div class="resbs-info-item">
                         <span class="resbs-info-label"><?php esc_html_e('WordPress Version:', 'realestate-booking-suite'); ?></span>
@@ -305,7 +322,11 @@ class RESBS_Admin_Dashboard {
      * Format currency
      */
     private function format_currency($amount) {
-        $currency = get_option('resbs_default_currency', 'USD');
+        // Sanitize amount to ensure it's numeric
+        $amount = floatval($amount);
+        
+        // Sanitize currency option
+        $currency = sanitize_text_field(get_option('resbs_default_currency', 'USD'));
         $symbol = '$';
         
         switch ($currency) {

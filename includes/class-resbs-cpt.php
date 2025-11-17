@@ -193,23 +193,15 @@ class RESBS_CPT {
         global $post;
         
         // SIMPLE CHECK: If URL contains /property/ and has a slug, it's a single property
-        $request_uri = $_SERVER['REQUEST_URI'];
+        $request_uri = isset($_SERVER['REQUEST_URI']) ? esc_url_raw($_SERVER['REQUEST_URI']) : '';
         
         // Check if it's a single property page (URL like /property/some-slug/)
-        if (preg_match('/\/property\/[^\/]+\/?$/', $request_uri)) {
-            $single_template = RESBS_PATH . 'templates/test-single-property.php';
-            if (file_exists($single_template)) {
-                return $single_template;
-            }
-        }
+        // Note: Single property template is handled by resbs_single_property_template_loader in main plugin file
+        // This handler is disabled to avoid conflicts
         
         // Check if it's property archive (URL like /property/)
-        if (preg_match('/\/property\/?$/', $request_uri)) {
-            $archive_template = RESBS_PATH . 'templates/archive-property.php';
-            if (file_exists($archive_template)) {
-                return $archive_template;
-            }
-        }
+        // Note: Archive template is handled by RESBS_Simple_Archive and RESBS_Archive_Handler classes
+        // This handler is disabled to avoid conflicts
         
         return $template;
     }

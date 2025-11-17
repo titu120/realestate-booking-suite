@@ -129,7 +129,7 @@ new RESBS_Dynamic_Archive_AJAX();
  * @return string Language code (en, es, fr, de)
  */
 function resbs_get_language() {
-    return get_option('resbs_language', 'en');
+    return esc_attr(get_option('resbs_language', 'en'));
 }
 
 /**
@@ -137,7 +137,7 @@ function resbs_get_language() {
  * @return string Unit (sqft or sqm)
  */
 function resbs_get_area_unit() {
-    return get_option('resbs_area_unit', 'sqft');
+    return esc_attr(get_option('resbs_area_unit', 'sqft'));
 }
 
 /**
@@ -145,7 +145,7 @@ function resbs_get_area_unit() {
  * @return string Unit (sqft or sqm)
  */
 function resbs_get_lot_size_unit() {
-    return get_option('resbs_lot_size_unit', 'sqft');
+    return esc_attr(get_option('resbs_lot_size_unit', 'sqft'));
 }
 
 /**
@@ -153,7 +153,7 @@ function resbs_get_lot_size_unit() {
  * @return string Date format (e.g., 'm/d/Y')
  */
 function resbs_get_date_format() {
-    return get_option('resbs_date_format', 'm/d/Y');
+    return esc_attr(get_option('resbs_date_format', 'm/d/Y'));
 }
 
 /**
@@ -161,7 +161,7 @@ function resbs_get_date_format() {
  * @return string Time format (12h or 24h)
  */
 function resbs_get_time_format() {
-    return get_option('resbs_time_format', '12h');
+    return esc_attr(get_option('resbs_time_format', '12h'));
 }
 
 /**
@@ -169,7 +169,7 @@ function resbs_get_time_format() {
  * @return string Hex color code (e.g., '#0073aa')
  */
 function resbs_get_main_color() {
-    return get_option('resbs_main_color', '#0073aa');
+    return esc_attr(get_option('resbs_main_color', '#0073aa'));
 }
 
 /**
@@ -177,7 +177,7 @@ function resbs_get_main_color() {
  * @return string Hex color code (e.g., '#28a745')
  */
 function resbs_get_secondary_color() {
-    return get_option('resbs_secondary_color', '#28a745');
+    return esc_attr(get_option('resbs_secondary_color', '#28a745'));
 }
 
 /**
@@ -254,7 +254,7 @@ function resbs_format_area($area, $unit = null, $stored_unit = 'sqft') {
     $converted_area = resbs_convert_area($area, $stored_unit, $unit);
     $unit_label = ($unit === 'sqm') ? 'sq m' : 'sq ft';
     
-    return number_format($converted_area, 0) . ' ' . $unit_label;
+    return esc_html(number_format($converted_area, 0) . ' ' . $unit_label);
 }
 
 /**
@@ -277,7 +277,7 @@ function resbs_format_lot_size($lot_size, $unit = null, $stored_unit = 'sqft') {
     $converted_lot = resbs_convert_area($lot_size, $stored_unit, $unit);
     $unit_label = ($unit === 'sqm') ? 'sq m' : 'sq ft';
     
-    return number_format($converted_lot, 0) . ' ' . $unit_label;
+    return esc_html(number_format($converted_lot, 0) . ' ' . $unit_label);
 }
 
 /**
@@ -291,7 +291,7 @@ function resbs_format_date($date, $format = null) {
         $format = resbs_get_date_format();
     }
     $timestamp = is_numeric($date) ? $date : strtotime($date);
-    return date($format, $timestamp);
+    return esc_html(date($format, $timestamp));
 }
 
 /**
@@ -306,7 +306,7 @@ function resbs_format_time($time, $format = null) {
         $format = ($time_format === '24h') ? 'H:i' : 'g:i A';
     }
     $timestamp = is_numeric($time) ? $time : strtotime($time);
-    return date($format, $timestamp);
+    return esc_html(date($format, $timestamp));
 }
 
 
@@ -345,7 +345,7 @@ function resbs_is_markers_cluster_enabled() {
  * @return string Icon type (circle, bubble, outline)
  */
 function resbs_get_cluster_icon() {
-    return get_option('resbs_cluster_icon', 'circle');
+    return esc_attr(get_option('resbs_cluster_icon', 'circle'));
 }
 
 /**
@@ -353,7 +353,7 @@ function resbs_get_cluster_icon() {
  * @return string Hex color code (e.g., '#333333')
  */
 function resbs_get_cluster_icon_color() {
-    return get_option('resbs_cluster_icon_color', '#333333');
+    return esc_attr(get_option('resbs_cluster_icon_color', '#333333'));
 }
 
 /**
@@ -361,7 +361,7 @@ function resbs_get_cluster_icon_color() {
  * @return string Marker type (icon or price)
  */
 function resbs_get_map_marker_type() {
-    return get_option('resbs_map_marker_type', 'icon');
+    return esc_attr(get_option('resbs_map_marker_type', 'icon'));
 }
 
 /**
@@ -377,7 +377,7 @@ function resbs_is_single_map_marker_enabled() {
  * @return string Icon type (pin, outline, person)
  */
 function resbs_get_single_marker_icon() {
-    return get_option('resbs_single_marker_icon', 'pin');
+    return esc_attr(get_option('resbs_single_marker_icon', 'pin'));
 }
 
 /**
@@ -385,7 +385,7 @@ function resbs_get_single_marker_icon() {
  * @return string Hex color code (e.g., '#333333')
  */
 function resbs_get_single_marker_color() {
-    return get_option('resbs_single_marker_color', '#333333');
+    return esc_attr(get_option('resbs_single_marker_color', '#333333'));
 }
 
 /**
@@ -435,7 +435,7 @@ function resbs_get_properties_per_page() {
  * @return string Layout type (grid, large-grid, list)
  */
 function resbs_get_default_layout_listings() {
-    return get_option('resbs_default_layout_listings', 'grid');
+    return esc_attr(get_option('resbs_default_layout_listings', 'grid'));
 }
 
 /**
@@ -443,7 +443,7 @@ function resbs_get_default_layout_listings() {
  * @return string Layout type (slider, tiled, left-slider)
  */
 function resbs_get_default_layout_single() {
-    return get_option('resbs_default_layout_single', 'slider');
+    return esc_attr(get_option('resbs_default_layout_single', 'slider'));
 }
 
 /**
@@ -467,7 +467,7 @@ function resbs_should_show_listing_address() {
  * @return string Preview type (address or title)
  */
 function resbs_get_listing_preview_block() {
-    return get_option('resbs_listing_preview_block', 'title');
+    return esc_attr(get_option('resbs_listing_preview_block', 'title'));
 }
 
 /**
@@ -499,7 +499,7 @@ function resbs_get_sort_options() {
  * @return string Default sort option
  */
 function resbs_get_default_sort_option() {
-    return get_option('resbs_default_sort_option', 'newest');
+    return esc_attr(get_option('resbs_default_sort_option', 'newest'));
 }
 
 /**
@@ -584,7 +584,7 @@ function resbs_get_wishlist_page_url() {
     if ($page_id) {
         $page_url = get_permalink($page_id);
         if ($page_url) {
-            return $page_url;
+            return esc_url($page_url);
         }
     }
     
@@ -592,7 +592,7 @@ function resbs_get_wishlist_page_url() {
     $page = get_page_by_path('saved-properties');
     if ($page && $page->post_status === 'publish') {
         update_option('resbs_wishlist_page_id', $page->ID);
-        return get_permalink($page->ID);
+        return esc_url(get_permalink($page->ID));
     }
     
     return false;
@@ -645,7 +645,7 @@ function resbs_is_user_profile_enabled() {
  * @return string Profile page title
  */
 function resbs_get_profile_page_title() {
-    return get_option('resbs_profile_page_title', 'User Profile');
+    return esc_html(get_option('resbs_profile_page_title', 'User Profile'));
 }
 
 /**
@@ -653,7 +653,7 @@ function resbs_get_profile_page_title() {
  * @return string Profile page subtitle
  */
 function resbs_get_profile_page_subtitle() {
-    return get_option('resbs_profile_page_subtitle', 'Manage your account and preferences');
+    return esc_html(get_option('resbs_profile_page_subtitle', 'Manage your account and preferences'));
 }
 
 /**
@@ -664,14 +664,14 @@ function resbs_get_profile_page_url() {
     $page_id = get_option('resbs_profile_page_id');
     
     if ($page_id && get_post($page_id)) {
-        return get_permalink($page_id);
+        return esc_url(get_permalink($page_id));
     }
     
     // Fallback: try to find page by slug
     $page = get_page_by_path('profile');
     if ($page && $page->post_status === 'publish') {
         update_option('resbs_profile_page_id', $page->ID);
-        return get_permalink($page->ID);
+        return esc_url(get_permalink($page->ID));
     }
     
     return false;
@@ -706,14 +706,14 @@ function resbs_get_submit_property_page_url() {
     $page_id = get_option('resbs_submit_property_page_id');
     
     if ($page_id && get_post($page_id)) {
-        return get_permalink($page_id);
+        return esc_url(get_permalink($page_id));
     }
     
     // Fallback: try to find page by slug
     $page = get_page_by_path('submit-property');
     if ($page && $page->post_status === 'publish') {
         update_option('resbs_submit_property_page_id', $page->ID);
-        return get_permalink($page->ID);
+        return esc_url(get_permalink($page->ID));
     }
     
     return false;
@@ -752,7 +752,8 @@ function resbs_get_title_heading_tag() {
     $tag = get_option('resbs_heading_tag_posts_title', 'h1');
     // Validate tag
     $valid_tags = array('h1', 'h2', 'h3', 'h4', 'h5', 'h6');
-    return in_array($tag, $valid_tags) ? $tag : 'h1';
+    $tag = in_array($tag, $valid_tags) ? $tag : 'h1';
+    return esc_attr($tag);
 }
 
 /**
@@ -809,7 +810,7 @@ function resbs_get_property_tags($post_id = null, $before = '', $sep = ', ', $af
         }
     }
     
-    return $before . implode($sep, $tag_links) . $after;
+    return wp_kses_post($before) . implode(esc_html($sep), $tag_links) . wp_kses_post($after);
 }
 
 /**
@@ -841,18 +842,18 @@ function resbs_auto_generate_tags($post_id) {
     
     // Add status as tag
     if ($status) {
-        $status_label = ucwords(str_replace('-', ' ', $status));
+        $status_label = ucwords(str_replace('-', ' ', sanitize_text_field($status)));
         $tags[] = $status_label;
     }
     
     // Add property type as tag
     if ($property_type) {
-        $tags[] = ucwords(str_replace('-', ' ', $property_type));
+        $tags[] = ucwords(str_replace('-', ' ', sanitize_text_field($property_type)));
     }
     
     // Add location city as tag if available
     if ($location && is_array($location) && isset($location['city'])) {
-        $tags[] = $location['city'];
+        $tags[] = sanitize_text_field($location['city']);
     }
     
     // Create/assign tags
@@ -886,19 +887,28 @@ function resbs_generate_meta_description($post_id = null) {
     $parts = array();
     
     if ($title) {
-        $parts[] = $title;
+        $parts[] = esc_html($title);
     }
     
     if ($price) {
-        $parts[] = '$' . number_format(floatval($price));
+        $parts[] = '$' . esc_html(number_format(floatval($price)));
     }
     
     if ($bedrooms && $bathrooms) {
-        $parts[] = $bedrooms . ' bed, ' . $bathrooms . ' bath';
+        $parts[] = esc_html($bedrooms) . ' bed, ' . esc_html($bathrooms) . ' bath';
     }
     
     if ($location && is_array($location)) {
-        $location_parts = array_filter(array($location['city'], $location['state'], $location['country']));
+        $location_parts = array();
+        if (!empty($location['city'])) {
+            $location_parts[] = esc_html($location['city']);
+        }
+        if (!empty($location['state'])) {
+            $location_parts[] = esc_html($location['state']);
+        }
+        if (!empty($location['country'])) {
+            $location_parts[] = esc_html($location['country']);
+        }
         if (!empty($location_parts)) {
             $parts[] = implode(', ', $location_parts);
         }
@@ -911,5 +921,5 @@ function resbs_generate_meta_description($post_id = null) {
         $description = substr($description, 0, 157) . '...';
     }
     
-    return $description;
+    return esc_html($description);
 }

@@ -106,10 +106,10 @@ class RESBS_Favorites_Manager {
 
         // Localize script
         wp_localize_script('resbs-favorites', 'resbs_favorites_ajax', array(
-            'ajax_url' => admin_url('admin-ajax.php'),
+            'ajax_url' => esc_url(admin_url('admin-ajax.php')),
             'nonce' => wp_create_nonce('resbs_favorites_nonce'),
             'user_logged_in' => is_user_logged_in(),
-            'login_url' => wp_login_url(get_permalink()),
+            'login_url' => esc_url(wp_login_url(get_permalink())),
             'messages' => array(
                 'add_to_favorites' => esc_html__('Add to Favorites', 'realestate-booking-suite'),
                 'remove_from_favorites' => esc_html__('Remove from Favorites', 'realestate-booking-suite'),
@@ -298,19 +298,23 @@ class RESBS_Favorites_Manager {
                     $properties_query->the_post();
                     $property_id = get_the_ID();
                     
+                    $property_type_terms = wp_get_post_terms($property_id, 'property_type', array('fields' => 'names'));
+                    $property_status_terms = wp_get_post_terms($property_id, 'property_status', array('fields' => 'names'));
+                    $property_location_terms = wp_get_post_terms($property_id, 'property_location', array('fields' => 'names'));
+                    
                     $properties[] = array(
                         'id' => $property_id,
-                        'title' => get_the_title(),
-                        'permalink' => get_permalink(),
-                        'excerpt' => get_the_excerpt(),
-                        'featured_image' => get_the_post_thumbnail_url($property_id, 'medium'),
-                        'price' => get_post_meta($property_id, '_property_price', true),
-                        'bedrooms' => get_post_meta($property_id, '_property_bedrooms', true),
-                        'bathrooms' => get_post_meta($property_id, '_property_bathrooms', true),
-                        'area' => get_post_meta($property_id, '_property_area', true),
-                        'property_type' => wp_get_post_terms($property_id, 'property_type', array('fields' => 'names')),
-                        'property_status' => wp_get_post_terms($property_id, 'property_status', array('fields' => 'names')),
-                        'location' => wp_get_post_terms($property_id, 'property_location', array('fields' => 'names'))
+                        'title' => esc_html(get_the_title()),
+                        'permalink' => esc_url(get_permalink()),
+                        'excerpt' => esc_html(get_the_excerpt()),
+                        'featured_image' => esc_url(get_the_post_thumbnail_url($property_id, 'medium')),
+                        'price' => esc_html(get_post_meta($property_id, '_property_price', true)),
+                        'bedrooms' => esc_html(get_post_meta($property_id, '_property_bedrooms', true)),
+                        'bathrooms' => esc_html(get_post_meta($property_id, '_property_bathrooms', true)),
+                        'area' => esc_html(get_post_meta($property_id, '_property_area', true)),
+                        'property_type' => is_array($property_type_terms) && !is_wp_error($property_type_terms) ? array_map('esc_html', $property_type_terms) : array(),
+                        'property_status' => is_array($property_status_terms) && !is_wp_error($property_status_terms) ? array_map('esc_html', $property_status_terms) : array(),
+                        'location' => is_array($property_location_terms) && !is_wp_error($property_location_terms) ? array_map('esc_html', $property_location_terms) : array()
                     );
                 }
                 wp_reset_postdata();
@@ -476,7 +480,7 @@ class RESBS_Favorites_Manager {
         wp_enqueue_style('resbs-style', RESBS_URL . 'assets/css/style.css', array('resbs-archive', 'resbs-rbs-archive'), '1.0.0');
         
         // Enqueue Font Awesome (needed for icons)
-        wp_enqueue_style('font-awesome', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css', array(), '6.4.0');
+        wp_enqueue_style('font-awesome', esc_url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'), array(), '6.4.0');
         
         ob_start();
         ?>
@@ -528,7 +532,14 @@ class RESBS_Favorites_Manager {
             // Create toast element
             const toast = document.createElement('div');
             toast.className = 'resbs-toast-notification resbs-toast-' + (type || 'success');
-            toast.innerHTML = '<span class="resbs-toast-message">' + message + '</span><button class="resbs-toast-close">&times;</button>';
+            const messageSpan = document.createElement('span');
+            messageSpan.className = 'resbs-toast-message';
+            messageSpan.textContent = message;
+            const closeBtn = document.createElement('button');
+            closeBtn.className = 'resbs-toast-close';
+            closeBtn.textContent = '×';
+            toast.appendChild(messageSpan);
+            toast.appendChild(closeBtn);
             
             // Add to body
             document.body.appendChild(toast);
@@ -726,7 +737,8 @@ class RESBS_Favorites_Manager {
                         // Show success message as toast notification
                         if (data.data && data.data.message) {
                             if (typeof showToastNotification === 'function') {
-                                showToastNotification(data.data.message, 'success');
+                                const safeMessage = String(data.data.message).replace(/[<>]/g, '');
+                                showToastNotification(safeMessage, 'success');
                             }
                         }
                     } else {
@@ -746,9 +758,9 @@ class RESBS_Favorites_Manager {
                         
                         if (data && data.data) {
                             if (typeof data.data === 'string') {
-                                errorMessage = data.data;
+                                errorMessage = String(data.data).replace(/[<>]/g, '');
                             } else if (data.data.message) {
-                                errorMessage = data.data.message;
+                                errorMessage = String(data.data.message).replace(/[<>]/g, '');
                             }
                         }
                         
@@ -810,7 +822,9 @@ class RESBS_Favorites_Manager {
         // Get featured image
         $featured_image = get_the_post_thumbnail_url($property_id, 'large');
         if (!$featured_image) {
-            $featured_image = 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800';
+            $featured_image = esc_url('https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800');
+        } else {
+            $featured_image = esc_url($featured_image);
         }
         
         // Format price
@@ -821,10 +835,10 @@ class RESBS_Favorites_Manager {
         
         // Format location
         $location = '';
-        if ($address) $location .= $address;
-        if ($city) $location .= ($location ? ', ' : '') . $city;
-        if ($state) $location .= ($location ? ', ' : '') . $state;
-        if ($zip) $location .= ($location ? ' ' : '') . $zip;
+        if ($address) $location .= esc_html($address);
+        if ($city) $location .= ($location ? ', ' : '') . esc_html($city);
+        if ($state) $location .= ($location ? ', ' : '') . esc_html($state);
+        if ($zip) $location .= ($location ? ' ' : '') . esc_html($zip);
         
         // Determine badge (same logic as archive page)
         $badge_class = 'badge-new';
@@ -854,8 +868,8 @@ class RESBS_Favorites_Manager {
                 <div class="gradient-overlay"></div>
                 <div class="property-badge <?php echo esc_attr($badge_class); ?>"><?php echo esc_html($badge_text); ?></div>
                 <?php if (resbs_is_wishlist_enabled()): ?>
-                <button class="favorite-btn resbs-favorite-btn <?php echo $is_favorited ? 'favorited' : ''; ?>" data-property-id="<?php echo esc_attr($property_id); ?>">
-                    <i class="<?php echo $is_favorited ? 'fas' : 'far'; ?> fa-heart"></i>
+                <button class="favorite-btn resbs-favorite-btn <?php echo esc_attr($is_favorited ? 'favorited' : ''); ?>" data-property-id="<?php echo esc_attr($property_id); ?>">
+                    <i class="<?php echo esc_attr($is_favorited ? 'fas' : 'far'); ?> fa-heart"></i>
                 </button>
                 <?php endif; ?>
                 <div class="property-info-overlay">
@@ -888,7 +902,7 @@ class RESBS_Favorites_Manager {
                     <?php if ($area_sqft): ?>
                         <div class="property-feature">
                             <i class="fas fa-ruler-combined"></i>
-                            <span><?php echo resbs_format_area($area_sqft); ?></span>
+                            <span><?php echo esc_html(resbs_format_area($area_sqft)); ?></span>
                         </div>
                     <?php endif; ?>
                 </div>
@@ -1087,16 +1101,16 @@ class RESBS_Favorites_Widget extends WP_Widget {
         $show_count = (bool) $instance['show_count'];
         $show_clear_button = (bool) $instance['show_clear_button'];
         
-        echo $args['before_widget'];
+        echo wp_kses_post($args['before_widget']);
         
         if (!empty($title)) {
-            echo $args['before_title'] . esc_html($title) . $args['after_title'];
+            echo wp_kses_post($args['before_title']) . esc_html($title) . wp_kses_post($args['after_title']);
         }
         
         // Display favorites using shortcode
-        echo do_shortcode('[resbs_favorites layout="list" columns="1" posts_per_page="' . esc_attr($max_properties) . '" show_clear_button="' . ($show_clear_button ? 'true' : 'false') . '"]');
+        echo do_shortcode('[resbs_favorites layout="list" columns="1" posts_per_page="' . esc_attr($max_properties) . '" show_clear_button="' . esc_attr($show_clear_button ? 'true' : 'false') . '"]');
         
-        echo $args['after_widget'];
+        echo wp_kses_post($args['after_widget']);
     }
 }
 

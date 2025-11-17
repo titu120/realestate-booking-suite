@@ -313,7 +313,7 @@ class RESBS_Settings {
                                             <?php 
                                             $thumbnail = get_the_post_thumbnail($property->ID, 'thumbnail');
                                             if ($thumbnail): 
-                                                echo $thumbnail;
+                                                echo wp_kses_post($thumbnail);
                                             else: ?>
                                                 <div class="resbs-no-thumbnail">
                                                     <span class="dashicons dashicons-format-image"></span>
@@ -322,7 +322,7 @@ class RESBS_Settings {
                                         </div>
                                         <div class="resbs-property-info">
                                             <h4><a href="<?php echo esc_url(get_edit_post_link($property->ID)); ?>"><?php echo esc_html($property->post_title); ?></a></h4>
-                                            <p class="resbs-property-date"><?php echo esc_html(human_time_diff(strtotime($property->post_date), current_time('timestamp')) . ' ' . __('ago', 'realestate-booking-suite')); ?></p>
+                                            <p class="resbs-property-date"><?php echo esc_html(human_time_diff(strtotime($property->post_date), current_time('timestamp')) . ' ' . esc_html__('ago', 'realestate-booking-suite')); ?></p>
                                         </div>
                                         <div class="resbs-property-status">
                                             <span class="resbs-status-badge resbs-status-published"><?php esc_html_e('Published', 'realestate-booking-suite'); ?></span>
@@ -594,9 +594,9 @@ class RESBS_Settings {
                             <input type="text" id="resbs_google_maps_api_key" name="resbs_google_maps_api_key" value="<?php echo esc_attr(get_option('resbs_google_maps_api_key', '')); ?>" class="regular-text" placeholder="AIzaSy..." />
                             <p class="description">
                                 <?php esc_html_e('Enter your Google Maps API key. ', 'realestate-booking-suite'); ?>
-                                <a href="https://console.cloud.google.com/google/maps-apis/credentials" target="_blank"><?php esc_html_e('Get your API key here', 'realestate-booking-suite'); ?></a>
+                                <a href="<?php echo esc_url('https://console.cloud.google.com/google/maps-apis/credentials'); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e('Get your API key here', 'realestate-booking-suite'); ?></a>
                                 <br>
-                                <strong><?php esc_html_e('Required APIs:', 'realestate-booking-suite'); ?></strong> Maps JavaScript API, Places API (optional)
+                                <strong><?php esc_html_e('Required APIs:', 'realestate-booking-suite'); ?></strong> <?php esc_html_e('Maps JavaScript API, Places API (optional)', 'realestate-booking-suite'); ?>
                             </p>
                             <?php if (empty(get_option('resbs_google_maps_api_key', ''))): ?>
                                 <div class="notice notice-warning inline" style="margin-top: 10px;">
@@ -894,42 +894,57 @@ class RESBS_Settings {
         
         <script>
         jQuery(document).ready(function($) {
-            let actionIndex = <?php echo count($quick_actions); ?>;
+            let actionIndex = <?php echo absint(count($quick_actions)); ?>;
+            <?php
+            $action_title_label = esc_js(__('Action Title', 'realestate-booking-suite'));
+            $action_title_placeholder = esc_js(__('e.g., Send Message', 'realestate-booking-suite'));
+            $icon_class_label = esc_js(__('Icon Class', 'realestate-booking-suite'));
+            $icon_class_placeholder = esc_js(__('e.g., fas fa-envelope', 'realestate-booking-suite'));
+            $icon_class_description = esc_js(__('FontAwesome icon class (e.g., fas fa-envelope, fas fa-share-alt)', 'realestate-booking-suite'));
+            $js_action_label = esc_js(__('JavaScript Action', 'realestate-booking-suite'));
+            $js_action_placeholder = esc_js(__('e.g., openContactModal()', 'realestate-booking-suite'));
+            $js_action_description = esc_js(__('JavaScript function to call when clicked', 'realestate-booking-suite'));
+            $button_style_label = esc_js(__('Button Style Classes', 'realestate-booking-suite'));
+            $button_style_placeholder = esc_js(__('e.g., bg-gray-700 text-white hover:bg-gray-800', 'realestate-booking-suite'));
+            $button_style_description = esc_js(__('Tailwind CSS classes for button styling', 'realestate-booking-suite'));
+            $enable_action_label = esc_js(__('Enable this action', 'realestate-booking-suite'));
+            $remove_action_label = esc_js(__('Remove Action', 'realestate-booking-suite'));
+            ?>
             
             $('#add-quick-action').click(function() {
                 let newAction = `
                     <div class="quick-action-item" data-index="${actionIndex}">
                         <div class="resbs-form-group">
-                            <label><?php esc_html_e('Action Title', 'realestate-booking-suite'); ?></label>
-                            <input type="text" name="resbs_quick_actions[${actionIndex}][title]" placeholder="e.g., Send Message" />
+                            <label><?php echo $action_title_label; ?></label>
+                            <input type="text" name="resbs_quick_actions[${actionIndex}][title]" placeholder="<?php echo $action_title_placeholder; ?>" />
                         </div>
                         
                         <div class="resbs-form-group">
-                            <label><?php esc_html_e('Icon Class', 'realestate-booking-suite'); ?></label>
-                            <input type="text" name="resbs_quick_actions[${actionIndex}][icon]" placeholder="e.g., fas fa-envelope" />
-                            <p class="description"><?php esc_html_e('FontAwesome icon class (e.g., fas fa-envelope, fas fa-share-alt)', 'realestate-booking-suite'); ?></p>
+                            <label><?php echo $icon_class_label; ?></label>
+                            <input type="text" name="resbs_quick_actions[${actionIndex}][icon]" placeholder="<?php echo $icon_class_placeholder; ?>" />
+                            <p class="description"><?php echo $icon_class_description; ?></p>
                         </div>
                         
                         <div class="resbs-form-group">
-                            <label><?php esc_html_e('JavaScript Action', 'realestate-booking-suite'); ?></label>
-                            <input type="text" name="resbs_quick_actions[${actionIndex}][action]" placeholder="e.g., openContactModal()" />
-                            <p class="description"><?php esc_html_e('JavaScript function to call when clicked', 'realestate-booking-suite'); ?></p>
+                            <label><?php echo $js_action_label; ?></label>
+                            <input type="text" name="resbs_quick_actions[${actionIndex}][action]" placeholder="<?php echo $js_action_placeholder; ?>" />
+                            <p class="description"><?php echo $js_action_description; ?></p>
                         </div>
                         
                         <div class="resbs-form-group">
-                            <label><?php esc_html_e('Button Style Classes', 'realestate-booking-suite'); ?></label>
-                            <input type="text" name="resbs_quick_actions[${actionIndex}][style]" placeholder="e.g., bg-gray-700 text-white hover:bg-gray-800" />
-                            <p class="description"><?php esc_html_e('Tailwind CSS classes for button styling', 'realestate-booking-suite'); ?></p>
+                            <label><?php echo $button_style_label; ?></label>
+                            <input type="text" name="resbs_quick_actions[${actionIndex}][style]" placeholder="<?php echo $button_style_placeholder; ?>" />
+                            <p class="description"><?php echo $button_style_description; ?></p>
                         </div>
                         
                         <div class="resbs-form-group">
                             <label>
                                 <input type="checkbox" name="resbs_quick_actions[${actionIndex}][enabled]" value="1" checked />
-                                <?php esc_html_e('Enable this action', 'realestate-booking-suite'); ?>
+                                <?php echo $enable_action_label; ?>
                             </label>
                         </div>
                         
-                        <button type="button" class="button remove-action"><?php esc_html_e('Remove Action', 'realestate-booking-suite'); ?></button>
+                        <button type="button" class="button remove-action"><?php echo $remove_action_label; ?></button>
                     </div>
                 `;
                 $('#quick-actions-container').append(newAction);

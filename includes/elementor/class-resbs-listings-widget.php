@@ -434,7 +434,7 @@ class RESBS_Listings_Widget extends \Elementor\Widget_Base {
         $all_pages = get_pages();
         
         foreach ($all_pages as $page) {
-            $pages[$page->ID] = $page->post_title;
+            $pages[$page->ID] = esc_html($page->post_title);
         }
         
         return $pages;
@@ -571,13 +571,13 @@ class RESBS_Listings_Widget extends \Elementor\Widget_Base {
                         
                         <?php if ($show_view_toggle): ?>
                             <div class="resbs-view-toggle">
-                                <button type="button" class="resbs-view-btn resbs-view-grid <?php echo $layout === 'grid' ? 'active' : ''; ?>" data-view="grid">
+                                <button type="button" class="resbs-view-btn resbs-view-grid <?php echo esc_attr($layout === 'grid' ? 'active' : ''); ?>" data-view="grid">
                                     <span class="dashicons dashicons-grid-view"></span>
                                 </button>
-                                <button type="button" class="resbs-view-btn resbs-view-list <?php echo $layout === 'list' ? 'active' : ''; ?>" data-view="list">
+                                <button type="button" class="resbs-view-btn resbs-view-list <?php echo esc_attr($layout === 'list' ? 'active' : ''); ?>" data-view="list">
                                     <span class="dashicons dashicons-list-view"></span>
                                 </button>
-                                <button type="button" class="resbs-view-btn resbs-view-map <?php echo $layout === 'map' ? 'active' : ''; ?>" data-view="map">
+                                <button type="button" class="resbs-view-btn resbs-view-map <?php echo esc_attr($layout === 'map' ? 'active' : ''); ?>" data-view="map">
                                     <span class="dashicons dashicons-location"></span>
                                 </button>
                             </div>
@@ -598,14 +598,14 @@ class RESBS_Listings_Widget extends \Elementor\Widget_Base {
                     if ($latitude && $longitude) {
                         $map_properties[] = array(
                             'id' => $prop_id,
-                            'title' => get_the_title(),
+                            'title' => esc_html(get_the_title()),
                             'lat' => floatval($latitude),
                             'lng' => floatval($longitude),
                             'price' => get_post_meta($prop_id, '_property_price', true),
                             'bedrooms' => get_post_meta($prop_id, '_property_bedrooms', true),
                             'bathrooms' => get_post_meta($prop_id, '_property_bathrooms', true),
-                            'permalink' => get_permalink($prop_id),
-                            'image' => get_the_post_thumbnail_url($prop_id, 'thumbnail'),
+                            'permalink' => esc_url(get_permalink($prop_id)),
+                            'image' => esc_url(get_the_post_thumbnail_url($prop_id, 'thumbnail')),
                         );
                     }
                 endwhile;
@@ -615,7 +615,7 @@ class RESBS_Listings_Widget extends \Elementor\Widget_Base {
             
             <div class="resbs-listings-content resbs-layout-<?php echo esc_attr($layout); ?>">
                 <!-- Map View (hidden initially if not default) -->
-                <div class="resbs-listings-map-view" style="display: <?php echo $layout === 'map' ? 'block' : 'none'; ?>;">
+                <div class="resbs-listings-map-view" style="display: <?php echo esc_attr($layout === 'map' ? 'block' : 'none'); ?>;">
                     <div class="resbs-listings-map-container" id="resbs-listings-map-<?php echo esc_attr($widget_id); ?>">
                         <div class="resbs-map-wrapper">
                             <div id="resbs-map-canvas-<?php echo esc_attr($widget_id); ?>" class="resbs-map-canvas"></div>
@@ -625,7 +625,7 @@ class RESBS_Listings_Widget extends \Elementor\Widget_Base {
                 </div>
                 
                 <!-- Grid/List View (hidden if map is default) -->
-                <div class="resbs-listings-grid-view" style="display: <?php echo $layout === 'map' ? 'none' : 'block'; ?>;">
+                <div class="resbs-listings-grid-view" style="display: <?php echo esc_attr($layout === 'map' ? 'none' : 'block'); ?>;">
                     <?php if ($properties->have_posts()): ?>
                         <div class="resbs-properties-container" 
                              style="<?php echo $layout === 'grid' ? 'grid-template-columns: repeat(' . esc_attr($columns) . ', 1fr); gap: ' . esc_attr($grid_gap) . ';' : ''; ?>">
@@ -1363,6 +1363,18 @@ class RESBS_Listings_Widget extends \Elementor\Widget_Base {
                     iconAnchor: [10, 10]
                 });
                 
+                // Helper function to escape HTML entities in JavaScript
+                function escapeHtml(text) {
+                    var map = {
+                        '&': '&amp;',
+                        '<': '&lt;',
+                        '>': '&gt;',
+                        '"': '&quot;',
+                        "'": '&#039;'
+                    };
+                    return String(text).replace(/[&<>"']/g, function(m) { return map[m]; });
+                }
+                
                 // Add markers for each property
                 properties.forEach(function(property) {
                     var position = [property.lat, property.lng];
@@ -1370,13 +1382,13 @@ class RESBS_Listings_Widget extends \Elementor\Widget_Base {
                     
                     var price = property.price ? '$' + parseFloat(property.price).toLocaleString() : 'Price on request';
                     var popupContent = '<div style="min-width: 200px; padding: 0.75rem;">' +
-                        '<h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; font-weight: 700;"><a href="' + property.permalink + '" style="color: #111827; text-decoration: none;">' + property.title + '</a></h4>' +
-                        '<p style="margin: 0 0 0.5rem 0; color: #10b981; font-weight: 700; font-size: 1.125rem;">' + price + '</p>';
+                        '<h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; font-weight: 700;"><a href="' + escapeHtml(property.permalink) + '" style="color: #111827; text-decoration: none;">' + escapeHtml(property.title) + '</a></h4>' +
+                        '<p style="margin: 0 0 0.5rem 0; color: #10b981; font-weight: 700; font-size: 1.125rem;">' + escapeHtml(price) + '</p>';
                     
                     if (property.bedrooms || property.bathrooms) {
                         popupContent += '<p style="margin: 0; color: #6b7280; font-size: 0.875rem;">';
-                        if (property.bedrooms) popupContent += property.bedrooms + ' Bed' + (property.bedrooms != 1 ? 's' : '') + ' ';
-                        if (property.bathrooms) popupContent += property.bathrooms + ' Bath' + (property.bathrooms != 1 ? 's' : '');
+                        if (property.bedrooms) popupContent += escapeHtml(String(property.bedrooms)) + ' Bed' + (property.bedrooms != 1 ? 's' : '') + ' ';
+                        if (property.bathrooms) popupContent += escapeHtml(String(property.bathrooms)) + ' Bath' + (property.bathrooms != 1 ? 's' : '');
                         popupContent += '</p>';
                     }
                     

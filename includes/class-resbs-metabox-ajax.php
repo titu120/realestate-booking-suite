@@ -47,15 +47,15 @@ class RESBS_Metabox_AJAX {
         
         $data = array(
             'id' => $attachment_id,
-            'title' => $attachment->post_title,
-            'alt' => get_post_meta($attachment_id, '_wp_attachment_image_alt', true),
-            'caption' => $attachment->post_excerpt,
-            'description' => $attachment->post_content,
-            'url' => wp_get_attachment_url($attachment_id),
-            'thumbnail' => wp_get_attachment_image_url($attachment_id, 'thumbnail'),
-            'medium' => wp_get_attachment_image_url($attachment_id, 'medium'),
-            'large' => wp_get_attachment_image_url($attachment_id, 'large'),
-            'full' => wp_get_attachment_image_url($attachment_id, 'full')
+            'title' => esc_html($attachment->post_title),
+            'alt' => esc_attr(get_post_meta($attachment_id, '_wp_attachment_image_alt', true)),
+            'caption' => esc_html($attachment->post_excerpt),
+            'description' => wp_kses_post($attachment->post_content),
+            'url' => esc_url(wp_get_attachment_url($attachment_id)),
+            'thumbnail' => esc_url(wp_get_attachment_image_url($attachment_id, 'thumbnail')),
+            'medium' => esc_url(wp_get_attachment_image_url($attachment_id, 'medium')),
+            'large' => esc_url(wp_get_attachment_image_url($attachment_id, 'large')),
+            'full' => esc_url(wp_get_attachment_image_url($attachment_id, 'full'))
         );
         
         wp_send_json_success($data);
@@ -205,9 +205,9 @@ class RESBS_Metabox_AJAX {
         
         // Create new post
         $new_post = array(
-            'post_title' => $original_post->post_title . ' (Copy)',
-            'post_content' => $original_post->post_content,
-            'post_excerpt' => $original_post->post_excerpt,
+            'post_title' => sanitize_text_field($original_post->post_title . ' (Copy)'),
+            'post_content' => wp_kses_post($original_post->post_content),
+            'post_excerpt' => sanitize_textarea_field($original_post->post_excerpt),
             'post_status' => 'draft',
             'post_type' => 'property',
             'post_author' => get_current_user_id()
@@ -244,7 +244,7 @@ class RESBS_Metabox_AJAX {
         wp_send_json_success(array(
             'message' => esc_html__('Property duplicated successfully.', 'realestate-booking-suite'),
             'new_post_id' => $new_post_id,
-            'edit_url' => get_edit_post_link($new_post_id)
+            'edit_url' => esc_url(get_edit_post_link($new_post_id))
         ));
     }
 
@@ -264,26 +264,26 @@ class RESBS_Metabox_AJAX {
         $meta = get_post_meta($post_id);
         
         $preview_data = array(
-            'title' => $property->post_title,
-            'content' => $property->post_content,
-            'excerpt' => $property->post_excerpt,
-            'price' => isset($meta['_property_price'][0]) ? $meta['_property_price'][0] : '',
-            'bedrooms' => isset($meta['_property_bedrooms'][0]) ? $meta['_property_bedrooms'][0] : '',
-            'bathrooms' => isset($meta['_property_bathrooms'][0]) ? $meta['_property_bathrooms'][0] : '',
-            'area' => isset($meta['_property_area_sqft'][0]) ? $meta['_property_area_sqft'][0] : '',
-            'address' => isset($meta['_property_address'][0]) ? $meta['_property_address'][0] : '',
-            'city' => isset($meta['_property_city'][0]) ? $meta['_property_city'][0] : '',
-            'state' => isset($meta['_property_state'][0]) ? $meta['_property_state'][0] : '',
-            'zip' => isset($meta['_property_zip'][0]) ? $meta['_property_zip'][0] : '',
-            'featured_image' => get_the_post_thumbnail_url($post_id, 'medium'),
+            'title' => esc_html($property->post_title),
+            'content' => wp_kses_post($property->post_content),
+            'excerpt' => esc_html($property->post_excerpt),
+            'price' => isset($meta['_property_price'][0]) ? esc_html($meta['_property_price'][0]) : '',
+            'bedrooms' => isset($meta['_property_bedrooms'][0]) ? esc_html($meta['_property_bedrooms'][0]) : '',
+            'bathrooms' => isset($meta['_property_bathrooms'][0]) ? esc_html($meta['_property_bathrooms'][0]) : '',
+            'area' => isset($meta['_property_area_sqft'][0]) ? esc_html($meta['_property_area_sqft'][0]) : '',
+            'address' => isset($meta['_property_address'][0]) ? esc_html($meta['_property_address'][0]) : '',
+            'city' => isset($meta['_property_city'][0]) ? esc_html($meta['_property_city'][0]) : '',
+            'state' => isset($meta['_property_state'][0]) ? esc_html($meta['_property_state'][0]) : '',
+            'zip' => isset($meta['_property_zip'][0]) ? esc_html($meta['_property_zip'][0]) : '',
+            'featured_image' => esc_url(get_the_post_thumbnail_url($post_id, 'medium')),
             'gallery' => isset($meta['_property_gallery'][0]) ? maybe_unserialize($meta['_property_gallery'][0]) : array(),
-            'features' => isset($meta['_property_features'][0]) ? $meta['_property_features'][0] : '',
-            'amenities' => isset($meta['_property_amenities'][0]) ? $meta['_property_amenities'][0] : '',
-            'property_type' => isset($meta['_property_type'][0]) ? $meta['_property_type'][0] : '',
-            'property_status' => isset($meta['_property_status'][0]) ? $meta['_property_status'][0] : '',
-            'year_built' => isset($meta['_property_year_built'][0]) ? $meta['_property_year_built'][0] : '',
-            'virtual_tour' => isset($meta['_property_virtual_tour'][0]) ? $meta['_property_virtual_tour'][0] : '',
-            'video_url' => isset($meta['_property_video_url'][0]) ? $meta['_property_video_url'][0] : ''
+            'features' => isset($meta['_property_features'][0]) ? wp_kses_post($meta['_property_features'][0]) : '',
+            'amenities' => isset($meta['_property_amenities'][0]) ? wp_kses_post($meta['_property_amenities'][0]) : '',
+            'property_type' => isset($meta['_property_type'][0]) ? esc_html($meta['_property_type'][0]) : '',
+            'property_status' => isset($meta['_property_status'][0]) ? esc_html($meta['_property_status'][0]) : '',
+            'year_built' => isset($meta['_property_year_built'][0]) ? esc_html($meta['_property_year_built'][0]) : '',
+            'virtual_tour' => isset($meta['_property_virtual_tour'][0]) ? esc_url($meta['_property_virtual_tour'][0]) : '',
+            'video_url' => isset($meta['_property_video_url'][0]) ? esc_url($meta['_property_video_url'][0]) : ''
         );
         
         // Get gallery images
@@ -291,10 +291,10 @@ class RESBS_Metabox_AJAX {
             $gallery_images = array();
             foreach ($preview_data['gallery'] as $image_id) {
                 $gallery_images[] = array(
-                    'id' => $image_id,
-                    'url' => wp_get_attachment_image_url($image_id, 'medium'),
-                    'thumbnail' => wp_get_attachment_image_url($image_id, 'thumbnail'),
-                    'full' => wp_get_attachment_image_url($image_id, 'full')
+                    'id' => absint($image_id),
+                    'url' => esc_url(wp_get_attachment_image_url($image_id, 'medium')),
+                    'thumbnail' => esc_url(wp_get_attachment_image_url($image_id, 'thumbnail')),
+                    'full' => esc_url(wp_get_attachment_image_url($image_id, 'full'))
                 );
             }
             $preview_data['gallery_images'] = $gallery_images;

@@ -118,8 +118,9 @@ class RESBS_Booking_Manager {
         }
 
         // Create booking post
+        $property_title = get_the_title($property_id);
         $booking_data = array(
-            'post_title' => 'Booking for ' . $first_name . ' ' . $last_name . ' - ' . get_the_title($property_id),
+            'post_title' => 'Booking for ' . $first_name . ' ' . $last_name . ' - ' . $property_title,
             'post_content' => $message,
             'post_status' => 'publish',
             'post_type' => 'property_booking',
@@ -270,14 +271,26 @@ class RESBS_Booking_Manager {
                         <td><?php echo esc_html($first_name . ' ' . $last_name); ?></td>
                         <td>
                             <?php if ($property_id): ?>
-                                <a href="<?php echo get_edit_post_link($property_id); ?>"><?php echo get_the_title($property_id); ?></a>
+                                <a href="<?php echo esc_url(get_edit_post_link($property_id)); ?>"><?php echo esc_html(get_the_title($property_id)); ?></a>
                             <?php else: ?>
                                 Property not found
                             <?php endif; ?>
                         </td>
-                        <td><?php echo esc_html($preferred_date . ' at ' . $preferred_time); ?></td>
+                        <td><?php 
+                            $date_time_display = '';
+                            if (!empty($preferred_date) && !empty($preferred_time)) {
+                                $date_time_display = esc_html($preferred_date . ' at ' . $preferred_time);
+                            } elseif (!empty($preferred_date)) {
+                                $date_time_display = esc_html($preferred_date);
+                            } elseif (!empty($preferred_time)) {
+                                $date_time_display = esc_html($preferred_time);
+                            } else {
+                                $date_time_display = 'Not specified';
+                            }
+                            echo $date_time_display;
+                        ?></td>
                         <td>
-                            <select onchange="updateBookingStatus(<?php echo $booking->ID; ?>, this.value)">
+                            <select onchange="updateBookingStatus(<?php echo esc_js($booking->ID); ?>, this.value)">
                                 <option value="pending" <?php selected($status, 'pending'); ?>>Pending</option>
                                 <option value="confirmed" <?php selected($status, 'confirmed'); ?>>Confirmed</option>
                                 <option value="completed" <?php selected($status, 'completed'); ?>>Completed</option>
@@ -289,8 +302,8 @@ class RESBS_Booking_Manager {
                             <a href="tel:<?php echo esc_attr($phone); ?>"><?php echo esc_html($phone); ?></a>
                         </td>
                         <td>
-                            <a href="<?php echo get_edit_post_link($booking->ID); ?>" class="button">Edit</a>
-                            <button onclick="deleteBooking(<?php echo $booking->ID; ?>)" class="button">Delete</button>
+                            <a href="<?php echo esc_url(get_edit_post_link($booking->ID)); ?>" class="button">Edit</a>
+                            <button onclick="deleteBooking(<?php echo esc_js($booking->ID); ?>)" class="button">Delete</button>
                         </td>
                     </tr>
                     <?php endforeach; ?>
@@ -300,38 +313,38 @@ class RESBS_Booking_Manager {
         
         <script>
         function updateBookingStatus(bookingId, status) {
-            fetch('<?php echo admin_url('admin-ajax.php'); ?>', {
+            fetch('<?php echo esc_url(admin_url('admin-ajax.php')); ?>', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
-                body: 'action=resbs_update_booking_status&booking_id=' + bookingId + '&status=' + status
+                body: 'action=resbs_update_booking_status&booking_id=' + encodeURIComponent(bookingId) + '&status=' + encodeURIComponent(status)
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert('Booking status updated!');
+                    alert('<?php echo esc_js(__('Booking status updated!', 'realestate-booking-suite')); ?>');
                 } else {
-                    alert('Error updating status');
+                    alert('<?php echo esc_js(__('Error updating status', 'realestate-booking-suite')); ?>');
                 }
             });
         }
         
         function deleteBooking(bookingId) {
-            if (confirm('Are you sure you want to delete this booking?')) {
-                fetch('<?php echo admin_url('admin-ajax.php'); ?>', {
+            if (confirm('<?php echo esc_js(__('Are you sure you want to delete this booking?', 'realestate-booking-suite')); ?>')) {
+                fetch('<?php echo esc_url(admin_url('admin-ajax.php')); ?>', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
                     },
-                    body: 'action=resbs_delete_booking&booking_id=' + bookingId
+                    body: 'action=resbs_delete_booking&booking_id=' + encodeURIComponent(bookingId)
                 })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
                         location.reload();
                     } else {
-                        alert('Error deleting booking');
+                        alert('<?php echo esc_js(__('Error deleting booking', 'realestate-booking-suite')); ?>');
                     }
                 });
             }

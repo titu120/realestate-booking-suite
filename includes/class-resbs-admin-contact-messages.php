@@ -42,8 +42,9 @@ class RESBS_Admin_Contact_Messages {
         // Handle actions
         if (isset($_GET['action']) && isset($_GET['id'])) {
             $id = intval($_GET['id']);
+            $action = sanitize_text_field($_GET['action']);
             
-            switch ($_GET['action']) {
+            switch ($action) {
                 case 'update_status':
                     if (isset($_GET['status'])) {
                         $status = sanitize_text_field($_GET['status']);
@@ -57,6 +58,7 @@ class RESBS_Admin_Contact_Messages {
         }
         
         // Get contact messages
+        // Table names are safe as they're constructed from $wpdb->prefix
         $contact_messages = $wpdb->get_results("
             SELECT cm.*, p.post_title as property_title 
             FROM {$table_name} cm 
@@ -66,86 +68,86 @@ class RESBS_Admin_Contact_Messages {
         
         ?>
         <div class="wrap">
-            <h1>Contact Messages</h1>
+            <h1><?php echo esc_html__('Contact Messages', 'realestate-booking-suite'); ?></h1>
             
             <?php if (empty($contact_messages)): ?>
                 <div class="notice notice-info">
-                    <p>No contact messages found.</p>
+                    <p><?php echo esc_html__('No contact messages found.', 'realestate-booking-suite'); ?></p>
                 </div>
             <?php else: ?>
                 <div class="tablenav top">
                     <div class="alignleft actions">
                         <select id="status-filter">
-                            <option value="">All Status</option>
-                            <option value="unread">Unread</option>
-                            <option value="read">Read</option>
-                            <option value="replied">Replied</option>
-                            <option value="archived">Archived</option>
+                            <option value=""><?php echo esc_html__('All Status', 'realestate-booking-suite'); ?></option>
+                            <option value="unread"><?php echo esc_html__('Unread', 'realestate-booking-suite'); ?></option>
+                            <option value="read"><?php echo esc_html__('Read', 'realestate-booking-suite'); ?></option>
+                            <option value="replied"><?php echo esc_html__('Replied', 'realestate-booking-suite'); ?></option>
+                            <option value="archived"><?php echo esc_html__('Archived', 'realestate-booking-suite'); ?></option>
                         </select>
-                        <button type="button" class="button" onclick="filterByStatus()">Filter</button>
+                        <button type="button" class="button" onclick="filterByStatus()"><?php echo esc_html__('Filter', 'realestate-booking-suite'); ?></button>
                     </div>
                 </div>
                 
                 <table class="wp-list-table widefat fixed striped">
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>Property</th>
-                            <th>Customer</th>
-                            <th>Contact Info</th>
-                            <th>Message</th>
-                            <th>Status</th>
-                            <th>Date</th>
-                            <th>Actions</th>
+                            <th><?php echo esc_html__('ID', 'realestate-booking-suite'); ?></th>
+                            <th><?php echo esc_html__('Property', 'realestate-booking-suite'); ?></th>
+                            <th><?php echo esc_html__('Customer', 'realestate-booking-suite'); ?></th>
+                            <th><?php echo esc_html__('Contact Info', 'realestate-booking-suite'); ?></th>
+                            <th><?php echo esc_html__('Message', 'realestate-booking-suite'); ?></th>
+                            <th><?php echo esc_html__('Status', 'realestate-booking-suite'); ?></th>
+                            <th><?php echo esc_html__('Date', 'realestate-booking-suite'); ?></th>
+                            <th><?php echo esc_html__('Actions', 'realestate-booking-suite'); ?></th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php foreach ($contact_messages as $message): ?>
                             <tr>
-                                <td>#<?php echo $message->id; ?></td>
+                                <td>#<?php echo esc_html($message->id); ?></td>
                                 <td>
                                     <strong><?php echo esc_html($message->property_title); ?></strong>
                                     <br>
-                                    <small>ID: <?php echo $message->property_id; ?></small>
+                                    <small><?php echo esc_html__('ID:', 'realestate-booking-suite'); ?> <?php echo esc_html($message->property_id); ?></small>
                                 </td>
                                 <td>
                                     <strong><?php echo esc_html($message->name); ?></strong>
                                 </td>
                                 <td>
-                                    <strong>Email:</strong> <?php echo esc_html($message->email); ?><br>
-                                    <strong>Phone:</strong> <?php echo esc_html($message->phone); ?>
+                                    <strong><?php echo esc_html__('Email:', 'realestate-booking-suite'); ?></strong> <?php echo esc_html($message->email); ?><br>
+                                    <strong><?php echo esc_html__('Phone:', 'realestate-booking-suite'); ?></strong> <?php echo esc_html($message->phone); ?>
                                 </td>
                                 <td>
                                     <div style="max-width: 300px; word-wrap: break-word;">
                                         <?php echo esc_html(wp_trim_words($message->message, 20)); ?>
                                         <?php if (strlen($message->message) > 100): ?>
-                                            <br><a href="#" onclick="showFullMessage(<?php echo $message->id; ?>, '<?php echo esc_js($message->message); ?>')">Read more...</a>
+                                            <br><a href="#" onclick="showFullMessage(<?php echo esc_js($message->id); ?>, <?php echo wp_json_encode($message->message); ?>)"><?php echo esc_html__('Read more...', 'realestate-booking-suite'); ?></a>
                                         <?php endif; ?>
                                     </div>
                                 </td>
                                 <td>
-                                    <span class="status-<?php echo $message->status; ?>">
-                                        <?php echo ucfirst($message->status); ?>
+                                    <span class="status-<?php echo esc_attr($message->status); ?>">
+                                        <?php echo esc_html(ucfirst($message->status)); ?>
                                     </span>
                                 </td>
                                 <td>
-                                    <?php echo date('M j, Y g:i A', strtotime($message->created_at)); ?>
+                                    <?php echo esc_html(date('M j, Y g:i A', strtotime($message->created_at))); ?>
                                 </td>
                                 <td>
                                     <div class="row-actions">
-                                        <select onchange="updateStatus(<?php echo $message->id; ?>, this.value)">
-                                            <option value="">Change Status</option>
-                                            <option value="unread" <?php selected($message->status, 'unread'); ?>>Unread</option>
-                                            <option value="read" <?php selected($message->status, 'read'); ?>>Read</option>
-                                            <option value="replied" <?php selected($message->status, 'replied'); ?>>Replied</option>
-                                            <option value="archived" <?php selected($message->status, 'archived'); ?>>Archived</option>
+                                        <select onchange="updateStatus(<?php echo esc_js($message->id); ?>, this.value)">
+                                            <option value=""><?php echo esc_html__('Change Status', 'realestate-booking-suite'); ?></option>
+                                            <option value="unread" <?php selected($message->status, 'unread'); ?>><?php echo esc_html__('Unread', 'realestate-booking-suite'); ?></option>
+                                            <option value="read" <?php selected($message->status, 'read'); ?>><?php echo esc_html__('Read', 'realestate-booking-suite'); ?></option>
+                                            <option value="replied" <?php selected($message->status, 'replied'); ?>><?php echo esc_html__('Replied', 'realestate-booking-suite'); ?></option>
+                                            <option value="archived" <?php selected($message->status, 'archived'); ?>><?php echo esc_html__('Archived', 'realestate-booking-suite'); ?></option>
                                         </select>
                                         <br><br>
-                                        <a href="mailto:<?php echo esc_attr($message->email); ?>?subject=Re: Contact Message #<?php echo $message->id; ?>" class="reply-link">Reply</a>
+                                        <a href="mailto:<?php echo esc_attr($message->email); ?>?subject=<?php echo esc_attr(sprintf(__('Re: Contact Message #%d', 'realestate-booking-suite'), $message->id)); ?>" class="reply-link"><?php echo esc_html__('Reply', 'realestate-booking-suite'); ?></a>
                                         <br>
-                                        <a href="?page=contact-messages&action=delete&id=<?php echo $message->id; ?>" 
-                                           onclick="return confirm('Are you sure you want to delete this contact message?')" 
-                                           class="delete-link" style="color: #a00;">Delete</a>
+                                        <a href="<?php echo esc_url(add_query_arg(array('action' => 'delete', 'id' => $message->id), admin_url('edit.php?post_type=property&page=contact-messages'))); ?>" 
+                                           onclick="return confirm('<?php echo esc_js(__('Are you sure you want to delete this contact message?', 'realestate-booking-suite')); ?>')" 
+                                           class="delete-link" style="color: #a00;"><?php echo esc_html__('Delete', 'realestate-booking-suite'); ?></a>
                                     </div>
                                 </td>
                             </tr>
@@ -159,7 +161,7 @@ class RESBS_Admin_Contact_Messages {
         <div id="fullMessageModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
             <div class="bg-white rounded-xl max-w-2xl w-full p-6">
                 <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-2xl font-bold text-gray-800">Full Message</h3>
+                    <h3 class="text-2xl font-bold text-gray-800"><?php echo esc_html__('Full Message', 'realestate-booking-suite'); ?></h3>
                     <button onclick="closeFullMessageModal()" class="text-gray-500 hover:text-gray-700">
                         <i class="fas fa-times text-xl"></i>
                     </button>
@@ -180,18 +182,24 @@ class RESBS_Admin_Contact_Messages {
         
         <script>
             function updateStatus(id, status) {
-                if (status && confirm('Are you sure you want to update the status?')) {
-                    window.location.href = '?page=contact-messages&action=update_status&id=' + id + '&status=' + status;
+                if (status && confirm('<?php echo esc_js(__('Are you sure you want to update the status?', 'realestate-booking-suite')); ?>')) {
+                    const url = new URL(window.location.href);
+                    url.searchParams.set('action', 'update_status');
+                    url.searchParams.set('id', id);
+                    url.searchParams.set('status', status);
+                    window.location.href = url.toString();
                 }
             }
             
             function filterByStatus() {
                 const status = document.getElementById('status-filter').value;
+                const url = new URL(window.location.href);
                 if (status) {
-                    window.location.href = '?page=contact-messages&status=' + status;
+                    url.searchParams.set('status', status);
                 } else {
-                    window.location.href = '?page=contact-messages';
+                    url.searchParams.delete('status');
                 }
+                window.location.href = url.toString();
             }
             
             function showFullMessage(id, message) {
@@ -213,7 +221,7 @@ class RESBS_Admin_Contact_Messages {
      */
     public function update_contact_message_status() {
         if (!current_user_can('manage_options')) {
-            wp_die('Unauthorized');
+            wp_die(esc_html__('Unauthorized', 'realestate-booking-suite'));
         }
         
         $id = intval($_POST['id']);
@@ -231,9 +239,9 @@ class RESBS_Admin_Contact_Messages {
         );
         
         if ($result !== false) {
-            wp_send_json_success('Status updated successfully');
+            wp_send_json_success(esc_html__('Status updated successfully', 'realestate-booking-suite'));
         } else {
-            wp_send_json_error('Failed to update status');
+            wp_send_json_error(esc_html__('Failed to update status', 'realestate-booking-suite'));
         }
     }
     
@@ -242,7 +250,7 @@ class RESBS_Admin_Contact_Messages {
      */
     public function delete_contact_message() {
         if (!current_user_can('manage_options')) {
-            wp_die('Unauthorized');
+            wp_die(esc_html__('Unauthorized', 'realestate-booking-suite'));
         }
         
         $id = intval($_POST['id']);
@@ -257,9 +265,9 @@ class RESBS_Admin_Contact_Messages {
         );
         
         if ($result !== false) {
-            wp_send_json_success('Contact message deleted successfully');
+            wp_send_json_success(esc_html__('Contact message deleted successfully', 'realestate-booking-suite'));
         } else {
-            wp_send_json_error('Failed to delete contact message');
+            wp_send_json_error(esc_html__('Failed to delete contact message', 'realestate-booking-suite'));
         }
     }
 }

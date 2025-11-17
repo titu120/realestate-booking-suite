@@ -292,7 +292,7 @@ $property_statuses = get_terms(array(
                     <i class="fas fa-search search-icon"></i>
                     <input
                         type="text"
-                        placeholder="Address, City, ZIP..."
+                        placeholder="<?php echo esc_attr__('Address, City, ZIP...', 'realestate-booking-suite'); ?>"
                         class="search-input"
                         id="searchInput"
                         name="search"
@@ -303,33 +303,33 @@ $property_statuses = get_terms(array(
                 <!-- Filter Buttons -->
                 <div class="filter-buttons">
                     <button type="button" onclick="toggleDropdown('priceDropdown')" class="filter-chip">
-                        <span>Price</span>
+                        <span><?php echo esc_html__('Price', 'realestate-booking-suite'); ?></span>
                         <i class="fas fa-chevron-down"></i>
                     </button>
 
                     <button type="button" onclick="toggleDropdown('typeDropdown')" class="filter-chip">
-                        <span>Type</span>
+                        <span><?php echo esc_html__('Type', 'realestate-booking-suite'); ?></span>
                         <i class="fas fa-chevron-down"></i>
                     </button>
 
                     <button type="button" onclick="toggleDropdown('bedroomsDropdown')" class="filter-chip">
-                        <span>Bedrooms</span>
+                        <span><?php echo esc_html__('Bedrooms', 'realestate-booking-suite'); ?></span>
                         <i class="fas fa-chevron-down"></i>
                     </button>
 
                     <button type="button" onclick="toggleDropdown('bathroomsDropdown')" class="filter-chip">
-                        <span>Bathrooms</span>
+                        <span><?php echo esc_html__('Bathrooms', 'realestate-booking-suite'); ?></span>
                         <i class="fas fa-chevron-down"></i>
                     </button>
 
 
                     <button type="button" onclick="toggleDropdown('moreFiltersDropdown')" class="filter-chip">
-                        <span>More filters</span>
+                        <span><?php echo esc_html__('More filters', 'realestate-booking-suite'); ?></span>
                         <i class="fas fa-sliders-h"></i>
                     </button>
 
                     <button type="submit" class="search-btn">
-                        <i class="fas fa-search"></i> Search
+                        <i class="fas fa-search"></i> <?php echo esc_html__('Search', 'realestate-booking-suite'); ?>
                     </button>
                     <?php 
                     // Get the archive page URL and add reset parameter
@@ -341,7 +341,7 @@ $property_statuses = get_terms(array(
                     $reset_url = add_query_arg('reset', '1', $archive_url);
                     ?>
                     <a href="<?php echo esc_url($reset_url); ?>" class="search-btn" style="background-color: #6b7280; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
-                        <i class="fas fa-redo"></i> Reset to Default
+                        <i class="fas fa-redo"></i> <?php echo esc_html__('Reset to Default', 'realestate-booking-suite'); ?>
                     </a>
                 </div>
 
@@ -351,20 +351,20 @@ $property_statuses = get_terms(array(
                 <div id="priceDropdown" class="dropdown-content">
                     <div class="dropdown-grid">
                         <div>
-                            <label class="dropdown-label">Min Price</label>
-                            <input type="number" placeholder="$ Min Price" class="dropdown-input" name="min_price" value="<?php echo esc_attr($min_price); ?>">
+                            <label class="dropdown-label"><?php echo esc_html__('Min Price', 'realestate-booking-suite'); ?></label>
+                            <input type="number" placeholder="<?php echo esc_attr(sprintf(__('%s Min Price', 'realestate-booking-suite'), resbs_get_currency_symbol())); ?>" class="dropdown-input" name="min_price" value="<?php echo esc_attr($min_price); ?>">
                         </div>
                         <div>
-                            <label class="dropdown-label">Max Price</label>
-                            <input type="number" placeholder="$ Max Price" class="dropdown-input" name="max_price" value="<?php echo esc_attr($max_price); ?>">
+                            <label class="dropdown-label"><?php echo esc_html__('Max Price', 'realestate-booking-suite'); ?></label>
+                            <input type="number" placeholder="<?php echo esc_attr(sprintf(__('%s Max Price', 'realestate-booking-suite'), resbs_get_currency_symbol())); ?>" class="dropdown-input" name="max_price" value="<?php echo esc_attr($max_price); ?>">
                         </div>
                     </div>
                     <div class="filter-actions">
                         <button type="submit" class="apply-filter-btn">
-                            <i class="fas fa-filter"></i> Apply Filter
+                            <i class="fas fa-filter"></i> <?php echo esc_html__('Apply Filter', 'realestate-booking-suite'); ?>
                         </button>
                         <button type="button" class="clear-filter-btn" onclick="clearPriceFilter()">
-                            <i class="fas fa-times"></i> Clear
+                            <i class="fas fa-times"></i> <?php echo esc_html__('Clear', 'realestate-booking-suite'); ?>
                         </button>
                     </div>
                 </div>
@@ -375,7 +375,7 @@ $property_statuses = get_terms(array(
                         <!-- Add "Any" option first -->
                         <label class="checkbox-item">
                             <input type="radio" name="property_type" value="" <?php checked($property_type_filter, ''); ?>>
-                            <span>Any Type</span>
+                            <span><?php echo esc_html__('Any Type', 'realestate-booking-suite'); ?></span>
                         </label>
                         <?php if ($property_types && !is_wp_error($property_types)): ?>
                             <?php foreach ($property_types as $type): ?>
@@ -387,28 +387,28 @@ $property_statuses = get_terms(array(
                         <?php else: ?>
                         <label class="checkbox-item">
                             <input type="radio" name="property_type" value="house" <?php checked($property_type_filter, 'house'); ?>>
-                            <span>House</span>
+                            <span><?php echo esc_html__('House', 'realestate-booking-suite'); ?></span>
                         </label>
                         <label class="checkbox-item">
                             <input type="radio" name="property_type" value="apartment" <?php checked($property_type_filter, 'apartment'); ?>>
-                            <span>Apartment</span>
+                            <span><?php echo esc_html__('Apartment', 'realestate-booking-suite'); ?></span>
                         </label>
                         <label class="checkbox-item">
                             <input type="radio" name="property_type" value="condo" <?php checked($property_type_filter, 'condo'); ?>>
-                            <span>Condo</span>
+                            <span><?php echo esc_html__('Condo', 'realestate-booking-suite'); ?></span>
                         </label>
                         <label class="checkbox-item">
                             <input type="radio" name="property_type" value="office" <?php checked($property_type_filter, 'office'); ?>>
-                            <span>Office</span>
+                            <span><?php echo esc_html__('Office', 'realestate-booking-suite'); ?></span>
                         </label>
                         <?php endif; ?>
                     </div>
                     <div class="filter-actions">
                         <button type="submit" class="apply-filter-btn">
-                            <i class="fas fa-filter"></i> Apply Filter
+                            <i class="fas fa-filter"></i> <?php echo esc_html__('Apply Filter', 'realestate-booking-suite'); ?>
                         </button>
                         <button type="button" class="clear-filter-btn" onclick="clearTypeFilter()">
-                            <i class="fas fa-times"></i> Clear
+                            <i class="fas fa-times"></i> <?php echo esc_html__('Clear', 'realestate-booking-suite'); ?>
                         </button>
                     </div>
                 </div>
@@ -417,20 +417,20 @@ $property_statuses = get_terms(array(
                 <div id="bedroomsDropdown" class="dropdown-content">
                     <div class="dropdown-grid">
                         <div>
-                            <label class="dropdown-label">Min Bedrooms</label>
-                            <input type="number" placeholder="Min Bedrooms" class="dropdown-input" name="min_bedrooms" value="<?php echo esc_attr($min_bedrooms); ?>" min="0">
+                            <label class="dropdown-label"><?php echo esc_html__('Min Bedrooms', 'realestate-booking-suite'); ?></label>
+                            <input type="number" placeholder="<?php echo esc_attr__('Min Bedrooms', 'realestate-booking-suite'); ?>" class="dropdown-input" name="min_bedrooms" value="<?php echo esc_attr($min_bedrooms); ?>" min="0">
                         </div>
                         <div>
-                            <label class="dropdown-label">Max Bedrooms</label>
-                            <input type="number" placeholder="Max Bedrooms" class="dropdown-input" name="max_bedrooms" value="<?php echo esc_attr($max_bedrooms); ?>" min="0">
+                            <label class="dropdown-label"><?php echo esc_html__('Max Bedrooms', 'realestate-booking-suite'); ?></label>
+                            <input type="number" placeholder="<?php echo esc_attr__('Max Bedrooms', 'realestate-booking-suite'); ?>" class="dropdown-input" name="max_bedrooms" value="<?php echo esc_attr($max_bedrooms); ?>" min="0">
                         </div>
                     </div>
                     <div class="filter-actions">
                         <button type="submit" class="apply-filter-btn">
-                            <i class="fas fa-filter"></i> Apply Filter
+                            <i class="fas fa-filter"></i> <?php echo esc_html__('Apply Filter', 'realestate-booking-suite'); ?>
                         </button>
                         <button type="button" class="clear-filter-btn" onclick="clearBedroomsFilter()">
-                            <i class="fas fa-times"></i> Clear
+                            <i class="fas fa-times"></i> <?php echo esc_html__('Clear', 'realestate-booking-suite'); ?>
                         </button>
                     </div>
                 </div>
@@ -439,20 +439,20 @@ $property_statuses = get_terms(array(
                 <div id="bathroomsDropdown" class="dropdown-content">
                     <div class="dropdown-grid">
                         <div>
-                            <label class="dropdown-label">Min Bathrooms</label>
-                            <input type="number" placeholder="Min Bathrooms" class="dropdown-input" name="min_bathrooms" value="<?php echo esc_attr($min_bathrooms); ?>" min="0" step="0.5">
+                            <label class="dropdown-label"><?php echo esc_html__('Min Bathrooms', 'realestate-booking-suite'); ?></label>
+                            <input type="number" placeholder="<?php echo esc_attr__('Min Bathrooms', 'realestate-booking-suite'); ?>" class="dropdown-input" name="min_bathrooms" value="<?php echo esc_attr($min_bathrooms); ?>" min="0" step="0.5">
                         </div>
                         <div>
-                            <label class="dropdown-label">Max Bathrooms</label>
-                            <input type="number" placeholder="Max Bathrooms" class="dropdown-input" name="max_bathrooms" value="<?php echo esc_attr($max_bathrooms); ?>" min="0" step="0.5">
+                            <label class="dropdown-label"><?php echo esc_html__('Max Bathrooms', 'realestate-booking-suite'); ?></label>
+                            <input type="number" placeholder="<?php echo esc_attr__('Max Bathrooms', 'realestate-booking-suite'); ?>" class="dropdown-input" name="max_bathrooms" value="<?php echo esc_attr($max_bathrooms); ?>" min="0" step="0.5">
                         </div>
                     </div>
                     <div class="filter-actions">
                         <button type="submit" class="apply-filter-btn">
-                            <i class="fas fa-filter"></i> Apply Filter
+                            <i class="fas fa-filter"></i> <?php echo esc_html__('Apply Filter', 'realestate-booking-suite'); ?>
                         </button>
                         <button type="button" class="clear-filter-btn" onclick="clearBathroomsFilter()">
-                            <i class="fas fa-times"></i> Clear
+                            <i class="fas fa-times"></i> <?php echo esc_html__('Clear', 'realestate-booking-suite'); ?>
                         </button>
                     </div>
                 </div>
@@ -462,16 +462,16 @@ $property_statuses = get_terms(array(
                 <div id="moreFiltersDropdown" class="dropdown-content">
                     <div class="dropdown-grid">
                         <div>
-                            <label class="dropdown-label">Square Feet</label>
+                            <label class="dropdown-label"><?php echo esc_html__('Square Feet', 'realestate-booking-suite'); ?></label>
                             <div class="flex" style="gap: 8px;">
-                                <input type="number" placeholder="Min" class="dropdown-input" name="min_sqft" value="<?php echo esc_attr($min_sqft); ?>">
-                                <input type="number" placeholder="Max" class="dropdown-input" name="max_sqft" value="<?php echo esc_attr($max_sqft); ?>">
+                                <input type="number" placeholder="<?php echo esc_attr__('Min', 'realestate-booking-suite'); ?>" class="dropdown-input" name="min_sqft" value="<?php echo esc_attr($min_sqft); ?>">
+                                <input type="number" placeholder="<?php echo esc_attr__('Max', 'realestate-booking-suite'); ?>" class="dropdown-input" name="max_sqft" value="<?php echo esc_attr($max_sqft); ?>">
                             </div>
                         </div>
                         <div>
-                            <label class="dropdown-label">Year Built</label>
+                            <label class="dropdown-label"><?php echo esc_html__('Year Built', 'realestate-booking-suite'); ?></label>
                             <select class="dropdown-input" name="year_built">
-                                <option value="">Any</option>
+                                <option value=""><?php echo esc_html__('Any', 'realestate-booking-suite'); ?></option>
                                 <option value="2020+" <?php selected($year_built, '2020+'); ?>>2020+</option>
                                 <option value="2010+" <?php selected($year_built, '2010+'); ?>>2010+</option>
                                 <option value="2000+" <?php selected($year_built, '2000+'); ?>>2000+</option>
@@ -479,26 +479,26 @@ $property_statuses = get_terms(array(
                             </select>
                         </div>
                         <div>
-                            <label class="dropdown-label">Status</label>
+                            <label class="dropdown-label"><?php echo esc_html__('Status', 'realestate-booking-suite'); ?></label>
                             <select class="dropdown-input" name="property_status">
-                                <option value="">All</option>
+                                <option value=""><?php echo esc_html__('All', 'realestate-booking-suite'); ?></option>
                                 <?php if ($property_statuses && !is_wp_error($property_statuses)): ?>
                                     <?php foreach ($property_statuses as $status): ?>
                                         <option value="<?php echo esc_attr($status->slug); ?>" <?php selected($property_status, $status->slug); ?>><?php echo esc_html($status->name); ?></option>
                                     <?php endforeach; ?>
                                 <?php else: ?>
-                                    <option value="for-sale" <?php selected($property_status, 'for-sale'); ?>>For Sale</option>
-                                    <option value="for-rent" <?php selected($property_status, 'for-rent'); ?>>For Rent</option>
+                                    <option value="for-sale" <?php selected($property_status, 'for-sale'); ?>><?php echo esc_html__('For Sale', 'realestate-booking-suite'); ?></option>
+                                    <option value="for-rent" <?php selected($property_status, 'for-rent'); ?>><?php echo esc_html__('For Rent', 'realestate-booking-suite'); ?></option>
                                 <?php endif; ?>
                             </select>
                         </div>
                     </div>
                     <div class="filter-actions">
                         <button type="submit" class="apply-filter-btn">
-                            <i class="fas fa-filter"></i> Apply Filter
+                            <i class="fas fa-filter"></i> <?php echo esc_html__('Apply Filter', 'realestate-booking-suite'); ?>
                         </button>
                         <button type="button" class="clear-filter-btn" onclick="clearMoreFilters()">
-                            <i class="fas fa-times"></i> Clear
+                            <i class="fas fa-times"></i> <?php echo esc_html__('Clear', 'realestate-booking-suite'); ?>
                         </button>
                     </div>
                 </div>
@@ -515,15 +515,15 @@ $property_statuses = get_terms(array(
             <div class="view-controls">
                 <button onclick="showListView()" class="view-btn active">
                     <i class="fas fa-list"></i>
-                    <span>Grid View</span>
+                    <span><?php echo esc_html__('Grid View', 'realestate-booking-suite'); ?></span>
                 </button>
                 <div class="view-divider">|</div>
                 <button onclick="showMapView()" class="view-btn">
                     <i class="fas fa-map-marked-alt"></i>
-                    <span>Map View</span>
+                    <span><?php echo esc_html__('Map View', 'realestate-booking-suite'); ?></span>
                 </button>
                 <div class="results-count">
-                    <span id="resultsCount"><?php echo $properties_query->found_posts; ?></span> results
+                    <span id="resultsCount"><?php echo $properties_query->found_posts; ?></span> <?php echo esc_html__('results', 'realestate-booking-suite'); ?>
                 </div>
             </div>
 
@@ -535,34 +535,34 @@ $property_statuses = get_terms(array(
                     $enabled_sort_options = resbs_get_sort_options();
                 ?>
                 <div class="sort-controls">
-                    <span class="sort-label">Sort by:</span>
+                    <span class="sort-label"><?php echo esc_html__('Sort by:', 'realestate-booking-suite'); ?></span>
                     <select class="sort-select" name="sort_by" id="sortSelect" onchange="handleSortChange(this.value)">
                         <?php if (in_array('newest', $enabled_sort_options)) : ?>
-                            <option value="newest" <?php selected($sort_by, 'newest'); ?>>Newest</option>
+                            <option value="newest" <?php selected($sort_by, 'newest'); ?>><?php echo esc_html__('Newest', 'realestate-booking-suite'); ?></option>
                         <?php endif; ?>
                         <?php if (in_array('oldest', $enabled_sort_options)) : ?>
-                            <option value="oldest" <?php selected($sort_by, 'oldest'); ?>>Oldest</option>
+                            <option value="oldest" <?php selected($sort_by, 'oldest'); ?>><?php echo esc_html__('Oldest', 'realestate-booking-suite'); ?></option>
                         <?php endif; ?>
                         <?php if (in_array('lowest_price', $enabled_sort_options)) : ?>
-                            <option value="lowest_price" <?php selected($sort_by, 'lowest_price'); ?>>Price: Low to High</option>
+                            <option value="lowest_price" <?php selected($sort_by, 'lowest_price'); ?>><?php echo esc_html__('Price: Low to High', 'realestate-booking-suite'); ?></option>
                         <?php endif; ?>
                         <?php if (in_array('highest_price', $enabled_sort_options)) : ?>
-                            <option value="highest_price" <?php selected($sort_by, 'highest_price'); ?>>Price: High to Low</option>
+                            <option value="highest_price" <?php selected($sort_by, 'highest_price'); ?>><?php echo esc_html__('Price: High to Low', 'realestate-booking-suite'); ?></option>
                         <?php endif; ?>
                         <?php if (in_array('largest_sqft', $enabled_sort_options)) : ?>
-                            <option value="largest_sqft" <?php selected($sort_by, 'largest_sqft'); ?>>Largest sq ft</option>
+                            <option value="largest_sqft" <?php selected($sort_by, 'largest_sqft'); ?>><?php echo esc_html__('Largest sq ft', 'realestate-booking-suite'); ?></option>
                         <?php endif; ?>
                         <?php if (in_array('lowest_sqft', $enabled_sort_options)) : ?>
-                            <option value="lowest_sqft" <?php selected($sort_by, 'lowest_sqft'); ?>>Lowest sq ft</option>
+                            <option value="lowest_sqft" <?php selected($sort_by, 'lowest_sqft'); ?>><?php echo esc_html__('Lowest sq ft', 'realestate-booking-suite'); ?></option>
                         <?php endif; ?>
                         <?php if (in_array('bedrooms', $enabled_sort_options)) : ?>
-                            <option value="bedrooms" <?php selected($sort_by, 'bedrooms'); ?>>Bedrooms</option>
+                            <option value="bedrooms" <?php selected($sort_by, 'bedrooms'); ?>><?php echo esc_html__('Bedrooms', 'realestate-booking-suite'); ?></option>
                         <?php endif; ?>
                         <?php if (in_array('bathrooms', $enabled_sort_options)) : ?>
-                            <option value="bathrooms" <?php selected($sort_by, 'bathrooms'); ?>>Bathrooms</option>
+                            <option value="bathrooms" <?php selected($sort_by, 'bathrooms'); ?>><?php echo esc_html__('Bathrooms', 'realestate-booking-suite'); ?></option>
                         <?php endif; ?>
                         <?php if (in_array('featured', $enabled_sort_options)) : ?>
-                            <option value="featured" <?php selected($sort_by, 'featured'); ?>>Featured</option>
+                            <option value="featured" <?php selected($sort_by, 'featured'); ?>><?php echo esc_html__('Featured', 'realestate-booking-suite'); ?></option>
                         <?php endif; ?>
                     </select>
                 </div>
@@ -622,7 +622,7 @@ $property_statuses = get_terms(array(
                             // Format price
                             $formatted_price = '';
                             if ($price) {
-                                $formatted_price = '$' . number_format($price);
+                                $formatted_price = resbs_format_price($price);
                             }
                             
                             // Format location
@@ -640,13 +640,13 @@ $property_statuses = get_terms(array(
                             
                             if ($days_old < 7) {
                                 $badge_class = 'badge-new';
-                                $badge_text = 'Just listed';
+                                $badge_text = __('Just listed', 'realestate-booking-suite');
                             } elseif ($days_old < 30) {
                                 $badge_class = 'badge-featured';
-                                $badge_text = 'Featured';
+                                $badge_text = __('Featured', 'realestate-booking-suite');
                             } else {
                                 $badge_class = 'badge-standard';
-                                $badge_text = 'Available';
+                                $badge_text = __('Available', 'realestate-booking-suite');
                             }
                             ?>
                             
@@ -682,13 +682,13 @@ $property_statuses = get_terms(array(
                                         <?php if ($bedrooms): ?>
                                 <div class="property-feature">
                                     <i class="fas fa-bed"></i>
-                                                <span><?php echo esc_html($bedrooms); ?> beds</span>
+                                                <span><?php echo esc_html($bedrooms); ?> <?php echo esc_html($bedrooms != 1 ? __('beds', 'realestate-booking-suite') : __('bed', 'realestate-booking-suite')); ?></span>
                                 </div>
                                         <?php endif; ?>
                                         <?php if ($bathrooms): ?>
                                 <div class="property-feature">
                                     <i class="fas fa-bath"></i>
-                                                <span><?php echo esc_html($bathrooms); ?> baths</span>
+                                                <span><?php echo esc_html($bathrooms); ?> <?php echo esc_html($bathrooms != 1 ? __('baths', 'realestate-booking-suite') : __('bath', 'realestate-booking-suite')); ?></span>
                                 </div>
                                         <?php endif; ?>
                                         <?php if ($area_sqft): ?>
@@ -701,7 +701,7 @@ $property_statuses = get_terms(array(
                             <div class="property-footer">
                                         <span class="property-type"><?php echo esc_html($property_type_name); ?></span>
                                         <a href="<?php echo get_permalink(); ?>" class="view-details-btn" target="_blank" onclick="console.log('Property ID: <?php echo get_the_ID(); ?>, Permalink: <?php echo get_permalink(); ?>')">
-                                    View Details <i class="fas fa-arrow-right"></i>
+                                    <?php echo esc_html__('View Details', 'realestate-booking-suite'); ?> <i class="fas fa-arrow-right"></i>
                                         </a>
                             </div>
                         </div>
@@ -709,8 +709,8 @@ $property_statuses = get_terms(array(
                         <?php endwhile; ?>
                     <?php else: ?>
                         <div class="no-properties-found">
-                            <h3>No properties found</h3>
-                            <p>Try adjusting your search criteria or browse all properties.</p>
+                            <h3><?php echo esc_html__('No properties found', 'realestate-booking-suite'); ?></h3>
+                            <p><?php echo esc_html__('Try adjusting your search criteria or browse all properties.', 'realestate-booking-suite'); ?></p>
                         </div>
                     <?php endif; ?>
                 </div>
@@ -732,26 +732,26 @@ $property_statuses = get_terms(array(
                         // Add reset parameter to trigger PHP reset logic
                         $reset_url = add_query_arg('reset', '1', $archive_url);
                         ?>
-                        <a href="<?php echo esc_url($reset_url); ?>" class="map-control" id="mapResetBtn" title="Reset to Default" style="cursor: pointer; z-index: 1000; text-decoration: none; color: inherit; display: flex; align-items: center; justify-content: center;">
+                        <a href="<?php echo esc_url($reset_url); ?>" class="map-control" id="mapResetBtn" title="<?php echo esc_attr__('Reset to Default', 'realestate-booking-suite'); ?>" style="cursor: pointer; z-index: 1000; text-decoration: none; color: inherit; display: flex; align-items: center; justify-content: center;">
                             <i class="fas fa-redo"></i>
                         </a>
                     </div>
                     
                     <!-- Map Legend -->
                     <div class="map-legend" style="position: absolute; bottom: 20px; left: 20px; z-index: 10;">
-                        <h4 class="legend-title">Legend</h4>
+                        <h4 class="legend-title"><?php echo esc_html__('Legend', 'realestate-booking-suite'); ?></h4>
                         <div class="legend-items">
                             <div class="legend-item">
                                 <div class="legend-color" style="background-color: #10b981;"></div>
-                                <span class="legend-label">Just Listed</span>
+                                <span class="legend-label"><?php echo esc_html__('Just Listed', 'realestate-booking-suite'); ?></span>
                             </div>
                             <div class="legend-item">
                                 <div class="legend-color" style="background-color: #f97316;"></div>
-                                <span class="legend-label">Featured</span>
+                                <span class="legend-label"><?php echo esc_html__('Featured', 'realestate-booking-suite'); ?></span>
                             </div>
                             <div class="legend-item">
                                 <div class="legend-color" style="background-color: #3b82f6;"></div>
-                                <span class="legend-label">Standard</span>
+                                <span class="legend-label"><?php echo esc_html__('Standard', 'realestate-booking-suite'); ?></span>
                             </div>
                         </div>
                     </div>
@@ -952,8 +952,8 @@ $property_statuses = get_terms(array(
                     'type' => 'list',
                     'end_size' => 2,
                     'mid_size' => 1,
-                    'prev_text' => '<i class="fas fa-chevron-left"></i> Previous',
-                    'next_text' => 'Next <i class="fas fa-chevron-right"></i>',
+                    'prev_text' => '<i class="fas fa-chevron-left"></i> ' . __('Previous', 'realestate-booking-suite'),
+                    'next_text' => __('Next', 'realestate-booking-suite') . ' <i class="fas fa-chevron-right"></i>',
                 ));
                 ?>
                 </div>

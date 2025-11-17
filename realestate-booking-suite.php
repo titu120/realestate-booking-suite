@@ -235,7 +235,7 @@ register_activation_hook(__FILE__, 'resbs_plugin_activation');
 function resbs_manual_flush_rewrite_rules() {
     if (isset($_GET['resbs_flush']) && $_GET['resbs_flush'] === '1') {
         flush_rewrite_rules();
-        echo '<div style="background: green; color: white; padding: 10px; margin: 10px;">Rewrite rules flushed successfully!</div>';
+        echo '<div style="background: green; color: white; padding: 10px; margin: 10px;">' . esc_html__('Rewrite rules flushed successfully!', 'realestate-booking-suite') . '</div>';
     }
 }
 add_action('init', 'resbs_manual_flush_rewrite_rules');
@@ -263,7 +263,7 @@ function resbs_get_header() {
         ?><!DOCTYPE html>
 <html <?php language_attributes(); ?>>
 <head>
-    <meta charset="<?php bloginfo('charset'); ?>">
+    <meta charset="<?php echo esc_attr(get_bloginfo('charset')); ?>">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <?php wp_head(); ?>
 </head>
@@ -425,7 +425,9 @@ add_action('admin_enqueue_scripts', 'resbs_enqueue_assets', 5);
 // Fallback: Add Font Awesome directly to head if not already loaded
 function resbs_add_fontawesome_fallback() {
     if (!wp_style_is('font-awesome', 'enqueued') && !wp_style_is('font-awesome', 'done')) {
-        echo '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />' . "\n";
+        $fontawesome_url = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css';
+        $fontawesome_integrity = 'sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==';
+        echo '<link rel="stylesheet" href="' . esc_url($fontawesome_url) . '" integrity="' . esc_attr($fontawesome_integrity) . '" crossorigin="anonymous" referrerpolicy="no-referrer" />' . "\n";
     }
 }
 add_action('wp_head', 'resbs_add_fontawesome_fallback', 1);
@@ -574,9 +576,9 @@ function resbs_verify_all_admin_users() {
             delete_user_meta($user->ID, 'resbs_verification_token');
             delete_user_meta($user->ID, 'resbs_verification_expires');
             $verified_count = 1;
-            $message = sprintf(__('User "%s" has been verified successfully!', 'realestate-booking-suite'), $user->user_login);
+            $message = sprintf(__('User "%s" has been verified successfully!', 'realestate-booking-suite'), esc_html($user->user_login));
         } else {
-            $message = sprintf(__('User "%s" not found.', 'realestate-booking-suite'), $username);
+            $message = sprintf(__('User "%s" not found.', 'realestate-booking-suite'), esc_html($username));
         }
     }
     // Verify all users
@@ -619,7 +621,7 @@ function resbs_verify_all_admin_users() {
     if (!empty($message)) {
         add_action('admin_notices', function() use ($message, $verified_count) {
             $notice_class = $verified_count > 0 ? 'notice-success' : 'notice-warning';
-            echo '<div class="notice ' . $notice_class . ' is-dismissible"><p>' . esc_html($message) . '</p></div>';
+            echo '<div class="notice ' . esc_attr($notice_class) . ' is-dismissible"><p>' . esc_html($message) . '</p></div>';
         });
     }
 }
@@ -713,7 +715,7 @@ function resbs_fix_property_arrays() {
     // Show success message
     add_action('admin_notices', function() use ($fixed_count) {
         echo '<div class="notice notice-success is-dismissible"><p>';
-        echo sprintf(__('Fixed %d property(ies) - converted array data to strings.', 'realestate-booking-suite'), $fixed_count);
+        echo esc_html(sprintf(__('Fixed %d property(ies) - converted array data to strings.', 'realestate-booking-suite'), $fixed_count));
         echo '</p></div>';
     });
 }

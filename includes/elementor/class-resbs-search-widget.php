@@ -384,7 +384,7 @@ class RESBS_Search_Widget extends \Elementor\Widget_Base {
         $all_pages = get_pages();
         
         foreach ($all_pages as $page) {
-            $pages[$page->ID] = $page->post_title;
+            $pages[$page->ID] = esc_html($page->post_title);
         }
         
         return $pages;
@@ -869,7 +869,7 @@ class RESBS_Search_Widget extends \Elementor\Widget_Base {
         ?>
         <div class="resbs-search-widget">
             <div class="resbs-search-form">
-                <h3 class="resbs-search-title">{{{ settings.title }}}</h3>
+                <h3 class="resbs-search-title">{{ settings.title }}</h3>
                 <div class="resbs-search-form-inner">
                     <div class="resbs-search-fields">
                         <div class="resbs-search-field">

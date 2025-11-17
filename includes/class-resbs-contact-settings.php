@@ -497,7 +497,7 @@ class RESBS_Contact_Settings {
             'linkedin' => get_option('resbs_social_linkedin', ''),
             'youtube' => get_option('resbs_social_youtube', ''),
             'show_contact_widget' => get_option('resbs_show_contact_widget', true),
-            'widget_title' => get_option('resbs_contact_widget_title', esc_html__('Contact Us', 'realestate-booking-suite')),
+            'widget_title' => get_option('resbs_contact_widget_title', __('Contact Us', 'realestate-booking-suite')),
             'widget_style' => get_option('resbs_contact_widget_style', 'default')
         );
     }

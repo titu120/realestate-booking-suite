@@ -222,9 +222,11 @@ class RESBS_Archive_Handler {
      */
     public function custom_archive_template($template) {
         if (is_post_type_archive('resbs_property') || is_tax('resbs_property_category')) {
-            // Force use clean template
-            $clean_template = RESBS_PATH . 'templates/archive-property-clean.php';
-            return $clean_template;
+            // Use simple archive template
+            $simple_template = RESBS_PATH . 'templates/simple-archive.php';
+            if (file_exists($simple_template)) {
+                return $simple_template;
+            }
         }
         
         return $template;

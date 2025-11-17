@@ -607,7 +607,7 @@ class RESBS_Email_Manager {
             $submission_data
         );
 
-        $to = $submission_data['email'] ?? get_option('admin_email');
+        $to = sanitize_email($submission_data['email'] ?? get_option('admin_email'));
         $this->send_email($to, $subject, $message);
 
         // Send admin notification if enabled
@@ -648,7 +648,7 @@ class RESBS_Email_Manager {
             $booking_data
         );
 
-        $to = $booking_data['email'] ?? get_option('admin_email');
+        $to = sanitize_email($booking_data['email'] ?? get_option('admin_email'));
         $this->send_email($to, $subject, $message);
     }
 
@@ -674,7 +674,7 @@ class RESBS_Email_Manager {
             $booking_data
         );
 
-        $to = $booking_data['email'] ?? get_option('admin_email');
+        $to = sanitize_email($booking_data['email'] ?? get_option('admin_email'));
         $this->send_email($to, $subject, $message);
     }
 
@@ -700,7 +700,7 @@ class RESBS_Email_Manager {
             array_merge($search_data, array('properties' => $matching_properties))
         );
 
-        $to = $search_data['email'] ?? get_option('admin_email');
+        $to = sanitize_email($search_data['email'] ?? get_option('admin_email'));
         $this->send_email($to, $subject, $message);
     }
 
@@ -712,10 +712,15 @@ class RESBS_Email_Manager {
         $from_email = get_option('resbs_email_from_email', get_option('admin_email'));
         $reply_to = get_option('resbs_email_reply_to', get_option('admin_email'));
         $enable_html = get_option('resbs_email_enable_html', true);
+        
+        // Sanitize email addresses
+        $to = sanitize_email($to);
+        $from_email = sanitize_email($from_email);
+        $reply_to = sanitize_email($reply_to);
 
         // Set headers
         $headers = array(
-            'From: ' . $from_name . ' <' . $from_email . '>',
+            'From: ' . esc_html($from_name) . ' <' . $from_email . '>',
             'Reply-To: ' . $reply_to,
             'Content-Type: ' . ($enable_html ? 'text/html' : 'text/plain') . '; charset=UTF-8'
         );
@@ -725,8 +730,8 @@ class RESBS_Email_Manager {
             $message = $this->wrap_html_email($message);
         }
 
-        // Send email
-        $sent = wp_mail($to, $subject, $message, $headers);
+        // Send email (subject is already escaped in replace_placeholders, but ensure it's safe)
+        $sent = wp_mail($to, wp_strip_all_tags($subject), $message, $headers);
 
         // Log email sending
         if ($sent) {
@@ -802,11 +807,11 @@ class RESBS_Email_Manager {
      */
     private function get_placeholders($template_type, $object_id, $data) {
         $placeholders = array(
-            'site_name' => get_bloginfo('name'),
-            'site_url' => home_url(),
-            'admin_email' => get_option('admin_email'),
-            'current_date' => current_time(get_option('date_format')),
-            'current_time' => current_time(get_option('time_format'))
+            'site_name' => esc_html(get_bloginfo('name')),
+            'site_url' => esc_url(home_url()),
+            'admin_email' => sanitize_email(get_option('admin_email')),
+            'current_date' => esc_html(current_time(get_option('date_format'))),
+            'current_time' => esc_html(current_time(get_option('time_format')))
         );
 
         switch ($template_type) {
@@ -816,11 +821,11 @@ class RESBS_Email_Manager {
                     $placeholders = array_merge($placeholders, array(
                         'property_title' => esc_html($property->post_title),
                         'property_url' => esc_url(get_permalink($object_id)),
-                        'property_id' => $object_id,
-                        'submission_date' => get_the_date('', $object_id),
-                        'submission_time' => get_the_time('', $object_id),
+                        'property_id' => absint($object_id),
+                        'submission_date' => esc_html(get_the_date('', $object_id)),
+                        'submission_time' => esc_html(get_the_time('', $object_id)),
                         'submitter_name' => esc_html($data['name'] ?? ''),
-                        'submitter_email' => esc_html($data['email'] ?? ''),
+                        'submitter_email' => sanitize_email($data['email'] ?? ''),
                         'submitter_phone' => esc_html($data['phone'] ?? '')
                     ));
                 }
@@ -829,13 +834,13 @@ class RESBS_Email_Manager {
             case 'booking_confirmation':
             case 'booking_cancellation':
                 $placeholders = array_merge($placeholders, array(
-                    'booking_id' => $object_id,
+                    'booking_id' => absint($object_id),
                     'booking_date' => esc_html($data['date'] ?? ''),
                     'booking_time' => esc_html($data['time'] ?? ''),
                     'property_title' => esc_html($data['property_title'] ?? ''),
                     'property_url' => esc_url($data['property_url'] ?? ''),
                     'customer_name' => esc_html($data['name'] ?? ''),
-                    'customer_email' => esc_html($data['email'] ?? ''),
+                    'customer_email' => sanitize_email($data['email'] ?? ''),
                     'customer_phone' => esc_html($data['phone'] ?? ''),
                     'booking_notes' => esc_html($data['notes'] ?? '')
                 ));
@@ -843,12 +848,12 @@ class RESBS_Email_Manager {
 
             case 'search_alert':
                 $placeholders = array_merge($placeholders, array(
-                    'search_id' => $object_id,
+                    'search_id' => absint($object_id),
                     'search_criteria' => esc_html($data['criteria'] ?? ''),
-                    'properties_count' => count($data['properties'] ?? array()),
+                    'properties_count' => absint(count($data['properties'] ?? array())),
                     'subscriber_name' => esc_html($data['name'] ?? ''),
-                    'subscriber_email' => esc_html($data['email'] ?? ''),
-                    'alert_date' => current_time(get_option('date_format'))
+                    'subscriber_email' => sanitize_email($data['email'] ?? ''),
+                    'alert_date' => esc_html(current_time(get_option('date_format')))
                 ));
                 break;
         }
@@ -1058,7 +1063,7 @@ The {site_name} Team', 'realestate-booking-suite')
         $preview = $this->replace_placeholders($template_content, $template_type, 1, $sample_data);
 
         wp_send_json_success(array(
-            'preview' => $preview
+            'preview' => wp_kses_post($preview)
         ));
     }
 
@@ -1068,24 +1073,24 @@ The {site_name} Team', 'realestate-booking-suite')
     private function get_sample_data($template_type) {
         $sample_data = array(
             'name' => esc_html__('John Doe', 'realestate-booking-suite'),
-            'email' => 'john@example.com',
-            'phone' => '+1-555-123-4567',
-            'date' => current_time(get_option('date_format')),
-            'time' => current_time(get_option('time_format')),
+            'email' => sanitize_email('john@example.com'),
+            'phone' => esc_html('+1-555-123-4567'),
+            'date' => esc_html(current_time(get_option('date_format'))),
+            'time' => esc_html(current_time(get_option('time_format'))),
             'notes' => esc_html__('Sample booking notes', 'realestate-booking-suite'),
             'criteria' => esc_html__('3 bedrooms, 2 bathrooms, under $500,000', 'realestate-booking-suite'),
             'property_title' => esc_html__('Beautiful Family Home', 'realestate-booking-suite'),
-            'property_url' => home_url('/property/sample-property/'),
+            'property_url' => esc_url(home_url('/property/sample-property/')),
             'properties' => array(
                 array(
                     'title' => esc_html__('Sample Property 1', 'realestate-booking-suite'),
-                    'url' => home_url('/property/sample-1/'),
-                    'price' => '$450,000'
+                    'url' => esc_url(home_url('/property/sample-1/')),
+                    'price' => esc_html('$450,000')
                 ),
                 array(
                     'title' => esc_html__('Sample Property 2', 'realestate-booking-suite'),
-                    'url' => home_url('/property/sample-2/'),
-                    'price' => '$475,000'
+                    'url' => esc_url(home_url('/property/sample-2/')),
+                    'price' => esc_html('$475,000')
                 )
             )
         );

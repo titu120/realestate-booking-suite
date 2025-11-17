@@ -130,11 +130,11 @@ class RESBS_Search {
                                 <label for="search_bedrooms"><?php esc_html_e('Bedrooms', 'realestate-booking-suite'); ?></label>
                                 <select id="search_bedrooms" name="bedrooms">
                                     <option value=""><?php esc_html_e('Any', 'realestate-booking-suite'); ?></option>
-                                    <option value="1">1+</option>
-                                    <option value="2">2+</option>
-                                    <option value="3">3+</option>
-                                    <option value="4">4+</option>
-                                    <option value="5">5+</option>
+                                    <option value="<?php echo esc_attr('1'); ?>"><?php echo esc_html('1+'); ?></option>
+                                    <option value="<?php echo esc_attr('2'); ?>"><?php echo esc_html('2+'); ?></option>
+                                    <option value="<?php echo esc_attr('3'); ?>"><?php echo esc_html('3+'); ?></option>
+                                    <option value="<?php echo esc_attr('4'); ?>"><?php echo esc_html('4+'); ?></option>
+                                    <option value="<?php echo esc_attr('5'); ?>"><?php echo esc_html('5+'); ?></option>
                                 </select>
                             </div>
                             
@@ -142,10 +142,10 @@ class RESBS_Search {
                                 <label for="search_bathrooms"><?php esc_html_e('Bathrooms', 'realestate-booking-suite'); ?></label>
                                 <select id="search_bathrooms" name="bathrooms">
                                     <option value=""><?php esc_html_e('Any', 'realestate-booking-suite'); ?></option>
-                                    <option value="1">1+</option>
-                                    <option value="2">2+</option>
-                                    <option value="3">3+</option>
-                                    <option value="4">4+</option>
+                                    <option value="<?php echo esc_attr('1'); ?>"><?php echo esc_html('1+'); ?></option>
+                                    <option value="<?php echo esc_attr('2'); ?>"><?php echo esc_html('2+'); ?></option>
+                                    <option value="<?php echo esc_attr('3'); ?>"><?php echo esc_html('3+'); ?></option>
+                                    <option value="<?php echo esc_attr('4'); ?>"><?php echo esc_html('4+'); ?></option>
                                 </select>
                             </div>
                         </div>
@@ -159,14 +159,14 @@ class RESBS_Search {
                             <div class="resbs-filter-group">
                                 <label for="search_amenities"><?php esc_html_e('Amenities', 'realestate-booking-suite'); ?></label>
                                 <select id="search_amenities" name="amenities[]" multiple>
-                                    <option value="pool"><?php esc_html_e('Swimming Pool', 'realestate-booking-suite'); ?></option>
-                                    <option value="garage"><?php esc_html_e('Garage', 'realestate-booking-suite'); ?></option>
-                                    <option value="garden"><?php esc_html_e('Garden', 'realestate-booking-suite'); ?></option>
-                                    <option value="balcony"><?php esc_html_e('Balcony', 'realestate-booking-suite'); ?></option>
-                                    <option value="elevator"><?php esc_html_e('Elevator', 'realestate-booking-suite'); ?></option>
-                                    <option value="security"><?php esc_html_e('Security', 'realestate-booking-suite'); ?></option>
-                                    <option value="parking"><?php esc_html_e('Parking', 'realestate-booking-suite'); ?></option>
-                                    <option value="furnished"><?php esc_html_e('Furnished', 'realestate-booking-suite'); ?></option>
+                                    <option value="<?php echo esc_attr('pool'); ?>"><?php esc_html_e('Swimming Pool', 'realestate-booking-suite'); ?></option>
+                                    <option value="<?php echo esc_attr('garage'); ?>"><?php esc_html_e('Garage', 'realestate-booking-suite'); ?></option>
+                                    <option value="<?php echo esc_attr('garden'); ?>"><?php esc_html_e('Garden', 'realestate-booking-suite'); ?></option>
+                                    <option value="<?php echo esc_attr('balcony'); ?>"><?php esc_html_e('Balcony', 'realestate-booking-suite'); ?></option>
+                                    <option value="<?php echo esc_attr('elevator'); ?>"><?php esc_html_e('Elevator', 'realestate-booking-suite'); ?></option>
+                                    <option value="<?php echo esc_attr('security'); ?>"><?php esc_html_e('Security', 'realestate-booking-suite'); ?></option>
+                                    <option value="<?php echo esc_attr('parking'); ?>"><?php esc_html_e('Parking', 'realestate-booking-suite'); ?></option>
+                                    <option value="<?php echo esc_attr('furnished'); ?>"><?php esc_html_e('Furnished', 'realestate-booking-suite'); ?></option>
                                 </select>
                             </div>
                         </div>
@@ -175,21 +175,21 @@ class RESBS_Search {
                             <div class="resbs-filter-group">
                                 <label for="search_sort"><?php esc_html_e('Sort By', 'realestate-booking-suite'); ?></label>
                                 <select id="search_sort" name="sort_by">
-                                    <option value="date_desc"><?php esc_html_e('Newest First', 'realestate-booking-suite'); ?></option>
-                                    <option value="date_asc"><?php esc_html_e('Oldest First', 'realestate-booking-suite'); ?></option>
-                                    <option value="price_asc"><?php esc_html_e('Price: Low to High', 'realestate-booking-suite'); ?></option>
-                                    <option value="price_desc"><?php esc_html_e('Price: High to Low', 'realestate-booking-suite'); ?></option>
-                                    <option value="popularity"><?php esc_html_e('Most Popular', 'realestate-booking-suite'); ?></option>
-                                    <option value="area_desc"><?php esc_html_e('Largest Area', 'realestate-booking-suite'); ?></option>
+                                    <option value="<?php echo esc_attr('date_desc'); ?>"><?php esc_html_e('Newest First', 'realestate-booking-suite'); ?></option>
+                                    <option value="<?php echo esc_attr('date_asc'); ?>"><?php esc_html_e('Oldest First', 'realestate-booking-suite'); ?></option>
+                                    <option value="<?php echo esc_attr('price_asc'); ?>"><?php esc_html_e('Price: Low to High', 'realestate-booking-suite'); ?></option>
+                                    <option value="<?php echo esc_attr('price_desc'); ?>"><?php esc_html_e('Price: High to Low', 'realestate-booking-suite'); ?></option>
+                                    <option value="<?php echo esc_attr('popularity'); ?>"><?php esc_html_e('Most Popular', 'realestate-booking-suite'); ?></option>
+                                    <option value="<?php echo esc_attr('area_desc'); ?>"><?php esc_html_e('Largest Area', 'realestate-booking-suite'); ?></option>
                                 </select>
                             </div>
                             
                             <div class="resbs-filter-group">
                                 <label for="search_view_type"><?php esc_html_e('View Type', 'realestate-booking-suite'); ?></label>
                                 <select id="search_view_type" name="view_type">
-                                    <option value="grid"><?php esc_html_e('Grid View', 'realestate-booking-suite'); ?></option>
-                                    <option value="list"><?php esc_html_e('List View', 'realestate-booking-suite'); ?></option>
-                                    <option value="map"><?php esc_html_e('Map View', 'realestate-booking-suite'); ?></option>
+                                    <option value="<?php echo esc_attr('grid'); ?>"><?php esc_html_e('Grid View', 'realestate-booking-suite'); ?></option>
+                                    <option value="<?php echo esc_attr('list'); ?>"><?php esc_html_e('List View', 'realestate-booking-suite'); ?></option>
+                                    <option value="<?php echo esc_attr('map'); ?>"><?php esc_html_e('Map View', 'realestate-booking-suite'); ?></option>
                                 </select>
                             </div>
                         </div>
@@ -211,13 +211,13 @@ class RESBS_Search {
             <div class="resbs-search-results">
                 <div class="resbs-view-controls">
                     <div class="resbs-view-toggle">
-                        <button type="button" class="resbs-view-btn active" data-view="grid" title="<?php esc_attr_e('Grid View', 'realestate-booking-suite'); ?>">
+                        <button type="button" class="resbs-view-btn active" data-view="<?php echo esc_attr('grid'); ?>" title="<?php esc_attr_e('Grid View', 'realestate-booking-suite'); ?>">
                             <span class="dashicons dashicons-grid-view"></span>
                         </button>
-                        <button type="button" class="resbs-view-btn" data-view="list" title="<?php esc_attr_e('List View', 'realestate-booking-suite'); ?>">
+                        <button type="button" class="resbs-view-btn" data-view="<?php echo esc_attr('list'); ?>" title="<?php esc_attr_e('List View', 'realestate-booking-suite'); ?>">
                             <span class="dashicons dashicons-list-view"></span>
                         </button>
-                        <button type="button" class="resbs-view-btn" data-view="map" title="<?php esc_attr_e('Map View', 'realestate-booking-suite'); ?>">
+                        <button type="button" class="resbs-view-btn" data-view="<?php echo esc_attr('map'); ?>" title="<?php esc_attr_e('Map View', 'realestate-booking-suite'); ?>">
                             <span class="dashicons dashicons-location-alt"></span>
                         </button>
                     </div>
@@ -407,32 +407,63 @@ class RESBS_Search {
                 $query->the_post();
                 $post_id = get_the_ID();
                 
+                // Get and sanitize all data
+                $title = get_the_title();
+                $excerpt = get_the_excerpt();
+                $permalink = get_permalink();
+                $price = get_post_meta($post_id, '_resbs_price', true);
+                $bedrooms = get_post_meta($post_id, '_resbs_bedrooms', true);
+                $bathrooms = get_post_meta($post_id, '_resbs_bathrooms', true);
+                $area = get_post_meta($post_id, '_resbs_area', true);
+                $latitude = get_post_meta($post_id, '_resbs_latitude', true);
+                $longitude = get_post_meta($post_id, '_resbs_longitude', true);
+                $amenities = get_post_meta($post_id, '_resbs_amenities', true);
+                $thumbnail = get_the_post_thumbnail_url($post_id, 'medium');
+                $location_terms = wp_get_post_terms($post_id, 'property_location', array('fields' => 'names'));
+                $property_type_terms = wp_get_post_terms($post_id, 'property_type', array('fields' => 'names'));
+                $date = get_the_date('c');
+                
+                // Sanitize location and property type arrays
+                $location = array();
+                if (!empty($location_terms) && !is_wp_error($location_terms)) {
+                    foreach ($location_terms as $term) {
+                        $location[] = sanitize_text_field($term);
+                    }
+                }
+                
+                $property_type = array();
+                if (!empty($property_type_terms) && !is_wp_error($property_type_terms)) {
+                    foreach ($property_type_terms as $term) {
+                        $property_type[] = sanitize_text_field($term);
+                    }
+                }
+                
                 $results[] = array(
-                    'id' => $post_id,
-                    'title' => get_the_title(),
-                    'excerpt' => get_the_excerpt(),
-                    'permalink' => get_permalink(),
-                    'price' => get_post_meta($post_id, '_resbs_price', true),
-                    'bedrooms' => get_post_meta($post_id, '_resbs_bedrooms', true),
-                    'bathrooms' => get_post_meta($post_id, '_resbs_bathrooms', true),
-                    'area' => get_post_meta($post_id, '_resbs_area', true),
-                    'latitude' => get_post_meta($post_id, '_resbs_latitude', true),
-                    'longitude' => get_post_meta($post_id, '_resbs_longitude', true),
-                    'amenities' => get_post_meta($post_id, '_resbs_amenities', true),
-                    'thumbnail' => get_the_post_thumbnail_url($post_id, 'medium'),
-                    'location' => wp_get_post_terms($post_id, 'property_location', array('fields' => 'names')),
-                    'property_type' => wp_get_post_terms($post_id, 'property_type', array('fields' => 'names')),
-                    'date' => get_the_date('c')
+                    'id' => absint($post_id),
+                    'title' => sanitize_text_field($title),
+                    'excerpt' => wp_kses_post($excerpt),
+                    'permalink' => esc_url_raw($permalink),
+                    'price' => sanitize_text_field($price),
+                    'bedrooms' => sanitize_text_field($bedrooms),
+                    'bathrooms' => sanitize_text_field($bathrooms),
+                    'area' => sanitize_text_field($area),
+                    'latitude' => sanitize_text_field($latitude),
+                    'longitude' => sanitize_text_field($longitude),
+                    'amenities' => sanitize_text_field($amenities),
+                    'thumbnail' => esc_url_raw($thumbnail),
+                    'location' => $location,
+                    'property_type' => $property_type,
+                    'date' => sanitize_text_field($date)
                 );
             }
             wp_reset_postdata();
             
             wp_send_json_success(array(
                 'results' => $results,
-                'total' => $query->found_posts,
-                'pages' => $query->max_num_pages,
-                'current_page' => $page,
-                'view_type' => $view_type
+                'total' => absint($query->found_posts),
+                'pages' => absint($query->max_num_pages),
+                'current_page' => absint($page),
+                'view_type' => sanitize_text_field($view_type)
             ));
         } else {
             wp_reset_postdata();

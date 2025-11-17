@@ -199,7 +199,7 @@ class RESBS_QuickView_Manager {
                         <?php if (!empty($data['gallery']) && count($data['gallery']) > 1): ?>
                             <div class="resbs-quickview-thumbnails">
                                 <?php foreach (array_slice($data['gallery'], 0, 4) as $index => $image): ?>
-                                    <div class="resbs-quickview-thumb <?php echo $index === 0 ? 'active' : ''; ?>">
+                                    <div class="resbs-quickview-thumb <?php echo esc_attr($index === 0 ? 'active' : ''); ?>">
                                         <img src="<?php echo esc_url($image['thumb']); ?>" 
                                              alt="<?php echo esc_attr($image['alt'] ?: $data['title']); ?>"
                                              data-full="<?php echo esc_url($image['url']); ?>">
@@ -405,8 +405,8 @@ class RESBS_QuickView_Manager {
      * Format price
      */
     private function format_price($price) {
-        $currency_symbol = get_option('resbs_currency_symbol', '$');
-        $currency_position = get_option('resbs_currency_position', 'before');
+        $currency_symbol = sanitize_text_field(get_option('resbs_currency_symbol', '$'));
+        $currency_position = sanitize_text_field(get_option('resbs_currency_position', 'before'));
         
         $formatted_price = number_format($price);
         

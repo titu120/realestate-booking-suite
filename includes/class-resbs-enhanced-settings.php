@@ -217,7 +217,7 @@ class RESBS_Enhanced_Settings {
         wp_enqueue_script('jquery');
         
         // Make ajaxurl available globally
-        wp_add_inline_script('jquery', 'var ajaxurl = "' . admin_url('admin-ajax.php') . '";');
+        wp_add_inline_script('jquery', 'var ajaxurl = "' . esc_js(admin_url('admin-ajax.php')) . '";');
     }
     
     /**
@@ -234,32 +234,32 @@ class RESBS_Enhanced_Settings {
                     <div class="resbs-settings-nav">
                         <ul class="resbs-nav-tabs">
                             <li class="resbs-nav-item">
-                                <a href="#" data-tab="general" class="resbs-nav-link <?php echo $this->current_tab === 'general' ? 'active' : ''; ?>">
+                                <a href="#" data-tab="general" class="resbs-nav-link <?php echo esc_attr($this->current_tab === 'general' ? 'active' : ''); ?>">
                                     <span class="resbs-nav-text"><?php esc_html_e('General', 'realestate-booking-suite'); ?></span>
                                 </a>
                             </li>
                             <li class="resbs-nav-item">
-                                <a href="#" data-tab="map" class="resbs-nav-link <?php echo $this->current_tab === 'map' ? 'active' : ''; ?>">
+                                <a href="#" data-tab="map" class="resbs-nav-link <?php echo esc_attr($this->current_tab === 'map' ? 'active' : ''); ?>">
                                     <span class="resbs-nav-text"><?php esc_html_e('Map', 'realestate-booking-suite'); ?></span>
                                 </a>
                             </li>
                             <li class="resbs-nav-item">
-                                <a href="#" data-tab="listings" class="resbs-nav-link <?php echo $this->current_tab === 'listings' ? 'active' : ''; ?>">
+                                <a href="#" data-tab="listings" class="resbs-nav-link <?php echo esc_attr($this->current_tab === 'listings' ? 'active' : ''); ?>">
                                     <span class="resbs-nav-text"><?php esc_html_e('Listings', 'realestate-booking-suite'); ?></span>
                                 </a>
                             </li>
                             <li class="resbs-nav-item">
-                                <a href="#" data-tab="user-profile" class="resbs-nav-link <?php echo $this->current_tab === 'user-profile' ? 'active' : ''; ?>">
+                                <a href="#" data-tab="user-profile" class="resbs-nav-link <?php echo esc_attr($this->current_tab === 'user-profile' ? 'active' : ''); ?>">
                                     <span class="resbs-nav-text"><?php esc_html_e('User profile', 'realestate-booking-suite'); ?></span>
                                 </a>
                             </li>
                             <li class="resbs-nav-item">
-                                <a href="#" data-tab="login-signup" class="resbs-nav-link <?php echo $this->current_tab === 'login-signup' ? 'active' : ''; ?>">
+                                <a href="#" data-tab="login-signup" class="resbs-nav-link <?php echo esc_attr($this->current_tab === 'login-signup' ? 'active' : ''); ?>">
                                     <span class="resbs-nav-text"><?php esc_html_e('Log in & Sign up', 'realestate-booking-suite'); ?></span>
                                 </a>
                             </li>
                             <li class="resbs-nav-item">
-                                <a href="#" data-tab="seo" class="resbs-nav-link <?php echo $this->current_tab === 'seo' ? 'active' : ''; ?>">
+                                <a href="#" data-tab="seo" class="resbs-nav-link <?php echo esc_attr($this->current_tab === 'seo' ? 'active' : ''); ?>">
                                     <span class="resbs-nav-text"><?php esc_html_e('SEO', 'realestate-booking-suite'); ?></span>
                                 </a>
                             </li>
@@ -699,7 +699,7 @@ class RESBS_Enhanced_Settings {
                 $.post(ajaxurl, {
                     action: 'resbs_load_tab_content',
                     tab: tab,
-                    nonce: '<?php echo wp_create_nonce('resbs_load_tab_content'); ?>'
+                    nonce: '<?php echo esc_js(wp_create_nonce('resbs_load_tab_content')); ?>'
                 })
                 .done(function(response) {
                     var loadingTime = Date.now() - loadingStartTime;
@@ -781,19 +781,22 @@ class RESBS_Enhanced_Settings {
                     data: {
                         action: 'resbs_create_page',
                         page_type: pageType,
-                        nonce: '<?php echo wp_create_nonce('resbs_create_page_nonce'); ?>'
+                        nonce: '<?php echo esc_js(wp_create_nonce('resbs_create_page_nonce')); ?>'
                     },
                     success: function(response) {
                         if (response.success) {
                             // Show success message
-                            var message = '<div class="notice notice-success inline"><p>' + response.data.message + '</p>';
-                            if (response.data.view_url) {
-                                message += '<p><a href="' + response.data.view_url + '" target="_blank">View Page</a> | ';
-                                message += '<a href="' + response.data.edit_url + '">Edit Page</a></p>';
+                            var $message = $('<div>').addClass('notice notice-success inline');
+                            $message.append($('<p>').text(response.data.message));
+                            if (response.data.view_url && response.data.edit_url) {
+                                var $links = $('<p>');
+                                $links.append($('<a>').attr('href', response.data.view_url).attr('target', '_blank').text('View Page'));
+                                $links.append(' | ');
+                                $links.append($('<a>').attr('href', response.data.edit_url).text('Edit Page'));
+                                $message.append($links);
                             }
-                            message += '</div>';
                             
-                            $button.closest('td').append(message);
+                            $button.closest('td').append($message);
                             $button.hide();
                             
                             // Reload page after 2 seconds to show updated info
@@ -827,7 +830,7 @@ class RESBS_Enhanced_Settings {
             <div class="notice notice-success"><p><?php esc_html_e('Settings saved successfully!', 'realestate-booking-suite'); ?></p></div>
         <?php endif; ?>
         
-        <form method="post" action="<?php echo admin_url('admin-post.php'); ?>">
+        <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
             <?php wp_nonce_field('resbs_enhanced_settings-options'); ?>
             <input type="hidden" name="action" value="resbs_save_settings">
             <input type="hidden" name="current_tab" value="email">
@@ -896,7 +899,7 @@ class RESBS_Enhanced_Settings {
             <div class="notice notice-success"><p><?php esc_html_e('Settings reset to defaults successfully!', 'realestate-booking-suite'); ?></p></div>
         <?php endif; ?>
         
-        <form method="post" action="<?php echo admin_url('admin-post.php'); ?>">
+        <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
             <?php wp_nonce_field('resbs_enhanced_settings-options'); ?>
             <input type="hidden" name="action" value="resbs_save_settings">
             <input type="hidden" name="current_tab" value="general">
@@ -957,7 +960,7 @@ class RESBS_Enhanced_Settings {
         </form>
         
         <!-- Reset Form -->
-        <form method="post" action="<?php echo admin_url('admin-post.php'); ?>" id="resetGeneralForm" style="display: none;">
+        <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" id="resetGeneralForm" style="display: none;">
             <?php wp_nonce_field('resbs_enhanced_settings-options'); ?>
             <input type="hidden" name="action" value="resbs_reset_settings">
             <input type="hidden" name="current_tab" value="general">
@@ -976,7 +979,7 @@ class RESBS_Enhanced_Settings {
             <div class="notice notice-success"><p><?php esc_html_e('Settings saved successfully!', 'realestate-booking-suite'); ?></p></div>
         <?php endif; ?>
         
-        <form method="post" action="<?php echo admin_url('admin-post.php'); ?>">
+        <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
             <?php wp_nonce_field('resbs_enhanced_settings-options'); ?>
             <input type="hidden" name="action" value="resbs_save_settings">
             <input type="hidden" name="current_tab" value="appearance">
@@ -1052,7 +1055,7 @@ class RESBS_Enhanced_Settings {
             <div class="notice notice-success"><p><?php esc_html_e('Settings saved successfully!', 'realestate-booking-suite'); ?></p></div>
         <?php endif; ?>
         
-        <form method="post" action="<?php echo admin_url('admin-post.php'); ?>">
+        <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
             <?php wp_nonce_field('resbs_enhanced_settings-options'); ?>
             <input type="hidden" name="action" value="resbs_save_settings">
             <input type="hidden" name="current_tab" value="currency">
@@ -1135,7 +1138,7 @@ class RESBS_Enhanced_Settings {
             <div class="notice notice-success"><p><?php esc_html_e('Settings reset to defaults successfully!', 'realestate-booking-suite'); ?></p></div>
         <?php endif; ?>
         
-        <form method="post" action="<?php echo admin_url('admin-post.php'); ?>">
+        <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
             <?php wp_nonce_field('resbs_enhanced_settings-options'); ?>
             <input type="hidden" name="action" value="resbs_save_settings">
             <input type="hidden" name="current_tab" value="map">
@@ -1242,7 +1245,7 @@ class RESBS_Enhanced_Settings {
         </form>
         
         <!-- Reset Form -->
-        <form method="post" action="<?php echo admin_url('admin-post.php'); ?>" id="resetMapForm" style="display: none;">
+        <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" id="resetMapForm" style="display: none;">
             <?php wp_nonce_field('resbs_enhanced_settings-options'); ?>
             <input type="hidden" name="action" value="resbs_reset_settings">
             <input type="hidden" name="current_tab" value="map">
@@ -1266,7 +1269,7 @@ class RESBS_Enhanced_Settings {
             <div class="notice notice-success"><p><?php esc_html_e('Settings reset to defaults successfully!', 'realestate-booking-suite'); ?></p></div>
         <?php endif; ?>
         
-        <form method="post" action="<?php echo admin_url('admin-post.php'); ?>" enctype="multipart/form-data">
+        <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" enctype="multipart/form-data">
             <?php wp_nonce_field('resbs_enhanced_settings-options'); ?>
             <input type="hidden" name="action" value="resbs_save_settings">
             <input type="hidden" name="current_tab" value="listings">
@@ -1399,7 +1402,7 @@ class RESBS_Enhanced_Settings {
                             <?php esc_html_e('Wishlist page:', 'realestate-booking-suite'); ?> 
                             <a href="<?php echo esc_url($wishlist_page_url); ?>" target="_blank"><?php echo esc_html($wishlist_page_url); ?></a>
                             <?php if ($wishlist_page_id): ?>
-                                | <a href="<?php echo esc_url(admin_url('post.php?post=' . $wishlist_page_id . '&action=edit')); ?>"><?php esc_html_e('Edit Page', 'realestate-booking-suite'); ?></a>
+                                | <a href="<?php echo esc_url(admin_url('post.php?post=' . absint($wishlist_page_id) . '&action=edit')); ?>"><?php esc_html_e('Edit Page', 'realestate-booking-suite'); ?></a>
                             <?php endif; ?>
                         </p>
                         <?php else: ?>
@@ -1448,7 +1451,7 @@ class RESBS_Enhanced_Settings {
         </form>
         
         <!-- Reset Form -->
-        <form method="post" action="<?php echo admin_url('admin-post.php'); ?>" id="resetListingsForm" style="display: none;">
+        <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" id="resetListingsForm" style="display: none;">
             <?php wp_nonce_field('resbs_enhanced_settings-options'); ?>
             <input type="hidden" name="action" value="resbs_reset_settings">
             <input type="hidden" name="current_tab" value="listings">
@@ -1471,7 +1474,7 @@ class RESBS_Enhanced_Settings {
             <div class="notice notice-success"><p><?php esc_html_e('Settings reset to defaults successfully!', 'realestate-booking-suite'); ?></p></div>
         <?php endif; ?>
         
-        <form method="post" action="<?php echo admin_url('admin-post.php'); ?>">
+        <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
             <?php wp_nonce_field('resbs_enhanced_settings-options'); ?>
             <input type="hidden" name="action" value="resbs_save_settings">
             <input type="hidden" name="current_tab" value="user-profile">
@@ -1500,7 +1503,7 @@ class RESBS_Enhanced_Settings {
                             <?php esc_html_e('Profile page:', 'realestate-booking-suite'); ?> 
                             <a href="<?php echo esc_url($profile_page_url); ?>" target="_blank"><?php echo esc_html($profile_page_url); ?></a>
                             <?php if ($profile_page_id): ?>
-                                | <a href="<?php echo esc_url(admin_url('post.php?post=' . $profile_page_id . '&action=edit')); ?>"><?php esc_html_e('Edit Page', 'realestate-booking-suite'); ?></a>
+                                | <a href="<?php echo esc_url(admin_url('post.php?post=' . absint($profile_page_id) . '&action=edit')); ?>"><?php esc_html_e('Edit Page', 'realestate-booking-suite'); ?></a>
                             <?php endif; ?>
                         </p>
                         <?php else: ?>
@@ -1527,7 +1530,7 @@ class RESBS_Enhanced_Settings {
         </form>
         
         <!-- Reset Form -->
-        <form method="post" action="<?php echo admin_url('admin-post.php'); ?>" id="resetUserProfileForm" style="display: none;">
+        <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" id="resetUserProfileForm" style="display: none;">
             <?php wp_nonce_field('resbs_enhanced_settings-options'); ?>
             <input type="hidden" name="action" value="resbs_reset_settings">
             <input type="hidden" name="current_tab" value="user-profile">
@@ -1550,7 +1553,7 @@ class RESBS_Enhanced_Settings {
             <div class="notice notice-success"><p><?php esc_html_e('Settings reset to defaults successfully!', 'realestate-booking-suite'); ?></p></div>
         <?php endif; ?>
         
-        <form method="post" action="<?php echo admin_url('admin-post.php'); ?>">
+        <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
             <?php wp_nonce_field('resbs_enhanced_settings-options'); ?>
             <input type="hidden" name="action" value="resbs_save_settings">
             <input type="hidden" name="current_tab" value="login-signup">
@@ -1632,7 +1635,7 @@ class RESBS_Enhanced_Settings {
         </form>
         
         <!-- Reset Form -->
-        <form method="post" action="<?php echo admin_url('admin-post.php'); ?>" id="resetLoginSignupForm" style="display: none;">
+        <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" id="resetLoginSignupForm" style="display: none;">
             <?php wp_nonce_field('resbs_enhanced_settings-options'); ?>
             <input type="hidden" name="action" value="resbs_reset_settings">
             <input type="hidden" name="current_tab" value="login-signup">
@@ -1655,7 +1658,7 @@ class RESBS_Enhanced_Settings {
             <div class="notice notice-success"><p><?php esc_html_e('Settings reset to defaults successfully!', 'realestate-booking-suite'); ?></p></div>
         <?php endif; ?>
         
-        <form method="post" action="<?php echo admin_url('admin-post.php'); ?>">
+        <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
             <?php wp_nonce_field('resbs_enhanced_settings-options'); ?>
             <input type="hidden" name="action" value="resbs_save_settings">
             <input type="hidden" name="current_tab" value="seo">
@@ -1713,7 +1716,7 @@ class RESBS_Enhanced_Settings {
         </form>
         
         <!-- Reset Form -->
-        <form method="post" action="<?php echo admin_url('admin-post.php'); ?>" id="resetSeoForm" style="display: none;">
+        <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" id="resetSeoForm" style="display: none;">
             <?php wp_nonce_field('resbs_enhanced_settings-options'); ?>
             <input type="hidden" name="action" value="resbs_reset_settings">
             <input type="hidden" name="current_tab" value="seo">
@@ -2249,8 +2252,8 @@ class RESBS_Enhanced_Settings {
             wp_send_json_success(array(
                 'page_id' => $page_id,
                 'message' => 'Page created successfully',
-                'edit_url' => admin_url('post.php?post=' . $page_id . '&action=edit'),
-                'view_url' => get_permalink($page_id)
+                'edit_url' => esc_url_raw(admin_url('post.php?post=' . $page_id . '&action=edit')),
+                'view_url' => esc_url_raw(get_permalink($page_id))
             ));
         } else {
             wp_send_json_error('Failed to create page');

@@ -28,7 +28,7 @@ class RESBS_Simple_Archive {
             // Enqueue the simple archive JavaScript
             wp_enqueue_script(
                 'resbs-simple-archive',
-                RESBS_URL . 'assets/js/simple-archive.js',
+                esc_url(RESBS_URL . 'assets/js/simple-archive.js'),
                 array('jquery'),
                 '1.0.0',
                 true

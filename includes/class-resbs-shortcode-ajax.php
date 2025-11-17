@@ -134,7 +134,7 @@ class RESBS_Shortcode_AJAX {
 
         wp_send_json_success(array(
             'html' => $html,
-            'count' => $properties->found_posts
+            'count' => intval($properties->found_posts)
         ));
     }
 
@@ -258,11 +258,11 @@ class RESBS_Shortcode_AJAX {
                 if (!empty($latitude) && !empty($longitude)) {
                     $markers[] = array(
                         'id' => $property_id,
-                        'title' => get_the_title(),
+                        'title' => esc_html(get_the_title()),
                         'lat' => floatval($latitude),
                         'lng' => floatval($longitude),
-                        'price' => get_post_meta($property_id, '_property_price', true),
-                        'url' => get_permalink()
+                        'price' => esc_html(get_post_meta($property_id, '_property_price', true)),
+                        'url' => esc_url(get_permalink())
                     );
                 }
             }
@@ -271,7 +271,7 @@ class RESBS_Shortcode_AJAX {
 
         wp_send_json_success(array(
             'html' => $html,
-            'count' => $properties->found_posts,
+            'count' => intval($properties->found_posts),
             'markers' => $markers
         ));
     }
@@ -677,9 +677,9 @@ class RESBS_Shortcode_AJAX {
         }
         
         wp_send_json_success(array(
-            'message' => esc_html__('Property submitted successfully. It will be reviewed before being published.', 'realestate-booking-suite') . $view_properties_link,
-            'property_id' => $property_id,
-            'profile_url' => $profile_url
+            'message' => esc_html__('Property submitted successfully. It will be reviewed before being published.', 'realestate-booking-suite') . wp_kses_post($view_properties_link),
+            'property_id' => intval($property_id),
+            'profile_url' => esc_url($profile_url)
         ));
     }
 
@@ -791,9 +791,9 @@ class RESBS_Shortcode_AJAX {
 
         wp_send_json_success(array(
             'html' => $html,
-            'has_more' => $has_more,
-            'current_page' => $page,
-            'max_pages' => $properties->max_num_pages
+            'has_more' => (bool) $has_more,
+            'current_page' => intval($page),
+            'max_pages' => intval($properties->max_num_pages)
         ));
     }
 
@@ -809,6 +809,17 @@ class RESBS_Shortcode_AJAX {
         $property_bathrooms = get_post_meta($property_id, '_property_bathrooms', true);
         $property_size = get_post_meta($property_id, '_property_size', true);
         $property_location = get_the_terms($property_id, 'property_location');
+        
+        // Sanitize settings array
+        $settings = wp_parse_args($settings, array(
+            'layout' => 'grid',
+            'show_price' => false,
+            'show_meta' => false,
+            'show_excerpt' => false,
+            'show_badges' => false,
+            'show_favorite_button' => false,
+            'show_book_button' => false
+        ));
 
         ?>
         <div class="resbs-property-card resbs-layout-<?php echo esc_attr($settings['layout'] ?? 'grid'); ?>">
@@ -846,7 +857,10 @@ class RESBS_Shortcode_AJAX {
 
                 <?php if (!empty($settings['show_price']) && !empty($property_price)): ?>
                     <div class="resbs-property-price">
-                        <?php echo esc_html(resbs_format_price($property_price)); ?>
+                        <?php 
+                        $formatted_price = resbs_format_price($property_price);
+                        echo esc_html($formatted_price); 
+                        ?>
                     </div>
                 <?php endif; ?>
 
@@ -855,25 +869,25 @@ class RESBS_Shortcode_AJAX {
                         <?php if (!empty($property_bedrooms)): ?>
                             <div class="resbs-property-meta-item">
                                 <span class="dashicons dashicons-bed-alt"></span>
-                                <span><?php echo esc_html($property_bedrooms); ?> <?php esc_html_e('Bedrooms', 'realestate-booking-suite'); ?></span>
+                                <span><?php echo esc_html(floatval($property_bedrooms)); ?> <?php esc_html_e('Bedrooms', 'realestate-booking-suite'); ?></span>
                             </div>
                         <?php endif; ?>
 
                         <?php if (!empty($property_bathrooms)): ?>
                             <div class="resbs-property-meta-item">
                                 <span class="dashicons dashicons-bath"></span>
-                                <span><?php echo esc_html($property_bathrooms); ?> <?php esc_html_e('Bathrooms', 'realestate-booking-suite'); ?></span>
+                                <span><?php echo esc_html(floatval($property_bathrooms)); ?> <?php esc_html_e('Bathrooms', 'realestate-booking-suite'); ?></span>
                             </div>
                         <?php endif; ?>
 
                         <?php if (!empty($property_size)): ?>
                             <div class="resbs-property-meta-item">
                                 <span class="dashicons dashicons-admin-home"></span>
-                                <span><?php echo esc_html($property_size); ?> <?php esc_html_e('sq ft', 'realestate-booking-suite'); ?></span>
+                                <span><?php echo esc_html(intval($property_size)); ?> <?php esc_html_e('sq ft', 'realestate-booking-suite'); ?></span>
                             </div>
                         <?php endif; ?>
 
-                        <?php if (!empty($property_location)): ?>
+                        <?php if (!empty($property_location) && !is_wp_error($property_location) && isset($property_location[0])): ?>
                             <div class="resbs-property-meta-item">
                                 <span class="dashicons dashicons-location"></span>
                                 <span><?php echo esc_html($property_location[0]->name); ?></span>
@@ -1036,7 +1050,7 @@ class RESBS_Shortcode_AJAX {
                 // Save attachment URL to post meta
                 $image_url = wp_get_attachment_image_url($attach_id, 'full');
                 if ($image_url) {
-                    update_post_meta($property_id, '_property_agent_photo', $image_url);
+                    update_post_meta($property_id, '_property_agent_photo', esc_url_raw($image_url));
                 }
             }
         }
@@ -1092,7 +1106,7 @@ class RESBS_Shortcode_AJAX {
         
         wp_send_json_success(array(
             'message' => esc_html__('Property published successfully!', 'realestate-booking-suite'),
-            'property_id' => $property_id
+            'property_id' => intval($property_id)
         ));
     }
 

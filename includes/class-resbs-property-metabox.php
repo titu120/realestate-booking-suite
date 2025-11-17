@@ -512,11 +512,11 @@ class RESBS_Property_Metabox {
                                 <div class="resbs-form-row">
                                     <div class="resbs-form-group">
                                         <label for="property_year_built"><?php esc_html_e('Year Built', 'realestate-booking-suite'); ?></label>
-                                        <input type="number" id="property_year_built" name="property_year_built" value="<?php echo esc_attr($year_built); ?>" class="resbs-stunning-input" placeholder="1990" min="1800" max="<?php echo date('Y'); ?>">
+                                        <input type="number" id="property_year_built" name="property_year_built" value="<?php echo esc_attr($year_built); ?>" class="resbs-stunning-input" placeholder="1990" min="1800" max="<?php echo esc_attr(date('Y')); ?>">
                                     </div>
                                     <div class="resbs-form-group">
                                         <label for="property_year_remodeled"><?php esc_html_e('Year Remodeled', 'realestate-booking-suite'); ?></label>
-                                        <input type="number" id="property_year_remodeled" name="property_year_remodeled" value="<?php echo esc_attr($year_remodeled); ?>" class="resbs-stunning-input" placeholder="2000" min="1800" max="<?php echo date('Y'); ?>">
+                                        <input type="number" id="property_year_remodeled" name="property_year_remodeled" value="<?php echo esc_attr($year_remodeled); ?>" class="resbs-stunning-input" placeholder="2000" min="1800" max="<?php echo esc_attr(date('Y')); ?>">
                                     </div>
                                 </div>
                             </div>
@@ -1131,7 +1131,7 @@ class RESBS_Property_Metabox {
                                                 $star_text = ($i == 1) ? 'Star' : 'Stars';
                                                 $selected = selected($current_rating, $i, false);
                                             ?>
-                                                <option value="<?php echo $i; ?>" <?php echo $selected; ?>><?php echo $i . ' ' . $star_text; ?></option>
+                                                <option value="<?php echo esc_attr($i); ?>" <?php echo $selected; ?>><?php echo esc_html($i . ' ' . $star_text); ?></option>
                                             <?php endfor; ?>
                                         </select>
                                         <p class="resbs-input-help"><?php esc_html_e('Agent rating out of 5 stars', 'realestate-booking-suite'); ?></p>
@@ -1508,8 +1508,9 @@ class RESBS_Property_Metabox {
                     $('#property_agent_photo').val(attachment.url);
                     
                     // Update the preview
+                    var agentPhotoUrl = attachment.url;
                     $('#agent-photo-preview').html(
-                        '<img src="' + attachment.url + '" alt="Agent Photo" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid #0073aa;">'
+                        '<img src="' + agentPhotoUrl + '" alt="Agent Photo" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid #0073aa;">'
                     );
                     
                     // Show remove button
@@ -1629,12 +1630,12 @@ class RESBS_Property_Metabox {
                 postId = postId[1];
                 
                 // Make AJAX call to get updated gallery
-                fetch('<?php echo admin_url('admin-ajax.php'); ?>', {
+                fetch('<?php echo esc_url(admin_url('admin-ajax.php')); ?>', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
                     },
-                    body: 'action=resbs_get_gallery&post_id=' + postId + '&nonce=<?php echo wp_create_nonce('resbs_metabox_nonce'); ?>'
+                    body: 'action=resbs_get_gallery&post_id=' + postId + '&nonce=<?php echo esc_js(wp_create_nonce('resbs_metabox_nonce')); ?>'
                 })
                 .then(response => response.json())
                 .then(data => {
@@ -2011,7 +2012,8 @@ class RESBS_Property_Metabox {
                 if (container) {
                     var tag = document.createElement('span');
                     tag.className = 'resbs-feature-tag';
-                    tag.innerHTML = feature + ' <button type="button" class="remove-tag" data-feature="' + feature + '">×</button>';
+                    var escapedFeature = feature.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+                    tag.innerHTML = escapedFeature + ' <button type="button" class="remove-tag" data-feature="' + escapedFeature + '">×</button>';
                     container.appendChild(tag);
                     
                     // Add remove functionality
@@ -2027,7 +2029,8 @@ class RESBS_Property_Metabox {
                 if (container) {
                     var tag = document.createElement('span');
                     tag.className = 'resbs-feature-tag';
-                    tag.innerHTML = amenity + ' <button type="button" class="remove-tag" data-amenity="' + amenity + '">×</button>';
+                    var escapedAmenity = amenity.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+                    tag.innerHTML = escapedAmenity + ' <button type="button" class="remove-tag" data-amenity="' + escapedAmenity + '">×</button>';
                     container.appendChild(tag);
                     
                     // Add remove functionality
@@ -2189,11 +2192,11 @@ class RESBS_Property_Metabox {
                             <div class="resbs-form-row">
                                 <div class="resbs-form-group">
                                     <label for="property_year_built"><?php esc_html_e('Year Built', 'realestate-booking-suite'); ?></label>
-                                    <input type="number" id="property_year_built" name="property_year_built" value="<?php echo esc_attr($year_built); ?>" class="resbs-input" placeholder="1990" min="1800" max="<?php echo date('Y'); ?>">
+                                    <input type="number" id="property_year_built" name="property_year_built" value="<?php echo esc_attr($year_built); ?>" class="resbs-input" placeholder="1990" min="1800" max="<?php echo esc_attr(date('Y')); ?>">
                                 </div>
                                 <div class="resbs-form-group">
                                     <label for="property_year_remodeled"><?php esc_html_e('Year Remodeled', 'realestate-booking-suite'); ?></label>
-                                    <input type="number" id="property_year_remodeled" name="property_year_remodeled" value="<?php echo esc_attr($year_remodeled); ?>" class="resbs-input" placeholder="2000" min="1800" max="<?php echo date('Y'); ?>">
+                                    <input type="number" id="property_year_remodeled" name="property_year_remodeled" value="<?php echo esc_attr($year_remodeled); ?>" class="resbs-input" placeholder="2000" min="1800" max="<?php echo esc_attr(date('Y')); ?>">
                                 </div>
                             </div>
                         </div>
@@ -3115,9 +3118,9 @@ class RESBS_Property_Metabox {
             }
             
             wp_localize_script('resbs-property-metabox', 'resbs_metabox', array(
-                'ajax_url' => admin_url('admin-ajax.php'),
+                'ajax_url' => esc_url(admin_url('admin-ajax.php')),
                 'nonce' => wp_create_nonce('resbs_metabox_nonce'),
-                'map_api_key' => $map_api_key,
+                'map_api_key' => esc_js($map_api_key),
                 'strings' => array(
                     'upload_error' => esc_html__('Upload failed. Please try again.', 'realestate-booking-suite'),
                     'delete_confirm' => esc_html__('Are you sure you want to delete this image?', 'realestate-booking-suite'),
@@ -3166,8 +3169,8 @@ class RESBS_Property_Metabox {
                         } else {
                             $errors[] = sprintf(
                                 esc_html__('Failed to upload %s: %s', 'realestate-booking-suite'),
-                                $file['name'],
-                                $attachment_id->get_error_message()
+                                esc_html($file['name']),
+                                esc_html($attachment_id->get_error_message())
                             );
                         }
                     }
@@ -3182,8 +3185,8 @@ class RESBS_Property_Metabox {
                     } else {
                         $errors[] = sprintf(
                             esc_html__('Failed to upload %s: %s', 'realestate-booking-suite'),
-                            $_FILES['files']['name'],
-                            $attachment_id->get_error_message()
+                            esc_html($_FILES['files']['name']),
+                            esc_html($attachment_id->get_error_message())
                         );
                     }
                 }
@@ -3229,7 +3232,7 @@ class RESBS_Property_Metabox {
         $post_id = intval($_POST['post_id']);
         
         if (!$post_id) {
-            wp_send_json_error('Invalid post ID');
+            wp_send_json_error(esc_html__('Invalid post ID', 'realestate-booking-suite'));
         }
         
         // Get gallery images

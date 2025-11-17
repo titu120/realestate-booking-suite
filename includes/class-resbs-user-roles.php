@@ -30,6 +30,13 @@ class RESBS_User_Roles {
      * @param int $user_id User ID
      */
     public function assign_safe_user_role($user_id) {
+        // Sanitize and validate user ID
+        $user_id = absint($user_id);
+        
+        if (!$user_id) {
+            return;
+        }
+        
         $user = get_userdata($user_id);
         
         if (!$user) {
@@ -43,6 +50,14 @@ class RESBS_User_Roles {
 
         // Determine the best role based on available plugins
         $role = $this->get_best_role_for_user();
+        
+        // Sanitize role name before assignment
+        $role = sanitize_key($role);
+
+        // Validate role exists before assigning
+        if (!get_role($role)) {
+            return;
+        }
 
         // Assign the role
         $user->set_role($role);
@@ -51,7 +66,7 @@ class RESBS_User_Roles {
     /**
      * Get the best role for a new user
      * 
-     * @return string Role name
+     * @return string Role name (sanitized)
      */
     private function get_best_role_for_user() {
         // Check if WooCommerce is active and Customer role exists
@@ -59,27 +74,27 @@ class RESBS_User_Roles {
             // Verify Customer role exists
             $customer_role = get_role('customer');
             if ($customer_role) {
-                return 'customer';
+                return sanitize_key('customer');
             }
         }
 
         // Fallback to Subscriber (WordPress core role - always safe)
-        return 'subscriber';
+        return sanitize_key('subscriber');
     }
 
     /**
      * Get recommended role for settings
      * 
-     * @return string Recommended role name
+     * @return string Recommended role name (sanitized)
      */
     public static function get_recommended_role() {
         if (class_exists('WooCommerce')) {
             $customer_role = get_role('customer');
             if ($customer_role) {
-                return 'customer';
+                return sanitize_key('customer');
             }
         }
-        return 'subscriber';
+        return sanitize_key('subscriber');
     }
 }
 

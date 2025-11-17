@@ -540,19 +540,19 @@ class RESBS_Frontend {
                 <h2><?php esc_html_e('My Dashboard', 'realestate-booking-suite'); ?></h2>
                 <div class="resbs-dashboard-nav">
                     <?php if ($atts['show_properties'] === 'true'): ?>
-                        <a href="?tab=properties" class="resbs-nav-tab <?php echo $current_tab === 'properties' ? 'active' : ''; ?>">
+                        <a href="?tab=properties" class="resbs-nav-tab <?php echo esc_attr($current_tab === 'properties' ? 'active' : ''); ?>">
                             <?php esc_html_e('My Properties', 'realestate-booking-suite'); ?>
                         </a>
                     <?php endif; ?>
                     
                     <?php if ($atts['show_bookings'] === 'true'): ?>
-                        <a href="?tab=bookings" class="resbs-nav-tab <?php echo $current_tab === 'bookings' ? 'active' : ''; ?>">
+                        <a href="?tab=bookings" class="resbs-nav-tab <?php echo esc_attr($current_tab === 'bookings' ? 'active' : ''); ?>">
                             <?php esc_html_e('My Bookings', 'realestate-booking-suite'); ?>
                         </a>
                     <?php endif; ?>
                     
                     <?php if ($atts['show_profile'] === 'true'): ?>
-                        <a href="?tab=profile" class="resbs-nav-tab <?php echo $current_tab === 'profile' ? 'active' : ''; ?>">
+                        <a href="?tab=profile" class="resbs-nav-tab <?php echo esc_attr($current_tab === 'profile' ? 'active' : ''); ?>">
                             <?php esc_html_e('Profile', 'realestate-booking-suite'); ?>
                         </a>
                     <?php endif; ?>
@@ -793,7 +793,7 @@ class RESBS_Frontend {
                     <?php if ($area): ?>
                         <span class="resbs-property-area">
                             <span class="dashicons dashicons-fullscreen-alt"></span>
-                            <?php echo resbs_format_area($area); ?>
+                            <?php echo esc_html(resbs_format_area($area)); ?>
                         </span>
                     <?php endif; ?>
                 </div>
@@ -860,7 +860,7 @@ class RESBS_Frontend {
                 </div>
                 
                 <div class="resbs-booking-total">
-                    <?php echo $order ? $order->get_formatted_order_total() : '$0.00'; ?>
+                    <?php echo $order ? wp_kses_post($order->get_formatted_order_total()) : esc_html('$0.00'); ?>
                 </div>
             </div>
             
@@ -879,7 +879,7 @@ class RESBS_Frontend {
                     </button>
                 <?php endif; ?>
                 
-                <a href="<?php echo $order ? esc_url($order->get_view_order_url()) : '#'; ?>" class="resbs-view-order-btn">
+                <a href="<?php echo $order ? esc_url($order->get_view_order_url()) : esc_url('#'); ?>" class="resbs-view-order-btn">
                     <span class="dashicons dashicons-visibility"></span>
                     <?php esc_html_e('View Order', 'realestate-booking-suite'); ?>
                 </a>
@@ -1749,8 +1749,9 @@ class RESBS_Frontend {
             $agent_name = get_post_meta($property_id, '_property_agent_name', true);
         }
         
-        // Prepare email content
-        $subject = sprintf(esc_html__('New Property Inquiry: %s', 'realestate-booking-suite'), $property_title ? $property_title : get_bloginfo('name'));
+        // Prepare email content - escape property title for subject
+        $property_title_escaped = $property_title ? esc_html($property_title) : esc_html(get_bloginfo('name'));
+        $subject = sprintf(esc_html__('New Property Inquiry: %s', 'realestate-booking-suite'), $property_title_escaped);
         
         // HTML email content
         $email_message = '<div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">';
@@ -1777,8 +1778,8 @@ class RESBS_Frontend {
         // Email headers
         $headers = array(
             'Content-Type: text/html; charset=UTF-8',
-            'From: ' . $name . ' <' . $email . '>',
-            'Reply-To: ' . $name . ' <' . $email . '>'
+            'From: ' . esc_html($name) . ' <' . sanitize_email($email) . '>',
+            'Reply-To: ' . esc_html($name) . ' <' . sanitize_email($email) . '>'
         );
         
         // Send to admin
@@ -1844,11 +1845,11 @@ class RESBS_Frontend {
         $user = wp_signon($credentials, false);
         
         if (is_wp_error($user)) {
-            wp_send_json_error($user->get_error_message());
+            wp_send_json_error(esc_html($user->get_error_message()));
         } else {
             wp_send_json_success(array(
                 'message' => esc_html__('Login successful!', 'realestate-booking-suite'),
-                'redirect' => home_url()
+                'redirect' => esc_url(home_url())
             ));
         }
     }
@@ -1947,7 +1948,7 @@ class RESBS_Frontend {
                     echo '<span class="resbs-meta-item"><span class="dashicons dashicons-bath"></span>' . esc_html($bathrooms) . ' baths</span>';
                 }
                 if ($area_value) {
-                    echo '<span class="resbs-meta-item"><span class="dashicons dashicons-admin-home"></span>' . resbs_format_area($area_value) . '</span>';
+                    echo '<span class="resbs-meta-item"><span class="dashicons dashicons-admin-home"></span>' . esc_html(resbs_format_area($area_value)) . '</span>';
                 }
                 echo '</div></div></div>';
             }
@@ -1988,15 +1989,16 @@ class RESBS_Frontend {
                 $query->the_post();
                 $property_id = get_the_ID();
                 
+                $price_value = get_post_meta($property_id, '_property_price', true);
                 $properties[] = array(
                     'id' => $property_id,
-                    'title' => get_the_title(),
-                    'url' => get_permalink(),
-                    'price' => get_post_meta($property_id, '_property_price', true),
-                    'price_formatted' => get_post_meta($property_id, '_property_price', true) ? '$' . number_format(get_post_meta($property_id, '_property_price', true)) : '',
-                    'latitude' => get_post_meta($property_id, '_property_latitude', true),
-                    'longitude' => get_post_meta($property_id, '_property_longitude', true),
-                    'featured_image' => get_the_post_thumbnail_url($property_id, 'medium')
+                    'title' => esc_html(get_the_title()),
+                    'url' => esc_url(get_permalink()),
+                    'price' => $price_value ? floatval($price_value) : 0,
+                    'price_formatted' => $price_value ? esc_html('$' . number_format(floatval($price_value))) : '',
+                    'latitude' => esc_attr(get_post_meta($property_id, '_property_latitude', true)),
+                    'longitude' => esc_attr(get_post_meta($property_id, '_property_longitude', true)),
+                    'featured_image' => esc_url(get_the_post_thumbnail_url($property_id, 'medium'))
                 );
             }
             wp_reset_postdata();

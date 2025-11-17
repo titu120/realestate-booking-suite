@@ -61,7 +61,7 @@ class RESBS_Infinite_Scroll_Manager {
 
         // Localize script
         wp_localize_script('resbs-infinite-scroll', 'resbs_infinite_scroll_ajax', array(
-            'ajax_url' => admin_url('admin-ajax.php'),
+            'ajax_url' => esc_url(admin_url('admin-ajax.php')),
             'nonce' => wp_create_nonce('resbs_infinite_scroll_nonce'),
             'messages' => array(
                 'loading' => esc_html__('Loading more properties...', 'realestate-booking-suite'),
@@ -388,8 +388,10 @@ class RESBS_Infinite_Scroll_Manager {
     private function format_price($price) {
         if (!$price) return '';
         
-        $num_price = intval($price);
-        if (is_nan($num_price)) return $price;
+        $num_price = absint($price);
+        if ($num_price === 0 && $price !== 0 && $price !== '0') {
+            return sanitize_text_field($price);
+        }
         
         return '$' . number_format($num_price);
     }
@@ -514,21 +516,21 @@ class RESBS_Infinite_Scroll_Manager {
 
             <div class="resbs-infinite-properties-grid resbs-columns-<?php echo esc_attr($columns); ?>" 
                  data-settings="<?php echo esc_attr(wp_json_encode(array(
-                     'posts_per_page' => $posts_per_page,
-                     'columns' => $columns,
-                     'show_price' => $show_price,
-                     'show_meta' => $show_meta,
-                     'show_excerpt' => $show_excerpt,
-                     'show_badges' => $show_badges,
-                     'show_favorite_button' => $show_favorite_button,
-                     'show_book_button' => $show_book_button,
-                     'orderby' => $orderby,
-                     'order' => $order,
-                     'property_type' => $property_type,
-                     'property_status' => $property_status,
-                     'featured_only' => $featured_only,
-                     'infinite_scroll' => $infinite_scroll,
-                     'show_pagination' => $show_pagination
+                     'posts_per_page' => absint($posts_per_page),
+                     'columns' => absint($columns),
+                     'show_price' => (bool) $show_price,
+                     'show_meta' => (bool) $show_meta,
+                     'show_excerpt' => (bool) $show_excerpt,
+                     'show_badges' => (bool) $show_badges,
+                     'show_favorite_button' => (bool) $show_favorite_button,
+                     'show_book_button' => (bool) $show_book_button,
+                     'orderby' => sanitize_text_field($orderby),
+                     'order' => sanitize_text_field($order),
+                     'property_type' => sanitize_text_field($property_type),
+                     'property_status' => sanitize_text_field($property_status),
+                     'featured_only' => (bool) $featured_only,
+                     'infinite_scroll' => (bool) $infinite_scroll,
+                     'show_pagination' => (bool) $show_pagination
                  ))); ?>">
                 <!-- Properties will be loaded here -->
             </div>
@@ -811,16 +813,16 @@ class RESBS_Infinite_Scroll_Widget extends WP_Widget {
         $enable_infinite_scroll = (bool) $instance['enable_infinite_scroll'];
         $show_pagination = (bool) $instance['show_pagination'];
         
-        echo $args['before_widget'];
+        echo wp_kses_post($args['before_widget']);
         
         if (!empty($title)) {
-            echo $args['before_title'] . esc_html($title) . $args['after_title'];
+            echo wp_kses_post($args['before_title']) . esc_html($title) . wp_kses_post($args['after_title']);
         }
         
         // Display properties using shortcode
         echo do_shortcode('[resbs_infinite_properties posts_per_page="' . esc_attr($posts_per_page) . '" columns="' . esc_attr($columns) . '" show_filters="' . ($show_filters ? 'true' : 'false') . '" show_price="' . ($show_price ? 'true' : 'false') . '" show_meta="' . ($show_meta ? 'true' : 'false') . '" show_excerpt="' . ($show_excerpt ? 'true' : 'false') . '" show_badges="' . ($show_badges ? 'true' : 'false') . '" show_favorite_button="' . ($show_favorite_button ? 'true' : 'false') . '" show_book_button="' . ($show_book_button ? 'true' : 'false') . '" orderby="' . esc_attr($orderby) . '" order="' . esc_attr($order) . '" infinite_scroll="' . ($enable_infinite_scroll ? 'true' : 'false') . '" show_pagination="' . ($show_pagination ? 'true' : 'false') . '"]');
         
-        echo $args['after_widget'];
+        echo wp_kses_post($args['after_widget']);
     }
 }
 

@@ -59,7 +59,7 @@ class RESBS_Contact_Messages {
     public function handle_contact_message_submission() {
         // Verify nonce
         if (!wp_verify_nonce($_POST['nonce'], 'contact_message_nonce')) {
-            wp_die('Security check failed');
+            wp_die(esc_html__('Security check failed', 'realestate-booking-suite'));
         }
         
         // Sanitize input data
@@ -71,13 +71,13 @@ class RESBS_Contact_Messages {
         
         // Validate required fields
         if (empty($name) || empty($email) || empty($phone) || empty($message)) {
-            wp_send_json_error('All required fields must be filled');
+            wp_send_json_error(esc_html__('All required fields must be filled', 'realestate-booking-suite'));
             return;
         }
         
         // Validate email
         if (!is_email($email)) {
-            wp_send_json_error('Invalid email address');
+            wp_send_json_error(esc_html__('Invalid email address', 'realestate-booking-suite'));
             return;
         }
         
@@ -99,7 +99,7 @@ class RESBS_Contact_Messages {
         );
         
         if ($result === false) {
-            wp_send_json_error('Failed to save contact message');
+            wp_send_json_error(esc_html__('Failed to save contact message', 'realestate-booking-suite'));
             return;
         }
         
@@ -111,12 +111,12 @@ class RESBS_Contact_Messages {
         // Get success message from property meta
         $success_message = get_post_meta($property_id, '_property_contact_success_message', true);
         if (empty($success_message)) {
-            $success_message = 'Thank you! Your message has been sent to the agent.';
+            $success_message = __('Thank you! Your message has been sent to the agent.', 'realestate-booking-suite');
         }
         
         wp_send_json_success(array(
-            'message' => $success_message,
-            'contact_message_id' => $contact_message_id
+            'message' => esc_html($success_message),
+            'contact_message_id' => absint($contact_message_id)
         ));
     }
     
@@ -132,50 +132,60 @@ class RESBS_Contact_Messages {
         $agent_name = get_post_meta($property_id, '_property_agent_name', true);
         $agent_email = get_post_meta($property_id, '_property_agent_email', true);
         
+        // Sanitize and escape data for email
+        $property_title_escaped = sanitize_text_field($property_title);
+        $property_url_escaped = esc_url_raw($property_url);
+        $name_escaped = sanitize_text_field($name);
+        $email_escaped = sanitize_email($email);
+        $phone_escaped = sanitize_text_field($phone);
+        $message_escaped = sanitize_textarea_field($message);
+        $agent_name_escaped = !empty($agent_name) ? sanitize_text_field($agent_name) : __('The Property Team', 'realestate-booking-suite');
+        $contact_message_id_escaped = absint($contact_message_id);
+        
         // Email to agent
         if (!empty($agent_email)) {
-            $agent_subject = sprintf('New Contact Message for %s', $property_title);
+            $agent_subject = sprintf(__('New Contact Message for %s', 'realestate-booking-suite'), $property_title_escaped);
             $agent_message = sprintf(
-                "New contact message received:\n\n" .
-                "Property: %s\n" .
-                "Property URL: %s\n\n" .
-                "Customer Details:\n" .
-                "Name: %s\n" .
-                "Email: %s\n" .
-                "Phone: %s\n\n" .
-                "Message:\n" .
+                __("New contact message received:\n\n", 'realestate-booking-suite') .
+                __("Property: %s\n", 'realestate-booking-suite') .
+                __("Property URL: %s\n\n", 'realestate-booking-suite') .
+                __("Customer Details:\n", 'realestate-booking-suite') .
+                __("Name: %s\n", 'realestate-booking-suite') .
+                __("Email: %s\n", 'realestate-booking-suite') .
+                __("Phone: %s\n\n", 'realestate-booking-suite') .
+                __("Message:\n", 'realestate-booking-suite') .
                 "%s\n\n" .
-                "Contact Message ID: #%d",
-                $property_title,
-                $property_url,
-                $name,
-                $email,
-                $phone,
-                $message,
-                $contact_message_id
+                __("Contact Message ID: #%d", 'realestate-booking-suite'),
+                $property_title_escaped,
+                $property_url_escaped,
+                $name_escaped,
+                $email_escaped,
+                $phone_escaped,
+                $message_escaped,
+                $contact_message_id_escaped
             );
             
-            wp_mail($agent_email, $agent_subject, $agent_message);
+            wp_mail(sanitize_email($agent_email), $agent_subject, $agent_message);
         }
         
         // Email to customer
-        $customer_subject = sprintf('Message Confirmation - %s', $property_title);
+        $customer_subject = sprintf(__('Message Confirmation - %s', 'realestate-booking-suite'), $property_title_escaped);
         $customer_message = sprintf(
-            "Thank you for your message!\n\n" .
-            "Property: %s\n" .
-            "Property URL: %s\n\n" .
-            "Your Message:\n" .
+            __("Thank you for your message!\n\n", 'realestate-booking-suite') .
+            __("Property: %s\n", 'realestate-booking-suite') .
+            __("Property URL: %s\n\n", 'realestate-booking-suite') .
+            __("Your Message:\n", 'realestate-booking-suite') .
             "%s\n\n" .
-            "We'll get back to you soon.\n\n" .
-            "Best regards,\n" .
+            __("We'll get back to you soon.\n\n", 'realestate-booking-suite') .
+            __("Best regards,\n", 'realestate-booking-suite') .
             "%s",
-            $property_title,
-            $property_url,
-            $message,
-            !empty($agent_name) ? $agent_name : 'The Property Team'
+            $property_title_escaped,
+            $property_url_escaped,
+            $message_escaped,
+            $agent_name_escaped
         );
         
-        wp_mail($email, $customer_subject, $customer_message);
+        wp_mail($email_escaped, $customer_subject, $customer_message);
     }
     
     /**

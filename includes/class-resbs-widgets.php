@@ -194,7 +194,7 @@ class RESBS_Property_Grid_Widget extends WP_Widget {
             </p>
 
             <!-- Filter Options -->
-            <div class="resbs-filter-options" style="<?php echo $show_filters ? '' : 'display: none;'; ?>">
+            <div class="resbs-filter-options" style="<?php echo esc_attr($show_filters ? '' : 'display: none;'); ?>">
                 <p>
                     <input class="checkbox" type="checkbox" <?php checked($show_price_filter); ?> 
                            id="<?php echo esc_attr($this->get_field_id('show_price_filter')); ?>" 
@@ -372,7 +372,7 @@ class RESBS_Property_Grid_Widget extends WP_Widget {
             </p>
 
             <!-- Carousel Options (only show when carousel is selected) -->
-            <div class="resbs-carousel-options" style="<?php echo $layout === 'carousel' ? '' : 'display: none;'; ?>">
+            <div class="resbs-carousel-options" style="<?php echo esc_attr($layout === 'carousel' ? '' : 'display: none;'); ?>">
                 <p>
                     <input class="checkbox" type="checkbox" <?php checked($carousel_autoplay); ?> 
                            id="<?php echo esc_attr($this->get_field_id('carousel_autoplay')); ?>" 
@@ -526,10 +526,23 @@ class RESBS_Property_Grid_Widget extends WP_Widget {
         // Generate unique widget ID
         $widget_id = 'resbs-widget-' . $this->id;
 
-        echo $args['before_widget'];
+        // Allow common HTML tags used in widget wrappers
+        $allowed_widget_html = array(
+            'div' => array('class' => array(), 'id' => array()),
+            'section' => array('class' => array(), 'id' => array()),
+            'aside' => array('class' => array(), 'id' => array()),
+            'h1' => array('class' => array()),
+            'h2' => array('class' => array()),
+            'h3' => array('class' => array()),
+            'h4' => array('class' => array()),
+            'h5' => array('class' => array()),
+            'h6' => array('class' => array()),
+        );
+
+        echo wp_kses($args['before_widget'], $allowed_widget_html);
 
         if (!empty($title)) {
-            echo $args['before_title'] . esc_html($title) . $args['after_title'];
+            echo wp_kses($args['before_title'], $allowed_widget_html) . esc_html($title) . wp_kses($args['after_title'], $allowed_widget_html);
         }
 
         ?>
@@ -646,7 +659,7 @@ class RESBS_Property_Grid_Widget extends WP_Widget {
                      data-show-arrows="<?php echo esc_attr($carousel_show_arrows ? 'true' : 'false'); ?>">
                     <div class="resbs-carousel-wrapper">
                         <div class="resbs-carousel-track">
-                            <?php $this->render_properties($instance); ?>
+                            <?php $this->render_properties($instance, $widget_id); ?>
                         </div>
                     </div>
                     <?php if ($carousel_show_arrows): ?>
@@ -661,7 +674,7 @@ class RESBS_Property_Grid_Widget extends WP_Widget {
                 <div class="resbs-property-grid resbs-grid-<?php echo esc_attr($columns); ?>-cols resbs-layout-<?php echo esc_attr($layout); ?>" 
                      data-columns="<?php echo esc_attr($columns); ?>"
                      data-layout="<?php echo esc_attr($layout); ?>">
-                    <?php $this->render_properties($instance); ?>
+                    <?php $this->render_properties($instance, $widget_id); ?>
                 </div>
             <?php endif; ?>
 
@@ -676,13 +689,20 @@ class RESBS_Property_Grid_Widget extends WP_Widget {
         </div>
         <?php
 
-        echo $args['after_widget'];
+        // Allow common HTML tags used in widget wrappers
+        $allowed_widget_html = array(
+            'div' => array('class' => array(), 'id' => array()),
+            'section' => array('class' => array(), 'id' => array()),
+            'aside' => array('class' => array(), 'id' => array()),
+        );
+
+        echo wp_kses($args['after_widget'], $allowed_widget_html);
     }
 
     /**
      * Render properties
      */
-    private function render_properties($instance) {
+    private function render_properties($instance, $widget_id = '') {
         // Build query args
         $query_args = array(
             'post_type' => 'property',
@@ -740,8 +760,6 @@ class RESBS_Property_Grid_Widget extends WP_Widget {
 
         // Add infinite scroll support
         do_action('resbs_property_grid_after', $widget_id, $instance);
-
-        echo $args['after_widget'];
     }
 
     /**
@@ -866,7 +884,7 @@ class RESBS_Property_Grid_Widget extends WP_Widget {
      * Format price
      */
     private function format_price($price) {
-        $currency_symbol = get_option('resbs_currency_symbol', '$');
+        $currency_symbol = esc_html(get_option('resbs_currency_symbol', '$'));
         $currency_position = get_option('resbs_currency_position', 'before');
         
         $formatted_price = number_format($price);

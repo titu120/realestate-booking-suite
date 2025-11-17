@@ -28,8 +28,8 @@ class RESBS_Dynamic_Archive_AJAX {
         wp_enqueue_script('jquery');
         
         wp_localize_script('resbs-dynamic-archive', 'resbs_ajax', array(
-            'ajax_url' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('resbs_search_nonce'),
+            'ajax_url' => esc_url(admin_url('admin-ajax.php')),
+            'nonce' => esc_js(wp_create_nonce('resbs_search_nonce')),
         ));
     }
     
@@ -39,7 +39,7 @@ class RESBS_Dynamic_Archive_AJAX {
     public function search_properties() {
         // Verify nonce
         if (!wp_verify_nonce($_POST['nonce'], 'resbs_search_nonce')) {
-            wp_die('Security check failed');
+            wp_die(esc_html__('Security check failed', 'realestate-booking-suite'));
         }
         
         // Get search parameters
@@ -234,12 +234,12 @@ class RESBS_Dynamic_Archive_AJAX {
                 
                 $property_type_name = '';
                 if ($property_types && !is_wp_error($property_types)) {
-                    $property_type_name = $property_types[0]->name;
+                    $property_type_name = esc_html($property_types[0]->name);
                 }
                 
                 $property_status_name = '';
                 if ($property_statuses && !is_wp_error($property_statuses)) {
-                    $property_status_name = $property_statuses[0]->name;
+                    $property_status_name = esc_html($property_statuses[0]->name);
                 }
                 
                 // Get featured image
@@ -247,6 +247,7 @@ class RESBS_Dynamic_Archive_AJAX {
                 if (!$featured_image) {
                     $featured_image = 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800';
                 }
+                $featured_image = esc_url($featured_image);
                 
                 // Format price
                 $formatted_price = '';
@@ -256,10 +257,10 @@ class RESBS_Dynamic_Archive_AJAX {
                 
                 // Format location
                 $location = '';
-                if ($address) $location .= $address;
-                if ($city) $location .= ($location ? ', ' : '') . $city;
-                if ($state) $location .= ($location ? ', ' : '') . $state;
-                if ($zip) $location .= ($location ? ' ' : '') . $zip;
+                if ($address) $location .= esc_html($address);
+                if ($city) $location .= ($location ? ', ' : '') . esc_html($city);
+                if ($state) $location .= ($location ? ', ' : '') . esc_html($state);
+                if ($zip) $location .= ($location ? ' ' : '') . esc_html($zip);
                 
                 // Determine badge
                 $badge_class = 'badge-new';
@@ -280,30 +281,30 @@ class RESBS_Dynamic_Archive_AJAX {
                 
                 // Add property data
                 $response['properties'][] = array(
-                    'id' => get_the_ID(),
-                    'title' => get_the_title(),
-                    'permalink' => get_permalink(),
-                    'featured_image' => $featured_image,
-                    'price' => $formatted_price,
-                    'bedrooms' => $bedrooms,
-                    'bathrooms' => $bathrooms,
-                    'area_sqft' => $area_sqft,
+                    'id' => absint(get_the_ID()),
+                    'title' => esc_html(get_the_title()),
+                    'permalink' => esc_url(get_permalink()),
+                    'featured_image' => esc_url($featured_image),
+                    'price' => esc_html($formatted_price),
+                    'bedrooms' => absint($bedrooms),
+                    'bathrooms' => absint($bathrooms),
+                    'area_sqft' => absint($area_sqft),
                     'location' => $location,
-                    'property_type' => $property_type_name,
-                    'property_status' => $property_status_name,
-                    'badge_class' => $badge_class,
-                    'badge_text' => $badge_text
+                    'property_type' => esc_html($property_type_name),
+                    'property_status' => esc_html($property_status_name),
+                    'badge_class' => esc_attr($badge_class),
+                    'badge_text' => esc_html($badge_text)
                 );
                 
                 // Add map marker data
                 if ($latitude && $longitude) {
                     $response['map_markers'][] = array(
-                        'id' => get_the_ID(),
-                        'latitude' => $latitude,
-                        'longitude' => $longitude,
-                        'title' => get_the_title(),
-                        'price' => $formatted_price,
-                        'badge_class' => $badge_class
+                        'id' => absint(get_the_ID()),
+                        'latitude' => esc_attr($latitude),
+                        'longitude' => esc_attr($longitude),
+                        'title' => esc_html(get_the_title()),
+                        'price' => esc_html($formatted_price),
+                        'badge_class' => esc_attr($badge_class)
                     );
                 }
             }

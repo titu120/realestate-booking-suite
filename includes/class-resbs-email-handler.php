@@ -23,7 +23,7 @@ class RESBS_Email_Handler {
     public function handle_contact_form_submission() {
         // Verify nonce for security
         if (!wp_verify_nonce($_POST['nonce'], 'resbs_contact_form_nonce')) {
-            wp_die('Security check failed');
+            wp_die(esc_html__('Security check failed', 'realestate-booking-suite'));
         }
         
         // Check if we're on localhost
@@ -44,17 +44,17 @@ class RESBS_Email_Handler {
         $agent_name = get_post_meta($property_id, '_property_agent_name', true);
         
         // Email subject
-        $subject = sprintf('New inquiry for property: %s', $property_title);
+        $subject = sprintf('New inquiry for property: %s', esc_html($property_title));
         
         // Email content
         $email_content = "
         <h2>New Property Inquiry</h2>
-        <p><strong>Property:</strong> {$property_title}</p>
-        <p><strong>From:</strong> {$name}</p>
-        <p><strong>Email:</strong> {$email}</p>
-        <p><strong>Phone:</strong> {$phone}</p>
+        <p><strong>Property:</strong> " . esc_html($property_title) . "</p>
+        <p><strong>From:</strong> " . esc_html($name) . "</p>
+        <p><strong>Email:</strong> " . esc_html($email) . "</p>
+        <p><strong>Phone:</strong> " . esc_html($phone) . "</p>
         <p><strong>Message:</strong></p>
-        <p>{$message}</p>
+        <p>" . esc_html($message) . "</p>
         <hr>
         <p><em>This inquiry was sent through your property listing website.</em></p>
         ";
@@ -62,8 +62,8 @@ class RESBS_Email_Handler {
         // Email headers
         $headers = array(
             'Content-Type: text/html; charset=UTF-8',
-            'From: ' . get_bloginfo('name') . ' <' . get_option('admin_email') . '>',
-            'Reply-To: ' . $name . ' <' . $email . '>'
+            'From: ' . esc_html(get_bloginfo('name')) . ' <' . esc_html(get_option('admin_email')) . '>',
+            'Reply-To: ' . esc_html($name) . ' <' . esc_html($email) . '>'
         );
         
         // Send email to agent
@@ -76,23 +76,23 @@ class RESBS_Email_Handler {
         $admin_email_sent = wp_mail(get_option('admin_email'), $subject, $email_content, $headers);
         
         // Send confirmation email to customer
-        $customer_subject = 'Thank you for your inquiry - ' . get_bloginfo('name');
+        $customer_subject = 'Thank you for your inquiry - ' . esc_html(get_bloginfo('name'));
         $customer_content = "
         <h2>Thank you for your inquiry!</h2>
-        <p>Dear {$name},</p>
-        <p>Thank you for your interest in the property: <strong>{$property_title}</strong></p>
-        <p>Our agent <strong>{$agent_name}</strong> will contact you shortly to discuss your requirements.</p>
+        <p>Dear " . esc_html($name) . ",</p>
+        <p>Thank you for your interest in the property: <strong>" . esc_html($property_title) . "</strong></p>
+        <p>Our agent <strong>" . esc_html($agent_name) . "</strong> will contact you shortly to discuss your requirements.</p>
         <p>Your inquiry details:</p>
         <ul>
-            <li><strong>Property:</strong> {$property_title}</li>
-            <li><strong>Message:</strong> {$message}</li>
+            <li><strong>Property:</strong> " . esc_html($property_title) . "</li>
+            <li><strong>Message:</strong> " . esc_html($message) . "</li>
         </ul>
-        <p>Best regards,<br>{$agent_name}</p>
+        <p>Best regards,<br>" . esc_html($agent_name) . "</p>
         ";
         
         $customer_headers = array(
             'Content-Type: text/html; charset=UTF-8',
-            'From: ' . $agent_name . ' <' . $agent_email . '>'
+            'From: ' . esc_html($agent_name) . ' <' . esc_html($agent_email) . '>'
         );
         
         $customer_email_sent = wp_mail($email, $customer_subject, $customer_content, $customer_headers);
@@ -127,7 +127,7 @@ class RESBS_Email_Handler {
     public function handle_booking_form_submission() {
         // Verify nonce for security
         if (!wp_verify_nonce($_POST['nonce'], 'resbs_booking_form_nonce')) {
-            wp_die('Security check failed');
+            wp_die(esc_html__('Security check failed', 'realestate-booking-suite'));
         }
         
         // Get form data
@@ -145,19 +145,19 @@ class RESBS_Email_Handler {
         $agent_name = get_post_meta($property_id, '_property_agent_name', true);
         
         // Email subject
-        $subject = sprintf('New tour booking for property: %s', $property_title);
+        $subject = sprintf('New tour booking for property: %s', esc_html($property_title));
         
         // Email content
         $email_content = "
         <h2>New Property Tour Booking</h2>
-        <p><strong>Property:</strong> {$property_title}</p>
-        <p><strong>From:</strong> {$name}</p>
-        <p><strong>Email:</strong> {$email}</p>
-        <p><strong>Phone:</strong> {$phone}</p>
-        <p><strong>Preferred Date:</strong> {$date}</p>
-        <p><strong>Preferred Time:</strong> {$time}</p>
+        <p><strong>Property:</strong> " . esc_html($property_title) . "</p>
+        <p><strong>From:</strong> " . esc_html($name) . "</p>
+        <p><strong>Email:</strong> " . esc_html($email) . "</p>
+        <p><strong>Phone:</strong> " . esc_html($phone) . "</p>
+        <p><strong>Preferred Date:</strong> " . esc_html($date) . "</p>
+        <p><strong>Preferred Time:</strong> " . esc_html($time) . "</p>
         <p><strong>Message:</strong></p>
-        <p>{$message}</p>
+        <p>" . esc_html($message) . "</p>
         <hr>
         <p><em>This booking request was sent through your property listing website.</em></p>
         ";
@@ -165,8 +165,8 @@ class RESBS_Email_Handler {
         // Email headers
         $headers = array(
             'Content-Type: text/html; charset=UTF-8',
-            'From: ' . get_bloginfo('name') . ' <' . get_option('admin_email') . '>',
-            'Reply-To: ' . $name . ' <' . $email . '>'
+            'From: ' . esc_html(get_bloginfo('name')) . ' <' . esc_html(get_option('admin_email')) . '>',
+            'Reply-To: ' . esc_html($name) . ' <' . esc_html($email) . '>'
         );
         
         // Send email to agent
@@ -179,24 +179,24 @@ class RESBS_Email_Handler {
         $admin_email_sent = wp_mail(get_option('admin_email'), $subject, $email_content, $headers);
         
         // Send confirmation email to customer
-        $customer_subject = 'Tour booking confirmed - ' . get_bloginfo('name');
+        $customer_subject = 'Tour booking confirmed - ' . esc_html(get_bloginfo('name'));
         $customer_content = "
         <h2>Tour Booking Confirmed!</h2>
-        <p>Dear {$name},</p>
-        <p>Thank you for booking a tour for the property: <strong>{$property_title}</strong></p>
+        <p>Dear " . esc_html($name) . ",</p>
+        <p>Thank you for booking a tour for the property: <strong>" . esc_html($property_title) . "</strong></p>
         <p><strong>Your booking details:</strong></p>
         <ul>
-            <li><strong>Property:</strong> {$property_title}</li>
-            <li><strong>Date:</strong> {$date}</li>
-            <li><strong>Time:</strong> {$time}</li>
+            <li><strong>Property:</strong> " . esc_html($property_title) . "</li>
+            <li><strong>Date:</strong> " . esc_html($date) . "</li>
+            <li><strong>Time:</strong> " . esc_html($time) . "</li>
         </ul>
-        <p>Our agent <strong>{$agent_name}</strong> will contact you shortly to confirm the appointment.</p>
-        <p>Best regards,<br>{$agent_name}</p>
+        <p>Our agent <strong>" . esc_html($agent_name) . "</strong> will contact you shortly to confirm the appointment.</p>
+        <p>Best regards,<br>" . esc_html($agent_name) . "</p>
         ";
         
         $customer_headers = array(
             'Content-Type: text/html; charset=UTF-8',
-            'From: ' . $agent_name . ' <' . $agent_email . '>'
+            'From: ' . esc_html($agent_name) . ' <' . esc_html($agent_email) . '>'
         );
         
         $customer_email_sent = wp_mail($email, $customer_subject, $customer_content, $customer_headers);

@@ -117,9 +117,9 @@ class RESBS_Maps_Manager {
             
             // Localize script
             wp_localize_script('resbs-maps', 'resbs_maps_ajax', array(
-                'currency_symbol' => $currency_symbol,
-                'currency_code' => $currency_code,
-                'ajax_url' => admin_url('admin-ajax.php'),
+                'currency_symbol' => esc_js($currency_symbol),
+                'currency_code' => esc_js($currency_code),
+                'ajax_url' => esc_url(admin_url('admin-ajax.php')),
                 'nonce' => wp_create_nonce('resbs_maps_nonce'),
                 'default_lat' => floatval(get_option('resbs_map_default_lat', '40.7128')),
                 'default_lng' => floatval(get_option('resbs_map_default_lng', '-74.0060')),
@@ -129,17 +129,17 @@ class RESBS_Maps_Manager {
                 'show_filters' => get_option('resbs_map_show_filters', true),
                 'marker_icon' => esc_url(get_option('resbs_map_marker_icon', '')),
                 'messages' => array(
-                    'loading' => esc_html__('Loading map...', 'realestate-booking-suite'),
-                    'no_properties' => esc_html__('No properties found in this area.', 'realestate-booking-suite'),
-                    'search_placeholder' => esc_html__('Search location...', 'realestate-booking-suite'),
-                    'search_button' => esc_html__('Search', 'realestate-booking-suite'),
-                    'reset_button' => esc_html__('Reset', 'realestate-booking-suite'),
-                    'filter_button' => esc_html__('Filter', 'realestate-booking-suite'),
-                    'view_property' => esc_html__('View Property', 'realestate-booking-suite'),
-                    'quick_view' => esc_html__('Quick View', 'realestate-booking-suite'),
-                    'add_to_favorites' => esc_html__('Add to Favorites', 'realestate-booking-suite'),
-                    'remove_from_favorites' => esc_html__('Remove from Favorites', 'realestate-booking-suite'),
-                    'error' => esc_html__('An error occurred. Please try again.', 'realestate-booking-suite')
+                    'loading' => esc_js(esc_html__('Loading map...', 'realestate-booking-suite')),
+                    'no_properties' => esc_js(esc_html__('No properties found in this area.', 'realestate-booking-suite')),
+                    'search_placeholder' => esc_js(esc_html__('Search location...', 'realestate-booking-suite')),
+                    'search_button' => esc_js(esc_html__('Search', 'realestate-booking-suite')),
+                    'reset_button' => esc_js(esc_html__('Reset', 'realestate-booking-suite')),
+                    'filter_button' => esc_js(esc_html__('Filter', 'realestate-booking-suite')),
+                    'view_property' => esc_js(esc_html__('View Property', 'realestate-booking-suite')),
+                    'quick_view' => esc_js(esc_html__('Quick View', 'realestate-booking-suite')),
+                    'add_to_favorites' => esc_js(esc_html__('Add to Favorites', 'realestate-booking-suite')),
+                    'remove_from_favorites' => esc_js(esc_html__('Remove from Favorites', 'realestate-booking-suite')),
+                    'error' => esc_js(esc_html__('An error occurred. Please try again.', 'realestate-booking-suite'))
                 )
             ));
         }
@@ -542,22 +542,33 @@ class RESBS_Maps_Manager {
                 $properties->the_post();
                 $property_id = get_the_ID();
                 
+                $property_type_terms = wp_get_post_terms($property_id, 'property_type', array('fields' => 'names'));
+                $property_status_terms = wp_get_post_terms($property_id, 'property_status', array('fields' => 'names'));
+                
+                // Ensure terms are arrays and escape them
+                if (!is_array($property_type_terms)) {
+                    $property_type_terms = array();
+                }
+                if (!is_array($property_status_terms)) {
+                    $property_status_terms = array();
+                }
+                
                 $map_properties[] = array(
-                    'id' => $property_id,
-                    'title' => get_the_title(),
-                    'permalink' => get_permalink(),
+                    'id' => intval($property_id),
+                    'title' => esc_html(get_the_title()),
+                    'permalink' => esc_url(get_permalink()),
                     'latitude' => floatval(get_post_meta($property_id, '_property_latitude', true)),
                     'longitude' => floatval(get_post_meta($property_id, '_property_longitude', true)),
-                    'price' => get_post_meta($property_id, '_property_price', true),
-                    'bedrooms' => get_post_meta($property_id, '_property_bedrooms', true),
-                    'bathrooms' => get_post_meta($property_id, '_property_bathrooms', true),
-                    'area' => get_post_meta($property_id, '_property_area', true),
-                    'featured_image' => get_the_post_thumbnail_url($property_id, 'medium'),
-                    'property_type' => wp_get_post_terms($property_id, 'property_type', array('fields' => 'names')),
-                    'property_status' => wp_get_post_terms($property_id, 'property_status', array('fields' => 'names')),
-                    'featured' => get_post_meta($property_id, '_property_featured', true),
-                    'new' => get_post_meta($property_id, '_property_new', true),
-                    'sold' => get_post_meta($property_id, '_property_sold', true)
+                    'price' => esc_html(get_post_meta($property_id, '_property_price', true)),
+                    'bedrooms' => intval(get_post_meta($property_id, '_property_bedrooms', true)),
+                    'bathrooms' => intval(get_post_meta($property_id, '_property_bathrooms', true)),
+                    'area' => esc_html(get_post_meta($property_id, '_property_area', true)),
+                    'featured_image' => esc_url(get_the_post_thumbnail_url($property_id, 'medium')),
+                    'property_type' => array_map('esc_html', $property_type_terms),
+                    'property_status' => array_map('esc_html', $property_status_terms),
+                    'featured' => (bool) get_post_meta($property_id, '_property_featured', true),
+                    'new' => (bool) get_post_meta($property_id, '_property_new', true),
+                    'sold' => (bool) get_post_meta($property_id, '_property_sold', true)
                 );
             }
             wp_reset_postdata();
@@ -595,7 +606,7 @@ class RESBS_Maps_Manager {
             ));
         }
 
-        $url = 'https://maps.googleapis.com/maps/api/geocode/json?address=' . urlencode($search_query) . '&key=' . $api_key;
+        $url = 'https://maps.googleapis.com/maps/api/geocode/json?address=' . urlencode($search_query) . '&key=' . urlencode($api_key);
         
         $response = wp_remote_get($url);
         
@@ -613,9 +624,9 @@ class RESBS_Maps_Manager {
             $location = $result['geometry']['location'];
             
             wp_send_json_success(array(
-                'lat' => $location['lat'],
-                'lng' => $location['lng'],
-                'formatted_address' => $result['formatted_address']
+                'lat' => floatval($location['lat']),
+                'lng' => floatval($location['lng']),
+                'formatted_address' => esc_html($result['formatted_address'])
             ));
         } else {
             wp_send_json_error(array(
@@ -881,16 +892,16 @@ class RESBS_Property_Map_Widget extends WP_Widget {
         $show_filters = (bool) $instance['show_filters'];
         $cluster_markers = (bool) $instance['cluster_markers'];
         
-        echo $args['before_widget'];
+        echo wp_kses_post($args['before_widget']);
         
         if (!empty($title)) {
-            echo $args['before_title'] . esc_html($title) . $args['after_title'];
+            echo wp_kses_post($args['before_title']) . esc_html($title) . wp_kses_post($args['after_title']);
         }
         
         // Display map using shortcode
         echo do_shortcode('[resbs_property_map height="' . esc_attr($height) . '" zoom="' . esc_attr($zoom) . '" show_search="' . ($show_search ? 'true' : 'false') . '" show_filters="' . ($show_filters ? 'true' : 'false') . '" cluster_markers="' . ($cluster_markers ? 'true' : 'false') . '"]');
         
-        echo $args['after_widget'];
+        echo wp_kses_post($args['after_widget']);
     }
 }
 

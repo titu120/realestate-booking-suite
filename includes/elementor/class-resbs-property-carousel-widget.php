@@ -862,7 +862,7 @@ class RESBS_Property_Carousel_Widget extends \Elementor\Widget_Base {
         ));
         
         foreach ($property_types as $type) {
-            $types[$type->slug] = $type->name;
+            $types[$type->slug] = esc_html($type->name);
         }
         
         return $types;
@@ -880,7 +880,7 @@ class RESBS_Property_Carousel_Widget extends \Elementor\Widget_Base {
         ));
         
         foreach ($property_statuses as $status) {
-            $statuses[$status->slug] = $status->name;
+            $statuses[$status->slug] = esc_html($status->name);
         }
         
         return $statuses;
@@ -983,13 +983,13 @@ class RESBS_Property_Carousel_Widget extends \Elementor\Widget_Base {
                                 <?php if ($show_meta): ?>
                                     <div class="property-card-features">
                                         <?php if ($property_bedrooms): ?>
-                                            <span><i class="fas fa-bed mr-1"></i><?php echo esc_html($property_bedrooms); ?> Bed<?php echo $property_bedrooms != 1 ? 's' : ''; ?></span>
+                                            <span><i class="fas fa-bed mr-1"></i><?php echo esc_html($property_bedrooms); ?> Bed<?php echo esc_html($property_bedrooms != 1 ? 's' : ''); ?></span>
                                         <?php endif; ?>
                                         <?php if ($property_bathrooms): ?>
-                                            <span><i class="fas fa-bath mr-1"></i><?php echo esc_html($property_bathrooms); ?> Bath<?php echo $property_bathrooms != 1 ? 's' : ''; ?></span>
+                                            <span><i class="fas fa-bath mr-1"></i><?php echo esc_html($property_bathrooms); ?> Bath<?php echo esc_html($property_bathrooms != 1 ? 's' : ''); ?></span>
                                         <?php endif; ?>
                                         <?php if ($property_area): ?>
-                                            <span><i class="fas fa-ruler-combined mr-1"></i><?php echo resbs_format_area($property_area); ?></span>
+                                            <span><i class="fas fa-ruler-combined mr-1"></i><?php echo esc_html(resbs_format_area($property_area)); ?></span>
                                         <?php endif; ?>
             </div>
                                 <?php endif; ?>

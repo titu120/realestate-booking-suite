@@ -230,7 +230,7 @@
         if ($price && ! $call_for_price) {
             $formatted_price = resbs_format_price($price);
         } elseif ($call_for_price) {
-            $formatted_price = 'Call for Price';
+            $formatted_price = __('Call for Price', 'realestate-booking-suite');
         }
 
         // Format price per unit (uses General settings) with dynamic currency
@@ -285,7 +285,7 @@
         if (!empty($features)) {
             if (is_string($features)) {
                 // String, explode by comma
-                $features_array = explode(',', $features);
+            $features_array = explode(',', $features);
             } elseif (is_array($features)) {
                 // Already an array, flatten it
                 $features_array = $features;
@@ -314,7 +314,7 @@
         if (!empty($amenities)) {
             if (is_string($amenities)) {
                 // String, explode by comma
-                $amenities_array = explode(',', $amenities);
+            $amenities_array = explode(',', $amenities);
             } elseif (is_array($amenities)) {
                 // Already an array, flatten it
                 $amenities_array = $amenities;
@@ -355,16 +355,16 @@
             'bedrooms'              => '0',
             'bathrooms'             => '0',
             'area_sqft'             => '0 sq ft',
-            'property_type'         => 'Property',
-            'property_status'       => 'Available',
-            'property_condition'    => 'Good',
-            'agent_name'            => 'Contact Agent',
-            'agent_phone'           => 'N/A',
-            'agent_email'           => 'N/A',
+            'property_type'         => __('Property', 'realestate-booking-suite'),
+            'property_status'       => __('Available', 'realestate-booking-suite'),
+            'property_condition'    => __('Good', 'realestate-booking-suite'),
+            'agent_name'            => __('Contact Agent', 'realestate-booking-suite'),
+            'agent_phone'           => __('N/A', 'realestate-booking-suite'),
+            'agent_email'           => __('N/A', 'realestate-booking-suite'),
             'agent_rating'          => '5',
             'agent_reviews'         => '0',
-            'agent_experience'      => 'N/A',
-            'agent_response_time'   => 'N/A',
+            'agent_experience'      => __('N/A', 'realestate-booking-suite'),
+            'agent_response_time'   => __('N/A', 'realestate-booking-suite'),
             'agent_properties_sold' => '0',
         ];
 
@@ -511,24 +511,24 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
                                     <span class="badge badge-primary badge"><?php echo esc_html($property_status); ?></span>
                                 <?php endif; ?>
                                 <?php if (in_array('Featured', $property_badges)): ?>
-                                    <span class="badge badge-blue">Featured</span>
+                                    <span class="badge badge-blue"><?php echo esc_html__('Featured', 'realestate-booking-suite'); ?></span>
                                 <?php endif; ?>
                                 <?php if (in_array('New', $property_badges)): ?>
-                                    <span class="badge badge-orange">New</span>
+                                    <span class="badge badge-orange"><?php echo esc_html__('New', 'realestate-booking-suite'); ?></span>
                                 <?php endif; ?>
                                 <?php if (in_array('Sold', $property_badges)): ?>
-                                    <span class="badge badge-red">Sold</span>
+                                    <span class="badge badge-red"><?php echo esc_html__('Sold', 'realestate-booking-suite'); ?></span>
                                 <?php endif; ?>
                             </div>
                             <<?php echo esc_attr(resbs_get_title_heading_tag()); ?> class="property-title"><?php echo esc_html(get_the_title()); ?></<?php echo esc_attr(resbs_get_title_heading_tag()); ?>>
                             <p class="property-location">
                                 <i class="fas fa-map-marker-alt text-emerald-500"></i>
-                                <?php echo esc_html($full_address ? $full_address : 'Location not specified'); ?>
+                                <?php echo esc_html($full_address ? $full_address : __('Location not specified', 'realestate-booking-suite')); ?>
                             </p>
                             <?php if (resbs_should_show_date_added()): ?>
                             <p class="property-date" style="color: #6b7280; font-size: 14px; margin-top: 8px;">
                                 <i class="fas fa-calendar-alt"></i>
-                                Listed on <?php echo esc_html(resbs_format_date(get_the_date('Y-m-d'))); ?>
+                                <?php echo esc_html__('Listed on', 'realestate-booking-suite'); ?> <?php echo esc_html(resbs_format_date(get_the_date('Y-m-d'))); ?>
                             </p>
                             <?php endif; ?>
                         </div>
@@ -544,14 +544,14 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
                         <?php 
                         // Show sharing button only if enabled (dynamically from Listings settings)
                         if (resbs_is_sharing_enabled()) : ?>
-                        <button onclick="shareProperty()" class="tooltip action-btn" data-tooltip="Share Property">
+                        <button onclick="shareProperty()" class="tooltip action-btn" data-tooltip="<?php echo esc_attr__('Share Property', 'realestate-booking-suite'); ?>">
                             <i class="fas fa-share-alt text-gray-600"></i>
-                            <span class="text-gray-700">Share</span>
+                            <span class="text-gray-700"><?php echo esc_html__('Share', 'realestate-booking-suite'); ?></span>
                         </button>
                         <?php endif; ?>
-                        <button onclick="printPage()" class="tooltip action-btn" data-tooltip="Print Details">
+                        <button onclick="printPage()" class="tooltip action-btn" data-tooltip="<?php echo esc_attr__('Print Details', 'realestate-booking-suite'); ?>">
                             <i class="fas fa-print text-gray-600"></i>
-                            <span class="text-gray-700">Print</span>
+                            <span class="text-gray-700"><?php echo esc_html__('Print', 'realestate-booking-suite'); ?></span>
                         </button>
                     </div>
                 </div>
@@ -583,7 +583,7 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
                                         <img src="<?php echo esc_url($all_images[$i]); ?>" alt="<?php echo esc_attr(get_the_title()); ?>" class="gallery-img" <?php echo $lightbox_disabled ? '' : 'onclick="openImageViewer(' . $i . ')"'; ?>>
                                         <?php if ($i == 4 && $total_images > 5): ?>
                                             <div class="gallery-overlay" <?php echo $lightbox_disabled ? '' : 'onclick="openImageViewer(4)"'; ?>>
-                                                <span>+<?php echo($total_images - 5); ?> More</span>
+                                                <span>+<?php echo($total_images - 5); ?> <?php echo esc_html__('More', 'realestate-booking-suite'); ?></span>
                                             </div>
                                         <?php endif; ?>
                                     </div>
@@ -591,7 +591,7 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
                             <?php endfor; ?>
                             <?php else: ?>
                                 <div class="gallery-item gallery-main">
-                                    <img src="<?php echo esc_url(get_template_directory_uri() . '/assets/images/placeholder-property.jpg'); ?>" alt="No image available" class="gallery-img">
+                                    <img src="<?php echo esc_url(get_template_directory_uri() . '/assets/images/placeholder-property.jpg'); ?>" alt="<?php echo esc_attr__('No image available', 'realestate-booking-suite'); ?>" class="gallery-img">
                                 </div>
                             <?php endif; ?>
                     </div>
@@ -599,13 +599,13 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
 
                 <!-- Key Features -->
                 <div class="card">
-                    <h2 class="section-title">Key Features</h2>
+                    <h2 class="section-title"><?php echo esc_html__('Key Features', 'realestate-booking-suite'); ?></h2>
                     <div class="key-features-grid">
                         <?php if ($bedrooms): ?>
                         <div class="feature-item">
                             <i class="fas fa-bed feature-icon"></i>
                             <p class="feature-value"><?php echo esc_html($bedrooms); ?></p>
-                            <p class="feature-label">Bedrooms</p>
+                            <p class="feature-label"><?php echo esc_html__('Bedrooms', 'realestate-booking-suite'); ?></p>
                         </div>
                         <?php endif; ?>
 
@@ -613,7 +613,7 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
                         <div class="feature-item">
                             <i class="fas fa-bath feature-icon"></i>
                             <p class="feature-value"><?php echo esc_html($bathrooms); ?></p>
-                            <p class="feature-label">Bathrooms</p>
+                            <p class="feature-label"><?php echo esc_html__('Bathrooms', 'realestate-booking-suite'); ?></p>
                         </div>
                         <?php endif; ?>
 
@@ -621,7 +621,7 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
                         <div class="feature-item">
                             <i class="fas fa-ruler-combined feature-icon"></i>
                             <p class="feature-value"><?php echo esc_html($formatted_area); ?></p>
-                            <p class="feature-label"><?php echo esc_html(resbs_get_area_unit() === 'sqm' ? 'Sq M' : 'Sq Ft'); ?></p>
+                            <p class="feature-label"><?php echo esc_html(resbs_get_area_unit() === 'sqm' ? __('Sq M', 'realestate-booking-suite') : __('Sq Ft', 'realestate-booking-suite')); ?></p>
                         </div>
                         <?php endif; ?>
 
@@ -629,7 +629,7 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
                         <div class="feature-item">
                             <i class="fas fa-car feature-icon"></i>
                             <p class="feature-value"><?php echo esc_html($parking); ?></p>
-                            <p class="feature-label">Parking</p>
+                            <p class="feature-label"><?php echo esc_html__('Parking', 'realestate-booking-suite'); ?></p>
                         </div>
                         <?php endif; ?>
 
@@ -637,7 +637,7 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
                         <div class="feature-item">
                             <i class="fas fa-calendar feature-icon"></i>
                             <p class="feature-value"><?php echo esc_html($year_built); ?></p>
-                            <p class="feature-label">Year Built</p>
+                            <p class="feature-label"><?php echo esc_html__('Year Built', 'realestate-booking-suite'); ?></p>
                         </div>
                         <?php endif; ?>
 
@@ -645,7 +645,7 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
                         <div class="feature-item">
                             <i class="fas fa-home feature-icon"></i>
                             <p class="feature-value"><?php echo esc_html($property_type); ?></p>
-                            <p class="feature-label">Type</p>
+                            <p class="feature-label"><?php echo esc_html__('Type', 'realestate-booking-suite'); ?></p>
                         </div>
                         <?php endif; ?>
                     </div>
@@ -655,28 +655,28 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
                 <div class="tabs no-print">
                     <div class="tabs-header">
                         <button onclick="switchTab('overview')" class="tab-button active" data-tab="overview">
-                            Overview
+                            <?php echo esc_html__('Overview', 'realestate-booking-suite'); ?>
                         </button>
                         <button onclick="switchTab('pricing')" class="tab-button" data-tab="pricing">
-                            Pricing
+                            <?php echo esc_html__('Pricing', 'realestate-booking-suite'); ?>
                         </button>
                         <button onclick="switchTab('specifications')" class="tab-button" data-tab="specifications">
-                            Specifications
+                            <?php echo esc_html__('Specifications', 'realestate-booking-suite'); ?>
                         </button>
                         <button onclick="switchTab('location')" class="tab-button" data-tab="location">
-                            Location
+                            <?php echo esc_html__('Location', 'realestate-booking-suite'); ?>
                         </button>
                         <button onclick="switchTab('features')" class="tab-button" data-tab="features">
-                            Features
+                            <?php echo esc_html__('Features', 'realestate-booking-suite'); ?>
                         </button>
                         <button onclick="switchTab('media')" class="tab-button" data-tab="media">
-                            Media
+                            <?php echo esc_html__('Media', 'realestate-booking-suite'); ?>
                         </button>
                         <button onclick="switchTab('agent')" class="tab-button" data-tab="agent">
-                            Agent
+                            <?php echo esc_html__('Agent', 'realestate-booking-suite'); ?>
                         </button>
                         <button onclick="switchTab('booking')" class="tab-button" data-tab="booking">
-                            Booking
+                            <?php echo esc_html__('Booking', 'realestate-booking-suite'); ?>
                         </button>
                     </div>
 
@@ -687,26 +687,26 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
                         <div id="overview-tab" class="tab-content active">
                             <!-- Property Classification -->
                             <div class="mb-6">
-                                <h3 class="section-title">Property Classification</h3>
-                                <p class="text-gray-600 mb-4">Basic property information and type</p>
+                                <h3 class="section-title"><?php echo esc_html__('Property Classification', 'realestate-booking-suite'); ?></h3>
+                                <p class="text-gray-600 mb-4"><?php echo esc_html__('Basic property information and type', 'realestate-booking-suite'); ?></p>
                                 <div class="classification-container">
                                     <?php if ($property_type): ?>
                                     <div class="classification-item">
-                                        <label class="classification-label">Property Type</label>
+                                        <label class="classification-label"><?php echo esc_html__('Property Type', 'realestate-booking-suite'); ?></label>
                                         <p class="classification-value"><?php echo esc_html($property_type); ?></p>
                                     </div>
                                     <?php endif; ?>
                                     
                                     <?php if ($property_status): ?>
                                     <div class="classification-item">
-                                        <label class="classification-label">Property Status</label>
+                                        <label class="classification-label"><?php echo esc_html__('Property Status', 'realestate-booking-suite'); ?></label>
                                         <p class="classification-value"><?php echo esc_html($property_status); ?></p>
                                     </div>
                                     <?php endif; ?>
                                     
                                     <?php if ($property_condition): ?>
                                     <div class="classification-item">
-                                        <label class="classification-label">Property Condition</label>
+                                        <label class="classification-label"><?php echo esc_html__('Property Condition', 'realestate-booking-suite'); ?></label>
                                         <p class="classification-value"><?php echo esc_html($property_condition); ?></p>
                                     </div>
                                     <?php endif; ?>
@@ -715,39 +715,39 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
 
                             <!-- Property Description -->
                             <div class="mb-6">
-                                <h3 class="section-title">Property Description</h3>
+                                <h3 class="section-title"><?php echo esc_html__('Property Description', 'realestate-booking-suite'); ?></h3>
                                 <div class="text-gray-600 space-y-4 leading-relaxed">
                                     <?php if (get_the_content()): ?>
                                         <?php echo wp_kses_post(get_the_content()); ?>
                                     <?php else: ?>
-                                        <p>No description available for this property.</p>
+                                        <p><?php echo esc_html__('No description available for this property.', 'realestate-booking-suite'); ?></p>
                                     <?php endif; ?>
                                 </div>
                             </div>
 
                             <?php if ($virtual_tour): ?>
                             <div class="info-box">
-                                <p><i class="fas fa-info-circle mr-2"></i><strong>Virtual Tour Available:</strong> <?php echo esc_html($virtual_tour_description ? $virtual_tour_description : 'Schedule a 3D virtual walkthrough of this property at your convenience.'); ?></p>
+                                <p><i class="fas fa-info-circle mr-2"></i><strong><?php echo esc_html__('Virtual Tour Available:', 'realestate-booking-suite'); ?></strong> <?php echo esc_html($virtual_tour_description ? $virtual_tour_description : __('Schedule a 3D virtual walkthrough of this property at your convenience.', 'realestate-booking-suite')); ?></p>
                             </div>
                             <?php endif; ?>
                         </div>
 
                         <!-- Pricing Tab -->
                         <div id="pricing-tab" class="tab-content">
-                            <h3 class="section-title">Property Pricing</h3>
-                            <p class="text-gray-600 mb-6">Set property price and pricing details</p>
+                            <h3 class="section-title"><?php echo esc_html__('Property Pricing', 'realestate-booking-suite'); ?></h3>
+                            <p class="text-gray-600 mb-6"><?php echo esc_html__('Set property price and pricing details', 'realestate-booking-suite'); ?></p>
                             
                             <div class="pricing-container">
                                 <!-- Main Price -->
                                 <div class="pricing-card main-price">
-                                    <label class="pricing-label">Price</label>
+                                    <label class="pricing-label"><?php echo esc_html__('Price', 'realestate-booking-suite'); ?></label>
                                     <p class="pricing-value"><?php echo esc_html($formatted_price); ?></p>
                                 </div>
                                 
                                 <!-- Price per Unit -->
                                 <?php if ($formatted_price_per_sqft): ?>
                                 <div class="pricing-card">
-                                    <label class="pricing-label">Price per <?php echo esc_html(resbs_get_area_unit() === 'sqm' ? 'Sq M' : 'Sq Ft'); ?></label>
+                                    <label class="pricing-label"><?php echo esc_html(sprintf(__('Price per %s', 'realestate-booking-suite'), resbs_get_area_unit() === 'sqm' ? __('Sq M', 'realestate-booking-suite') : __('Sq Ft', 'realestate-booking-suite'))); ?></label>
                                     <p class="pricing-value-small"><?php echo esc_html($formatted_price_per_sqft); ?></p>
                                 </div>
                                 <?php endif; ?>
@@ -755,7 +755,7 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
                                 <!-- Price Note -->
                                 <?php if ($price_note): ?>
                                 <div class="pricing-card">
-                                    <label class="pricing-label">Price Note</label>
+                                    <label class="pricing-label"><?php echo esc_html__('Price Note', 'realestate-booking-suite'); ?></label>
                                     <p class="pricing-value-small"><?php echo esc_html($price_note); ?></p>
                                 </div>
                                 <?php endif; ?>
@@ -763,84 +763,84 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
                             
                             <?php if ($call_for_price): ?>
                             <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                                <p class="text-blue-800 font-medium"><i class="fas fa-phone mr-2"></i>Call for Price</p>
-                                <p class="text-blue-600 text-sm mt-1">Contact us for pricing information</p>
+                                <p class="text-blue-800 font-medium"><i class="fas fa-phone mr-2"></i><?php echo esc_html__('Call for Price', 'realestate-booking-suite'); ?></p>
+                                <p class="text-blue-600 text-sm mt-1"><?php echo esc_html__('Contact us for pricing information', 'realestate-booking-suite'); ?></p>
                             </div>
                             <?php endif; ?>
                         </div>
 
                         <!-- Specifications Tab -->
                         <div id="specifications-tab" class="tab-content">
-                            <h3 class="section-title">Property Specifications</h3>
-                            <p class="text-gray-600 mb-6">Detailed property specifications and measurements</p>
+                            <h3 class="section-title"><?php echo esc_html__('Property Specifications', 'realestate-booking-suite'); ?></h3>
+                            <p class="text-gray-600 mb-6"><?php echo esc_html__('Detailed property specifications and measurements', 'realestate-booking-suite'); ?></p>
                             
                             <div class="specifications-grid">
                                 <?php if ($bedrooms): ?>
                                 <div class="bg-gray-50 p-4 rounded-lg">
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Bedrooms</label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2"><?php echo esc_html__('Bedrooms', 'realestate-booking-suite'); ?></label>
                                     <p class="text-2xl font-bold text-gray-900"><?php echo esc_html($bedrooms); ?></p>
                                 </div>
                                 <?php endif; ?>
                                 
                                 <?php if ($bathrooms): ?>
                                 <div class="bg-gray-50 p-4 rounded-lg">
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Bathrooms</label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2"><?php echo esc_html__('Bathrooms', 'realestate-booking-suite'); ?></label>
                                     <p class="text-2xl font-bold text-gray-900"><?php echo esc_html($bathrooms); ?></p>
                                 </div>
                                 <?php endif; ?>
                                 
                                 <?php if ($half_baths): ?>
                                 <div class="bg-gray-50 p-4 rounded-lg">
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Half Baths</label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2"><?php echo esc_html__('Half Baths', 'realestate-booking-suite'); ?></label>
                                     <p class="text-2xl font-bold text-gray-900"><?php echo esc_html($half_baths); ?></p>
                                 </div>
                                 <?php endif; ?>
                                 
                                 <?php if ($total_rooms): ?>
                                 <div class="bg-gray-50 p-4 rounded-lg">
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Total Rooms</label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2"><?php echo esc_html__('Total Rooms', 'realestate-booking-suite'); ?></label>
                                     <p class="text-2xl font-bold text-gray-900"><?php echo esc_html($total_rooms); ?></p>
                                 </div>
                                 <?php endif; ?>
                                 
                                 <?php if ($floors): ?>
                                 <div class="bg-gray-50 p-4 rounded-lg">
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Floors</label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2"><?php echo esc_html__('Floors', 'realestate-booking-suite'); ?></label>
                                     <p class="text-2xl font-bold text-gray-900"><?php echo esc_html($floors); ?></p>
                                 </div>
                                 <?php endif; ?>
                                 
                                 <?php if ($floor_level): ?>
                                 <div class="bg-gray-50 p-4 rounded-lg">
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Floor Level</label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2"><?php echo esc_html__('Floor Level', 'realestate-booking-suite'); ?></label>
                                     <p class="text-2xl font-bold text-gray-900"><?php echo esc_html($floor_level); ?></p>
                                 </div>
                                 <?php endif; ?>
                                 
                                 <?php if ($formatted_area): ?>
                                 <div class="bg-gray-50 p-4 rounded-lg">
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Area (<?php echo esc_html(resbs_get_area_unit() === 'sqm' ? 'Sq M' : 'Sq Ft'); ?>)</label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2"><?php echo esc_html(sprintf(__('Area (%s)', 'realestate-booking-suite'), resbs_get_area_unit() === 'sqm' ? __('Sq M', 'realestate-booking-suite') : __('Sq Ft', 'realestate-booking-suite'))); ?></label>
                                     <p class="text-2xl font-bold text-gray-900"><?php echo esc_html($formatted_area); ?></p>
                                 </div>
                                 <?php endif; ?>
                                 
                                 <?php if ($formatted_lot_size): ?>
                                 <div class="bg-gray-50 p-4 rounded-lg">
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Lot Size (<?php echo esc_html(resbs_get_lot_size_unit() === 'sqm' ? 'Sq M' : 'Sq Ft'); ?>)</label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2"><?php echo esc_html(sprintf(__('Lot Size (%s)', 'realestate-booking-suite'), resbs_get_lot_size_unit() === 'sqm' ? __('Sq M', 'realestate-booking-suite') : __('Sq Ft', 'realestate-booking-suite'))); ?></label>
                                     <p class="text-2xl font-bold text-gray-900"><?php echo esc_html($formatted_lot_size); ?></p>
                                 </div>
                                 <?php endif; ?>
                                 
                                 <?php if ($year_built): ?>
                                 <div class="bg-gray-50 p-4 rounded-lg">
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Year Built</label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2"><?php echo esc_html__('Year Built', 'realestate-booking-suite'); ?></label>
                                     <p class="text-2xl font-bold text-gray-900"><?php echo esc_html($year_built); ?></p>
                                 </div>
                                 <?php endif; ?>
                                 
                                 <?php if ($year_remodeled): ?>
                                 <div class="bg-gray-50 p-4 rounded-lg">
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Year Remodeled</label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2"><?php echo esc_html__('Year Remodeled', 'realestate-booking-suite'); ?></label>
                                     <p class="text-2xl font-bold text-gray-900"><?php echo esc_html($year_remodeled); ?></p>
                                 </div>
                                 <?php endif; ?>
@@ -849,34 +849,34 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
 
                         <!-- Details Tab -->
                         <div id="details-tab" class="tab-content">
-                            <h3 class="section-title">Property Details</h3>
+                            <h3 class="section-title"><?php echo esc_html__('Property Details', 'realestate-booking-suite'); ?></h3>
                             <div class="details-grid">
                                 <div class="space-y-3">
                                     <div class="detail-item">
-                                        <span class="detail-label">Property ID:</span>
+                                        <span class="detail-label"><?php echo esc_html__('Property ID:', 'realestate-booking-suite'); ?></span>
                                         <span class="detail-value"><?php echo esc_html($post->ID); ?></span>
                                     </div>
                                     <?php if ($property_type): ?>
                                     <div class="detail-item">
-                                        <span class="detail-label">Property Type:</span>
+                                        <span class="detail-label"><?php echo esc_html__('Property Type:', 'realestate-booking-suite'); ?></span>
                                         <span class="detail-value"><?php echo esc_html($property_type); ?></span>
                                     </div>
                                     <?php endif; ?>
                                     <?php if ($year_built): ?>
                                     <div class="detail-item">
-                                        <span class="detail-label">Year Built:</span>
+                                        <span class="detail-label"><?php echo esc_html__('Year Built:', 'realestate-booking-suite'); ?></span>
                                         <span class="detail-value"><?php echo esc_html($year_built); ?></span>
                                     </div>
                                     <?php endif; ?>
                                     <?php if ($formatted_lot_size): ?>
                                     <div class="detail-item">
-                                        <span class="detail-label">Lot Size:</span>
+                                        <span class="detail-label"><?php echo esc_html__('Lot Size:', 'realestate-booking-suite'); ?></span>
                                         <span class="detail-value"><?php echo esc_html($formatted_lot_size); ?></span>
                                     </div>
                                     <?php endif; ?>
                                     <?php if ($floors): ?>
                                     <div class="detail-item">
-                                        <span class="detail-label">Floors:</span>
+                                        <span class="detail-label"><?php echo esc_html__('Floors:', 'realestate-booking-suite'); ?></span>
                                         <span class="detail-value"><?php echo esc_html($floors); ?></span>
                                     </div>
                                     <?php endif; ?>
@@ -884,31 +884,31 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
                                 <div class="space-y-3">
                                     <?php if ($property_status): ?>
                                     <div class="detail-item">
-                                        <span class="detail-label">Status:</span>
+                                        <span class="detail-label"><?php echo esc_html__('Status:', 'realestate-booking-suite'); ?></span>
                                         <span class="detail-value text-emerald-600"><?php echo esc_html($property_status); ?></span>
                                     </div>
                                     <?php endif; ?>
                                     <?php if ($floor_level): ?>
                                     <div class="detail-item">
-                                        <span class="detail-label">Floor Level:</span>
+                                        <span class="detail-label"><?php echo esc_html__('Floor Level:', 'realestate-booking-suite'); ?></span>
                                         <span class="detail-value"><?php echo esc_html($floor_level); ?></span>
                                     </div>
                                     <?php endif; ?>
                                     <?php if ($heating): ?>
                                     <div class="detail-item">
-                                        <span class="detail-label">Heating:</span>
+                                        <span class="detail-label"><?php echo esc_html__('Heating:', 'realestate-booking-suite'); ?></span>
                                         <span class="detail-value"><?php echo esc_html($heating); ?></span>
                                     </div>
                                     <?php endif; ?>
                                     <?php if ($cooling): ?>
                                     <div class="detail-item">
-                                        <span class="detail-label">Cooling:</span>
+                                        <span class="detail-label"><?php echo esc_html__('Cooling:', 'realestate-booking-suite'); ?></span>
                                         <span class="detail-value"><?php echo esc_html($cooling); ?></span>
                                     </div>
                                     <?php endif; ?>
                                     <?php if ($property_condition): ?>
                                     <div class="detail-item">
-                                        <span class="detail-label">Condition:</span>
+                                        <span class="detail-label"><?php echo esc_html__('Condition:', 'realestate-booking-suite'); ?></span>
                                         <span class="detail-value"><?php echo esc_html($property_condition); ?></span>
                                     </div>
                                     <?php endif; ?>
@@ -918,11 +918,11 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
 
                         <!-- Features Tab -->
                         <div id="features-tab" class="tab-content">
-                            <h3 class="section-title">Property Features</h3>
+                            <h3 class="section-title"><?php echo esc_html__('Property Features', 'realestate-booking-suite'); ?></h3>
                             
                             <!-- Property Features Section -->
                             <div class="property-features-section mb-8">
-                                <h4 class="text-lg font-semibold mb-4">Property Details</h4>
+                                <h4 class="text-lg font-semibold mb-4"><?php echo esc_html__('Property Details', 'realestate-booking-suite'); ?></h4>
                                 <div class="property-features-grid">
                                     <?php if ($parking): ?>
                                     <div class="feature-detail-item">
@@ -930,7 +930,7 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
                                             <i class="fas fa-car"></i>
                                         </div>
                                         <div class="feature-detail-content">
-                                            <span class="feature-detail-label">Parking</span>
+                                            <span class="feature-detail-label"><?php echo esc_html__('Parking', 'realestate-booking-suite'); ?></span>
                                             <span class="feature-detail-value"><?php echo esc_html(ucfirst($parking)); ?></span>
                                         </div>
                                     </div>
@@ -942,7 +942,7 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
                                             <i class="fas fa-thermometer-half"></i>
                                         </div>
                                         <div class="feature-detail-content">
-                                            <span class="feature-detail-label">Heating</span>
+                                            <span class="feature-detail-label"><?php echo esc_html__('Heating', 'realestate-booking-suite'); ?></span>
                                             <span class="feature-detail-value"><?php echo esc_html($heating); ?></span>
                                         </div>
                                     </div>
@@ -954,7 +954,7 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
                                             <i class="fas fa-snowflake"></i>
                                         </div>
                                         <div class="feature-detail-content">
-                                            <span class="feature-detail-label">Cooling</span>
+                                            <span class="feature-detail-label"><?php echo esc_html__('Cooling', 'realestate-booking-suite'); ?></span>
                                             <span class="feature-detail-value"><?php echo esc_html($cooling); ?></span>
                                         </div>
                                     </div>
@@ -966,7 +966,7 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
                                             <i class="fas fa-layer-group"></i>
                                         </div>
                                         <div class="feature-detail-content">
-                                            <span class="feature-detail-label">Basement</span>
+                                            <span class="feature-detail-label"><?php echo esc_html__('Basement', 'realestate-booking-suite'); ?></span>
                                             <span class="feature-detail-value"><?php echo esc_html($basement); ?></span>
                                         </div>
                                     </div>
@@ -978,7 +978,7 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
                                             <i class="fas fa-home"></i>
                                         </div>
                                         <div class="feature-detail-content">
-                                            <span class="feature-detail-label">Roof</span>
+                                            <span class="feature-detail-label"><?php echo esc_html__('Roof', 'realestate-booking-suite'); ?></span>
                                             <span class="feature-detail-value"><?php echo esc_html($roof); ?></span>
                                         </div>
                                     </div>
@@ -990,7 +990,7 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
                                             <i class="fas fa-cube"></i>
                                         </div>
                                         <div class="feature-detail-content">
-                                            <span class="feature-detail-label">Exterior Material</span>
+                                            <span class="feature-detail-label"><?php echo esc_html__('Exterior Material', 'realestate-booking-suite'); ?></span>
                                             <span class="feature-detail-value"><?php echo esc_html($exterior_material); ?></span>
                                         </div>
                                     </div>
@@ -1002,7 +1002,7 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
                                             <i class="fas fa-th-large"></i>
                                         </div>
                                         <div class="feature-detail-content">
-                                            <span class="feature-detail-label">Floor Covering</span>
+                                            <span class="feature-detail-label"><?php echo esc_html__('Floor Covering', 'realestate-booking-suite'); ?></span>
                                             <span class="feature-detail-value"><?php echo esc_html($floor_covering); ?></span>
                                         </div>
                                     </div>
@@ -1013,24 +1013,24 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
 
                         <!-- Floor Plan Tab -->
                         <div id="floorplan-tab" class="tab-content">
-                            <h3 class="section-title">Floor Plan</h3>
+                            <h3 class="section-title"><?php echo esc_html__('Floor Plan', 'realestate-booking-suite'); ?></h3>
                             <div class="floor-plan-container">
                                 <?php if ($floor_plans): ?>
-                                    <img src="<?php echo esc_url($floor_plans); ?>" alt="Floor Plan" class="floor-plan-image">
+                                    <img src="<?php echo esc_url($floor_plans); ?>" alt="<?php echo esc_attr__('Floor Plan', 'realestate-booking-suite'); ?>" class="floor-plan-image">
                                     <div class="floor-plan-actions no-print">
                                         <button onclick="downloadFloorPlan()" class="btn btn-primary">
-                                            <i class="fas fa-download mr-2"></i>Download Floor Plan
+                                            <i class="fas fa-download mr-2"></i><?php echo esc_html__('Download Floor Plan', 'realestate-booking-suite'); ?>
                                         </button>
                                         <button onclick="requestCustomPlan()" class="btn" style="background-color: <?php echo esc_attr($secondary_color); ?>; color: white;">
-                                            <i class="fas fa-envelope mr-2"></i>Request Custom Plan
+                                            <i class="fas fa-envelope mr-2"></i><?php echo esc_html__('Request Custom Plan', 'realestate-booking-suite'); ?>
                                         </button>
                                     </div>
                                 <?php else: ?>
                                     <div class="text-center py-8">
                                         <i class="fas fa-home text-gray-400 text-6xl mb-4"></i>
-                                        <p class="text-gray-500">No floor plan available for this property.</p>
+                                        <p class="text-gray-500"><?php echo esc_html__('No floor plan available for this property.', 'realestate-booking-suite'); ?></p>
                                         <button onclick="requestCustomPlan()" class="btn btn-primary mt-4">
-                                            <i class="fas fa-envelope mr-2"></i>Request Floor Plan
+                                            <i class="fas fa-envelope mr-2"></i><?php echo esc_html__('Request Floor Plan', 'realestate-booking-suite'); ?>
                                         </button>
                                     </div>
                                 <?php endif; ?>
@@ -1039,22 +1039,22 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
 
                         <!-- Location Tab -->
                         <div id="location-tab" class="tab-content">
-                            <h3 class="section-title">Property Location</h3>
-                            <p class="text-gray-600 mb-6">Property address and location details</p>
+                            <h3 class="section-title"><?php echo esc_html__('Property Location', 'realestate-booking-suite'); ?></h3>
+                            <p class="text-gray-600 mb-6"><?php echo esc_html__('Property address and location details', 'realestate-booking-suite'); ?></p>
                             
                             <!-- Address Information -->
                             <div class="mb-6">
-                                <h4 class="text-lg font-semibold mb-4">Property Address</h4>
+                                <h4 class="text-lg font-semibold mb-4"><?php echo esc_html__('Property Address', 'realestate-booking-suite'); ?></h4>
                                 <div class="address-card">
                                     <div class="address-header">
                                         <i class="fas fa-map-marker-alt address-icon"></i>
-                                        <h5 class="address-title">Full Address</h5>
+                                        <h5 class="address-title"><?php echo esc_html__('Full Address', 'realestate-booking-suite'); ?></h5>
                                     </div>
                                     <div class="address-content">
                                         <?php if ($full_address): ?>
                                             <p class="address-main"><?php echo esc_html($full_address); ?></p>
                                         <?php else: ?>
-                                            <p class="address-placeholder">Address not specified</p>
+                                            <p class="address-placeholder"><?php echo esc_html__('Address not specified', 'realestate-booking-suite'); ?></p>
                                         <?php endif; ?>
                                         
                                         <?php if ($city || $state || $zip): ?>
@@ -1095,7 +1095,7 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
                             // Show map only if enabled in settings and map iframe exists (dynamically from Listings settings)
                             if ($map_iframe && resbs_should_show_map_single_listing()): ?>
                             <div class="mb-6">
-                                <h4 class="text-lg font-semibold mb-4">Map Location</h4>
+                                <h4 class="text-lg font-semibold mb-4"><?php echo esc_html__('Map Location', 'realestate-booking-suite'); ?></h4>
                                 <div class="map-container" style="width: 100%; height: 400px; border-radius: 8px; overflow: hidden;">
                                     <?php 
                                     // Allow iframe tags for maps
@@ -1128,12 +1128,12 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
                             
                             <!-- Nearby Features -->
                             <div class="mb-6">
-                                <h4 class="text-lg font-semibold mb-4">Nearby Features</h4>
+                                <h4 class="text-lg font-semibold mb-4"><?php echo esc_html__('Nearby Features', 'realestate-booking-suite'); ?></h4>
                                 <div class="nearby-features-grid">
                                     <?php if ($nearby_schools): ?>
                                     <div class="location-feature location-feature-blue">
                                         <i class="fas fa-graduation-cap"></i>
-                                        <h4>Schools</h4>
+                                        <h4><?php echo esc_html__('Schools', 'realestate-booking-suite'); ?></h4>
                                         <p><?php echo esc_html($nearby_schools); ?></p>
                                     </div>
                                     <?php endif; ?>
@@ -1141,7 +1141,7 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
                                     <?php if ($nearby_shopping): ?>
                                     <div class="location-feature location-feature-green">
                                         <i class="fas fa-shopping-cart"></i>
-                                        <h4>Shopping</h4>
+                                        <h4><?php echo esc_html__('Shopping', 'realestate-booking-suite'); ?></h4>
                                         <p><?php echo esc_html($nearby_shopping); ?></p>
                                     </div>
                                     <?php endif; ?>
@@ -1149,7 +1149,7 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
                                     <?php if ($nearby_restaurants): ?>
                                     <div class="location-feature location-feature-purple">
                                         <i class="fas fa-utensils"></i>
-                                        <h4>Restaurants</h4>
+                                        <h4><?php echo esc_html__('Restaurants', 'realestate-booking-suite'); ?></h4>
                                         <p><?php echo esc_html($nearby_restaurants); ?></p>
                                     </div>
                                     <?php endif; ?>
@@ -1159,8 +1159,8 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
 
                         <!-- Reviews Tab -->
                         <div id="reviews-tab" class="tab-content">
-                            <h3 class="section-title">Property Reviews & Ratings</h3>
-                            <p class="text-gray-600 mb-6">Customer reviews and ratings for this property</p>
+                            <h3 class="section-title"><?php echo esc_html__('Property Reviews & Ratings', 'realestate-booking-suite'); ?></h3>
+                            <p class="text-gray-600 mb-6"><?php echo esc_html__('Customer reviews and ratings for this property', 'realestate-booking-suite'); ?></p>
                             
                             <?php
                             // Get property reviews from comments
@@ -1207,7 +1207,7 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
                                                 <?php endif; ?>
                                             <?php endfor; ?>
                                         </div>
-                                        <p class="rating-count">Based on <?php echo esc_html($total_reviews); ?> review<?php echo $total_reviews != 1 ? 's' : ''; ?></p>
+                                        <p class="rating-count"><?php echo esc_html(sprintf(__('Based on %d %s', 'realestate-booking-suite'), $total_reviews, $total_reviews != 1 ? __('reviews', 'realestate-booking-suite') : __('review', 'realestate-booking-suite'))); ?></p>
                                     </div>
                                     
                                     <?php if ($total_reviews > 0): ?>
@@ -1249,7 +1249,7 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
                                                             <?php endfor; ?>
                                                         </div>
                                                         <?php endif; ?>
-                                                        <span class="review-date"><?php echo esc_html(human_time_diff(strtotime($review->comment_date), current_time('timestamp')) . ' ago'); ?></span>
+                                                        <span class="review-date"><?php echo esc_html(sprintf(__('%s ago', 'realestate-booking-suite'), human_time_diff(strtotime($review->comment_date), current_time('timestamp')))); ?></span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -1262,32 +1262,32 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
                             <?php else: ?>
                                 <div class="text-center py-8">
                                     <i class="fas fa-comments text-gray-400 text-4xl mb-4"></i>
-                                    <p class="text-gray-500">No reviews yet for this property.</p>
-                                    <p class="text-gray-400 text-sm mt-2">Be the first to leave a review!</p>
+                                    <p class="text-gray-500"><?php echo esc_html__('No reviews yet for this property.', 'realestate-booking-suite'); ?></p>
+                                    <p class="text-gray-400 text-sm mt-2"><?php echo esc_html__('Be the first to leave a review!', 'realestate-booking-suite'); ?></p>
                                 </div>
                             <?php endif; ?>
                         </div>
 
                         <!-- Media Tab -->
                         <div id="media-tab" class="tab-content">
-                            <h3 class="section-title">Property Media</h3>
-                            <p class="text-gray-600 mb-6">Photos, videos, and virtual tours</p>
+                            <h3 class="section-title"><?php echo esc_html__('Property Media', 'realestate-booking-suite'); ?></h3>
+                            <p class="text-gray-600 mb-6"><?php echo esc_html__('Photos, videos, and virtual tours', 'realestate-booking-suite'); ?></p>
                             
                             <!-- Photo Gallery -->
                             <div class="mb-8">
-                                <h4 class="text-lg font-semibold mb-4">Photo Gallery</h4>
+                                <h4 class="text-lg font-semibold mb-4"><?php echo esc_html__('Photo Gallery', 'realestate-booking-suite'); ?></h4>
                                 <?php if (!empty($gallery_urls)): ?>
                                     <div class="media-gallery-row">
                                         <?php foreach ($gallery_urls as $index => $image_url): ?>
                                             <div class="media-gallery-item cursor-pointer" <?php echo $lightbox_disabled ? '' : 'onclick="openImageViewer(' . $index . ')"'; ?>>
-                                                <img src="<?php echo esc_url($image_url); ?>" alt="Property Image" class="media-gallery-image">
+                                                <img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr__('Property Image', 'realestate-booking-suite'); ?>" class="media-gallery-image">
                                             </div>
                                         <?php endforeach; ?>
                                     </div>
                                 <?php else: ?>
                                     <div class="text-center py-8 bg-gray-50 rounded-lg">
                                         <i class="fas fa-images text-gray-400 text-4xl mb-4"></i>
-                                        <p class="text-gray-500">No photos available for this property</p>
+                                        <p class="text-gray-500"><?php echo esc_html__('No photos available for this property', 'realestate-booking-suite'); ?></p>
                                     </div>
                                 <?php endif; ?>
                             </div>
@@ -1295,7 +1295,7 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
                             <!-- Property Video -->
                             <?php if ($video_url || $video_embed): ?>
                             <div class="mb-8">
-                                <h4 class="text-lg font-semibold mb-4">Property Video</h4>
+                                <h4 class="text-lg font-semibold mb-4"><?php echo esc_html__('Property Video', 'realestate-booking-suite'); ?></h4>
                                 <div class="property-video-container">
                                     <?php if ($video_embed): ?>
                                         <div class="video-embed">
@@ -1377,7 +1377,7 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
                                                     <source src="<?php echo esc_url($video_url); ?>" type="video/mp4">
                                                     <source src="<?php echo esc_url($video_url); ?>" type="video/webm">
                                                     <source src="<?php echo esc_url($video_url); ?>" type="video/ogg">
-                                                    Your browser does not support the video tag.
+                                                    <?php echo esc_html__('Your browser does not support the video tag.', 'realestate-booking-suite'); ?>
                                                 </video>
                                             </div>
                                         <?php endif; ?>
@@ -1389,13 +1389,13 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
                             <!-- Virtual Tour -->
                             <?php if ($virtual_tour): ?>
                             <div class="mb-8">
-                                <h4 class="text-lg font-semibold mb-4">Virtual Tour</h4>
+                                <h4 class="text-lg font-semibold mb-4"><?php echo esc_html__('Virtual Tour', 'realestate-booking-suite'); ?></h4>
                                 <div class="virtual-tour-container">
-                                    <h5 class="virtual-tour-title"><?php echo esc_html($virtual_tour_title ? $virtual_tour_title : 'Virtual Tour'); ?></h5>
-                                    <p class="virtual-tour-description"><?php echo esc_html($virtual_tour_description ? $virtual_tour_description : 'Experience this property from anywhere with our interactive 3D tour.'); ?></p>
+                                    <h5 class="virtual-tour-title"><?php echo esc_html($virtual_tour_title ? $virtual_tour_title : __('Virtual Tour', 'realestate-booking-suite')); ?></h5>
+                                    <p class="virtual-tour-description"><?php echo esc_html($virtual_tour_description ? $virtual_tour_description : __('Experience this property from anywhere with our interactive 3D tour.', 'realestate-booking-suite')); ?></p>
                                     <a href="<?php echo esc_url($virtual_tour); ?>" target="_blank" class="virtual-tour-button">
                                         <i class="fas fa-play mr-2"></i>
-                                        <?php echo esc_html($virtual_tour_button_text ? $virtual_tour_button_text : 'Start Virtual Tour'); ?>
+                                        <?php echo esc_html($virtual_tour_button_text ? $virtual_tour_button_text : __('Start Virtual Tour', 'realestate-booking-suite')); ?>
                                     </a>
                                 </div>
                             </div>
@@ -1404,8 +1404,8 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
 
                         <!-- Agent Tab -->
                         <div id="agent-tab" class="tab-content">
-                            <h3 class="section-title">Property Agent</h3>
-                            <p class="text-gray-600 mb-6">Contact information and agent details</p>
+                            <h3 class="section-title"><?php echo esc_html__('Property Agent', 'realestate-booking-suite'); ?></h3>
+                            <p class="text-gray-600 mb-6"><?php echo esc_html__('Contact information and agent details', 'realestate-booking-suite'); ?></p>
                             
                             <!-- Professional Agent Card -->
                             <div class="agent-profile-card">
@@ -1420,8 +1420,8 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
                                         <?php endif; ?>
                                     </div>
                                     <div class="agent-profile-info">
-                                        <h4 class="agent-profile-name"><?php echo esc_html($agent_name ? $agent_name : 'Not specified'); ?></h4>
-                                        <p class="agent-profile-title">Real Estate Agent</p>
+                                        <h4 class="agent-profile-name"><?php echo esc_html($agent_name ? $agent_name : __('Not specified', 'realestate-booking-suite')); ?></h4>
+                                        <p class="agent-profile-title"><?php echo esc_html__('Real Estate Agent', 'realestate-booking-suite'); ?></p>
                                         <div class="agent-rating-section">
                                             <div class="agent-stars">
                                                 <?php
@@ -1444,7 +1444,7 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
                                     <div class="agent-detail-item">
                                         <i class="fas fa-phone agent-detail-icon"></i>
                                         <div class="agent-detail-content">
-                                            <span class="agent-detail-label">Phone</span>
+                                            <span class="agent-detail-label"><?php echo esc_html__('Phone', 'realestate-booking-suite'); ?></span>
                                             <span class="agent-detail-value"><?php echo esc_html($agent_phone); ?></span>
                                         </div>
                                     </div>
@@ -1454,7 +1454,7 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
                                     <div class="agent-detail-item">
                                         <i class="fas fa-envelope agent-detail-icon"></i>
                                         <div class="agent-detail-content">
-                                            <span class="agent-detail-label">Email</span>
+                                            <span class="agent-detail-label"><?php echo esc_html__('Email', 'realestate-booking-suite'); ?></span>
                                             <span class="agent-detail-value"><?php echo esc_html($agent_email); ?></span>
                                         </div>
                                     </div>
@@ -1464,7 +1464,7 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
                                     <div class="agent-detail-item">
                                         <i class="fas fa-home agent-detail-icon"></i>
                                         <div class="agent-detail-content">
-                                            <span class="agent-detail-label">Properties Sold</span>
+                                            <span class="agent-detail-label"><?php echo esc_html__('Properties Sold', 'realestate-booking-suite'); ?></span>
                                             <span class="agent-detail-value"><?php echo esc_html($agent_properties_sold); ?>+</span>
                                         </div>
                                     </div>
@@ -1474,7 +1474,7 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
                                     <div class="agent-detail-item">
                                         <i class="fas fa-calendar agent-detail-icon"></i>
                                         <div class="agent-detail-content">
-                                            <span class="agent-detail-label">Experience</span>
+                                            <span class="agent-detail-label"><?php echo esc_html__('Experience', 'realestate-booking-suite'); ?></span>
                                             <span class="agent-detail-value"><?php echo esc_html($agent_experience); ?></span>
                                         </div>
                                     </div>
@@ -1484,7 +1484,7 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
                                     <div class="agent-detail-item">
                                         <i class="fas fa-clock agent-detail-icon"></i>
                                         <div class="agent-detail-content">
-                                            <span class="agent-detail-label">Response Time</span>
+                                            <span class="agent-detail-label"><?php echo esc_html__('Response Time', 'realestate-booking-suite'); ?></span>
                                             <span class="agent-detail-value"><?php echo esc_html($agent_response_time); ?></span>
                                         </div>
                                     </div>
@@ -1494,29 +1494,29 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
                             
                             <!-- Contact Form -->
                             <div class="bg-gray-50 p-6 rounded-lg">
-                                <h4 class="text-lg font-semibold mb-4"><?php echo esc_html($contact_form_title ? $contact_form_title : 'Contact Agent'); ?></h4>
+                                <h4 class="text-lg font-semibold mb-4"><?php echo esc_html($contact_form_title ? $contact_form_title : __('Contact Agent', 'realestate-booking-suite')); ?></h4>
                                 <form class="space-y-4">
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-2"><?php echo esc_html($contact_name_label ? $contact_name_label : 'Your Name'); ?></label>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2"><?php echo esc_html($contact_name_label ? $contact_name_label : __('Your Name', 'realestate-booking-suite')); ?></label>
                                             <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
                                         </div>
                                         <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-2"><?php echo esc_html($contact_email_label ? $contact_email_label : 'Email'); ?></label>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2"><?php echo esc_html($contact_email_label ? $contact_email_label : __('Email', 'realestate-booking-suite')); ?></label>
                                             <input type="email" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
                                         </div>
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-2"><?php echo esc_html($contact_phone_label ? $contact_phone_label : 'Phone'); ?></label>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2"><?php echo esc_html($contact_phone_label ? $contact_phone_label : __('Phone', 'realestate-booking-suite')); ?></label>
                                         <input type="tel" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-2"><?php echo esc_html($contact_message_label ? $contact_message_label : 'Message'); ?></label>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2"><?php echo esc_html($contact_message_label ? $contact_message_label : __('Message', 'realestate-booking-suite')); ?></label>
                                         <textarea rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required></textarea>
                                     </div>
                                     <button type="submit" class="btn btn-primary w-full">
                                         <i class="fas fa-paper-plane mr-2"></i>
-                                        <?php echo esc_html($contact_submit_text ? $contact_submit_text : 'Send Message'); ?>
+                                        <?php echo esc_html($contact_submit_text ? $contact_submit_text : __('Send Message', 'realestate-booking-suite')); ?>
                                     </button>
                                 </form>
                             </div>
@@ -1524,38 +1524,38 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
 
                         <!-- Booking Tab -->
                         <div id="booking-tab" class="tab-content">
-                            <h3 class="section-title"><?php echo esc_html($booking_form_title ? $booking_form_title : 'Property Booking'); ?></h3>
-                            <p class="text-gray-600 mb-6"><?php echo esc_html($booking_form_subtitle ? $booking_form_subtitle : 'Schedule a viewing or book this property'); ?></p>
+                            <h3 class="section-title"><?php echo esc_html($booking_form_title ? $booking_form_title : __('Property Booking', 'realestate-booking-suite')); ?></h3>
+                            <p class="text-gray-600 mb-6"><?php echo esc_html($booking_form_subtitle ? $booking_form_subtitle : __('Schedule a viewing or book this property', 'realestate-booking-suite')); ?></p>
                             
                             <div class="bg-white p-8 rounded-xl shadow-lg border border-gray-100">
-                                <h4 class="text-xl font-bold text-gray-800 mb-2"><?php echo esc_html($booking_form_title ? $booking_form_title : 'Book Property Viewing'); ?></h4>
-                                <p class="text-gray-600 mb-8"><?php echo esc_html($booking_form_subtitle ? $booking_form_subtitle : 'Fill out the form below to schedule your property viewing'); ?></p>
+                                <h4 class="text-xl font-bold text-gray-800 mb-2"><?php echo esc_html($booking_form_title ? $booking_form_title : __('Book Property Viewing', 'realestate-booking-suite')); ?></h4>
+                                <p class="text-gray-600 mb-8"><?php echo esc_html($booking_form_subtitle ? $booking_form_subtitle : __('Fill out the form below to schedule your property viewing', 'realestate-booking-suite')); ?></p>
                                 
                                 <form id="directBookingForm" onsubmit="submitBookingForm(event)">
                                     <div class="space-y-6">
                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             <div class="space-y-2">
-                                                <label for="bookingName" class="block text-sm font-semibold text-gray-700"><?php echo esc_html($booking_name_label ? $booking_name_label : 'Your Name'); ?> *</label>
+                                                <label for="bookingName" class="block text-sm font-semibold text-gray-700"><?php echo esc_html($booking_name_label ? $booking_name_label : __('Your Name', 'realestate-booking-suite')); ?> *</label>
                                                 <input type="text" id="bookingName" name="bookingName" required 
-                                                       placeholder="<?php echo esc_attr($booking_name_label ? $booking_name_label : 'Enter your full name'); ?>"
+                                                       placeholder="<?php echo esc_attr($booking_name_label ? $booking_name_label : __('Enter your full name', 'realestate-booking-suite')); ?>"
                                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200">
                                             </div>
                                             <div class="space-y-2">
-                                                <label for="bookingEmail" class="block text-sm font-semibold text-gray-700"><?php echo esc_html($booking_email_label ? $booking_email_label : 'Email'); ?> *</label>
+                                                <label for="bookingEmail" class="block text-sm font-semibold text-gray-700"><?php echo esc_html($booking_email_label ? $booking_email_label : __('Email', 'realestate-booking-suite')); ?> *</label>
                                                 <input type="email" id="bookingEmail" name="bookingEmail" required 
-                                                       placeholder="<?php echo esc_attr($booking_email_label ? $booking_email_label : 'Enter your email address'); ?>"
+                                                       placeholder="<?php echo esc_attr($booking_email_label ? $booking_email_label : __('Enter your email address', 'realestate-booking-suite')); ?>"
                                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200">
                                             </div>
                                         </div>
                                         
                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             <div class="space-y-2">
-                                                <label for="bookingPhone" class="block text-sm font-semibold text-gray-700"><?php echo esc_html($booking_phone_label ? $booking_phone_label : 'Phone'); ?></label>
+                                                <label for="bookingPhone" class="block text-sm font-semibold text-gray-700"><?php echo esc_html($booking_phone_label ? $booking_phone_label : __('Phone', 'realestate-booking-suite')); ?></label>
                                                 <?php if (resbs_show_phone_country_code()): ?>
                                                     <div class="flex gap-2 items-stretch" style="display: flex !important; flex-wrap: nowrap !important;">
                                                         <div class="phone-code-wrapper" style="position: relative; flex-shrink: 0; width: 160px; min-width: 160px;">
                                                             <input type="text" id="bookingPhoneCodeSearch" 
-                                                                   placeholder="Type to search..." 
+                                                                   placeholder="<?php echo esc_attr__('Type to search...', 'realestate-booking-suite'); ?>" 
                                                                    autocomplete="off"
                                                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200 bg-white text-xs"
                                                                    style="display: none; position: absolute; top: 0; left: 0; right: 0; z-index: 10; border-bottom: none; border-radius: 8px 8px 0 0;">
@@ -1778,18 +1778,18 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
                                                         </select>
                                                         </div>
                                                         <input type="tel" id="bookingPhone" name="bookingPhone" 
-                                                               placeholder="<?php echo esc_attr($booking_phone_label ? $booking_phone_label : 'Enter your phone number'); ?>"
+                                                               placeholder="<?php echo esc_attr($booking_phone_label ? $booking_phone_label : __('Enter your phone number', 'realestate-booking-suite')); ?>"
                                                                class="flex-1 min-w-0 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200"
                                                                style="flex: 1 1 auto !important; min-width: 0 !important;">
                                                     </div>
                                                 <?php else: ?>
                                                     <input type="tel" id="bookingPhone" name="bookingPhone" 
-                                                           placeholder="<?php echo esc_attr($booking_phone_label ? $booking_phone_label : 'Enter your phone number'); ?>"
+                                                           placeholder="<?php echo esc_attr($booking_phone_label ? $booking_phone_label : __('Enter your phone number', 'realestate-booking-suite')); ?>"
                                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200">
                                                 <?php endif; ?>
                                             </div>
                                             <div class="space-y-2">
-                                                <label for="bookingDate" class="block text-sm font-semibold text-gray-700"><?php echo esc_html($booking_date_label ? $booking_date_label : 'Preferred Date'); ?> *</label>
+                                                <label for="bookingDate" class="block text-sm font-semibold text-gray-700"><?php echo esc_html($booking_date_label ? $booking_date_label : __('Preferred Date', 'realestate-booking-suite')); ?> *</label>
                                                 <input type="date" id="bookingDate" name="bookingDate" required 
                                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200">
                                             </div>
@@ -1798,15 +1798,15 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
 
                                         
                                         <div class="space-y-2">
-                                            <label for="bookingMessage" class="block text-sm font-semibold text-gray-700"><?php echo esc_html($booking_message_label ? $booking_message_label : 'Additional Message'); ?></label>
+                                            <label for="bookingMessage" class="block text-sm font-semibold text-gray-700"><?php echo esc_html($booking_message_label ? $booking_message_label : __('Additional Message', 'realestate-booking-suite')); ?></label>
                                             <textarea id="bookingMessage" name="bookingMessage" rows="4" 
-                                                      placeholder="<?php echo esc_attr($booking_message_label ? $booking_message_label : 'Any specific requirements or questions about the property...'); ?>"
+                                                      placeholder="<?php echo esc_attr($booking_message_label ? $booking_message_label : __('Any specific requirements or questions about the property...', 'realestate-booking-suite')); ?>"
                                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200 resize-none"></textarea>
                                         </div>
                                         
                                         <div class="pt-4">
                                             <button type="submit" class="w-full bg-white hover:bg-green-700  font-bold py-4 px-6 rounded-lg transition duration-200 flex items-center justify-center  transform ">
-                                                <i class="fas fa-calendar-check mr-3 text-lg"></i><?php echo esc_html($booking_submit_text ? $booking_submit_text : 'Schedule Property Viewing'); ?>
+                                                <i class="fas fa-calendar-check mr-3 text-lg"></i><?php echo esc_html($booking_submit_text ? $booking_submit_text : __('Schedule Property Viewing', 'realestate-booking-suite')); ?>
                                             </button>
                                         </div>
                                     </div>
@@ -1818,8 +1818,8 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
 
                 <!-- Similar Properties -->
                 <div class="card">
-                    <h3 class="section-title">Similar Properties</h3>
-                    <p class="text-gray-600 mb-6">Other properties you might be interested in</p>
+                    <h3 class="section-title"><?php echo esc_html__('Similar Properties', 'realestate-booking-suite'); ?></h3>
+                    <p class="text-gray-600 mb-6"><?php echo esc_html__('Other properties you might be interested in', 'realestate-booking-suite'); ?></p>
                     
                     <?php
                     // Get similar properties based on property type and status
@@ -1903,7 +1903,7 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
                                 $similar_featured_image = get_the_post_thumbnail_url($similar_property->ID, 'medium');
                                 $similar_status = get_post_meta($similar_property->ID, '_property_status', true);
                                 
-                                $formatted_similar_price = $similar_price ? resbs_format_price($similar_price) : 'Price on request';
+                                $formatted_similar_price = $similar_price ? resbs_format_price($similar_price) : __('Price on request', 'realestate-booking-suite');
                                 $similar_location = trim($similar_city . ', ' . $similar_state, ', ');
                                 ?>
                                 
@@ -1929,15 +1929,15 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
                                         </h4>
                                         <p class="property-card-location">
                                             <i class="fas fa-map-marker-alt text-emerald-500"></i>
-                                            <?php echo esc_html($similar_location ? $similar_location : 'Location not specified'); ?>
+                                            <?php echo esc_html($similar_location ? $similar_location : __('Location not specified', 'realestate-booking-suite')); ?>
                                         </p>
                                         <div class="property-card-price"><?php echo esc_html($formatted_similar_price); ?></div>
                                         <div class="property-card-features">
                                             <?php if ($similar_bedrooms): ?>
-                                                <span><i class="fas fa-bed mr-1"></i><?php echo esc_html($similar_bedrooms); ?> Bed<?php echo $similar_bedrooms != 1 ? 's' : ''; ?></span>
+                                                <span><i class="fas fa-bed mr-1"></i><?php echo esc_html($similar_bedrooms); ?> <?php echo esc_html($similar_bedrooms != 1 ? __('Beds', 'realestate-booking-suite') : __('Bed', 'realestate-booking-suite')); ?></span>
                                             <?php endif; ?>
                                             <?php if ($similar_bathrooms): ?>
-                                                <span><i class="fas fa-bath mr-1"></i><?php echo esc_html($similar_bathrooms); ?> Bath<?php echo $similar_bathrooms != 1 ? 's' : ''; ?></span>
+                                                <span><i class="fas fa-bath mr-1"></i><?php echo esc_html($similar_bathrooms); ?> <?php echo esc_html($similar_bathrooms != 1 ? __('Baths', 'realestate-booking-suite') : __('Bath', 'realestate-booking-suite')); ?></span>
                                             <?php endif; ?>
                                             <?php if ($similar_area): ?>
                                                 <span><i class="fas fa-ruler-combined mr-1"></i><?php echo resbs_format_area($similar_area); ?></span>
@@ -1950,7 +1950,7 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
                     <?php else: ?>
                         <div class="text-center py-8">
                             <i class="fas fa-home text-gray-400 text-4xl mb-4"></i>
-                            <p class="text-gray-500">No similar properties found.</p>
+                            <p class="text-gray-500"><?php echo esc_html__('No similar properties found.', 'realestate-booking-suite'); ?></p>
                         </div>
                     <?php endif; ?>
                 </div>
@@ -1970,7 +1970,7 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
                             </div>
                         <?php endif; ?>
                         <h3 class="agent-name"><?php echo esc_html($agent_name); ?></h3>
-                        <p class="agent-title">Real Estate Agent</p>
+                        <p class="agent-title"><?php echo esc_html__('Real Estate Agent', 'realestate-booking-suite'); ?></p>
                         <div class="agent-rating">
                             <?php
                                 $rating = intval($agent_rating ?: 5); // Default to 5 if no rating
@@ -1989,26 +1989,26 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
                         <?php if ($agent_phone): ?>
                         <a href="tel:<?php echo esc_attr($agent_phone); ?>" class="agent-action agent-action-primary">
                             <i class="fas fa-phone mr-2"></i>
-                            <span>Call Agent</span>
+                            <span><?php echo esc_html__('Call Agent', 'realestate-booking-suite'); ?></span>
                         </a>
                         <?php endif; ?>
                         <button onclick="openContactModal()" class="agent-action agent-action-secondary">
                             <i class="fas fa-envelope mr-2"></i>
-                            <span><?php echo esc_html($agent_send_message_text ? $agent_send_message_text : 'Send Message'); ?></span>
+                            <span><?php echo esc_html($agent_send_message_text ? $agent_send_message_text : __('Send Message', 'realestate-booking-suite')); ?></span>
                         </button>
                     </div>
 
                     <div class="agent-stats">
                         <div class="agent-stat">
-                            <span class="agent-stat-label">Properties Sold:</span>
+                            <span class="agent-stat-label"><?php echo esc_html__('Properties Sold:', 'realestate-booking-suite'); ?></span>
                             <span class="agent-stat-value"><?php echo esc_html($agent_properties_sold); ?>+</span>
                         </div>
                         <div class="agent-stat">
-                            <span class="agent-stat-label">Experience:</span>
+                            <span class="agent-stat-label"><?php echo esc_html__('Experience:', 'realestate-booking-suite'); ?></span>
                             <span class="agent-stat-value"><?php echo esc_html($agent_experience); ?></span>
                         </div>
                         <div class="agent-stat">
-                            <span class="agent-stat-label">Response Time:</span>
+                            <span class="agent-stat-label"><?php echo esc_html__('Response Time:', 'realestate-booking-suite'); ?></span>
                             <span class="agent-stat-value"><?php echo esc_html($agent_response_time); ?></span>
                         </div>
                     </div>
@@ -2016,14 +2016,14 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
 
                 <!-- Mortgage Calculator -->
                 <div class="card">
-                    <h3 class="section-title"><?php echo esc_html($mortgage_calculator_title ? $mortgage_calculator_title : 'Mortgage Calculator'); ?></h3>
+                    <h3 class="section-title"><?php echo esc_html($mortgage_calculator_title ? $mortgage_calculator_title : __('Mortgage Calculator', 'realestate-booking-suite')); ?></h3>
                     <div class="space-y-4">
                         <div class="calculator-input">
-                            <label class="calculator-label"><?php echo esc_html($mortgage_property_price_label ? $mortgage_property_price_label : 'Property Price'); ?></label>
-                            <input type="text" id="propertyPrice" value="<?php echo esc_attr($price && !$call_for_price ? number_format($price) : ''); ?>" class="calculator-field" onkeyup="calculateMortgage()" placeholder="<?php echo esc_attr($call_for_price ? 'Enter price' : ''); ?>">
+                            <label class="calculator-label"><?php echo esc_html($mortgage_property_price_label ? $mortgage_property_price_label : __('Property Price', 'realestate-booking-suite')); ?></label>
+                            <input type="text" id="propertyPrice" value="<?php echo esc_attr($price && !$call_for_price ? number_format($price) : ''); ?>" class="calculator-field" onkeyup="calculateMortgage()" placeholder="<?php echo esc_attr($call_for_price ? __('Enter price', 'realestate-booking-suite') : ''); ?>">
                         </div>
                         <div class="calculator-input">
-                            <label class="calculator-label"><?php echo esc_html($mortgage_down_payment_label ? $mortgage_down_payment_label : 'Down Payment (%)'); ?></label>
+                            <label class="calculator-label"><?php echo esc_html($mortgage_down_payment_label ? $mortgage_down_payment_label : __('Down Payment (%)', 'realestate-booking-suite')); ?></label>
                             <input type="range" id="downPayment" min="0" max="100" value="<?php echo esc_attr($mortgage_default_down_payment ? $mortgage_default_down_payment : ($mortgage_default_down_payment_global ? $mortgage_default_down_payment_global : '20')); ?>" class="calculator-slider" oninput="updateDownPayment(this.value); calculateMortgage()">
                             <div class="calculator-slider-labels">
                                 <span>0%</span>
@@ -2032,11 +2032,11 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
                             </div>
                         </div>
                         <div class="calculator-input">
-                            <label class="calculator-label"><?php echo esc_html($mortgage_interest_rate_label ? $mortgage_interest_rate_label : 'Interest Rate (%)'); ?></label>
+                            <label class="calculator-label"><?php echo esc_html($mortgage_interest_rate_label ? $mortgage_interest_rate_label : __('Interest Rate (%)', 'realestate-booking-suite')); ?></label>
                             <input type="number" id="interestRate" value="<?php echo esc_attr($mortgage_default_interest_rate ? $mortgage_default_interest_rate : ($mortgage_default_interest_rate_global ? $mortgage_default_interest_rate_global : '6.5')); ?>" step="0.1" class="calculator-field" onkeyup="calculateMortgage()">
                         </div>
                         <div class="calculator-input">
-                            <label class="calculator-label"><?php echo esc_html($mortgage_loan_term_label ? $mortgage_loan_term_label : 'Loan Term (Years)'); ?></label>
+                            <label class="calculator-label"><?php echo esc_html($mortgage_loan_term_label ? $mortgage_loan_term_label : __('Loan Term (Years)', 'realestate-booking-suite')); ?></label>
                             <select id="loanTerm" class="calculator-field" onchange="calculateMortgage()">
                                 <?php
                                     // Use ONLY dashboard settings - no hardcoded fallbacks
@@ -2064,20 +2064,20 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
                                         foreach ($loan_terms as $term):
                                             $is_selected = ($term == $default_term) ? ' selected' : '';
                                     ?>
-                                        <option value="<?php echo esc_attr($term); ?>"<?php echo $is_selected; ?>><?php echo esc_html($term); ?> Years</option>
+                                        <option value="<?php echo esc_attr($term); ?>"<?php echo $is_selected; ?>><?php echo esc_html($term); ?> <?php echo esc_html__('Years', 'realestate-booking-suite'); ?></option>
                                     <?php 
                                         endforeach;
                                     } else {
                                         // Only show this if no dashboard settings are configured
-                                        echo '<option value="">Please configure loan terms in dashboard</option>';
+                                        echo '<option value="">' . esc_html__('Please configure loan terms in dashboard', 'realestate-booking-suite') . '</option>';
                                     }
                                 ?>
                             </select>
                         </div>
                         <div class="calculator-result">
-                            <p class="calculator-result-label"><?php echo esc_html($mortgage_monthly_payment_label ? $mortgage_monthly_payment_label : 'Estimated Monthly Payment'); ?></p>
-                            <p class="calculator-result-value" id="monthlyPayment">$0</p>
-                            <p class="calculator-result-note"><?php echo esc_html($mortgage_disclaimer_text ? $mortgage_disclaimer_text : '*Principal & Interest only'); ?></p>
+                            <p class="calculator-result-label"><?php echo esc_html($mortgage_monthly_payment_label ? $mortgage_monthly_payment_label : __('Estimated Monthly Payment', 'realestate-booking-suite')); ?></p>
+                            <p class="calculator-result-value" id="monthlyPayment"><?php echo esc_html(resbs_get_currency_symbol()); ?>0</p>
+                            <p class="calculator-result-note"><?php echo esc_html($mortgage_disclaimer_text ? $mortgage_disclaimer_text : __('*Principal & Interest only', 'realestate-booking-suite')); ?></p>
                         </div>
                     </div>
                 </div>
@@ -2100,37 +2100,37 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
         <button onclick="nextImage()" class="image-viewer-next">
             <i class="fas fa-chevron-right"></i>
         </button>
-        <img id="viewerImage" src="" alt="Property">
+        <img id="viewerImage" src="" alt="<?php echo esc_attr__('Property', 'realestate-booking-suite'); ?>">
     </div>
 
     <!-- Contact Modal -->
     <div id="contactModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title"><?php echo esc_html($contact_form_title ? $contact_form_title : 'Contact Agent'); ?></h3>
+                <h3 class="modal-title"><?php echo esc_html($contact_form_title ? $contact_form_title : __('Contact Agent', 'realestate-booking-suite')); ?></h3>
                 <button onclick="closeContactModal()" class="modal-close">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
             <form onsubmit="submitContactForm(event)" class="space-y-4">
                 <div class="form-group">
-                    <label class="form-label"><?php echo esc_html($contact_name_label ? $contact_name_label : 'Your Name'); ?></label>
+                    <label class="form-label"><?php echo esc_html($contact_name_label ? $contact_name_label : __('Your Name', 'realestate-booking-suite')); ?></label>
                     <input type="text" required class="form-input" name="contact_name">
                 </div>
                 <div class="form-group">
-                    <label class="form-label"><?php echo esc_html($contact_email_label ? $contact_email_label : 'Email'); ?></label>
+                    <label class="form-label"><?php echo esc_html($contact_email_label ? $contact_email_label : __('Email', 'realestate-booking-suite')); ?></label>
                     <input type="email" required class="form-input" name="contact_email">
                 </div>
                 <div class="form-group">
-                    <label class="form-label"><?php echo esc_html($contact_phone_label ? $contact_phone_label : 'Phone'); ?></label>
+                    <label class="form-label"><?php echo esc_html($contact_phone_label ? $contact_phone_label : __('Phone', 'realestate-booking-suite')); ?></label>
                     <input type="tel" required class="form-input" name="contact_phone">
                 </div>
                 <div class="form-group">
-                    <label class="form-label"><?php echo esc_html($contact_message_label ? $contact_message_label : 'Message'); ?></label>
+                    <label class="form-label"><?php echo esc_html($contact_message_label ? $contact_message_label : __('Message', 'realestate-booking-suite')); ?></label>
                     <textarea rows="4" required class="form-input form-textarea" name="contact_message"></textarea>
                 </div>
                 <button type="submit" class="form-submit">
-                    <?php echo esc_html($contact_submit_text ? $contact_submit_text : 'Send Message'); ?>
+                    <?php echo esc_html($contact_submit_text ? $contact_submit_text : __('Send Message', 'realestate-booking-suite')); ?>
                 </button>
             </form>
         </div>
@@ -2240,7 +2240,7 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
                 if (filtered.length === 0) {
                     const noResults = document.createElement('option');
                     noResults.value = '';
-                    noResults.textContent = 'No country found';
+                    noResults.textContent = '<?php echo esc_js(__('No country found', 'realestate-booking-suite')); ?>';
                     noResults.disabled = true;
                     select.appendChild(noResults);
                     select.size = 1;
@@ -2631,9 +2631,9 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
     <?php endwhile; ?>
 <?php else : ?>
     <div class="container" style="padding: 20px;">
-        <h1>Property Not Found</h1>
-        <p>Sorry, the property you're looking for doesn't exist or has been removed.</p>
-        <a href="<?php echo home_url('/property/'); ?>" style="background: <?php echo esc_attr(resbs_get_main_color()); ?>; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">Back to Properties</a>
+        <h1><?php echo esc_html__('Property Not Found', 'realestate-booking-suite'); ?></h1>
+        <p><?php echo esc_html__('Sorry, the property you\'re looking for doesn\'t exist or has been removed.', 'realestate-booking-suite'); ?></p>
+        <a href="<?php echo home_url('/property/'); ?>" style="background: <?php echo esc_attr(resbs_get_main_color()); ?>; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;"><?php echo esc_html__('Back to Properties', 'realestate-booking-suite'); ?></a>
     </div>
 <?php endif; ?>
 

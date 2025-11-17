@@ -72,7 +72,7 @@ class RESBS_Dashboard_AJAX {
             wp_die(esc_html__('You do not have permission to access this data.', 'realestate-booking-suite'));
         }
         
-        $period = sanitize_text_field($_POST['period']) ?: '6months';
+        $period = isset($_POST['period']) ? sanitize_text_field($_POST['period']) : '6months';
         $data = array();
         
         switch ($period) {
@@ -118,10 +118,10 @@ class RESBS_Dashboard_AJAX {
             $activities[] = array(
                 'type' => 'property',
                 'action' => 'created',
-                'title' => $property->post_title,
-                'date' => $property->post_date,
-                'status' => $property->post_status,
-                'url' => get_edit_post_link($property->ID)
+                'title' => esc_html($property->post_title),
+                'date' => esc_html($property->post_date),
+                'status' => esc_html($property->post_status),
+                'url' => esc_url(get_edit_post_link($property->ID))
             );
         }
         
@@ -131,10 +131,10 @@ class RESBS_Dashboard_AJAX {
             $activities[] = array(
                 'type' => 'booking',
                 'action' => 'created',
-                'title' => $booking['title'],
-                'date' => $booking['date'],
-                'status' => $booking['status'],
-                'url' => $booking['url']
+                'title' => isset($booking['title']) ? esc_html($booking['title']) : '',
+                'date' => isset($booking['date']) ? esc_html($booking['date']) : '',
+                'status' => isset($booking['status']) ? esc_html($booking['status']) : '',
+                'url' => isset($booking['url']) ? esc_url($booking['url']) : ''
             );
         }
         
@@ -156,7 +156,7 @@ class RESBS_Dashboard_AJAX {
             wp_die(esc_html__('You do not have permission to export data.', 'realestate-booking-suite'));
         }
         
-        $format = sanitize_text_field($_POST['format']) ?: 'csv';
+        $format = isset($_POST['format']) ? sanitize_text_field($_POST['format']) : 'csv';
         $properties = get_posts(array(
             'post_type' => 'property',
             'posts_per_page' => -1,
@@ -360,7 +360,7 @@ class RESBS_Dashboard_AJAX {
         
         $counts = array();
         foreach ($types as $type) {
-            $counts[$type->slug] = $type->count;
+            $counts[esc_attr($type->slug)] = intval($type->count);
         }
         
         return $counts;
@@ -377,7 +377,7 @@ class RESBS_Dashboard_AJAX {
         
         $counts = array();
         foreach ($locations as $location) {
-            $counts[$location->slug] = $location->count;
+            $counts[esc_attr($location->slug)] = intval($location->count);
         }
         
         return $counts;
@@ -398,7 +398,7 @@ class RESBS_Dashboard_AJAX {
         $filename = 'properties-export-' . date('Y-m-d-H-i-s') . '.csv';
         
         header('Content-Type: text/csv');
-        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        header('Content-Disposition: attachment; filename="' . esc_attr($filename) . '"');
         
         $output = fopen('php://output', 'w');
         
@@ -425,20 +425,20 @@ class RESBS_Dashboard_AJAX {
             $meta = get_post_meta($property->ID);
             
             fputcsv($output, array(
-                $property->ID,
-                $property->post_title,
-                isset($meta['_property_price'][0]) ? $meta['_property_price'][0] : '',
-                isset($meta['_property_bedrooms'][0]) ? $meta['_property_bedrooms'][0] : '',
-                isset($meta['_property_bathrooms'][0]) ? $meta['_property_bathrooms'][0] : '',
-                isset($meta['_property_area_sqft'][0]) ? $meta['_property_area_sqft'][0] : '',
-                isset($meta['_property_address'][0]) ? $meta['_property_address'][0] : '',
-                isset($meta['_property_city'][0]) ? $meta['_property_city'][0] : '',
-                isset($meta['_property_state'][0]) ? $meta['_property_state'][0] : '',
-                isset($meta['_property_zip'][0]) ? $meta['_property_zip'][0] : '',
-                isset($meta['_property_type'][0]) ? $meta['_property_type'][0] : '',
-                isset($meta['_property_status'][0]) ? $meta['_property_status'][0] : '',
-                $property->post_date,
-                $property->post_status
+                intval($property->ID),
+                esc_html($property->post_title),
+                isset($meta['_property_price'][0]) ? esc_html($meta['_property_price'][0]) : '',
+                isset($meta['_property_bedrooms'][0]) ? esc_html($meta['_property_bedrooms'][0]) : '',
+                isset($meta['_property_bathrooms'][0]) ? esc_html($meta['_property_bathrooms'][0]) : '',
+                isset($meta['_property_area_sqft'][0]) ? esc_html($meta['_property_area_sqft'][0]) : '',
+                isset($meta['_property_address'][0]) ? esc_html($meta['_property_address'][0]) : '',
+                isset($meta['_property_city'][0]) ? esc_html($meta['_property_city'][0]) : '',
+                isset($meta['_property_state'][0]) ? esc_html($meta['_property_state'][0]) : '',
+                isset($meta['_property_zip'][0]) ? esc_html($meta['_property_zip'][0]) : '',
+                isset($meta['_property_type'][0]) ? esc_html($meta['_property_type'][0]) : '',
+                isset($meta['_property_status'][0]) ? esc_html($meta['_property_status'][0]) : '',
+                esc_html($property->post_date),
+                esc_html($property->post_status)
             ));
         }
         
@@ -453,7 +453,7 @@ class RESBS_Dashboard_AJAX {
         $filename = 'properties-export-' . date('Y-m-d-H-i-s') . '.json';
         
         header('Content-Type: application/json');
-        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        header('Content-Disposition: attachment; filename="' . esc_attr($filename) . '"');
         
         $data = array();
         
@@ -461,26 +461,26 @@ class RESBS_Dashboard_AJAX {
             $meta = get_post_meta($property->ID);
             
             $data[] = array(
-                'id' => $property->ID,
-                'title' => $property->post_title,
-                'content' => $property->post_content,
-                'excerpt' => $property->post_excerpt,
-                'price' => isset($meta['_property_price'][0]) ? $meta['_property_price'][0] : '',
-                'bedrooms' => isset($meta['_property_bedrooms'][0]) ? $meta['_property_bedrooms'][0] : '',
-                'bathrooms' => isset($meta['_property_bathrooms'][0]) ? $meta['_property_bathrooms'][0] : '',
-                'area_sqft' => isset($meta['_property_area_sqft'][0]) ? $meta['_property_area_sqft'][0] : '',
-                'address' => isset($meta['_property_address'][0]) ? $meta['_property_address'][0] : '',
-                'city' => isset($meta['_property_city'][0]) ? $meta['_property_city'][0] : '',
-                'state' => isset($meta['_property_state'][0]) ? $meta['_property_state'][0] : '',
-                'zip' => isset($meta['_property_zip'][0]) ? $meta['_property_zip'][0] : '',
-                'property_type' => isset($meta['_property_type'][0]) ? $meta['_property_type'][0] : '',
-                'property_status' => isset($meta['_property_status'][0]) ? $meta['_property_status'][0] : '',
-                'date_created' => $property->post_date,
-                'status' => $property->post_status
+                'id' => intval($property->ID),
+                'title' => esc_html($property->post_title),
+                'content' => wp_kses_post($property->post_content),
+                'excerpt' => esc_html($property->post_excerpt),
+                'price' => isset($meta['_property_price'][0]) ? esc_html($meta['_property_price'][0]) : '',
+                'bedrooms' => isset($meta['_property_bedrooms'][0]) ? esc_html($meta['_property_bedrooms'][0]) : '',
+                'bathrooms' => isset($meta['_property_bathrooms'][0]) ? esc_html($meta['_property_bathrooms'][0]) : '',
+                'area_sqft' => isset($meta['_property_area_sqft'][0]) ? esc_html($meta['_property_area_sqft'][0]) : '',
+                'address' => isset($meta['_property_address'][0]) ? esc_html($meta['_property_address'][0]) : '',
+                'city' => isset($meta['_property_city'][0]) ? esc_html($meta['_property_city'][0]) : '',
+                'state' => isset($meta['_property_state'][0]) ? esc_html($meta['_property_state'][0]) : '',
+                'zip' => isset($meta['_property_zip'][0]) ? esc_html($meta['_property_zip'][0]) : '',
+                'property_type' => isset($meta['_property_type'][0]) ? esc_html($meta['_property_type'][0]) : '',
+                'property_status' => isset($meta['_property_status'][0]) ? esc_html($meta['_property_status'][0]) : '',
+                'date_created' => esc_html($property->post_date),
+                'status' => esc_html($property->post_status)
             );
         }
         
-        echo json_encode($data, JSON_PRETTY_PRINT);
+        echo wp_json_encode($data, JSON_PRETTY_PRINT);
         exit;
     }
 }

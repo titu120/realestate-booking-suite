@@ -28,7 +28,7 @@ $formatted_price = '';
 if ($price) {
     $formatted_price = resbs_format_price($price);
     if ($status === 'for-rent') {
-        $formatted_price .= '/month';
+        $formatted_price .= '/' . __('month', 'realestate-booking-suite');
     }
 }
 
@@ -45,23 +45,23 @@ if (!$featured_image && $gallery) {
 $status_badge = '';
 switch ($status) {
     case 'for-sale':
-        $status_badge = '<span class="resbs-status-badge resbs-status-sale">For Sale</span>';
+        $status_badge = '<span class="resbs-status-badge resbs-status-sale">' . esc_html__('For Sale', 'realestate-booking-suite') . '</span>';
         break;
     case 'for-rent':
-        $status_badge = '<span class="resbs-status-badge resbs-status-rent">For Rent</span>';
+        $status_badge = '<span class="resbs-status-badge resbs-status-rent">' . esc_html__('For Rent', 'realestate-booking-suite') . '</span>';
         break;
     case 'sold':
-        $status_badge = '<span class="resbs-status-badge resbs-status-sold">Sold</span>';
+        $status_badge = '<span class="resbs-status-badge resbs-status-sold">' . esc_html__('Sold', 'realestate-booking-suite') . '</span>';
         break;
     case 'rented':
-        $status_badge = '<span class="resbs-status-badge resbs-status-rented">Rented</span>';
+        $status_badge = '<span class="resbs-status-badge resbs-status-rented">' . esc_html__('Rented', 'realestate-booking-suite') . '</span>';
         break;
 }
 
 // Featured badge
 $featured_badge = '';
 if ($featured) {
-    $featured_badge = '<span class="resbs-featured-badge">Featured</span>';
+    $featured_badge = '<span class="resbs-featured-badge">' . esc_html__('Featured', 'realestate-booking-suite') . '</span>';
 }
 ?>
 
@@ -74,7 +74,7 @@ if ($featured) {
         <?php else : ?>
             <div class="resbs-no-image">
                 <i class="fas fa-home"></i>
-                <span>No Image</span>
+                <span><?php echo esc_html__('No Image', 'realestate-booking-suite'); ?></span>
             </div>
         <?php endif; ?>
         
@@ -128,14 +128,14 @@ if ($featured) {
             <?php if ($bedrooms) : ?>
                 <div class="resbs-property-detail">
                     <i class="fas fa-bed"></i>
-                    <span><?php echo esc_html($bedrooms); ?> bed<?php echo $bedrooms > 1 ? 's' : ''; ?></span>
+                    <span><?php echo esc_html($bedrooms); ?> <?php echo esc_html($bedrooms > 1 ? __('beds', 'realestate-booking-suite') : __('bed', 'realestate-booking-suite')); ?></span>
                 </div>
             <?php endif; ?>
             
             <?php if ($bathrooms) : ?>
                 <div class="resbs-property-detail">
                     <i class="fas fa-bath"></i>
-                    <span><?php echo esc_html($bathrooms); ?> bath<?php echo $bathrooms > 1 ? 's' : ''; ?></span>
+                    <span><?php echo esc_html($bathrooms); ?> <?php echo esc_html($bathrooms > 1 ? __('baths', 'realestate-booking-suite') : __('bath', 'realestate-booking-suite')); ?></span>
                 </div>
             <?php endif; ?>
             
@@ -157,13 +157,13 @@ if ($featured) {
         <!-- Property Actions -->
         <div class="resbs-property-actions">
             <a href="<?php the_permalink(); ?>" class="resbs-view-details-btn">
-                <span>View Details</span>
+                <span><?php echo esc_html__('View Details', 'realestate-booking-suite'); ?></span>
                 <i class="fas fa-arrow-right"></i>
             </a>
             
             <button class="resbs-contact-agent-btn" data-property-id="<?php echo esc_attr($property_id); ?>">
                 <i class="fas fa-envelope"></i>
-                Contact Agent
+                <?php echo esc_html__('Contact Agent', 'realestate-booking-suite'); ?>
             </button>
         </div>
         
