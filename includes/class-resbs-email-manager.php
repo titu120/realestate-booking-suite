@@ -111,8 +111,17 @@ class RESBS_Email_Manager {
      * Email settings page
      */
     public function email_settings_page() {
+        // Check user permissions - must have manage_options capability
+        RESBS_Security::check_capability('manage_options');
+        
         // Handle form submission
-        if (isset($_POST['submit']) && wp_verify_nonce($_POST['resbs_email_settings_nonce'], 'resbs_email_settings_nonce')) {
+        if (isset($_POST['submit']) && isset($_POST['resbs_email_settings_nonce'])) {
+            // Verify nonce and capability for form submission
+            RESBS_Security::verify_nonce_and_capability(
+                $_POST['resbs_email_settings_nonce'],
+                'resbs_email_settings_nonce',
+                'manage_options'
+            );
             $this->save_email_settings();
         }
         
@@ -537,28 +546,32 @@ class RESBS_Email_Manager {
      * Save email settings
      */
     private function save_email_settings() {
-        // Check nonce using security helper
-        RESBS_Security::verify_nonce($_POST['resbs_email_settings_nonce'], 'resbs_email_settings_nonce');
-
-        // Check permissions using security helper
-        RESBS_Security::check_capability('manage_options');
+        // Note: Nonce and capability are already verified in email_settings_page() before calling this method
+        // This is a redundant check for extra security, but the main check happens in the page callback
+        if (isset($_POST['resbs_email_settings_nonce'])) {
+            RESBS_Security::verify_nonce_and_capability(
+                $_POST['resbs_email_settings_nonce'],
+                'resbs_email_settings_nonce',
+                'manage_options'
+            );
+        }
 
         // Sanitize and save settings using security helper
         $settings = array(
-            'resbs_email_from_name' => RESBS_Security::sanitize_text($_POST['resbs_email_from_name']),
-            'resbs_email_from_email' => RESBS_Security::sanitize_email($_POST['resbs_email_from_email']),
-            'resbs_email_reply_to' => RESBS_Security::sanitize_email($_POST['resbs_email_reply_to']),
+            'resbs_email_from_name' => RESBS_Security::sanitize_text($_POST['resbs_email_from_name'] ?? ''),
+            'resbs_email_from_email' => RESBS_Security::sanitize_email($_POST['resbs_email_from_email'] ?? ''),
+            'resbs_email_reply_to' => RESBS_Security::sanitize_email($_POST['resbs_email_reply_to'] ?? ''),
             'resbs_email_enable_html' => RESBS_Security::sanitize_bool($_POST['resbs_email_enable_html'] ?? false),
             'resbs_email_enable_property_submission' => RESBS_Security::sanitize_bool($_POST['resbs_email_enable_property_submission'] ?? false),
             'resbs_email_enable_booking_emails' => RESBS_Security::sanitize_bool($_POST['resbs_email_enable_booking_emails'] ?? false),
             'resbs_email_enable_search_alerts' => RESBS_Security::sanitize_bool($_POST['resbs_email_enable_search_alerts'] ?? false),
             'resbs_email_admin_notifications' => RESBS_Security::sanitize_bool($_POST['resbs_email_admin_notifications'] ?? false),
             'resbs_email_smtp_enabled' => RESBS_Security::sanitize_bool($_POST['resbs_email_smtp_enabled'] ?? false),
-            'resbs_email_smtp_host' => RESBS_Security::sanitize_text($_POST['resbs_email_smtp_host']),
-            'resbs_email_smtp_port' => RESBS_Security::sanitize_int($_POST['resbs_email_smtp_port'], 587),
-            'resbs_email_smtp_username' => RESBS_Security::sanitize_text($_POST['resbs_email_smtp_username']),
-            'resbs_email_smtp_password' => RESBS_Security::sanitize_text($_POST['resbs_email_smtp_password']),
-            'resbs_email_smtp_encryption' => RESBS_Security::sanitize_text($_POST['resbs_email_smtp_encryption'])
+            'resbs_email_smtp_host' => RESBS_Security::sanitize_text($_POST['resbs_email_smtp_host'] ?? ''),
+            'resbs_email_smtp_port' => RESBS_Security::sanitize_int($_POST['resbs_email_smtp_port'] ?? 587, 587),
+            'resbs_email_smtp_username' => RESBS_Security::sanitize_text($_POST['resbs_email_smtp_username'] ?? ''),
+            'resbs_email_smtp_password' => RESBS_Security::sanitize_text($_POST['resbs_email_smtp_password'] ?? ''),
+            'resbs_email_smtp_encryption' => RESBS_Security::sanitize_text($_POST['resbs_email_smtp_encryption'] ?? 'tls')
         );
 
         // Save email templates
@@ -1015,12 +1028,17 @@ The {site_name} Team', 'realestate-booking-suite')
      * AJAX handler for sending test email
      */
     public function ajax_send_test_email() {
-        // Verify nonce using security helper
-        RESBS_Security::verify_ajax_nonce($_POST['nonce'], 'resbs_email_admin_nonce');
-        
-        // Check permissions using security helper
-        RESBS_Security::check_capability('manage_options');
+        // Verify nonce and check permissions using combined security helper
+        $nonce = isset($_POST['nonce']) ? $_POST['nonce'] : '';
+        RESBS_Security::verify_ajax_nonce_and_capability($nonce, 'resbs_email_admin_nonce', 'manage_options');
 
+        // Check if test_email is provided
+        if (!isset($_POST['test_email'])) {
+            wp_send_json_error(array(
+                'message' => esc_html__('Email address is required.', 'realestate-booking-suite')
+            ));
+        }
+        
         $test_email = RESBS_Security::sanitize_email($_POST['test_email']);
         
         if (!is_email($test_email)) {
@@ -1049,12 +1067,17 @@ The {site_name} Team', 'realestate-booking-suite')
      * AJAX handler for previewing email template
      */
     public function ajax_preview_email_template() {
-        // Verify nonce using security helper
-        RESBS_Security::verify_ajax_nonce($_POST['nonce'], 'resbs_email_admin_nonce');
-        
-        // Check permissions using security helper
-        RESBS_Security::check_capability('manage_options');
+        // Verify nonce and check permissions using combined security helper
+        $nonce = isset($_POST['nonce']) ? $_POST['nonce'] : '';
+        RESBS_Security::verify_ajax_nonce_and_capability($nonce, 'resbs_email_admin_nonce', 'manage_options');
 
+        // Check if required parameters are provided
+        if (!isset($_POST['template_type']) || !isset($_POST['template_content'])) {
+            wp_send_json_error(array(
+                'message' => esc_html__('Template type and content are required.', 'realestate-booking-suite')
+            ));
+        }
+        
         $template_type = RESBS_Security::sanitize_text($_POST['template_type']);
         $template_content = RESBS_Security::sanitize_textarea($_POST['template_content']);
 

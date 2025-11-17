@@ -591,7 +591,11 @@ function resbs_get_wishlist_page_url() {
     // Fallback: try to find page by slug
     $page = get_page_by_path('saved-properties');
     if ($page && $page->post_status === 'publish') {
-        update_option('resbs_wishlist_page_id', $page->ID);
+        // Security: Only update option if user has manage_options capability
+        // This prevents unauthorized option updates from frontend
+        if (current_user_can('manage_options')) {
+            update_option('resbs_wishlist_page_id', $page->ID);
+        }
         return esc_url(get_permalink($page->ID));
     }
     
@@ -612,7 +616,11 @@ function resbs_get_wishlist_page_id() {
     // Fallback: try to find page by slug
     $page = get_page_by_path('saved-properties');
     if ($page && $page->post_status === 'publish') {
-        update_option('resbs_wishlist_page_id', $page->ID);
+        // Security: Only update option if user has manage_options capability
+        // This prevents unauthorized option updates from frontend
+        if (current_user_can('manage_options')) {
+            update_option('resbs_wishlist_page_id', $page->ID);
+        }
         return $page->ID;
     }
     
@@ -670,7 +678,11 @@ function resbs_get_profile_page_url() {
     // Fallback: try to find page by slug
     $page = get_page_by_path('profile');
     if ($page && $page->post_status === 'publish') {
-        update_option('resbs_profile_page_id', $page->ID);
+        // Security: Only update option if user has manage_options capability
+        // This prevents unauthorized option updates from frontend
+        if (current_user_can('manage_options')) {
+            update_option('resbs_profile_page_id', $page->ID);
+        }
         return esc_url(get_permalink($page->ID));
     }
     
@@ -691,7 +703,11 @@ function resbs_get_profile_page_id() {
     // Fallback: try to find page by slug
     $page = get_page_by_path('profile');
     if ($page && $page->post_status === 'publish') {
-        update_option('resbs_profile_page_id', $page->ID);
+        // Security: Only update option if user has manage_options capability
+        // This prevents unauthorized option updates from frontend
+        if (current_user_can('manage_options')) {
+            update_option('resbs_profile_page_id', $page->ID);
+        }
         return $page->ID;
     }
     
@@ -712,7 +728,11 @@ function resbs_get_submit_property_page_url() {
     // Fallback: try to find page by slug
     $page = get_page_by_path('submit-property');
     if ($page && $page->post_status === 'publish') {
-        update_option('resbs_submit_property_page_id', $page->ID);
+        // Security: Only update option if user has manage_options capability
+        // This prevents unauthorized option updates from frontend
+        if (current_user_can('manage_options')) {
+            update_option('resbs_submit_property_page_id', $page->ID);
+        }
         return esc_url(get_permalink($page->ID));
     }
     
@@ -733,7 +753,11 @@ function resbs_get_submit_property_page_id() {
     // Fallback: try to find page by slug
     $page = get_page_by_path('submit-property');
     if ($page && $page->post_status === 'publish') {
-        update_option('resbs_submit_property_page_id', $page->ID);
+        // Security: Only update option if user has manage_options capability
+        // This prevents unauthorized option updates from frontend
+        if (current_user_can('manage_options')) {
+            update_option('resbs_submit_property_page_id', $page->ID);
+        }
         return $page->ID;
     }
     
@@ -793,6 +817,11 @@ function resbs_get_property_tags($post_id = null, $before = '', $sep = ', ', $af
         $post_id = get_the_ID();
     }
     
+    // Security: Verify post exists and is valid
+    if (!$post_id || !get_post($post_id)) {
+        return '';
+    }
+    
     $tags = get_the_terms($post_id, 'property_tag');
     
     if (!$tags || is_wp_error($tags)) {
@@ -804,7 +833,12 @@ function resbs_get_property_tags($post_id = null, $before = '', $sep = ', ', $af
     
     foreach ($tags as $tag) {
         if ($clickable) {
-            $tag_links[] = '<a href="' . esc_url(get_term_link($tag)) . '" rel="tag">' . esc_html($tag->name) . '</a>';
+            $term_link = get_term_link($tag);
+            if (!is_wp_error($term_link)) {
+                $tag_links[] = '<a href="' . esc_url($term_link) . '" rel="tag">' . esc_html($tag->name) . '</a>';
+            } else {
+                $tag_links[] = '<span class="property-tag">' . esc_html($tag->name) . '</span>';
+            }
         } else {
             $tag_links[] = '<span class="property-tag">' . esc_html($tag->name) . '</span>';
         }
@@ -819,6 +853,18 @@ function resbs_get_property_tags($post_id = null, $before = '', $sep = ', ', $af
  */
 function resbs_auto_generate_tags($post_id) {
     if (!resbs_is_auto_tags_enabled()) {
+        return;
+    }
+    
+    // Security: Verify post exists
+    $post = get_post($post_id);
+    if (!$post) {
+        return;
+    }
+    
+    // Security: Verify user has permission to edit this post
+    // This function is called from save_post hook, but we should verify permissions
+    if (!current_user_can('edit_post', $post_id)) {
         return;
     }
     
@@ -870,6 +916,11 @@ function resbs_auto_generate_tags($post_id) {
 function resbs_generate_meta_description($post_id = null) {
     if (!$post_id) {
         $post_id = get_the_ID();
+    }
+    
+    // Security: Verify post exists and is valid
+    if (!$post_id || !get_post($post_id)) {
+        return '';
     }
     
     if (!resbs_is_dynamic_content_enabled()) {

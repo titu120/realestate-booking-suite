@@ -30,6 +30,26 @@ class RESBS_CPT {
      * Handle SEO features on property save
      */
     public function handle_seo_on_save($post_id) {
+        // Security checks
+        // Skip autosaves and revisions
+        if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+            return;
+        }
+        
+        if (wp_is_post_revision($post_id) || wp_is_post_autosave($post_id)) {
+            return;
+        }
+        
+        // Verify post type
+        if (get_post_type($post_id) !== 'property') {
+            return;
+        }
+        
+        // Check user permissions
+        if (!current_user_can('edit_post', $post_id)) {
+            return;
+        }
+        
         // Auto-generate tags
         if (function_exists('resbs_auto_generate_tags')) {
             resbs_auto_generate_tags($post_id);
@@ -192,6 +212,7 @@ class RESBS_CPT {
     public function property_template_include($template) {
         global $post;
         
+        // Security: Sanitize REQUEST_URI input
         // SIMPLE CHECK: If URL contains /property/ and has a slug, it's a single property
         $request_uri = isset($_SERVER['REQUEST_URI']) ? esc_url_raw($_SERVER['REQUEST_URI']) : '';
         
@@ -210,6 +231,11 @@ class RESBS_CPT {
      * Flush rewrite rules if needed
      */
     public function flush_rewrite_rules_if_needed() {
+        // Security: Only allow administrators to flush rewrite rules
+        if (!current_user_can('manage_options')) {
+            return;
+        }
+        
         $option_name = 'resbs_flush_rewrite_rules';
         if (get_option($option_name) !== '1') {
             flush_rewrite_rules();

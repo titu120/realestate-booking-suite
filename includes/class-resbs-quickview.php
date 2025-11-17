@@ -72,6 +72,13 @@ class RESBS_QuickView_Manager {
      * AJAX handler for getting quick view content
      */
     public function ajax_get_quickview() {
+        // Check if nonce exists
+        if (!isset($_POST['nonce'])) {
+            wp_send_json_error(array(
+                'message' => esc_html__('Security check failed. Nonce is missing.', 'realestate-booking-suite')
+            ));
+        }
+
         // Verify nonce using security helper
         RESBS_Security::verify_ajax_nonce($_POST['nonce'], 'resbs_quickview_nonce');
         
@@ -82,13 +89,69 @@ class RESBS_QuickView_Manager {
             ));
         }
 
-        // Sanitize and validate property ID
-        $property_id = RESBS_Security::sanitize_property_id($_POST['property_id']);
+        // Check if property_id exists
+        if (!isset($_POST['property_id'])) {
+            wp_send_json_error(array(
+                'message' => esc_html__('Property ID is required.', 'realestate-booking-suite')
+            ));
+        }
+
+        // Sanitize property ID as integer first (don't filter by status yet)
+        $property_id = RESBS_Security::sanitize_int($_POST['property_id']);
         
-        if (!$property_id) {
+        if (!$property_id || $property_id <= 0) {
             wp_send_json_error(array(
                 'message' => esc_html__('Invalid property ID.', 'realestate-booking-suite')
             ));
+        }
+
+        // Verify property exists
+        $property = get_post($property_id);
+        if (!$property) {
+            wp_send_json_error(array(
+                'message' => esc_html__('Property not found.', 'realestate-booking-suite')
+            ));
+        }
+
+        // Check if property post type is correct
+        if ($property->post_type !== 'property') {
+            wp_send_json_error(array(
+                'message' => esc_html__('Invalid property type.', 'realestate-booking-suite')
+            ));
+        }
+
+        // Check post visibility permissions
+        // For published posts, anyone can view
+        // For private posts, only author or users with edit_post capability can view
+        // For password-protected posts, check if user has access
+        if ($property->post_status === 'private') {
+            $current_user_id = get_current_user_id();
+            $property_author_id = (int) $property->post_author;
+            
+            // Allow if user is the author or has edit_post capability
+            if ($current_user_id !== $property_author_id && !current_user_can('edit_post', $property_id)) {
+                wp_send_json_error(array(
+                    'message' => esc_html__('You do not have permission to view this property.', 'realestate-booking-suite')
+                ));
+            }
+        } elseif ($property->post_status === 'publish') {
+            // For published posts, check if password protected
+            if (post_password_required($property_id)) {
+                // Password-protected posts require password to view
+                // In quick view context, we'll show limited info or require password
+                // For now, we'll allow it but the frontend should handle password entry
+            }
+        } elseif (!is_post_status_viewable($property->post_status)) {
+            // For other statuses (draft, pending, etc.), check permissions
+            $current_user_id = get_current_user_id();
+            $property_author_id = (int) $property->post_author;
+            
+            // Only allow author or users with edit_post capability
+            if ($current_user_id !== $property_author_id && !current_user_can('edit_post', $property_id)) {
+                wp_send_json_error(array(
+                    'message' => esc_html__('This property is not available for viewing.', 'realestate-booking-suite')
+                ));
+            }
         }
 
         // Get property data

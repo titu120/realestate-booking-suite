@@ -36,11 +36,21 @@ class RESBS_Admin_Contact_Messages {
      * Admin page content
      */
     public function admin_page() {
+        // Check user permissions
+        if (!current_user_can('manage_options')) {
+            wp_die(esc_html__('You do not have sufficient permissions to access this page.', 'realestate-booking-suite'));
+        }
+        
         global $wpdb;
         $table_name = $wpdb->prefix . 'resbs_contact_messages';
         
-        // Handle actions
+        // Handle actions with nonce verification
         if (isset($_GET['action']) && isset($_GET['id'])) {
+            // Verify nonce for security
+            if (!isset($_GET['_wpnonce']) || !wp_verify_nonce($_GET['_wpnonce'], 'resbs_contact_message_action_' . intval($_GET['id']))) {
+                wp_die(esc_html__('Security check failed. Please try again.', 'realestate-booking-suite'));
+            }
+            
             $id = intval($_GET['id']);
             $action = sanitize_text_field($_GET['action']);
             
@@ -48,11 +58,11 @@ class RESBS_Admin_Contact_Messages {
                 case 'update_status':
                     if (isset($_GET['status'])) {
                         $status = sanitize_text_field($_GET['status']);
-                        $this->update_contact_message_status($id, $status);
+                        $this->update_contact_message_status_direct($id, $status);
                     }
                     break;
                 case 'delete':
-                    $this->delete_contact_message($id);
+                    $this->delete_contact_message_direct($id);
                     break;
             }
         }
@@ -65,6 +75,9 @@ class RESBS_Admin_Contact_Messages {
             LEFT JOIN {$wpdb->posts} p ON cm.property_id = p.ID 
             ORDER BY cm.created_at DESC
         ");
+        
+        // Create a global nonce for AJAX operations
+        $ajax_nonce = wp_create_nonce('resbs_contact_message_admin_action');
         
         ?>
         <div class="wrap">
@@ -135,7 +148,7 @@ class RESBS_Admin_Contact_Messages {
                                 </td>
                                 <td>
                                     <div class="row-actions">
-                                        <select onchange="updateStatus(<?php echo esc_js($message->id); ?>, this.value)">
+                                        <select onchange="updateStatus(<?php echo esc_js($message->id); ?>, this.value, '<?php echo esc_js(wp_create_nonce('resbs_contact_message_action_' . $message->id)); ?>')">
                                             <option value=""><?php echo esc_html__('Change Status', 'realestate-booking-suite'); ?></option>
                                             <option value="unread" <?php selected($message->status, 'unread'); ?>><?php echo esc_html__('Unread', 'realestate-booking-suite'); ?></option>
                                             <option value="read" <?php selected($message->status, 'read'); ?>><?php echo esc_html__('Read', 'realestate-booking-suite'); ?></option>
@@ -145,7 +158,7 @@ class RESBS_Admin_Contact_Messages {
                                         <br><br>
                                         <a href="mailto:<?php echo esc_attr($message->email); ?>?subject=<?php echo esc_attr(sprintf(__('Re: Contact Message #%d', 'realestate-booking-suite'), $message->id)); ?>" class="reply-link"><?php echo esc_html__('Reply', 'realestate-booking-suite'); ?></a>
                                         <br>
-                                        <a href="<?php echo esc_url(add_query_arg(array('action' => 'delete', 'id' => $message->id), admin_url('edit.php?post_type=property&page=contact-messages'))); ?>" 
+                                        <a href="<?php echo esc_url(wp_nonce_url(add_query_arg(array('action' => 'delete', 'id' => $message->id), admin_url('edit.php?post_type=property&page=contact-messages')), 'resbs_contact_message_action_' . $message->id)); ?>" 
                                            onclick="return confirm('<?php echo esc_js(__('Are you sure you want to delete this contact message?', 'realestate-booking-suite')); ?>')" 
                                            class="delete-link" style="color: #a00;"><?php echo esc_html__('Delete', 'realestate-booking-suite'); ?></a>
                                     </div>
@@ -181,12 +194,16 @@ class RESBS_Admin_Contact_Messages {
         </style>
         
         <script>
-            function updateStatus(id, status) {
+            // Global nonce for AJAX operations
+            const resbsContactAdminNonce = '<?php echo esc_js($ajax_nonce); ?>';
+            
+            function updateStatus(id, status, nonce) {
                 if (status && confirm('<?php echo esc_js(__('Are you sure you want to update the status?', 'realestate-booking-suite')); ?>')) {
                     const url = new URL(window.location.href);
                     url.searchParams.set('action', 'update_status');
                     url.searchParams.set('id', id);
                     url.searchParams.set('status', status);
+                    url.searchParams.set('_wpnonce', nonce);
                     window.location.href = url.toString();
                 }
             }
@@ -217,18 +234,37 @@ class RESBS_Admin_Contact_Messages {
     }
     
     /**
-     * Update contact message status
+     * Update contact message status (AJAX handler)
      */
     public function update_contact_message_status() {
+        // Check user permissions
         if (!current_user_can('manage_options')) {
-            wp_die(esc_html__('Unauthorized', 'realestate-booking-suite'));
+            wp_send_json_error(array('message' => esc_html__('Unauthorized', 'realestate-booking-suite')));
+            return;
         }
         
-        $id = intval($_POST['id']);
-        $status = sanitize_text_field($_POST['status']);
+        // Verify nonce
+        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'resbs_contact_message_admin_action')) {
+            wp_send_json_error(array('message' => esc_html__('Security check failed. Please refresh the page and try again.', 'realestate-booking-suite')));
+            return;
+        }
+        
+        $id = isset($_POST['id']) ? intval($_POST['id']) : 0;
+        $status = isset($_POST['status']) ? sanitize_text_field($_POST['status']) : '';
+        
+        if (empty($id) || empty($status)) {
+            wp_send_json_error(array('message' => esc_html__('Invalid parameters', 'realestate-booking-suite')));
+            return;
+        }
         
         global $wpdb;
         $table_name = $wpdb->prefix . 'resbs_contact_messages';
+        
+        $allowed_statuses = array('unread', 'read', 'replied', 'archived');
+        if (!in_array($status, $allowed_statuses)) {
+            wp_send_json_error(array('message' => esc_html__('Invalid status', 'realestate-booking-suite')));
+            return;
+        }
         
         $result = $wpdb->update(
             $table_name,
@@ -239,21 +275,60 @@ class RESBS_Admin_Contact_Messages {
         );
         
         if ($result !== false) {
-            wp_send_json_success(esc_html__('Status updated successfully', 'realestate-booking-suite'));
+            wp_send_json_success(array('message' => esc_html__('Status updated successfully', 'realestate-booking-suite')));
         } else {
-            wp_send_json_error(esc_html__('Failed to update status', 'realestate-booking-suite'));
+            wp_send_json_error(array('message' => esc_html__('Failed to update status', 'realestate-booking-suite')));
         }
     }
     
     /**
-     * Delete contact message
+     * Update contact message status (direct call from GET request)
      */
-    public function delete_contact_message() {
+    private function update_contact_message_status_direct($id, $status) {
+        // Check user permissions (defense in depth)
         if (!current_user_can('manage_options')) {
-            wp_die(esc_html__('Unauthorized', 'realestate-booking-suite'));
+            return false;
         }
         
-        $id = intval($_POST['id']);
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'resbs_contact_messages';
+        
+        $allowed_statuses = array('unread', 'read', 'replied', 'archived');
+        if (!in_array($status, $allowed_statuses)) {
+            return false;
+        }
+        
+        return $wpdb->update(
+            $table_name,
+            array('status' => $status),
+            array('id' => $id),
+            array('%s'),
+            array('%d')
+        );
+    }
+    
+    /**
+     * Delete contact message (AJAX handler)
+     */
+    public function delete_contact_message() {
+        // Check user permissions
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(array('message' => esc_html__('Unauthorized', 'realestate-booking-suite')));
+            return;
+        }
+        
+        // Verify nonce
+        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'resbs_contact_message_admin_action')) {
+            wp_send_json_error(array('message' => esc_html__('Security check failed. Please refresh the page and try again.', 'realestate-booking-suite')));
+            return;
+        }
+        
+        $id = isset($_POST['id']) ? intval($_POST['id']) : 0;
+        
+        if (empty($id)) {
+            wp_send_json_error(array('message' => esc_html__('Invalid message ID', 'realestate-booking-suite')));
+            return;
+        }
         
         global $wpdb;
         $table_name = $wpdb->prefix . 'resbs_contact_messages';
@@ -265,10 +340,29 @@ class RESBS_Admin_Contact_Messages {
         );
         
         if ($result !== false) {
-            wp_send_json_success(esc_html__('Contact message deleted successfully', 'realestate-booking-suite'));
+            wp_send_json_success(array('message' => esc_html__('Contact message deleted successfully', 'realestate-booking-suite')));
         } else {
-            wp_send_json_error(esc_html__('Failed to delete contact message', 'realestate-booking-suite'));
+            wp_send_json_error(array('message' => esc_html__('Failed to delete contact message', 'realestate-booking-suite')));
         }
+    }
+    
+    /**
+     * Delete contact message (direct call from GET request)
+     */
+    private function delete_contact_message_direct($id) {
+        // Check user permissions (defense in depth)
+        if (!current_user_can('manage_options')) {
+            return false;
+        }
+        
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'resbs_contact_messages';
+        
+        return $wpdb->delete(
+            $table_name,
+            array('id' => $id),
+            array('%d')
+        );
     }
 }
 

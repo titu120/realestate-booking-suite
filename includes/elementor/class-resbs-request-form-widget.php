@@ -2,6 +2,36 @@
 /**
  * Elementor Property Request Form Widget
  * 
+ * SECURITY NOTES:
+ * 
+ * 1. NONCES (CSRF Protection):
+ *    - Form includes nonce field: 'resbs_request_nonce' with action 'resbs_request_form'
+ *    - JavaScript intercepts form and sends AJAX with nonce: 'resbs_elementor_nonce'
+ *    - AJAX handler verifies both nonces for maximum security
+ *    - Nonce is verified in: class-resbs-frontend.php -> handle_elementor_submit_request()
+ * 
+ * 2. USER PERMISSIONS:
+ *    - Widget Display: No permission check needed (public content)
+ *    - Form Submission: Public form - allows both logged-in and non-logged-in users
+ *      - Registered via: wp_ajax_resbs_elementor_submit_request (logged-in)
+ *      - Registered via: wp_ajax_nopriv_resbs_elementor_submit_request (non-logged-in)
+ *    - No admin capabilities required for form submission
+ *    - Rate limiting should be implemented at server level for spam protection
+ * 
+ * 3. DATA SANITIZATION:
+ *    - All user input is sanitized in AJAX handler:
+ *      - Name: sanitize_text_field()
+ *      - Email: sanitize_email() + is_email() validation
+ *      - Phone: sanitize_text_field()
+ *      - Message: sanitize_textarea_field()
+ *      - Property ID: intval()
+ *    - All output uses esc_* functions (esc_html, esc_attr, esc_url, esc_textarea)
+ * 
+ * 4. FORM SECURITY:
+ *    - Form action points to admin-ajax.php (WordPress AJAX endpoint)
+ *    - JavaScript prevents default form submission and uses AJAX
+ *    - Direct POST submissions are also handled with nonce verification
+ * 
  * @package RealEstate_Booking_Suite
  */
 
@@ -200,8 +230,13 @@ class RESBS_Request_Form_Widget extends \Elementor\Widget_Base {
         ?>
         <div class="resbs-request-form-widget" id="<?php echo esc_attr($widget_id); ?>">
             <form class="resbs-request-form" method="post" action="<?php echo esc_url(admin_url('admin-ajax.php')); ?>">
-                <?php wp_nonce_field('resbs_request_form', 'resbs_request_nonce'); ?>
-                <input type="hidden" name="action" value="resbs_submit_request_form">
+                <?php 
+                // SECURITY: Include nonce for CSRF protection
+                // This nonce is verified in the AJAX handler as a fallback for direct POST submissions
+                // JavaScript will intercept the form and send AJAX with resbs_elementor_nonce
+                wp_nonce_field('resbs_request_form', 'resbs_request_nonce'); 
+                ?>
+                <input type="hidden" name="action" value="resbs_elementor_submit_request">
                 <?php if ($current_property_id): ?>
                     <input type="hidden" name="property_id" value="<?php echo esc_attr(absint($current_property_id)); ?>">
                 <?php endif; ?>

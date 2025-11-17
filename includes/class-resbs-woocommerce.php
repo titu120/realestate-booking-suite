@@ -19,7 +19,7 @@ class RESBS_WooCommerce {
         add_action('init', array($this, 'init_woocommerce_integration'));
         add_action('wp_enqueue_scripts', array($this, 'enqueue_scripts'));
         add_action('wp_ajax_resbs_add_to_cart', array($this, 'handle_add_to_cart'));
-        add_action('wp_ajax_nopriv_resbs_add_to_cart', array($this, 'handle_add_to_cart'));
+        // Note: Removed nopriv action since booking requires user login
         add_action('woocommerce_add_to_cart', array($this, 'on_add_to_cart'), 10, 6);
         add_action('woocommerce_checkout_process', array($this, 'validate_booking_checkout'));
         add_action('woocommerce_checkout_order_processed', array($this, 'process_booking_order'), 10, 1);
@@ -106,6 +106,11 @@ class RESBS_WooCommerce {
     public function booking_product_options() {
         global $post;
         
+        // Check user permissions
+        if (!current_user_can('edit_post', $post->ID)) {
+            return;
+        }
+        
         echo '<div class="options_group show_if_property_booking">';
         
         woocommerce_wp_text_input(array(
@@ -160,6 +165,21 @@ class RESBS_WooCommerce {
      * Save booking product options
      */
     public function save_booking_product_options($post_id) {
+        // Verify nonce
+        if (!isset($_POST['_wpnonce']) || !wp_verify_nonce($_POST['_wpnonce'], 'update-post_' . $post_id)) {
+            return;
+        }
+        
+        // Check user permissions
+        if (!current_user_can('edit_post', $post_id)) {
+            return;
+        }
+        
+        // Verify this is a product post type
+        if (get_post_type($post_id) !== 'product') {
+            return;
+        }
+        
         $property_id = isset($_POST['_property_id']) ? sanitize_text_field($_POST['_property_id']) : '';
         $price_per_night = isset($_POST['_booking_price_per_night']) ? floatval($_POST['_booking_price_per_night']) : 0;
         $max_guests = isset($_POST['_max_guests']) ? intval($_POST['_max_guests']) : 1;
@@ -255,6 +275,12 @@ class RESBS_WooCommerce {
      * Get or create a simple product for property booking
      */
     private function get_or_create_simple_product($property_id) {
+        // Verify property exists and user has permission
+        $property = get_post($property_id);
+        if (!$property) {
+            return false;
+        }
+        
         // Check if product already exists for this property
         $existing_products = get_posts(array(
             'post_type' => 'product',
@@ -272,15 +298,20 @@ class RESBS_WooCommerce {
             return $existing_products[0]->ID;
         }
         
+        // Verify user has permission to create products
+        if (!current_user_can('publish_products') && !current_user_can('edit_posts')) {
+            return false;
+        }
+        
         // Create new product
-        $property = get_post($property_id);
         $property_price = get_post_meta($property_id, '_resbs_price', true);
         
         $product_data = array(
             'post_title' => sprintf(esc_html__('Booking: %s', 'realestate-booking-suite'), esc_html($property->post_title)),
             'post_content' => sprintf(esc_html__('Property booking for: %s', 'realestate-booking-suite'), esc_html($property->post_title)),
             'post_status' => 'publish',
-            'post_type' => 'product'
+            'post_type' => 'product',
+            'post_author' => get_current_user_id()
         );
         
         $product_id = wp_insert_post($product_data);
@@ -288,8 +319,8 @@ class RESBS_WooCommerce {
         if ($product_id) {
             // Set product meta
             update_post_meta($product_id, '_property_id', $property_id);
-            update_post_meta($product_id, '_price', $property_price ? $property_price : 100);
-            update_post_meta($product_id, '_regular_price', $property_price ? $property_price : 100);
+            update_post_meta($product_id, '_price', $property_price ? floatval($property_price) : 100);
+            update_post_meta($product_id, '_regular_price', $property_price ? floatval($property_price) : 100);
             update_post_meta($product_id, '_manage_stock', 'no');
             update_post_meta($product_id, '_stock_status', 'instock');
             update_post_meta($product_id, '_virtual', 'yes');
@@ -306,6 +337,12 @@ class RESBS_WooCommerce {
      * Get or create booking product for property
      */
     private function get_or_create_booking_product($property_id) {
+        // Verify property exists
+        $property = get_post($property_id);
+        if (!$property) {
+            return false;
+        }
+        
         // Check if product already exists for this property
         $existing_products = get_posts(array(
             'post_type' => 'product',
@@ -323,8 +360,12 @@ class RESBS_WooCommerce {
             return $existing_products[0]->ID;
         }
         
+        // Verify user has permission to create products
+        if (!current_user_can('publish_products') && !current_user_can('edit_posts')) {
+            return false;
+        }
+        
         // Create new booking product
-        $property = get_post($property_id);
         $property_price = get_post_meta($property_id, '_resbs_price', true);
         
         $product_data = array(
@@ -332,8 +373,9 @@ class RESBS_WooCommerce {
             'post_content' => esc_html__('Property booking for', 'realestate-booking-suite') . ' ' . esc_html($property->post_title),
             'post_status' => 'publish',
             'post_type' => 'product',
+            'post_author' => get_current_user_id(),
             'meta_input' => array(
-                '_property_id' => $property_id,
+                '_property_id' => intval($property_id),
                 '_booking_price_per_night' => floatval($property_price),
                 '_max_guests' => 10,
                 '_min_nights' => 1,
@@ -413,8 +455,35 @@ class RESBS_WooCommerce {
     public function process_booking_order($order_id) {
         $order = wc_get_order($order_id);
         
+        if (!$order) {
+            return;
+        }
+        
+        // Verify order belongs to current user or user has permission
+        $current_user_id = get_current_user_id();
+        $order_user_id = $order->get_user_id();
+        
+        // This is called via WooCommerce hook, so it's a system action
+        // But we should still verify the order is valid
+        if (!$order_user_id && !current_user_can('manage_options')) {
+            return;
+        }
+        
         foreach ($order->get_items() as $item_id => $item) {
-            $product_id = $item->get_product_id();
+            // Verify item is a product item
+            if (!is_a($item, 'WC_Order_Item_Product')) {
+                continue;
+            }
+            
+            // Get product ID from order item
+            // @var WC_Order_Item_Product $item
+            $item_data = $item->get_data();
+            $product_id = isset($item_data['product_id']) ? intval($item_data['product_id']) : 0;
+            
+            if (!$product_id) {
+                continue;
+            }
+            
             $property_id = get_post_meta($product_id, '_property_id', true);
             
             if ($property_id) {
@@ -433,16 +502,35 @@ class RESBS_WooCommerce {
      * Create booking record
      */
     private function create_booking_record($order_id, $property_id, $booking_data) {
-        $booking_data = array(
+        // Sanitize and validate input data
+        $order_id = intval($order_id);
+        $property_id = intval($property_id);
+        $user_id = get_current_user_id();
+        
+        // Verify property exists
+        if (!get_post($property_id)) {
+            return false;
+        }
+        
+        // Calculate nights if not provided
+        $nights = isset($booking_data['nights']) ? intval($booking_data['nights']) : 1;
+        if (!isset($booking_data['nights']) && isset($booking_data['checkin_date']) && isset($booking_data['checkout_date'])) {
+            $nights = $this->calculate_nights($booking_data['checkin_date'], $booking_data['checkout_date']);
+        }
+        
+        $price_per_night = isset($booking_data['price_per_night']) ? floatval($booking_data['price_per_night']) : 0;
+        $total_price = $nights * $price_per_night;
+        
+        $booking_meta = array(
             'order_id' => $order_id,
             'property_id' => $property_id,
-            'user_id' => get_current_user_id(),
-            'checkin_date' => $booking_data['checkin_date'],
-            'checkout_date' => $booking_data['checkout_date'],
-            'guests' => $booking_data['guests'],
-            'nights' => $booking_data['nights'],
-            'price_per_night' => $booking_data['price_per_night'],
-            'total_price' => $booking_data['nights'] * $booking_data['price_per_night'],
+            'user_id' => $user_id,
+            'checkin_date' => sanitize_text_field($booking_data['checkin_date']),
+            'checkout_date' => sanitize_text_field($booking_data['checkout_date']),
+            'guests' => isset($booking_data['guests']) ? intval($booking_data['guests']) : 1,
+            'nights' => $nights,
+            'price_per_night' => $price_per_night,
+            'total_price' => $total_price,
             'status' => 'pending',
             'created_at' => current_time('mysql')
         );
@@ -452,7 +540,7 @@ class RESBS_WooCommerce {
             'post_type' => 'property_booking',
             'post_title' => esc_html__('Booking', 'realestate-booking-suite') . ' #' . $order_id,
             'post_status' => 'publish',
-            'meta_input' => $booking_data
+            'meta_input' => $booking_meta
         ));
         
         return $booking_id;
@@ -486,6 +574,33 @@ class RESBS_WooCommerce {
      * Update booking status
      */
     private function update_booking_status($order_id, $status) {
+        // Verify order exists and user has permission
+        $order = wc_get_order($order_id);
+        if (!$order) {
+            return;
+        }
+        
+        // Only allow status updates by authorized users (order owner or admin)
+        $current_user_id = get_current_user_id();
+        $order_user_id = $order->get_user_id();
+        
+        // Allow if user owns the order, is admin, or this is called via WooCommerce hook (system action)
+        if ($current_user_id && $order_user_id != $current_user_id && !current_user_can('manage_options')) {
+            // If called directly (not via hook), verify permissions
+            $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 3);
+            $is_hook_call = false;
+            foreach ($backtrace as $trace) {
+                if (isset($trace['function']) && in_array($trace['function'], array('do_action', 'apply_filters'))) {
+                    $is_hook_call = true;
+                    break;
+                }
+            }
+            
+            if (!$is_hook_call) {
+                return;
+            }
+        }
+        
         $bookings = get_posts(array(
             'post_type' => 'property_booking',
             'meta_query' => array(
@@ -498,7 +613,7 @@ class RESBS_WooCommerce {
         ));
         
         foreach ($bookings as $booking) {
-            update_post_meta($booking->ID, 'status', $status);
+            update_post_meta($booking->ID, 'status', sanitize_text_field($status));
         }
     }
     
@@ -554,8 +669,15 @@ class RESBS_WooCommerce {
      * Get user booking history
      */
     public function get_user_booking_history($user_id = null) {
+        $current_user_id = get_current_user_id();
+        
         if (!$user_id) {
-            $user_id = get_current_user_id();
+            $user_id = $current_user_id;
+        }
+        
+        // Security: Users can only view their own bookings unless they're admins
+        if ($user_id != $current_user_id && !current_user_can('manage_options')) {
+            return array();
         }
         
         $bookings = get_posts(array(
@@ -594,7 +716,18 @@ class RESBS_WooCommerce {
             return '<p>' . esc_html__('Please login to view your booking history.', 'realestate-booking-suite') . '</p>';
         }
         
-        $bookings = $this->get_user_booking_history();
+        // Parse shortcode attributes
+        $atts = shortcode_atts(array(
+            'user_id' => null
+        ), $atts, 'resbs_booking_history');
+        
+        // Security: Only allow user_id parameter for admins
+        $user_id = null;
+        if (!empty($atts['user_id']) && current_user_can('manage_options')) {
+            $user_id = intval($atts['user_id']);
+        }
+        
+        $bookings = $this->get_user_booking_history($user_id);
         
         if (empty($bookings)) {
             return '<p>' . esc_html__('No bookings found.', 'realestate-booking-suite') . '</p>';

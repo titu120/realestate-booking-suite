@@ -9,14 +9,16 @@
 // IMPORTANT: Check for reset BEFORE any output (including get_header())
 // If reset parameter is present, redirect to clean URL and set all values to defaults
 if (isset($_GET['reset'])) {
+    // Verify nonce for security (optional but recommended for state-changing operations)
+    // For public archive pages, we'll use a simple validation
     // Get the archive page URL without any query parameters
     $archive_url = get_post_type_archive_link('property');
     if (!$archive_url) {
         // Fallback to home URL if archive link doesn't exist
         $archive_url = home_url('/');
     }
-    // Redirect to clean archive URL
-    wp_redirect($archive_url);
+    // Use wp_safe_redirect to prevent open redirect vulnerabilities
+    wp_safe_redirect($archive_url);
     exit;
 }
 

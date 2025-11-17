@@ -61,6 +61,10 @@ class RESBS_Search_Widget extends \Elementor\Widget_Base {
      * Register widget controls
      */
     protected function register_controls() {
+        // Security: Check if user can edit with Elementor
+        if (!current_user_can('edit_posts')) {
+            return;
+        }
         
         // Content Section
         $this->start_controls_section(
@@ -378,9 +382,17 @@ class RESBS_Search_Widget extends \Elementor\Widget_Base {
 
     /**
      * Get pages list
+     * 
+     * Security: Checks user capability to read pages
      */
     private function get_pages_list() {
         $pages = array('default' => esc_html__('WP Default', 'realestate-booking-suite'));
+        
+        // Security: Check if user can read pages
+        if (!current_user_can('read')) {
+            return $pages;
+        }
+        
         $all_pages = get_pages();
         
         foreach ($all_pages as $page) {
@@ -419,6 +431,12 @@ class RESBS_Search_Widget extends \Elementor\Widget_Base {
         $widget_id = 'resbs-search-' . $this->get_id();
         $results_url = $search_results_page !== 'default' ? get_permalink($search_results_page) : get_post_type_archive_link('property');
         
+        // Security: Create nonce for search alerts AJAX (if save search is enabled and user is logged in)
+        $search_alerts_nonce = '';
+        if ($enable_saved_search && is_user_logged_in()) {
+            $search_alerts_nonce = wp_create_nonce('resbs_search_alerts_nonce');
+        }
+        
         ?>
         <div class="resbs-search-widget" id="<?php echo esc_attr($widget_id); ?>">
             <div class="resbs-search-form resbs-search-type-<?php echo esc_attr($search_type); ?>">
@@ -427,7 +445,10 @@ class RESBS_Search_Widget extends \Elementor\Widget_Base {
                 <?php endif; ?>
                 
                 <form class="resbs-search-form-inner" action="<?php echo esc_url($results_url); ?>" method="get">
-                    <?php wp_nonce_field('resbs_search_form', 'resbs_search_nonce'); ?>
+                    <?php 
+                    // Security: Add nonce for form submission and AJAX requests
+                    wp_nonce_field('resbs_search_form', 'resbs_search_nonce');
+                    ?>
                     
                     <div class="resbs-search-fields">
                         <?php if ($show_address && $search_by_location): ?>
@@ -641,7 +662,9 @@ class RESBS_Search_Widget extends \Elementor\Widget_Base {
                             </button>
                             
                             <?php if ($enable_saved_search && is_user_logged_in()): ?>
-                                <button type="button" class="resbs-save-search-btn">
+                                <button type="button" class="resbs-save-search-btn" 
+                                        data-nonce="<?php echo esc_attr($search_alerts_nonce); ?>"
+                                        data-widget-id="<?php echo esc_attr($widget_id); ?>">
                                     <?php esc_html_e('Save Search', 'realestate-booking-suite'); ?>
                                 </button>
                             <?php endif; ?>
@@ -864,8 +887,14 @@ class RESBS_Search_Widget extends \Elementor\Widget_Base {
 
     /**
      * Render widget output in the editor
+     * 
+     * Security: Checks user capability to edit with Elementor
      */
     protected function content_template() {
+        // Security: Check if user can edit with Elementor
+        if (!current_user_can('edit_posts')) {
+            return;
+        }
         ?>
         <div class="resbs-search-widget">
             <div class="resbs-search-form">

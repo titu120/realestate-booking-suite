@@ -123,65 +123,93 @@ class RESBS_Archive_Handler {
     
     /**
      * Build meta query for filters
+     * 
+     * Note: This method handles public GET parameters for archive filtering.
+     * No nonce verification needed as this is for public-facing archive pages.
+     * All inputs are sanitized to prevent injection attacks.
+     * 
+     * @param string $source Source of filter data: 'GET' for archive pages, 'POST' for AJAX requests
+     * @return array Meta query array for WP_Query
      */
-    private function build_meta_query() {
+    private function build_meta_query($source = 'GET') {
         $meta_query = array();
         
-        // Price range filter
-        if (isset($_GET['min_price']) && !empty($_GET['min_price'])) {
-            $meta_query[] = array(
-                'key' => 'resbs_property_price',
-                'value' => intval($_GET['min_price']),
-                'compare' => '>=',
-                'type' => 'NUMERIC'
-            );
+        // Determine which superglobal to use
+        $input = ($source === 'POST') ? $_POST : $_GET;
+        
+        // Price range filter - sanitize and validate
+        if (isset($input['min_price']) && !empty($input['min_price'])) {
+            $min_price = RESBS_Security::sanitize_int($input['min_price'], 0);
+            if ($min_price > 0) {
+                $meta_query[] = array(
+                    'key' => 'resbs_property_price',
+                    'value' => $min_price,
+                    'compare' => '>=',
+                    'type' => 'NUMERIC'
+                );
+            }
         }
         
-        if (isset($_GET['max_price']) && !empty($_GET['max_price'])) {
-            $meta_query[] = array(
-                'key' => 'resbs_property_price',
-                'value' => intval($_GET['max_price']),
-                'compare' => '<=',
-                'type' => 'NUMERIC'
-            );
+        if (isset($input['max_price']) && !empty($input['max_price'])) {
+            $max_price = RESBS_Security::sanitize_int($input['max_price'], 0);
+            if ($max_price > 0) {
+                $meta_query[] = array(
+                    'key' => 'resbs_property_price',
+                    'value' => $max_price,
+                    'compare' => '<=',
+                    'type' => 'NUMERIC'
+                );
+            }
         }
         
-        // Property type filter
-        if (isset($_GET['property_type']) && !empty($_GET['property_type'])) {
-            $meta_query[] = array(
-                'key' => 'resbs_property_type',
-                'value' => sanitize_text_field($_GET['property_type']),
-                'compare' => '='
-            );
+        // Property type filter - sanitize text input
+        if (isset($input['property_type']) && !empty($input['property_type'])) {
+            $property_type = RESBS_Security::sanitize_text($input['property_type']);
+            if (!empty($property_type)) {
+                $meta_query[] = array(
+                    'key' => 'resbs_property_type',
+                    'value' => $property_type,
+                    'compare' => '='
+                );
+            }
         }
         
-        // Bedrooms filter
-        if (isset($_GET['bedrooms']) && !empty($_GET['bedrooms'])) {
-            $meta_query[] = array(
-                'key' => 'resbs_property_bedrooms',
-                'value' => intval($_GET['bedrooms']),
-                'compare' => '>=',
-                'type' => 'NUMERIC'
-            );
+        // Bedrooms filter - sanitize and validate
+        if (isset($input['bedrooms']) && !empty($input['bedrooms'])) {
+            $bedrooms = RESBS_Security::sanitize_int($input['bedrooms'], 0);
+            if ($bedrooms > 0) {
+                $meta_query[] = array(
+                    'key' => 'resbs_property_bedrooms',
+                    'value' => $bedrooms,
+                    'compare' => '>=',
+                    'type' => 'NUMERIC'
+                );
+            }
         }
         
-        // Bathrooms filter
-        if (isset($_GET['bathrooms']) && !empty($_GET['bathrooms'])) {
-            $meta_query[] = array(
-                'key' => 'resbs_property_bathrooms',
-                'value' => intval($_GET['bathrooms']),
-                'compare' => '>=',
-                'type' => 'NUMERIC'
-            );
+        // Bathrooms filter - sanitize and validate
+        if (isset($input['bathrooms']) && !empty($input['bathrooms'])) {
+            $bathrooms = RESBS_Security::sanitize_int($input['bathrooms'], 0);
+            if ($bathrooms > 0) {
+                $meta_query[] = array(
+                    'key' => 'resbs_property_bathrooms',
+                    'value' => $bathrooms,
+                    'compare' => '>=',
+                    'type' => 'NUMERIC'
+                );
+            }
         }
         
-        // Status filter
-        if (isset($_GET['status']) && !empty($_GET['status'])) {
-            $meta_query[] = array(
-                'key' => 'resbs_property_status',
-                'value' => sanitize_text_field($_GET['status']),
-                'compare' => '='
-            );
+        // Status filter - sanitize text input
+        if (isset($input['status']) && !empty($input['status'])) {
+            $status = RESBS_Security::sanitize_text($input['status']);
+            if (!empty($status)) {
+                $meta_query[] = array(
+                    'key' => 'resbs_property_status',
+                    'value' => $status,
+                    'compare' => '='
+                );
+            }
         }
         
         return $meta_query;
@@ -313,25 +341,45 @@ class RESBS_Archive_Handler {
     
     /**
      * AJAX handler for archive filters
+     * 
+     * Security: Uses nonce verification for CSRF protection.
+     * No capability check needed as this is a public-facing archive filter.
+     * All inputs are sanitized to prevent injection attacks.
      */
     public function ajax_filter_properties() {
-        check_ajax_referer('resbs_archive_nonce', 'nonce');
+        // Security check: Verify nonce (no capability check needed for public archive filters)
+        // This allows both logged-in and non-logged-in users to filter properties
+        RESBS_Security::ajax_security_check('resbs_archive_nonce', '', false);
+        
+        // Sanitize and validate input parameters
+        $posts_per_page = isset($_POST['per_page']) ? RESBS_Security::sanitize_int($_POST['per_page'], 12) : 12;
+        $paged = isset($_POST['page']) ? RESBS_Security::sanitize_int($_POST['page'], 1) : 1;
+        
+        // Ensure reasonable limits
+        $posts_per_page = min(max($posts_per_page, 1), 100); // Between 1 and 100
+        $paged = max($paged, 1); // At least 1
         
         $args = array(
             'post_type' => 'resbs_property',
             'post_status' => 'publish',
-            'posts_per_page' => intval($_POST['per_page']) ?: 12,
-            'paged' => intval($_POST['page']) ?: 1,
+            'posts_per_page' => $posts_per_page,
+            'paged' => $paged,
         );
         
-        // Apply filters
-        $meta_query = $this->build_meta_query();
+        // Apply filters (build_meta_query handles sanitization)
+        // Use POST source for AJAX requests
+        $meta_query = $this->build_meta_query('POST');
         if (!empty($meta_query)) {
             $args['meta_query'] = $meta_query;
         }
         
-        // Apply sorting
-        $sort = sanitize_text_field($_POST['sort']) ?: 'date';
+        // Apply sorting - sanitize sort parameter
+        $sort = isset($_POST['sort']) ? RESBS_Security::sanitize_text($_POST['sort']) : 'date';
+        // Whitelist allowed sort values
+        $allowed_sorts = array('price_low', 'price_high', 'newest', 'oldest', 'title', 'date');
+        if (!in_array($sort, $allowed_sorts, true)) {
+            $sort = 'date';
+        }
         $this->apply_sorting((object)$args, $sort);
         
         $query = new WP_Query($args);

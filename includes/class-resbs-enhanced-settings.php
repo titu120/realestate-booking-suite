@@ -1734,15 +1734,18 @@ class RESBS_Enhanced_Settings {
      * Handle settings save
      */
     public function handle_settings_save() {
+        // Check user permissions
         if (!current_user_can('manage_options')) {
-            wp_die('Unauthorized');
+            wp_die(esc_html__('Unauthorized', 'realestate-booking-suite'), esc_html__('Error', 'realestate-booking-suite'), array('response' => 403));
         }
         
-        if (!wp_verify_nonce($_POST['_wpnonce'], 'resbs_enhanced_settings-options')) {
-            wp_die('Security check failed');
+        // Verify nonce
+        if (!isset($_POST['_wpnonce']) || !wp_verify_nonce($_POST['_wpnonce'], 'resbs_enhanced_settings-options')) {
+            wp_die(esc_html__('Security check failed', 'realestate-booking-suite'), esc_html__('Error', 'realestate-booking-suite'), array('response' => 403));
         }
         
-        $tab = sanitize_text_field($_POST['current_tab']);
+        // Get and sanitize tab
+        $tab = isset($_POST['current_tab']) ? sanitize_text_field($_POST['current_tab']) : 'general';
         
         // Handle different tabs
         switch ($tab) {
@@ -1774,15 +1777,18 @@ class RESBS_Enhanced_Settings {
      * Handle reset settings
      */
     public function handle_reset_settings() {
+        // Check user permissions
         if (!current_user_can('manage_options')) {
-            wp_die('Unauthorized');
+            wp_die(esc_html__('Unauthorized', 'realestate-booking-suite'), esc_html__('Error', 'realestate-booking-suite'), array('response' => 403));
         }
         
-        if (!wp_verify_nonce($_POST['_wpnonce'], 'resbs_enhanced_settings-options')) {
-            wp_die('Security check failed');
+        // Verify nonce
+        if (!isset($_POST['_wpnonce']) || !wp_verify_nonce($_POST['_wpnonce'], 'resbs_enhanced_settings-options')) {
+            wp_die(esc_html__('Security check failed', 'realestate-booking-suite'), esc_html__('Error', 'realestate-booking-suite'), array('response' => 403));
         }
         
-        $tab = sanitize_text_field($_POST['current_tab']);
+        // Get and sanitize tab
+        $tab = isset($_POST['current_tab']) ? sanitize_text_field($_POST['current_tab']) : 'general';
         
         // Handle different tabs
         switch ($tab) {
@@ -2180,11 +2186,20 @@ class RESBS_Enhanced_Settings {
      * Handle create page AJAX
      */
     public function handle_create_page() {
+        // Check user permissions
         if (!current_user_can('manage_options')) {
-            wp_die('Unauthorized');
+            wp_send_json_error(array('message' => esc_html__('Unauthorized', 'realestate-booking-suite')));
+            return;
         }
         
+        // Verify nonce
         check_ajax_referer('resbs_create_page_nonce', 'nonce');
+        
+        // Get and sanitize page type
+        if (!isset($_POST['page_type'])) {
+            wp_send_json_error(array('message' => esc_html__('Page type is required', 'realestate-booking-suite')));
+            return;
+        }
         
         $page_type = sanitize_text_field($_POST['page_type']);
         
@@ -2264,15 +2279,20 @@ class RESBS_Enhanced_Settings {
      * Handle AJAX tab content loading
      */
     public function handle_load_tab_content() {
+        // Check user permissions
         if (!current_user_can('manage_options')) {
-            wp_die('Unauthorized');
+            wp_send_json_error(array('message' => esc_html__('Unauthorized', 'realestate-booking-suite')));
+            return;
         }
         
-        if (!wp_verify_nonce($_POST['nonce'], 'resbs_load_tab_content')) {
-            wp_die('Security check failed');
+        // Verify nonce
+        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'resbs_load_tab_content')) {
+            wp_send_json_error(array('message' => esc_html__('Security check failed', 'realestate-booking-suite')));
+            return;
         }
         
-        $tab = sanitize_text_field($_POST['tab']);
+        // Get and sanitize tab
+        $tab = isset($_POST['tab']) ? sanitize_text_field($_POST['tab']) : 'general';
         
         ob_start();
         switch ($tab) {
@@ -2306,6 +2326,18 @@ class RESBS_Enhanced_Settings {
      * Test AJAX handler
      */
     public function handle_test_ajax() {
+        // Check user permissions
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(array('message' => 'Unauthorized'));
+            return;
+        }
+        
+        // Verify nonce
+        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'resbs_test_ajax_nonce')) {
+            wp_send_json_error(array('message' => 'Security check failed'));
+            return;
+        }
+        
         error_log('RESBS TEST AJAX: Called');
         wp_send_json_success(array('message' => 'AJAX is working!', 'timestamp' => time()));
     }

@@ -2,6 +2,14 @@
 /**
  * AJAX Search Handler for Dynamic Archive
  * 
+ * SECURITY NOTES:
+ * - Direct access prevention: ABSPATH check at top of file
+ * - Nonce verification: All AJAX requests verify nonce 'resbs_search_nonce'
+ * - User permissions: None required (public search via wp_ajax_nopriv_ hook)
+ * - Input sanitization: All POST data sanitized (sanitize_text_field, intval, etc.)
+ * - Query security: Only returns published posts, taxonomy terms are sanitized
+ * - Output escaping: All output uses esc_* functions (esc_html, esc_url, esc_attr)
+ * 
  * @package RealEstate_Booking_Suite
  */
 
@@ -35,26 +43,54 @@ class RESBS_Dynamic_Archive_AJAX {
     
     /**
      * AJAX search properties
+     * 
+     * SECURITY:
+     * - Nonce verification: Uses RESBS_Security helper class for consistent security
+     * - User permissions: None required (public search via wp_ajax_nopriv_)
+     * - Input sanitization: All POST data is sanitized before use
      */
     public function search_properties() {
-        // Verify nonce
-        if (!wp_verify_nonce($_POST['nonce'], 'resbs_search_nonce')) {
-            wp_die(esc_html__('Security check failed', 'realestate-booking-suite'));
+        // Get nonce from POST (check both common field names)
+        $nonce = isset($_POST['nonce']) ? $_POST['nonce'] : '';
+        if (empty($nonce)) {
+            $nonce = isset($_POST['_wpnonce']) ? $_POST['_wpnonce'] : '';
         }
+        
+        // Verify nonce using security helper class
+        if (empty($nonce) || !wp_verify_nonce($nonce, 'resbs_search_nonce')) {
+            wp_send_json_error(array(
+                'message' => esc_html__('Security check failed. Please refresh the page and try again.', 'realestate-booking-suite')
+            ));
+        }
+        
+        // Note: No capability check needed - this is a public search (nopriv action)
+        // Only published properties are returned (see post_status => 'publish' in query args)
         
         // Get search parameters
         $search_query = isset($_POST['search']) ? sanitize_text_field($_POST['search']) : '';
         $min_price = isset($_POST['min_price']) ? intval($_POST['min_price']) : '';
         $max_price = isset($_POST['max_price']) ? intval($_POST['max_price']) : '';
-        $property_type = isset($_POST['property_type']) ? sanitize_text_field($_POST['property_type']) : '';
+        // Sanitize taxonomy terms (use sanitize_title for slugs)
+        $property_type = isset($_POST['property_type']) ? sanitize_title($_POST['property_type']) : '';
         $bedrooms = isset($_POST['bedrooms']) ? intval($_POST['bedrooms']) : '';
         $bathrooms = isset($_POST['bathrooms']) ? intval($_POST['bathrooms']) : '';
         $min_sqft = isset($_POST['min_sqft']) ? intval($_POST['min_sqft']) : '';
         $max_sqft = isset($_POST['max_sqft']) ? intval($_POST['max_sqft']) : '';
         $year_built = isset($_POST['year_built']) ? sanitize_text_field($_POST['year_built']) : '';
-        $property_status = isset($_POST['property_status']) ? sanitize_text_field($_POST['property_status']) : '';
+        $property_status = isset($_POST['property_status']) ? sanitize_title($_POST['property_status']) : '';
+        
+        // Validate and sanitize sort_by parameter (whitelist approach)
+        $allowed_sort_options = array('date', 'price_low', 'price_high', 'newest');
         $sort_by = isset($_POST['sort_by']) ? sanitize_text_field($_POST['sort_by']) : 'date';
+        if (!in_array($sort_by, $allowed_sort_options, true)) {
+            $sort_by = 'date'; // Default to safe value if invalid
+        }
+        
         $paged = isset($_POST['paged']) ? intval($_POST['paged']) : 1;
+        // Ensure paged is positive
+        if ($paged < 1) {
+            $paged = 1;
+        }
         
         // Build WP_Query arguments
         $args = array(

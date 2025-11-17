@@ -163,6 +163,9 @@ class RESBS_Maps_Manager {
      * Admin page
      */
     public function admin_page() {
+        // Check user permissions
+        RESBS_Security::check_capability('manage_options');
+        
         if (isset($_POST['submit'])) {
             $this->save_map_settings();
         }
@@ -386,23 +389,24 @@ class RESBS_Maps_Manager {
      */
     private function save_map_settings() {
         // Check nonce using security helper
-        RESBS_Security::verify_nonce($_POST['resbs_map_settings_nonce'], 'resbs_map_settings_nonce');
+        $nonce = isset($_POST['resbs_map_settings_nonce']) ? $_POST['resbs_map_settings_nonce'] : '';
+        RESBS_Security::verify_nonce($nonce, 'resbs_map_settings_nonce');
 
         // Check permissions using security helper
         RESBS_Security::check_capability('manage_options');
 
         // Save settings using security helper
         $settings = array(
-            'resbs_google_maps_api_key' => RESBS_Security::sanitize_text($_POST['resbs_google_maps_api_key']),
-            'resbs_map_default_lat' => RESBS_Security::sanitize_float($_POST['resbs_map_default_lat']),
-            'resbs_map_default_lng' => RESBS_Security::sanitize_float($_POST['resbs_map_default_lng']),
-            'resbs_map_default_zoom' => RESBS_Security::sanitize_int($_POST['resbs_map_default_zoom']),
-            'resbs_map_style' => RESBS_Security::sanitize_text($_POST['resbs_map_style']),
+            'resbs_google_maps_api_key' => RESBS_Security::sanitize_text($_POST['resbs_google_maps_api_key'] ?? ''),
+            'resbs_map_default_lat' => RESBS_Security::sanitize_float($_POST['resbs_map_default_lat'] ?? 40.7128),
+            'resbs_map_default_lng' => RESBS_Security::sanitize_float($_POST['resbs_map_default_lng'] ?? -74.0060),
+            'resbs_map_default_zoom' => RESBS_Security::sanitize_int($_POST['resbs_map_default_zoom'] ?? 10),
+            'resbs_map_style' => RESBS_Security::sanitize_text($_POST['resbs_map_style'] ?? 'default'),
             'resbs_map_cluster_markers' => RESBS_Security::sanitize_bool($_POST['resbs_map_cluster_markers'] ?? false),
             'resbs_map_show_search' => RESBS_Security::sanitize_bool($_POST['resbs_map_show_search'] ?? false),
             'resbs_map_show_filters' => RESBS_Security::sanitize_bool($_POST['resbs_map_show_filters'] ?? false),
-            'resbs_map_marker_icon' => RESBS_Security::sanitize_url($_POST['resbs_map_marker_icon']),
-            'resbs_map_info_window_style' => RESBS_Security::sanitize_text($_POST['resbs_map_info_window_style'])
+            'resbs_map_marker_icon' => RESBS_Security::sanitize_url($_POST['resbs_map_marker_icon'] ?? ''),
+            'resbs_map_info_window_style' => RESBS_Security::sanitize_text($_POST['resbs_map_info_window_style'] ?? 'default')
         );
 
         foreach ($settings as $key => $value) {
@@ -417,8 +421,9 @@ class RESBS_Maps_Manager {
      * AJAX handler for getting map properties
      */
     public function ajax_get_map_properties() {
-        // Verify nonce using security helper
-        RESBS_Security::verify_ajax_nonce($_POST['nonce'], 'resbs_maps_nonce');
+        // Verify nonce using security helper (checks if nonce exists)
+        $nonce = isset($_POST['nonce']) ? $_POST['nonce'] : '';
+        RESBS_Security::verify_ajax_nonce($nonce, 'resbs_maps_nonce');
         
         // Rate limiting check
         if (!RESBS_Security::check_rate_limit('get_map_properties', 30, 300)) {
@@ -429,10 +434,10 @@ class RESBS_Maps_Manager {
 
         // Get and sanitize parameters using security helper
         $bounds = array(
-            'north' => RESBS_Security::sanitize_float($_POST['north']),
-            'south' => RESBS_Security::sanitize_float($_POST['south']),
-            'east' => RESBS_Security::sanitize_float($_POST['east']),
-            'west' => RESBS_Security::sanitize_float($_POST['west'])
+            'north' => RESBS_Security::sanitize_float($_POST['north'] ?? 0),
+            'south' => RESBS_Security::sanitize_float($_POST['south'] ?? 0),
+            'east' => RESBS_Security::sanitize_float($_POST['east'] ?? 0),
+            'west' => RESBS_Security::sanitize_float($_POST['west'] ?? 0)
         );
 
         $filters = array(
@@ -584,12 +589,18 @@ class RESBS_Maps_Manager {
      * AJAX handler for map area search
      */
     public function ajax_search_map_area() {
-        // Verify nonce
-        if (!wp_verify_nonce($_POST['nonce'], 'resbs_maps_nonce')) {
-            wp_die(esc_html__('Security check failed.', 'realestate-booking-suite'));
+        // Verify nonce using security helper (checks if nonce exists)
+        $nonce = isset($_POST['nonce']) ? $_POST['nonce'] : '';
+        RESBS_Security::verify_ajax_nonce($nonce, 'resbs_maps_nonce');
+        
+        // Rate limiting check
+        if (!RESBS_Security::check_rate_limit('search_map_area', 20, 300)) {
+            wp_send_json_error(array(
+                'message' => esc_html__('Too many requests. Please try again later.', 'realestate-booking-suite')
+            ));
         }
 
-        $search_query = sanitize_text_field($_POST['search_query']);
+        $search_query = RESBS_Security::sanitize_text($_POST['search_query'] ?? '');
         
         if (empty($search_query)) {
             wp_send_json_error(array(
@@ -870,13 +881,15 @@ class RESBS_Property_Map_Widget extends WP_Widget {
      * Update widget
      */
     public function update($new_instance, $old_instance) {
+        // Widget updates are handled by WordPress core with nonce verification
+        // But we should still sanitize all inputs for security
         $instance = array();
-        $instance['title'] = sanitize_text_field($new_instance['title']);
-        $instance['height'] = sanitize_text_field($new_instance['height']);
-        $instance['zoom'] = intval($new_instance['zoom']);
-        $instance['show_search'] = isset($new_instance['show_search']);
-        $instance['show_filters'] = isset($new_instance['show_filters']);
-        $instance['cluster_markers'] = isset($new_instance['cluster_markers']);
+        $instance['title'] = RESBS_Security::sanitize_text($new_instance['title'] ?? '');
+        $instance['height'] = RESBS_Security::sanitize_text($new_instance['height'] ?? '400px');
+        $instance['zoom'] = RESBS_Security::sanitize_int($new_instance['zoom'] ?? 10);
+        $instance['show_search'] = RESBS_Security::sanitize_bool($new_instance['show_search'] ?? false);
+        $instance['show_filters'] = RESBS_Security::sanitize_bool($new_instance['show_filters'] ?? false);
+        $instance['cluster_markers'] = RESBS_Security::sanitize_bool($new_instance['cluster_markers'] ?? false);
         
         return $instance;
     }

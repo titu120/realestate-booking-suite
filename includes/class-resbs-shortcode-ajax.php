@@ -39,8 +39,10 @@ class RESBS_Shortcode_AJAX {
      */
     public function filter_properties() {
         // Verify nonce
-        if (!wp_verify_nonce($_POST['nonce'], 'resbs_widget_filter')) {
-            wp_die(esc_html__('Security check failed.', 'realestate-booking-suite'));
+        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'resbs_widget_filter')) {
+            wp_send_json_error(array(
+                'message' => esc_html__('Security check failed.', 'realestate-booking-suite')
+            ));
         }
 
         // Sanitize form data
@@ -143,8 +145,10 @@ class RESBS_Shortcode_AJAX {
      */
     public function search_properties() {
         // Verify nonce
-        if (!wp_verify_nonce($_POST['nonce'], 'resbs_search_form')) {
-            wp_die(esc_html__('Security check failed.', 'realestate-booking-suite'));
+        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'resbs_search_form')) {
+            wp_send_json_error(array(
+                'message' => esc_html__('Security check failed.', 'realestate-booking-suite')
+            ));
         }
 
         // Sanitize form data
@@ -288,8 +292,10 @@ class RESBS_Shortcode_AJAX {
         }
 
         // Verify nonce
-        if (!wp_verify_nonce($_POST['nonce'], 'resbs_update_profile')) {
-            wp_die(esc_html__('Security check failed.', 'realestate-booking-suite'));
+        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'resbs_update_profile')) {
+            wp_send_json_error(array(
+                'message' => esc_html__('Security check failed.', 'realestate-booking-suite')
+            ));
         }
 
         // Sanitize form data
@@ -305,6 +311,25 @@ class RESBS_Shortcode_AJAX {
 
         $user_id = get_current_user_id();
         $user = get_userdata($user_id);
+
+        // Check if user can edit this profile (own profile or has edit_users capability)
+        $target_user_id = isset($_POST['user_id']) ? intval($_POST['user_id']) : $user_id;
+        if ($target_user_id !== $user_id && !current_user_can('edit_users')) {
+            wp_send_json_error(array(
+                'message' => esc_html__('You do not have permission to update this profile.', 'realestate-booking-suite')
+            ));
+        }
+
+        // Use target user ID if provided and user has permission
+        if ($target_user_id !== $user_id && current_user_can('edit_users')) {
+            $user_id = $target_user_id;
+            $user = get_userdata($user_id);
+            if (!$user) {
+                wp_send_json_error(array(
+                    'message' => esc_html__('Invalid user ID.', 'realestate-booking-suite')
+                ));
+            }
+        }
 
         // Update user data
         $user_data = array(
@@ -341,9 +366,16 @@ class RESBS_Shortcode_AJAX {
             ));
         }
 
+        // Check if user has capability to create posts
+        if (!current_user_can('edit_posts')) {
+            wp_send_json_error(array(
+                'message' => esc_html__('You do not have permission to submit properties.', 'realestate-booking-suite')
+            ));
+        }
+
         // Verify nonce - check both possible nonce field names
         $nonce = isset($_POST['nonce']) ? $_POST['nonce'] : (isset($_POST['resbs_submit_nonce']) ? $_POST['resbs_submit_nonce'] : '');
-        if (!wp_verify_nonce($nonce, 'resbs_submit_property')) {
+        if (empty($nonce) || !wp_verify_nonce($nonce, 'resbs_submit_property')) {
             wp_send_json_error(array(
                 'message' => esc_html__('Security check failed. Please refresh the page and try again.', 'realestate-booking-suite')
             ));
@@ -654,18 +686,63 @@ class RESBS_Shortcode_AJAX {
             }
         }
 
+        // Check if files are being uploaded and verify upload capability
+        $has_files = (!empty($_FILES['property_featured_image']) && $_FILES['property_featured_image']['error'] === UPLOAD_ERR_OK) ||
+                     (!empty($_FILES['property_gallery'])) ||
+                     (!empty($_FILES['property_agent_photo']) && $_FILES['property_agent_photo']['error'] === UPLOAD_ERR_OK);
+        
+        if ($has_files && !current_user_can('upload_files')) {
+            wp_send_json_error(array(
+                'message' => esc_html__('You do not have permission to upload files.', 'realestate-booking-suite')
+            ));
+        }
+
         // Handle featured image upload
         if (!empty($_FILES['property_featured_image']) && $_FILES['property_featured_image']['error'] === UPLOAD_ERR_OK) {
+            // Validate file before upload
+            $validation = RESBS_Security::validate_file_upload($_FILES['property_featured_image']);
+            if (is_wp_error($validation)) {
+                wp_send_json_error(array(
+                    'message' => $validation->get_error_message()
+                ));
+            }
             $this->handle_featured_image_upload($property_id, $_FILES['property_featured_image']);
         }
         
         // Handle file uploads
         if (!empty($_FILES['property_gallery'])) {
+            // Validate each file in gallery
+            if (is_array($_FILES['property_gallery']['name'])) {
+                foreach ($_FILES['property_gallery']['name'] as $key => $name) {
+                    if (!empty($name)) {
+                        $file = array(
+                            'name' => $_FILES['property_gallery']['name'][$key],
+                            'type' => $_FILES['property_gallery']['type'][$key],
+                            'tmp_name' => $_FILES['property_gallery']['tmp_name'][$key],
+                            'error' => $_FILES['property_gallery']['error'][$key],
+                            'size' => $_FILES['property_gallery']['size'][$key]
+                        );
+                        $validation = RESBS_Security::validate_file_upload($file);
+                        if (is_wp_error($validation)) {
+                            wp_send_json_error(array(
+                                'message' => sprintf(esc_html__('Invalid file in gallery: %s', 'realestate-booking-suite'), $validation->get_error_message())
+                            ));
+                        }
+                    }
+                }
+            }
             $this->handle_property_gallery_upload($property_id, $_FILES['property_gallery']);
         }
         
         // Handle agent photo upload
         if (!empty($_FILES['property_agent_photo']) && $_FILES['property_agent_photo']['error'] === UPLOAD_ERR_OK) {
+            // Validate file before upload
+            $validation = RESBS_Security::validate_file_upload($_FILES['property_agent_photo']);
+            if (is_wp_error($validation)) {
+                wp_send_json_error(array(
+                    'message' => $validation->get_error_message()
+                ));
+            }
             $this->handle_agent_photo_upload($property_id, $_FILES['property_agent_photo']);
         }
 
@@ -695,8 +772,10 @@ class RESBS_Shortcode_AJAX {
         }
 
         // Verify nonce
-        if (!wp_verify_nonce($_POST['nonce'], 'resbs_favorites_nonce')) {
-            wp_die(esc_html__('Security check failed.', 'realestate-booking-suite'));
+        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'resbs_favorites_nonce')) {
+            wp_send_json_error(array(
+                'message' => esc_html__('Security check failed.', 'realestate-booking-suite')
+            ));
         }
 
         $user_id = RESBS_Security::sanitize_int($_POST['user_id'] ?? 0);
@@ -720,8 +799,10 @@ class RESBS_Shortcode_AJAX {
      */
     public function load_more_properties() {
         // Verify nonce
-        if (!wp_verify_nonce($_POST['nonce'], 'resbs_widget_filter')) {
-            wp_die(esc_html__('Security check failed.', 'realestate-booking-suite'));
+        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'resbs_widget_filter')) {
+            wp_send_json_error(array(
+                'message' => esc_html__('Security check failed.', 'realestate-booking-suite')
+            ));
         }
 
         $page = RESBS_Security::sanitize_int($_POST['page'] ?? 2);
@@ -921,6 +1002,17 @@ class RESBS_Shortcode_AJAX {
      * @param array $files Uploaded files
      */
     private function handle_property_gallery_upload($property_id, $files) {
+        // Verify user owns the property or has edit capability
+        $property = get_post($property_id);
+        if (!$property) {
+            return;
+        }
+        
+        $current_user_id = get_current_user_id();
+        if ($property->post_author != $current_user_id && !current_user_can('edit_post', $property_id)) {
+            return;
+        }
+
         if (!function_exists('wp_handle_upload')) {
             require_once(ABSPATH . 'wp-admin/includes/file.php');
         }
@@ -982,6 +1074,17 @@ class RESBS_Shortcode_AJAX {
      * @param array $file Uploaded file
      */
     private function handle_featured_image_upload($property_id, $file) {
+        // Verify user owns the property or has edit capability
+        $property = get_post($property_id);
+        if (!$property) {
+            return;
+        }
+        
+        $current_user_id = get_current_user_id();
+        if ($property->post_author != $current_user_id && !current_user_can('edit_post', $property_id)) {
+            return;
+        }
+
         if (!function_exists('wp_handle_upload')) {
             require_once(ABSPATH . 'wp-admin/includes/file.php');
         }
@@ -1021,6 +1124,17 @@ class RESBS_Shortcode_AJAX {
      * @param array $file Uploaded file
      */
     private function handle_agent_photo_upload($property_id, $file) {
+        // Verify user owns the property or has edit capability
+        $property = get_post($property_id);
+        if (!$property) {
+            return;
+        }
+        
+        $current_user_id = get_current_user_id();
+        if ($property->post_author != $current_user_id && !current_user_can('edit_post', $property_id)) {
+            return;
+        }
+
         if (!function_exists('wp_handle_upload')) {
             require_once(ABSPATH . 'wp-admin/includes/file.php');
         }
@@ -1067,10 +1181,10 @@ class RESBS_Shortcode_AJAX {
             ));
         }
         
-        // Check if user has permission to publish
-        if (!current_user_can('publish_posts')) {
+        // Check if user is logged in
+        if (!is_user_logged_in()) {
             wp_send_json_error(array(
-                'message' => esc_html__('You do not have permission to publish properties.', 'realestate-booking-suite')
+                'message' => esc_html__('You must be logged in to publish properties.', 'realestate-booking-suite')
             ));
         }
         
@@ -1089,6 +1203,17 @@ class RESBS_Shortcode_AJAX {
         if (!$property || $property->post_type !== 'property') {
             wp_send_json_error(array(
                 'message' => esc_html__('Property not found.', 'realestate-booking-suite')
+            ));
+        }
+        
+        // Check if user owns the property or has publish_posts capability
+        $current_user_id = get_current_user_id();
+        $property_author_id = intval($property->post_author);
+        
+        // Allow if user has publish_posts capability OR if user owns the property
+        if (!current_user_can('publish_posts') && $current_user_id !== $property_author_id) {
+            wp_send_json_error(array(
+                'message' => esc_html__('You do not have permission to publish this property.', 'realestate-booking-suite')
             ));
         }
         

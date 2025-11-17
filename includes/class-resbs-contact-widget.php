@@ -2,6 +2,22 @@
 /**
  * Contact Widget Class
  * 
+ * SECURITY NOTES:
+ * - Direct access prevention: ABSPATH check at top of file
+ * - Nonce handling: WordPress core automatically handles nonce creation and verification for widget forms
+ *   - Widget form() method: WordPress core adds nonce automatically when rendering widget forms
+ *   - Widget update() method: WordPress core verifies nonce via check_ajax_referer('update-widget', 'nonce')
+ * - User permissions: WordPress core automatically checks current_user_can('edit_theme_options') for widget updates
+ *   - Only users with 'edit_theme_options' capability can save/update widgets
+ *   - No additional capability checks needed in this class
+ * - Data sanitization: All input sanitized in update() method using sanitize_text_field()
+ * - Output escaping: All output uses esc_* functions (esc_attr, esc_html, esc_url, wp_kses_post)
+ * 
+ * WIDGET SECURITY (Handled by WordPress Core):
+ * - Nonce verification: check_ajax_referer('update-widget', 'nonce') in wp_ajax_update_widget()
+ * - Capability check: current_user_can('edit_theme_options') in wp_ajax_update_widget()
+ * - User authentication: is_user_logged_in() check in wp_ajax_update_widget()
+ * 
  * @package RealEstate_Booking_Suite
  */
 
@@ -157,6 +173,14 @@ class RESBS_Contact_Widget extends WP_Widget {
 
     /**
      * Update widget
+     * 
+     * SECURITY: WordPress core handles nonce verification and capability checks
+     * (current_user_can('edit_theme_options')) before this method is called.
+     * This method only needs to sanitize the input data.
+     * 
+     * @param array $new_instance New settings for this instance
+     * @param array $old_instance Old settings for this instance
+     * @return array Sanitized instance settings
      */
     public function update($new_instance, $old_instance) {
         $instance = array();

@@ -1,6 +1,53 @@
 <?php
 /**
- * Elementor Property Grid Widget
+ * Elementor Property Carousel Widget
+ * 
+ * SECURITY NOTES:
+ * ===============
+ * 
+ * 1. DIRECT ACCESS PREVENTION:
+ *    - ABSPATH check at top of file prevents direct file access
+ *    - Class redeclaration check prevents conflicts
+ * 
+ * 2. NONCE REQUIREMENTS:
+ *    - This widget displays properties and includes favorite/book buttons
+ *    - Favorite Button AJAX: Uses 'resbs_elementor_nonce' (created in class-resbs-elementor.php)
+ *      - Nonce is localized to JavaScript as: resbs_elementor_ajax.nonce
+ *      - AJAX handler: 'resbs_toggle_favorite' (handled in class-resbs-frontend.php and class-resbs-favorites.php)
+ *      - Nonce verification: wp_verify_nonce($_POST['nonce'], 'resbs_elementor_nonce')
+ *      - JavaScript handler: elementor.js -> toggleFavorite() function
+ *      - Alternative handler: favorites.js -> handleFavoriteToggle() function
+ * 
+ *    - Book Button: Currently redirects to property page (no AJAX, no nonce needed)
+ *      - If AJAX booking is added in future, nonce verification will be required
+ * 
+ * 3. USER PERMISSIONS:
+ *    - Widget Display: No permission check needed (public content)
+ *    - Widget Controls (register_controls): Protected by Elementor's own permission system
+ *      - Elementor verifies: current_user_can('edit_posts') before allowing widget editing
+ *    - Favorite Button: Requires user to be logged in (checked server-side in AJAX handlers)
+ *      - Capability check: is_user_logged_in() in AJAX handler
+ *      - User can only modify their own favorites (user_id from get_current_user_id())
+ *    - Book Button: Public action (redirects to property page)
+ * 
+ * 4. DATA SANITIZATION:
+ *    - All user input from widget settings is sanitized in render() method:
+ *      - Title: sanitize_text_field()
+ *      - Posts per page: intval()
+ *      - Columns: intval()
+ *      - Orderby/Order: sanitize_text_field()
+ *      - Property type/status: sanitize_text_field()
+ *    - All output uses esc_* functions:
+ *      - esc_html() for text content
+ *      - esc_attr() for HTML attributes
+ *      - esc_url() for URLs
+ *    - Query parameters are sanitized in get_properties() method
+ * 
+ * 5. AJAX SECURITY (Handled in Other Files):
+ *    - All AJAX handlers must verify nonce: wp_verify_nonce($_POST['nonce'], 'resbs_elementor_nonce')
+ *    - All user input in AJAX handlers must be sanitized and validated
+ *    - Property IDs must be validated: intval() and get_post() check
+ *    - User authentication must be verified: is_user_logged_in()
  * 
  * @package RealEstate_Booking_Suite
  */

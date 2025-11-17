@@ -193,9 +193,22 @@ function submitContactForm(e) {
     
     // Get form data
     const formData = new FormData(e.target);
-    formData.append('action', 'submit_contact_form');
-    formData.append('nonce', resbs_ajax.nonce);
-    formData.append('property_id', resbs_ajax.property_id);
+    
+    // Get nonce from form field (more secure than using global variable)
+    const nonceField = e.target.querySelector('input[name="resbs_contact_form_nonce"]');
+    if (!nonceField || !nonceField.value) {
+        console.error('Nonce field not found');
+        alert('Security check failed. Please refresh the page and try again.');
+        return;
+    }
+    
+    formData.append('action', 'submit_contact_message');
+    formData.append('nonce', nonceField.value);
+    
+    // Property ID should already be in form data, but ensure it's set
+    if (!formData.has('property_id')) {
+        formData.append('property_id', resbs_ajax.property_id);
+    }
     
     // Show loading state
     const submitBtn = e.target.querySelector('button[type="submit"]');
@@ -344,17 +357,70 @@ function submitBookingForm(e) {
     
     // Get form data
     const formData = new FormData(e.target);
-    formData.append('action', 'submit_booking_form');
-    formData.append('nonce', resbs_ajax.booking_nonce);
-    formData.append('property_id', resbs_ajax.property_id);
+    
+    // Get nonce from form field (more secure than using global variable)
+    const nonceField = e.target.querySelector('input[name="resbs_booking_form_nonce"]');
+    if (!nonceField || !nonceField.value) {
+        console.error('Nonce field not found');
+        alert('Security check failed. Please refresh the page and try again.');
+        return;
+    }
+    
+    formData.append('action', 'resbs_submit_booking');
+    formData.append('_wpnonce', nonceField.value);
+    
+    // Property ID should already be in form data, but ensure it's set
+    if (!formData.has('property_id')) {
+        formData.append('property_id', resbs_ajax.property_id);
+    }
+    
+    // Map form field names to expected handler names
+    const bookingName = formData.get('bookingName');
+    if (bookingName) {
+        // Split name into first and last name
+        const nameParts = bookingName.trim().split(/\s+/);
+        formData.append('first_name', nameParts[0] || '');
+        formData.append('last_name', nameParts.slice(1).join(' ') || '');
+    }
+    
+    // Map bookingEmail to email
+    const bookingEmail = formData.get('bookingEmail');
+    if (bookingEmail) {
+        formData.append('email', bookingEmail);
+    }
+    
+    // Map bookingPhone to phone
+    const bookingPhone = formData.get('bookingPhone');
+    const bookingPhoneCode = formData.get('bookingPhoneCode');
+    if (bookingPhone) {
+        const fullPhone = bookingPhoneCode ? bookingPhoneCode + bookingPhone : bookingPhone;
+        formData.append('phone', fullPhone);
+    }
+    
+    // Map bookingDate to preferred_date
+    const bookingDate = formData.get('bookingDate');
+    if (bookingDate) {
+        formData.append('preferred_date', bookingDate);
+    }
+    
+    // Map bookingTime to preferred_time
+    const bookingTime = formData.get('bookingTime');
+    if (bookingTime) {
+        formData.append('preferred_time', bookingTime);
+    }
+    
+    // Map bookingMessage to message
+    const bookingMessage = formData.get('bookingMessage');
+    if (bookingMessage) {
+        formData.append('message', bookingMessage);
+    }
     
     // Basic validation
     const name = formData.get('bookingName');
     const email = formData.get('bookingEmail');
-    const date = formData.get('bookingDate');
     
-    if (!name || !email || !date) {
-        alert('Please fill in all required fields (Name, Email, and Date).');
+    if (!name || !email) {
+        alert('Please fill in all required fields (Name and Email).');
         return;
     }
     

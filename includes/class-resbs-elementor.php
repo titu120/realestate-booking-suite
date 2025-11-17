@@ -2,6 +2,20 @@
 /**
  * Elementor Widgets Class
  * 
+ * SECURITY NOTES:
+ * - Direct access prevention: ABSPATH check at top of file
+ * - Nonce creation: Creates 'resbs_elementor_nonce' for AJAX requests (see enqueue_elementor_scripts())
+ * - Nonce verification: Handled in AJAX handlers (class-resbs-frontend.php)
+ * - User permissions: No admin functions in this file; widget registration is handled by Elementor
+ * - Data sanitization: All output uses esc_* functions (esc_url, esc_js, esc_html, esc_textarea)
+ * 
+ * AJAX SECURITY REQUIREMENTS:
+ * All AJAX handlers that use this nonce must:
+ * 1. Verify nonce: wp_verify_nonce($_POST['nonce'], 'resbs_elementor_nonce')
+ * 2. Sanitize all user input: sanitize_text_field(), sanitize_email(), intval(), etc.
+ * 3. Validate data before processing
+ * 4. Use capability checks if modifying data (current_user_can())
+ * 
  * @package RealEstate_Booking_Suite
  */
 
@@ -704,6 +718,8 @@ class RESBS_Elementor_Widgets {
 
     /**
      * Add critical CSS directly in wp_head as fallback
+     * 
+     * SECURITY: Uses esc_textarea() to escape CSS output and prevent XSS attacks
      */
     public function add_critical_css_inline() {
         if (!class_exists('\Elementor\Plugin')) {
@@ -711,11 +727,18 @@ class RESBS_Elementor_Widgets {
         }
         
         $critical_css = $this->get_critical_css();
+        // SECURITY: Escape CSS output to prevent XSS attacks
         echo '<style id="resbs-elementor-critical">' . esc_textarea($critical_css) . '</style>' . "\n";
     }
     
     /**
      * Enqueue Elementor scripts
+     * 
+     * SECURITY NOTES:
+     * - Creates nonce for AJAX requests to prevent CSRF attacks
+     * - Nonce is verified in AJAX handlers (class-resbs-frontend.php)
+     * - All AJAX handlers must verify nonce using: wp_verify_nonce($_POST['nonce'], 'resbs_elementor_nonce')
+     * - All user input in AJAX handlers must be sanitized and validated
      */
     public function enqueue_elementor_scripts() {
         // Enqueue Swiper.js for carousel functionality
@@ -742,6 +765,9 @@ class RESBS_Elementor_Widgets {
             true
         );
 
+        // SECURITY: Create nonce for AJAX requests to prevent CSRF attacks
+        // This nonce must be verified in all AJAX handlers that process user-submitted data
+        // See class-resbs-frontend.php for nonce verification examples
         wp_localize_script('resbs-elementor', 'resbs_elementor_ajax', array(
             'ajax_url' => esc_url(admin_url('admin-ajax.php')),
             'nonce' => esc_js(wp_create_nonce('resbs_elementor_nonce')),

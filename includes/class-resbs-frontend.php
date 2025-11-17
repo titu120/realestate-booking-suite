@@ -308,13 +308,20 @@ class RESBS_Frontend {
             wp_die(esc_html__('You must be logged in to submit a property.', 'realestate-booking-suite'));
         }
         
-        $edit_id = intval($_POST['edit_id']);
+        $edit_id = isset($_POST['edit_id']) ? intval($_POST['edit_id']) : 0;
         $user_id = get_current_user_id();
         
+        // If editing, verify ownership
+        if ($edit_id > 0) {
+            if (!RESBS_Security::verify_post_ownership($edit_id, $user_id)) {
+                wp_send_json_error(esc_html__('You do not have permission to edit this property.', 'realestate-booking-suite'));
+            }
+        }
+        
         // Validate required fields
-        $title = sanitize_text_field($_POST['property_title']);
-        $content = sanitize_textarea_field($_POST['property_content']);
-        $price = floatval($_POST['property_price']);
+        $title = isset($_POST['property_title']) ? sanitize_text_field($_POST['property_title']) : '';
+        $content = isset($_POST['property_content']) ? sanitize_textarea_field($_POST['property_content']) : '';
+        $price = isset($_POST['property_price']) ? floatval($_POST['property_price']) : 0;
         
         if (empty($title) || empty($content) || $price <= 0) {
             wp_send_json_error(esc_html__('Please fill in all required fields.', 'realestate-booking-suite'));
@@ -355,7 +362,7 @@ class RESBS_Frontend {
         );
         
         foreach ($meta_fields as $field => $sanitize_function) {
-            if (isset($_POST[$field])) {
+            if (isset($_POST[$field]) && is_callable($sanitize_function)) {
                 $value = call_user_func($sanitize_function, $_POST[$field]);
                 $meta_key = '_property_' . str_replace('property_', '', $field);
                 update_post_meta($post_id, $meta_key, $value);
@@ -397,7 +404,7 @@ class RESBS_Frontend {
         
         // Handle featured image
         if (!empty($_FILES['property_image']['name'])) {
-            $this->handle_image_upload($post_id, 'featured');
+            $this->process_image_upload($post_id, 'featured');
         }
         
         // Handle gallery images
@@ -418,11 +425,60 @@ class RESBS_Frontend {
     }
     
     /**
-     * Handle image upload
+     * Handle image upload AJAX request
      */
-    private function handle_image_upload($post_id, $type = 'featured') {
+    public function handle_image_upload() {
+        // Verify nonce
+        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'resbs_upload_nonce')) {
+            wp_send_json_error(esc_html__('Security check failed.', 'realestate-booking-suite'));
+        }
+        
+        // Check if user is logged in
+        if (!is_user_logged_in()) {
+            wp_send_json_error(esc_html__('You must be logged in to upload images.', 'realestate-booking-suite'));
+        }
+        
+        $post_id = isset($_POST['post_id']) ? intval($_POST['post_id']) : 0;
+        $user_id = get_current_user_id();
+        
+        // If post_id provided, verify ownership
+        if ($post_id > 0 && !RESBS_Security::verify_post_ownership($post_id, $user_id)) {
+            wp_send_json_error(esc_html__('You do not have permission to upload images for this property.', 'realestate-booking-suite'));
+        }
+        
+        // Check if file was uploaded
+        if (!isset($_FILES['property_image']) || $_FILES['property_image']['error'] !== UPLOAD_ERR_OK) {
+            wp_send_json_error(esc_html__('No file uploaded or upload error occurred.', 'realestate-booking-suite'));
+        }
+        
+        // Validate file type
+        $file_type = wp_check_filetype($_FILES['property_image']['name']);
+        $allowed_types = array('jpg', 'jpeg', 'png', 'gif', 'webp');
+        if (!in_array(strtolower($file_type['ext']), $allowed_types)) {
+            wp_send_json_error(esc_html__('Invalid file type. Only images are allowed.', 'realestate-booking-suite'));
+        }
+        
+        // Handle the upload
+        $result = $this->process_image_upload($post_id, 'featured');
+        
+        if ($result) {
+            wp_send_json_success(esc_html__('Image uploaded successfully.', 'realestate-booking-suite'));
+        } else {
+            wp_send_json_error(esc_html__('Failed to upload image.', 'realestate-booking-suite'));
+        }
+    }
+    
+    /**
+     * Process image upload (internal method)
+     */
+    private function process_image_upload($post_id, $type = 'featured') {
         if (!function_exists('wp_handle_upload')) {
             require_once(ABSPATH . 'wp-admin/includes/file.php');
+        }
+        
+        // Check if file was uploaded
+        if (!isset($_FILES['property_image']) || $_FILES['property_image']['error'] !== UPLOAD_ERR_OK) {
+            return false;
         }
         
         $uploadedfile = $_FILES['property_image'];
@@ -451,8 +507,12 @@ class RESBS_Frontend {
                 if ($type === 'featured') {
                     set_post_thumbnail($post_id, $attach_id);
                 }
+                
+                return true;
             }
         }
+        
+        return false;
     }
     
     /**
@@ -982,7 +1042,8 @@ class RESBS_Frontend {
      * Handle cancel booking
      */
     public function handle_cancel_booking() {
-        if (!wp_verify_nonce($_POST['nonce'], 'resbs_cancel_booking')) {
+        // Verify nonce
+        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'resbs_cancel_booking')) {
             wp_send_json_error(esc_html__('Security check failed.', 'realestate-booking-suite'));
         }
         
@@ -990,8 +1051,12 @@ class RESBS_Frontend {
             wp_send_json_error(esc_html__('Please login to cancel bookings.', 'realestate-booking-suite'));
         }
         
-        $booking_id = intval($_POST['booking_id']);
+        $booking_id = isset($_POST['booking_id']) ? intval($_POST['booking_id']) : 0;
         $user_id = get_current_user_id();
+        
+        if ($booking_id <= 0) {
+            wp_send_json_error(esc_html__('Invalid booking ID.', 'realestate-booking-suite'));
+        }
         
         // Verify booking belongs to user
         if (!$this->user_owns_booking($booking_id, $user_id)) {
@@ -1012,7 +1077,8 @@ class RESBS_Frontend {
      * Handle refund booking
      */
     public function handle_refund_booking() {
-        if (!wp_verify_nonce($_POST['nonce'], 'resbs_refund_booking')) {
+        // Verify nonce
+        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'resbs_refund_booking')) {
             wp_send_json_error(esc_html__('Security check failed.', 'realestate-booking-suite'));
         }
         
@@ -1020,8 +1086,12 @@ class RESBS_Frontend {
             wp_send_json_error(esc_html__('Please login to request refunds.', 'realestate-booking-suite'));
         }
         
-        $booking_id = intval($_POST['booking_id']);
+        $booking_id = isset($_POST['booking_id']) ? intval($_POST['booking_id']) : 0;
         $user_id = get_current_user_id();
+        
+        if ($booking_id <= 0) {
+            wp_send_json_error(esc_html__('Invalid booking ID.', 'realestate-booking-suite'));
+        }
         
         // Verify booking belongs to user
         if (!$this->user_owns_booking($booking_id, $user_id)) {
@@ -1053,7 +1123,8 @@ class RESBS_Frontend {
      * Handle update profile
      */
     public function handle_update_profile() {
-        if (!wp_verify_nonce($_POST['nonce'], 'resbs_update_profile')) {
+        // Verify nonce
+        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'resbs_update_profile')) {
             wp_send_json_error(esc_html__('Security check failed.', 'realestate-booking-suite'));
         }
         
@@ -1062,16 +1133,34 @@ class RESBS_Frontend {
         }
         
         $user_id = get_current_user_id();
-        $first_name = sanitize_text_field($_POST['first_name']);
-        $last_name = sanitize_text_field($_POST['last_name']);
-        $email = sanitize_email($_POST['email']);
-        $phone = sanitize_text_field($_POST['phone']);
-        $bio = sanitize_textarea_field($_POST['bio']);
-        $website = esc_url_raw($_POST['website']);
+        
+        // Verify user can only update their own profile
+        $profile_user_id = isset($_POST['user_id']) ? intval($_POST['user_id']) : $user_id;
+        if ($profile_user_id !== $user_id && !current_user_can('edit_users')) {
+            wp_send_json_error(esc_html__('You can only update your own profile.', 'realestate-booking-suite'));
+        }
+        
+        $first_name = isset($_POST['first_name']) ? sanitize_text_field($_POST['first_name']) : '';
+        $last_name = isset($_POST['last_name']) ? sanitize_text_field($_POST['last_name']) : '';
+        $email = isset($_POST['email']) ? sanitize_email($_POST['email']) : '';
+        $phone = isset($_POST['phone']) ? sanitize_text_field($_POST['phone']) : '';
+        $bio = isset($_POST['bio']) ? sanitize_textarea_field($_POST['bio']) : '';
+        $website = isset($_POST['website']) ? esc_url_raw($_POST['website']) : '';
+        
+        // Validate required fields
+        if (empty($email) || !is_email($email)) {
+            wp_send_json_error(esc_html__('Please provide a valid email address.', 'realestate-booking-suite'));
+        }
+        
+        // Check if email is already in use by another user
+        $email_exists = email_exists($email);
+        if ($email_exists && $email_exists !== $profile_user_id) {
+            wp_send_json_error(esc_html__('This email address is already in use.', 'realestate-booking-suite'));
+        }
         
         // Update user data
         $user_data = array(
-            'ID' => $user_id,
+            'ID' => $profile_user_id,
             'first_name' => $first_name,
             'last_name' => $last_name,
             'user_email' => $email,
@@ -1083,7 +1172,7 @@ class RESBS_Frontend {
         
         if (!is_wp_error($updated)) {
             // Update phone meta
-            update_user_meta($user_id, 'phone', $phone);
+            update_user_meta($profile_user_id, 'phone', $phone);
             
             wp_send_json_success(esc_html__('Profile updated successfully.', 'realestate-booking-suite'));
         } else {
@@ -1095,8 +1184,17 @@ class RESBS_Frontend {
      * Check if user owns booking
      */
     private function user_owns_booking($booking_id, $user_id) {
+        if ($booking_id <= 0 || $user_id <= 0) {
+            return false;
+        }
+        
+        // Allow admins to access any booking
+        if (current_user_can('manage_options')) {
+            return true;
+        }
+        
         $booking_author = get_post_field('post_author', $booking_id);
-        return $booking_author == $user_id;
+        return (int) $booking_author === (int) $user_id;
     }
     
     /**
@@ -1104,18 +1202,18 @@ class RESBS_Frontend {
      */
     public function handle_elementor_load_properties() {
         // Verify nonce
-        if (!wp_verify_nonce($_POST['nonce'], 'resbs_elementor_nonce')) {
+        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'resbs_elementor_nonce')) {
             wp_send_json_error(esc_html__('Security check failed.', 'realestate-booking-suite'));
         }
         
-        $settings = $_POST['settings'];
-        $page = intval($_POST['page']);
-        $filters = $_POST['filters'] ?? array();
+        $settings = isset($_POST['settings']) ? $_POST['settings'] : array();
+        $page = isset($_POST['page']) ? intval($_POST['page']) : 1;
+        $filters = isset($_POST['filters']) ? $_POST['filters'] : array();
         
         // Sanitize settings
-        $posts_per_page = intval($settings['posts_per_page']);
-        $orderby = sanitize_text_field($settings['orderby']);
-        $order = sanitize_text_field($settings['order']);
+        $posts_per_page = isset($settings['posts_per_page']) ? intval($settings['posts_per_page']) : 12;
+        $orderby = isset($settings['orderby']) ? sanitize_text_field($settings['orderby']) : 'date';
+        $order = isset($settings['order']) ? sanitize_text_field($settings['order']) : 'DESC';
         
         // Build query args
         $args = array(
@@ -1313,10 +1411,10 @@ class RESBS_Frontend {
             wp_send_json_error(esc_html__('Please login to add favorites.', 'realestate-booking-suite'));
         }
         
-        $property_id = intval($_POST['property_id']);
+        $property_id = isset($_POST['property_id']) ? intval($_POST['property_id']) : 0;
         $user_id = get_current_user_id();
         
-        if (!$property_id || !get_post($property_id)) {
+        if ($property_id <= 0 || !get_post($property_id)) {
             wp_send_json_error(esc_html__('Invalid property.', 'realestate-booking-suite'));
         }
         
@@ -1351,16 +1449,16 @@ class RESBS_Frontend {
      */
     public function handle_elementor_load_carousel_properties() {
         // Verify nonce
-        if (!wp_verify_nonce($_POST['nonce'], 'resbs_elementor_nonce')) {
+        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'resbs_elementor_nonce')) {
             wp_send_json_error(esc_html__('Security check failed.', 'realestate-booking-suite'));
         }
         
-        $settings = $_POST['settings'];
+        $settings = isset($_POST['settings']) ? $_POST['settings'] : array();
         
         // Sanitize settings
-        $posts_per_page = intval($settings['posts_per_page']);
-        $orderby = sanitize_text_field($settings['orderby']);
-        $order = sanitize_text_field($settings['order']);
+        $posts_per_page = isset($settings['posts_per_page']) ? intval($settings['posts_per_page']) : 12;
+        $orderby = isset($settings['orderby']) ? sanitize_text_field($settings['orderby']) : 'date';
+        $order = isset($settings['order']) ? sanitize_text_field($settings['order']) : 'DESC';
         
         // Build query args
         $args = array(
@@ -1711,29 +1809,82 @@ class RESBS_Frontend {
     
     /**
      * Handle Elementor request form submission
+     * 
+     * SECURITY:
+     * - Verifies nonce to prevent CSRF attacks
+     * - Accepts both AJAX nonce (resbs_elementor_nonce) and form nonce (resbs_request_nonce)
+     * - Allows both logged-in and non-logged-in users (public form)
+     * - Sanitizes and validates all user input
+     * - Rate limiting should be implemented at server level
      */
     public function handle_elementor_submit_request() {
-        // Verify nonce
-        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'resbs_elementor_nonce')) {
-            wp_send_json_error(esc_html__('Security check failed.', 'realestate-booking-suite'));
+        // SECURITY: Verify nonce - check both AJAX nonce and form nonce for maximum compatibility
+        $nonce_verified = false;
+        
+        // Check AJAX nonce (from JavaScript)
+        if (isset($_POST['nonce']) && wp_verify_nonce($_POST['nonce'], 'resbs_elementor_nonce')) {
+            $nonce_verified = true;
         }
         
-        // Get form data
-        parse_str($_POST['form_data'], $form_data);
+        // Check form nonce (from direct POST submission - fallback)
+        if (!$nonce_verified && isset($_POST['resbs_request_nonce']) && wp_verify_nonce($_POST['resbs_request_nonce'], 'resbs_request_form')) {
+            $nonce_verified = true;
+        }
         
+        if (!$nonce_verified) {
+            wp_send_json_error(array(
+                'message' => esc_html__('Security check failed. Please refresh the page and try again.', 'realestate-booking-suite')
+            ));
+            return;
+        }
+        
+        // SECURITY: No permission check needed - this is a public contact form
+        // Both logged-in and non-logged-in users can submit
+        // Rate limiting should be implemented at server level for spam protection
+        
+        // Get form data - handle both AJAX (form_data) and direct POST submissions
+        $form_data = array();
+        
+        if (isset($_POST['form_data'])) {
+            // AJAX submission - parse serialized form data
+            parse_str($_POST['form_data'], $form_data);
+        } else {
+            // Direct POST submission - use $_POST directly
+            $form_data = $_POST;
+        }
+        
+        // SECURITY: Sanitize all user input
         $name = isset($form_data['name']) ? sanitize_text_field($form_data['name']) : '';
         $email = isset($form_data['email']) ? sanitize_email($form_data['email']) : '';
         $phone = isset($form_data['phone']) ? sanitize_text_field($form_data['phone']) : '';
         $message = isset($form_data['message']) ? sanitize_textarea_field($form_data['message']) : '';
         $property_id = isset($form_data['property_id']) ? intval($form_data['property_id']) : 0;
         
-        // Validate required fields
+        // SECURITY: Validate required fields
         if (empty($name) || empty($email)) {
-            wp_send_json_error(esc_html__('Please fill in all required fields.', 'realestate-booking-suite'));
+            wp_send_json_error(array(
+                'message' => esc_html__('Please fill in all required fields.', 'realestate-booking-suite')
+            ));
+            return;
         }
         
+        // SECURITY: Validate email format
         if (!is_email($email)) {
-            wp_send_json_error(esc_html__('Please enter a valid email address.', 'realestate-booking-suite'));
+            wp_send_json_error(array(
+                'message' => esc_html__('Please enter a valid email address.', 'realestate-booking-suite')
+            ));
+            return;
+        }
+        
+        // SECURITY: Validate property ID if provided (must be a valid post)
+        if ($property_id > 0) {
+            $property = get_post($property_id);
+            if (!$property || $property->post_type !== 'property') {
+                wp_send_json_error(array(
+                    'message' => esc_html__('Invalid property selected.', 'realestate-booking-suite')
+                ));
+                return;
+            }
         }
         
         // Get property and agent information
@@ -1835,6 +1986,15 @@ class RESBS_Frontend {
             wp_send_json_error(esc_html__('Please enter both username and password.', 'realestate-booking-suite'));
         }
         
+        // Rate limiting: Prevent brute force attacks
+        $ip_address = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : 'unknown';
+        $transient_key = 'resbs_login_attempts_' . md5($username . $ip_address);
+        $attempts = get_transient($transient_key);
+        
+        if ($attempts && $attempts >= 5) {
+            wp_send_json_error(esc_html__('Too many login attempts. Please try again later.', 'realestate-booking-suite'));
+        }
+        
         // Attempt login
         $credentials = array(
             'user_login' => $username,
@@ -1845,8 +2005,15 @@ class RESBS_Frontend {
         $user = wp_signon($credentials, false);
         
         if (is_wp_error($user)) {
+            // Increment failed attempts
+            $attempts = $attempts ? $attempts + 1 : 1;
+            set_transient($transient_key, $attempts, 15 * MINUTE_IN_SECONDS);
+            
             wp_send_json_error(esc_html($user->get_error_message()));
         } else {
+            // Clear failed attempts on success
+            delete_transient($transient_key);
+            
             wp_send_json_success(array(
                 'message' => esc_html__('Login successful!', 'realestate-booking-suite'),
                 'redirect' => esc_url(home_url())

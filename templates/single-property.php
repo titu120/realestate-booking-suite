@@ -1495,24 +1495,26 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
                             <!-- Contact Form -->
                             <div class="bg-gray-50 p-6 rounded-lg">
                                 <h4 class="text-lg font-semibold mb-4"><?php echo esc_html($contact_form_title ? $contact_form_title : __('Contact Agent', 'realestate-booking-suite')); ?></h4>
-                                <form class="space-y-4">
+                                <form class="space-y-4" onsubmit="submitContactForm(event)">
+                                    <?php wp_nonce_field('resbs_contact_form', 'resbs_contact_form_nonce'); ?>
+                                    <input type="hidden" name="property_id" value="<?php echo esc_attr($post->ID); ?>">
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div>
                                             <label class="block text-sm font-medium text-gray-700 mb-2"><?php echo esc_html($contact_name_label ? $contact_name_label : __('Your Name', 'realestate-booking-suite')); ?></label>
-                                            <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                                            <input type="text" name="contact_name" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
                                         </div>
                                         <div>
                                             <label class="block text-sm font-medium text-gray-700 mb-2"><?php echo esc_html($contact_email_label ? $contact_email_label : __('Email', 'realestate-booking-suite')); ?></label>
-                                            <input type="email" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                                            <input type="email" name="contact_email" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
                                         </div>
                                     </div>
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-2"><?php echo esc_html($contact_phone_label ? $contact_phone_label : __('Phone', 'realestate-booking-suite')); ?></label>
-                                        <input type="tel" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        <input type="tel" name="contact_phone" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                                     </div>
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-2"><?php echo esc_html($contact_message_label ? $contact_message_label : __('Message', 'realestate-booking-suite')); ?></label>
-                                        <textarea rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required></textarea>
+                                        <textarea rows="4" name="contact_message" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required></textarea>
                                     </div>
                                     <button type="submit" class="btn btn-primary w-full">
                                         <i class="fas fa-paper-plane mr-2"></i>
@@ -1532,6 +1534,8 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
                                 <p class="text-gray-600 mb-8"><?php echo esc_html($booking_form_subtitle ? $booking_form_subtitle : __('Fill out the form below to schedule your property viewing', 'realestate-booking-suite')); ?></p>
                                 
                                 <form id="directBookingForm" onsubmit="submitBookingForm(event)">
+                                    <?php wp_nonce_field('resbs_booking_form', 'resbs_booking_form_nonce'); ?>
+                                    <input type="hidden" name="property_id" value="<?php echo esc_attr($post->ID); ?>">
                                     <div class="space-y-6">
                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             <div class="space-y-2">
@@ -2113,6 +2117,8 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
                 </button>
             </div>
             <form onsubmit="submitContactForm(event)" class="space-y-4">
+                <?php wp_nonce_field('resbs_contact_form', 'resbs_contact_form_nonce'); ?>
+                <input type="hidden" name="property_id" value="<?php echo esc_attr($post->ID); ?>">
                 <div class="form-group">
                     <label class="form-label"><?php echo esc_html($contact_name_label ? $contact_name_label : __('Your Name', 'realestate-booking-suite')); ?></label>
                     <input type="text" required class="form-input" name="contact_name">

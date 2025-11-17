@@ -10,10 +10,79 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+/**
+ * Security Helper Class
+ * 
+ * This class provides comprehensive security functions for the RealEstate Booking Suite plugin.
+ * 
+ * SECURITY BEST PRACTICES:
+ * 
+ * 1. NONCES (CSRF Protection):
+ *    - ALWAYS use nonces for forms that modify data (POST requests)
+ *    - ALWAYS use nonces for AJAX requests that modify data
+ *    - Use verify_nonce() for regular form submissions
+ *    - Use verify_ajax_nonce() for AJAX handlers
+ *    - Use verify_rest_nonce() for REST API endpoints
+ * 
+ * 2. CAPABILITIES (User Permissions):
+ *    - ALWAYS check capabilities for admin pages (use 'manage_options' for settings)
+ *    - Check capabilities for actions that modify data
+ *    - Use check_capability() for admin pages
+ *    - Use verify_nonce_and_capability() for admin form submissions
+ *    - Use verify_ajax_nonce_and_capability() for admin AJAX handlers
+ * 
+ * 3. OWNERSHIP VERIFICATION:
+ *    - ALWAYS verify users can only modify their own content
+ *    - Use verify_post_ownership() to check if user owns a post
+ *    - Combine with nonce checks for complete security
+ * 
+ * 4. QUICK SECURITY WRAPPERS:
+ *    - Use admin_page_security_check() at start of admin page callbacks
+ *    - Use ajax_security_check() at start of AJAX handlers
+ * 
+ * EXAMPLE USAGE:
+ * 
+ * // Admin page callback
+ * public function settings_page() {
+ *     RESBS_Security::admin_page_security_check('manage_options', 'resbs_save_settings');
+ *     // ... rest of code
+ * }
+ * 
+ * // AJAX handler
+ * public function handle_ajax() {
+ *     RESBS_Security::ajax_security_check('resbs_ajax_action', 'edit_posts', true);
+ *     // ... rest of code
+ * }
+ * 
+ * // Form submission
+ * public function handle_form() {
+ *     $nonce = $_POST['_wpnonce'];
+ *     RESBS_Security::verify_nonce_and_capability($nonce, 'form_action', 'manage_options');
+ *     // ... rest of code
+ * }
+ * 
+ * // User content modification
+ * public function edit_property($property_id) {
+ *     $nonce = $_POST['nonce'];
+ *     RESBS_Security::verify_ajax_nonce($nonce, 'edit_property');
+ *     if (!RESBS_Security::verify_post_ownership($property_id)) {
+ *         wp_send_json_error(array('message' => 'Permission denied'));
+ *     }
+ *     // ... rest of code
+ * }
+ */
 class RESBS_Security {
 
     /**
      * Verify nonce for forms
+     * 
+     * Use this for regular form submissions (POST requests)
+     * Always use nonces for forms that modify data
+     * 
+     * @param string $nonce The nonce value to verify (do NOT sanitize before passing)
+     * @param string $action The action name used when creating the nonce
+     * @param bool $die Whether to die on failure (default: true)
+     * @return bool True if nonce is valid, false otherwise
      */
     public static function verify_nonce($nonce, $action, $die = true) {
         // Note: nonce should not be sanitized before verification
@@ -33,6 +102,13 @@ class RESBS_Security {
 
     /**
      * Verify AJAX nonce
+     * 
+     * Use this for AJAX requests (wp_ajax_* actions)
+     * Always use nonces for AJAX handlers that modify data
+     * 
+     * @param string $nonce The nonce value to verify (do NOT sanitize before passing)
+     * @param string $action The action name used when creating the nonce
+     * @return bool True if nonce is valid, false otherwise (sends JSON error on failure)
      */
     public static function verify_ajax_nonce($nonce, $action) {
         // Note: nonce should not be sanitized before verification
@@ -47,6 +123,13 @@ class RESBS_Security {
 
     /**
      * Check user capabilities
+     * 
+     * Use this for admin pages and actions that require specific permissions
+     * Common capabilities: 'manage_options', 'edit_posts', 'edit_pages', 'publish_posts'
+     * 
+     * @param string $capability The capability to check (default: 'manage_options')
+     * @param bool $die Whether to die on failure (default: true)
+     * @return bool True if user has capability, false otherwise
      */
     public static function check_capability($capability = 'manage_options', $die = true) {
         if (!current_user_can($capability)) {
@@ -59,6 +142,227 @@ class RESBS_Security {
             }
             return false;
         }
+        return true;
+    }
+
+    /**
+     * Verify nonce AND check capability (combined security check)
+     * 
+     * Use this for admin form submissions that require both nonce and capability
+     * Example: Settings pages, admin actions
+     * 
+     * @param string $nonce The nonce value to verify
+     * @param string $action The action name used when creating the nonce
+     * @param string $capability The capability to check (default: 'manage_options')
+     * @param bool $die Whether to die on failure (default: true)
+     * @return bool True if both checks pass, false otherwise
+     */
+    public static function verify_nonce_and_capability($nonce, $action, $capability = 'manage_options', $die = true) {
+        // Verify nonce first
+        if (!self::verify_nonce($nonce, $action, false)) {
+            if ($die) {
+                wp_die(
+                    esc_html__('Security check failed. Please refresh the page and try again.', 'realestate-booking-suite'),
+                    esc_html__('Security Error', 'realestate-booking-suite'),
+                    array('response' => 403)
+                );
+            }
+            return false;
+        }
+        
+        // Then check capability
+        return self::check_capability($capability, $die);
+    }
+
+    /**
+     * Verify AJAX nonce AND check capability (combined security check)
+     * 
+     * Use this for AJAX handlers that require both nonce and capability
+     * Example: Admin AJAX actions, user-specific data modifications
+     * 
+     * @param string $nonce The nonce value to verify
+     * @param string $action The action name used when creating the nonce
+     * @param string $capability The capability to check (default: 'manage_options')
+     * @return bool True if both checks pass, false otherwise (sends JSON error on failure)
+     */
+    public static function verify_ajax_nonce_and_capability($nonce, $action, $capability = 'manage_options') {
+        // Verify nonce first
+        if (!isset($nonce) || !wp_verify_nonce($nonce, $action)) {
+            wp_send_json_error(array(
+                'message' => esc_html__('Security check failed.', 'realestate-booking-suite')
+            ));
+        }
+        
+        // Then check capability
+        if (!current_user_can($capability)) {
+            wp_send_json_error(array(
+                'message' => esc_html__('You do not have sufficient permissions.', 'realestate-booking-suite')
+            ));
+        }
+        
+        return true;
+    }
+
+    /**
+     * Verify user owns a post/resource
+     * 
+     * Use this to ensure users can only modify their own content
+     * Example: Users editing their own properties, bookings, etc.
+     * 
+     * @param int $post_id The post ID to check
+     * @param int $user_id The user ID to check (default: current user)
+     * @param bool $allow_admins Whether admins can bypass ownership check (default: true)
+     * @return bool True if user owns the post or is admin, false otherwise
+     */
+    public static function verify_post_ownership($post_id, $user_id = null, $allow_admins = true) {
+        if ($user_id === null) {
+            $user_id = get_current_user_id();
+        }
+        
+        $post_id = absint($post_id);
+        $user_id = absint($user_id);
+        
+        if ($post_id <= 0 || $user_id <= 0) {
+            return false;
+        }
+        
+        $post = get_post($post_id);
+        if (!$post) {
+            return false;
+        }
+        
+        // Admins can access any post if allowed
+        if ($allow_admins && current_user_can('manage_options')) {
+            return true;
+        }
+        
+        // Check if user is the author
+        return (int) $post->post_author === $user_id;
+    }
+
+    /**
+     * Verify REST API nonce
+     * 
+     * Use this for WordPress REST API endpoints
+     * 
+     * @param string $nonce The nonce value to verify
+     * @return bool|WP_Error True if valid, WP_Error on failure
+     */
+    public static function verify_rest_nonce($nonce) {
+        if (!wp_verify_nonce($nonce, 'wp_rest')) {
+            return new WP_Error(
+                'rest_cookie_invalid_nonce',
+                esc_html__('Cookie check failed', 'realestate-booking-suite'),
+                array('status' => 403)
+            );
+        }
+        return true;
+    }
+
+    /**
+     * Verify HTTP referrer (additional security layer)
+     * 
+     * Use this as an additional check for form submissions
+     * Note: Referrer can be spoofed, so always use with nonces
+     * 
+     * @param bool $die Whether to die on failure (default: false)
+     * @return bool True if referrer is valid, false otherwise
+     */
+    public static function verify_referer($die = false) {
+        $referer = wp_get_referer();
+        if (!$referer) {
+            if ($die) {
+                wp_die(
+                    esc_html__('Invalid referrer. Please try again.', 'realestate-booking-suite'),
+                    esc_html__('Security Error', 'realestate-booking-suite'),
+                    array('response' => 403)
+                );
+            }
+            return false;
+        }
+        
+        // Check if referrer is from same site
+        $site_url = home_url();
+        if (strpos($referer, $site_url) !== 0) {
+            if ($die) {
+                wp_die(
+                    esc_html__('Invalid referrer. Please try again.', 'realestate-booking-suite'),
+                    esc_html__('Security Error', 'realestate-booking-suite'),
+                    array('response' => 403)
+                );
+            }
+            return false;
+        }
+        
+        return true;
+    }
+
+    /**
+     * Security wrapper for admin page callbacks
+     * 
+     * Use this at the start of admin page callback functions
+     * Automatically checks capability and verifies nonce if POST request
+     * 
+     * @param string $capability The capability required (default: 'manage_options')
+     * @param string $nonce_action The nonce action name (optional, only needed for POST)
+     * @return void|bool Dies on failure, returns true on success
+     */
+    public static function admin_page_security_check($capability = 'manage_options', $nonce_action = '') {
+        // Check capability
+        self::check_capability($capability, true);
+        
+        // If POST request and nonce action provided, verify nonce
+        $request_method = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'GET';
+        if ($request_method === 'POST' && !empty($nonce_action)) {
+            $nonce = isset($_POST['_wpnonce']) ? $_POST['_wpnonce'] : '';
+            if (empty($nonce)) {
+                $nonce = isset($_POST['nonce']) ? $_POST['nonce'] : '';
+            }
+            self::verify_nonce($nonce, $nonce_action, true);
+        }
+        
+        return true;
+    }
+
+    /**
+     * Security wrapper for AJAX handlers
+     * 
+     * Use this at the start of AJAX handler functions
+     * Automatically checks nonce and optionally capability
+     * 
+     * @param string $nonce_action The nonce action name
+     * @param string $capability Optional capability to check (empty = no capability check)
+     * @param bool $require_login Whether login is required (default: false for nopriv actions)
+     * @return void|bool Sends JSON error on failure, returns true on success
+     */
+    public static function ajax_security_check($nonce_action, $capability = '', $require_login = false) {
+        // Check if login is required
+        if ($require_login && !is_user_logged_in()) {
+            wp_send_json_error(array(
+                'message' => esc_html__('You must be logged in to perform this action.', 'realestate-booking-suite')
+            ));
+        }
+        
+        // Get nonce from POST
+        $nonce = isset($_POST['nonce']) ? $_POST['nonce'] : '';
+        if (empty($nonce)) {
+            $nonce = isset($_POST['_wpnonce']) ? $_POST['_wpnonce'] : '';
+        }
+        
+        // Verify nonce
+        if (empty($nonce) || !wp_verify_nonce($nonce, $nonce_action)) {
+            wp_send_json_error(array(
+                'message' => esc_html__('Security check failed.', 'realestate-booking-suite')
+            ));
+        }
+        
+        // Check capability if provided
+        if (!empty($capability) && !current_user_can($capability)) {
+            wp_send_json_error(array(
+                'message' => esc_html__('You do not have sufficient permissions.', 'realestate-booking-suite')
+            ));
+        }
+        
         return true;
     }
 

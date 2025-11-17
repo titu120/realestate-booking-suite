@@ -74,6 +74,12 @@ class RESBS_Property_Grid_Widget extends WP_Widget {
      * Widget form
      */
     public function form($instance) {
+        // Check user capability to edit widgets
+        if (!current_user_can('edit_theme_options')) {
+            echo '<p>' . esc_html__('You do not have permission to edit widgets.', 'realestate-booking-suite') . '</p>';
+            return;
+        }
+
         $defaults = array(
             'title' => esc_html__('Properties', 'realestate-booking-suite'),
             'posts_per_page' => 6,
@@ -458,6 +464,11 @@ class RESBS_Property_Grid_Widget extends WP_Widget {
      * Update widget settings
      */
     public function update($new_instance, $old_instance) {
+        // Check user capability to edit widgets
+        if (!current_user_can('edit_theme_options')) {
+            return $old_instance;
+        }
+
         $instance = array();
         
         // Sanitize all inputs
@@ -578,7 +589,7 @@ class RESBS_Property_Grid_Widget extends WP_Widget {
             <?php if ($show_filters): ?>
                 <div class="resbs-widget-filters">
                     <form class="resbs-filter-form" data-target="<?php echo esc_attr($widget_id); ?>">
-                        <?php wp_nonce_field('resbs_widget_filter', 'resbs_filter_nonce'); ?>
+                        <?php wp_nonce_field('resbs_widget_nonce', 'resbs_filter_nonce'); ?>
                         
                         <div class="resbs-filter-row">
                             <?php if ($show_type_filter): ?>
@@ -900,8 +911,27 @@ class RESBS_Property_Grid_Widget extends WP_Widget {
      * AJAX handler for filtering properties
      */
     public function ajax_filter_properties() {
-        // Verify nonce using security helper
-        RESBS_Security::verify_ajax_nonce($_POST['nonce'], 'resbs_widget_nonce');
+        // Check if nonce exists
+        if (!isset($_POST['nonce']) || empty($_POST['nonce'])) {
+            wp_send_json_error(array(
+                'message' => esc_html__('Security token missing.', 'realestate-booking-suite')
+            ));
+        }
+
+        // Verify nonce - check both widget nonce and filter form nonce for compatibility
+        $nonce = $_POST['nonce'];
+        $nonce_verified = wp_verify_nonce($nonce, 'resbs_widget_nonce');
+        
+        // Also check for filter form nonce if sent separately
+        if (!$nonce_verified && isset($_POST['resbs_filter_nonce'])) {
+            $nonce_verified = wp_verify_nonce($_POST['resbs_filter_nonce'], 'resbs_widget_nonce');
+        }
+        
+        if (!$nonce_verified) {
+            wp_send_json_error(array(
+                'message' => esc_html__('Security check failed. Please refresh the page and try again.', 'realestate-booking-suite')
+            ));
+        }
         
         // Rate limiting check
         if (!RESBS_Security::check_rate_limit('filter_properties', 20, 300)) {
@@ -911,9 +941,9 @@ class RESBS_Property_Grid_Widget extends WP_Widget {
         }
 
         // Sanitize input using security helper
-        $widget_id = RESBS_Security::sanitize_text($_POST['widget_id']);
-        $settings = RESBS_Security::sanitize_array($_POST['settings'], 'RESBS_Security::sanitize_text');
-        $filters = RESBS_Security::sanitize_array($_POST['filters'], 'RESBS_Security::sanitize_text');
+        $widget_id = isset($_POST['widget_id']) ? RESBS_Security::sanitize_text($_POST['widget_id']) : '';
+        $settings = isset($_POST['settings']) ? RESBS_Security::sanitize_array($_POST['settings'], 'RESBS_Security::sanitize_text') : array();
+        $filters = isset($_POST['filters']) ? RESBS_Security::sanitize_array($_POST['filters'], 'RESBS_Security::sanitize_text') : array();
 
         // Build query args
         $query_args = array(
@@ -1039,7 +1069,8 @@ class RESBS_Property_Grid_Widget extends WP_Widget {
         
         // Only process if this handler's nonce matches
         // If not, let other handlers (Favorites Manager) process it
-        $nonce = sanitize_text_field($_POST['nonce']);
+        // Note: nonce should not be sanitized before verification
+        $nonce = $_POST['nonce'];
         if (!wp_verify_nonce($nonce, 'resbs_widget_nonce')) {
             // Not our nonce - let other handlers process it
             return;
@@ -1060,7 +1091,7 @@ class RESBS_Property_Grid_Widget extends WP_Widget {
         }
 
         // Sanitize and validate property ID
-        $property_id = RESBS_Security::sanitize_property_id($_POST['property_id']);
+        $property_id = isset($_POST['property_id']) ? RESBS_Security::sanitize_property_id($_POST['property_id']) : 0;
         $user_id = get_current_user_id();
 
         if (!$property_id) {

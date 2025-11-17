@@ -140,7 +140,8 @@ class RESBS_Favorites_Manager {
             ));
         }
         
-        $nonce = sanitize_text_field($_POST['nonce']);
+        // IMPORTANT: Do NOT sanitize nonce before verification - it breaks verification
+        $nonce = $_POST['nonce'];
         
         // Check which nonce was sent - only process if it's our nonce
         // This prevents conflicts with other handlers (Frontend and Widgets classes)
@@ -152,16 +153,23 @@ class RESBS_Favorites_Manager {
             // Check if it's a different nonce (from other handlers)
             $elementor_nonce = wp_verify_nonce($nonce, 'resbs_elementor_nonce');
             $widget_nonce = wp_verify_nonce($nonce, 'resbs_widget_nonce');
+            $archive_nonce = wp_verify_nonce($nonce, 'resbs_archive_nonce');
             
             // If it's a valid nonce from another handler, let that handler process it
             if ($elementor_nonce !== false || $widget_nonce !== false) {
                 return; // Let other handler process it
             }
             
-            // If none of the nonces match, it's invalid
-            wp_send_json_error(array(
-                'message' => esc_html__('Security check failed. Please refresh the page and try again.', 'realestate-booking-suite')
-            ));
+            // Accept archive nonce for archive template compatibility
+            if ($archive_nonce !== false) {
+                // Continue processing with archive nonce
+                $nonce_verified = true;
+            } else {
+                // If none of the nonces match, it's invalid
+                wp_send_json_error(array(
+                    'message' => esc_html__('Security check failed. Please refresh the page and try again.', 'realestate-booking-suite')
+                ));
+            }
         }
         
         // Rate limiting check
@@ -189,7 +197,14 @@ class RESBS_Favorites_Manager {
 
         if (is_user_logged_in()) {
             // User is logged in - use user meta
+            // Verify user is authenticated and can modify their own favorites
             $user_id = get_current_user_id();
+            if (!$user_id) {
+                wp_send_json_error(array(
+                    'message' => esc_html__('Authentication required.', 'realestate-booking-suite')
+                ));
+            }
+            
             $favorites = get_user_meta($user_id, 'resbs_favorites', true);
             
             if (!is_array($favorites)) {
@@ -269,7 +284,14 @@ class RESBS_Favorites_Manager {
      * AJAX handler for getting favorites
      */
     public function ajax_get_favorites() {
-        // Verify nonce using security helper
+        // Check if nonce exists
+        if (!isset($_POST['nonce']) || empty($_POST['nonce'])) {
+            wp_send_json_error(array(
+                'message' => esc_html__('Security token missing.', 'realestate-booking-suite')
+            ));
+        }
+        
+        // Verify nonce using security helper (do NOT sanitize before verification)
         RESBS_Security::verify_ajax_nonce($_POST['nonce'], 'resbs_favorites_nonce');
         
         // Rate limiting check
@@ -331,7 +353,14 @@ class RESBS_Favorites_Manager {
      * AJAX handler for clearing favorites
      */
     public function ajax_clear_favorites() {
-        // Verify nonce using security helper
+        // Check if nonce exists
+        if (!isset($_POST['nonce']) || empty($_POST['nonce'])) {
+            wp_send_json_error(array(
+                'message' => esc_html__('Security token missing.', 'realestate-booking-suite')
+            ));
+        }
+        
+        // Verify nonce using security helper (do NOT sanitize before verification)
         RESBS_Security::verify_ajax_nonce($_POST['nonce'], 'resbs_favorites_nonce');
         
         // Rate limiting check
@@ -342,7 +371,14 @@ class RESBS_Favorites_Manager {
         }
 
         if (is_user_logged_in()) {
+            // Verify user is authenticated
             $user_id = get_current_user_id();
+            if (!$user_id) {
+                wp_send_json_error(array(
+                    'message' => esc_html__('Authentication required.', 'realestate-booking-suite')
+                ));
+            }
+            
             delete_user_meta($user_id, 'resbs_favorites');
         } else {
             $this->set_session_favorites(array());
@@ -1083,6 +1119,11 @@ class RESBS_Favorites_Widget extends WP_Widget {
      * Update widget
      */
     public function update($new_instance, $old_instance) {
+        // Check user capability - only users who can edit widgets should be able to update them
+        if (!current_user_can('edit_theme_options')) {
+            return $old_instance; // Return old instance if user doesn't have permission
+        }
+        
         $instance = array();
         $instance['title'] = sanitize_text_field($new_instance['title']);
         $instance['max_properties'] = intval($new_instance['max_properties']);

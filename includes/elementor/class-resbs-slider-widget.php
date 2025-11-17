@@ -2,6 +2,42 @@
 /**
  * Elementor Property Slider Widget
  * 
+ * SECURITY NOTES:
+ * ===============
+ * 
+ * 1. DIRECT ACCESS PREVENTION:
+ *    - ABSPATH check at top of file prevents direct file access
+ *    - Class redeclaration check prevents conflicts
+ * 
+ * 2. NONCE REQUIREMENTS:
+ *    - Favorite Button AJAX: Uses 'resbs_elementor_nonce' (created in class-resbs-elementor.php)
+ *      - Nonce is localized to JavaScript as: resbs_elementor_ajax.nonce
+ *      - AJAX handler: 'resbs_toggle_favorite' (handled in class-resbs-favorites.php or class-resbs-widgets.php)
+ *      - Nonce verification: wp_verify_nonce($_POST['nonce'], 'resbs_elementor_nonce')
+ *      - JavaScript handler: elementor.js -> toggleFavorite() function (line 397-416)
+ * 
+ * 3. USER PERMISSIONS:
+ *    - Widget Display: No permission check needed (public content)
+ *    - Favorite Button: Requires user to be logged in (checked server-side in AJAX handlers)
+ *      - Capability check: is_user_logged_in() in AJAX handler
+ *      - No admin capabilities required for favorites functionality
+ * 
+ * 4. DATA SANITIZATION:
+ *    - All user input sanitized: sanitize_text_field(), intval(), esc_attr(), esc_html(), esc_url()
+ *    - Settings from Elementor are already sanitized by Elementor framework
+ *    - Property IDs validated: RESBS_Security::sanitize_property_id() in AJAX handlers
+ * 
+ * 5. AJAX SECURITY (Favorite Button):
+ *    - Nonce verification: Required in AJAX handler (class-resbs-favorites.php or class-resbs-widgets.php)
+ *    - Rate limiting: RESBS_Security::check_rate_limit() in AJAX handlers
+ *    - User authentication: is_user_logged_in() check in AJAX handlers
+ *    - Property ID validation: Must be valid post ID of 'property' post type
+ * 
+ * 6. OUTPUT ESCAPING:
+ *    - All output uses esc_* functions: esc_html(), esc_attr(), esc_url()
+ *    - JSON data: wp_json_encode() with esc_attr() wrapper
+ *    - No direct echo of user input without escaping
+ * 
  * @package RealEstate_Booking_Suite
  */
 
@@ -315,6 +351,9 @@ class RESBS_Slider_Widget extends \Elementor\Widget_Base {
 
     /**
      * Get property types
+     * 
+     * SECURITY: Safe - Private method, only used for Elementor control options
+     * Output is escaped with esc_html() before being used in select options
      */
     private function get_property_types() {
         $types = get_terms(array(
@@ -332,6 +371,9 @@ class RESBS_Slider_Widget extends \Elementor\Widget_Base {
 
     /**
      * Get property statuses
+     * 
+     * SECURITY: Safe - Private method, only used for Elementor control options
+     * Output is escaped with esc_html() before being used in select options
      */
     private function get_property_statuses() {
         $statuses = get_terms(array(
@@ -349,6 +391,12 @@ class RESBS_Slider_Widget extends \Elementor\Widget_Base {
 
     /**
      * Render widget output
+     * 
+     * SECURITY NOTES:
+     * - Scripts and nonces are enqueued by class-resbs-elementor.php
+     * - Nonce 'resbs_elementor_nonce' is localized as resbs_elementor_ajax.nonce
+     * - Favorite button functionality requires JavaScript from elementor.js
+     * - All user input from settings is sanitized before use
      */
     protected function render() {
         $settings = $this->get_settings_for_display();
@@ -777,6 +825,16 @@ class RESBS_Slider_Widget extends \Elementor\Widget_Base {
                     </a>
                 <?php endif; ?>
                 
+                <?php
+                /**
+                 * Favorite Button - Security Requirements:
+                 * - Nonce: Uses 'resbs_elementor_nonce' (localized as resbs_elementor_ajax.nonce in JavaScript)
+                 * - AJAX Handler: 'resbs_toggle_favorite' (handled in class-resbs-favorites.php or class-resbs-widgets.php)
+                 * - Permission: Requires user to be logged in (checked server-side in AJAX handler)
+                 * - JavaScript: Handled by elementor.js -> toggleFavorite() function
+                 * - Rate Limiting: Applied in AJAX handler via RESBS_Security::check_rate_limit()
+                 */
+                ?>
                 <button type="button" class="resbs-favorite-btn" data-property-id="<?php echo esc_attr($property_id); ?>">
                     <span class="dashicons dashicons-heart"></span>
                 </button>

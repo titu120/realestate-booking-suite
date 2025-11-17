@@ -116,6 +116,13 @@ class RESBS_Search_Alerts_Manager {
      * AJAX handler for saving search alert
      */
     public function ajax_save_search_alert() {
+        // Check if required POST data exists
+        if (!isset($_POST['nonce']) || !isset($_POST['name']) || !isset($_POST['email']) || !isset($_POST['search_criteria'])) {
+            wp_send_json_error(array(
+                'message' => esc_html__('Missing required fields.', 'realestate-booking-suite')
+            ));
+        }
+
         // Verify nonce using security helper
         RESBS_Security::verify_ajax_nonce($_POST['nonce'], 'resbs_search_alerts_nonce');
         
@@ -129,7 +136,7 @@ class RESBS_Search_Alerts_Manager {
         // Sanitize and validate input
         $name = RESBS_Security::sanitize_text($_POST['name']);
         $email = RESBS_Security::sanitize_email($_POST['email']);
-        $frequency = RESBS_Security::sanitize_text($_POST['frequency']);
+        $frequency = isset($_POST['frequency']) ? RESBS_Security::sanitize_text($_POST['frequency']) : 'daily';
         $search_criteria = RESBS_Security::sanitize_textarea($_POST['search_criteria']);
 
         // Validate required fields
@@ -157,6 +164,20 @@ class RESBS_Search_Alerts_Manager {
             $frequency = 'daily';
         }
 
+        // Security: If user is logged in, verify email ownership
+        if (is_user_logged_in()) {
+            $user_id = get_current_user_id();
+            $user = get_userdata($user_id);
+            if ($user && $user->user_email !== $email) {
+                // Check if user has permission to create alerts for other emails (admin only)
+                if (!current_user_can('manage_options')) {
+                    wp_send_json_error(array(
+                        'message' => esc_html__('You can only create alerts for your own email address.', 'realestate-booking-suite')
+                    ));
+                }
+            }
+        }
+
         // Save search alert
         $alert_id = $this->save_search_alert($name, $email, $search_criteria, $frequency);
 
@@ -176,6 +197,13 @@ class RESBS_Search_Alerts_Manager {
      * AJAX handler for deleting search alert
      */
     public function ajax_delete_search_alert() {
+        // Check if required POST data exists
+        if (!isset($_POST['nonce']) || !isset($_POST['alert_id'])) {
+            wp_send_json_error(array(
+                'message' => esc_html__('Missing required fields.', 'realestate-booking-suite')
+            ));
+        }
+
         // Verify nonce using security helper
         RESBS_Security::verify_ajax_nonce($_POST['nonce'], 'resbs_search_alerts_nonce');
         
@@ -211,8 +239,19 @@ class RESBS_Search_Alerts_Manager {
                 ));
             }
         } else {
-            // For non-logged in users, check email
+            // For non-logged in users, require email verification
+            if (!isset($_POST['email'])) {
+                wp_send_json_error(array(
+                    'message' => esc_html__('Email address is required to delete this alert.', 'realestate-booking-suite')
+                ));
+            }
             $posted_email = RESBS_Security::sanitize_email($_POST['email']);
+            if (empty($posted_email) || !is_email($posted_email)) {
+                wp_send_json_error(array(
+                    'message' => esc_html__('Please provide a valid email address.', 'realestate-booking-suite')
+                ));
+            }
+            // Verify email matches alert owner
             if ($alert->email !== $posted_email) {
                 wp_send_json_error(array(
                     'message' => esc_html__('You do not have permission to delete this alert.', 'realestate-booking-suite')
@@ -238,6 +277,13 @@ class RESBS_Search_Alerts_Manager {
      * AJAX handler for getting search alerts
      */
     public function ajax_get_search_alerts() {
+        // Check if required POST data exists
+        if (!isset($_POST['nonce']) || !isset($_POST['email'])) {
+            wp_send_json_error(array(
+                'message' => esc_html__('Missing required fields.', 'realestate-booking-suite')
+            ));
+        }
+
         // Verify nonce using security helper
         RESBS_Security::verify_ajax_nonce($_POST['nonce'], 'resbs_search_alerts_nonce');
         
@@ -250,16 +296,45 @@ class RESBS_Search_Alerts_Manager {
 
         $email = RESBS_Security::sanitize_email($_POST['email']);
         
-        if (!is_email($email)) {
+        if (empty($email) || !is_email($email)) {
             wp_send_json_error(array(
                 'message' => esc_html__('Invalid email address.', 'realestate-booking-suite')
             ));
         }
 
+        // Security: Verify email ownership
+        if (is_user_logged_in()) {
+            $user_id = get_current_user_id();
+            $user = get_userdata($user_id);
+            // Users can only view their own alerts unless they're admins
+            if ($user && $user->user_email !== $email && !current_user_can('manage_options')) {
+                wp_send_json_error(array(
+                    'message' => esc_html__('You can only view alerts for your own email address.', 'realestate-booking-suite')
+                ));
+            }
+        }
+        // For non-logged in users, we allow viewing alerts by email (they need to know the email)
+        // This is acceptable for public functionality, but rate limiting provides protection
+
         $alerts = $this->get_search_alerts_by_email($email);
 
+        // Sanitize alert data before sending
+        $sanitized_alerts = array();
+        foreach ($alerts as $alert) {
+            $sanitized_alerts[] = array(
+                'id' => absint($alert->id),
+                'name' => esc_html($alert->name),
+                'email' => esc_html($alert->email),
+                'search_criteria' => esc_html($alert->search_criteria),
+                'frequency' => esc_html($alert->frequency),
+                'created_at' => esc_html($alert->created_at),
+                'last_sent' => esc_html($alert->last_sent),
+                'status' => esc_html($alert->status)
+            );
+        }
+
         wp_send_json_success(array(
-            'alerts' => $alerts
+            'alerts' => $sanitized_alerts
         ));
     }
 
@@ -616,8 +691,8 @@ class RESBS_Search_Alerts_Manager {
             <?php if ($show_form): ?>
                 <div class="resbs-search-alert-form">
                     <h3><?php esc_html_e('Save Search Alert', 'realestate-booking-suite'); ?></h3>
-                    <form id="resbs-search-alert-form">
-                        <?php wp_nonce_field('resbs_search_alerts_nonce', 'resbs_search_alert_nonce'); ?>
+                        <form id="resbs-search-alert-form">
+                        <?php wp_nonce_field('resbs_search_alerts_nonce', 'resbs_search_alerts_nonce'); ?>
                         
                         <div class="resbs-form-row">
                             <div class="resbs-form-group">

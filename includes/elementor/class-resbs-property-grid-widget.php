@@ -2,6 +2,56 @@
 /**
  * Elementor Property Grid Widget
  * 
+ * SECURITY NOTES:
+ * ===============
+ * 
+ * 1. DIRECT ACCESS PREVENTION:
+ *    - ABSPATH check at top of file prevents direct file access
+ *    - Class redeclaration check prevents conflicts
+ * 
+ * 2. NONCE REQUIREMENTS:
+ *    - Filter Form AJAX: Uses 'resbs_elementor_nonce' (created in class-resbs-elementor.php)
+ *      - Nonce is localized to JavaScript as: resbs_elementor_ajax.nonce
+ *      - AJAX handler: 'resbs_elementor_load_properties' (handled in class-resbs-frontend.php)
+ *      - Nonce verification: wp_verify_nonce($_POST['nonce'], 'resbs_elementor_nonce')
+ *      - JavaScript handler: elementor.js -> loadProperties() function (line 112-143)
+ *      - Note: Filter form nonce field is not needed as AJAX call includes nonce in request
+ * 
+ *    - Favorite Button AJAX: Uses 'resbs_elementor_nonce' (created in class-resbs-elementor.php)
+ *      - Nonce is localized to JavaScript as: resbs_elementor_ajax.nonce
+ *      - AJAX handler: 'resbs_toggle_favorite' (handled in class-resbs-favorites.php)
+ *      - Nonce verification: wp_verify_nonce($_POST['nonce'], 'resbs_elementor_nonce')
+ *      - JavaScript handler: elementor.js -> toggleFavorite() function (line 397-416)
+ * 
+ * 3. USER PERMISSIONS:
+ *    - Widget Display: No permission check needed (public content)
+ *    - Filter Form: No permission check needed (public search functionality)
+ *    - Favorite Button: Requires user to be logged in (checked server-side in AJAX handlers)
+ *      - Capability check: is_user_logged_in() in AJAX handler
+ *      - No admin capabilities required for favorites functionality
+ * 
+ * 4. DATA SANITIZATION:
+ *    - All user input sanitized: sanitize_text_field(), intval(), esc_attr(), esc_html(), esc_url()
+ *    - Settings from Elementor are already sanitized by Elementor framework
+ *    - Filter inputs sanitized in AJAX handler: sanitize_text_field() for text, intval() for numbers
+ *    - Property IDs validated: RESBS_Security::sanitize_property_id() in AJAX handlers
+ * 
+ * 5. AJAX SECURITY:
+ *    - Filter Properties: 
+ *      - Nonce verification: Required in AJAX handler (class-resbs-frontend.php::handle_elementor_load_properties)
+ *      - Rate limiting: Not required for read-only operations
+ *      - Input sanitization: All filter values sanitized before use in queries
+ *    - Favorite Button:
+ *      - Nonce verification: Required in AJAX handler (class-resbs-favorites.php::ajax_toggle_favorite)
+ *      - Rate limiting: RESBS_Security::check_rate_limit() in AJAX handlers
+ *      - User authentication: is_user_logged_in() check in AJAX handlers
+ *      - Property ID validation: Must be valid post ID of 'property' post type
+ * 
+ * 6. OUTPUT ESCAPING:
+ *    - All output uses esc_* functions: esc_html(), esc_attr(), esc_url()
+ *    - JSON data: wp_json_encode() with esc_attr() wrapper
+ *    - No direct echo of user input without escaping
+ * 
  * @package RealEstate_Booking_Suite
  */
 
@@ -541,7 +591,10 @@ class RESBS_Property_Grid_Widget extends \Elementor\Widget_Base {
             <?php if ($show_filters): ?>
                 <div class="resbs-widget-filters">
                     <form class="resbs-filter-form" data-target="<?php echo esc_attr($widget_id); ?>">
-                        <?php wp_nonce_field('resbs_widget_filter', 'resbs_filter_nonce'); ?>
+                        <?php 
+                        // Note: Nonce is not needed in form as AJAX requests include nonce from resbs_elementor_ajax.nonce
+                        // The nonce is automatically included in all AJAX requests via elementor.js
+                        ?>
                         
                         <div class="resbs-filter-row">
                             <?php if ($show_type_filter): ?>
@@ -767,6 +820,12 @@ class RESBS_Property_Grid_Widget extends \Elementor\Widget_Base {
                 <?php endif; ?>
 
                 <?php if ($show_favorite_button): ?>
+                    <?php 
+                    // Security: Favorite button uses AJAX with nonce verification
+                    // Nonce: resbs_elementor_ajax.nonce (created in class-resbs-elementor.php)
+                    // AJAX handler: resbs_toggle_favorite (class-resbs-favorites.php)
+                    // User permission: Requires login (checked server-side in AJAX handler)
+                    ?>
                     <button type="button" class="resbs-favorite-btn" data-property-id="<?php echo esc_attr($property_id); ?>" aria-label="<?php esc_attr_e('Add to favorites', 'realestate-booking-suite'); ?>">
                         <span class="dashicons dashicons-heart"></span>
                     </button>

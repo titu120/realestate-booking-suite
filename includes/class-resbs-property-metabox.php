@@ -3142,6 +3142,14 @@ class RESBS_Property_Metabox {
             wp_send_json_error(esc_html__('You do not have permission to upload files.', 'realestate-booking-suite'));
         }
         
+        // If post_id is provided, verify user can edit that post
+        $post_id = isset($_POST['post_id']) ? intval($_POST['post_id']) : 0;
+        if ($post_id > 0) {
+            if (!current_user_can('edit_post', $post_id)) {
+                wp_send_json_error(esc_html__('You do not have permission to upload files to this property.', 'realestate-booking-suite'));
+            }
+        }
+        
         $uploaded_files = array();
         $errors = array();
         
@@ -3162,7 +3170,7 @@ class RESBS_Property_Metabox {
                         'size' => $_FILES['files']['size'][$key]
                     );
                     
-                    $attachment_id = media_handle_sideload($file, 0);
+                    $attachment_id = media_handle_sideload($file, $post_id);
                     
                     if (!is_wp_error($attachment_id)) {
                         $uploaded_files[] = $attachment_id;
@@ -3178,7 +3186,7 @@ class RESBS_Property_Metabox {
             } else {
                 // Handle single file
                 if ($_FILES['files']['name']) {
-                    $attachment_id = media_handle_sideload($_FILES['files'], 0);
+                    $attachment_id = media_handle_sideload($_FILES['files'], $post_id);
                     
                     if (!is_wp_error($attachment_id)) {
                         $uploaded_files[] = $attachment_id;
@@ -3211,15 +3219,32 @@ class RESBS_Property_Metabox {
         check_ajax_referer('resbs_metabox_nonce', 'nonce');
         
         if (!current_user_can('delete_posts')) {
-            wp_die(esc_html__('You do not have permission to delete files.', 'realestate-booking-suite'));
+            wp_send_json_error(esc_html__('You do not have permission to delete files.', 'realestate-booking-suite'));
         }
         
-        $attachment_id = intval($_POST['attachment_id']);
+        $attachment_id = isset($_POST['attachment_id']) ? intval($_POST['attachment_id']) : 0;
+        
+        if (!$attachment_id) {
+            wp_send_json_error(esc_html__('Invalid attachment ID.', 'realestate-booking-suite'));
+        }
+        
+        // Check if user can delete this specific attachment
+        $attachment = get_post($attachment_id);
+        if (!$attachment) {
+            wp_send_json_error(esc_html__('Attachment not found.', 'realestate-booking-suite'));
+        }
+        
+        // If attachment is attached to a post, verify user can edit that post
+        if ($attachment->post_parent > 0) {
+            if (!current_user_can('edit_post', $attachment->post_parent)) {
+                wp_send_json_error(esc_html__('You do not have permission to delete this file.', 'realestate-booking-suite'));
+            }
+        }
         
         if (wp_delete_attachment($attachment_id, true)) {
             wp_send_json_success();
         } else {
-            wp_send_json_error();
+            wp_send_json_error(esc_html__('Failed to delete attachment.', 'realestate-booking-suite'));
         }
     }
 
@@ -3233,6 +3258,11 @@ class RESBS_Property_Metabox {
         
         if (!$post_id) {
             wp_send_json_error(esc_html__('Invalid post ID', 'realestate-booking-suite'));
+        }
+        
+        // Check if user can edit this post
+        if (!current_user_can('edit_post', $post_id)) {
+            wp_send_json_error(esc_html__('You do not have permission to access this property.', 'realestate-booking-suite'));
         }
         
         // Get gallery images
@@ -3282,8 +3312,13 @@ class RESBS_Property_Metabox {
      * Alternative save function with higher priority
      */
     public function save_property_metabox_alt($post_id) {
-        // Only run for property post type
-        if (get_post_type($post_id) !== 'property') {
+        // Basic WordPress checks
+        if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
+        if (!current_user_can('edit_post', $post_id)) return;
+        if (get_post_type($post_id) !== 'property') return;
+        
+        // Verify nonce
+        if (!isset($_POST['resbs_property_metabox_nonce']) || !wp_verify_nonce($_POST['resbs_property_metabox_nonce'], 'resbs_property_metabox_nonce')) {
             return;
         }
         

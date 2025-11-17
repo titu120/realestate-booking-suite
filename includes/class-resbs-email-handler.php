@@ -21,9 +21,24 @@ class RESBS_Email_Handler {
      * Handle contact form submission
      */
     public function handle_contact_form_submission() {
-        // Verify nonce for security
-        if (!wp_verify_nonce($_POST['nonce'], 'resbs_contact_form_nonce')) {
-            wp_die(esc_html__('Security check failed', 'realestate-booking-suite'));
+        // Verify nonce for security - check multiple possible nonce field names
+        $nonce = isset($_POST['nonce']) ? $_POST['nonce'] : (isset($_POST['resbs_contact_form_nonce']) ? $_POST['resbs_contact_form_nonce'] : '');
+        if (empty($nonce) || !wp_verify_nonce($nonce, 'resbs_contact_form')) {
+            wp_send_json_error(array(
+                'message' => esc_html__('Security check failed. Please refresh the page and try again.', 'realestate-booking-suite')
+            ));
+            return;
+        }
+        
+        // Check user permissions - allow both logged-in and non-logged-in users for public contact forms
+        // Additional rate limiting should be implemented at server level
+        
+        // Validate required fields exist
+        if (!isset($_POST['contact_name']) || !isset($_POST['contact_email']) || !isset($_POST['property_id'])) {
+            wp_send_json_error(array(
+                'message' => esc_html__('Please fill in all required fields.', 'realestate-booking-suite')
+            ));
+            return;
         }
         
         // Check if we're on localhost
@@ -31,12 +46,36 @@ class RESBS_Email_Handler {
                         strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false ||
                         strpos($_SERVER['HTTP_HOST'], 'testthree') !== false);
         
-        // Get form data
+        // Get and sanitize form data
         $name = sanitize_text_field($_POST['contact_name']);
         $email = sanitize_email($_POST['contact_email']);
-        $phone = sanitize_text_field($_POST['contact_phone']);
-        $message = sanitize_textarea_field($_POST['contact_message']);
+        $phone = isset($_POST['contact_phone']) ? sanitize_text_field($_POST['contact_phone']) : '';
+        $message = isset($_POST['contact_message']) ? sanitize_textarea_field($_POST['contact_message']) : '';
         $property_id = intval($_POST['property_id']);
+        
+        // Validate required fields are not empty
+        if (empty($name) || empty($email) || empty($property_id)) {
+            wp_send_json_error(array(
+                'message' => esc_html__('Please fill in all required fields (Name, Email).', 'realestate-booking-suite')
+            ));
+            return;
+        }
+        
+        // Validate email format
+        if (!is_email($email)) {
+            wp_send_json_error(array(
+                'message' => esc_html__('Please enter a valid email address.', 'realestate-booking-suite')
+            ));
+            return;
+        }
+        
+        // Validate property exists
+        if (!get_post($property_id) || get_post_type($property_id) !== 'property') {
+            wp_send_json_error(array(
+                'message' => esc_html__('Invalid property selected.', 'realestate-booking-suite')
+            ));
+            return;
+        }
         
         // Get property and agent data
         $property_title = get_the_title($property_id);
@@ -125,19 +164,58 @@ class RESBS_Email_Handler {
      * Handle booking form submission
      */
     public function handle_booking_form_submission() {
-        // Verify nonce for security
-        if (!wp_verify_nonce($_POST['nonce'], 'resbs_booking_form_nonce')) {
-            wp_die(esc_html__('Security check failed', 'realestate-booking-suite'));
+        // Verify nonce for security - check multiple possible nonce field names
+        $nonce = isset($_POST['nonce']) ? $_POST['nonce'] : (isset($_POST['resbs_booking_form_nonce']) ? $_POST['resbs_booking_form_nonce'] : (isset($_POST['_wpnonce']) ? $_POST['_wpnonce'] : ''));
+        if (empty($nonce) || !wp_verify_nonce($nonce, 'resbs_booking_form')) {
+            wp_send_json_error(array(
+                'message' => esc_html__('Security check failed. Please refresh the page and try again.', 'realestate-booking-suite')
+            ));
+            return;
         }
         
-        // Get form data
+        // Check user permissions - allow both logged-in and non-logged-in users for public booking forms
+        // Additional rate limiting should be implemented at server level
+        
+        // Validate required fields exist
+        if (!isset($_POST['bookingName']) || !isset($_POST['bookingEmail']) || !isset($_POST['property_id'])) {
+            wp_send_json_error(array(
+                'message' => esc_html__('Please fill in all required fields.', 'realestate-booking-suite')
+            ));
+            return;
+        }
+        
+        // Get and sanitize form data
         $name = sanitize_text_field($_POST['bookingName']);
         $email = sanitize_email($_POST['bookingEmail']);
-        $phone = sanitize_text_field($_POST['bookingPhone']);
-        $date = sanitize_text_field($_POST['bookingDate']);
-        $time = sanitize_text_field($_POST['bookingTime']);
-        $message = sanitize_textarea_field($_POST['bookingMessage']);
+        $phone = isset($_POST['bookingPhone']) ? sanitize_text_field($_POST['bookingPhone']) : '';
+        $date = isset($_POST['bookingDate']) ? sanitize_text_field($_POST['bookingDate']) : '';
+        $time = isset($_POST['bookingTime']) ? sanitize_text_field($_POST['bookingTime']) : '';
+        $message = isset($_POST['bookingMessage']) ? sanitize_textarea_field($_POST['bookingMessage']) : '';
         $property_id = intval($_POST['property_id']);
+        
+        // Validate required fields are not empty
+        if (empty($name) || empty($email) || empty($property_id)) {
+            wp_send_json_error(array(
+                'message' => esc_html__('Please fill in all required fields (Name, Email).', 'realestate-booking-suite')
+            ));
+            return;
+        }
+        
+        // Validate email format
+        if (!is_email($email)) {
+            wp_send_json_error(array(
+                'message' => esc_html__('Please enter a valid email address.', 'realestate-booking-suite')
+            ));
+            return;
+        }
+        
+        // Validate property exists
+        if (!get_post($property_id) || get_post_type($property_id) !== 'property') {
+            wp_send_json_error(array(
+                'message' => esc_html__('Invalid property selected.', 'realestate-booking-suite')
+            ));
+            return;
+        }
         
         // Get property and agent data
         $property_title = get_the_title($property_id);

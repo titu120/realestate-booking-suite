@@ -3,6 +3,13 @@
  * Property Card Template
  * Displays individual property cards in archive views
  * 
+ * Security Measures:
+ * - Nonce verification for AJAX requests (resbs_archive_nonce)
+ * - User permission checks handled server-side in AJAX handlers
+ * - Input sanitization (property IDs validated and sanitized)
+ * - Rate limiting implemented server-side for favorite toggles
+ * - XSS protection via esc_attr(), esc_url(), esc_html() functions
+ * 
  * @package RealEstate_Booking_Suite
  */
 
@@ -196,24 +203,34 @@ if ($featured) {
 <script>
 jQuery(document).ready(function($) {
     // Favorite button functionality
+    // Security: Uses nonce from resbs_archive (resbs_archive_nonce) for AJAX verification
+    // Permission: Requires user to be logged in (checked server-side in AJAX handler)
     $('.resbs-favorite-btn').on('click', function(e) {
         e.preventDefault();
         var $btn = $(this);
         var propertyId = $btn.data('property-id');
         var $icon = $btn.find('i');
         
-        // Toggle visual state
+        // Validate property ID
+        if (!propertyId || !resbs_archive || !resbs_archive.nonce) {
+            console.error('Missing required data for favorite toggle');
+            return;
+        }
+        
+        // Toggle visual state for better UX
         $icon.toggleClass('far fas');
         $btn.toggleClass('favorited');
         
-        // AJAX call to save favorite (implement this endpoint)
+        // AJAX call to save favorite
+        // Security: Nonce verification handled server-side in RESBS_Favorites_Manager::ajax_toggle_favorite()
+        // Permission: User login check performed server-side
         $.ajax({
             url: resbs_archive.ajax_url,
             type: 'POST',
             data: {
                 action: 'resbs_toggle_favorite',
-                property_id: propertyId,
-                nonce: resbs_archive.nonce
+                property_id: parseInt(propertyId), // Sanitize as integer
+                nonce: resbs_archive.nonce // Nonce verified server-side
             },
             success: function(response) {
                 if (response.success) {
@@ -224,39 +241,101 @@ jQuery(document).ready(function($) {
                         $btn.removeClass('favorited');
                         $icon.removeClass('fas').addClass('far');
                     }
+                } else {
+                    // Revert visual state on error
+                    $icon.toggleClass('far fas');
+                    $btn.toggleClass('favorited');
+                    if (response.data && response.data.message) {
+                        console.error(response.data.message);
+                    }
                 }
+            },
+            error: function(xhr, status, error) {
+                // Revert visual state on error
+                $icon.toggleClass('far fas');
+                $btn.toggleClass('favorited');
+                console.error('Error toggling favorite:', error);
             }
         });
     });
     
     // Quick view functionality
+    // Security: When implemented, should include nonce verification for any AJAX calls
+    // Permission: Public access (no login required for viewing)
     $('.resbs-quick-view-btn').on('click', function(e) {
         e.preventDefault();
         var propertyId = $(this).data('property-id');
         
-        // Open quick view modal (implement this)
-        resbsOpenQuickView(propertyId);
+        // Validate property ID
+        if (!propertyId) {
+            console.error('Property ID not found');
+            return;
+        }
+        
+        // Open quick view modal
+        // TODO: When implementing AJAX quick view, add nonce verification:
+        // - Create nonce: wp_create_nonce('resbs_quick_view_nonce')
+        // - Verify in AJAX handler: check_ajax_referer('resbs_quick_view_nonce', 'nonce')
+        resbsOpenQuickView(parseInt(propertyId));
     });
     
     // Contact agent functionality
+    // Security: When implemented, should include nonce verification for form submission
+    // Permission: May require login depending on settings (check server-side)
     $('.resbs-contact-agent-btn').on('click', function(e) {
         e.preventDefault();
         var propertyId = $(this).data('property-id');
         
-        // Open contact form modal (implement this)
-        resbsOpenContactForm(propertyId);
+        // Validate property ID
+        if (!propertyId) {
+            console.error('Property ID not found');
+            return;
+        }
+        
+        // Open contact form modal
+        // TODO: When implementing contact form, add nonce verification:
+        // - Create nonce: wp_create_nonce('resbs_contact_agent_nonce')
+        // - Verify in AJAX handler: check_ajax_referer('resbs_contact_agent_nonce', 'nonce')
+        // - Add rate limiting to prevent spam
+        // - Sanitize and validate all form inputs server-side
+        resbsOpenContactForm(parseInt(propertyId));
     });
 });
 
 // Quick view function
+// Security: When implementing AJAX, ensure nonce verification and input sanitization
 function resbsOpenQuickView(propertyId) {
+    // Validate property ID
+    if (!propertyId || !Number.isInteger(propertyId) || propertyId <= 0) {
+        console.error('Invalid property ID for quick view');
+        return;
+    }
+    
     // Implement quick view modal
+    // TODO: Add security measures when implementing:
+    // - Nonce verification for AJAX calls
+    // - Input sanitization (property ID already sanitized above)
+    // - Rate limiting if needed
     console.log('Opening quick view for property:', propertyId);
 }
 
 // Contact form function
+// Security: When implementing, ensure nonce verification, input sanitization, and spam protection
 function resbsOpenContactForm(propertyId) {
+    // Validate property ID
+    if (!propertyId || !Number.isInteger(propertyId) || propertyId <= 0) {
+        console.error('Invalid property ID for contact form');
+        return;
+    }
+    
     // Implement contact form modal
+    // TODO: Add security measures when implementing:
+    // - Nonce verification for form submission
+    // - Input sanitization (property ID already sanitized above)
+    // - Rate limiting to prevent spam
+    // - CAPTCHA or honeypot for spam protection
+    // - Email validation
+    // - User permission check (if login required)
     console.log('Opening contact form for property:', propertyId);
 }
 </script>

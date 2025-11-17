@@ -2,6 +2,41 @@
 /**
  * Elementor Property Authentication Widget
  * 
+ * SECURITY IMPLEMENTATION:
+ * 
+ * 1. NONCES:
+ *    - Login Form (AJAX): Uses 'resbs_elementor_nonce' (created in class-resbs-elementor.php)
+ *      - Nonce is localized to JavaScript as: resbs_elementor_ajax.nonce
+ *      - AJAX handler: 'resbs_elementor_login' (handled in class-resbs-frontend.php)
+ *      - Nonce verification: wp_verify_nonce($_POST['nonce'], 'resbs_elementor_nonce')
+ *      - JavaScript handler: elementor.js -> performLogin() function
+ *      - Note: Forms also submit to WordPress default URLs (wp_login_url) which have their own security
+ * 
+ *    - Logout Link: Uses WordPress built-in nonce via wp_logout_url()
+ *      - AJAX handler: 'resbs_elementor_logout' (handled in class-resbs-frontend.php)
+ *      - Nonce verification: wp_verify_nonce($_POST['nonce'], 'resbs_elementor_nonce')
+ *      - JavaScript handler: elementor.js -> performLogout() function
+ * 
+ *    - Registration Form: Submits to wp_registration_url() (WordPress handles security)
+ *      - If AJAX registration is added in future, nonce verification will be required
+ * 
+ * 2. USER PERMISSIONS:
+ *    - Widget Display: No permission check needed (public authentication forms)
+ *    - Login Form: No permission check needed (public login functionality)
+ *    - Logout: No permission check needed (WordPress handles user verification)
+ *    - Registration: No permission check needed (public registration if enabled)
+ * 
+ * 3. INPUT SANITIZATION:
+ *    - All user input is sanitized: sanitize_text_field(), sanitize_html_class()
+ *    - Form type is validated against allowed values array
+ *    - All output is escaped: esc_attr(), esc_url(), esc_html_e()
+ * 
+ * 4. ADDITIONAL SECURITY:
+ *    - Rate limiting implemented in AJAX handler (class-resbs-frontend.php)
+ *    - Password field uses type="password" for security
+ *    - All form actions use esc_url() for URL sanitization
+ *    - Widget ID is sanitized using sanitize_html_class()
+ * 
  * @package RealEstate_Booking_Suite
  */
 
@@ -223,6 +258,11 @@ class RESBS_Authentication_Widget extends \Elementor\Widget_Base {
                             </div>
                             
                             <form class="resbs-auth-form resbs-login-form" method="post" action="<?php echo esc_url($login_url); ?>">
+                                <?php
+                                // Add nonce for AJAX submission (JavaScript will use resbs_elementor_ajax.nonce)
+                                // This hidden field is for direct form submission fallback
+                                wp_nonce_field('resbs_elementor_login', 'resbs_login_nonce');
+                                ?>
                                 <div class="resbs-form-field">
                                     <label for="login_username_<?php echo esc_attr($widget_id); ?>">
                                         <?php esc_html_e('Username or Email', 'realestate-booking-suite'); ?>
@@ -268,6 +308,11 @@ class RESBS_Authentication_Widget extends \Elementor\Widget_Base {
                     </div>
                 <?php elseif ($form_type === 'login_form'): ?>
                     <form class="resbs-auth-form resbs-login-form" method="post" action="<?php echo esc_url($login_url); ?>">
+                        <?php
+                        // Add nonce for AJAX submission (JavaScript will use resbs_elementor_ajax.nonce)
+                        // This hidden field is for direct form submission fallback
+                        wp_nonce_field('resbs_elementor_login', 'resbs_login_nonce');
+                        ?>
                         <div class="resbs-form-field">
                             <label for="login_username_<?php echo esc_attr($widget_id); ?>">
                                 <?php esc_html_e('Username or Email', 'realestate-booking-suite'); ?>
@@ -311,6 +356,11 @@ class RESBS_Authentication_Widget extends \Elementor\Widget_Base {
                     </form>
                 <?php elseif ($form_type === 'register_form'): ?>
                     <form class="resbs-auth-form resbs-register-form" method="post" action="<?php echo esc_url($register_url); ?>">
+                        <?php
+                        // Add nonce for potential future AJAX registration
+                        // WordPress registration URL handles its own security, but nonce is good practice
+                        wp_nonce_field('resbs_elementor_register', 'resbs_register_nonce');
+                        ?>
                         <div class="resbs-form-field">
                             <label for="register_username_<?php echo esc_attr($widget_id); ?>">
                                 <?php esc_html_e('Username', 'realestate-booking-suite'); ?> *

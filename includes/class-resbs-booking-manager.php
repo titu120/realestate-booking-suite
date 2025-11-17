@@ -82,8 +82,9 @@ class RESBS_Booking_Manager {
         error_log('RESBS: Booking submission received');
         error_log('RESBS: POST data: ' . print_r($_POST, true));
         
-        // Verify nonce
-        if (!wp_verify_nonce($_POST['_wpnonce'], 'resbs_booking_nonce')) {
+        // Verify nonce - check both possible nonce field names for compatibility
+        $nonce = isset($_POST['_wpnonce']) ? $_POST['_wpnonce'] : (isset($_POST['resbs_booking_form_nonce']) ? $_POST['resbs_booking_form_nonce'] : '');
+        if (!wp_verify_nonce($nonce, 'resbs_booking_form')) {
             error_log('RESBS: Nonce verification failed');
             wp_send_json_error(array('message' => 'Security check failed. Please refresh the page and try again.'));
             return;
@@ -235,12 +236,21 @@ class RESBS_Booking_Manager {
      * Admin bookings page
      */
     public function bookings_admin_page() {
+        // Check user capability
+        if (!current_user_can('manage_options')) {
+            wp_die(__('You do not have sufficient permissions to access this page.', 'realestate-booking-suite'));
+        }
+
         $bookings = get_posts(array(
             'post_type' => 'property_booking',
             'posts_per_page' => -1,
             'orderby' => 'date',
             'order' => 'DESC'
         ));
+
+        // Generate nonces for AJAX requests
+        $update_nonce = wp_create_nonce('resbs_update_booking_status');
+        $delete_nonce = wp_create_nonce('resbs_delete_booking');
         ?>
         <div class="wrap">
             <h1>Property Bookings</h1>
@@ -312,21 +322,27 @@ class RESBS_Booking_Manager {
         </div>
         
         <script>
+        var resbsUpdateNonce = '<?php echo esc_js($update_nonce); ?>';
+        var resbsDeleteNonce = '<?php echo esc_js($delete_nonce); ?>';
+        
         function updateBookingStatus(bookingId, status) {
             fetch('<?php echo esc_url(admin_url('admin-ajax.php')); ?>', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
-                body: 'action=resbs_update_booking_status&booking_id=' + encodeURIComponent(bookingId) + '&status=' + encodeURIComponent(status)
+                body: 'action=resbs_update_booking_status&booking_id=' + encodeURIComponent(bookingId) + '&status=' + encodeURIComponent(status) + '&nonce=' + encodeURIComponent(resbsUpdateNonce)
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
                     alert('<?php echo esc_js(__('Booking status updated!', 'realestate-booking-suite')); ?>');
                 } else {
-                    alert('<?php echo esc_js(__('Error updating status', 'realestate-booking-suite')); ?>');
+                    alert(data.data && data.data.message ? data.data.message : '<?php echo esc_js(__('Error updating status', 'realestate-booking-suite')); ?>');
                 }
+            })
+            .catch(error => {
+                alert('<?php echo esc_js(__('Error updating status', 'realestate-booking-suite')); ?>');
             });
         }
         
@@ -337,15 +353,18 @@ class RESBS_Booking_Manager {
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
                     },
-                    body: 'action=resbs_delete_booking&booking_id=' + encodeURIComponent(bookingId)
+                    body: 'action=resbs_delete_booking&booking_id=' + encodeURIComponent(bookingId) + '&nonce=' + encodeURIComponent(resbsDeleteNonce)
                 })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
                         location.reload();
                     } else {
-                        alert('<?php echo esc_js(__('Error deleting booking', 'realestate-booking-suite')); ?>');
+                        alert(data.data && data.data.message ? data.data.message : '<?php echo esc_js(__('Error deleting booking', 'realestate-booking-suite')); ?>');
                     }
+                })
+                .catch(error => {
+                    alert('<?php echo esc_js(__('Error deleting booking', 'realestate-booking-suite')); ?>');
                 });
             }
         }
@@ -357,13 +376,34 @@ class RESBS_Booking_Manager {
      * Update booking status
      */
     public function update_booking_status() {
+        // Verify nonce and capability
+        $nonce = isset($_POST['nonce']) ? $_POST['nonce'] : '';
+        if (!wp_verify_nonce($nonce, 'resbs_update_booking_status')) {
+            wp_send_json_error(array('message' => 'Security check failed. Please refresh the page and try again.'));
+            return;
+        }
+
+        // Check user capability
         if (!current_user_can('manage_options')) {
-            wp_send_json_error('Unauthorized');
+            wp_send_json_error(array('message' => 'You do not have sufficient permissions.'));
             return;
         }
 
         $booking_id = intval($_POST['booking_id']);
         $status = sanitize_text_field($_POST['status']);
+
+        // Validate booking exists
+        if (!get_post($booking_id) || get_post_type($booking_id) !== 'property_booking') {
+            wp_send_json_error(array('message' => 'Invalid booking.'));
+            return;
+        }
+
+        // Validate status value
+        $allowed_statuses = array('pending', 'confirmed', 'completed', 'cancelled');
+        if (!in_array($status, $allowed_statuses, true)) {
+            wp_send_json_error(array('message' => 'Invalid status.'));
+            return;
+        }
 
         update_post_meta($booking_id, '_booking_status', $status);
         wp_send_json_success();
@@ -373,12 +413,27 @@ class RESBS_Booking_Manager {
      * Delete booking
      */
     public function delete_booking() {
+        // Verify nonce and capability
+        $nonce = isset($_POST['nonce']) ? $_POST['nonce'] : '';
+        if (!wp_verify_nonce($nonce, 'resbs_delete_booking')) {
+            wp_send_json_error(array('message' => 'Security check failed. Please refresh the page and try again.'));
+            return;
+        }
+
+        // Check user capability
         if (!current_user_can('manage_options')) {
-            wp_send_json_error('Unauthorized');
+            wp_send_json_error(array('message' => 'You do not have sufficient permissions.'));
             return;
         }
 
         $booking_id = intval($_POST['booking_id']);
+
+        // Validate booking exists
+        if (!get_post($booking_id) || get_post_type($booking_id) !== 'property_booking') {
+            wp_send_json_error(array('message' => 'Invalid booking.'));
+            return;
+        }
+
         wp_delete_post($booking_id, true);
         wp_send_json_success();
     }

@@ -2,6 +2,57 @@
 /**
  * Elementor Property Listings Widget
  * 
+ * SECURITY NOTES:
+ * ===============
+ * 
+ * 1. DIRECT ACCESS PREVENTION:
+ *    - ABSPATH check at top of file prevents direct file access
+ *    - Class redeclaration check prevents conflicts
+ * 
+ * 2. NONCE REQUIREMENTS:
+ *    - AJAX Handler: 'resbs_elementor_load_listings' (if used)
+ *      - Nonce action: 'resbs_elementor_nonce'
+ *      - Nonce is localized to JavaScript as: resbs_elementor_ajax.nonce
+ *      - AJAX handler location: class-resbs-frontend.php -> handle_elementor_load_listings()
+ *      - Nonce verification: wp_verify_nonce($_POST['nonce'], 'resbs_elementor_nonce')
+ *      - JavaScript handler: elementor.js -> reloadListings() function
+ *    - Note: Current widget implementation doesn't use AJAX, but handler exists for future use
+ * 
+ * 3. USER PERMISSIONS:
+ *    - Widget Display: No permission check needed (public content)
+ *    - Widget Registration (Admin): Elementor handles permissions automatically
+ *      - Users need 'edit_posts' capability to edit Elementor widgets
+ *      - Helper methods (get_pages_list, get_property_types, get_property_statuses) are called
+ *        during widget registration in admin - capability check added for security
+ *    - AJAX Handler (if used): Public endpoint - allows both logged-in and non-logged-in users
+ *      - Registered via: wp_ajax_resbs_elementor_load_listings (logged-in)
+ *      - Registered via: wp_ajax_nopriv_resbs_elementor_load_listings (non-logged-in)
+ *      - No admin capabilities required for viewing listings
+ * 
+ * 4. DATA SANITIZATION:
+ *    - All user input sanitized: sanitize_text_field(), intval(), esc_attr(), esc_html(), esc_url()
+ *    - Settings from Elementor are already sanitized by Elementor framework
+ *    - Query parameters validated: intval() for numeric values, sanitize_text_field() for text
+ *    - Property IDs validated: Must be valid post IDs of 'property' post type
+ * 
+ * 5. AJAX SECURITY (if AJAX is used):
+ *    - Nonce verification: Required in AJAX handler (class-resbs-frontend.php)
+ *    - Input sanitization: All POST data sanitized before use
+ *    - Query validation: Only published properties are returned
+ *    - No user permissions required for public listings display
+ * 
+ * 6. OUTPUT ESCAPING:
+ *    - All output uses esc_* functions: esc_html(), esc_attr(), esc_url(), esc_js()
+ *    - JSON data: wp_json_encode() with esc_attr() wrapper
+ *    - No direct echo of user input without escaping
+ *    - Property data: All meta values escaped before output
+ * 
+ * 7. WIDGET REGISTRATION SECURITY:
+ *    - Helper methods called during widget registration check user capabilities
+ *    - get_pages_list(): Checks current_user_can('edit_posts') before retrieving pages
+ *    - get_property_types(): Checks current_user_can('edit_posts') before retrieving terms
+ *    - get_property_statuses(): Checks current_user_can('edit_posts') before retrieving terms
+ * 
  * @package RealEstate_Booking_Suite
  */
 
@@ -428,8 +479,17 @@ class RESBS_Listings_Widget extends \Elementor\Widget_Base {
 
     /**
      * Get pages list
+     * 
+     * Security: Checks user capability before retrieving pages
+     * This method is called during widget registration in admin area
      */
     private function get_pages_list() {
+        // Check user capability - only allow users who can edit posts to see pages list
+        // This prevents unauthorized access to page data during widget registration
+        if (!current_user_can('edit_posts')) {
+            return array('' => esc_html__('Select Page', 'realestate-booking-suite'));
+        }
+        
         $pages = array('' => esc_html__('Select Page', 'realestate-booking-suite'));
         $all_pages = get_pages();
         
@@ -442,16 +502,27 @@ class RESBS_Listings_Widget extends \Elementor\Widget_Base {
 
     /**
      * Get property types
+     * 
+     * Security: Checks user capability before retrieving taxonomy terms
+     * This method is called during widget registration in admin area
      */
     private function get_property_types() {
+        // Check user capability - only allow users who can edit posts to see property types
+        // This prevents unauthorized access to taxonomy data during widget registration
+        if (!current_user_can('edit_posts')) {
+            return array();
+        }
+        
         $types = get_terms(array(
             'taxonomy' => 'property_type',
             'hide_empty' => false,
         ));
         
         $options = array();
-        foreach ($types as $type) {
-            $options[$type->slug] = esc_html($type->name);
+        if (!is_wp_error($types) && is_array($types)) {
+            foreach ($types as $type) {
+                $options[$type->slug] = esc_html($type->name);
+            }
         }
         
         return $options;
@@ -459,16 +530,27 @@ class RESBS_Listings_Widget extends \Elementor\Widget_Base {
 
     /**
      * Get property statuses
+     * 
+     * Security: Checks user capability before retrieving taxonomy terms
+     * This method is called during widget registration in admin area
      */
     private function get_property_statuses() {
+        // Check user capability - only allow users who can edit posts to see property statuses
+        // This prevents unauthorized access to taxonomy data during widget registration
+        if (!current_user_can('edit_posts')) {
+            return array();
+        }
+        
         $statuses = get_terms(array(
             'taxonomy' => 'property_status',
             'hide_empty' => false,
         ));
         
         $options = array();
-        foreach ($statuses as $status) {
-            $options[$status->slug] = esc_html($status->name);
+        if (!is_wp_error($statuses) && is_array($statuses)) {
+            foreach ($statuses as $status) {
+                $options[$status->slug] = esc_html($status->name);
+            }
         }
         
         return $options;

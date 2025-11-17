@@ -797,8 +797,23 @@ class RESBS_Settings {
      * Quick Actions Settings callback
      */
     public function quick_actions_settings_callback() {
+        // Check user permissions
+        if (!current_user_can('manage_options')) {
+            wp_die(esc_html__('You do not have sufficient permissions to access this page.', 'realestate-booking-suite'));
+        }
+        
         // Handle form submission
-        if (isset($_POST['submit'])) {
+        if (isset($_POST['submit']) && isset($_POST['resbs_quick_actions_nonce'])) {
+            // Verify nonce
+            if (!wp_verify_nonce($_POST['resbs_quick_actions_nonce'], 'resbs_quick_actions_settings')) {
+                wp_die(esc_html__('Security check failed. Please try again.', 'realestate-booking-suite'));
+            }
+            
+            // Check user permissions again (defense in depth)
+            if (!current_user_can('manage_options')) {
+                wp_die(esc_html__('You do not have sufficient permissions to perform this action.', 'realestate-booking-suite'));
+            }
+            
             if (isset($_POST['resbs_quick_actions'])) {
                 $actions = array();
                 foreach ($_POST['resbs_quick_actions'] as $index => $action) {

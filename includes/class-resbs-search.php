@@ -2,6 +2,39 @@
 /**
  * Search Class
  * 
+ * Handles property search functionality including AJAX search requests.
+ * 
+ * SECURITY MEASURES IMPLEMENTED:
+ * 
+ * 1. NONCE VERIFICATION (CSRF Protection):
+ *    - Nonce created and localized in JavaScript (wp_localize_script)
+ *    - Nonce field included in search form (wp_nonce_field)
+ *    - Nonce verified in AJAX handler before processing
+ *    - Security events logged on nonce failure
+ * 
+ * 2. RATE LIMITING:
+ *    - Limits to 30 requests per 5 minutes (300 seconds) per IP
+ *    - Prevents abuse and DoS attacks
+ *    - Uses RESBS_Security::check_rate_limit()
+ * 
+ * 3. INPUT SANITIZATION:
+ *    - All POST parameters sanitized using RESBS_Security helper methods
+ *    - Float values for prices
+ *    - Integer values for IDs, counts, pagination
+ *    - Text fields sanitized
+ *    - Arrays sanitized element by element
+ *    - Whitelist validation for sort_by and view_type
+ *    - Results per page limited to max 100
+ * 
+ * 4. OUTPUT ESCAPING:
+ *    - All output properly escaped (esc_html, esc_attr, esc_url_raw)
+ *    - JSON responses use wp_send_json_success/error
+ * 
+ * 5. USER PERMISSIONS:
+ *    - This is a PUBLIC endpoint (nopriv) - no capability check required
+ *    - Anyone can search properties (read-only operation)
+ *    - Only published properties are returned
+ * 
  * @package RealEstate_Booking_Suite
  */
 
@@ -245,26 +278,68 @@ class RESBS_Search {
     
     /**
      * Handle AJAX search
+     * 
+     * Security measures:
+     * - Nonce verification (CSRF protection)
+     * - Rate limiting (prevents abuse)
+     * - Input sanitization
+     * - Output escaping
+     * 
+     * Note: This is a public endpoint (nopriv), so no capability check is required
      */
     public function handle_search_ajax() {
-        // Verify nonce
-        if (!wp_verify_nonce($_POST['resbs_search_nonce'], 'resbs_search_nonce')) {
-            wp_die(esc_html__('Security check failed.', 'realestate-booking-suite'));
+        // Rate limiting check - prevent abuse of search endpoint
+        if (!RESBS_Security::check_rate_limit('resbs_search_properties', 30, 300)) {
+            wp_send_json_error(array(
+                'message' => esc_html__('Too many requests. Please try again later.', 'realestate-booking-suite')
+            ));
         }
         
-        // Sanitize search parameters
-        $price_min = isset($_POST['price_min']) ? floatval($_POST['price_min']) : 0;
-        $price_max = isset($_POST['price_max']) ? floatval($_POST['price_max']) : 0;
-        $location = isset($_POST['location']) ? intval($_POST['location']) : 0;
-        $property_type = isset($_POST['property_type']) ? intval($_POST['property_type']) : 0;
-        $bedrooms = isset($_POST['bedrooms']) ? intval($_POST['bedrooms']) : 0;
-        $bathrooms = isset($_POST['bathrooms']) ? intval($_POST['bathrooms']) : 0;
-        $keyword = isset($_POST['keyword']) ? sanitize_text_field($_POST['keyword']) : '';
-        $amenities = isset($_POST['amenities']) ? array_map('sanitize_text_field', $_POST['amenities']) : array();
-        $sort_by = isset($_POST['sort_by']) ? sanitize_text_field($_POST['sort_by']) : 'date_desc';
-        $view_type = isset($_POST['view_type']) ? sanitize_text_field($_POST['view_type']) : 'grid';
-        $results_per_page = isset($_POST['results_per_page']) ? intval($_POST['results_per_page']) : 12;
-        $page = isset($_POST['page']) ? intval($_POST['page']) : 1;
+        // Verify nonce - check if nonce exists first
+        $nonce = isset($_POST['resbs_search_nonce']) ? $_POST['resbs_search_nonce'] : '';
+        if (empty($nonce)) {
+            // Also check for 'nonce' field name (common alternative)
+            $nonce = isset($_POST['nonce']) ? $_POST['nonce'] : '';
+        }
+        
+        // Use security helper class for consistent nonce verification
+        if (empty($nonce) || !wp_verify_nonce($nonce, 'resbs_search_nonce')) {
+            RESBS_Security::log_security_event('search_nonce_failed', array(
+                'action' => 'resbs_search_properties',
+                'ip' => RESBS_Security::get_client_ip()
+            ));
+            wp_send_json_error(array(
+                'message' => esc_html__('Security check failed. Please refresh the page and try again.', 'realestate-booking-suite')
+            ));
+        }
+        
+        // Sanitize search parameters using security helper class
+        $price_min = isset($_POST['price_min']) ? RESBS_Security::sanitize_float($_POST['price_min']) : 0;
+        $price_max = isset($_POST['price_max']) ? RESBS_Security::sanitize_float($_POST['price_max']) : 0;
+        $location = isset($_POST['location']) ? RESBS_Security::sanitize_int($_POST['location']) : 0;
+        $property_type = isset($_POST['property_type']) ? RESBS_Security::sanitize_int($_POST['property_type']) : 0;
+        $bedrooms = isset($_POST['bedrooms']) ? RESBS_Security::sanitize_int($_POST['bedrooms']) : 0;
+        $bathrooms = isset($_POST['bathrooms']) ? RESBS_Security::sanitize_int($_POST['bathrooms']) : 0;
+        $keyword = isset($_POST['keyword']) ? RESBS_Security::sanitize_text($_POST['keyword']) : '';
+        $amenities = isset($_POST['amenities']) ? RESBS_Security::sanitize_array($_POST['amenities'], 'sanitize_text_field') : array();
+        $sort_by = isset($_POST['sort_by']) ? RESBS_Security::sanitize_text($_POST['sort_by']) : 'date_desc';
+        $view_type = isset($_POST['view_type']) ? RESBS_Security::sanitize_text($_POST['view_type']) : 'grid';
+        $results_per_page = isset($_POST['results_per_page']) ? RESBS_Security::sanitize_int($_POST['results_per_page'], 12) : 12;
+        $page = isset($_POST['page']) ? RESBS_Security::sanitize_int($_POST['page'], 1) : 1;
+        
+        // Validate sort_by and view_type values to prevent injection
+        $allowed_sort_by = array('date_desc', 'date_asc', 'price_asc', 'price_desc', 'popularity', 'area_desc');
+        if (!in_array($sort_by, $allowed_sort_by, true)) {
+            $sort_by = 'date_desc';
+        }
+        
+        $allowed_view_types = array('grid', 'list', 'map');
+        if (!in_array($view_type, $allowed_view_types, true)) {
+            $view_type = 'grid';
+        }
+        
+        // Validate results_per_page to prevent abuse (max 100 per page)
+        $results_per_page = min(max($results_per_page, 1), 100);
         
         // Build query args
         $args = array(

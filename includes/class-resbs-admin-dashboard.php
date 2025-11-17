@@ -31,8 +31,15 @@ class RESBS_Admin_Dashboard {
 
     /**
      * Enqueue dashboard assets
+     * 
+     * Security: Only enqueue assets for authorized users
      */
     public function enqueue_dashboard_assets($hook) {
+        // Only enqueue for authorized users
+        if (!current_user_can('manage_options')) {
+            return;
+        }
+        
         if ($hook === 'index.php' || strpos($hook, 'resbs-') !== false) {
             wp_enqueue_style(
                 'resbs-admin-dashboard',
@@ -63,8 +70,15 @@ class RESBS_Admin_Dashboard {
 
     /**
      * Add dashboard widgets
+     * 
+     * Security: Only show widgets to users with manage_options capability
      */
     public function add_dashboard_widgets() {
+        // Check user capability before adding widgets
+        if (!current_user_can('manage_options')) {
+            return;
+        }
+        
         wp_add_dashboard_widget(
             'resbs_property_stats',
             esc_html__('Property Statistics', 'realestate-booking-suite'),
@@ -86,8 +100,16 @@ class RESBS_Admin_Dashboard {
 
     /**
      * Property statistics widget
+     * 
+     * Security: Verify user capability before displaying sensitive data
      */
     public function property_stats_widget() {
+        // Verify user has permission to view dashboard statistics
+        if (!current_user_can('manage_options')) {
+            echo '<p>' . esc_html__('You do not have permission to view this widget.', 'realestate-booking-suite') . '</p>';
+            return;
+        }
+        
         $total_properties = wp_count_posts('property');
         $published_properties = $total_properties->publish;
         $draft_properties = $total_properties->draft;
@@ -149,8 +171,16 @@ class RESBS_Admin_Dashboard {
 
     /**
      * Recent properties widget
+     * 
+     * Security: Verify user capability before displaying property data
      */
     public function recent_properties_widget() {
+        // Verify user has permission to view properties
+        if (!current_user_can('manage_options')) {
+            echo '<p>' . esc_html__('You do not have permission to view this widget.', 'realestate-booking-suite') . '</p>';
+            return;
+        }
+        
         $recent_properties = get_posts(array(
             'post_type' => 'property',
             'posts_per_page' => 5,
@@ -222,8 +252,16 @@ class RESBS_Admin_Dashboard {
 
     /**
      * Quick actions widget
+     * 
+     * Security: Verify user capability before displaying admin actions
      */
     public function quick_actions_widget() {
+        // Verify user has permission to access admin actions
+        if (!current_user_can('manage_options')) {
+            echo '<p>' . esc_html__('You do not have permission to view this widget.', 'realestate-booking-suite') . '</p>';
+            return;
+        }
+        
         ?>
         <div class="resbs-quick-actions">
             <div class="resbs-action-grid">
@@ -302,6 +340,8 @@ class RESBS_Admin_Dashboard {
 
     /**
      * Get total bookings
+     * 
+     * Security: Private method - only called from widget methods that have capability checks
      */
     private function get_total_bookings() {
         // This would integrate with your booking system
@@ -311,6 +351,8 @@ class RESBS_Admin_Dashboard {
 
     /**
      * Get total revenue
+     * 
+     * Security: Private method - only called from widget methods that have capability checks
      */
     private function get_total_revenue() {
         // This would integrate with your payment system

@@ -85,7 +85,13 @@ class RESBS_Infinite_Scroll_Manager {
      */
     public function ajax_load_more_properties() {
         // Verify nonce using security helper
-        RESBS_Security::verify_ajax_nonce($_POST['nonce'], 'resbs_infinite_scroll_nonce');
+        $nonce = isset($_POST['nonce']) ? $_POST['nonce'] : '';
+        if (empty($nonce)) {
+            wp_send_json_error(array(
+                'message' => esc_html__('Security check failed. Please refresh the page and try again.', 'realestate-booking-suite')
+            ));
+        }
+        RESBS_Security::verify_ajax_nonce($nonce, 'resbs_infinite_scroll_nonce');
         
         // Rate limiting check
         if (!RESBS_Security::check_rate_limit('load_more_properties', 30, 300)) {
@@ -95,9 +101,9 @@ class RESBS_Infinite_Scroll_Manager {
         }
 
         // Get and sanitize parameters using security helper
-        $page = RESBS_Security::sanitize_int($_POST['page'], 1);
-        $posts_per_page = RESBS_Security::sanitize_int($_POST['posts_per_page'], 12);
-        $widget_id = RESBS_Security::sanitize_text($_POST['widget_id']);
+        $page = RESBS_Security::sanitize_int(isset($_POST['page']) ? $_POST['page'] : 1, 1);
+        $posts_per_page = RESBS_Security::sanitize_int(isset($_POST['posts_per_page']) ? $_POST['posts_per_page'] : 12, 12);
+        $widget_id = RESBS_Security::sanitize_text(isset($_POST['widget_id']) ? $_POST['widget_id'] : '');
         $filters = array(
             'property_type' => RESBS_Security::sanitize_text($_POST['property_type'] ?? ''),
             'property_status' => RESBS_Security::sanitize_text($_POST['property_status'] ?? ''),
@@ -108,6 +114,13 @@ class RESBS_Infinite_Scroll_Manager {
             'bathrooms' => RESBS_Security::sanitize_int($_POST['bathrooms'] ?? 0),
             'featured_only' => RESBS_Security::sanitize_bool($_POST['featured_only'] ?? false)
         );
+
+        // Validate widget_id exists and is not empty
+        if (empty($widget_id)) {
+            wp_send_json_error(array(
+                'message' => esc_html__('Invalid widget ID.', 'realestate-booking-suite')
+            ));
+        }
 
         // Get widget settings
         $widget_settings = get_option('widget_resbs_property_grid_widget');
@@ -125,7 +138,7 @@ class RESBS_Infinite_Scroll_Manager {
             }
         }
 
-        if (!$instance) {
+        if (!$instance || !is_array($instance)) {
             wp_send_json_error(array(
                 'message' => esc_html__('Widget settings not found.', 'realestate-booking-suite')
             ));
@@ -165,13 +178,39 @@ class RESBS_Infinite_Scroll_Manager {
      * Build property query
      */
     private function build_property_query($instance, $filters, $page, $posts_per_page) {
+        // Validate and sanitize instance parameters
+        $orderby = isset($instance['orderby']) ? sanitize_text_field($instance['orderby']) : 'date';
+        $order = isset($instance['order']) ? sanitize_text_field($instance['order']) : 'DESC';
+        
+        // Validate orderby value to prevent injection
+        $allowed_orderby = array('date', 'title', 'menu_order', 'rand', 'price', 'featured');
+        if (!in_array($orderby, $allowed_orderby, true)) {
+            $orderby = 'date';
+        }
+        
+        // Validate order value
+        $order = strtoupper($order);
+        if ($order !== 'ASC' && $order !== 'DESC') {
+            $order = 'DESC';
+        }
+        
+        // Validate pagination parameters
+        $page = absint($page);
+        $posts_per_page = absint($posts_per_page);
+        if ($page < 1) {
+            $page = 1;
+        }
+        if ($posts_per_page < 1 || $posts_per_page > 100) {
+            $posts_per_page = 12;
+        }
+        
         $query_args = array(
             'post_type' => 'property',
             'post_status' => 'publish',
             'posts_per_page' => $posts_per_page,
             'paged' => $page,
-            'orderby' => sanitize_text_field($instance['orderby']),
-            'order' => sanitize_text_field($instance['order'])
+            'orderby' => $orderby,
+            'order' => $order
         );
 
         // Add meta query
@@ -237,31 +276,43 @@ class RESBS_Infinite_Scroll_Manager {
             $query_args['meta_query'] = $meta_query;
         }
 
-        // Add taxonomy query
+        // Add taxonomy query with validation
         $tax_query = array();
         
         if (!empty($filters['property_type'])) {
-            $tax_query[] = array(
-                'taxonomy' => 'property_type',
-                'field' => 'slug',
-                'terms' => $filters['property_type']
-            );
+            // Validate taxonomy term exists
+            $term = get_term_by('slug', $filters['property_type'], 'property_type');
+            if ($term && !is_wp_error($term)) {
+                $tax_query[] = array(
+                    'taxonomy' => 'property_type',
+                    'field' => 'slug',
+                    'terms' => sanitize_text_field($filters['property_type'])
+                );
+            }
         }
 
         if (!empty($filters['property_status'])) {
-            $tax_query[] = array(
-                'taxonomy' => 'property_status',
-                'field' => 'slug',
-                'terms' => $filters['property_status']
-            );
+            // Validate taxonomy term exists
+            $term = get_term_by('slug', $filters['property_status'], 'property_status');
+            if ($term && !is_wp_error($term)) {
+                $tax_query[] = array(
+                    'taxonomy' => 'property_status',
+                    'field' => 'slug',
+                    'terms' => sanitize_text_field($filters['property_status'])
+                );
+            }
         }
 
         if (!empty($filters['location'])) {
-            $tax_query[] = array(
-                'taxonomy' => 'property_location',
-                'field' => 'slug',
-                'terms' => $filters['location']
-            );
+            // Validate taxonomy term exists
+            $term = get_term_by('slug', $filters['location'], 'property_location');
+            if ($term && !is_wp_error($term)) {
+                $tax_query[] = array(
+                    'taxonomy' => 'property_location',
+                    'field' => 'slug',
+                    'terms' => sanitize_text_field($filters['location'])
+                );
+            }
         }
 
         if (!empty($tax_query)) {
@@ -773,12 +824,25 @@ class RESBS_Infinite_Scroll_Widget extends WP_Widget {
 
     /**
      * Update widget
+     * 
+     * Note: WordPress automatically handles nonce verification and capability checks
+     * (requires 'edit_theme_options' capability) for widget updates.
      */
     public function update($new_instance, $old_instance) {
         $instance = array();
-        $instance['title'] = sanitize_text_field($new_instance['title']);
-        $instance['posts_per_page'] = intval($new_instance['posts_per_page']);
-        $instance['columns'] = intval($new_instance['columns']);
+        
+        // Sanitize title
+        $instance['title'] = sanitize_text_field(isset($new_instance['title']) ? $new_instance['title'] : '');
+        
+        // Validate and sanitize posts_per_page (1-100)
+        $posts_per_page = intval(isset($new_instance['posts_per_page']) ? $new_instance['posts_per_page'] : 12);
+        $instance['posts_per_page'] = ($posts_per_page >= 1 && $posts_per_page <= 100) ? $posts_per_page : 12;
+        
+        // Validate and sanitize columns (1-4)
+        $columns = intval(isset($new_instance['columns']) ? $new_instance['columns'] : 3);
+        $instance['columns'] = ($columns >= 1 && $columns <= 4) ? $columns : 3;
+        
+        // Boolean fields
         $instance['show_filters'] = isset($new_instance['show_filters']);
         $instance['show_price'] = isset($new_instance['show_price']);
         $instance['show_meta'] = isset($new_instance['show_meta']);
@@ -786,10 +850,18 @@ class RESBS_Infinite_Scroll_Widget extends WP_Widget {
         $instance['show_badges'] = isset($new_instance['show_badges']);
         $instance['show_favorite_button'] = isset($new_instance['show_favorite_button']);
         $instance['show_book_button'] = isset($new_instance['show_book_button']);
-        $instance['orderby'] = sanitize_text_field($new_instance['orderby']);
-        $instance['order'] = sanitize_text_field($new_instance['order']);
         $instance['enable_infinite_scroll'] = isset($new_instance['enable_infinite_scroll']);
         $instance['show_pagination'] = isset($new_instance['show_pagination']);
+        
+        // Validate and sanitize orderby
+        $orderby = sanitize_text_field(isset($new_instance['orderby']) ? $new_instance['orderby'] : 'date');
+        $allowed_orderby = array('date', 'title', 'menu_order', 'rand', 'price', 'featured');
+        $instance['orderby'] = in_array($orderby, $allowed_orderby, true) ? $orderby : 'date';
+        
+        // Validate and sanitize order
+        $order = sanitize_text_field(isset($new_instance['order']) ? $new_instance['order'] : 'DESC');
+        $order = strtoupper($order);
+        $instance['order'] = ($order === 'ASC' || $order === 'DESC') ? $order : 'DESC';
         
         return $instance;
     }

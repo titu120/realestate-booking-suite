@@ -218,6 +218,15 @@ class RESBS_Badge_Manager {
      * Admin page
      */
     public function admin_page() {
+        // Check user permissions
+        if (!current_user_can('manage_options')) {
+            wp_die(
+                esc_html__('You do not have sufficient permissions to access this page.', 'realestate-booking-suite'),
+                esc_html__('Permission Denied', 'realestate-booking-suite'),
+                array('response' => 403)
+            );
+        }
+        
         if (isset($_POST['submit'])) {
             $this->save_badge_settings();
         }
@@ -392,11 +401,21 @@ class RESBS_Badge_Manager {
      * Save badge settings
      */
     private function save_badge_settings() {
-        // Check nonce using security helper
-        RESBS_Security::verify_nonce($_POST['resbs_badge_settings_nonce'], 'resbs_badge_settings_nonce');
-
-        // Check permissions using security helper
-        RESBS_Security::check_capability('manage_options');
+        // Check nonce and permissions using security helper
+        if (!isset($_POST['resbs_badge_settings_nonce'])) {
+            wp_die(
+                esc_html__('Security check failed. Please refresh the page and try again.', 'realestate-booking-suite'),
+                esc_html__('Security Error', 'realestate-booking-suite'),
+                array('response' => 403)
+            );
+        }
+        
+        // Verify nonce and check capability (combined security check)
+        RESBS_Security::verify_nonce_and_capability(
+            $_POST['resbs_badge_settings_nonce'],
+            'resbs_badge_settings_nonce',
+            'manage_options'
+        );
 
         // Save settings
         foreach ($this->badge_types as $type => $config) {

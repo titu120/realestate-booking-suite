@@ -2386,7 +2386,8 @@ Best regards,
                     <?php endif; ?>
                     <div style="display: flex; gap: 8px; align-items: center;">
                         <?php if ($status === 'pending' && current_user_can('publish_posts')): ?>
-                            <button class="publish-property-btn" data-property-id="<?php echo esc_attr($property_id); ?>" style="background: #10b981; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.3s;">
+                            <?php wp_nonce_field('resbs_publish_property', 'resbs_publish_property_nonce', false); ?>
+                            <button class="publish-property-btn" data-property-id="<?php echo esc_attr($property_id); ?>" data-nonce="<?php echo esc_attr(wp_create_nonce('resbs_publish_property')); ?>" style="background: #10b981; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.3s;">
                                 <i class="fas fa-check"></i> Publish
                             </button>
                         <?php endif; ?>

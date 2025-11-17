@@ -233,10 +233,27 @@ register_activation_hook(__FILE__, 'resbs_plugin_activation');
 
 // Manual flush rewrite rules function (for debugging)
 function resbs_manual_flush_rewrite_rules() {
-    if (isset($_GET['resbs_flush']) && $_GET['resbs_flush'] === '1') {
-        flush_rewrite_rules();
-        echo '<div style="background: green; color: white; padding: 10px; margin: 10px;">' . esc_html__('Rewrite rules flushed successfully!', 'realestate-booking-suite') . '</div>';
+    // Only allow admins
+    if (!current_user_can('manage_options')) {
+        return;
     }
+    
+    // Check if parameter is set
+    if (!isset($_GET['resbs_flush']) || $_GET['resbs_flush'] !== '1') {
+        return;
+    }
+    
+    // Verify nonce for security
+    if (!isset($_GET['_wpnonce']) || !wp_verify_nonce($_GET['_wpnonce'], 'resbs_flush_rewrite_rules')) {
+        wp_die(
+            esc_html__('Security check failed. Please try again.', 'realestate-booking-suite'),
+            esc_html__('Security Check Failed', 'realestate-booking-suite'),
+            array('response' => 403)
+        );
+    }
+    
+    flush_rewrite_rules();
+    echo '<div style="background: green; color: white; padding: 10px; margin: 10px;">' . esc_html__('Rewrite rules flushed successfully!', 'realestate-booking-suite') . '</div>';
 }
 add_action('init', 'resbs_manual_flush_rewrite_rules');
 
@@ -550,8 +567,8 @@ add_action('edit_user_profile_update', 'resbs_auto_verify_admin_created_users', 
 
 /**
  * Quick fix: Verify all existing users created from admin panel
- * Access via: ?resbs_verify_all_users=1 (admin only)
- * Or verify specific user: ?resbs_verify_user=username (admin only)
+ * Access via: ?resbs_verify_all_users=1&_wpnonce=xxx (admin only)
+ * Or verify specific user: ?resbs_verify_user=username&_wpnonce=xxx (admin only)
  */
 function resbs_verify_all_admin_users() {
     // Only allow admins
@@ -561,9 +578,20 @@ function resbs_verify_all_admin_users() {
     
     $verified_count = 0;
     $message = '';
+    $action_taken = false;
     
     // Verify specific user
     if (isset($_GET['resbs_verify_user']) && !empty($_GET['resbs_verify_user'])) {
+        // Verify nonce for security
+        if (!isset($_GET['_wpnonce']) || !wp_verify_nonce($_GET['_wpnonce'], 'resbs_verify_user')) {
+            add_action('admin_notices', function() {
+                echo '<div class="notice notice-error is-dismissible"><p>';
+                echo esc_html__('Security check failed. Please try again.', 'realestate-booking-suite');
+                echo '</p></div>';
+            });
+            return;
+        }
+        
         $username = sanitize_user($_GET['resbs_verify_user']);
         $user = get_user_by('login', $username);
         
@@ -577,12 +605,24 @@ function resbs_verify_all_admin_users() {
             delete_user_meta($user->ID, 'resbs_verification_expires');
             $verified_count = 1;
             $message = sprintf(__('User "%s" has been verified successfully!', 'realestate-booking-suite'), esc_html($user->user_login));
+            $action_taken = true;
         } else {
             $message = sprintf(__('User "%s" not found.', 'realestate-booking-suite'), esc_html($username));
+            $action_taken = true;
         }
     }
     // Verify all users
     elseif (isset($_GET['resbs_verify_all_users']) && $_GET['resbs_verify_all_users'] === '1') {
+        // Verify nonce for security
+        if (!isset($_GET['_wpnonce']) || !wp_verify_nonce($_GET['_wpnonce'], 'resbs_verify_all_users')) {
+            add_action('admin_notices', function() {
+                echo '<div class="notice notice-error is-dismissible"><p>';
+                echo esc_html__('Security check failed. Please try again.', 'realestate-booking-suite');
+                echo '</p></div>';
+            });
+            return;
+        }
+        
         // Get all users
         $users = get_users();
         
@@ -613,12 +653,11 @@ function resbs_verify_all_admin_users() {
         }
         
         $message = sprintf(__('Successfully verified %d user(s) created from admin panel.', 'realestate-booking-suite'), $verified_count);
-    } else {
-        return; // No action requested
+        $action_taken = true;
     }
     
     // Show success message
-    if (!empty($message)) {
+    if ($action_taken && !empty($message)) {
         add_action('admin_notices', function() use ($message, $verified_count) {
             $notice_class = $verified_count > 0 ? 'notice-success' : 'notice-warning';
             echo '<div class="notice ' . esc_attr($notice_class) . ' is-dismissible"><p>' . esc_html($message) . '</p></div>';
@@ -629,7 +668,7 @@ add_action('admin_init', 'resbs_verify_all_admin_users');
 
 /**
  * Quick fix: Create default property status terms
- * Access via: ?resbs_create_status_terms=1 (admin only)
+ * Access via: ?resbs_create_status_terms=1&_wpnonce=xxx (admin only)
  */
 function resbs_create_status_terms_on_demand() {
     // Only allow admins
@@ -639,6 +678,16 @@ function resbs_create_status_terms_on_demand() {
     
     // Only run if parameter is set
     if (!isset($_GET['resbs_create_status_terms']) || $_GET['resbs_create_status_terms'] !== '1') {
+        return;
+    }
+    
+    // Verify nonce for security
+    if (!isset($_GET['_wpnonce']) || !wp_verify_nonce($_GET['_wpnonce'], 'resbs_create_status_terms')) {
+        add_action('admin_notices', function() {
+            echo '<div class="notice notice-error is-dismissible"><p>';
+            echo esc_html__('Security check failed. Please try again.', 'realestate-booking-suite');
+            echo '</p></div>';
+        });
         return;
     }
     
@@ -656,7 +705,7 @@ add_action('admin_init', 'resbs_create_status_terms_on_demand');
 
 /**
  * Fix existing properties: Convert array features/amenities to strings
- * Access via: ?resbs_fix_property_arrays=1 (admin only)
+ * Access via: ?resbs_fix_property_arrays=1&_wpnonce=xxx (admin only)
  */
 function resbs_fix_property_arrays() {
     // Only allow admins
@@ -666,6 +715,16 @@ function resbs_fix_property_arrays() {
     
     // Only run if parameter is set
     if (!isset($_GET['resbs_fix_property_arrays']) || $_GET['resbs_fix_property_arrays'] !== '1') {
+        return;
+    }
+    
+    // Verify nonce for security
+    if (!isset($_GET['_wpnonce']) || !wp_verify_nonce($_GET['_wpnonce'], 'resbs_fix_property_arrays')) {
+        add_action('admin_notices', function() {
+            echo '<div class="notice notice-error is-dismissible"><p>';
+            echo esc_html__('Security check failed. Please try again.', 'realestate-booking-suite');
+            echo '</p></div>';
+        });
         return;
     }
     

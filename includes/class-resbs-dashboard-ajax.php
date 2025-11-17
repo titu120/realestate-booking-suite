@@ -24,13 +24,15 @@ class RESBS_Dashboard_AJAX {
 
     /**
      * Get dashboard statistics
+     * 
+     * Security measures:
+     * - Nonce verification (CSRF protection)
+     * - Capability check (manage_options required)
      */
     public function get_dashboard_stats() {
-        check_ajax_referer('resbs_dashboard_nonce', 'nonce');
-        
-        if (!current_user_can('manage_options')) {
-            wp_die(esc_html__('You do not have permission to access this data.', 'realestate-booking-suite'));
-        }
+        // Verify nonce and check capability using security helper
+        $nonce = isset($_POST['nonce']) ? $_POST['nonce'] : '';
+        RESBS_Security::verify_ajax_nonce_and_capability($nonce, 'resbs_dashboard_nonce', 'manage_options');
         
         $stats = array();
         
@@ -64,15 +66,25 @@ class RESBS_Dashboard_AJAX {
 
     /**
      * Get property chart data
+     * 
+     * Security measures:
+     * - Nonce verification (CSRF protection)
+     * - Capability check (manage_options required)
+     * - Input sanitization
      */
     public function get_property_chart_data() {
-        check_ajax_referer('resbs_dashboard_nonce', 'nonce');
+        // Verify nonce and check capability using security helper
+        $nonce = isset($_POST['nonce']) ? $_POST['nonce'] : '';
+        RESBS_Security::verify_ajax_nonce_and_capability($nonce, 'resbs_dashboard_nonce', 'manage_options');
         
-        if (!current_user_can('manage_options')) {
-            wp_die(esc_html__('You do not have permission to access this data.', 'realestate-booking-suite'));
+        // Sanitize input using security helper
+        $period = isset($_POST['period']) ? RESBS_Security::sanitize_text($_POST['period']) : '6months';
+        
+        // Validate period value to prevent invalid input
+        $allowed_periods = array('7days', '30days', '6months', '1year');
+        if (!in_array($period, $allowed_periods, true)) {
+            $period = '6months';
         }
-        
-        $period = isset($_POST['period']) ? sanitize_text_field($_POST['period']) : '6months';
         $data = array();
         
         switch ($period) {
@@ -97,13 +109,15 @@ class RESBS_Dashboard_AJAX {
 
     /**
      * Get recent activities
+     * 
+     * Security measures:
+     * - Nonce verification (CSRF protection)
+     * - Capability check (manage_options required)
      */
     public function get_recent_activities() {
-        check_ajax_referer('resbs_dashboard_nonce', 'nonce');
-        
-        if (!current_user_can('manage_options')) {
-            wp_die(esc_html__('You do not have permission to access this data.', 'realestate-booking-suite'));
-        }
+        // Verify nonce and check capability using security helper
+        $nonce = isset($_POST['nonce']) ? $_POST['nonce'] : '';
+        RESBS_Security::verify_ajax_nonce_and_capability($nonce, 'resbs_dashboard_nonce', 'manage_options');
         
         $activities = array();
         
@@ -148,27 +162,47 @@ class RESBS_Dashboard_AJAX {
 
     /**
      * Export property data
+     * 
+     * Security measures:
+     * - Nonce verification (CSRF protection)
+     * - Capability check (manage_options required)
+     * - Input sanitization and validation
+     * - Rate limiting consideration (export operations)
      */
     public function export_property_data() {
-        check_ajax_referer('resbs_dashboard_nonce', 'nonce');
+        // Verify nonce and check capability using security helper
+        $nonce = isset($_POST['nonce']) ? $_POST['nonce'] : '';
+        RESBS_Security::verify_ajax_nonce_and_capability($nonce, 'resbs_dashboard_nonce', 'manage_options');
         
-        if (!current_user_can('manage_options')) {
-            wp_die(esc_html__('You do not have permission to export data.', 'realestate-booking-suite'));
+        // Rate limiting check for export operations (prevent abuse)
+        if (!RESBS_Security::check_rate_limit('resbs_export_properties', 5, 3600)) {
+            wp_send_json_error(array(
+                'message' => esc_html__('Too many export requests. Please try again later.', 'realestate-booking-suite')
+            ));
         }
         
-        $format = isset($_POST['format']) ? sanitize_text_field($_POST['format']) : 'csv';
+        // Sanitize and validate format using security helper
+        $format = isset($_POST['format']) ? RESBS_Security::sanitize_text($_POST['format']) : 'csv';
+        
+        // Validate format to prevent invalid input
+        $allowed_formats = array('csv', 'json');
+        if (!in_array($format, $allowed_formats, true)) {
+            wp_send_json_error(array(
+                'message' => esc_html__('Invalid export format.', 'realestate-booking-suite')
+            ));
+        }
         $properties = get_posts(array(
             'post_type' => 'property',
             'posts_per_page' => -1,
             'post_status' => 'publish'
         ));
         
+        // Export based on validated format
         if ($format === 'csv') {
             $this->export_csv($properties);
-        } elseif ($format === 'json') {
-            $this->export_json($properties);
         } else {
-            wp_send_json_error(esc_html__('Invalid export format.', 'realestate-booking-suite'));
+            // Format is already validated, so this must be 'json'
+            $this->export_json($properties);
         }
     }
 
