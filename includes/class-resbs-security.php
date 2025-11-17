@@ -59,9 +59,16 @@ class RESBS_Security {
     }
 
     /**
-     * Sanitize text input
+     * Sanitize text input - handles arrays to prevent errors
      */
     public static function sanitize_text($input) {
+        // If array, convert to comma-separated string first
+        if (is_array($input)) {
+            $input = implode(', ', array_filter(array_map('trim', $input)));
+        }
+        // Ensure it's a string
+        $input = (string)$input;
+        // Now sanitize
         return sanitize_text_field($input);
     }
 

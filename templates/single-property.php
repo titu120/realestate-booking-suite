@@ -1,11 +1,10 @@
 <?php
     /**
      * Single Property Template - Dynamic Version
+     * Block Theme Compatible
      *
      * @package RealEstate_Booking_Suite
      */
-
-    get_header();
 
     // Prevent direct access
     if (! defined('ABSPATH')) {
@@ -16,6 +15,9 @@
     if (! defined('RESBS_URL')) {
         define('RESBS_URL', plugin_dir_url(dirname(__FILE__)) . '/');
     }
+
+    // Use helper function to safely get header (avoids deprecation warnings in block themes)
+    resbs_get_header();
 ?>
 
 <?php if (have_posts()) : ?>
@@ -65,8 +67,41 @@
         }
         $hide_address = get_post_meta($post->ID, '_property_hide_address', true);
 
-        $features          = get_post_meta($post->ID, '_property_features', true);
-        $amenities         = get_post_meta($post->ID, '_property_amenities', true);
+        // Get features and amenities - COMPLETE FIX: Always return strings, never arrays
+        $features_raw  = get_post_meta($post->ID, '_property_features', true);
+        $amenities_raw = get_post_meta($post->ID, '_property_amenities', true);
+        
+        // RECURSIVE FUNCTION TO FLATTEN ANY ARRAY STRUCTURE
+        function resbs_flatten_to_string($data) {
+            if (is_array($data)) {
+                $result = array();
+                foreach ($data as $item) {
+                    if (is_array($item)) {
+                        $flattened = resbs_flatten_to_string($item);
+                        if (!empty($flattened)) {
+                            $result[] = $flattened;
+                        }
+                    } elseif (is_string($item) || is_numeric($item)) {
+                        $trimmed = trim((string)$item);
+                        if (!empty($trimmed)) {
+                            $result[] = $trimmed;
+                        }
+                    }
+                }
+                return implode(', ', $result);
+            } elseif (is_string($data) || is_numeric($data)) {
+                return trim((string)$data);
+            }
+            return '';
+        }
+        
+        // FORCE TO STRING - NO EXCEPTIONS
+        $features = resbs_flatten_to_string($features_raw);
+        $amenities = resbs_flatten_to_string($amenities_raw);
+        
+        // FINAL GUARANTEE - MUST BE STRING
+        $features = is_string($features) ? $features : '';
+        $amenities = is_string($amenities) ? $amenities : '';
         $parking           = get_post_meta($post->ID, '_property_parking', true);
         $heating           = get_post_meta($post->ID, '_property_heating', true);
         $cooling           = get_post_meta($post->ID, '_property_cooling', true);
@@ -82,13 +117,35 @@
 
         $gallery_images           = get_post_meta($post->ID, '_property_gallery', true);
         
-        // Convert gallery attachment IDs to URLs
+        // Convert gallery attachment IDs to URLs (handle both IDs and URLs)
         $gallery_urls = [];
-        if (!empty($gallery_images) && is_array($gallery_images)) {
-            foreach ($gallery_images as $image_id) {
-                $image_url = wp_get_attachment_image_url($image_id, 'full');
-                if ($image_url) {
-                    $gallery_urls[] = $image_url;
+        if (!empty($gallery_images)) {
+            if (is_array($gallery_images)) {
+                foreach ($gallery_images as $image_item) {
+                    // Check if it's an attachment ID (numeric) or URL (string)
+                    if (is_numeric($image_item)) {
+                        $image_url = wp_get_attachment_image_url($image_item, 'full');
+                        if ($image_url) {
+                            $gallery_urls[] = $image_url;
+                        }
+                    } elseif (is_string($image_item) && filter_var($image_item, FILTER_VALIDATE_URL)) {
+                        // It's already a URL
+                        $gallery_urls[] = $image_item;
+                    }
+                }
+            } elseif (is_string($gallery_images)) {
+                // Handle comma-separated string
+                $gallery_array = explode(',', $gallery_images);
+                foreach ($gallery_array as $image_item) {
+                    $image_item = trim($image_item);
+                    if (is_numeric($image_item)) {
+                        $image_url = wp_get_attachment_image_url($image_item, 'full');
+                        if ($image_url) {
+                            $gallery_urls[] = $image_url;
+                        }
+                    } elseif (filter_var($image_item, FILTER_VALIDATE_URL)) {
+                        $gallery_urls[] = $image_item;
+                    }
                 }
             }
         }
@@ -168,20 +225,20 @@
         // Get featured image
         $featured_image = get_the_post_thumbnail_url($post->ID, 'large');
 
-        // Format price
+        // Format price with dynamic currency
         $formatted_price = '';
         if ($price && ! $call_for_price) {
-            $formatted_price = '$' . number_format($price);
+            $formatted_price = resbs_format_price($price);
         } elseif ($call_for_price) {
             $formatted_price = 'Call for Price';
         }
 
-        // Format price per unit (uses General settings)
+        // Format price per unit (uses General settings) with dynamic currency
         $formatted_price_per_sqft = '';
         if ($price_per_sqft) {
             $area_unit = resbs_get_area_unit();
             $unit_label = ($area_unit === 'sqm') ? 'sq m' : 'sq ft';
-            $formatted_price_per_sqft = '$' . number_format($price_per_sqft) . '/' . $unit_label;
+            $formatted_price_per_sqft = resbs_format_price($price_per_sqft) . '/' . $unit_label;
         }
 
         // Format area (uses General settings)
@@ -223,25 +280,63 @@
             $full_address .= ', ' . $country;
         }
 
-        // Parse features and amenities
+        // Parse features and amenities - ensure $features and $amenities are strings at this point
         $features_array = [];
-        if ($features && is_string($features)) {
-            $features_array = explode(',', $features);
-            $features_array = array_map('trim', $features_array);
-            // Filter out empty items
-            $features_array = array_filter($features_array, function($item) {
-                return !empty(trim($item));
-            });
+        if (!empty($features)) {
+            if (is_string($features)) {
+                // String, explode by comma
+                $features_array = explode(',', $features);
+            } elseif (is_array($features)) {
+                // Already an array, flatten it
+                $features_array = $features;
+            }
+            
+            // Deep clean: ensure all values are strings, flatten any nested arrays
+            $cleaned_features = [];
+            foreach ($features_array as $item) {
+                if (is_array($item)) {
+                    // If it's an array, implode it
+                    $flattened = implode(', ', array_filter(array_map('trim', $item)));
+                    if (!empty($flattened)) {
+                        $cleaned_features[] = $flattened;
+                    }
+                } elseif (is_string($item) || is_numeric($item)) {
+                    $trimmed = trim((string)$item);
+                    if (!empty($trimmed)) {
+                        $cleaned_features[] = $trimmed;
+                    }
+                }
+            }
+            $features_array = array_values($cleaned_features);
         }
 
         $amenities_array = [];
-        if ($amenities && is_string($amenities)) {
-            $amenities_array = explode(',', $amenities);
-            $amenities_array = array_map('trim', $amenities_array);
-            // Filter out empty items
-            $amenities_array = array_filter($amenities_array, function($item) {
-                return !empty(trim($item));
-            });
+        if (!empty($amenities)) {
+            if (is_string($amenities)) {
+                // String, explode by comma
+                $amenities_array = explode(',', $amenities);
+            } elseif (is_array($amenities)) {
+                // Already an array, flatten it
+                $amenities_array = $amenities;
+            }
+            
+            // Deep clean: ensure all values are strings, flatten any nested arrays
+            $cleaned_amenities = [];
+            foreach ($amenities_array as $item) {
+                if (is_array($item)) {
+                    // If it's an array, implode it
+                    $flattened = implode(', ', array_filter(array_map('trim', $item)));
+                    if (!empty($flattened)) {
+                        $cleaned_amenities[] = $flattened;
+                    }
+                } elseif (is_string($item) || is_numeric($item)) {
+                    $trimmed = trim((string)$item);
+                    if (!empty($trimmed)) {
+                        $cleaned_amenities[] = $trimmed;
+                    }
+                }
+            }
+            $amenities_array = array_values($cleaned_amenities);
         }
 
         // Parse gallery images
@@ -252,9 +347,11 @@
         }
 
         // Default values for missing data
+        // Get currency symbol for defaults
+        $currency_symbol = resbs_get_currency_symbol();
         $default_values = [
-            'price'                 => '$0',
-            'price_per_sqft'        => '$0/sq ft',
+            'price'                 => $currency_symbol . '0',
+            'price_per_sqft'        => $currency_symbol . '0/sq ft',
             'bedrooms'              => '0',
             'bathrooms'             => '0',
             'area_sqft'             => '0 sq ft',
@@ -911,67 +1008,6 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
                                     </div>
                                     <?php endif; ?>
                                 </div>
-                            </div>
-
-                            <h4 class="text-lg font-semibold mb-4">Amenities & Features</h4>
-
-                            <!-- Filter Buttons -->
-                            <div class="amenities-filter no-print">
-                                <button onclick="filterAmenities('all')" class="filter-btn active" data-filter="all">All</button>
-                                <button onclick="filterAmenities('interior')" class="filter-btn" data-filter="interior">Interior</button>
-                                <button onclick="filterAmenities('exterior')" class="filter-btn" data-filter="exterior">Exterior</button>
-                            </div>
-
-                            <div class="amenities-grid" id="amenitiesContainer">
-                                <?php 
-                                
-                                // Simple categorization: Features = Interior, Amenities = Exterior
-                                function categorizeItem($item, $type) {
-                                    // Features are always interior, Amenities are always exterior
-                                    return ($type === 'feature') ? 'interior' : 'exterior';
-                                }
-                                
-                                // Display features and amenities from dashboard settings
-                                if (!empty($features_array)): ?>
-                                    <?php foreach ($features_array as $index => $feature): ?>
-                                        <?php 
-                                        $feature_trimmed = trim($feature);
-                                        // Skip empty or whitespace-only items
-                                        if (empty($feature_trimmed)) {
-                                            continue;
-                                        }
-                                        $category = categorizeItem($feature_trimmed, 'feature');
-                                        ?>
-                                        <div class="amenity-item" data-category="<?php echo esc_attr($category); ?>">
-                                            <i class="fas fa-check-circle text-emerald-500"></i>
-                                            <span class="text-gray-700"><?php echo esc_html($feature_trimmed); ?></span>
-                                        </div>
-                                    <?php endforeach; ?>
-                                <?php endif; ?>
-
-                                <?php if (!empty($amenities_array)): ?>
-                                    <?php foreach ($amenities_array as $index => $amenity): ?>
-                                        <?php 
-                                        $amenity_trimmed = trim($amenity);
-                                        // Skip empty or whitespace-only items
-                                        if (empty($amenity_trimmed)) {
-                                            continue;
-                                        }
-                                        $category = categorizeItem($amenity_trimmed, 'amenity');
-                                        ?>
-                                        <div class="amenity-item" data-category="<?php echo esc_attr($category); ?>">
-                                            <i class="fas fa-check-circle text-emerald-500"></i>
-                                            <span class="text-gray-700"><?php echo esc_html($amenity_trimmed); ?></span>
-                                        </div>
-                                    <?php endforeach; ?>
-                                <?php endif; ?>
-
-                                <?php if (empty($features_array) && empty($amenities_array)): ?>
-                                    <div class="amenity-item">
-                                        <i class="fas fa-info-circle text-gray-400"></i>
-                                        <span class="text-gray-500">No features or amenities listed for this property.</span>
-                                    </div>
-                                <?php endif; ?>
                             </div>
                         </div>
 
@@ -1867,7 +1903,7 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
                                 $similar_featured_image = get_the_post_thumbnail_url($similar_property->ID, 'medium');
                                 $similar_status = get_post_meta($similar_property->ID, '_property_status', true);
                                 
-                                $formatted_similar_price = $similar_price ? '$' . number_format($similar_price) : 'Price on request';
+                                $formatted_similar_price = $similar_price ? resbs_format_price($similar_price) : 'Price on request';
                                 $similar_location = trim($similar_city . ', ' . $similar_state, ', ');
                                 ?>
                                 
@@ -1984,7 +2020,7 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
                     <div class="space-y-4">
                         <div class="calculator-input">
                             <label class="calculator-label"><?php echo esc_html($mortgage_property_price_label ? $mortgage_property_price_label : 'Property Price'); ?></label>
-                            <input type="text" id="propertyPrice" value="<?php echo esc_attr($formatted_price); ?>" class="calculator-field" onkeyup="calculateMortgage()">
+                            <input type="text" id="propertyPrice" value="<?php echo esc_attr($price && !$call_for_price ? number_format($price) : ''); ?>" class="calculator-field" onkeyup="calculateMortgage()" placeholder="<?php echo esc_attr($call_for_price ? 'Enter price' : ''); ?>">
                         </div>
                         <div class="calculator-input">
                             <label class="calculator-label"><?php echo esc_html($mortgage_down_payment_label ? $mortgage_down_payment_label : 'Down Payment (%)'); ?></label>
@@ -2494,6 +2530,48 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 1rem;
         }
+        .amenities-filter {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        .amenities-filter .filter-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid #d1d5db;
+            background-color: #f9fafb;
+            color: #374151;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .amenities-filter .filter-btn:hover {
+            background-color: #e5e7eb;
+            border-color: #9ca3af;
+        }
+        .amenities-filter .filter-btn.active,
+        .amenities-filter .filter-btn.filter-active {
+            background-color: #10b981;
+            color: #ffffff;
+            border-color: #10b981;
+        }
+        .amenity-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem;
+            background-color: #f9fafb;
+            border-radius: 0.375rem;
+            transition: all 0.2s;
+        }
+        .amenity-item:hover {
+            background-color: #f3f4f6;
+        }
+        .amenity-item i {
+            font-size: 1rem;
+        }
         
         /* Phone field layout - ensure one line */
         .flex.gap-2.items-stretch {
@@ -2549,61 +2627,6 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
             border-top-right-radius: 0;
         }
     </style>
-    
-    <!-- Backup inline filter function -->
-    <script>
-        // Backup filter function in case external JS doesn't load
-        function filterAmenities(category) {
-            console.log('Filtering amenities by category:', category);
-            
-            const items = document.querySelectorAll('.amenity-item');
-            const buttons = document.querySelectorAll('.filter-btn');
-            
-            console.log('Found items:', items.length);
-            console.log('Found buttons:', buttons.length);
-            
-            // Update button styles
-            buttons.forEach(btn => {
-                btn.classList.remove('active', 'filter-active');
-                btn.classList.add('bg-gray-100', 'text-gray-700');
-            });
-            
-            // Find the clicked button and update its style
-            const clickedButton = document.querySelector(`[data-filter="${category}"]`);
-            if (clickedButton) {
-                clickedButton.classList.add('active', 'filter-active');
-                clickedButton.classList.remove('bg-gray-100', 'text-gray-700');
-                console.log('Updated button style for:', category);
-            }
-            
-            // Filter items
-            let visibleCount = 0;
-            items.forEach(item => {
-                const itemCategory = item.dataset.category;
-                console.log('Item:', item.textContent.trim(), 'Category:', itemCategory);
-                
-                if (category === 'all' || itemCategory === category) {
-                    item.style.display = 'block';
-                    item.style.visibility = 'visible';
-                    visibleCount++;
-                } else {
-                    item.style.display = 'none';
-                    item.style.visibility = 'hidden';
-                }
-            });
-            
-            console.log('Visible items after filtering:', visibleCount);
-        }
-        
-        // Test function to verify JavaScript is working
-        function testFilter() {
-            console.log('JavaScript is working!');
-        }
-        
-        // Make sure function is available globally
-        window.filterAmenities = filterAmenities;
-        window.testFilter = testFilter;
-    </script>
 
     <?php endwhile; ?>
 <?php else : ?>
@@ -2614,4 +2637,7 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
     </div>
 <?php endif; ?>
 
-<?php get_footer(); ?>
+<?php
+// Use helper function to safely get footer (avoids deprecation warnings in block themes)
+resbs_get_footer();
+?>

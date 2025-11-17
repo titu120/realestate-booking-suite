@@ -108,8 +108,17 @@ class RESBS_Maps_Manager {
                 true
             );
 
+            // Get currency information for JavaScript
+            $currency_symbol = resbs_get_currency_symbol();
+            $currency_code = 'USD'; // Default
+            if (class_exists('WooCommerce')) {
+                $currency_code = get_woocommerce_currency();
+            }
+            
             // Localize script
             wp_localize_script('resbs-maps', 'resbs_maps_ajax', array(
+                'currency_symbol' => $currency_symbol,
+                'currency_code' => $currency_code,
                 'ajax_url' => admin_url('admin-ajax.php'),
                 'nonce' => wp_create_nonce('resbs_maps_nonce'),
                 'default_lat' => floatval(get_option('resbs_map_default_lat', '40.7128')),

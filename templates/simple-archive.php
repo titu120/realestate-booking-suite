@@ -1,4 +1,33 @@
-<?php get_header(); ?>
+<?php
+/**
+ * Simple Archive Property Template
+ * Block Theme Compatible
+ * 
+ * @package RealEstate_Booking_Suite
+ */
+
+// IMPORTANT: Check for reset BEFORE any output (including get_header())
+// If reset parameter is present, redirect to clean URL and set all values to defaults
+if (isset($_GET['reset'])) {
+    // Get the archive page URL without any query parameters
+    $archive_url = get_post_type_archive_link('property');
+    if (!$archive_url) {
+        // Fallback to home URL if archive link doesn't exist
+        $archive_url = home_url('/');
+    }
+    // Redirect to clean archive URL
+    wp_redirect($archive_url);
+    exit;
+}
+
+// Now safe to output headers and content
+// Use helper function to safely get header (avoids deprecation warnings in block themes)
+if (function_exists('resbs_get_header')) {
+    resbs_get_header();
+} else {
+    get_header();
+}
+?>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer">
 
@@ -7,17 +36,6 @@
 // wp_enqueue_script('resbs-dynamic-archive');
 
 // SIMPLE WORKING FILTER APPROACH
-// If reset parameter is present, redirect to clean URL and set all values to defaults
-$is_reset = isset($_GET['reset']);
-
-if ($is_reset) {
-    // Redirect to clean URL without reset parameter to show default values
-    $clean_url = remove_query_arg('reset');
-    // Also remove all filter parameters
-    $clean_url = remove_query_arg(array('search', 'min_price', 'max_price', 'property_type', 'min_bedrooms', 'max_bedrooms', 'min_bathrooms', 'max_bathrooms', 'min_sqft', 'max_sqft', 'year_built', 'property_status', 'sort_by', 'paged'), $clean_url);
-    wp_redirect($clean_url);
-    exit;
-}
 
 $search_query = !isset($_GET['search']) ? '' : sanitize_text_field($_GET['search']);
 $min_price = !isset($_GET['min_price']) ? '' : intval($_GET['min_price']);
@@ -3726,4 +3744,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <?php wp_reset_postdata(); ?>
 
-<?php get_footer(); ?>
+<?php
+// Use helper function to safely get footer (avoids deprecation warnings in block themes)
+if (function_exists('resbs_get_footer')) {
+    resbs_get_footer();
+} else {
+    get_footer();
+}
+?>

@@ -503,7 +503,7 @@
     }
 
     /**
-     * Format price
+     * Format price with dynamic currency
      */
     function formatPrice(price) {
         if (!price) return '';
@@ -511,12 +511,22 @@
         const numPrice = parseInt(price);
         if (isNaN(numPrice)) return price;
         
-        return new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: 'USD',
+        // Get currency from localized script (if available)
+        const currencySymbol = (typeof resbs_maps_ajax !== 'undefined' && resbs_maps_ajax.currency_symbol) 
+            ? resbs_maps_ajax.currency_symbol 
+            : '$';
+        const currencyCode = (typeof resbs_maps_ajax !== 'undefined' && resbs_maps_ajax.currency_code) 
+            ? resbs_maps_ajax.currency_code 
+            : 'USD';
+        
+        // Format number with thousand separators
+        const formattedNumber = numPrice.toLocaleString('en-US', {
             minimumFractionDigits: 0,
             maximumFractionDigits: 0
-        }).format(numPrice);
+        });
+        
+        // Return with currency symbol on the left (default)
+        return currencySymbol + formattedNumber;
     }
 
     /**

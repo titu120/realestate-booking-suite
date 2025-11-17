@@ -175,11 +175,50 @@ function resbs_create_submit_property_page() {
 }
 
 /**
+ * Create default property status terms if they don't exist
+ */
+function resbs_create_default_property_statuses() {
+    // Check if terms already exist
+    $existing_terms = get_terms(array(
+        'taxonomy' => 'property_status',
+        'hide_empty' => false,
+    ));
+    
+    // If terms exist and not an error, return
+    if (!empty($existing_terms) && !is_wp_error($existing_terms)) {
+        return;
+    }
+    
+    // Create default property status terms
+    $default_statuses = array(
+        'For Sale',
+        'For Rent',
+        'Sold',
+        'Rented',
+        'Available',
+        'Pending',
+        'Under Contract'
+    );
+    
+    foreach ($default_statuses as $status_name) {
+        // Check if term already exists
+        $term_exists = term_exists($status_name, 'property_status');
+        
+        if (!$term_exists) {
+            wp_insert_term($status_name, 'property_status');
+        }
+    }
+}
+
+/**
  * Plugin activation hook
  */
 function resbs_plugin_activation() {
     // Flush rewrite rules
     flush_rewrite_rules();
+    
+    // Create default property status terms
+    resbs_create_default_property_statuses();
     
     // Create wishlist page
     resbs_create_wishlist_page();
@@ -201,7 +240,64 @@ function resbs_manual_flush_rewrite_rules() {
 }
 add_action('init', 'resbs_manual_flush_rewrite_rules');
 
+/**
+ * Check if current theme is a block theme
+ * 
+ * This plugin is compatible with both classic and block themes (including Twenty Twenty-Five).
+ * 
+ * @return bool True if block theme, false otherwise
+ */
+function resbs_is_block_theme() {
+    if (function_exists('wp_is_block_theme')) {
+        return wp_is_block_theme();
+    }
+    return false;
+}
+
+/**
+ * Safely get header - avoids deprecation warnings in block themes
+ */
+function resbs_get_header() {
+    if (resbs_is_block_theme()) {
+        // For block themes, output basic HTML structure without calling get_header()
+        ?><!DOCTYPE html>
+<html <?php language_attributes(); ?>>
+<head>
+    <meta charset="<?php bloginfo('charset'); ?>">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <?php wp_head(); ?>
+</head>
+<body <?php body_class(); ?>>
+<?php wp_body_open(); ?>
+<div id="page" class="site">
+<?php
+    } else {
+        // For classic themes, use standard get_header()
+        get_header();
+    }
+}
+
+/**
+ * Safely get footer - avoids deprecation warnings in block themes
+ */
+function resbs_get_footer() {
+    if (resbs_is_block_theme()) {
+        // For block themes, output closing HTML structure without calling get_footer()
+        ?>
+</div><!-- #page -->
+<?php wp_footer(); ?>
+</body>
+</html>
+<?php
+    } else {
+        // For classic themes, use standard get_footer()
+        get_footer();
+    }
+}
+
 // SINGLE PROPERTY TEMPLATE LOADER - HIGH PRIORITY
+// Works with both classic and block themes
+// WordPress provides fallback support for get_header()/get_footer() in block themes
 function resbs_single_property_template_loader($template) {
     if (is_singular('property')) {
         $single_template = RESBS_PATH . 'templates/single-property.php';
@@ -361,4 +457,316 @@ require_once RESBS_PATH . 'includes/class-resbs-simple-archive.php';
 
 // Load user role management (safe role assignment)
 require_once RESBS_PATH . 'includes/class-resbs-user-roles.php';
+
+// Prevent unverified users from logging in (if email verification is enabled)
+// This hook catches ALL authentication attempts (wp_signon, wp_authenticate, etc.)
+function resbs_check_email_verification($user, $username = null, $password = null) {
+    // Only check if email verification is enabled
+    $enable_email_verification = get_option('resbs_enable_email_verification', 1);
+    
+    if (!$enable_email_verification) {
+        return $user; // Email verification disabled, allow login
+    }
+    
+    // If user is a WP_Error, return it (authentication already failed)
+    if (is_wp_error($user)) {
+        return $user;
+    }
+    
+    // If user is null or not a WP_User object, return as-is
+    if (!$user || !is_a($user, 'WP_User')) {
+        return $user;
+    }
+    
+    // Skip check for administrators (they can always log in)
+    if (user_can($user, 'manage_options')) {
+        return $user;
+    }
+    
+    // Check if user's email is verified
+    $email_verified = get_user_meta($user->ID, 'resbs_email_verified', true);
+    
+    // Check if user has a verification token (created through plugin registration)
+    $verification_token = get_user_meta($user->ID, 'resbs_verification_token', true);
+    
+    // If meta doesn't exist (old user created before email verification), treat as verified
+    if ($email_verified === '' || $email_verified === false) {
+        // Grandfather in existing users - mark them as verified
+        update_user_meta($user->ID, 'resbs_email_verified', '1');
+        return $user;
+    }
+    
+    // If user was created from WordPress admin (no verification token), auto-verify them
+    // Also verify if email_verified is '0' (unverified) but no token exists
+    if (empty($verification_token)) {
+        // User created from admin panel or has no token - auto-verify
+        update_user_meta($user->ID, 'resbs_email_verified', '1');
+        return $user;
+    }
+    
+    // If not verified, prevent login
+    if ($email_verified !== '1') {
+        // Remove auth cookie if set
+        wp_clear_auth_cookie();
+        
+        // Return error
+        return new WP_Error(
+            'email_not_verified',
+            __('<strong>Error:</strong> Your email address has not been verified. Please check your email and click the verification link to activate your account.', 'realestate-booking-suite')
+        );
+    }
+    
+    return $user;
+}
+// Hook into multiple authentication points to catch all login methods
+add_filter('wp_authenticate_user', 'resbs_check_email_verification', 99, 2);
+add_filter('authenticate', 'resbs_check_email_verification', 99, 3);
+
+/**
+ * Auto-verify users created from WordPress admin panel
+ * This ensures users created manually don't get blocked by email verification
+ */
+function resbs_auto_verify_admin_created_users($user_id) {
+    // Check if email verification is enabled
+    $enable_email_verification = get_option('resbs_enable_email_verification', 1);
+    
+    if (!$enable_email_verification) {
+        return; // Email verification disabled, no need to verify
+    }
+    
+    // Check if user already has verification status
+    $email_verified = get_user_meta($user_id, 'resbs_email_verified', true);
+    $verification_token = get_user_meta($user_id, 'resbs_verification_token', true);
+    
+    // If user was created from admin (no token) and not already verified, auto-verify
+    if (empty($verification_token) && $email_verified !== '1') {
+        update_user_meta($user_id, 'resbs_email_verified', '1');
+    }
+}
+add_action('user_register', 'resbs_auto_verify_admin_created_users', 10, 1);
+add_action('edit_user_profile_update', 'resbs_auto_verify_admin_created_users', 10, 1);
+
+/**
+ * Quick fix: Verify all existing users created from admin panel
+ * Access via: ?resbs_verify_all_users=1 (admin only)
+ * Or verify specific user: ?resbs_verify_user=username (admin only)
+ */
+function resbs_verify_all_admin_users() {
+    // Only allow admins
+    if (!current_user_can('manage_options')) {
+        return;
+    }
+    
+    $verified_count = 0;
+    $message = '';
+    
+    // Verify specific user
+    if (isset($_GET['resbs_verify_user']) && !empty($_GET['resbs_verify_user'])) {
+        $username = sanitize_user($_GET['resbs_verify_user']);
+        $user = get_user_by('login', $username);
+        
+        if (!$user) {
+            $user = get_user_by('email', $username);
+        }
+        
+        if ($user) {
+            update_user_meta($user->ID, 'resbs_email_verified', '1');
+            delete_user_meta($user->ID, 'resbs_verification_token');
+            delete_user_meta($user->ID, 'resbs_verification_expires');
+            $verified_count = 1;
+            $message = sprintf(__('User "%s" has been verified successfully!', 'realestate-booking-suite'), $user->user_login);
+        } else {
+            $message = sprintf(__('User "%s" not found.', 'realestate-booking-suite'), $username);
+        }
+    }
+    // Verify all users
+    elseif (isset($_GET['resbs_verify_all_users']) && $_GET['resbs_verify_all_users'] === '1') {
+        // Get all users
+        $users = get_users();
+        
+        foreach ($users as $user) {
+            // Skip admins (they can always login)
+            if (user_can($user->ID, 'manage_options')) {
+                continue;
+            }
+            
+            $email_verified = get_user_meta($user->ID, 'resbs_email_verified', true);
+            $verification_token = get_user_meta($user->ID, 'resbs_verification_token', true);
+            
+            // If user was created from admin (no token) and not verified, verify them
+            if (empty($verification_token) && $email_verified !== '1') {
+                update_user_meta($user->ID, 'resbs_email_verified', '1');
+                $verified_count++;
+            } elseif ($email_verified === '' || $email_verified === false) {
+                // Also verify users with no meta at all
+                update_user_meta($user->ID, 'resbs_email_verified', '1');
+                $verified_count++;
+            } elseif ($email_verified === '0') {
+                // Force verify users marked as unverified
+                update_user_meta($user->ID, 'resbs_email_verified', '1');
+                delete_user_meta($user->ID, 'resbs_verification_token');
+                delete_user_meta($user->ID, 'resbs_verification_expires');
+                $verified_count++;
+            }
+        }
+        
+        $message = sprintf(__('Successfully verified %d user(s) created from admin panel.', 'realestate-booking-suite'), $verified_count);
+    } else {
+        return; // No action requested
+    }
+    
+    // Show success message
+    if (!empty($message)) {
+        add_action('admin_notices', function() use ($message, $verified_count) {
+            $notice_class = $verified_count > 0 ? 'notice-success' : 'notice-warning';
+            echo '<div class="notice ' . $notice_class . ' is-dismissible"><p>' . esc_html($message) . '</p></div>';
+        });
+    }
+}
+add_action('admin_init', 'resbs_verify_all_admin_users');
+
+/**
+ * Quick fix: Create default property status terms
+ * Access via: ?resbs_create_status_terms=1 (admin only)
+ */
+function resbs_create_status_terms_on_demand() {
+    // Only allow admins
+    if (!current_user_can('manage_options')) {
+        return;
+    }
+    
+    // Only run if parameter is set
+    if (!isset($_GET['resbs_create_status_terms']) || $_GET['resbs_create_status_terms'] !== '1') {
+        return;
+    }
+    
+    // Create default terms
+    resbs_create_default_property_statuses();
+    
+    // Show success message
+    add_action('admin_notices', function() {
+        echo '<div class="notice notice-success is-dismissible"><p>';
+        echo esc_html__('Default property status terms have been created successfully!', 'realestate-booking-suite');
+        echo '</p></div>';
+    });
+}
+add_action('admin_init', 'resbs_create_status_terms_on_demand');
+
+/**
+ * Fix existing properties: Convert array features/amenities to strings
+ * Access via: ?resbs_fix_property_arrays=1 (admin only)
+ */
+function resbs_fix_property_arrays() {
+    // Only allow admins
+    if (!current_user_can('manage_options')) {
+        return;
+    }
+    
+    // Only run if parameter is set
+    if (!isset($_GET['resbs_fix_property_arrays']) || $_GET['resbs_fix_property_arrays'] !== '1') {
+        return;
+    }
+    
+    $fixed_count = 0;
+    
+    // Get all properties
+    $properties = get_posts(array(
+        'post_type' => 'property',
+        'posts_per_page' => -1,
+        'post_status' => 'any'
+    ));
+    
+    foreach ($properties as $property) {
+        $fixed = false;
+        
+        // Fix features
+        $features = get_post_meta($property->ID, '_property_features', true);
+        if (is_array($features)) {
+            $features_string = implode(', ', array_filter(array_map(function($item) {
+                if (is_array($item)) {
+                    return implode(', ', array_filter(array_map('trim', $item)));
+                }
+                return trim((string)$item);
+            }, $features)));
+            update_post_meta($property->ID, '_property_features', $features_string);
+            $fixed = true;
+        }
+        
+        // Fix amenities
+        $amenities = get_post_meta($property->ID, '_property_amenities', true);
+        if (is_array($amenities)) {
+            $amenities_string = implode(', ', array_filter(array_map(function($item) {
+                if (is_array($item)) {
+                    return implode(', ', array_filter(array_map('trim', $item)));
+                }
+                return trim((string)$item);
+            }, $amenities)));
+            update_post_meta($property->ID, '_property_amenities', $amenities_string);
+            $fixed = true;
+        }
+        
+        if ($fixed) {
+            $fixed_count++;
+        }
+    }
+    
+    // Show success message
+    add_action('admin_notices', function() use ($fixed_count) {
+        echo '<div class="notice notice-success is-dismissible"><p>';
+        echo sprintf(__('Fixed %d property(ies) - converted array data to strings.', 'realestate-booking-suite'), $fixed_count);
+        echo '</p></div>';
+    });
+}
+add_action('admin_init', 'resbs_fix_property_arrays');
+
+/**
+ * Get WooCommerce currency symbol (or default to $ if WooCommerce not available)
+ * @return string Currency symbol
+ */
+function resbs_get_currency_symbol() {
+    // Check if WooCommerce is active
+    if (class_exists('WooCommerce')) {
+        return get_woocommerce_currency_symbol();
+    }
+    
+    // Fallback: Check if there's a currency setting in WordPress options
+    $currency = get_option('resbs_currency_symbol', '$');
+    return $currency;
+}
+
+/**
+ * Format price with currency symbol
+ * @param float|string $price The price to format
+ * @param int $decimals Number of decimal places (default 0)
+ * @return string Formatted price with currency symbol
+ */
+function resbs_format_price($price, $decimals = 0) {
+    if (empty($price) || $price === 0) {
+        return '';
+    }
+    
+    $currency_symbol = resbs_get_currency_symbol();
+    $formatted_number = number_format(floatval($price), $decimals, '.', ',');
+    
+    // Check if WooCommerce is active to get currency position
+    if (class_exists('WooCommerce')) {
+        $currency_position = get_option('woocommerce_currency_pos', 'left');
+        
+        switch ($currency_position) {
+            case 'left':
+                return $currency_symbol . $formatted_number;
+            case 'right':
+                return $formatted_number . $currency_symbol;
+            case 'left_space':
+                return $currency_symbol . ' ' . $formatted_number;
+            case 'right_space':
+                return $formatted_number . ' ' . $currency_symbol;
+            default:
+                return $currency_symbol . $formatted_number;
+        }
+    }
+    
+    // Default: currency symbol on the left
+    return $currency_symbol . $formatted_number;
+}
 

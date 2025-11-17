@@ -23,10 +23,10 @@ $featured = get_post_meta($property_id, 'resbs_property_featured', true);
 $gallery = get_post_meta($property_id, 'resbs_property_gallery', true);
 $layout = RESBS_Archive_Handler::get_archive_layout();
 
-// Format price
+// Format price with dynamic currency
 $formatted_price = '';
 if ($price) {
-    $formatted_price = '$' . number_format($price);
+    $formatted_price = resbs_format_price($price);
     if ($status === 'for-rent') {
         $formatted_price .= '/month';
     }

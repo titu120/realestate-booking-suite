@@ -18,6 +18,231 @@ class RESBS_Shortcodes {
     public function __construct() {
         add_action('init', array($this, 'register_shortcodes'));
         add_action('wp_enqueue_scripts', array($this, 'enqueue_shortcode_assets'));
+        // Handle registration form submission BEFORE any output (to avoid headers already sent errors)
+        add_action('template_redirect', array($this, 'handle_buyer_registration_submit'), 1);
+        // Handle email verification link clicks
+        add_action('template_redirect', array($this, 'handle_email_verification'), 1);
+    }
+
+    /**
+     * Handle buyer registration form submission (runs BEFORE any output)
+     * This prevents "headers already sent" errors
+     */
+    public function handle_buyer_registration_submit() {
+        // Only process if form was submitted
+        if (!isset($_POST['resbs_register_nonce']) || !wp_verify_nonce($_POST['resbs_register_nonce'], 'resbs_buyer_register')) {
+            return;
+        }
+        
+        // Check if buyer signup is enabled
+        $enable_buyer_signup = get_option('resbs_enable_signup_buyers', 0) === '1';
+        if (!$enable_buyer_signup) {
+            return;
+        }
+        
+        // Don't process if user is already logged in
+        if (is_user_logged_in()) {
+            return;
+        }
+        
+        $username = isset($_POST['user_login']) ? sanitize_user($_POST['user_login']) : '';
+        $email = isset($_POST['user_email']) ? sanitize_email($_POST['user_email']) : '';
+        $password = isset($_POST['user_pass']) ? $_POST['user_pass'] : '';
+        $password_confirm = isset($_POST['user_pass_confirm']) ? $_POST['user_pass_confirm'] : '';
+        
+        $errors = new WP_Error();
+        
+        // Validation
+        if (empty($username)) {
+            $errors->add('empty_username', esc_html__('Please enter a username.', 'realestate-booking-suite'));
+        } elseif (!validate_username($username)) {
+            $errors->add('invalid_username', esc_html__('This username is invalid because it uses illegal characters. Please enter a valid username.', 'realestate-booking-suite'));
+        } elseif (username_exists($username)) {
+            $errors->add('username_exists', esc_html__('This username is already registered. Please choose another one.', 'realestate-booking-suite'));
+        }
+        
+        if (empty($email)) {
+            $errors->add('empty_email', esc_html__('Please enter an email address.', 'realestate-booking-suite'));
+        } elseif (!is_email($email)) {
+            $errors->add('invalid_email', esc_html__('Please enter a valid email address.', 'realestate-booking-suite'));
+        } elseif (email_exists($email)) {
+            $errors->add('email_exists', esc_html__('This email is already registered. Please use another email or log in.', 'realestate-booking-suite'));
+        }
+        
+        if (empty($password)) {
+            $errors->add('empty_password', esc_html__('Please enter a password.', 'realestate-booking-suite'));
+        } elseif (strlen($password) < 6) {
+            $errors->add('weak_password', esc_html__('Password must be at least 6 characters long.', 'realestate-booking-suite'));
+        }
+        
+        if ($password !== $password_confirm) {
+            $errors->add('password_mismatch', esc_html__('Passwords do not match.', 'realestate-booking-suite'));
+        }
+        
+        // If no errors, create user and redirect
+        if (!is_wp_error($errors) || !$errors->has_errors()) {
+            $user_id = wp_create_user($username, $password, $email);
+            
+            if (!is_wp_error($user_id)) {
+                // User role will be assigned by RESBS_User_Roles class
+                
+                // Check if email verification is enabled
+                $enable_email_verification = get_option('resbs_enable_email_verification', 1); // Default: enabled
+                
+                if ($enable_email_verification) {
+                    // Email verification enabled - create unverified user and send verification email
+                    update_user_meta($user_id, 'resbs_email_verified', '0');
+                    $verification_token = wp_generate_password(32, false);
+                    update_user_meta($user_id, 'resbs_verification_token', $verification_token);
+                    update_user_meta($user_id, 'resbs_verification_expires', time() + (7 * DAY_IN_SECONDS)); // 7 days expiry
+                    
+                    // Send verification email
+                    $this->send_verification_email($user_id, $email, $verification_token);
+                    
+                    // Store success message
+                    $success_key = 'resbs_reg_success_' . md5($_SERVER['REMOTE_ADDR'] . time());
+                    set_transient($success_key, 'email_verification', 300); // 5 minutes
+                    wp_safe_redirect(add_query_arg('reg_success', $success_key, get_permalink()));
+                    exit;
+                } else {
+                    // Email verification disabled - auto-login (old behavior)
+                    update_user_meta($user_id, 'resbs_email_verified', '1'); // Mark as verified
+                    wp_set_current_user($user_id);
+                    wp_set_auth_cookie($user_id);
+                    
+                    // Redirect to home page - keep default WordPress/WooCommerce My Account design unchanged
+                    $redirect_url = home_url('/');
+                    wp_safe_redirect($redirect_url);
+                    exit;
+                }
+            } else {
+                // Store errors in transient to display after redirect
+                $transient_key = 'resbs_registration_errors_' . md5($_SERVER['REMOTE_ADDR'] . time());
+                set_transient($transient_key, $user_id->get_error_messages(), 30);
+                wp_safe_redirect(add_query_arg('reg_errors', $transient_key, get_permalink()));
+                exit;
+            }
+        } else {
+            // Store errors in transient to display after redirect
+            $transient_key = 'resbs_registration_errors_' . md5($_SERVER['REMOTE_ADDR'] . time());
+            set_transient($transient_key, $errors->get_error_messages(), 30);
+            wp_safe_redirect(add_query_arg('reg_errors', $transient_key, get_permalink()));
+            exit;
+        }
+    }
+
+    /**
+     * Handle email verification link clicks
+     */
+    public function handle_email_verification() {
+        if (!isset($_GET['resbs_verify']) || empty($_GET['resbs_verify'])) {
+            return;
+        }
+        
+        $token = sanitize_text_field($_GET['resbs_verify']);
+        
+        // Find user by verification token
+        $users = get_users(array(
+            'meta_key' => 'resbs_verification_token',
+            'meta_value' => $token,
+            'number' => 1
+        ));
+        
+        if (empty($users)) {
+            // Invalid token - redirect with error
+            $error_key = 'resbs_verify_error_' . md5($_SERVER['REMOTE_ADDR'] . time());
+            set_transient($error_key, 'invalid_token', 300);
+            wp_safe_redirect(add_query_arg('verify_error', $error_key, home_url('/register/')));
+            exit;
+        }
+        
+        $user = $users[0];
+        $user_id = $user->ID;
+        
+        // Check if token has expired
+        $expires = get_user_meta($user_id, 'resbs_verification_expires', true);
+        if ($expires && time() > $expires) {
+            // Token expired - redirect with error
+            $error_key = 'resbs_verify_error_' . md5($_SERVER['REMOTE_ADDR'] . time());
+            set_transient($error_key, 'expired_token', 300);
+            wp_safe_redirect(add_query_arg('verify_error', $error_key, home_url('/register/')));
+            exit;
+        }
+        
+        // Check if already verified
+        $verified = get_user_meta($user_id, 'resbs_email_verified', true);
+        if ($verified === '1') {
+            // Already verified - redirect with message
+            $success_key = 'resbs_verify_success_' . md5($_SERVER['REMOTE_ADDR'] . time());
+            set_transient($success_key, 'already_verified', 300);
+            wp_safe_redirect(add_query_arg('verify_success', $success_key, home_url('/register/')));
+            exit;
+        }
+        
+        // Verify the user
+        update_user_meta($user_id, 'resbs_email_verified', '1');
+        delete_user_meta($user_id, 'resbs_verification_token');
+        delete_user_meta($user_id, 'resbs_verification_expires');
+        
+        // Auto-login the user
+        wp_set_current_user($user_id);
+        wp_set_auth_cookie($user_id);
+        
+        // Redirect with success message
+        $success_key = 'resbs_verify_success_' . md5($_SERVER['REMOTE_ADDR'] . time());
+        set_transient($success_key, 'verified', 300);
+        wp_safe_redirect(add_query_arg('verify_success', $success_key, home_url('/')));
+        exit;
+    }
+
+    /**
+     * Send verification email to user
+     */
+    private function send_verification_email($user_id, $email, $token) {
+        $user = get_userdata($user_id);
+        if (!$user) {
+            return false;
+        }
+        
+        $verification_url = add_query_arg(
+            array('resbs_verify' => $token),
+            home_url('/')
+        );
+        
+        $site_name = get_bloginfo('name');
+        $from_name = get_option('resbs_email_from_name', $site_name);
+        $from_email = get_option('resbs_email_from_email', get_option('admin_email'));
+        
+        $subject = sprintf(__('Verify your email address - %s', 'realestate-booking-suite'), $site_name);
+        
+        $message = sprintf(
+            __('Hello %s,
+
+Thank you for registering with %s!
+
+Please click the link below to verify your email address and activate your account:
+
+%s
+
+This link will expire in 7 days.
+
+If you did not create an account, please ignore this email.
+
+Best regards,
+%s Team', 'realestate-booking-suite'),
+            $user->display_name,
+            $site_name,
+            $verification_url,
+            $site_name
+        );
+        
+        $headers = array(
+            'From: ' . $from_name . ' <' . $from_email . '>',
+            'Content-Type: text/html; charset=UTF-8'
+        );
+        
+        // Send email
+        return wp_mail($email, $subject, nl2br($message), $headers);
     }
 
     /**
@@ -656,7 +881,7 @@ class RESBS_Shortcodes {
         ob_start();
         ?>
         <div class="resbs-submit-widget resbs-shortcode" id="<?php echo esc_attr($shortcode_id); ?>">
-            <form class="resbs-submit-form" data-target="<?php echo esc_attr($shortcode_id); ?>">
+            <form class="resbs-submit-form" data-target="<?php echo esc_attr($shortcode_id); ?>" enctype="multipart/form-data">
                 <?php wp_nonce_field('resbs_submit_property', 'resbs_submit_nonce'); ?>
                 
                 <div class="resbs-form-section">
@@ -827,8 +1052,39 @@ class RESBS_Shortcodes {
                                     'taxonomy' => 'property_status',
                                     'hide_empty' => false,
                                 ));
-                                foreach ($property_statuses as $status) {
-                                    echo '<option value="' . esc_attr($status->term_id) . '">' . esc_html($status->name) . '</option>';
+                                
+                                // If no terms exist, create default ones
+                                if (empty($property_statuses) || is_wp_error($property_statuses)) {
+                                    // Create default property status terms
+                                    $default_statuses = array(
+                                        'For Sale',
+                                        'For Rent',
+                                        'Sold',
+                                        'Rented',
+                                        'Available',
+                                        'Pending',
+                                        'Under Contract'
+                                    );
+                                    
+                                    foreach ($default_statuses as $status_name) {
+                                        $term = wp_insert_term($status_name, 'property_status');
+                                        if (!is_wp_error($term) && isset($term['term_id'])) {
+                                            echo '<option value="' . esc_attr($term['term_id']) . '">' . esc_html($status_name) . '</option>';
+                                        }
+                                    }
+                                    
+                                    // Re-fetch terms after creating defaults
+                                    $property_statuses = get_terms(array(
+                                        'taxonomy' => 'property_status',
+                                        'hide_empty' => false,
+                                    ));
+                                }
+                                
+                                // Display existing terms
+                                if (!empty($property_statuses) && !is_wp_error($property_statuses)) {
+                                    foreach ($property_statuses as $status) {
+                                        echo '<option value="' . esc_attr($status->term_id) . '">' . esc_html($status->name) . '</option>';
+                                    }
                                 }
                                 ?>
                             </select>
@@ -854,6 +1110,21 @@ class RESBS_Shortcodes {
                         </label>
                         <textarea name="property_description" id="property_description_<?php echo esc_attr($shortcode_id); ?>" 
                                   required rows="6" placeholder="<?php esc_attr_e('Enter property description', 'realestate-booking-suite'); ?>"></textarea>
+                    </div>
+                </div>
+
+                <div class="resbs-form-section">
+                    <h4><?php esc_html_e('Featured Image', 'realestate-booking-suite'); ?></h4>
+                    <div class="resbs-form-group">
+                        <label for="property_featured_image_<?php echo esc_attr($shortcode_id); ?>">
+                            <?php esc_html_e('Featured Image', 'realestate-booking-suite'); ?>
+                        </label>
+                        <input type="file" name="property_featured_image" id="property_featured_image_<?php echo esc_attr($shortcode_id); ?>" 
+                               accept="image/*" class="resbs-file-input">
+                        <p class="resbs-input-help"><?php esc_html_e('Upload the main featured image for this property (recommended)', 'realestate-booking-suite'); ?></p>
+                        <div class="resbs-featured-image-preview" style="margin-top: 10px; display: none;">
+                            <img src="" alt="Preview" style="max-width: 200px; max-height: 200px; border: 1px solid #ddd; border-radius: 4px;">
+                        </div>
                     </div>
                 </div>
 
@@ -938,17 +1209,19 @@ class RESBS_Shortcodes {
                     <h4><?php esc_html_e('Property Features & Amenities', 'realestate-booking-suite'); ?></h4>
                     <div class="resbs-form-group" style="grid-column: 1 / -1;">
                         <label for="property_features_<?php echo esc_attr($shortcode_id); ?>">
-                            <?php esc_html_e('Features (comma separated)', 'realestate-booking-suite'); ?>
+                            <?php esc_html_e('Interior Features (comma separated)', 'realestate-booking-suite'); ?>
                         </label>
                         <input type="text" name="property_features" id="property_features_<?php echo esc_attr($shortcode_id); ?>" 
-                               placeholder="<?php esc_attr_e('e.g., Swimming Pool, Garage, Garden, Fireplace', 'realestate-booking-suite'); ?>">
+                               placeholder="<?php esc_attr_e('e.g., Fireplace, Hardwood Floors, Walk-in Closet, Built-in Shelves', 'realestate-booking-suite'); ?>">
+                        <p class="resbs-input-help"><?php esc_html_e('These will appear under "Interior" category', 'realestate-booking-suite'); ?></p>
                     </div>
                     <div class="resbs-form-group" style="grid-column: 1 / -1;">
                         <label for="property_amenities_<?php echo esc_attr($shortcode_id); ?>">
-                            <?php esc_html_e('Amenities (comma separated)', 'realestate-booking-suite'); ?>
+                            <?php esc_html_e('Exterior Amenities (comma separated)', 'realestate-booking-suite'); ?>
                         </label>
                         <input type="text" name="property_amenities" id="property_amenities_<?php echo esc_attr($shortcode_id); ?>" 
-                               placeholder="<?php esc_attr_e('e.g., Gym, Security, Elevator, Parking', 'realestate-booking-suite'); ?>">
+                               placeholder="<?php esc_attr_e('e.g., Swimming Pool, Garage, Garden, Patio, Balcony', 'realestate-booking-suite'); ?>">
+                        <p class="resbs-input-help"><?php esc_html_e('These will appear under "Exterior" category', 'realestate-booking-suite'); ?></p>
                     </div>
                     <div class="resbs-form-row">
                         <div class="resbs-form-group">
@@ -1091,6 +1364,23 @@ class RESBS_Shortcodes {
                             </label>
                             <input type="number" name="property_agent_experience" id="property_agent_experience_<?php echo esc_attr($shortcode_id); ?>" 
                                    min="0" placeholder="<?php esc_attr_e('e.g., 10', 'realestate-booking-suite'); ?>">
+                        </div>
+                    </div>
+                    <div class="resbs-form-row">
+                        <div class="resbs-form-group">
+                            <label for="property_agent_response_time_<?php echo esc_attr($shortcode_id); ?>">
+                                <?php esc_html_e('Response Time', 'realestate-booking-suite'); ?>
+                            </label>
+                            <input type="text" name="property_agent_response_time" id="property_agent_response_time_<?php echo esc_attr($shortcode_id); ?>" 
+                                   placeholder="<?php esc_attr_e('e.g., < 1 Hour', 'realestate-booking-suite'); ?>">
+                        </div>
+                        <div class="resbs-form-group">
+                            <label for="property_agent_photo_<?php echo esc_attr($shortcode_id); ?>">
+                                <?php esc_html_e('Agent Photo', 'realestate-booking-suite'); ?>
+                            </label>
+                            <input type="file" name="property_agent_photo" id="property_agent_photo_<?php echo esc_attr($shortcode_id); ?>" 
+                                   accept="image/*" class="resbs-file-input">
+                            <p class="resbs-input-help"><?php esc_html_e('Upload agent profile photo', 'realestate-booking-suite'); ?></p>
                         </div>
                     </div>
                 </div>
@@ -1269,6 +1559,9 @@ class RESBS_Shortcodes {
      * @return string Shortcode output
      */
     public function buyer_registration_shortcode($atts) {
+        // Form submission is now handled by handle_buyer_registration_submit() at template_redirect hook
+        // This prevents "headers already sent" errors
+        
         // Check if buyer signup is enabled
         $enable_buyer_signup = get_option('resbs_enable_signup_buyers', 0) === '1';
         
@@ -1303,71 +1596,214 @@ class RESBS_Shortcodes {
         
         $shortcode_id = 'resbs-buyer-registration-' . uniqid();
         
-        // Handle registration form submission
+        // Get errors from transient if they exist
         $errors = new WP_Error();
-        $success = false;
-        
-        if (isset($_POST['resbs_register_nonce']) && wp_verify_nonce($_POST['resbs_register_nonce'], 'resbs_buyer_register')) {
-            $username = isset($_POST['user_login']) ? sanitize_user($_POST['user_login']) : '';
-            $email = isset($_POST['user_email']) ? sanitize_email($_POST['user_email']) : '';
-            $password = isset($_POST['user_pass']) ? $_POST['user_pass'] : '';
-            $password_confirm = isset($_POST['user_pass_confirm']) ? $_POST['user_pass_confirm'] : '';
-            
-            // Validation
-            if (empty($username)) {
-                $errors->add('empty_username', esc_html__('Please enter a username.', 'realestate-booking-suite'));
-            } elseif (!validate_username($username)) {
-                $errors->add('invalid_username', esc_html__('This username is invalid because it uses illegal characters. Please enter a valid username.', 'realestate-booking-suite'));
-            } elseif (username_exists($username)) {
-                $errors->add('username_exists', esc_html__('This username is already registered. Please choose another one.', 'realestate-booking-suite'));
-            }
-            
-            if (empty($email)) {
-                $errors->add('empty_email', esc_html__('Please enter an email address.', 'realestate-booking-suite'));
-            } elseif (!is_email($email)) {
-                $errors->add('invalid_email', esc_html__('Please enter a valid email address.', 'realestate-booking-suite'));
-            } elseif (email_exists($email)) {
-                $errors->add('email_exists', esc_html__('This email is already registered. Please use another email or log in.', 'realestate-booking-suite'));
-            }
-            
-            if (empty($password)) {
-                $errors->add('empty_password', esc_html__('Please enter a password.', 'realestate-booking-suite'));
-            } elseif (strlen($password) < 6) {
-                $errors->add('weak_password', esc_html__('Password must be at least 6 characters long.', 'realestate-booking-suite'));
-            }
-            
-            if ($password !== $password_confirm) {
-                $errors->add('password_mismatch', esc_html__('Passwords do not match.', 'realestate-booking-suite'));
-            }
-            
-            // If no errors, create user
-            if (!is_wp_error($errors) || !$errors->has_errors()) {
-                $user_id = wp_create_user($username, $password, $email);
-                
-                if (!is_wp_error($user_id)) {
-                    // User role will be assigned by RESBS_User_Roles class
-                    $success = true;
-                    
-                    // Auto-login the user
-                    wp_set_current_user($user_id);
-                    wp_set_auth_cookie($user_id);
-                    
-                    // Redirect to current page or dashboard
-                    $redirect_url = get_permalink();
-                    if (function_exists('wc_get_page_permalink') && wc_get_page_permalink('myaccount')) {
-                        $redirect_url = wc_get_page_permalink('myaccount');
-                    }
-                    
-                    wp_safe_redirect($redirect_url);
-                    exit;
-                } else {
-                    $errors = $user_id;
+        if (isset($_GET['reg_errors'])) {
+            $transient_key = sanitize_text_field($_GET['reg_errors']);
+            $error_messages = get_transient($transient_key);
+            if ($error_messages) {
+                foreach ($error_messages as $message) {
+                    $errors->add('registration_error', $message);
                 }
+                delete_transient($transient_key);
+            }
+        }
+        
+        // Check for verification success/error messages
+        $verification_message = '';
+        $verification_type = '';
+        
+        if (isset($_GET['reg_success'])) {
+            $success_key = sanitize_text_field($_GET['reg_success']);
+            $success_data = get_transient($success_key);
+            if ($success_data === 'email_verification') {
+                $verification_message = esc_html__('Registration successful! Please check your email to verify your account. Click the verification link in the email to activate your account.', 'realestate-booking-suite');
+                $verification_type = 'success';
+                delete_transient($success_key);
+            }
+        }
+        
+        if (isset($_GET['verify_success'])) {
+            $verify_key = sanitize_text_field($_GET['verify_success']);
+            $verify_data = get_transient($verify_key);
+            if ($verify_data === 'verified') {
+                $verification_message = esc_html__('Email verified successfully! Your account has been activated. You are now logged in.', 'realestate-booking-suite');
+                $verification_type = 'success';
+                delete_transient($verify_key);
+            } elseif ($verify_data === 'already_verified') {
+                $verification_message = esc_html__('Your email is already verified. You can log in now.', 'realestate-booking-suite');
+                $verification_type = 'info';
+                delete_transient($verify_key);
+            }
+        }
+        
+        if (isset($_GET['verify_error'])) {
+            $error_key = sanitize_text_field($_GET['verify_error']);
+            $error_data = get_transient($error_key);
+            if ($error_data === 'invalid_token') {
+                $verification_message = esc_html__('Invalid verification link. Please check your email or request a new verification link.', 'realestate-booking-suite');
+                $verification_type = 'error';
+                delete_transient($error_key);
+            } elseif ($error_data === 'expired_token') {
+                $verification_message = esc_html__('Verification link has expired. Please register again or contact support.', 'realestate-booking-suite');
+                $verification_type = 'error';
+                delete_transient($error_key);
             }
         }
         
         ob_start();
         ?>
+        <style>
+        /* Professional Registration Form Styles - Inline to ensure they load */
+        .resbs-registration-wrapper {
+            max-width: 500px !important;
+            margin: 60px auto !important;
+            padding: 0 20px !important;
+            box-sizing: border-box !important;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+        }
+        .resbs-registration-header {
+            text-align: center !important;
+            margin-bottom: 40px !important;
+        }
+        .resbs-registration-title {
+            font-size: 2.25rem !important;
+            font-weight: 700 !important;
+            color: #1a1a1a !important;
+            margin: 0 0 12px 0 !important;
+            letter-spacing: -0.5px !important;
+            line-height: 1.2 !important;
+        }
+        .resbs-registration-subtitle {
+            font-size: 16px !important;
+            color: #6b7280 !important;
+            margin: 0 !important;
+            line-height: 1.6 !important;
+            font-weight: 400 !important;
+        }
+        .resbs-registration-content {
+            background: #ffffff !important;
+            border-radius: 12px !important;
+            padding: 40px !important;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+            border: 1px solid #e5e7eb !important;
+        }
+        .resbs-registration-form .resbs-form-field {
+            margin-bottom: 24px !important;
+        }
+        .resbs-registration-form .resbs-form-field label {
+            display: block !important;
+            margin-bottom: 8px !important;
+            font-weight: 600 !important;
+            color: #374151 !important;
+            font-size: 14px !important;
+            line-height: 1.5 !important;
+        }
+        .resbs-registration-form .resbs-form-field input[type="text"],
+        .resbs-registration-form .resbs-form-field input[type="email"],
+        .resbs-registration-form .resbs-form-field input[type="password"] {
+            width: 100% !important;
+            padding: 14px 16px !important;
+            border: 1.5px solid #d1d5db !important;
+            border-radius: 8px !important;
+            font-size: 15px !important;
+            color: #1f2937 !important;
+            background: #ffffff !important;
+            transition: all 0.2s ease !important;
+            box-sizing: border-box !important;
+            font-family: inherit !important;
+            line-height: 1.5 !important;
+        }
+        .resbs-registration-form .resbs-form-field input:focus {
+            outline: none !important;
+            border-color: #0073aa !important;
+            box-shadow: 0 0 0 3px rgba(0, 115, 170, 0.1) !important;
+        }
+        .resbs-registration-submit-btn {
+            width: 100% !important;
+            padding: 16px 24px !important;
+            background: #0073aa !important;
+            color: #ffffff !important;
+            border: none !important;
+            border-radius: 8px !important;
+            font-size: 16px !important;
+            font-weight: 600 !important;
+            cursor: pointer !important;
+            transition: all 0.3s ease !important;
+            margin-top: 12px !important;
+            box-shadow: 0 2px 4px rgba(0, 115, 170, 0.2) !important;
+        }
+        .resbs-registration-submit-btn:hover {
+            background: #005a87 !important;
+            box-shadow: 0 4px 8px rgba(0, 115, 170, 0.3) !important;
+            transform: translateY(-1px) !important;
+        }
+        .resbs-registration-footer {
+            margin-top: 24px !important;
+            text-align: center !important;
+        }
+        .resbs-registration-login-link {
+            font-size: 14px !important;
+            color: #6b7280 !important;
+            margin: 0 !important;
+        }
+        .resbs-registration-login-link a {
+            color: #0073aa !important;
+            text-decoration: none !important;
+            font-weight: 600 !important;
+        }
+        .resbs-registration-login-link a:hover {
+            text-decoration: underline !important;
+        }
+        .resbs-registration-error {
+            background: #fef2f2 !important;
+            border: 1px solid #fecaca !important;
+            border-radius: 8px !important;
+            padding: 12px 16px !important;
+            margin-bottom: 20px !important;
+            color: #991b1b !important;
+        }
+        .resbs-registration-error p {
+            margin: 4px 0 !important;
+            font-size: 14px !important;
+        }
+        .resbs-registration-success {
+            background: #f0fdf4 !important;
+            border: 1px solid #bbf7d0 !important;
+            border-radius: 8px !important;
+            padding: 12px 16px !important;
+            margin-bottom: 20px !important;
+            color: #166534 !important;
+        }
+        .resbs-registration-success p {
+            margin: 4px 0 !important;
+            font-size: 14px !important;
+        }
+        .resbs-registration-info {
+            background: #eff6ff !important;
+            border: 1px solid #bfdbfe !important;
+            border-radius: 8px !important;
+            padding: 12px 16px !important;
+            margin-bottom: 20px !important;
+            color: #1e40af !important;
+        }
+        .resbs-registration-info p {
+            margin: 4px 0 !important;
+            font-size: 14px !important;
+        }
+        @media (max-width: 768px) {
+            .resbs-registration-wrapper {
+                margin: 20px auto !important;
+                padding: 0 16px !important;
+            }
+            .resbs-registration-content {
+                padding: 24px !important;
+            }
+            .resbs-registration-title {
+                font-size: 1.75rem !important;
+            }
+        }
+        </style>
         <div class="resbs-registration-wrapper" id="<?php echo esc_attr($shortcode_id); ?>">
             <?php if ($page_title || $page_subtitle): ?>
                 <div class="resbs-registration-header">
@@ -1389,6 +1825,13 @@ class RESBS_Shortcodes {
                     </div>
                 <?php endif; ?>
                 
+                <?php if (!empty($verification_message)): ?>
+                    <div class="resbs-registration-<?php echo esc_attr($verification_type); ?>">
+                        <p><?php echo esc_html($verification_message); ?></p>
+                    </div>
+                <?php endif; ?>
+                
+                <?php if (empty($verification_message) || $verification_type === 'error'): ?>
                 <form class="resbs-registration-form" method="post" action="<?php echo esc_url(get_permalink()); ?>">
                     <?php wp_nonce_field('resbs_buyer_register', 'resbs_register_nonce'); ?>
                     
@@ -1444,7 +1887,9 @@ class RESBS_Shortcodes {
                         <?php esc_html_e('Create Account', 'realestate-booking-suite'); ?>
                     </button>
                 </form>
+                <?php endif; ?>
                 
+                <?php if (empty($verification_message) || $verification_type === 'error'): ?>
                 <div class="resbs-registration-footer">
                     <p class="resbs-registration-login-link">
                         <?php esc_html_e('Already have an account?', 'realestate-booking-suite'); ?>
@@ -1453,6 +1898,7 @@ class RESBS_Shortcodes {
                         </a>
                     </p>
                 </div>
+                <?php endif; ?>
             </div>
         </div>
         <?php
@@ -1672,9 +2118,8 @@ class RESBS_Shortcodes {
                 <?php if (!empty($atts['show_price']) && !empty($property_price)): ?>
                     <div class="resbs-property-price">
                         <?php 
-                        // Format price with currency symbol
-                        $formatted_price = '$' . number_format(floatval($property_price), 0, '.', ',');
-                        echo esc_html($formatted_price);
+                        // Format price with dynamic currency symbol
+                        echo esc_html(resbs_format_price($property_price));
                         ?>
                     </div>
                 <?php endif; ?>
@@ -1848,10 +2293,10 @@ class RESBS_Shortcodes {
             $property_status_name = isset($status_labels[$status]) ? $status_labels[$status] : ucfirst($status);
         }
         
-        // Format price - same as archive
+        // Format price with dynamic currency
         $formatted_price = '';
         if ($price) {
-            $formatted_price = '$' . number_format(floatval($price), 0, '.', ',');
+            $formatted_price = resbs_format_price($price);
         }
         
         // Badge class based on post status

@@ -1,11 +1,17 @@
 <?php
 /**
  * Archive Property Template
+ * Block Theme Compatible
  * 
  * @package RealEstate_Booking_Suite
  */
 
-get_header();
+// Use helper function to safely get header (avoids deprecation warnings in block themes)
+if (function_exists('resbs_get_header')) {
+    resbs_get_header();
+} else {
+    get_header();
+}
 ?>
 
 <div class="container" style="padding: 20px;">
@@ -36,4 +42,11 @@ get_header();
     <?php endif; ?>
 </div>
 
-<?php get_footer(); ?>
+<?php
+// Use helper function to safely get footer (avoids deprecation warnings in block themes)
+if (function_exists('resbs_get_footer')) {
+    resbs_get_footer();
+} else {
+    get_footer();
+}
+?>

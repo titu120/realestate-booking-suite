@@ -1612,6 +1612,17 @@ class RESBS_Enhanced_Settings {
                     <td><input type="text" id="resbs_buyer_signup_subtitle" name="resbs_buyer_signup_subtitle" value="<?php echo esc_attr(get_option('resbs_buyer_signup_subtitle', 'to save your favourite homes and more')); ?>" class="regular-text"></td>
                 </tr>
                 
+                <tr>
+                    <th scope="row"><?php esc_html_e('Email Verification', 'realestate-booking-suite'); ?></th>
+                    <td>
+                        <label>
+                            <input type="checkbox" name="resbs_enable_email_verification" value="1" <?php checked(get_option('resbs_enable_email_verification', 1), 1); ?>>
+                            <?php esc_html_e('Require email verification before account activation', 'realestate-booking-suite'); ?>
+                        </label>
+                        <p class="description"><?php esc_html_e('If enabled, users must verify their email address before they can log in. This helps prevent spam and fake accounts.', 'realestate-booking-suite'); ?></p>
+                    </td>
+                </tr>
+                
             </table>
             
             <p class="submit">
@@ -1892,7 +1903,8 @@ class RESBS_Enhanced_Settings {
             'resbs_signin_page_subtitle' => 'to save your favourite homes and more',
             'resbs_enable_signup_buyers' => '0', // Disabled by default
             'resbs_buyer_signup_title' => 'Get started with your account',
-            'resbs_buyer_signup_subtitle' => 'to save your favourite homes and more'
+            'resbs_buyer_signup_subtitle' => 'to save your favourite homes and more',
+            'resbs_enable_email_verification' => '1' // Enabled by default (recommended for security)
         );
         
         foreach ($defaults as $key => $value) {
@@ -2123,7 +2135,8 @@ class RESBS_Enhanced_Settings {
             'resbs_signin_page_subtitle',
             'resbs_enable_signup_buyers',
             'resbs_buyer_signup_title',
-            'resbs_buyer_signup_subtitle'
+            'resbs_buyer_signup_subtitle',
+            'resbs_enable_email_verification'
         );
         
         foreach ($settings as $setting) {

@@ -396,7 +396,8 @@ class RESBS_Shortcode_AJAX {
             'property_agent_name' => RESBS_Security::sanitize_text($_POST['property_agent_name'] ?? ''),
             'property_agent_phone' => RESBS_Security::sanitize_text($_POST['property_agent_phone'] ?? ''),
             'property_agent_email' => sanitize_email($_POST['property_agent_email'] ?? ''),
-            'property_agent_experience' => intval($_POST['property_agent_experience'] ?? 0)
+            'property_agent_experience' => intval($_POST['property_agent_experience'] ?? 0),
+            'property_agent_response_time' => RESBS_Security::sanitize_text($_POST['property_agent_response_time'] ?? '')
         );
 
         // Validate required fields
@@ -513,14 +514,34 @@ class RESBS_Shortcode_AJAX {
         }
         update_post_meta($property_id, '_property_hide_address', $sanitized_data['property_hide_address']);
         
-        // Features and amenities
-        if ($sanitized_data['property_features']) {
-            $features_array = array_map('trim', explode(',', $sanitized_data['property_features']));
-            update_post_meta($property_id, '_property_features', $features_array);
+        // Features and amenities - SAVE AS STRING, NOT ARRAY to prevent errors
+        if (!empty($sanitized_data['property_features'])) {
+            // Ensure it's a string before sanitizing
+            $features_value = $sanitized_data['property_features'];
+            if (is_array($features_value)) {
+                $features_string = implode(', ', array_filter(array_map('trim', $features_value)));
+            } else {
+                $features_string = (string)$features_value;
+            }
+            // Now sanitize the string
+            $features_string = sanitize_text_field($features_string);
+            if (!empty($features_string)) {
+                update_post_meta($property_id, '_property_features', $features_string);
+            }
         }
-        if ($sanitized_data['property_amenities']) {
-            $amenities_array = array_map('trim', explode(',', $sanitized_data['property_amenities']));
-            update_post_meta($property_id, '_property_amenities', $amenities_array);
+        if (!empty($sanitized_data['property_amenities'])) {
+            // Ensure it's a string before sanitizing
+            $amenities_value = $sanitized_data['property_amenities'];
+            if (is_array($amenities_value)) {
+                $amenities_string = implode(', ', array_filter(array_map('trim', $amenities_value)));
+            } else {
+                $amenities_string = (string)$amenities_value;
+            }
+            // Now sanitize the string
+            $amenities_string = sanitize_text_field($amenities_string);
+            if (!empty($amenities_string)) {
+                update_post_meta($property_id, '_property_amenities', $amenities_string);
+            }
         }
         if ($sanitized_data['property_parking']) {
             update_post_meta($property_id, '_property_parking', $sanitized_data['property_parking']);
@@ -579,6 +600,9 @@ class RESBS_Shortcode_AJAX {
         if ($sanitized_data['property_agent_experience']) {
             update_post_meta($property_id, '_property_agent_experience', $sanitized_data['property_agent_experience']);
         }
+        if ($sanitized_data['property_agent_response_time']) {
+            update_post_meta($property_id, '_property_agent_response_time', $sanitized_data['property_agent_response_time']);
+        }
 
         // Set taxonomies - handle both term ID and text
         if (!empty($sanitized_data['property_type'])) {
@@ -630,9 +654,19 @@ class RESBS_Shortcode_AJAX {
             }
         }
 
+        // Handle featured image upload
+        if (!empty($_FILES['property_featured_image']) && $_FILES['property_featured_image']['error'] === UPLOAD_ERR_OK) {
+            $this->handle_featured_image_upload($property_id, $_FILES['property_featured_image']);
+        }
+        
         // Handle file uploads
         if (!empty($_FILES['property_gallery'])) {
             $this->handle_property_gallery_upload($property_id, $_FILES['property_gallery']);
+        }
+        
+        // Handle agent photo upload
+        if (!empty($_FILES['property_agent_photo']) && $_FILES['property_agent_photo']['error'] === UPLOAD_ERR_OK) {
+            $this->handle_agent_photo_upload($property_id, $_FILES['property_agent_photo']);
         }
 
         // Get profile page URL for viewing properties
@@ -812,7 +846,7 @@ class RESBS_Shortcode_AJAX {
 
                 <?php if (!empty($settings['show_price']) && !empty($property_price)): ?>
                     <div class="resbs-property-price">
-                        <?php echo esc_html('$' . number_format($property_price)); ?>
+                        <?php echo esc_html(resbs_format_price($property_price)); ?>
                     </div>
                 <?php endif; ?>
 
@@ -876,8 +910,11 @@ class RESBS_Shortcode_AJAX {
         if (!function_exists('wp_handle_upload')) {
             require_once(ABSPATH . 'wp-admin/includes/file.php');
         }
+        if (!function_exists('wp_generate_attachment_metadata')) {
+            require_once(ABSPATH . 'wp-admin/includes/image.php');
+        }
 
-        $uploaded_files = array();
+        $uploaded_attachment_ids = array();
         
         foreach ($files['name'] as $key => $value) {
             if ($files['name'][$key]) {
@@ -893,13 +930,115 @@ class RESBS_Shortcode_AJAX {
                 $movefile = wp_handle_upload($file, $upload_overrides);
 
                 if ($movefile && !isset($movefile['error'])) {
-                    $uploaded_files[] = $movefile['url'];
+                    // Create attachment post
+                    $attachment = array(
+                        'post_mime_type' => $movefile['type'],
+                        'post_title'     => sanitize_file_name(pathinfo($movefile['file'], PATHINFO_FILENAME)),
+                        'post_content'   => '',
+                        'post_status'    => 'inherit'
+                    );
+                    
+                    $attach_id = wp_insert_attachment($attachment, $movefile['file'], $property_id);
+                    
+                    if (!is_wp_error($attach_id)) {
+                        // Generate attachment metadata
+                        $attach_data = wp_generate_attachment_metadata($attach_id, $movefile['file']);
+                        wp_update_attachment_metadata($attach_id, $attach_data);
+                        
+                        $uploaded_attachment_ids[] = $attach_id;
+                    }
                 }
             }
         }
 
-        if (!empty($uploaded_files)) {
-            update_post_meta($property_id, '_property_gallery', $uploaded_files);
+        if (!empty($uploaded_attachment_ids)) {
+            // Merge with existing gallery if any
+            $existing_gallery = get_post_meta($property_id, '_property_gallery', true);
+            if (is_array($existing_gallery)) {
+                $uploaded_attachment_ids = array_merge($existing_gallery, $uploaded_attachment_ids);
+            }
+            update_post_meta($property_id, '_property_gallery', $uploaded_attachment_ids);
+        }
+    }
+    
+    /**
+     * Handle featured image upload
+     * 
+     * @param int $property_id Property post ID
+     * @param array $file Uploaded file
+     */
+    private function handle_featured_image_upload($property_id, $file) {
+        if (!function_exists('wp_handle_upload')) {
+            require_once(ABSPATH . 'wp-admin/includes/file.php');
+        }
+        if (!function_exists('wp_generate_attachment_metadata')) {
+            require_once(ABSPATH . 'wp-admin/includes/image.php');
+        }
+
+        $upload_overrides = array('test_form' => false);
+        $movefile = wp_handle_upload($file, $upload_overrides);
+
+        if ($movefile && !isset($movefile['error'])) {
+            // Create attachment post
+            $attachment = array(
+                'post_mime_type' => $movefile['type'],
+                'post_title'     => sanitize_file_name(pathinfo($movefile['file'], PATHINFO_FILENAME)),
+                'post_content'   => '',
+                'post_status'    => 'inherit'
+            );
+            
+            $attach_id = wp_insert_attachment($attachment, $movefile['file'], $property_id);
+            
+            if (!is_wp_error($attach_id)) {
+                // Generate attachment metadata
+                $attach_data = wp_generate_attachment_metadata($attach_id, $movefile['file']);
+                wp_update_attachment_metadata($attach_id, $attach_data);
+                
+                // Set as featured image (post thumbnail)
+                set_post_thumbnail($property_id, $attach_id);
+            }
+        }
+    }
+
+    /**
+     * Handle agent photo upload
+     * 
+     * @param int $property_id Property post ID
+     * @param array $file Uploaded file
+     */
+    private function handle_agent_photo_upload($property_id, $file) {
+        if (!function_exists('wp_handle_upload')) {
+            require_once(ABSPATH . 'wp-admin/includes/file.php');
+        }
+        if (!function_exists('wp_generate_attachment_metadata')) {
+            require_once(ABSPATH . 'wp-admin/includes/image.php');
+        }
+
+        $upload_overrides = array('test_form' => false);
+        $movefile = wp_handle_upload($file, $upload_overrides);
+
+        if ($movefile && !isset($movefile['error'])) {
+            // Create attachment post
+            $attachment = array(
+                'post_mime_type' => $movefile['type'],
+                'post_title'     => sanitize_file_name(pathinfo($movefile['file'], PATHINFO_FILENAME)),
+                'post_content'   => '',
+                'post_status'    => 'inherit'
+            );
+            
+            $attach_id = wp_insert_attachment($attachment, $movefile['file'], $property_id);
+            
+            if (!is_wp_error($attach_id)) {
+                // Generate attachment metadata
+                $attach_data = wp_generate_attachment_metadata($attach_id, $movefile['file']);
+                wp_update_attachment_metadata($attach_id, $attach_data);
+                
+                // Save attachment URL to post meta
+                $image_url = wp_get_attachment_image_url($attach_id, 'full');
+                if ($image_url) {
+                    update_post_meta($property_id, '_property_agent_photo', $image_url);
+                }
+            }
         }
     }
     

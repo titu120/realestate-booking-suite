@@ -267,7 +267,7 @@ class RESBS_Property_Grid {
                 
                 <?php if ($show_price && $price): ?>
                     <div class="resbs-property-price">
-                        $<?php echo esc_html(number_format(floatval($price))); ?>
+                        <?php echo esc_html(resbs_format_price($price)); ?>
                         <?php if (!empty($property_status) && in_array('Rent', $property_status)): ?>
                             <span class="resbs-price-period"><?php esc_html_e('/month', 'realestate-booking-suite'); ?></span>
                         <?php endif; ?>
