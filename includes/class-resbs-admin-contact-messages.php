@@ -134,7 +134,7 @@ class RESBS_Admin_Contact_Messages {
                                     <div style="max-width: 300px; word-wrap: break-word;">
                                         <?php echo esc_html(wp_trim_words($message->message, 20)); ?>
                                         <?php if (strlen($message->message) > 100): ?>
-                                            <br><a href="#" onclick="showFullMessage(<?php echo esc_js($message->id); ?>, <?php echo wp_json_encode($message->message); ?>)"><?php echo esc_html__('Read more...', 'realestate-booking-suite'); ?></a>
+                                            <br><a href="#" onclick="showFullMessage(<?php echo esc_js($message->id); ?>, <?php echo esc_js(wp_json_encode($message->message)); ?>)"><?php echo esc_html__('Read more...', 'realestate-booking-suite'); ?></a>
                                         <?php endif; ?>
                                     </div>
                                 </td>

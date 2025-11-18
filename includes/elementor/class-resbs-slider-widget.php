@@ -404,7 +404,9 @@ class RESBS_Slider_Widget extends \Elementor\Widget_Base {
         $title = sanitize_text_field($settings['title']);
         $layout = sanitize_text_field($settings['layout']);
         $columns = isset($settings['columns']) ? intval($settings['columns']) : 3;
-        $grid_gap = isset($settings['grid_gap']['size']) ? $settings['grid_gap']['size'] . $settings['grid_gap']['unit'] : '1.5rem';
+        $grid_gap_size = isset($settings['grid_gap']['size']) ? floatval($settings['grid_gap']['size']) : 1.5;
+        $grid_gap_unit = isset($settings['grid_gap']['unit']) && in_array($settings['grid_gap']['unit'], array('px', 'rem', 'em', '%'), true) ? sanitize_text_field($settings['grid_gap']['unit']) : 'rem';
+        $grid_gap = $grid_gap_size . $grid_gap_unit;
         $posts_per_page = intval($settings['posts_per_page']);
         $slides_to_show = intval($settings['slides_to_show']);
         $autoplay = $settings['autoplay'] === 'yes';
@@ -745,8 +747,11 @@ class RESBS_Slider_Widget extends \Elementor\Widget_Base {
         // Get area using helper function that handles unit conversion
         $area_value = resbs_get_property_area($property_id, '_property_area_sqft');
         $city = get_post_meta($property_id, '_property_city', true);
+        $city = $city ? sanitize_text_field($city) : '';
         $state = get_post_meta($property_id, '_property_state', true);
+        $state = $state ? sanitize_text_field($state) : '';
         $property_status_meta = get_post_meta($property_id, '_property_status', true);
+        $property_status_meta = $property_status_meta ? sanitize_text_field($property_status_meta) : '';
         $featured_image = get_the_post_thumbnail_url($property_id, 'medium');
         
         $formatted_price = $price ? '$' . number_format($price) : 'Price on request';
@@ -897,7 +902,7 @@ class RESBS_Slider_Widget extends \Elementor\Widget_Base {
     protected function content_template() {
         ?>
         <div class="resbs-slider-widget">
-            <h3 class="resbs-slider-title">{{{ settings.title }}}</h3>
+            <h3 class="resbs-slider-title">{{ settings.title }}</h3>
             <div class="resbs-slider-container">
                 <div class="resbs-slider-track">
                     <div class="resbs-slider-slide">

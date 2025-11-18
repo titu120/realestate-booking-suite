@@ -58,8 +58,8 @@ class RESBS_QuickView_Manager {
         );
 
         wp_localize_script('resbs-quickview', 'resbs_quickview_ajax', array(
-            'ajax_url' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('resbs_quickview_nonce'),
+            'ajax_url' => esc_url(admin_url('admin-ajax.php')),
+            'nonce' => esc_js(wp_create_nonce('resbs_quickview_nonce')),
             'messages' => array(
                 'loading' => esc_html__('Loading...', 'realestate-booking-suite'),
                 'error' => esc_html__('An error occurred. Please try again.', 'realestate-booking-suite'),

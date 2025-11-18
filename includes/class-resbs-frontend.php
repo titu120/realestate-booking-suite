@@ -71,9 +71,9 @@ class RESBS_Frontend {
         );
         
         wp_localize_script('resbs-frontend', 'resbs_ajax', array(
-            'ajax_url' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('resbs_frontend_nonce'),
-            'upload_nonce' => wp_create_nonce('resbs_upload_nonce'),
+            'ajax_url' => esc_url(admin_url('admin-ajax.php')),
+            'nonce' => esc_js(wp_create_nonce('resbs_frontend_nonce')),
+            'upload_nonce' => esc_js(wp_create_nonce('resbs_upload_nonce')),
             'messages' => array(
                 'success' => esc_html__('Property submitted successfully!', 'realestate-booking-suite'),
                 'error' => esc_html__('Error submitting property. Please try again.', 'realestate-booking-suite'),
@@ -833,7 +833,7 @@ class RESBS_Frontend {
                 
                 <div class="resbs-property-meta">
                     <?php if ($price): ?>
-                        <span class="resbs-property-price">$<?php echo esc_html(number_format(floatval($price))); ?></span>
+                        <span class="resbs-property-price"><?php echo esc_html(resbs_format_price($price)); ?></span>
                     <?php endif; ?>
                     
                     <?php if ($bedrooms): ?>
@@ -920,7 +920,7 @@ class RESBS_Frontend {
                 </div>
                 
                 <div class="resbs-booking-total">
-                    <?php echo $order ? wp_kses_post($order->get_formatted_order_total()) : esc_html('$0.00'); ?>
+                    <?php echo $order ? wp_kses_post($order->get_formatted_order_total()) : esc_html(resbs_format_price(0)); ?>
                 </div>
             </div>
             
@@ -2162,7 +2162,7 @@ class RESBS_Frontend {
                     'title' => esc_html(get_the_title()),
                     'url' => esc_url(get_permalink()),
                     'price' => $price_value ? floatval($price_value) : 0,
-                    'price_formatted' => $price_value ? esc_html('$' . number_format(floatval($price_value))) : '',
+                    'price_formatted' => $price_value ? esc_html(resbs_format_price($price_value)) : '',
                     'latitude' => esc_attr(get_post_meta($property_id, '_property_latitude', true)),
                     'longitude' => esc_attr(get_post_meta($property_id, '_property_longitude', true)),
                     'featured_image' => esc_url(get_the_post_thumbnail_url($property_id, 'medium'))

@@ -911,55 +911,55 @@ class RESBS_Settings {
         jQuery(document).ready(function($) {
             let actionIndex = <?php echo absint(count($quick_actions)); ?>;
             <?php
-            $action_title_label = esc_js(__('Action Title', 'realestate-booking-suite'));
-            $action_title_placeholder = esc_js(__('e.g., Send Message', 'realestate-booking-suite'));
-            $icon_class_label = esc_js(__('Icon Class', 'realestate-booking-suite'));
-            $icon_class_placeholder = esc_js(__('e.g., fas fa-envelope', 'realestate-booking-suite'));
-            $icon_class_description = esc_js(__('FontAwesome icon class (e.g., fas fa-envelope, fas fa-share-alt)', 'realestate-booking-suite'));
-            $js_action_label = esc_js(__('JavaScript Action', 'realestate-booking-suite'));
-            $js_action_placeholder = esc_js(__('e.g., openContactModal()', 'realestate-booking-suite'));
-            $js_action_description = esc_js(__('JavaScript function to call when clicked', 'realestate-booking-suite'));
-            $button_style_label = esc_js(__('Button Style Classes', 'realestate-booking-suite'));
-            $button_style_placeholder = esc_js(__('e.g., bg-gray-700 text-white hover:bg-gray-800', 'realestate-booking-suite'));
-            $button_style_description = esc_js(__('Tailwind CSS classes for button styling', 'realestate-booking-suite'));
-            $enable_action_label = esc_js(__('Enable this action', 'realestate-booking-suite'));
-            $remove_action_label = esc_js(__('Remove Action', 'realestate-booking-suite'));
+            $action_title_label = __('Action Title', 'realestate-booking-suite');
+            $action_title_placeholder = __('e.g., Send Message', 'realestate-booking-suite');
+            $icon_class_label = __('Icon Class', 'realestate-booking-suite');
+            $icon_class_placeholder = __('e.g., fas fa-envelope', 'realestate-booking-suite');
+            $icon_class_description = __('FontAwesome icon class (e.g., fas fa-envelope, fas fa-share-alt)', 'realestate-booking-suite');
+            $js_action_label = __('JavaScript Action', 'realestate-booking-suite');
+            $js_action_placeholder = __('e.g., openContactModal()', 'realestate-booking-suite');
+            $js_action_description = __('JavaScript function to call when clicked', 'realestate-booking-suite');
+            $button_style_label = __('Button Style Classes', 'realestate-booking-suite');
+            $button_style_placeholder = __('e.g., bg-gray-700 text-white hover:bg-gray-800', 'realestate-booking-suite');
+            $button_style_description = __('Tailwind CSS classes for button styling', 'realestate-booking-suite');
+            $enable_action_label = __('Enable this action', 'realestate-booking-suite');
+            $remove_action_label = __('Remove Action', 'realestate-booking-suite');
             ?>
             
             $('#add-quick-action').click(function() {
                 let newAction = `
                     <div class="quick-action-item" data-index="${actionIndex}">
                         <div class="resbs-form-group">
-                            <label><?php echo $action_title_label; ?></label>
-                            <input type="text" name="resbs_quick_actions[${actionIndex}][title]" placeholder="<?php echo $action_title_placeholder; ?>" />
+                            <label><?php echo esc_html($action_title_label); ?></label>
+                            <input type="text" name="resbs_quick_actions[${actionIndex}][title]" placeholder="<?php echo esc_attr($action_title_placeholder); ?>" />
                         </div>
                         
                         <div class="resbs-form-group">
-                            <label><?php echo $icon_class_label; ?></label>
-                            <input type="text" name="resbs_quick_actions[${actionIndex}][icon]" placeholder="<?php echo $icon_class_placeholder; ?>" />
-                            <p class="description"><?php echo $icon_class_description; ?></p>
+                            <label><?php echo esc_html($icon_class_label); ?></label>
+                            <input type="text" name="resbs_quick_actions[${actionIndex}][icon]" placeholder="<?php echo esc_attr($icon_class_placeholder); ?>" />
+                            <p class="description"><?php echo esc_html($icon_class_description); ?></p>
                         </div>
                         
                         <div class="resbs-form-group">
-                            <label><?php echo $js_action_label; ?></label>
-                            <input type="text" name="resbs_quick_actions[${actionIndex}][action]" placeholder="<?php echo $js_action_placeholder; ?>" />
-                            <p class="description"><?php echo $js_action_description; ?></p>
+                            <label><?php echo esc_html($js_action_label); ?></label>
+                            <input type="text" name="resbs_quick_actions[${actionIndex}][action]" placeholder="<?php echo esc_attr($js_action_placeholder); ?>" />
+                            <p class="description"><?php echo esc_html($js_action_description); ?></p>
                         </div>
                         
                         <div class="resbs-form-group">
-                            <label><?php echo $button_style_label; ?></label>
-                            <input type="text" name="resbs_quick_actions[${actionIndex}][style]" placeholder="<?php echo $button_style_placeholder; ?>" />
-                            <p class="description"><?php echo $button_style_description; ?></p>
+                            <label><?php echo esc_html($button_style_label); ?></label>
+                            <input type="text" name="resbs_quick_actions[${actionIndex}][style]" placeholder="<?php echo esc_attr($button_style_placeholder); ?>" />
+                            <p class="description"><?php echo esc_html($button_style_description); ?></p>
                         </div>
                         
                         <div class="resbs-form-group">
                             <label>
                                 <input type="checkbox" name="resbs_quick_actions[${actionIndex}][enabled]" value="1" checked />
-                                <?php echo $enable_action_label; ?>
+                                <?php echo esc_html($enable_action_label); ?>
                             </label>
                         </div>
                         
-                        <button type="button" class="button remove-action"><?php echo $remove_action_label; ?></button>
+                        <button type="button" class="button remove-action"><?php echo esc_html($remove_action_label); ?></button>
                     </div>
                 `;
                 $('#quick-actions-container').append(newAction);

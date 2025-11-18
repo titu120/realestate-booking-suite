@@ -257,16 +257,16 @@ class RESBS_Badge_Widget extends WP_Widget {
             return;
         }
         
-        echo $args['before_widget'];
+        echo wp_kses_post($args['before_widget']);
         
         if (!empty($title)) {
-            echo $args['before_title'] . esc_html($title) . $args['after_title'];
+            echo wp_kses_post($args['before_title']) . esc_html($title) . wp_kses_post($args['after_title']);
         }
         
         // Display badges using shortcode
         echo do_shortcode('[resbs_badges property_id="' . esc_attr($property_id) . '" type="' . esc_attr($badge_type) . '" context="' . esc_attr($context) . '"]');
         
-        echo $args['after_widget'];
+        echo wp_kses_post($args['after_widget']);
     }
 }
 

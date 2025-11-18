@@ -38,8 +38,8 @@ class RESBS_Simple_Archive {
             // This provides nonces for any future AJAX functionality
             wp_localize_script('resbs-simple-archive', 'resbs_simple_archive', array(
                 'ajax_url' => esc_url(admin_url('admin-ajax.php')),
-                'nonce' => wp_create_nonce('resbs_simple_archive_nonce'),
-                'favorites_nonce' => wp_create_nonce('resbs_favorites_nonce'),
+                'nonce' => esc_js(wp_create_nonce('resbs_simple_archive_nonce')),
+                'favorites_nonce' => esc_js(wp_create_nonce('resbs_favorites_nonce')),
             ));
         }
     }

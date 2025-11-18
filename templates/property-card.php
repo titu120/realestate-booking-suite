@@ -87,8 +87,8 @@ if ($featured) {
         
         <!-- Overlay Badges -->
         <div class="resbs-property-badges">
-            <?php echo $featured_badge; ?>
-            <?php echo $status_badge; ?>
+            <?php echo wp_kses_post($featured_badge); ?>
+            <?php echo wp_kses_post($status_badge); ?>
         </div>
         
         <!-- Favorite Button -->
@@ -108,7 +108,7 @@ if ($featured) {
         <!-- Property Header -->
         <div class="resbs-property-header">
             <<?php echo esc_attr(resbs_get_title_heading_tag()); ?> class="resbs-property-title">
-                <a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
+                <a href="<?php the_permalink(); ?>"><?php echo esc_html(get_the_title()); ?></a>
             </<?php echo esc_attr(resbs_get_title_heading_tag()); ?>>
             
             <?php 
@@ -149,7 +149,7 @@ if ($featured) {
             <?php if ($area) : ?>
                 <div class="resbs-property-detail">
                     <i class="fas fa-ruler-combined"></i>
-                    <span><?php echo resbs_format_area($area); ?></span>
+                    <span><?php echo esc_html(resbs_format_area($area)); ?></span>
                 </div>
             <?php endif; ?>
         </div>
@@ -178,7 +178,7 @@ if ($featured) {
         <?php if ($layout === 'list') : ?>
             <div class="resbs-property-meta">
                 <div class="resbs-property-excerpt">
-                    <?php echo wp_trim_words(get_the_excerpt(), 20); ?>
+                    <?php echo esc_html(wp_trim_words(get_the_excerpt(), 20)); ?>
                 </div>
                 
                 <div class="resbs-property-features">

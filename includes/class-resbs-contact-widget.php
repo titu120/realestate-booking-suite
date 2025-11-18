@@ -303,7 +303,10 @@ class RESBS_Contact_Widget extends WP_Widget {
                     <div class="resbs-contact-details">
                         <span class="resbs-contact-label"><?php esc_html_e('Business Hours:', 'realestate-booking-suite'); ?></span>
                         <div class="resbs-contact-value resbs-business-hours">
-                            <?php echo wp_kses_post(nl2br($settings['business_hours'])); ?>
+                            <?php 
+                            $business_hours = sanitize_textarea_field($settings['business_hours']);
+                            echo wp_kses_post(nl2br($business_hours)); 
+                            ?>
                         </div>
                     </div>
                 </div>

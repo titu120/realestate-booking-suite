@@ -42,8 +42,8 @@ class RESBS_Property_Grid {
         );
         
         wp_localize_script('resbs-property-grid', 'resbs_grid_ajax', array(
-            'ajax_url' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('resbs_grid_nonce'),
+            'ajax_url' => esc_url(admin_url('admin-ajax.php')),
+            'nonce' => esc_js(wp_create_nonce('resbs_grid_nonce')),
             'messages' => array(
                 'loading' => esc_html__('Loading more properties...', 'realestate-booking-suite'),
                 'no_more' => esc_html__('No more properties to load.', 'realestate-booking-suite'),

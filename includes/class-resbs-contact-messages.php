@@ -114,7 +114,7 @@ class RESBS_Contact_Messages {
         );
         
         if ($result === false) {
-            wp_send_json_error(esc_html__('Failed to save contact message', 'realestate-booking-suite'));
+            wp_send_json_error(array('message' => esc_html__('Failed to save contact message', 'realestate-booking-suite')));
             return;
         }
         

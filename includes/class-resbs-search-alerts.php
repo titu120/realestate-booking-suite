@@ -65,8 +65,8 @@ class RESBS_Search_Alerts_Manager {
         );
 
         wp_localize_script('resbs-search-alerts', 'resbs_search_alerts_ajax', array(
-            'ajax_url' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('resbs_search_alerts_nonce'),
+            'ajax_url' => esc_url(admin_url('admin-ajax.php')),
+            'nonce' => esc_js(wp_create_nonce('resbs_search_alerts_nonce')),
             'messages' => array(
                 'alert_saved' => esc_html__('Search alert saved successfully!', 'realestate-booking-suite'),
                 'alert_deleted' => esc_html__('Search alert deleted successfully!', 'realestate-booking-suite'),
@@ -607,11 +607,11 @@ class RESBS_Search_Alerts_Manager {
         if (!empty($criteria['price_min']) || !empty($criteria['price_max'])) {
             $price_range = '';
             if (!empty($criteria['price_min'])) {
-                $price_range .= '$' . esc_html(number_format(intval($criteria['price_min'])));
+                $price_range .= esc_html(resbs_format_price(intval($criteria['price_min'])));
             }
             $price_range .= ' - ';
             if (!empty($criteria['price_max'])) {
-                $price_range .= '$' . esc_html(number_format(intval($criteria['price_max'])));
+                $price_range .= esc_html(resbs_format_price(intval($criteria['price_max'])));
             }
             $formatted[] = esc_html__('Price', 'realestate-booking-suite') . ': ' . $price_range;
         }

@@ -79,11 +79,11 @@ class RESBS_Email_Handler {
         
         // Get property and agent data
         $property_title = get_the_title($property_id);
-        $agent_email = get_post_meta($property_id, '_property_agent_email', true);
-        $agent_name = get_post_meta($property_id, '_property_agent_name', true);
+        $agent_email = sanitize_email(get_post_meta($property_id, '_property_agent_email', true));
+        $agent_name = sanitize_text_field(get_post_meta($property_id, '_property_agent_name', true));
         
         // Email subject
-        $subject = sprintf('New inquiry for property: %s', esc_html($property_title));
+        $subject = sprintf('New inquiry for property: %s', sanitize_text_field($property_title));
         
         // Email content
         $email_content = "
@@ -99,10 +99,12 @@ class RESBS_Email_Handler {
         ";
         
         // Email headers
+        $admin_email = sanitize_email(get_option('admin_email'));
+        $site_name = sanitize_text_field(get_bloginfo('name'));
         $headers = array(
             'Content-Type: text/html; charset=UTF-8',
-            'From: ' . esc_html(get_bloginfo('name')) . ' <' . esc_html(get_option('admin_email')) . '>',
-            'Reply-To: ' . esc_html($name) . ' <' . esc_html($email) . '>'
+            'From: ' . $site_name . ' <' . $admin_email . '>',
+            'Reply-To: ' . sanitize_text_field($name) . ' <' . sanitize_email($email) . '>'
         );
         
         // Send email to agent
@@ -112,10 +114,10 @@ class RESBS_Email_Handler {
         }
         
         // Send email to admin
-        $admin_email_sent = wp_mail(get_option('admin_email'), $subject, $email_content, $headers);
+        $admin_email_sent = wp_mail($admin_email, $subject, $email_content, $headers);
         
         // Send confirmation email to customer
-        $customer_subject = 'Thank you for your inquiry - ' . esc_html(get_bloginfo('name'));
+        $customer_subject = 'Thank you for your inquiry - ' . sanitize_text_field(get_bloginfo('name'));
         $customer_content = "
         <h2>Thank you for your inquiry!</h2>
         <p>Dear " . esc_html($name) . ",</p>
@@ -131,7 +133,7 @@ class RESBS_Email_Handler {
         
         $customer_headers = array(
             'Content-Type: text/html; charset=UTF-8',
-            'From: ' . esc_html($agent_name) . ' <' . esc_html($agent_email) . '>'
+            'From: ' . sanitize_text_field($agent_name) . ' <' . sanitize_email($agent_email) . '>'
         );
         
         $customer_email_sent = wp_mail($email, $customer_subject, $customer_content, $customer_headers);
@@ -219,11 +221,11 @@ class RESBS_Email_Handler {
         
         // Get property and agent data
         $property_title = get_the_title($property_id);
-        $agent_email = get_post_meta($property_id, '_property_agent_email', true);
-        $agent_name = get_post_meta($property_id, '_property_agent_name', true);
+        $agent_email = sanitize_email(get_post_meta($property_id, '_property_agent_email', true));
+        $agent_name = sanitize_text_field(get_post_meta($property_id, '_property_agent_name', true));
         
         // Email subject
-        $subject = sprintf('New tour booking for property: %s', esc_html($property_title));
+        $subject = sprintf('New tour booking for property: %s', sanitize_text_field($property_title));
         
         // Email content
         $email_content = "
@@ -241,10 +243,12 @@ class RESBS_Email_Handler {
         ";
         
         // Email headers
+        $admin_email = sanitize_email(get_option('admin_email'));
+        $site_name = sanitize_text_field(get_bloginfo('name'));
         $headers = array(
             'Content-Type: text/html; charset=UTF-8',
-            'From: ' . esc_html(get_bloginfo('name')) . ' <' . esc_html(get_option('admin_email')) . '>',
-            'Reply-To: ' . esc_html($name) . ' <' . esc_html($email) . '>'
+            'From: ' . $site_name . ' <' . $admin_email . '>',
+            'Reply-To: ' . sanitize_text_field($name) . ' <' . sanitize_email($email) . '>'
         );
         
         // Send email to agent
@@ -254,10 +258,10 @@ class RESBS_Email_Handler {
         }
         
         // Send email to admin
-        $admin_email_sent = wp_mail(get_option('admin_email'), $subject, $email_content, $headers);
+        $admin_email_sent = wp_mail($admin_email, $subject, $email_content, $headers);
         
         // Send confirmation email to customer
-        $customer_subject = 'Tour booking confirmed - ' . esc_html(get_bloginfo('name'));
+        $customer_subject = 'Tour booking confirmed - ' . sanitize_text_field($site_name);
         $customer_content = "
         <h2>Tour Booking Confirmed!</h2>
         <p>Dear " . esc_html($name) . ",</p>
@@ -274,7 +278,7 @@ class RESBS_Email_Handler {
         
         $customer_headers = array(
             'Content-Type: text/html; charset=UTF-8',
-            'From: ' . esc_html($agent_name) . ' <' . esc_html($agent_email) . '>'
+            'From: ' . sanitize_text_field($agent_name) . ' <' . sanitize_email($agent_email) . '>'
         );
         
         $customer_email_sent = wp_mail($email, $customer_subject, $customer_content, $customer_headers);

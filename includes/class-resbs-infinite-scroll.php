@@ -62,7 +62,7 @@ class RESBS_Infinite_Scroll_Manager {
         // Localize script
         wp_localize_script('resbs-infinite-scroll', 'resbs_infinite_scroll_ajax', array(
             'ajax_url' => esc_url(admin_url('admin-ajax.php')),
-            'nonce' => wp_create_nonce('resbs_infinite_scroll_nonce'),
+            'nonce' => esc_js(wp_create_nonce('resbs_infinite_scroll_nonce')),
             'messages' => array(
                 'loading' => esc_html__('Loading more properties...', 'realestate-booking-suite'),
                 'load_more' => esc_html__('Load More Properties', 'realestate-booking-suite'),
@@ -444,7 +444,8 @@ class RESBS_Infinite_Scroll_Manager {
             return sanitize_text_field($price);
         }
         
-        return '$' . number_format($num_price);
+        $currency_symbol = sanitize_text_field(get_option('resbs_currency_symbol', '$'));
+        return $currency_symbol . number_format($num_price);
     }
 
     /**

@@ -844,7 +844,10 @@ function resbs_get_property_tags($post_id = null, $before = '', $sep = ', ', $af
         }
     }
     
-    return wp_kses_post($before) . implode(esc_html($sep), $tag_links) . wp_kses_post($after);
+    // Sanitize before and after, escape separator, and ensure final output is safe
+    $output = wp_kses_post($before) . implode(esc_html($sep), $tag_links) . wp_kses_post($after);
+    // Final sanitization to ensure concatenated output is safe
+    return wp_kses_post($output);
 }
 
 /**

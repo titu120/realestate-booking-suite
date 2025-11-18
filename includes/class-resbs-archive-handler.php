@@ -237,10 +237,10 @@ class RESBS_Archive_Handler {
             
             // Localize script for AJAX
             wp_localize_script('resbs-archive', 'resbs_archive', array(
-                'ajax_url' => admin_url('admin-ajax.php'),
-                'nonce' => wp_create_nonce('resbs_archive_nonce'),
-                'loading_text' => __('Loading...', 'realestate-booking-suite'),
-                'no_results_text' => __('No properties found.', 'realestate-booking-suite')
+                'ajax_url' => esc_url(admin_url('admin-ajax.php')),
+                'nonce' => esc_js(wp_create_nonce('resbs_archive_nonce')),
+                'loading_text' => esc_js(__('Loading...', 'realestate-booking-suite')),
+                'no_results_text' => esc_js(__('No properties found.', 'realestate-booking-suite'))
             ));
         }
     }
@@ -334,7 +334,7 @@ class RESBS_Archive_Handler {
         
         // Add responsive classes
         $columns = get_option('resbs_grid_columns', 3);
-        $classes[] = 'resbs-columns-' . $columns;
+        $classes[] = 'resbs-columns-' . sanitize_html_class($columns);
         
         return implode(' ', $classes);
     }
@@ -438,9 +438,9 @@ class RESBS_Archive_Handler {
                         $bathrooms = get_post_meta(get_the_ID(), 'resbs_property_bathrooms', true);
                         $area = get_post_meta(get_the_ID(), 'resbs_property_area', true);
                         
-                        if ($bedrooms) echo '<span>' . $bedrooms . ' beds</span>';
-                        if ($bathrooms) echo '<span>' . $bathrooms . ' baths</span>';
-                        if ($area) echo '<span>' . $area . ' sq ft</span>';
+                        if ($bedrooms) echo '<span>' . esc_html($bedrooms) . ' beds</span>';
+                        if ($bathrooms) echo '<span>' . esc_html($bathrooms) . ' baths</span>';
+                        if ($area) echo '<span>' . esc_html($area) . ' sq ft</span>';
                         ?>
                     </div>
                 </div>

@@ -525,7 +525,7 @@ $property_statuses = get_terms(array(
                     <span><?php echo esc_html__('Map View', 'realestate-booking-suite'); ?></span>
                 </button>
                 <div class="results-count">
-                    <span id="resultsCount"><?php echo $properties_query->found_posts; ?></span> <?php echo esc_html__('results', 'realestate-booking-suite'); ?>
+                    <span id="resultsCount"><?php echo esc_html($properties_query->found_posts); ?></span> <?php echo esc_html__('results', 'realestate-booking-suite'); ?>
                 </div>
             </div>
 
@@ -653,7 +653,7 @@ $property_statuses = get_terms(array(
                             ?>
                             
                             <!-- Property Card -->
-                            <div class="property-card" data-property-id="<?php echo get_the_ID(); ?>">
+                            <div class="property-card" data-property-id="<?php echo esc_attr(get_the_ID()); ?>">
                         <div class="property-image">
                                     <img src="<?php echo esc_url($featured_image); ?>" alt="<?php echo esc_attr(get_the_title()); ?>">
                             <div class="gradient-overlay"></div>
@@ -662,8 +662,8 @@ $property_statuses = get_terms(array(
                                 $property_id = get_the_ID();
                                 $is_favorited = resbs_is_property_favorited($property_id);
                             ?>
-                            <button class="favorite-btn resbs-favorite-btn <?php echo $is_favorited ? 'favorited' : ''; ?>" data-property-id="<?php echo esc_attr($property_id); ?>">
-                                <i class="<?php echo $is_favorited ? 'fas' : 'far'; ?> fa-heart"></i>
+                            <button class="favorite-btn resbs-favorite-btn <?php echo esc_attr($is_favorited ? 'favorited' : ''); ?>" data-property-id="<?php echo esc_attr($property_id); ?>">
+                                <i class="<?php echo esc_attr($is_favorited ? 'fas' : 'far'); ?> fa-heart"></i>
                             </button>
                             <?php endif; ?>
                             <div class="property-info-overlay">
@@ -696,13 +696,13 @@ $property_statuses = get_terms(array(
                                         <?php if ($area_sqft): ?>
                                 <div class="property-feature">
                                     <i class="fas fa-ruler-combined"></i>
-                                                <span><?php echo resbs_format_area($area_sqft); ?></span>
+                                                <span><?php echo esc_html(resbs_format_area($area_sqft)); ?></span>
                                 </div>
                                         <?php endif; ?>
                             </div>
                             <div class="property-footer">
                                         <span class="property-type"><?php echo esc_html($property_type_name); ?></span>
-                                        <a href="<?php echo get_permalink(); ?>" class="view-details-btn" target="_blank" onclick="console.log('Property ID: <?php echo get_the_ID(); ?>, Permalink: <?php echo get_permalink(); ?>')">
+                                        <a href="<?php echo esc_url(get_permalink()); ?>" class="view-details-btn" target="_blank" onclick="console.log('Property ID: <?php echo esc_js(get_the_ID()); ?>, Permalink: <?php echo esc_js(get_permalink()); ?>')">
                                     <?php echo esc_html__('View Details', 'realestate-booking-suite'); ?> <i class="fas fa-arrow-right"></i>
                                         </a>
                             </div>
@@ -841,12 +841,12 @@ $property_statuses = get_terms(array(
                         $lat_float = null;
                         $lng_float = null;
                         $needs_geocoding = true;
-                        echo '<!-- DEBUG: Property "' . esc_html($property_title) . '" (ID: ' . $property_id . ') has invalid coordinates, will geocode -->';
+                        echo '<!-- DEBUG: Property "' . esc_html($property_title) . '" (ID: ' . esc_html($property_id) . ') has invalid coordinates, will geocode -->';
                     }
                 } else {
                     // No coordinates - need geocoding
                     $needs_geocoding = true;
-                    echo '<!-- DEBUG: Property "' . esc_html($property_title) . '" (ID: ' . $property_id . ') has NO coordinates, will geocode from address -->';
+                    echo '<!-- DEBUG: Property "' . esc_html($property_title) . '" (ID: ' . esc_html($property_id) . ') has NO coordinates, will geocode from address -->';
                 }
                 
                 // Get location taxonomy term FIRST (most reliable for geocoding)
@@ -883,21 +883,21 @@ $property_statuses = get_terms(array(
                 $needs_geocoding = ($lat_float === null || $lng_float === null);
                 
                 $property_data = array(
-                    'id' => $property_id,
-                    'title' => $property_title,
-                        'price' => $price ? '$' . number_format($price) : 'Price on request',
-                        'bedrooms' => $bedrooms,
-                        'bathrooms' => $bathrooms,
-                        'area_sqft' => $area_sqft,
-                        'permalink' => get_permalink(),
-                        'image' => $featured_image ? $featured_image : '',
-                        'marker_color' => $marker_color,
-                    'days_old' => $days_old,
-                    'city' => $city ? $city : '',
-                    'address' => $address ? $address : '',
-                    'location_name' => $location_name ? $location_name : '', // Location taxonomy term
-                    'full_address' => $address_string,
-                    'needs_geocoding' => $needs_geocoding // Explicitly set this
+                    'id' => absint($property_id),
+                    'title' => sanitize_text_field($property_title),
+                        'price' => $price ? '$' . number_format(absint($price)) : 'Price on request',
+                        'bedrooms' => $bedrooms ? absint($bedrooms) : '',
+                        'bathrooms' => $bathrooms ? floatval($bathrooms) : '',
+                        'area_sqft' => $area_sqft ? absint($area_sqft) : '',
+                        'permalink' => esc_url_raw(get_permalink()),
+                        'image' => $featured_image ? esc_url_raw($featured_image) : '',
+                        'marker_color' => sanitize_hex_color($marker_color),
+                    'days_old' => floatval($days_old),
+                    'city' => $city ? sanitize_text_field($city) : '',
+                    'address' => $address ? sanitize_text_field($address) : '',
+                    'location_name' => $location_name ? sanitize_text_field($location_name) : '', // Location taxonomy term
+                    'full_address' => sanitize_text_field($address_string),
+                    'needs_geocoding' => (bool) $needs_geocoding // Explicitly set this
                 );
                 
                 if ($lat_float !== null && $lng_float !== null) {
@@ -925,18 +925,18 @@ $property_statuses = get_terms(array(
             $properties_with_coords = array_filter($properties_data, function($p) { return !empty($p['lat']) && !empty($p['lng']); });
             $properties_needing_geocode = array_filter($properties_data, function($p) { return !empty($p['needs_geocoding']) && $p['needs_geocoding']; });
             
-            echo '<!-- DEBUG: Total properties in query: ' . $properties_query->found_posts . ' -->';
-            echo '<!-- DEBUG: Total properties being added to map: ' . count($properties_data) . ' -->';
-            echo '<!-- DEBUG: Properties with valid coordinates: ' . count($properties_with_coords) . ' -->';
-            echo '<!-- DEBUG: Properties needing geocoding: ' . count($properties_needing_geocode) . ' -->';
+            echo '<!-- DEBUG: Total properties in query: ' . absint($properties_query->found_posts) . ' -->';
+            echo '<!-- DEBUG: Total properties being added to map: ' . absint(count($properties_data)) . ' -->';
+            echo '<!-- DEBUG: Properties with valid coordinates: ' . absint(count($properties_with_coords)) . ' -->';
+            echo '<!-- DEBUG: Properties needing geocoding: ' . absint(count($properties_needing_geocode)) . ' -->';
             
             if (count($properties_data) > 0) {
                 echo '<!-- DEBUG: All properties list -->';
                 foreach ($properties_data as $idx => $prop) {
                     if (isset($prop['lat']) && isset($prop['lng'])) {
-                        echo '<!-- Property ' . ($idx + 1) . ': ' . esc_html($prop['title']) . ' - Lat: ' . $prop['lat'] . ', Lng: ' . $prop['lng'] . ' -->';
+                        echo '<!-- Property ' . esc_html($idx + 1) . ': ' . esc_html($prop['title']) . ' - Lat: ' . esc_html($prop['lat']) . ', Lng: ' . esc_html($prop['lng']) . ' -->';
                     } else {
-                        echo '<!-- Property ' . ($idx + 1) . ': ' . esc_html($prop['title']) . ' - Will geocode: ' . esc_html($prop['full_address']) . ' -->';
+                        echo '<!-- Property ' . esc_html($idx + 1) . ': ' . esc_html($prop['title']) . ' - Will geocode: ' . esc_html($prop['full_address']) . ' -->';
                     }
                 }
             }
@@ -2261,18 +2261,18 @@ document.addEventListener('DOMContentLoaded', function() {
 <script>
 console.log('=== OpenStreetMap (Leaflet) Integration Started ===');
 console.log('Using FREE OpenStreetMap - No API keys, no billing, unlimited usage!');
-console.log('Total properties in query:', <?php echo $properties_query->found_posts; ?>);
-console.log('Total properties being added to map:', <?php echo count($properties_data); ?>);
+console.log('Total properties in query:', <?php echo absint($properties_query->found_posts); ?>);
+console.log('Total properties being added to map:', <?php echo absint(count($properties_data)); ?>);
 
 // Leaflet Variables - Must be global
 window.map = null;
 window.markers = [];
 window.popups = [];
 window.markerClusterGroup = null; // For marker clustering
-window.propertiesData = <?php echo json_encode($properties_data); ?>;
+window.propertiesData = <?php echo wp_json_encode($properties_data); ?>;
 window.mapInitialized = false;
 // Map settings from General settings - dynamically applied
-window.resbsMapSettings = <?php echo json_encode($map_settings); ?>;
+window.resbsMapSettings = <?php echo wp_json_encode($map_settings); ?>;
 
 console.log('=== PROPERTIES DATA DEBUG ===');
 console.log('All properties data:', window.propertiesData);
@@ -3072,14 +3072,14 @@ window.showMapView = function() {
 <script>
 console.log('=== Google Maps Integration Started ===');
 console.log('API Key from PHP:', '<?php echo substr(esc_js($google_maps_api_key), 0, 10); ?>...');
-console.log('Total properties in query:', <?php echo $properties_query->found_posts; ?>);
-console.log('Total properties being added to map:', <?php echo count($properties_data); ?>);
+console.log('Total properties in query:', <?php echo absint($properties_query->found_posts); ?>);
+console.log('Total properties being added to map:', <?php echo absint(count($properties_data)); ?>);
 
 // Google Maps Variables - Must be global
 window.map = null;
 window.markers = [];
 window.infoWindows = [];
-window.propertiesData = <?php echo json_encode($properties_data); ?>;
+window.propertiesData = <?php echo wp_json_encode($properties_data); ?>;
 window.googleMapsApiKey = '<?php echo esc_js($google_maps_api_key); ?>';
 window.mapInitialized = false;
 window.geocoder = null;

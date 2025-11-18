@@ -1131,7 +1131,7 @@ class RESBS_Property_Metabox {
                                                 $star_text = ($i == 1) ? 'Star' : 'Stars';
                                                 $selected = selected($current_rating, $i, false);
                                             ?>
-                                                <option value="<?php echo esc_attr($i); ?>" <?php echo $selected; ?>><?php echo esc_html($i . ' ' . $star_text); ?></option>
+                                                <option value="<?php echo esc_attr($i); ?>" <?php echo $selected; // selected() already returns escaped HTML ?>><?php echo esc_html($i . ' ' . $star_text); ?></option>
                                             <?php endfor; ?>
                                         </select>
                                         <p class="resbs-input-help"><?php esc_html_e('Agent rating out of 5 stars', 'realestate-booking-suite'); ?></p>

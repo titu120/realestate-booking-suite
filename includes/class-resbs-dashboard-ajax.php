@@ -458,21 +458,22 @@ class RESBS_Dashboard_AJAX {
         foreach ($properties as $property) {
             $meta = get_post_meta($property->ID);
             
+            // Note: fputcsv() handles CSV escaping automatically, so we don't use esc_html() here
             fputcsv($output, array(
                 intval($property->ID),
-                esc_html($property->post_title),
-                isset($meta['_property_price'][0]) ? esc_html($meta['_property_price'][0]) : '',
-                isset($meta['_property_bedrooms'][0]) ? esc_html($meta['_property_bedrooms'][0]) : '',
-                isset($meta['_property_bathrooms'][0]) ? esc_html($meta['_property_bathrooms'][0]) : '',
-                isset($meta['_property_area_sqft'][0]) ? esc_html($meta['_property_area_sqft'][0]) : '',
-                isset($meta['_property_address'][0]) ? esc_html($meta['_property_address'][0]) : '',
-                isset($meta['_property_city'][0]) ? esc_html($meta['_property_city'][0]) : '',
-                isset($meta['_property_state'][0]) ? esc_html($meta['_property_state'][0]) : '',
-                isset($meta['_property_zip'][0]) ? esc_html($meta['_property_zip'][0]) : '',
-                isset($meta['_property_type'][0]) ? esc_html($meta['_property_type'][0]) : '',
-                isset($meta['_property_status'][0]) ? esc_html($meta['_property_status'][0]) : '',
-                esc_html($property->post_date),
-                esc_html($property->post_status)
+                $property->post_title,
+                isset($meta['_property_price'][0]) ? $meta['_property_price'][0] : '',
+                isset($meta['_property_bedrooms'][0]) ? $meta['_property_bedrooms'][0] : '',
+                isset($meta['_property_bathrooms'][0]) ? $meta['_property_bathrooms'][0] : '',
+                isset($meta['_property_area_sqft'][0]) ? $meta['_property_area_sqft'][0] : '',
+                isset($meta['_property_address'][0]) ? $meta['_property_address'][0] : '',
+                isset($meta['_property_city'][0]) ? $meta['_property_city'][0] : '',
+                isset($meta['_property_state'][0]) ? $meta['_property_state'][0] : '',
+                isset($meta['_property_zip'][0]) ? $meta['_property_zip'][0] : '',
+                isset($meta['_property_type'][0]) ? $meta['_property_type'][0] : '',
+                isset($meta['_property_status'][0]) ? $meta['_property_status'][0] : '',
+                $property->post_date,
+                $property->post_status
             ));
         }
         
@@ -494,26 +495,28 @@ class RESBS_Dashboard_AJAX {
         foreach ($properties as $property) {
             $meta = get_post_meta($property->ID);
             
+            // Note: wp_json_encode() handles JSON escaping automatically, so we sanitize but don't HTML-escape
             $data[] = array(
                 'id' => intval($property->ID),
-                'title' => esc_html($property->post_title),
+                'title' => sanitize_text_field($property->post_title),
                 'content' => wp_kses_post($property->post_content),
-                'excerpt' => esc_html($property->post_excerpt),
-                'price' => isset($meta['_property_price'][0]) ? esc_html($meta['_property_price'][0]) : '',
-                'bedrooms' => isset($meta['_property_bedrooms'][0]) ? esc_html($meta['_property_bedrooms'][0]) : '',
-                'bathrooms' => isset($meta['_property_bathrooms'][0]) ? esc_html($meta['_property_bathrooms'][0]) : '',
-                'area_sqft' => isset($meta['_property_area_sqft'][0]) ? esc_html($meta['_property_area_sqft'][0]) : '',
-                'address' => isset($meta['_property_address'][0]) ? esc_html($meta['_property_address'][0]) : '',
-                'city' => isset($meta['_property_city'][0]) ? esc_html($meta['_property_city'][0]) : '',
-                'state' => isset($meta['_property_state'][0]) ? esc_html($meta['_property_state'][0]) : '',
-                'zip' => isset($meta['_property_zip'][0]) ? esc_html($meta['_property_zip'][0]) : '',
-                'property_type' => isset($meta['_property_type'][0]) ? esc_html($meta['_property_type'][0]) : '',
-                'property_status' => isset($meta['_property_status'][0]) ? esc_html($meta['_property_status'][0]) : '',
-                'date_created' => esc_html($property->post_date),
-                'status' => esc_html($property->post_status)
+                'excerpt' => sanitize_text_field($property->post_excerpt),
+                'price' => isset($meta['_property_price'][0]) ? sanitize_text_field($meta['_property_price'][0]) : '',
+                'bedrooms' => isset($meta['_property_bedrooms'][0]) ? sanitize_text_field($meta['_property_bedrooms'][0]) : '',
+                'bathrooms' => isset($meta['_property_bathrooms'][0]) ? sanitize_text_field($meta['_property_bathrooms'][0]) : '',
+                'area_sqft' => isset($meta['_property_area_sqft'][0]) ? sanitize_text_field($meta['_property_area_sqft'][0]) : '',
+                'address' => isset($meta['_property_address'][0]) ? sanitize_text_field($meta['_property_address'][0]) : '',
+                'city' => isset($meta['_property_city'][0]) ? sanitize_text_field($meta['_property_city'][0]) : '',
+                'state' => isset($meta['_property_state'][0]) ? sanitize_text_field($meta['_property_state'][0]) : '',
+                'zip' => isset($meta['_property_zip'][0]) ? sanitize_text_field($meta['_property_zip'][0]) : '',
+                'property_type' => isset($meta['_property_type'][0]) ? sanitize_text_field($meta['_property_type'][0]) : '',
+                'property_status' => isset($meta['_property_status'][0]) ? sanitize_text_field($meta['_property_status'][0]) : '',
+                'date_created' => sanitize_text_field($property->post_date),
+                'status' => sanitize_text_field($property->post_status)
             );
         }
         
+        // wp_json_encode() properly escapes JSON output
         echo wp_json_encode($data, JSON_PRETTY_PRINT);
         exit;
     }

@@ -289,15 +289,15 @@ class RESBS_Booking_Manager {
                         <td><?php 
                             $date_time_display = '';
                             if (!empty($preferred_date) && !empty($preferred_time)) {
-                                $date_time_display = esc_html($preferred_date . ' at ' . $preferred_time);
+                                $date_time_display = $preferred_date . ' at ' . $preferred_time;
                             } elseif (!empty($preferred_date)) {
-                                $date_time_display = esc_html($preferred_date);
+                                $date_time_display = $preferred_date;
                             } elseif (!empty($preferred_time)) {
-                                $date_time_display = esc_html($preferred_time);
+                                $date_time_display = $preferred_time;
                             } else {
-                                $date_time_display = 'Not specified';
+                                $date_time_display = __('Not specified', 'realestate-booking-suite');
                             }
-                            echo $date_time_display;
+                            echo esc_html($date_time_display);
                         ?></td>
                         <td>
                             <select onchange="updateBookingStatus(<?php echo esc_js($booking->ID); ?>, this.value)">

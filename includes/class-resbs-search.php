@@ -77,8 +77,8 @@ class RESBS_Search {
         );
         
         wp_localize_script('resbs-search', 'resbs_search_ajax', array(
-            'ajax_url' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('resbs_search_nonce'),
+            'ajax_url' => esc_url(admin_url('admin-ajax.php')),
+            'nonce' => esc_js(wp_create_nonce('resbs_search_nonce')),
             'messages' => array(
                 'searching' => esc_html__('Searching...', 'realestate-booking-suite'),
                 'no_results' => esc_html__('No properties found matching your criteria.', 'realestate-booking-suite'),
@@ -542,7 +542,9 @@ class RESBS_Search {
             ));
         } else {
             wp_reset_postdata();
-            wp_send_json_error(esc_html__('No properties found matching your criteria.', 'realestate-booking-suite'));
+            wp_send_json_error(array(
+                'message' => esc_html__('No properties found matching your criteria.', 'realestate-booking-suite')
+            ));
         }
     }
 }

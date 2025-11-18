@@ -107,7 +107,7 @@ class RESBS_Favorites_Manager {
         // Localize script
         wp_localize_script('resbs-favorites', 'resbs_favorites_ajax', array(
             'ajax_url' => esc_url(admin_url('admin-ajax.php')),
-            'nonce' => wp_create_nonce('resbs_favorites_nonce'),
+            'nonce' => esc_js(wp_create_nonce('resbs_favorites_nonce')),
             'user_logged_in' => is_user_logged_in(),
             'login_url' => esc_url(wp_login_url(get_permalink())),
             'messages' => array(
@@ -866,7 +866,7 @@ class RESBS_Favorites_Manager {
         // Format price
         $formatted_price = '';
         if ($price) {
-            $formatted_price = '$' . number_format($price);
+            $formatted_price = resbs_format_price($price);
         }
         
         // Format location
@@ -982,7 +982,8 @@ class RESBS_Favorites_Manager {
         $num_price = intval($price);
         if (is_nan($num_price)) return $price;
         
-        return '$' . number_format($num_price);
+        $currency_symbol = sanitize_text_field(get_option('resbs_currency_symbol', '$'));
+        return $currency_symbol . number_format($num_price);
     }
 
     /**

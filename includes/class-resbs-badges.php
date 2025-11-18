@@ -162,11 +162,10 @@ class RESBS_Badge_Manager {
             $meta_key = sanitize_key($config['meta_key']);
             $meta_value = sanitize_text_field($config['meta_value']);
             $current_value = get_post_meta($post_id, $meta_key, true);
-            $checked = ($current_value === $config['meta_value']) ? 'checked' : '';
             
             echo '<p>';
             echo '<label>';
-            echo '<input type="checkbox" name="' . esc_attr($meta_key) . '" value="' . esc_attr($meta_value) . '" ' . esc_attr($checked) . '>';
+            echo '<input type="checkbox" name="' . esc_attr($meta_key) . '" value="' . esc_attr($meta_value) . '" ' . checked($current_value, $config['meta_value'], false) . '>';
             echo ' ' . esc_html($this->get_badge_text($type)) . '</label>';
             echo '</p>';
         }
@@ -613,6 +612,8 @@ class RESBS_Badge_Manager {
             }
             
             // Escape CSS class name and values
+            // Note: Values are already sanitized (sanitize_hex_color, absint, sanitize_key)
+            // esc_attr() provides additional security layer for CSS output
             $css .= '.resbs-badge-' . esc_attr($type) . ' { ';
             $css .= 'background-color: ' . esc_attr($bg_color) . '; ';
             $css .= 'color: ' . esc_attr($text_color) . '; ';

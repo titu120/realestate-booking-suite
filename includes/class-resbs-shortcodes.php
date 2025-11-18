@@ -213,6 +213,10 @@ class RESBS_Shortcodes {
         $from_name = get_option('resbs_email_from_name', $site_name);
         $from_email = get_option('resbs_email_from_email', get_option('admin_email'));
         
+        // Sanitize email header values
+        $from_name = sanitize_text_field($from_name);
+        $from_email = sanitize_email($from_email);
+        
         $subject = sprintf(__('Verify your email address - %s', 'realestate-booking-suite'), $site_name);
         
         $message = sprintf(
@@ -309,8 +313,8 @@ Best regards,
                 
                 // Localize script with AJAX data
                 wp_localize_script('resbs-shortcodes', 'resbsShortcodes', array(
-                    'ajax_url' => admin_url('admin-ajax.php'),
-                    'publish_nonce' => wp_create_nonce('resbs_publish_property')
+                    'ajax_url' => esc_url(admin_url('admin-ajax.php')),
+                    'publish_nonce' => esc_js(wp_create_nonce('resbs_publish_property'))
                 ));
             }
         }
@@ -2336,8 +2340,8 @@ Best regards,
                 <?php if (resbs_is_wishlist_enabled()): 
                     $is_favorited = resbs_is_property_favorited($property_id);
                 ?>
-                <button class="favorite-btn resbs-favorite-btn <?php echo $is_favorited ? 'favorited' : ''; ?>" data-property-id="<?php echo esc_attr($property_id); ?>">
-                    <i class="<?php echo $is_favorited ? 'fas' : 'far'; ?> fa-heart"></i>
+                <button class="favorite-btn resbs-favorite-btn <?php echo esc_attr($is_favorited ? 'favorited' : ''); ?>" data-property-id="<?php echo esc_attr($property_id); ?>">
+                    <i class="<?php echo esc_attr($is_favorited ? 'fas' : 'far'); ?> fa-heart"></i>
                 </button>
                 <?php endif; ?>
                 
@@ -2509,7 +2513,7 @@ Best regards,
                     
                     echo '<div class="resbs-booking-item">';
                     echo '<div class="resbs-booking-header">';
-                    echo '<h5><a href="' . esc_url($order->get_view_order_url()) . '">' . sprintf(esc_html__('Order #%s', 'realestate-booking-suite'), $order_id) . '</a></h5>';
+                    echo '<h5><a href="' . esc_url($order->get_view_order_url()) . '">' . sprintf(esc_html__('Order #%s', 'realestate-booking-suite'), esc_html($order_id)) . '</a></h5>';
                     echo '<span class="resbs-booking-status status-' . esc_attr($order_status) . '">' . esc_html(ucfirst($order_status)) . '</span>';
                     echo '</div>';
                     echo '<p class="resbs-booking-date">' . esc_html__('Date:', 'realestate-booking-suite') . ' ' . esc_html($order_date) . '</p>';

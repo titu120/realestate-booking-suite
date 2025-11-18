@@ -703,7 +703,7 @@ class RESBS_Shortcode_AJAX {
             $validation = RESBS_Security::validate_file_upload($_FILES['property_featured_image']);
             if (is_wp_error($validation)) {
                 wp_send_json_error(array(
-                    'message' => $validation->get_error_message()
+                    'message' => esc_html($validation->get_error_message())
                 ));
             }
             $this->handle_featured_image_upload($property_id, $_FILES['property_featured_image']);
@@ -725,7 +725,7 @@ class RESBS_Shortcode_AJAX {
                         $validation = RESBS_Security::validate_file_upload($file);
                         if (is_wp_error($validation)) {
                             wp_send_json_error(array(
-                                'message' => sprintf(esc_html__('Invalid file in gallery: %s', 'realestate-booking-suite'), $validation->get_error_message())
+                                'message' => sprintf(esc_html__('Invalid file in gallery: %s', 'realestate-booking-suite'), esc_html($validation->get_error_message()))
                             ));
                         }
                     }
@@ -740,7 +740,7 @@ class RESBS_Shortcode_AJAX {
             $validation = RESBS_Security::validate_file_upload($_FILES['property_agent_photo']);
             if (is_wp_error($validation)) {
                 wp_send_json_error(array(
-                    'message' => $validation->get_error_message()
+                    'message' => esc_html($validation->get_error_message())
                 ));
             }
             $this->handle_agent_photo_upload($property_id, $_FILES['property_agent_photo']);

@@ -58,10 +58,10 @@ class RESBS_WooCommerce {
         
         // Localize script for WooCommerce integration
         wp_localize_script('resbs-main', 'resbs_wc_ajax', array(
-            'ajax_url' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('resbs_wc_nonce'),
-            'cart_url' => function_exists('wc_get_cart_url') ? wc_get_cart_url() : '/cart/',
-            'checkout_url' => function_exists('wc_get_checkout_url') ? wc_get_checkout_url() : '/checkout/',
+            'ajax_url' => esc_url(admin_url('admin-ajax.php')),
+            'nonce' => esc_js(wp_create_nonce('resbs_wc_nonce')),
+            'cart_url' => esc_url(function_exists('wc_get_cart_url') ? wc_get_cart_url() : '/cart/'),
+            'checkout_url' => esc_url(function_exists('wc_get_checkout_url') ? wc_get_checkout_url() : '/checkout/'),
             'messages' => array(
                 'adding_to_cart' => esc_html__('Adding to cart...', 'realestate-booking-suite'),
                 'added_to_cart' => esc_html__('Property added to cart!', 'realestate-booking-suite'),
@@ -538,7 +538,7 @@ class RESBS_WooCommerce {
         // Store in custom table or post meta
         $booking_id = wp_insert_post(array(
             'post_type' => 'property_booking',
-            'post_title' => esc_html__('Booking', 'realestate-booking-suite') . ' #' . $order_id,
+            'post_title' => esc_html__('Booking', 'realestate-booking-suite') . ' #' . esc_html($order_id),
             'post_status' => 'publish',
             'meta_input' => $booking_meta
         ));

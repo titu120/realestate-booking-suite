@@ -217,8 +217,8 @@ class RESBS_Request_Form_Widget extends \Elementor\Widget_Base {
     protected function render() {
         $settings = $this->get_settings_for_display();
         
-        $title = isset($settings['title']) ? $settings['title'] : '';
-        $default_message = isset($settings['message']) ? $settings['message'] : '';
+        $title = isset($settings['title']) ? sanitize_text_field($settings['title']) : '';
+        $default_message = isset($settings['message']) ? sanitize_textarea_field($settings['message']) : '';
         $disable_name = isset($settings['disable_name']) && $settings['disable_name'] === 'yes';
         $disable_phone = isset($settings['disable_phone']) && $settings['disable_phone'] === 'yes';
         $disable_email = isset($settings['disable_email']) && $settings['disable_email'] === 'yes';
@@ -405,7 +405,7 @@ class RESBS_Request_Form_Widget extends \Elementor\Widget_Base {
         ?>
         <div class="resbs-request-form-widget">
             <form class="resbs-request-form">
-                <h3 class="resbs-request-form-title">{{{ settings.title }}}</h3>
+                <h3 class="resbs-request-form-title">{{ settings.title }}</h3>
                 <div class="resbs-request-form-fields">
                     <div class="resbs-form-field">
                         <label><?php esc_html_e('Name', 'realestate-booking-suite'); ?> *</label>
@@ -421,7 +421,7 @@ class RESBS_Request_Form_Widget extends \Elementor\Widget_Base {
                     </div>
                     <div class="resbs-form-field">
                         <label><?php esc_html_e('Message', 'realestate-booking-suite'); ?> *</label>
-                        <textarea rows="4">{{{ settings.message }}}</textarea>
+                        <textarea rows="4">{{ settings.message }}</textarea>
                     </div>
                 </div>
                 <div class="resbs-request-form-footer">

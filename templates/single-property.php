@@ -378,7 +378,7 @@
 <!-- Single Property Template Styles -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<link rel="stylesheet" href="<?php echo RESBS_URL; ?>assets/css/single-property.css" />
+<link rel="stylesheet" href="<?php echo esc_url(RESBS_URL . 'assets/css/single-property.css'); ?>" />
 
 <?php
 // Get color settings from General Settings
@@ -491,7 +491,7 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
 
 <!-- Single Property Template Scripts -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="<?php echo RESBS_URL; ?>assets/js/single-property-template.js"></script>
+<script src="<?php echo esc_url(RESBS_URL . 'assets/js/single-property-template.js'); ?>"></script>
 
 <div class="single-property">
 
@@ -574,16 +574,16 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
                         ?>
                         <?php if ($total_images > 0): ?>
                             <div class="gallery-item gallery-main">
-                                <img src="<?php echo esc_url($all_images[0]); ?>" alt="<?php echo esc_attr(get_the_title()); ?>" class="gallery-img" <?php echo $lightbox_disabled ? '' : 'onclick="openImageViewer(0)"'; ?>>
+                                <img src="<?php echo esc_url($all_images[0]); ?>" alt="<?php echo esc_attr(get_the_title()); ?>" class="gallery-img"<?php if (!$lightbox_disabled): ?> onclick="<?php echo esc_js('openImageViewer(' . absint(0) . ')'); ?>"<?php endif; ?>>
                             </div>
 
                             <?php for ($i = 1; $i < 5; $i++): ?>
                                 <?php if ($i < $total_images): ?>
-                                    <div class="gallery-item <?php echo ($i == 4 && $total_images > 5) ? 'gallery-more' : ''; ?>">
-                                        <img src="<?php echo esc_url($all_images[$i]); ?>" alt="<?php echo esc_attr(get_the_title()); ?>" class="gallery-img" <?php echo $lightbox_disabled ? '' : 'onclick="openImageViewer(' . $i . ')"'; ?>>
+                                    <div class="gallery-item <?php echo esc_attr(($i == 4 && $total_images > 5) ? 'gallery-more' : ''); ?>">
+                                        <img src="<?php echo esc_url($all_images[$i]); ?>" alt="<?php echo esc_attr(get_the_title()); ?>" class="gallery-img"<?php if (!$lightbox_disabled): ?> onclick="<?php echo esc_js('openImageViewer(' . absint($i) . ')'); ?>"<?php endif; ?>>
                                         <?php if ($i == 4 && $total_images > 5): ?>
-                                            <div class="gallery-overlay" <?php echo $lightbox_disabled ? '' : 'onclick="openImageViewer(4)"'; ?>>
-                                                <span>+<?php echo($total_images - 5); ?> <?php echo esc_html__('More', 'realestate-booking-suite'); ?></span>
+                                            <div class="gallery-overlay"<?php if (!$lightbox_disabled): ?> onclick="<?php echo esc_js('openImageViewer(' . absint(4) . ')'); ?>"<?php endif; ?>>
+                                                <span>+<?php echo esc_html($total_images - 5); ?> <?php echo esc_html__('More', 'realestate-booking-suite'); ?></span>
                                             </div>
                                         <?php endif; ?>
                                     </div>
@@ -1215,7 +1215,7 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
                                         <?php for ($star = 5; $star >= 1; $star--): ?>
                                             <?php $percentage = $total_reviews > 0 ? ($rating_counts[$star] / $total_reviews) * 100 : 0; ?>
                                             <div class="rating-bar">
-                                                <span class="rating-label"><?php echo $star; ?>★</span>
+                                                <span class="rating-label"><?php echo esc_html($star); ?>★</span>
                                                 <div class="rating-bar-track">
                                                     <div class="rating-bar-fill" style="width: <?php echo esc_attr($percentage); ?>%"></div>
                                                 </div>
@@ -1279,7 +1279,7 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
                                 <?php if (!empty($gallery_urls)): ?>
                                     <div class="media-gallery-row">
                                         <?php foreach ($gallery_urls as $index => $image_url): ?>
-                                            <div class="media-gallery-item cursor-pointer" <?php echo $lightbox_disabled ? '' : 'onclick="openImageViewer(' . $index . ')"'; ?>>
+                                            <div class="media-gallery-item cursor-pointer"<?php if (!$lightbox_disabled): ?> onclick="<?php echo esc_js('openImageViewer(' . absint($index) . ')'); ?>"<?php endif; ?>>
                                                 <img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr__('Property Image', 'realestate-booking-suite'); ?>" class="media-gallery-image">
                                             </div>
                                         <?php endforeach; ?>
@@ -1944,7 +1944,7 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
                                                 <span><i class="fas fa-bath mr-1"></i><?php echo esc_html($similar_bathrooms); ?> <?php echo esc_html($similar_bathrooms != 1 ? __('Baths', 'realestate-booking-suite') : __('Bath', 'realestate-booking-suite')); ?></span>
                                             <?php endif; ?>
                                             <?php if ($similar_area): ?>
-                                                <span><i class="fas fa-ruler-combined mr-1"></i><?php echo resbs_format_area($similar_area); ?></span>
+                                                <span><i class="fas fa-ruler-combined mr-1"></i><?php echo esc_html(resbs_format_area($similar_area)); ?></span>
                                             <?php endif; ?>
                                         </div>
                                     </div>
@@ -2060,15 +2060,14 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
                                         // Debug output (remove this after testing)
                                         if (current_user_can('manage_options')) {
                                             echo '<!-- DEBUG: Dashboard loan terms: ' . esc_html($loan_terms_raw) . ' -->';
-                                            echo '<!-- DEBUG: Parsed terms: ' . print_r($loan_terms, true) . ' -->';
+                                            echo '<!-- DEBUG: Parsed terms: ' . esc_html(print_r($loan_terms, true)) . ' -->';
                                             echo '<!-- DEBUG: Default term: ' . esc_html($default_term) . ' -->';
                                         }
                                         
                                         // Display options from dashboard settings
                                         foreach ($loan_terms as $term):
-                                            $is_selected = ($term == $default_term) ? ' selected' : '';
                                     ?>
-                                        <option value="<?php echo esc_attr($term); ?>"<?php echo $is_selected; ?>><?php echo esc_html($term); ?> <?php echo esc_html__('Years', 'realestate-booking-suite'); ?></option>
+                                        <option value="<?php echo esc_attr($term); ?>"<?php selected($term, $default_term); ?>><?php echo esc_html($term); ?> <?php echo esc_html__('Years', 'realestate-booking-suite'); ?></option>
                                     <?php 
                                         endforeach;
                                     } else {
@@ -2148,10 +2147,10 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
     <script>
         // AJAX configuration
         window.resbs_ajax = {
-            ajax_url: '<?php echo admin_url('admin-ajax.php'); ?>',
-            nonce: '<?php echo wp_create_nonce('resbs_contact_form_nonce'); ?>',
-            booking_nonce: '<?php echo wp_create_nonce('resbs_booking_form_nonce'); ?>',
-            property_id: <?php echo $post->ID; ?>
+            ajax_url: '<?php echo esc_url(admin_url('admin-ajax.php')); ?>',
+            nonce: '<?php echo esc_js(wp_create_nonce('resbs_contact_form_nonce')); ?>',
+            booking_nonce: '<?php echo esc_js(wp_create_nonce('resbs_booking_form_nonce')); ?>',
+            property_id: <?php echo absint($post->ID); ?>
         };
         
         // Pass gallery images from PHP to JavaScript
@@ -2639,7 +2638,7 @@ $main_color_light = resbs_hex_to_rgba($main_color, 0.1);
     <div class="container" style="padding: 20px;">
         <h1><?php echo esc_html__('Property Not Found', 'realestate-booking-suite'); ?></h1>
         <p><?php echo esc_html__('Sorry, the property you\'re looking for doesn\'t exist or has been removed.', 'realestate-booking-suite'); ?></p>
-        <a href="<?php echo home_url('/property/'); ?>" style="background: <?php echo esc_attr(resbs_get_main_color()); ?>; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;"><?php echo esc_html__('Back to Properties', 'realestate-booking-suite'); ?></a>
+        <a href="<?php echo esc_url(home_url('/property/')); ?>" style="background: <?php echo esc_attr(resbs_get_main_color()); ?>; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;"><?php echo esc_html__('Back to Properties', 'realestate-booking-suite'); ?></a>
     </div>
 <?php endif; ?>
 

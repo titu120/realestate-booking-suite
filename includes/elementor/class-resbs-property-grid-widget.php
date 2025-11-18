@@ -841,7 +841,7 @@ class RESBS_Property_Grid_Widget extends \Elementor\Widget_Base {
 
                 <?php if ($show_price && !empty($property_price)): ?>
                     <div class="resbs-property-price">
-                        <?php echo esc_html('$' . number_format($property_price)); ?>
+                        <?php echo esc_html(resbs_format_price($property_price)); ?>
                     </div>
                 <?php endif; ?>
 
@@ -864,7 +864,7 @@ class RESBS_Property_Grid_Widget extends \Elementor\Widget_Base {
                         <?php if (!empty($property_area_value)): ?>
                             <div class="resbs-property-meta-item">
                                 <span class="dashicons dashicons-admin-home"></span>
-                                <span><?php echo resbs_format_area($property_area_value); ?></span>
+                                <span><?php echo esc_html(resbs_format_area($property_area_value)); ?></span>
                             </div>
                         <?php endif; ?>
 

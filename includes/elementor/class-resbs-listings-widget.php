@@ -709,8 +709,14 @@ class RESBS_Listings_Widget extends \Elementor\Widget_Base {
                 <!-- Grid/List View (hidden if map is default) -->
                 <div class="resbs-listings-grid-view" style="display: <?php echo esc_attr($layout === 'map' ? 'none' : 'block'); ?>;">
                     <?php if ($properties->have_posts()): ?>
+                        <?php
+                        $container_style = '';
+                        if ($layout === 'grid') {
+                            $container_style = 'grid-template-columns: repeat(' . absint($columns) . ', 1fr); gap: ' . esc_attr($grid_gap) . ';';
+                        }
+                        ?>
                         <div class="resbs-properties-container" 
-                             style="<?php echo $layout === 'grid' ? 'grid-template-columns: repeat(' . esc_attr($columns) . ', 1fr); gap: ' . esc_attr($grid_gap) . ';' : ''; ?>">
+                             style="<?php echo esc_attr($container_style); ?>">
                             <?php while ($properties->have_posts()): $properties->the_post(); ?>
                                 <?php $this->render_property_card($layout); ?>
                             <?php endwhile; ?>
@@ -1649,21 +1655,21 @@ class RESBS_Listings_Widget extends \Elementor\Widget_Base {
                     <?php if (!empty($bedrooms)): ?>
                         <span class="resbs-meta-item">
                             <i class="fas fa-bed"></i>
-                            <?php echo esc_html($bedrooms); ?> Bed<?php echo $bedrooms != 1 ? 's' : ''; ?>
+                            <?php echo esc_html($bedrooms); ?> Bed<?php echo esc_html($bedrooms != 1 ? 's' : ''); ?>
                         </span>
                     <?php endif; ?>
                     
                     <?php if (!empty($bathrooms)): ?>
                         <span class="resbs-meta-item">
                             <i class="fas fa-bath"></i>
-                            <?php echo esc_html($bathrooms); ?> Bath<?php echo $bathrooms != 1 ? 's' : ''; ?>
+                            <?php echo esc_html($bathrooms); ?> Bath<?php echo esc_html($bathrooms != 1 ? 's' : ''); ?>
                         </span>
                     <?php endif; ?>
                     
                     <?php if (!empty($area_value)): ?>
                         <span class="resbs-meta-item">
                             <i class="fas fa-ruler-combined"></i>
-                            <?php echo resbs_format_area($area_value); ?>
+                            <?php echo esc_html(resbs_format_area($area_value)); ?>
                         </span>
                     <?php endif; ?>
                 </div>
@@ -1687,7 +1693,7 @@ class RESBS_Listings_Widget extends \Elementor\Widget_Base {
         ?>
         <div class="resbs-listings-widget">
             <div class="resbs-listings-navbar">
-                <h3 class="resbs-listings-title">{{{ settings.title }}}</h3>
+                <h3 class="resbs-listings-title">{{ settings.title }}</h3>
                 <span class="resbs-listings-count">2 <?php esc_html_e('results', 'realestate-booking-suite'); ?></span>
                 <div class="resbs-listings-controls">
                     <div class="resbs-sort-control">

@@ -59,8 +59,8 @@ class RESBS_Property_Grid_Widget extends WP_Widget {
             );
 
             wp_localize_script('resbs-widget-script', 'resbs_widget_ajax', array(
-                'ajax_url' => admin_url('admin-ajax.php'),
-                'nonce' => wp_create_nonce('resbs_widget_nonce'),
+                'ajax_url' => esc_url(admin_url('admin-ajax.php')),
+                'nonce' => esc_js(wp_create_nonce('resbs_widget_nonce')),
                 'messages' => array(
                     'loading' => esc_html__('Loading...', 'realestate-booking-suite'),
                     'no_properties' => esc_html__('No properties found.', 'realestate-booking-suite'),
@@ -895,8 +895,8 @@ class RESBS_Property_Grid_Widget extends WP_Widget {
      * Format price
      */
     private function format_price($price) {
-        $currency_symbol = esc_html(get_option('resbs_currency_symbol', '$'));
-        $currency_position = get_option('resbs_currency_position', 'before');
+        $currency_symbol = sanitize_text_field(get_option('resbs_currency_symbol', '$'));
+        $currency_position = sanitize_text_field(get_option('resbs_currency_position', 'before'));
         
         $formatted_price = number_format($price);
         

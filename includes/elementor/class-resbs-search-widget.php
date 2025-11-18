@@ -524,8 +524,10 @@ class RESBS_Search_Widget extends \Elementor\Widget_Base {
                                             'taxonomy' => 'property_type',
                                             'hide_empty' => false,
                                         ));
-                                        foreach ($property_types as $type) {
-                                            echo '<option value="' . esc_attr($type->slug) . '">' . esc_html($type->name) . '</option>';
+                                        if (!empty($property_types) && !is_wp_error($property_types)) {
+                                            foreach ($property_types as $type) {
+                                                echo '<option value="' . esc_attr($type->slug) . '">' . esc_html($type->name) . '</option>';
+                                            }
                                         }
                                         ?>
                                     </select>

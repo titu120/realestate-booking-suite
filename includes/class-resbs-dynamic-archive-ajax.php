@@ -291,12 +291,13 @@ class RESBS_Dynamic_Archive_AJAX {
                     $formatted_price = '$' . number_format($price);
                 }
                 
-                // Format location
+                // Format location (each part is already escaped, but escape the final string for consistency)
                 $location = '';
                 if ($address) $location .= esc_html($address);
                 if ($city) $location .= ($location ? ', ' : '') . esc_html($city);
                 if ($state) $location .= ($location ? ', ' : '') . esc_html($state);
                 if ($zip) $location .= ($location ? ' ' : '') . esc_html($zip);
+                // Note: $location is built from escaped parts, but we'll escape it again when output
                 
                 // Determine badge
                 $badge_class = 'badge-new';
@@ -325,7 +326,7 @@ class RESBS_Dynamic_Archive_AJAX {
                     'bedrooms' => absint($bedrooms),
                     'bathrooms' => absint($bathrooms),
                     'area_sqft' => absint($area_sqft),
-                    'location' => $location,
+                    'location' => esc_html($location),
                     'property_type' => esc_html($property_type_name),
                     'property_status' => esc_html($property_status_name),
                     'badge_class' => esc_attr($badge_class),

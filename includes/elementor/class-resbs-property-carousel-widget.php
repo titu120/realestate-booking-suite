@@ -961,8 +961,10 @@ class RESBS_Property_Carousel_Widget extends \Elementor\Widget_Base {
         // Build grid CSS classes
         $grid_classes = 'similar-properties-grid';
         
-        // Get grid gap from settings
-        $grid_gap = isset($settings['grid_gap']['size']) ? $settings['grid_gap']['size'] . $settings['grid_gap']['unit'] : '1.5rem';
+        // Get grid gap from settings - validate unit for security
+        $grid_gap_size = isset($settings['grid_gap']['size']) ? floatval($settings['grid_gap']['size']) : 1.5;
+        $grid_gap_unit = isset($settings['grid_gap']['unit']) && in_array($settings['grid_gap']['unit'], array('px', 'rem', 'em', '%'), true) ? sanitize_text_field($settings['grid_gap']['unit']) : 'rem';
+        $grid_gap = $grid_gap_size . $grid_gap_unit;
 
         // Get properties
         $properties = $this->get_properties($settings);

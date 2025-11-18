@@ -120,7 +120,7 @@ class RESBS_Maps_Manager {
                 'currency_symbol' => esc_js($currency_symbol),
                 'currency_code' => esc_js($currency_code),
                 'ajax_url' => esc_url(admin_url('admin-ajax.php')),
-                'nonce' => wp_create_nonce('resbs_maps_nonce'),
+                'nonce' => esc_js(wp_create_nonce('resbs_maps_nonce')),
                 'default_lat' => floatval(get_option('resbs_map_default_lat', '40.7128')),
                 'default_lng' => floatval(get_option('resbs_map_default_lng', '-74.0060')),
                 'default_zoom' => intval(get_option('resbs_map_default_zoom', '10')),
@@ -912,7 +912,7 @@ class RESBS_Property_Map_Widget extends WP_Widget {
         }
         
         // Display map using shortcode
-        echo do_shortcode('[resbs_property_map height="' . esc_attr($height) . '" zoom="' . esc_attr($zoom) . '" show_search="' . ($show_search ? 'true' : 'false') . '" show_filters="' . ($show_filters ? 'true' : 'false') . '" cluster_markers="' . ($cluster_markers ? 'true' : 'false') . '"]');
+        echo do_shortcode('[resbs_property_map height="' . esc_attr($height) . '" zoom="' . esc_attr($zoom) . '" show_search="' . esc_attr($show_search ? 'true' : 'false') . '" show_filters="' . esc_attr($show_filters ? 'true' : 'false') . '" cluster_markers="' . esc_attr($cluster_markers ? 'true' : 'false') . '"]');
         
         echo wp_kses_post($args['after_widget']);
     }

@@ -95,8 +95,8 @@ class RESBS_Email_Manager {
             );
             
             wp_localize_script('resbs-email-admin', 'resbs_email_admin_ajax', array(
-                'ajax_url' => admin_url('admin-ajax.php'),
-                'nonce' => wp_create_nonce('resbs_email_admin_nonce'),
+                'ajax_url' => esc_url(admin_url('admin-ajax.php')),
+                'nonce' => esc_js(wp_create_nonce('resbs_email_admin_nonce')),
                 'messages' => array(
                     'test_email_sent' => esc_html__('Test email sent successfully!', 'realestate-booking-suite'),
                     'test_email_failed' => esc_html__('Failed to send test email.', 'realestate-booking-suite'),
@@ -730,10 +730,13 @@ class RESBS_Email_Manager {
         $to = sanitize_email($to);
         $from_email = sanitize_email($from_email);
         $reply_to = sanitize_email($reply_to);
+        
+        // Escape from name for email header (remove any potentially dangerous characters)
+        $from_name = sanitize_text_field($from_name);
 
         // Set headers
         $headers = array(
-            'From: ' . esc_html($from_name) . ' <' . $from_email . '>',
+            'From: ' . $from_name . ' <' . $from_email . '>',
             'Reply-To: ' . $reply_to,
             'Content-Type: ' . ($enable_html ? 'text/html' : 'text/plain') . '; charset=UTF-8'
         );
@@ -772,7 +775,14 @@ class RESBS_Email_Manager {
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title><?php echo esc_html($site_name); ?></title>
             <style>
-                <?php echo $this->get_email_styles(); ?>
+                <?php 
+                // CSS from trusted plugin file - output as-is for CSS content
+                $email_styles = $this->get_email_styles();
+                if ($email_styles) {
+                    // SECURITY: Escape CSS content to prevent XSS attacks
+                    echo esc_textarea($email_styles);
+                }
+                ?>
             </style>
         </head>
         <body>

@@ -101,6 +101,7 @@ function resbs_create_profile_page() {
     
     // Get title and subtitle from settings or use defaults
     $page_title = get_option('resbs_profile_page_title', 'User Profile');
+    $page_title = sanitize_text_field($page_title);
     
     // Create the page
     $page_data = array(
@@ -791,7 +792,7 @@ function resbs_get_currency_symbol() {
     }
     
     // Fallback: Check if there's a currency setting in WordPress options
-    $currency = get_option('resbs_currency_symbol', '$');
+    $currency = sanitize_text_field(get_option('resbs_currency_symbol', '$'));
     return $currency;
 }
 
