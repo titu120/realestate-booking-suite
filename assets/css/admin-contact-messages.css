@@ -1,0 +1,41 @@
+/**
+ * Admin Contact Messages Styles
+ * Extracted from inline styles in class-resbs-admin-contact-messages.php
+ * 
+ * @package RealEstate_Booking_Suite
+ */
+
+.status-unread {
+    color: #d63638;
+    font-weight: bold;
+}
+
+.status-read {
+    color: #0073aa;
+    font-weight: bold;
+}
+
+.status-replied {
+    color: #00a32a;
+    font-weight: bold;
+}
+
+.status-archived {
+    color: #646970;
+    font-weight: bold;
+}
+
+.row-actions select {
+    margin-bottom: 5px;
+}
+
+.delete-link,
+.reply-link {
+    text-decoration: none;
+}
+
+.delete-link:hover,
+.reply-link:hover {
+    text-decoration: underline;
+}
+

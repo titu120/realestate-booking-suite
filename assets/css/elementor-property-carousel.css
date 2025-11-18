@@ -1,0 +1,150 @@
+/**
+ * Elementor Property Carousel Widget Styles
+ * Extracted from inline styles in class-resbs-property-carousel-widget.php
+ * 
+ * @package RealEstate_Booking_Suite
+ */
+
+/* Note: Dynamic styles with PHP variables are added via wp_add_inline_style */
+
+/* Grid Layout - Base styles */
+.similar-properties-grid {
+    display: grid !important;
+    gap: 20px !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+}
+
+@media (max-width: 1024px) {
+    .similar-properties-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .similar-properties-grid {
+        grid-template-columns: repeat(1, 1fr) !important;
+    }
+}
+
+/* Property Card */
+.property-card {
+    border: 1px solid #e5e7eb !important;
+    border-radius: 0.5rem !important;
+    overflow: hidden !important;
+    transition: all 0.3s !important;
+    display: block !important;
+    background: #ffffff !important;
+}
+
+.property-card:hover {
+    transform: translateY(-5px) !important;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Property Image */
+.property-image {
+    position: relative !important;
+    display: block !important;
+}
+
+.property-image img {
+    width: 100% !important;
+    object-fit: cover !important;
+    display: block !important;
+}
+
+.property-image .bg-gray-200 {
+    background-color: #e5e7eb !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+}
+
+/* Property Badge */
+.property-badge {
+    position: absolute !important;
+    top: 0.75rem !important;
+    left: 0.75rem !important;
+    background-color: #10b981 !important;
+    color: #ffffff !important;
+    padding: 0.25rem 0.75rem !important;
+    border-radius: 9999px !important;
+    font-size: 0.75rem !important;
+    font-weight: 600 !important;
+    display: inline-block !important;
+    text-transform: lowercase !important;
+}
+
+/* Property Info */
+.property-info {
+    padding: 1rem !important;
+    display: block !important;
+}
+
+/* Property Card Title */
+.property-card-title {
+    font-size: 1.125rem !important;
+    font-weight: 700 !important;
+    margin-bottom: 0.5rem !important;
+    display: block !important;
+    line-height: 1.5 !important;
+}
+
+.property-card-title a {
+    color: #111827 !important;
+    text-decoration: none !important;
+    transition: color 0.3s !important;
+}
+
+.property-card-title a:hover {
+    color: #10b981 !important;
+}
+
+/* Property Card Location */
+.property-card-location {
+    color: #6b7280 !important;
+    font-size: 0.875rem !important;
+    margin-bottom: 0.75rem !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    line-height: 1.5 !important;
+}
+
+.property-card-location i {
+    color: #10b981 !important;
+}
+
+/* Property Card Price */
+.property-card-price {
+    font-size: 1.5rem !important;
+    font-weight: 700 !important;
+    color: #10b981 !important;
+    margin-bottom: 0.75rem !important;
+    display: block !important;
+    line-height: 1.5 !important;
+}
+
+/* Property Card Features */
+.property-card-features {
+    display: flex !important;
+    align-items: center !important;
+    gap: 1rem !important;
+    font-size: 0.875rem !important;
+    color: #6b7280 !important;
+    border-top: 1px solid #e5e7eb !important;
+    padding-top: 0.75rem !important;
+    flex-wrap: wrap !important;
+}
+
+.property-card-features span {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.25rem !important;
+}
+
+.property-card-features i {
+    color: #6b7280 !important;
+}
+

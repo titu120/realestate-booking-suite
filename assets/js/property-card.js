@@ -1,0 +1,114 @@
+/**
+ * Property Card JavaScript
+ * Extracted from inline script in templates/property-card.php
+ * 
+ * @package RealEstate_Booking_Suite
+ */
+
+(function($) {
+    'use strict';
+    
+    $(document).ready(function() {
+        // Favorite button functionality
+        $('.resbs-favorite-btn').on('click', function(e) {
+            e.preventDefault();
+            var $btn = $(this);
+            var propertyId = $btn.data('property-id');
+            var $icon = $btn.find('i');
+            
+            if (!propertyId || !resbs_archive || !resbs_archive.nonce) {
+                console.error('Missing required data for favorite toggle');
+                return;
+            }
+            
+            // Toggle visual state
+            $icon.toggleClass('far fas');
+            $btn.toggleClass('favorited');
+            
+            // AJAX call
+            $.ajax({
+                url: resbs_archive.ajax_url,
+                type: 'POST',
+                data: {
+                    action: 'resbs_toggle_favorite',
+                    property_id: parseInt(propertyId),
+                    nonce: resbs_archive.nonce
+                },
+                success: function(response) {
+                    if (response.success) {
+                        if (response.data.favorited) {
+                            $btn.addClass('favorited');
+                            $icon.removeClass('far').addClass('fas');
+                        } else {
+                            $btn.removeClass('favorited');
+                            $icon.removeClass('fas').addClass('far');
+                        }
+                    } else {
+                        // Revert visual state on error
+                        $icon.toggleClass('far fas');
+                        $btn.toggleClass('favorited');
+                        if (response.data && response.data.message) {
+                            console.error(response.data.message);
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    // Revert visual state on error
+                    $icon.toggleClass('far fas');
+                    $btn.toggleClass('favorited');
+                    console.error('Error toggling favorite:', error);
+                }
+            });
+        });
+        
+        // Quick view functionality
+        $('.resbs-quick-view-btn').on('click', function(e) {
+            e.preventDefault();
+            var propertyId = $(this).data('property-id');
+            
+            if (!propertyId) {
+                console.error('Property ID not found');
+                return;
+            }
+            
+            resbsOpenQuickView(parseInt(propertyId));
+        });
+        
+        // Contact agent functionality
+        $('.resbs-contact-agent-btn').on('click', function(e) {
+            e.preventDefault();
+            var propertyId = $(this).data('property-id');
+            
+            if (!propertyId) {
+                console.error('Property ID not found');
+                return;
+            }
+            
+            resbsOpenContactForm(parseInt(propertyId));
+        });
+    });
+    
+    // Quick view function
+    function resbsOpenQuickView(propertyId) {
+        if (!propertyId || !Number.isInteger(propertyId) || propertyId <= 0) {
+            console.error('Invalid property ID for quick view');
+            return;
+        }
+        console.log('Opening quick view for property:', propertyId);
+    }
+    
+    // Contact form function
+    function resbsOpenContactForm(propertyId) {
+        if (!propertyId || !Number.isInteger(propertyId) || propertyId <= 0) {
+            console.error('Invalid property ID for contact form');
+            return;
+        }
+        console.log('Opening contact form for property:', propertyId);
+    }
+    
+    // Make functions globally available
+    window.resbsOpenQuickView = resbsOpenQuickView;
+    window.resbsOpenContactForm = resbsOpenContactForm;
+    
+})(jQuery);
+

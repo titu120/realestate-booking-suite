@@ -98,6 +98,10 @@ new RESBS_Email_Manager();
 require_once RESBS_PATH . 'includes/class-resbs-search-alerts.php';
 new RESBS_Search_Alerts_Manager();
 
+// Load Template Assets Handler (handles enqueuing for templates)
+require_once RESBS_PATH . 'includes/class-resbs-template-assets.php';
+new RESBS_Template_Assets();
+
 // Load Booking Manager
 require_once RESBS_PATH . 'includes/class-resbs-booking-manager.php';
 new RESBS_Booking_Manager();

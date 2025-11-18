@@ -14,8 +14,36 @@ class RESBS_Admin_Contact_Messages {
     
     public function __construct() {
         add_action('admin_menu', array($this, 'add_admin_menu'));
+        add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_assets'));
         add_action('wp_ajax_update_contact_message_status', array($this, 'update_contact_message_status'));
         add_action('wp_ajax_delete_contact_message', array($this, 'delete_contact_message'));
+    }
+    
+    /**
+     * Enqueue admin assets
+     */
+    public function enqueue_admin_assets($hook) {
+        if ($hook === 'property_page_contact-messages') {
+            wp_enqueue_style(
+                'resbs-admin-contact-messages',
+                RESBS_URL . 'assets/css/admin-contact-messages.css',
+                array(),
+                '1.0.0'
+            );
+            
+            wp_enqueue_script(
+                'resbs-admin-contact-messages',
+                RESBS_URL . 'assets/js/admin-contact-messages.js',
+                array(),
+                '1.0.0',
+                true
+            );
+            
+            // Localize script
+            wp_localize_script('resbs-admin-contact-messages', 'resbs_contact_admin', array(
+                'update_confirm' => esc_js(__('Are you sure you want to update the status?', 'realestate-booking-suite'))
+            ));
+        }
     }
     
     /**
@@ -183,53 +211,7 @@ class RESBS_Admin_Contact_Messages {
             </div>
         </div>
         
-        <style>
-            .status-unread { color: #d63638; font-weight: bold; }
-            .status-read { color: #0073aa; font-weight: bold; }
-            .status-replied { color: #00a32a; font-weight: bold; }
-            .status-archived { color: #646970; font-weight: bold; }
-            .row-actions select { margin-bottom: 5px; }
-            .delete-link, .reply-link { text-decoration: none; }
-            .delete-link:hover, .reply-link:hover { text-decoration: underline; }
-        </style>
-        
-        <script>
-            // Global nonce for AJAX operations
-            const resbsContactAdminNonce = '<?php echo esc_js($ajax_nonce); ?>';
-            
-            function updateStatus(id, status, nonce) {
-                if (status && confirm('<?php echo esc_js(__('Are you sure you want to update the status?', 'realestate-booking-suite')); ?>')) {
-                    const url = new URL(window.location.href);
-                    url.searchParams.set('action', 'update_status');
-                    url.searchParams.set('id', id);
-                    url.searchParams.set('status', status);
-                    url.searchParams.set('_wpnonce', nonce);
-                    window.location.href = url.toString();
-                }
-            }
-            
-            function filterByStatus() {
-                const status = document.getElementById('status-filter').value;
-                const url = new URL(window.location.href);
-                if (status) {
-                    url.searchParams.set('status', status);
-                } else {
-                    url.searchParams.delete('status');
-                }
-                window.location.href = url.toString();
-            }
-            
-            function showFullMessage(id, message) {
-                document.getElementById('fullMessageContent').textContent = message;
-                document.getElementById('fullMessageModal').classList.remove('hidden');
-                document.getElementById('fullMessageModal').classList.add('flex');
-            }
-            
-            function closeFullMessageModal() {
-                document.getElementById('fullMessageModal').classList.add('hidden');
-                document.getElementById('fullMessageModal').classList.remove('flex');
-            }
-        </script>
+        <!-- Admin contact messages styles and scripts are now enqueued via wp_enqueue_style/wp_enqueue_script -->
         <?php
     }
     

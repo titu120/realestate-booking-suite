@@ -347,6 +347,16 @@ Best regards,
                     '1.0.0'
                 );
             }
+            
+            // Enqueue registration form CSS
+            if (has_shortcode($post->post_content, 'resbs_buyer_registration')) {
+                wp_enqueue_style(
+                    'resbs-registration-form',
+                    RESBS_URL . 'assets/css/registration-form.css',
+                    array('resbs-shortcodes'),
+                    '1.0.0'
+                );
+            }
         }
         
         if (is_a($post, 'WP_Post') && has_shortcode($post->post_content, 'resbs_favorites')) {
@@ -1659,157 +1669,7 @@ Best regards,
         
         ob_start();
         ?>
-        <style>
-        /* Professional Registration Form Styles - Inline to ensure they load */
-        .resbs-registration-wrapper {
-            max-width: 500px !important;
-            margin: 60px auto !important;
-            padding: 0 20px !important;
-            box-sizing: border-box !important;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
-        }
-        .resbs-registration-header {
-            text-align: center !important;
-            margin-bottom: 40px !important;
-        }
-        .resbs-registration-title {
-            font-size: 2.25rem !important;
-            font-weight: 700 !important;
-            color: #1a1a1a !important;
-            margin: 0 0 12px 0 !important;
-            letter-spacing: -0.5px !important;
-            line-height: 1.2 !important;
-        }
-        .resbs-registration-subtitle {
-            font-size: 16px !important;
-            color: #6b7280 !important;
-            margin: 0 !important;
-            line-height: 1.6 !important;
-            font-weight: 400 !important;
-        }
-        .resbs-registration-content {
-            background: #ffffff !important;
-            border-radius: 12px !important;
-            padding: 40px !important;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
-            border: 1px solid #e5e7eb !important;
-        }
-        .resbs-registration-form .resbs-form-field {
-            margin-bottom: 24px !important;
-        }
-        .resbs-registration-form .resbs-form-field label {
-            display: block !important;
-            margin-bottom: 8px !important;
-            font-weight: 600 !important;
-            color: #374151 !important;
-            font-size: 14px !important;
-            line-height: 1.5 !important;
-        }
-        .resbs-registration-form .resbs-form-field input[type="text"],
-        .resbs-registration-form .resbs-form-field input[type="email"],
-        .resbs-registration-form .resbs-form-field input[type="password"] {
-            width: 100% !important;
-            padding: 14px 16px !important;
-            border: 1.5px solid #d1d5db !important;
-            border-radius: 8px !important;
-            font-size: 15px !important;
-            color: #1f2937 !important;
-            background: #ffffff !important;
-            transition: all 0.2s ease !important;
-            box-sizing: border-box !important;
-            font-family: inherit !important;
-            line-height: 1.5 !important;
-        }
-        .resbs-registration-form .resbs-form-field input:focus {
-            outline: none !important;
-            border-color: #0073aa !important;
-            box-shadow: 0 0 0 3px rgba(0, 115, 170, 0.1) !important;
-        }
-        .resbs-registration-submit-btn {
-            width: 100% !important;
-            padding: 16px 24px !important;
-            background: #0073aa !important;
-            color: #ffffff !important;
-            border: none !important;
-            border-radius: 8px !important;
-            font-size: 16px !important;
-            font-weight: 600 !important;
-            cursor: pointer !important;
-            transition: all 0.3s ease !important;
-            margin-top: 12px !important;
-            box-shadow: 0 2px 4px rgba(0, 115, 170, 0.2) !important;
-        }
-        .resbs-registration-submit-btn:hover {
-            background: #005a87 !important;
-            box-shadow: 0 4px 8px rgba(0, 115, 170, 0.3) !important;
-            transform: translateY(-1px) !important;
-        }
-        .resbs-registration-footer {
-            margin-top: 24px !important;
-            text-align: center !important;
-        }
-        .resbs-registration-login-link {
-            font-size: 14px !important;
-            color: #6b7280 !important;
-            margin: 0 !important;
-        }
-        .resbs-registration-login-link a {
-            color: #0073aa !important;
-            text-decoration: none !important;
-            font-weight: 600 !important;
-        }
-        .resbs-registration-login-link a:hover {
-            text-decoration: underline !important;
-        }
-        .resbs-registration-error {
-            background: #fef2f2 !important;
-            border: 1px solid #fecaca !important;
-            border-radius: 8px !important;
-            padding: 12px 16px !important;
-            margin-bottom: 20px !important;
-            color: #991b1b !important;
-        }
-        .resbs-registration-error p {
-            margin: 4px 0 !important;
-            font-size: 14px !important;
-        }
-        .resbs-registration-success {
-            background: #f0fdf4 !important;
-            border: 1px solid #bbf7d0 !important;
-            border-radius: 8px !important;
-            padding: 12px 16px !important;
-            margin-bottom: 20px !important;
-            color: #166534 !important;
-        }
-        .resbs-registration-success p {
-            margin: 4px 0 !important;
-            font-size: 14px !important;
-        }
-        .resbs-registration-info {
-            background: #eff6ff !important;
-            border: 1px solid #bfdbfe !important;
-            border-radius: 8px !important;
-            padding: 12px 16px !important;
-            margin-bottom: 20px !important;
-            color: #1e40af !important;
-        }
-        .resbs-registration-info p {
-            margin: 4px 0 !important;
-            font-size: 14px !important;
-        }
-        @media (max-width: 768px) {
-            .resbs-registration-wrapper {
-                margin: 20px auto !important;
-                padding: 0 16px !important;
-            }
-            .resbs-registration-content {
-                padding: 24px !important;
-            }
-            .resbs-registration-title {
-                font-size: 1.75rem !important;
-            }
-        }
-        </style>
+        <!-- Registration form styles are now enqueued via wp_enqueue_style -->
         <div class="resbs-registration-wrapper" id="<?php echo esc_attr($shortcode_id); ?>">
             <?php if ($page_title || $page_subtitle): ?>
                 <div class="resbs-registration-header">

@@ -1054,150 +1054,39 @@ class RESBS_Property_Carousel_Widget extends \Elementor\Widget_Base {
             <?php endif; ?>
         </div>
         
-        <style>
-            /* Grid Layout */
-            #<?php echo esc_attr($widget_id); ?> .similar-properties-grid {
-                display: grid !important;
-                gap: <?php echo esc_attr($grid_gap); ?> !important;
-                grid-template-columns: repeat(<?php echo esc_attr($columns); ?>, 1fr) !important;
+        <?php
+        // Enqueue base CSS once
+        if (!wp_style_is('resbs-elementor-property-carousel', 'enqueued')) {
+            wp_enqueue_style(
+                'resbs-elementor-property-carousel',
+                RESBS_URL . 'assets/css/elementor-property-carousel.css',
+                array(),
+                '1.0.0'
+            );
+        }
+        
+        // Add dynamic inline styles for this widget instance
+        $dynamic_css = "
+        #{$widget_id} .similar-properties-grid {
+            gap: {$grid_gap} !important;
+            grid-template-columns: repeat({$columns}, 1fr) !important;
+        }
+        
+        @media (max-width: 1024px) {
+            #{$widget_id} .similar-properties-grid {
+                grid-template-columns: repeat({$columns_tablet}, 1fr) !important;
             }
-            
-            @media (max-width: 1024px) {
-                #<?php echo esc_attr($widget_id); ?> .similar-properties-grid {
-                    grid-template-columns: repeat(<?php echo esc_attr($columns_tablet); ?>, 1fr) !important;
-                }
+        }
+        
+        @media (max-width: 768px) {
+            #{$widget_id} .similar-properties-grid {
+                grid-template-columns: repeat({$columns_mobile}, 1fr) !important;
             }
-            
-            @media (max-width: 768px) {
-                #<?php echo esc_attr($widget_id); ?> .similar-properties-grid {
-                    grid-template-columns: repeat(<?php echo esc_attr($columns_mobile); ?>, 1fr) !important;
-                }
-            }
-            
-            /* Property Card */
-            #<?php echo esc_attr($widget_id); ?> .property-card {
-                border: 1px solid #e5e7eb !important;
-                border-radius: 0.5rem !important;
-                overflow: hidden !important;
-                transition: all 0.3s !important;
-                display: block !important;
-                background: #ffffff !important;
-            }
-            
-            #<?php echo esc_attr($widget_id); ?> .property-card:hover {
-                transform: translateY(-5px) !important;
-                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1) !important;
-            }
-            
-            /* Property Image */
-            #<?php echo esc_attr($widget_id); ?> .property-image {
-                position: relative !important;
-                display: block !important;
-            }
-            
-            #<?php echo esc_attr($widget_id); ?> .property-image img {
-                width: 100% !important;
-
-                object-fit: cover !important;
-                display: block !important;
-            }
-            
-            #<?php echo esc_attr($widget_id); ?> .property-image .bg-gray-200 {
-                background-color: #e5e7eb !important;
-  
-                display: flex !important;
-                align-items: center !important;
-                justify-content: center !important;
-                width: 100% !important;
-            }
-            
-            /* Property Badge */
-            #<?php echo esc_attr($widget_id); ?> .property-badge {
-                position: absolute !important;
-                top: 0.75rem !important;
-                left: 0.75rem !important;
-                background-color: #10b981 !important;
-                color: #ffffff !important;
-                padding: 0.25rem 0.75rem !important;
-                border-radius: 9999px !important;
-                font-size: 0.75rem !important;
-                font-weight: 600 !important;
-                display: inline-block !important;
-                text-transform: lowercase !important;
-            }
-            
-            /* Property Info */
-            #<?php echo esc_attr($widget_id); ?> .property-info {
-                padding: 1rem !important;
-                display: block !important;
-            }
-            
-            /* Property Card Title */
-            #<?php echo esc_attr($widget_id); ?> .property-card-title {
-                font-size: 1.125rem !important;
-                font-weight: 700 !important;
-                margin-bottom: 0.5rem !important;
-                display: block !important;
-                line-height: 1.5 !important;
-            }
-            
-            #<?php echo esc_attr($widget_id); ?> .property-card-title a {
-                color: #111827 !important;
-                text-decoration: none !important;
-                transition: color 0.3s !important;
-            }
-            
-            #<?php echo esc_attr($widget_id); ?> .property-card-title a:hover {
-                color: #10b981 !important;
-            }
-            
-            /* Property Card Location */
-            #<?php echo esc_attr($widget_id); ?> .property-card-location {
-                color: #6b7280 !important;
-                font-size: 0.875rem !important;
-                margin-bottom: 0.75rem !important;
-                display: flex !important;
-                align-items: center !important;
-                gap: 0.5rem !important;
-                line-height: 1.5 !important;
-            }
-            
-            #<?php echo esc_attr($widget_id); ?> .property-card-location i {
-                color: #10b981 !important;
-            }
-            
-            /* Property Card Price */
-            #<?php echo esc_attr($widget_id); ?> .property-card-price {
-                font-size: 1.5rem !important;
-                font-weight: 700 !important;
-                color: #10b981 !important;
-                margin-bottom: 0.75rem !important;
-                display: block !important;
-                line-height: 1.5 !important;
-            }
-            
-            /* Property Card Features */
-            #<?php echo esc_attr($widget_id); ?> .property-card-features {
-                display: flex !important;
-                align-items: center !important;
-                gap: 1rem !important;
-                font-size: 0.875rem !important;
-                color: #6b7280 !important;
-                border-top: 1px solid #e5e7eb !important;
-                padding-top: 0.75rem !important;
-                flex-wrap: wrap !important;
-            }
-            
-            #<?php echo esc_attr($widget_id); ?> .property-card-features span {
-                display: inline-flex !important;
-                align-items: center !important;
-                gap: 0.25rem !important;
-            }
-            
-            #<?php echo esc_attr($widget_id); ?> .property-card-features i {
-                color: #6b7280 !important;
-            }
-        </style>
+        }
+        ";
+        
+        wp_add_inline_style('resbs-elementor-property-carousel', $dynamic_css);
+        ?>
         <?php
     }
 

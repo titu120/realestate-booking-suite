@@ -1,0 +1,124 @@
+/**
+ * Single Property Amenities Styles
+ * Extracted from inline styles in single-property.php
+ * 
+ * @package RealEstate_Booking_Suite
+ */
+
+.amenity-item[style*="display: none"] {
+    display: none !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+}
+
+.amenities-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.amenities-filter {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.amenities-filter .filter-btn {
+    padding: 0.5rem 1rem;
+    border: 1px solid #d1d5db;
+    background-color: #f9fafb;
+    color: #374151;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.amenities-filter .filter-btn:hover {
+    background-color: #e5e7eb;
+    border-color: #9ca3af;
+}
+
+.amenities-filter .filter-btn.active,
+.amenities-filter .filter-btn.filter-active {
+    background-color: #10b981;
+    color: #ffffff;
+    border-color: #10b981;
+}
+
+.amenity-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    background-color: #f9fafb;
+    border-radius: 0.375rem;
+    transition: all 0.2s;
+}
+
+.amenity-item:hover {
+    background-color: #f3f4f6;
+}
+
+.amenity-item i {
+    font-size: 1rem;
+}
+
+/* Phone field layout - ensure one line */
+.flex.gap-2.items-stretch {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    gap: 8px !important;
+    align-items: stretch !important;
+}
+
+#bookingPhoneCode {
+    width: 160px !important;
+    max-width: 160px !important;
+    min-width: 160px !important;
+    flex: 0 0 160px !important;
+    padding-left: 8px !important;
+    padding-right: 32px !important;
+}
+
+#bookingPhone {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    width: 100% !important;
+}
+
+/* Make dropdown easier to navigate with many options */
+#bookingPhoneCode {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+#bookingPhoneCode option {
+    padding: 6px 8px;
+}
+
+/* Searchable dropdown styles */
+.phone-code-wrapper {
+    position: relative;
+}
+
+#bookingPhoneCodeSearch {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    border-bottom: none;
+    border-radius: 8px 8px 0 0;
+}
+
+#bookingPhoneCodeSearch:focus + #bookingPhoneCode,
+#bookingPhoneCode:focus {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+

@@ -43,8 +43,7 @@ class RESBS_Frontend {
         add_action('wp_ajax_resbs_elementor_load_map_properties', array($this, 'handle_elementor_load_map_properties'));
         add_action('wp_ajax_nopriv_resbs_elementor_load_map_properties', array($this, 'handle_elementor_load_map_properties'));
         
-        // Add frontend display hooks
-        add_action('wp_head', array($this, 'add_frontend_styles'));
+        // Frontend styles are now enqueued via wp_enqueue_style in enqueue_frontend_scripts()
     }
     
     /**
@@ -61,6 +60,17 @@ class RESBS_Frontend {
     public function enqueue_frontend_scripts() {
         wp_enqueue_script('jquery');
         wp_enqueue_media();
+        
+        // Enqueue frontend property features CSS
+        wp_enqueue_style(
+            'resbs-frontend-property-features',
+            RESBS_URL . 'assets/css/frontend-property-features.css',
+            array(),
+            '1.0.0'
+        );
+        
+        // Add dynamic inline styles for color customization
+        $this->add_frontend_dynamic_styles();
         
         wp_enqueue_script(
             'resbs-frontend',
@@ -89,6 +99,44 @@ class RESBS_Frontend {
                 'remove' => esc_html__('Remove', 'realestate-booking-suite')
             )
         ));
+    }
+    
+    /**
+     * Add dynamic inline styles for frontend
+     */
+    private function add_frontend_dynamic_styles() {
+        $main_color = resbs_get_main_color();
+        $secondary_color = resbs_get_secondary_color();
+        
+        $main_color_dark = $this->darken_color($main_color, 10);
+        $secondary_color_dark = $this->darken_color($secondary_color, 10);
+        
+        $dynamic_css = "
+        :root {
+            --resbs-main-color: {$main_color};
+            --resbs-secondary-color: {$secondary_color};
+            --resbs-main-color-dark: {$main_color_dark};
+            --resbs-secondary-color-dark: {$secondary_color_dark};
+        }
+        
+        .resbs-btn-primary:hover,
+        .resbs-save-button:hover,
+        .resbs-submit-btn:hover,
+        button.resbs-primary:hover {
+            background-color: {$main_color_dark} !important;
+            border-color: {$main_color_dark} !important;
+        }
+        
+        .resbs-btn-secondary:hover,
+        .resbs-view-btn:hover,
+        .resbs-edit-btn:hover,
+        button.resbs-secondary:hover {
+            background-color: {$secondary_color_dark} !important;
+            border-color: {$secondary_color_dark} !important;
+        }
+        ";
+        
+        wp_add_inline_style('resbs-frontend-property-features', $dynamic_css);
     }
     
     /**
@@ -1565,134 +1613,12 @@ class RESBS_Frontend {
     
     /**
      * Add frontend styles for property features
+     * DEPRECATED: Styles are now enqueued via wp_enqueue_style in enqueue_frontend_scripts()
+     * This method is kept for backward compatibility but does nothing
      */
     public function add_frontend_styles() {
-        // Get general color settings
-        $main_color = resbs_get_main_color();
-        $secondary_color = resbs_get_secondary_color();
-
-        ?>
-        <style>
-        /* General Settings CSS Variables - Available on ALL pages (archive, single, widgets, etc.) */
-        :root {
-            --resbs-main-color: <?php echo esc_attr($main_color); ?>;
-            --resbs-secondary-color: <?php echo esc_attr($secondary_color); ?>;
-        }
-        
-        /* Note: Fonts are controlled by the active theme, not the plugin */
-        
-        /* Apply main color to large buttons */
-        .resbs-btn-primary,
-        .resbs-save-button,
-        .resbs-submit-btn,
-        button.resbs-primary {
-            background-color: var(--resbs-main-color) !important;
-            border-color: var(--resbs-main-color) !important;
-            color: #fff !important;
-        }
-        
-        .resbs-btn-primary:hover,
-        .resbs-save-button:hover,
-        .resbs-submit-btn:hover,
-        button.resbs-primary:hover {
-            background-color: <?php echo esc_attr($this->darken_color($main_color, 10)); ?> !important;
-            border-color: <?php echo esc_attr($this->darken_color($main_color, 10)); ?> !important;
-        }
-        
-        /* Apply secondary color to small buttons */
-        .resbs-btn-secondary,
-        .resbs-view-btn,
-        .resbs-edit-btn,
-        button.resbs-secondary {
-            background-color: var(--resbs-secondary-color) !important;
-            border-color: var(--resbs-secondary-color) !important;
-        }
-        
-        .resbs-btn-secondary:hover,
-        .resbs-view-btn:hover,
-        .resbs-edit-btn:hover,
-        button.resbs-secondary:hover {
-            background-color: <?php echo esc_attr($this->darken_color($secondary_color, 10)); ?> !important;
-            border-color: <?php echo esc_attr($this->darken_color($secondary_color, 10)); ?> !important;
-        }
-        
-        <?php if (is_singular('property')): ?>
-            /* Frontend Property Features Styles */
-            .resbs-property-features {
-                margin: 30px 0;
-                padding: 25px;
-                background: #f8f9fa;
-                border-radius: 12px;
-                border: 1px solid #e9ecef;
-            }
-            
-            .resbs-property-features h3 {
-                margin: 0 0 20px 0;
-                font-size: 20px;
-                font-weight: 600;
-                color: #333;
-                display: flex;
-                align-items: center;
-                gap: 10px;
-            }
-            
-            .resbs-property-features h3::before {
-                content: '✓';
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                color: white;
-                width: 24px;
-                height: 24px;
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 14px;
-                font-weight: bold;
-            }
-            
-            .resbs-features-list {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 10px;
-            }
-            
-            .resbs-feature-item {
-                display: inline-flex;
-                align-items: center;
-                gap: 8px;
-                padding: 8px 16px;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                color: white;
-                border-radius: 20px;
-                font-size: 14px;
-                font-weight: 500;
-                box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
-                transition: all 0.3s ease;
-            }
-            
-            .resbs-feature-item:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-            }
-            
-            .resbs-feature-item::before {
-                content: '✓';
-                font-weight: bold;
-                font-size: 12px;
-            }
-            
-            .resbs-no-features {
-                color: #6c757d;
-                font-style: italic;
-                text-align: center;
-                padding: 20px;
-                background: #fff;
-                border-radius: 8px;
-                border: 2px dashed #dee2e6;
-            }
-            </style>
-        <?php endif; ?>
-        <?php
+        // Styles are now handled via wp_enqueue_style and wp_add_inline_style
+        // This method is kept to prevent errors if still referenced elsewhere
     }
     
     /**

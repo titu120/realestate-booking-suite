@@ -1,0 +1,15 @@
+/**
+ * Property Metabox Tab Styles
+ * Extracted from inline styles in class-resbs-property-metabox.php
+ * 
+ * @package RealEstate_Booking_Suite
+ */
+
+.resbs-tab-content {
+    display: none !important;
+}
+
+.resbs-tab-content.active {
+    display: block !important;
+}
+
