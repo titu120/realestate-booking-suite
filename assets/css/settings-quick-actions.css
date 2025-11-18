@@ -1,0 +1,36 @@
+/**
+ * Settings Quick Actions Styles
+ * Extracted from class-resbs-settings.php
+ * 
+ * @package RealEstate_Booking_Suite
+ */
+
+.quick-action-item {
+    border: 1px solid #ddd;
+    padding: 20px;
+    margin: 20px 0;
+    border-radius: 5px;
+    background: #f9f9f9;
+}
+
+.resbs-form-group {
+    margin-bottom: 15px;
+}
+
+.resbs-form-group label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.resbs-form-group input[type="text"] {
+    width: 100%;
+    max-width: 400px;
+}
+
+.resbs-form-group .description {
+    font-style: italic;
+    color: #666;
+    font-size: 12px;
+}
+

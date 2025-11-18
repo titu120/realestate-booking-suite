@@ -96,6 +96,41 @@ class RESBS_Favorites_Manager {
         );
         
         // Enqueue archive JS for wishlist button functionality
+        // Enqueue toast notification CSS
+        wp_enqueue_style(
+            'resbs-toast-notification',
+            RESBS_URL . 'assets/css/toast-notification.css',
+            array(),
+            '1.0.0'
+        );
+        
+        // Enqueue toast notification JS
+        wp_enqueue_script(
+            'resbs-favorites-toast',
+            RESBS_URL . 'assets/js/favorites-toast.js',
+            array(),
+            '1.0.0',
+            true
+        );
+        
+        // Enqueue saved properties page JS
+        wp_enqueue_script(
+            'resbs-favorites-saved-properties',
+            RESBS_URL . 'assets/js/favorites-saved-properties.js',
+            array('jquery'),
+            '1.0.0',
+            true
+        );
+        
+        // Localize script for saved properties
+        wp_localize_script('resbs-favorites-saved-properties', 'resbs_favorites', array(
+            'ajax_url' => esc_url(admin_url('admin-ajax.php')),
+            'nonce' => esc_js(wp_create_nonce('resbs_favorites_nonce')),
+            'messages' => array(
+                'error' => esc_js(__('An error occurred. Please try again.', 'realestate-booking-suite'))
+            )
+        ));
+        
         wp_enqueue_script(
             'resbs-archive',
             RESBS_URL . 'assets/js/archive.js',
@@ -558,118 +593,8 @@ class RESBS_Favorites_Manager {
             </div>
         </div>
         
-        <script>
-        // Toast notification function
-        function showToastNotification(message, type) {
-            // Remove existing toasts
-            const existingToasts = document.querySelectorAll('.resbs-toast-notification');
-            existingToasts.forEach(toast => toast.remove());
-            
-            // Create toast element
-            const toast = document.createElement('div');
-            toast.className = 'resbs-toast-notification resbs-toast-' + (type || 'success');
-            const messageSpan = document.createElement('span');
-            messageSpan.className = 'resbs-toast-message';
-            messageSpan.textContent = message;
-            const closeBtn = document.createElement('button');
-            closeBtn.className = 'resbs-toast-close';
-            closeBtn.textContent = '×';
-            toast.appendChild(messageSpan);
-            toast.appendChild(closeBtn);
-            
-            // Add to body
-            document.body.appendChild(toast);
-            
-            // Show toast with animation
-            setTimeout(() => {
-                toast.classList.add('show');
-            }, 10);
-            
-            // Auto-hide after 3 seconds
-            const autoHide = setTimeout(() => {
-                hideToast(toast);
-            }, 3000);
-            
-            // Close button click
-            toast.querySelector('.resbs-toast-close').addEventListener('click', () => {
-                clearTimeout(autoHide);
-                hideToast(toast);
-            });
-        }
-
-        function hideToast(toast) {
-            toast.classList.remove('show');
-            setTimeout(() => {
-                if (toast.parentNode) {
-                    toast.parentNode.removeChild(toast);
-                }
-            }, 300);
-        }
-
-        // Add toast notification styles
-        if (!document.getElementById('resbs-toast-styles')) {
-            const toastStyle = document.createElement('style');
-            toastStyle.id = 'resbs-toast-styles';
-            toastStyle.textContent = `
-                .resbs-toast-notification {
-                    position: fixed;
-                    bottom: 20px;
-                    right: 20px;
-                    background: #10b981;
-                    color: white;
-                    padding: 16px 20px;
-                    border-radius: 8px;
-                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-                    display: flex;
-                    align-items: center;
-                    gap: 12px;
-                    z-index: 10000;
-                    min-width: 250px;
-                    max-width: 400px;
-                    opacity: 0;
-                    transform: translateY(20px);
-                    transition: all 0.3s ease;
-                    font-size: 14px;
-                    font-weight: 500;
-                }
-                .resbs-toast-notification.show {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
-                .resbs-toast-notification.resbs-toast-success {
-                    background: #10b981;
-                }
-                .resbs-toast-notification.resbs-toast-error {
-                    background: #ef4444;
-                }
-                .resbs-toast-message {
-                    flex: 1;
-                }
-                .resbs-toast-close {
-                    background: transparent;
-                    border: none;
-                    color: white;
-                    font-size: 20px;
-                    line-height: 1;
-                    cursor: pointer;
-                    padding: 0;
-                    width: 20px;
-                    height: 20px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    opacity: 0.8;
-                    transition: opacity 0.2s;
-                }
-                .resbs-toast-close:hover {
-                    opacity: 1;
-                }
-            `;
-            document.head.appendChild(toastStyle);
-        }
-        
-        // Favorite button functionality for saved properties page
-        document.addEventListener('DOMContentLoaded', function() {
+        <!-- Toast notification scripts and styles are now enqueued via wp_enqueue_script/wp_enqueue_style -->
+        <!-- Favorite button functionality is now enqueued via wp_enqueue_script in favorites-saved-properties.js -->
             // Initialize favorite button states on page load
             function initializeFavoriteButtons() {
                 const favoriteButtons = document.querySelectorAll('.favorite-btn, .resbs-favorite-btn');
@@ -821,7 +746,7 @@ class RESBS_Favorites_Manager {
                 });
             });
         });
-        </script>
+        -->
         <?php
         wp_reset_postdata();
         return ob_get_clean();

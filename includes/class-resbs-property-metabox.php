@@ -179,57 +179,7 @@ class RESBS_Property_Metabox {
             </div>
 
             <!-- Navigation Tabs -->
-            <script>
-            // Tab switching is now handled by admin-tabs.js
-            // This function is kept for backward compatibility with onclick handlers
-            function switchTab(tabId) {
-                console.log("Inline switchTab called for:", tabId);
-                
-                // Try to use the main tab handler first
-                if (window.switchToTab) {
-                    var result = window.switchToTab(tabId);
-                    if (result) {
-                        console.log("Tab switched successfully via main handler");
-                        return;
-                    }
-                }
-                
-                // Fallback: Direct tab switching
-                console.log("Using fallback tab switching for:", tabId);
-                
-                // Remove active from all buttons
-                document.querySelectorAll('.resbs-tab-nav-btn').forEach(function(btn) {
-                    btn.classList.remove('active');
-                });
-                
-                // Hide all tab content
-                document.querySelectorAll('.resbs-tab-content').forEach(function(content) {
-                    content.classList.remove('active');
-                    content.style.display = 'none';
-                });
-                
-                // Show selected tab
-                var targetTab = document.getElementById(tabId);
-                var targetBtn = document.querySelector('[data-tab="' + tabId + '"]');
-                
-                if (targetTab && targetBtn) {
-                    targetTab.classList.add('active');
-                    targetTab.style.display = 'block';
-                    targetBtn.classList.add('active');
-                    console.log("Fallback tab switched to:", tabId);
-                    
-                    // Debug content
-                    var content = targetTab.innerHTML.trim();
-                    console.log("Tab content length:", content.length);
-                    if (content.length < 100) {
-                        console.warn("Tab appears to have minimal content:", tabId);
-                    }
-                } else {
-                    console.error("Fallback: Tab not found:", tabId);
-                    console.error("Available tab IDs:", Array.from(document.querySelectorAll('.resbs-tab-content')).map(function(el) { return el.id; }));
-                }
-            }
-            </script>
+            <!-- Tab switching script is now enqueued via wp_enqueue_script in property-metabox-tabs.js -->
             <!-- Tab styles are now enqueued via wp_enqueue_style -->
             <div class="resbs-stunning-tabs">
                 <nav class="resbs-tab-navigation">
@@ -2529,6 +2479,15 @@ class RESBS_Property_Metabox {
                 'resbs-property-metabox-media',
                 RESBS_URL . 'assets/js/property-metabox-media.js',
                 array('jquery', 'media-upload', 'media-views'),
+                '1.0.0',
+                true
+            );
+            
+            // Enqueue tab switching script
+            wp_enqueue_script(
+                'resbs-property-metabox-tabs',
+                RESBS_URL . 'assets/js/property-metabox-tabs.js',
+                array('jquery'),
                 '1.0.0',
                 true
             );

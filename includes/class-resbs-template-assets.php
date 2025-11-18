@@ -295,21 +295,30 @@ class RESBS_Template_Assets {
             return;
         }
         
-        // Enqueue archive CSS
+        // Enqueue archive layout CSS
         wp_enqueue_style(
-            'resbs-simple-archive',
-            RESBS_URL . 'assets/css/simple-archive.css',
+            'resbs-simple-archive-layout',
+            RESBS_URL . 'assets/css/simple-archive-layout.css',
             array(),
             '1.0.0'
         );
         
-        // Add dynamic inline styles
+        // Add dynamic inline styles for colors
         $this->add_simple_archive_dynamic_styles();
         
         // Enqueue archive JS
         wp_enqueue_script(
             'resbs-simple-archive',
             RESBS_URL . 'assets/js/simple-archive.js',
+            array('jquery'),
+            '1.0.0',
+            true
+        );
+        
+        // Enqueue archive dropdown JS
+        wp_enqueue_script(
+            'resbs-archive-dropdown',
+            RESBS_URL . 'assets/js/archive-dropdown.js',
             array('jquery'),
             '1.0.0',
             true
@@ -341,9 +350,6 @@ class RESBS_Template_Assets {
         
         $main_color_dark = $this->darken_color($main_color, 10);
         $main_color_rgba = $this->hex_to_rgba($main_color, 0.3);
-        
-        // Get static CSS from file (we'll create this)
-        $static_css = file_get_contents(RESBS_PATH . 'assets/css/simple-archive-static.css');
         
         $dynamic_css = "
         .view-btn:hover {
@@ -431,7 +437,7 @@ class RESBS_Template_Assets {
         }
         ";
         
-        wp_add_inline_style('resbs-simple-archive', $static_css . $dynamic_css);
+        wp_add_inline_style('resbs-simple-archive-layout', $dynamic_css);
     }
     
     /**

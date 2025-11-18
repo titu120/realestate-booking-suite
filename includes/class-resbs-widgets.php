@@ -30,6 +30,7 @@ class RESBS_Property_Grid_Widget extends WP_Widget {
 
         // Enqueue scripts and styles
         add_action('wp_enqueue_scripts', array($this, 'enqueue_widget_assets'));
+        add_action('admin_enqueue_scripts', array($this, 'enqueue_widget_admin_assets'));
         
         // AJAX handlers
         add_action('wp_ajax_resbs_filter_widget_properties', array($this, 'ajax_filter_properties'));
@@ -38,6 +39,21 @@ class RESBS_Property_Grid_Widget extends WP_Widget {
         add_action('wp_ajax_nopriv_resbs_toggle_favorite', array($this, 'ajax_toggle_favorite'));
     }
 
+    /**
+     * Enqueue widget admin assets (for widget form)
+     */
+    public function enqueue_widget_admin_assets($hook) {
+        if ($hook === 'widgets.php' || $hook === 'customize.php') {
+            wp_enqueue_script(
+                'resbs-widgets-form',
+                RESBS_URL . 'assets/js/widgets-form.js',
+                array('jquery'),
+                '1.0.0',
+                true
+            );
+        }
+    }
+    
     /**
      * Enqueue widget assets
      */
@@ -438,25 +454,7 @@ class RESBS_Property_Grid_Widget extends WP_Widget {
             </p>
         </div>
 
-        <script>
-        jQuery(document).ready(function($) {
-            $('#<?php echo esc_js($this->get_field_id('show_filters')); ?>').change(function() {
-                if ($(this).is(':checked')) {
-                    $('.resbs-filter-options').show();
-                } else {
-                    $('.resbs-filter-options').hide();
-                }
-            });
-            
-            $('#<?php echo esc_js($this->get_field_id('layout')); ?>').change(function() {
-                if ($(this).val() === 'carousel') {
-                    $('.resbs-carousel-options').show();
-                } else {
-                    $('.resbs-carousel-options').hide();
-                }
-            });
-        });
-        </script>
+        <!-- Widget form scripts are now enqueued via wp_enqueue_script in widgets-form.js -->
         <?php
     }
 

@@ -22,6 +22,41 @@ class RESBS_Booking_Manager {
         add_action('wp_ajax_resbs_delete_booking', array($this, 'delete_booking'));
         add_action('admin_menu', array($this, 'add_admin_menu'));
         add_action('init', array($this, 'create_booking_post_type'));
+        add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_assets'));
+    }
+    
+    /**
+     * Enqueue admin assets
+     */
+    public function enqueue_admin_assets($hook) {
+        // Only enqueue on bookings page
+        if ($hook !== 'toplevel_page_resbs-bookings') {
+            return;
+        }
+        
+        wp_enqueue_script(
+            'resbs-booking-manager',
+            RESBS_URL . 'assets/js/booking-manager.js',
+            array(),
+            '1.0.0',
+            true
+        );
+        
+        // Get nonces
+        $update_nonce = wp_create_nonce('resbs_update_booking_status');
+        $delete_nonce = wp_create_nonce('resbs_delete_booking');
+        
+        wp_localize_script('resbs-booking-manager', 'resbs_booking_manager', array(
+            'ajax_url' => esc_url(admin_url('admin-ajax.php')),
+            'update_nonce' => esc_js($update_nonce),
+            'delete_nonce' => esc_js($delete_nonce),
+            'messages' => array(
+                'status_updated' => esc_js(__('Booking status updated!', 'realestate-booking-suite')),
+                'error_updating' => esc_js(__('Error updating status', 'realestate-booking-suite')),
+                'confirm_delete' => esc_js(__('Are you sure you want to delete this booking?', 'realestate-booking-suite')),
+                'error_deleting' => esc_js(__('Error deleting booking', 'realestate-booking-suite'))
+            )
+        ));
     }
 
     /**
@@ -321,54 +356,7 @@ class RESBS_Booking_Manager {
             </table>
         </div>
         
-        <script>
-        var resbsUpdateNonce = '<?php echo esc_js($update_nonce); ?>';
-        var resbsDeleteNonce = '<?php echo esc_js($delete_nonce); ?>';
-        
-        function updateBookingStatus(bookingId, status) {
-            fetch('<?php echo esc_url(admin_url('admin-ajax.php')); ?>', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: 'action=resbs_update_booking_status&booking_id=' + encodeURIComponent(bookingId) + '&status=' + encodeURIComponent(status) + '&nonce=' + encodeURIComponent(resbsUpdateNonce)
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('<?php echo esc_js(__('Booking status updated!', 'realestate-booking-suite')); ?>');
-                } else {
-                    alert(data.data && data.data.message ? data.data.message : '<?php echo esc_js(__('Error updating status', 'realestate-booking-suite')); ?>');
-                }
-            })
-            .catch(error => {
-                alert('<?php echo esc_js(__('Error updating status', 'realestate-booking-suite')); ?>');
-            });
-        }
-        
-        function deleteBooking(bookingId) {
-            if (confirm('<?php echo esc_js(__('Are you sure you want to delete this booking?', 'realestate-booking-suite')); ?>')) {
-                fetch('<?php echo esc_url(admin_url('admin-ajax.php')); ?>', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: 'action=resbs_delete_booking&booking_id=' + encodeURIComponent(bookingId) + '&nonce=' + encodeURIComponent(resbsDeleteNonce)
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        location.reload();
-                    } else {
-                        alert(data.data && data.data.message ? data.data.message : '<?php echo esc_js(__('Error deleting booking', 'realestate-booking-suite')); ?>');
-                    }
-                })
-                .catch(error => {
-                    alert('<?php echo esc_js(__('Error deleting booking', 'realestate-booking-suite')); ?>');
-                });
-            }
-        }
-        </script>
+        <!-- Booking manager scripts are now enqueued via wp_enqueue_script in booking-manager.js -->
         <?php
     }
 

@@ -92,6 +92,13 @@ class RESBS_Slider_Widget extends \Elementor\Widget_Base {
     public function get_keywords() {
         return array('property', 'slider', 'carousel', 'featured', 'real estate');
     }
+    
+    /**
+     * Get style dependencies
+     */
+    public function get_style_depends() {
+        return array('resbs-elementor-slider-grid');
+    }
 
     /**
      * Register widget controls
@@ -546,192 +553,27 @@ class RESBS_Slider_Widget extends \Elementor\Widget_Base {
         </div>
         
         <?php if ($layout === 'grid'): ?>
-        <style>
-            /* Grid Layout */
-            #<?php echo esc_attr($widget_id); ?> .resbs-slider-grid {
-                display: grid !important;
-                width: 100% !important;
-            }
-            
-            @media (max-width: 1024px) {
-                #<?php echo esc_attr($widget_id); ?> .resbs-slider-grid {
-                    grid-template-columns: repeat(2, 1fr) !important;
-                }
-            }
-            
-            @media (max-width: 768px) {
-                #<?php echo esc_attr($widget_id); ?> .resbs-slider-grid {
-                    grid-template-columns: 1fr !important;
-                }
-            }
-            
-            /* Header */
-            #<?php echo esc_attr($widget_id); ?> .resbs-slider-header {
-                display: flex !important;
-                justify-content: space-between !important;
-                align-items: center !important;
-                margin-bottom: 1.5rem !important;
-            }
-            
-            #<?php echo esc_attr($widget_id); ?> .resbs-slider-title {
-                font-size: 1.5rem !important;
-                font-weight: 700 !important;
-                color: #111827 !important;
-                margin: 0 !important;
-            }
-            
-            #<?php echo esc_attr($widget_id); ?> .resbs-slider-nav {
-                display: flex !important;
-                gap: 0.5rem !important;
-            }
-            
-            #<?php echo esc_attr($widget_id); ?> .resbs-slider-arrow {
-                width: 36px !important;
-                height: 36px !important;
-                border: 1px solid #e5e7eb !important;
-                background: #ffffff !important;
-                border-radius: 0.375rem !important;
-                cursor: pointer !important;
-                display: flex !important;
-                align-items: center !important;
-                justify-content: center !important;
-                transition: all 0.2s !important;
-            }
-            
-            #<?php echo esc_attr($widget_id); ?> .resbs-slider-arrow:hover {
-                background: #f3f4f6 !important;
-                border-color: #d1d5db !important;
-            }
-            
-            #<?php echo esc_attr($widget_id); ?> .resbs-slider-arrow .dashicons {
-                font-size: 18px !important;
-                color: #374151 !important;
-            }
-            
-            /* Property Card */
-            #<?php echo esc_attr($widget_id); ?> .property-card {
-                border: 1px solid #e5e7eb !important;
-                border-radius: 0.5rem !important;
-                overflow: hidden !important;
-                transition: all 0.3s !important;
-                display: block !important;
-                background: #ffffff !important;
-            }
-            
-            #<?php echo esc_attr($widget_id); ?> .property-card:hover {
-                transform: translateY(-5px) !important;
-                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1) !important;
-            }
-            
-            /* Property Image */
-            #<?php echo esc_attr($widget_id); ?> .property-image {
-                position: relative !important;
-                display: block !important;
-            }
-            
-            #<?php echo esc_attr($widget_id); ?> .property-image img {
-                width: 100% !important;
-  
-                object-fit: cover !important;
-                display: block !important;
-            }
-            
-            #<?php echo esc_attr($widget_id); ?> .property-image .bg-gray-200 {
-                background-color: #e5e7eb !important;
-    
-                display: flex !important;
-                align-items: center !important;
-                justify-content: center !important;
-                width: 100% !important;
-            }
-            
-            /* Property Badge */
-            #<?php echo esc_attr($widget_id); ?> .property-badge {
-                position: absolute !important;
-                top: 0.75rem !important;
-                left: 0.75rem !important;
-                background-color: #10b981 !important;
-                color: #ffffff !important;
-                padding: 0.25rem 0.75rem !important;
-                border-radius: 9999px !important;
-                font-size: 0.75rem !important;
-                font-weight: 600 !important;
-                display: inline-block !important;
-                text-transform: uppercase !important;
-            }
-            
-            /* Property Info */
-            #<?php echo esc_attr($widget_id); ?> .property-info {
-                padding: 1rem !important;
-                display: block !important;
-            }
-            
-            /* Property Card Title */
-            #<?php echo esc_attr($widget_id); ?> .property-card-title {
-                font-size: 1.125rem !important;
-                font-weight: 700 !important;
-                margin-bottom: 0.5rem !important;
-                display: block !important;
-                line-height: 1.5 !important;
-            }
-            
-            #<?php echo esc_attr($widget_id); ?> .property-card-title a {
-                color: #111827 !important;
-                text-decoration: none !important;
-                transition: color 0.3s !important;
-            }
-            
-            #<?php echo esc_attr($widget_id); ?> .property-card-title a:hover {
-                color: #10b981 !important;
-            }
-            
-            /* Property Card Location */
-            #<?php echo esc_attr($widget_id); ?> .property-card-location {
-                color: #6b7280 !important;
-                font-size: 0.875rem !important;
-                margin-bottom: 0.75rem !important;
-                display: flex !important;
-                align-items: center !important;
-                gap: 0.5rem !important;
-                line-height: 1.5 !important;
-            }
-            
-            #<?php echo esc_attr($widget_id); ?> .property-card-location i {
-                color: #10b981 !important;
-            }
-            
-            /* Property Card Price */
-            #<?php echo esc_attr($widget_id); ?> .property-card-price {
-                font-size: 1.5rem !important;
-                font-weight: 700 !important;
-                color: #10b981 !important;
-                margin-bottom: 0.75rem !important;
-                display: block !important;
-                line-height: 1.5 !important;
-            }
-            
-            /* Property Card Features */
-            #<?php echo esc_attr($widget_id); ?> .property-card-features {
-                display: flex !important;
-                align-items: center !important;
-                gap: 1rem !important;
-                font-size: 0.875rem !important;
-                color: #6b7280 !important;
-                border-top: 1px solid #e5e7eb !important;
-                padding-top: 0.75rem !important;
-                flex-wrap: wrap !important;
-            }
-            
-            #<?php echo esc_attr($widget_id); ?> .property-card-features span {
-                display: inline-flex !important;
-                align-items: center !important;
-                gap: 0.25rem !important;
-            }
-            
-            #<?php echo esc_attr($widget_id); ?> .property-card-features i {
-                color: #6b7280 !important;
-            }
-        </style>
+        <?php
+        // Enqueue base CSS
+        if (!wp_style_is('resbs-elementor-slider-grid', 'enqueued')) {
+            wp_enqueue_style(
+                'resbs-elementor-slider-grid',
+                RESBS_URL . 'assets/css/elementor-slider-grid.css',
+                array(),
+                '1.0.0'
+            );
+        }
+        
+        // Add widget-specific dynamic styles via wp_add_inline_style
+        $dynamic_css = "
+        #{$widget_id} .resbs-slider-grid {
+            grid-template-columns: repeat({$columns}, 1fr) !important;
+            gap: {$grid_gap} !important;
+        }
+        ";
+        
+        wp_add_inline_style('resbs-elementor-slider-grid', $dynamic_css);
+        ?>
         <?php endif; ?>
         <?php
     }

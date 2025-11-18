@@ -18,6 +18,60 @@ class RESBS_Settings {
     public function __construct() {
         add_action('admin_menu', array($this, 'add_admin_menu'));
         add_action('admin_init', array($this, 'register_settings'));
+        add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_assets'));
+    }
+    
+    /**
+     * Enqueue admin assets
+     */
+    public function enqueue_admin_assets($hook) {
+        // Only enqueue on settings pages
+        if (strpos($hook, 'resbs') === false) {
+            return;
+        }
+        
+        // Enqueue quick actions CSS
+        wp_enqueue_style(
+            'resbs-settings-quick-actions',
+            RESBS_URL . 'assets/css/settings-quick-actions.css',
+            array(),
+            '1.0.0'
+        );
+        
+        // Enqueue quick actions JS
+        wp_enqueue_script(
+            'resbs-settings-quick-actions',
+            RESBS_URL . 'assets/js/settings-quick-actions.js',
+            array('jquery'),
+            '1.0.0',
+            true
+        );
+        
+        // Localize script with data
+        global $wpdb;
+        $quick_actions = get_option('resbs_quick_actions', array());
+        if (!is_array($quick_actions)) {
+            $quick_actions = array();
+        }
+        
+        wp_localize_script('resbs-settings-quick-actions', 'resbs_quick_actions', array(
+            'actionIndex' => absint(count($quick_actions)),
+            'labels' => array(
+                'action_title' => esc_js(__('Action Title', 'realestate-booking-suite')),
+                'action_title_placeholder' => esc_js(__('e.g., Send Message', 'realestate-booking-suite')),
+                'icon_class' => esc_js(__('Icon Class', 'realestate-booking-suite')),
+                'icon_class_placeholder' => esc_js(__('e.g., fas fa-envelope', 'realestate-booking-suite')),
+                'icon_class_description' => esc_js(__('FontAwesome icon class (e.g., fas fa-envelope, fas fa-share-alt)', 'realestate-booking-suite')),
+                'js_action' => esc_js(__('JavaScript Action', 'realestate-booking-suite')),
+                'js_action_placeholder' => esc_js(__('e.g., openContactModal()', 'realestate-booking-suite')),
+                'js_action_description' => esc_js(__('JavaScript function to call when clicked', 'realestate-booking-suite')),
+                'button_style' => esc_js(__('Button Style Classes', 'realestate-booking-suite')),
+                'button_style_placeholder' => esc_js(__('e.g., bg-gray-700 text-white hover:bg-gray-800', 'realestate-booking-suite')),
+                'button_style_description' => esc_js(__('Tailwind CSS classes for button styling', 'realestate-booking-suite')),
+                'enable_action' => esc_js(__('Enable this action', 'realestate-booking-suite')),
+                'remove_action' => esc_js(__('Remove Action', 'realestate-booking-suite'))
+            )
+        ));
     }
     
     /**
@@ -907,97 +961,7 @@ class RESBS_Settings {
             </form>
         </div>
         
-        <script>
-        jQuery(document).ready(function($) {
-            let actionIndex = <?php echo absint(count($quick_actions)); ?>;
-            <?php
-            $action_title_label = __('Action Title', 'realestate-booking-suite');
-            $action_title_placeholder = __('e.g., Send Message', 'realestate-booking-suite');
-            $icon_class_label = __('Icon Class', 'realestate-booking-suite');
-            $icon_class_placeholder = __('e.g., fas fa-envelope', 'realestate-booking-suite');
-            $icon_class_description = __('FontAwesome icon class (e.g., fas fa-envelope, fas fa-share-alt)', 'realestate-booking-suite');
-            $js_action_label = __('JavaScript Action', 'realestate-booking-suite');
-            $js_action_placeholder = __('e.g., openContactModal()', 'realestate-booking-suite');
-            $js_action_description = __('JavaScript function to call when clicked', 'realestate-booking-suite');
-            $button_style_label = __('Button Style Classes', 'realestate-booking-suite');
-            $button_style_placeholder = __('e.g., bg-gray-700 text-white hover:bg-gray-800', 'realestate-booking-suite');
-            $button_style_description = __('Tailwind CSS classes for button styling', 'realestate-booking-suite');
-            $enable_action_label = __('Enable this action', 'realestate-booking-suite');
-            $remove_action_label = __('Remove Action', 'realestate-booking-suite');
-            ?>
-            
-            $('#add-quick-action').click(function() {
-                let newAction = `
-                    <div class="quick-action-item" data-index="${actionIndex}">
-                        <div class="resbs-form-group">
-                            <label><?php echo esc_html($action_title_label); ?></label>
-                            <input type="text" name="resbs_quick_actions[${actionIndex}][title]" placeholder="<?php echo esc_attr($action_title_placeholder); ?>" />
-                        </div>
-                        
-                        <div class="resbs-form-group">
-                            <label><?php echo esc_html($icon_class_label); ?></label>
-                            <input type="text" name="resbs_quick_actions[${actionIndex}][icon]" placeholder="<?php echo esc_attr($icon_class_placeholder); ?>" />
-                            <p class="description"><?php echo esc_html($icon_class_description); ?></p>
-                        </div>
-                        
-                        <div class="resbs-form-group">
-                            <label><?php echo esc_html($js_action_label); ?></label>
-                            <input type="text" name="resbs_quick_actions[${actionIndex}][action]" placeholder="<?php echo esc_attr($js_action_placeholder); ?>" />
-                            <p class="description"><?php echo esc_html($js_action_description); ?></p>
-                        </div>
-                        
-                        <div class="resbs-form-group">
-                            <label><?php echo esc_html($button_style_label); ?></label>
-                            <input type="text" name="resbs_quick_actions[${actionIndex}][style]" placeholder="<?php echo esc_attr($button_style_placeholder); ?>" />
-                            <p class="description"><?php echo esc_html($button_style_description); ?></p>
-                        </div>
-                        
-                        <div class="resbs-form-group">
-                            <label>
-                                <input type="checkbox" name="resbs_quick_actions[${actionIndex}][enabled]" value="1" checked />
-                                <?php echo esc_html($enable_action_label); ?>
-                            </label>
-                        </div>
-                        
-                        <button type="button" class="button remove-action"><?php echo esc_html($remove_action_label); ?></button>
-                    </div>
-                `;
-                $('#quick-actions-container').append(newAction);
-                actionIndex++;
-            });
-            
-            $(document).on('click', '.remove-action', function() {
-                $(this).closest('.quick-action-item').remove();
-            });
-        });
-        </script>
-        
-        <style>
-        .quick-action-item {
-            border: 1px solid #ddd;
-            padding: 20px;
-            margin: 20px 0;
-            border-radius: 5px;
-            background: #f9f9f9;
-        }
-        .resbs-form-group {
-            margin-bottom: 15px;
-        }
-        .resbs-form-group label {
-            display: block;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-        .resbs-form-group input[type="text"] {
-            width: 100%;
-            max-width: 400px;
-        }
-        .description {
-            font-style: italic;
-            color: #666;
-            font-size: 12px;
-        }
-        </style>
+        <!-- Quick actions scripts and styles are now enqueued via wp_enqueue_script/wp_enqueue_style -->
         <?php
     }
 }
