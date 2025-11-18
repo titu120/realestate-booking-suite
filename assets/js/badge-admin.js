@@ -9,6 +9,7 @@
 
     $(document).ready(function() {
         initColorPickers();
+        
         initBadgePreview();
         initFormValidation();
     });
