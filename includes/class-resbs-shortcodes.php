@@ -272,7 +272,8 @@ Best regards,
         
         if (is_a($post, 'WP_Post') && has_shortcode($post->post_content, 'resbs_property_grid')) {
             wp_enqueue_style('resbs-layouts');
-            wp_enqueue_script('resbs-layouts');
+            // layouts.js is disabled to prevent conflicts - functionality moved to elementor.js
+            // wp_enqueue_script('resbs-layouts');
         }
         
         if (is_a($post, 'WP_Post') && has_shortcode($post->post_content, 'resbs_search')) {
@@ -320,8 +321,9 @@ Best regards,
         }
         
         if (is_a($post, 'WP_Post') && has_shortcode($post->post_content, 'resbs_submit_property')) {
-            wp_enqueue_style('resbs-forms');
-            wp_enqueue_script('resbs-forms');
+            wp_enqueue_style('resbs-shortcodes'); // Use shortcodes CSS instead of non-existent forms.css
+            // forms.js does not exist - using shortcodes.js instead
+            // wp_enqueue_script('resbs-forms');
             
             // Also enqueue shortcodes script for submit functionality
             if (!wp_script_is('resbs-shortcodes', 'enqueued')) {
