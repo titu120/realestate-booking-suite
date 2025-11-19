@@ -232,6 +232,90 @@ function resbs_plugin_activation() {
 }
 register_activation_hook(__FILE__, 'resbs_plugin_activation');
 
+/**
+ * Plugin uninstall hook
+ * 
+ * Removes all plugin data when plugin is uninstalled
+ * This includes: custom tables, options, created pages (optional)
+ */
+function resbs_plugin_uninstall() {
+    global $wpdb;
+    
+    // Only run if user has proper permissions
+    if (!current_user_can('activate_plugins')) {
+        return;
+    }
+    
+    // Check if user wants to remove data (via option)
+    $remove_data = get_option('resbs_remove_data_on_uninstall', false);
+    if (!$remove_data) {
+        return; // Don't remove data if option is not set
+    }
+    
+    // Remove custom database tables
+    // Table name is safe - constructed from $wpdb->prefix (no user input)
+    $table_name = $wpdb->prefix . 'resbs_contact_messages';
+    // Use backticks for table name - safe as it's constructed from $wpdb->prefix
+    $wpdb->query("DROP TABLE IF EXISTS `" . str_replace('`', '``', $table_name) . "`");
+    
+    // Remove all plugin options
+    // Using LIKE with wildcard - safe as it's a literal string pattern
+    $like_pattern = $wpdb->esc_like('resbs_') . '%';
+    $options = $wpdb->get_results(
+        $wpdb->prepare(
+            "SELECT option_name FROM {$wpdb->options} WHERE option_name LIKE %s",
+            $like_pattern
+        ),
+        ARRAY_A
+    );
+    
+    foreach ($options as $option) {
+        delete_option($option['option_name']);
+    }
+    
+    // Remove user meta
+    // Using LIKE with wildcard - safe as it's a literal string pattern
+    $like_pattern = $wpdb->esc_like('resbs_') . '%';
+    $wpdb->query(
+        $wpdb->prepare(
+            "DELETE FROM {$wpdb->usermeta} WHERE meta_key LIKE %s",
+            $like_pattern
+        )
+    );
+    
+    // Remove post meta
+    // Using LIKE with wildcard - safe as it's a literal string pattern
+    $like_pattern1 = $wpdb->esc_like('_property_') . '%';
+    $like_pattern2 = $wpdb->esc_like('_resbs_') . '%';
+    $wpdb->query(
+        $wpdb->prepare(
+            "DELETE FROM {$wpdb->postmeta} WHERE meta_key LIKE %s OR meta_key LIKE %s",
+            $like_pattern1,
+            $like_pattern2
+        )
+    );
+    
+    
+    // Remove taxonomies and terms
+    $taxonomies = array('property_type', 'property_status', 'property_location', 'property_tag');
+    foreach ($taxonomies as $taxonomy) {
+        $terms = get_terms(array(
+            'taxonomy' => $taxonomy,
+            'hide_empty' => false,
+        ));
+        
+        if (!is_wp_error($terms) && !empty($terms)) {
+            foreach ($terms as $term) {
+                wp_delete_term($term->term_id, $taxonomy);
+            }
+        }
+    }
+    
+    // Flush rewrite rules
+    flush_rewrite_rules();
+}
+register_uninstall_hook(__FILE__, 'resbs_plugin_uninstall');
+
 // Manual flush rewrite rules function (for debugging)
 function resbs_manual_flush_rewrite_rules() {
     // Only allow admins
@@ -389,8 +473,6 @@ function resbs_enqueue_assets() {
             );
         }
         
-        // Enqueue Modern Dashboard CSS (Admin Only)
-
         wp_enqueue_style(
             'resbs-archive',
             RESBS_URL . 'assets/css/rbs-archive.css',
@@ -410,32 +492,6 @@ function resbs_enqueue_assets() {
 
         
     
-    // DISABLED: Main JS to prevent conflicts with tabs
-    // wp_enqueue_script(
-    //     'resbs-main',
-    //     RESBS_URL . 'assets/js/main.js',
-    //     array('jquery'),
-    //     '1.0.0',
-    //     true
-    // );
-    
-        // DISABLED: Layout JS to prevent conflicts with tabs
-        // wp_enqueue_script(
-        //     'resbs-layouts',
-        //     RESBS_URL . 'assets/js/layouts.js',
-        //     array('jquery'),
-        //     '1.0.0',
-        //     true
-        // );
-        
-        // DISABLED: Shortcodes JS to prevent conflicts with tabs
-        // wp_enqueue_script(
-        //     'resbs-shortcodes',
-        //     RESBS_URL . 'assets/js/shortcodes.js',
-        //     array('jquery'),
-        //     '1.0.0',
-        //     true
-        // );
 }
 add_action('wp_enqueue_scripts', 'resbs_enqueue_assets', 5);
 add_action('admin_enqueue_scripts', 'resbs_enqueue_assets', 5);
@@ -461,12 +517,6 @@ require_once RESBS_PATH . 'includes/class-resbs-admin-contact-messages.php';
 
 // Load email handler functionality
 require_once RESBS_PATH . 'includes/class-resbs-email-handler.php';
-
-// Load booking manager functionality (moved to functions.php to avoid double loading)
-// require_once RESBS_PATH . 'includes/class-resbs-booking-manager.php';
-
-// DISABLED: Old settings class to prevent conflicts
-// require_once RESBS_PATH . 'includes/class-resbs-settings.php';
 
 // Load enhanced settings functionality (NEW ESTATIK-STYLE)
 require_once RESBS_PATH . 'includes/class-resbs-enhanced-settings.php';

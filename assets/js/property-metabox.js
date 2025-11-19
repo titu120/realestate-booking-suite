@@ -9,14 +9,9 @@
 
         // Initialize when document is ready
         $(document).ready(function() {
-            console.log('🔧 DEBUG: Property metabox JS loaded');
-            
             // Initialize only essential features
             RESBS_Property_Metabox.initNumberInputs();
             RESBS_Property_Metabox.initMediaUploader();
-            
-            // DO NOT interfere with form submission
-            console.log('🔧 DEBUG: Form submission handlers disabled to prevent conflicts');
         });
     
     // Additional initialization for upload areas
@@ -26,26 +21,16 @@
             var $area = $(this);
             var $input = $area.find('input[type="file"]');
             
-            console.log('Setting up upload area:', {
-                area: $area.length,
-                input: $input.length,
-                areaId: $area.attr('id'),
-                inputId: $input.attr('id')
-            });
-            
             // Remove any existing handlers
             $area.off('click.upload');
             
             // Add new click handler
             $area.on('click.upload', function(e) {
-                console.log('Upload area clicked directly!');
                 e.preventDefault();
                 e.stopPropagation();
                 
                 if ($input.length > 0) {
                     $input.click();
-                } else {
-                    console.error('File input not found!');
                 }
             });
         });
@@ -55,8 +40,6 @@
             var files = this.files;
             var inputId = $(this).attr('id');
             var gridId = '';
-            
-            console.log('File input changed:', inputId, files.length);
             
             // Determine which grid to use based on input ID
             if (inputId === 'gallery-upload') {
@@ -69,8 +52,6 @@
                 var $grid = $(gridId);
                 if (typeof RESBS_Property_Metabox !== 'undefined' && RESBS_Property_Metabox.uploadFiles) {
                     RESBS_Property_Metabox.uploadFiles(files, $grid, 'gallery');
-                } else {
-                    console.error('RESBS_Property_Metabox.uploadFiles not available');
                 }
             }
         });
@@ -96,14 +77,10 @@
      * Initialize tabs with enhanced animations
      */
     initTabs: function() {
-        console.log('🔧 DEBUG: Initializing tabs');
-        
         // Find all tab buttons
         var $tabButtons = $('.resbs-tab-btn, .resbs-tab-nav-btn');
-        console.log('🔧 DEBUG: Found tab buttons:', $tabButtons.length);
         
         if ($tabButtons.length === 0) {
-            console.log('🔧 DEBUG: No tab buttons found, trying again in 500ms');
             setTimeout(function() {
                 RESBS_Property_Metabox.initTabs();
             }, 500);
@@ -119,19 +96,13 @@
             var $container = $btn.closest('.resbs-tabs, .resbs-stunning-tabs');
             var tabId = $btn.data('tab');
             
-            console.log('🔧 DEBUG: Tab clicked:', tabId);
-            console.log('🔧 DEBUG: Button:', $btn);
-            console.log('🔧 DEBUG: Container:', $container);
-            
             // Don't switch if already active
             if ($btn.hasClass('active')) {
-                console.log('🔧 DEBUG: Tab already active, skipping');
                 return;
             }
             
             // Save tab immediately when clicked
             localStorage.setItem('resbs_active_tab', tabId);
-            console.log('🔧 DEBUG: Tab saved immediately:', tabId);
             
             // SIMPLE APPROACH: Just hide all tabs and show the selected one
             $container.find('.resbs-tab-content').removeClass('active').hide();
@@ -142,9 +113,6 @@
             if ($newContent.length) {
                 $newContent.addClass('active').show();
                 $btn.addClass('active');
-                console.log('🔧 DEBUG: Tab content shown:', tabId);
-            } else {
-                console.error('🔧 DEBUG: Tab content not found for:', tabId);
             }
         });
     },
@@ -153,8 +121,6 @@
      * Fix tab display on page load
      */
     fixTabDisplay: function() {
-        console.log('🔧 DEBUG: Fixing tab display');
-        
         // Find all tab containers
         $('.resbs-tabs, .resbs-stunning-tabs').each(function() {
             var $container = $(this);
@@ -162,17 +128,13 @@
             // Check if there's already an active tab
             var $activeTab = $container.find('.resbs-tab-content.active');
             if ($activeTab.length > 0) {
-                console.log('🔧 DEBUG: Active tab already exists, keeping it');
                 return;
             }
             
             // Try to use saved tab from localStorage
             var savedTab = localStorage.getItem('resbs_active_tab');
-            console.log('🔧 DEBUG: Saved tab from localStorage:', savedTab);
             
             if (savedTab) {
-                console.log('🔧 DEBUG: Using saved tab:', savedTab);
-                
                 // Hide all tabs first
                 $container.find('.resbs-tab-content').removeClass('active').hide();
                 $container.find('.resbs-tab-btn, .resbs-tab-nav-btn').removeClass('active');
@@ -184,14 +146,10 @@
                 if ($activeContent.length) {
                     $activeContent.addClass('active').show();
                     $activeBtn.addClass('active');
-                    console.log('🔧 DEBUG: Saved tab displayed:', savedTab);
                 } else {
-                    console.error('🔧 DEBUG: Saved tab content not found:', savedTab);
                     // Fallback to overview tab
                     this.showOverviewTab($container);
                 }
-            } else {
-                console.log('🔧 DEBUG: No saved tab, keeping current state');
             }
         });
     },
@@ -200,8 +158,6 @@
      * Show overview tab as fallback
      */
     showOverviewTab: function($container) {
-        console.log('🔧 DEBUG: Showing overview tab as fallback');
-        
         // Hide all tabs first
         $container.find('.resbs-tab-content').removeClass('active').hide();
         $container.find('.resbs-tab-btn, .resbs-tab-nav-btn').removeClass('active');
@@ -213,9 +169,6 @@
         if ($overviewContent.length) {
             $overviewContent.addClass('active').show();
             $overviewBtn.addClass('active');
-            console.log('🔧 DEBUG: Overview tab displayed');
-        } else {
-            console.error('🔧 DEBUG: Overview tab not found');
         }
     },
 
@@ -289,7 +242,6 @@
             
             // Fallback click handler using event delegation
             $(document).on('click', '.resbs-upload-area', function(e) {
-                console.log('Fallback upload area clicked!', e);
                 e.preventDefault();
                 var $this = $(this);
                 var $input = $this.find('input[type="file"]');
@@ -326,12 +278,10 @@
                                 });
                             } else {
                                 $item.removeClass('resbs-loading');
-                                console.log('Error deleting image. Please try again.');
                             }
                         },
                         error: function() {
                             $item.removeClass('resbs-loading');
-                            console.log('Error deleting image. Please try again.');
                         }
                     });
                 }
@@ -346,19 +296,8 @@
             var $input = $(inputSelector);
             var $grid = $(gridSelector);
             
-            // Debug: Check if elements exist
-            console.log('Initializing media upload:', {
-                areaSelector: areaSelector,
-                inputSelector: inputSelector,
-                gridSelector: gridSelector,
-                areaExists: $area.length > 0,
-                inputExists: $input.length > 0,
-                gridExists: $grid.length > 0
-            });
-            
             // Click to upload with ripple effect
             $area.on('click', function(e) {
-                console.log('Upload area clicked!', e);
                 e.preventDefault();
                 RESBS_Property_Metabox.addRippleEffect($(this));
                 $input.click();
@@ -367,6 +306,7 @@
             // File input change
             $input.on('change', function() {
                 var files = this.files;
+                var inputId = $input.attr('id');
                 if (files.length > 0) {
                     RESBS_Property_Metabox.uploadFiles(files, $grid, type);
                 }
@@ -553,18 +493,13 @@
          */
         initMapIntegration: function() {
             if (!resbs_metabox.map_api_key) {
-                console.warn('⚠️ Google Maps API key not configured. Auto-geocoding disabled.');
                 return;
             }
             
-            console.log('🗺️ Initializing map integration with API key');
-            
             // Load Google Maps API if not already loaded
             if (typeof google === 'undefined' || typeof google.maps === 'undefined') {
-                console.log('📡 Loading Google Maps API...');
                 RESBS_Property_Metabox.loadGoogleMapsAPI();
             } else {
-                console.log('✅ Google Maps API already loaded');
                 window.resbsMapsLoaded = true;
             }
             
@@ -594,14 +529,12 @@
                         if (address || city) {
                             // Wait for Google Maps API to load if needed
                             if (typeof google !== 'undefined' && typeof google.maps !== 'undefined') {
-                                console.log('🔄 Auto-geocoding address fields...');
                                 RESBS_Property_Metabox.geocodeFromFields(true);
                             } else {
                                 // Wait for API to load, then geocode
                                 var checkApi = setInterval(function() {
                                     if (typeof google !== 'undefined' && typeof google.maps !== 'undefined') {
                                         clearInterval(checkApi);
-                                        console.log('🔄 Auto-geocoding address fields (after API load)...');
                                         RESBS_Property_Metabox.geocodeFromFields(true);
                                     }
                                 }, 500);
@@ -645,7 +578,6 @@
                         if (typeof google !== 'undefined' && typeof google.maps !== 'undefined') {
                             clearInterval(waitForApi);
                             setTimeout(function() {
-                                console.log('🔄 Auto-geocoding on page load...');
                                 RESBS_Property_Metabox.geocodeFromFields(true);
                             }, 500);
                         }
@@ -674,14 +606,7 @@
             }).join(', ');
             
             if (fullAddress) {
-                if (!silent) {
-                    console.log('📍 Geocoding:', fullAddress);
-                }
                 RESBS_Property_Metabox.geocodeAddress(fullAddress, silent);
-            } else {
-                if (!silent) {
-                    console.warn('⚠️ No address fields filled to geocode');
-                }
             }
         },
 
@@ -697,8 +622,6 @@
                     setTimeout(function() {
                         RESBS_Property_Metabox.geocodeAddress(address, silent);
                     }, 2000);
-                } else if (!silent) {
-                    console.warn('⚠️ Google Maps API not loaded');
                 }
                 return;
             }
@@ -729,14 +652,6 @@
                     // Update map preview
                     RESBS_Property_Metabox.initMap(lat, lng);
                     
-                    // Log success
-                    if (!silent) {
-                        console.log('✅ Geocoding successful:', formattedAddress);
-                        console.log('📍 Coordinates:', lat, lng);
-                    } else {
-                        console.log('✅ Auto-geocoded:', lat, lng);
-                    }
-                    
                     // Show success message briefly
                     if (!silent) {
                         var $button = $('#resbs-geocode-address');
@@ -748,10 +663,7 @@
                     }
                 } else {
                     if (!silent) {
-                        console.error('❌ Geocoding failed:', status);
                         alert('Could not find coordinates for this address. Please check the address and try again.');
-                    } else {
-                        console.warn('⚠️ Auto-geocoding failed for:', address);
                     }
                 }
             });
@@ -781,12 +693,10 @@
             window.resbsMapsCallback = function() {
                 window.resbsMapsLoaded = true;
                 window.resbsMapsLoading = false;
-                console.log('✅ Google Maps API loaded');
             };
             
             script.onerror = function() {
                 window.resbsMapsLoading = false;
-                console.error('❌ Failed to load Google Maps API');
             };
             
             document.head.appendChild(script);
@@ -845,7 +755,6 @@
                 var position = window.resbsMapMarker.getPosition();
                 $('#property_latitude').val(position.lat().toFixed(6));
                 $('#property_longitude').val(position.lng().toFixed(6));
-                console.log('📍 Marker dragged to:', position.lat(), position.lng());
             });
             
             // Update coordinates when map is clicked
@@ -859,8 +768,6 @@
                 // Update input fields
                 $('#property_latitude').val(clickLat.toFixed(6));
                 $('#property_longitude').val(clickLng.toFixed(6));
-                
-                console.log('📍 Map clicked at:', clickLat, clickLng);
             });
             
             // Update map when coordinates are manually changed
@@ -901,7 +808,7 @@
                 
                 if (!isValid) {
                     e.preventDefault();
-                    console.log('Please fill in all required fields.');
+                    alert('Please fill in all required fields.');
                 }
             });
         },

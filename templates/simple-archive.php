@@ -702,7 +702,7 @@ $property_statuses = get_terms(array(
                             </div>
                             <div class="property-footer">
                                         <span class="property-type"><?php echo esc_html($property_type_name); ?></span>
-                                        <a href="<?php echo esc_url(get_permalink()); ?>" class="view-details-btn" target="_blank" onclick="console.log('Property ID: <?php echo esc_js(get_the_ID()); ?>, Permalink: <?php echo esc_js(get_permalink()); ?>')">
+                                        <a href="<?php echo esc_url(get_permalink()); ?>" class="view-details-btn" target="_blank">
                                     <?php echo esc_html__('View Details', 'realestate-booking-suite'); ?> <i class="fas fa-arrow-right"></i>
                                         </a>
                             </div>
@@ -910,11 +910,6 @@ $property_statuses = get_terms(array(
                     // Needs geocoding - will be done in JavaScript
                     $property_data['needs_geocoding'] = true;
                     $properties_without_coords[] = $property_data;
-                    
-                    // Debug: log if address string is empty
-                    if (empty($address_string)) {
-                        echo '<!-- WARNING: Property "' . esc_html($property_title) . '" has NO address string - will try location taxonomy or city -->';
-                    }
                 }
                 
                 // Add ALL properties to the array
@@ -922,24 +917,8 @@ $property_statuses = get_terms(array(
             endwhile;
             wp_reset_postdata();
             
-            // Debug output - detailed information
-            $properties_with_coords = array_filter($properties_data, function($p) { return !empty($p['lat']) && !empty($p['lng']); });
-            $properties_needing_geocode = array_filter($properties_data, function($p) { return !empty($p['needs_geocoding']) && $p['needs_geocoding']; });
-            
-            echo '<!-- DEBUG: Total properties in query: ' . absint($properties_query->found_posts) . ' -->';
-            echo '<!-- DEBUG: Total properties being added to map: ' . absint(count($properties_data)) . ' -->';
-            echo '<!-- DEBUG: Properties with valid coordinates: ' . absint(count($properties_with_coords)) . ' -->';
-            echo '<!-- DEBUG: Properties needing geocoding: ' . absint(count($properties_needing_geocode)) . ' -->';
-            
             if (count($properties_data) > 0) {
-                echo '<!-- DEBUG: All properties list -->';
-                foreach ($properties_data as $idx => $prop) {
-                    if (isset($prop['lat']) && isset($prop['lng'])) {
-                        echo '<!-- Property ' . esc_html($idx + 1) . ': ' . esc_html($prop['title']) . ' - Lat: ' . esc_html($prop['lat']) . ', Lng: ' . esc_html($prop['lng']) . ' -->';
-                    } else {
-                        echo '<!-- Property ' . esc_html($idx + 1) . ': ' . esc_html($prop['title']) . ' - Will geocode: ' . esc_html($prop['full_address']) . ' -->';
-                    }
-                }
+                // Properties data prepared for map rendering
             }
             
             // Pass data to JavaScript via filter (for wp_localize_script)

@@ -96,10 +96,12 @@ class RESBS_Admin_Contact_Messages {
         }
         
         // Get contact messages
-        // Table names are safe as they're constructed from $wpdb->prefix
+        // Table name is safe - constructed from $wpdb->prefix (no user input)
+        // Using esc_sql for table name and direct query since no user input is involved
+        $table_name_escaped = esc_sql($table_name);
         $contact_messages = $wpdb->get_results("
             SELECT cm.*, p.post_title as property_title 
-            FROM {$table_name} cm 
+            FROM `{$table_name_escaped}` cm 
             LEFT JOIN {$wpdb->posts} p ON cm.property_id = p.ID 
             ORDER BY cm.created_at DESC
         ");

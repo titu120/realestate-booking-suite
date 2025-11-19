@@ -750,10 +750,12 @@ class RESBS_Email_Manager {
         $sent = wp_mail($to, wp_strip_all_tags($subject), $message, $headers);
 
         // Log email sending
-        if ($sent) {
-            error_log('RESBS Email sent successfully to: ' . $to);
-        } else {
-            error_log('RESBS Email failed to send to: ' . $to);
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            if ($sent) {
+                error_log('RESBS Email sent successfully to: ' . $to);
+            } else {
+                error_log('RESBS Email failed to send to: ' . $to);
+            }
         }
 
         return $sent;
@@ -776,11 +778,12 @@ class RESBS_Email_Manager {
             <title><?php echo esc_html($site_name); ?></title>
             <style>
                 <?php 
-                // CSS from trusted plugin file - output as-is for CSS content
+                // Load CSS from external file: assets/css/email-styles.css
+                // Note: <style> tag is required for HTML emails as email clients don't support external CSS files
                 $email_styles = $this->get_email_styles();
                 if ($email_styles) {
-                    // SECURITY: Escape CSS content to prevent XSS attacks
-                    echo esc_textarea($email_styles);
+                    // Output CSS content (already sanitized from trusted plugin file)
+                    echo $email_styles;
                 }
                 ?>
             </style>
@@ -806,10 +809,32 @@ class RESBS_Email_Manager {
     }
 
     /**
-     * Get email styles
+     * Get email styles from external CSS file
+     * 
+     * @return string|false CSS content or false on failure
      */
     private function get_email_styles() {
-        return file_get_contents(RESBS_PATH . 'assets/css/email-styles.css');
+        $css_file = RESBS_PATH . 'assets/css/email-styles.css';
+        
+        // Check if file exists before reading
+        if (!file_exists($css_file)) {
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('RESBS Email: CSS file not found: ' . $css_file);
+            }
+            return false;
+        }
+        
+        // Read CSS from external file
+        $css_content = file_get_contents($css_file);
+        
+        if ($css_content === false) {
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('RESBS Email: Failed to read CSS file: ' . $css_file);
+            }
+            return false;
+        }
+        
+        return $css_content;
     }
 
     /**

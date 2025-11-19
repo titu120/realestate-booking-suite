@@ -166,7 +166,6 @@ window.toggleDropdown = function(dropdownId) {
         if (mapViewBtn) mapViewBtn.classList.add('active');
         if (mapToggleBtn) mapToggleBtn.classList.add('active');
         
-        console.log('Map view activated. Listings container classes:', listingsContainer ? listingsContainer.className : 'N/A');
         
         // Initialize map if using OpenStreetMap
         if (useOpenStreetMap && typeof initializeOpenStreetMap === 'function') {
@@ -200,7 +199,6 @@ window.toggleDropdown = function(dropdownId) {
         if (listViewBtn) listViewBtn.classList.add('active');
         if (mapToggleBtn) mapToggleBtn.classList.remove('active');
         
-        console.log('List view activated. Map hidden.');
     };
 
     // Show map function - Always show map when clicked
@@ -228,7 +226,6 @@ window.toggleDropdown = function(dropdownId) {
         const mapViewBtn = document.querySelector('.view-btn[onclick*="showMapView"]');
         if (mapViewBtn) mapViewBtn.classList.add('active');
         
-        console.log('Map button clicked - Map shown');
         
         // Initialize map if using OpenStreetMap
         if (useOpenStreetMap && typeof initializeOpenStreetMap === 'function') {
@@ -268,7 +265,6 @@ window.toggleDropdown = function(dropdownId) {
         const listViewBtn = document.querySelector('.view-btn[onclick*="showListView"]');
         if (listViewBtn) listViewBtn.classList.add('active');
         
-        console.log('Grid button clicked - Map hidden');
     };
 
     // Highlight property function (for map markers)
@@ -342,7 +338,6 @@ window.highlightProperty = function(propertyId) {
     // Reset all filters to default - Make it global
     window.resetAllFilters = function() {
         try {
-            console.log('resetAllFilters called - redirecting to base URL');
             
             // Get the base URL without any query parameters
             const baseUrl = window.location.pathname;
@@ -353,7 +348,6 @@ window.highlightProperty = function(propertyId) {
             window.location.href = baseUrl + '?reset=' + timestamp;
             
         } catch (error) {
-            console.error('Error resetting filters:', error);
             // Fallback: reload page without query params
             window.location.href = window.location.pathname;
         }
@@ -395,7 +389,6 @@ window.highlightProperty = function(propertyId) {
             
             const propertyId = favoriteBtn.getAttribute('data-property-id');
             if (!propertyId) {
-                console.error('Property ID not found');
                 return;
             }
             
@@ -416,7 +409,6 @@ window.highlightProperty = function(propertyId) {
             
             // Make AJAX request
             if (!ajaxUrl || !favoritesNonce) {
-                console.error('AJAX URL or nonce not available');
                 return;
             }
             
@@ -485,8 +477,6 @@ window.highlightProperty = function(propertyId) {
                 }
             })
             .catch(error => {
-                console.error('Favorite button error:', error);
-                
                 // Revert visual state on error
                 if (isFavorited) {
                     favoriteBtn.classList.add('favorited');
@@ -554,17 +544,11 @@ window.highlightProperty = function(propertyId) {
 
         // Initialize OpenStreetMap with Leaflet
         window.initializeOpenStreetMap = function() {
-            console.log('=== initializeOpenStreetMap called ===');
-            console.log('Leaflet.js loaded:', typeof L !== 'undefined');
-            
             if (typeof L === 'undefined') {
-                console.warn('⚠️ Leaflet.js is not loaded yet, will wait...');
                 setTimeout(function() {
                     if (typeof L !== 'undefined') {
-                        console.log('✅ Leaflet.js loaded, initializing map...');
                         window.initializeOpenStreetMap();
                     } else {
-                        console.error('❌ Leaflet.js failed to load after additional wait');
                         const mapContainer = document.getElementById('googleMap');
                         if (mapContainer && mapContainer.offsetParent !== null) {
                             showMapError('Map library failed to load. Please refresh the page.');
@@ -576,13 +560,11 @@ window.highlightProperty = function(propertyId) {
             
             const mapContainer = document.getElementById('googleMap');
             if (!mapContainer) {
-                console.error('❌ Map container (#googleMap) not found in DOM');
                 return;
             }
             
             // Check if map already exists
             if (window.map) {
-                console.log('✅ Map already initialized, skipping...');
                 setTimeout(function() {
                     if (window.map) {
                         window.map.invalidateSize();
@@ -648,7 +630,6 @@ window.highlightProperty = function(propertyId) {
             }
             
             try {
-                console.log('🗺️ Creating OpenStreetMap with Leaflet...');
                 const mapZoomLevel = window.resbsMapSettings ? window.resbsMapSettings.zoom : mapZoom;
                 
                 window.map = L.map('googleMap', {
@@ -661,8 +642,6 @@ window.highlightProperty = function(propertyId) {
                     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
                     maxZoom: 19
                 }).addTo(window.map);
-                
-                console.log('✅ OpenStreetMap loaded successfully');
                 
                 // Add markers for properties with coordinates
                 if (propertiesWithCoords.length > 0) {
@@ -685,7 +664,6 @@ window.highlightProperty = function(propertyId) {
                 window.mapInitialized = true;
                 
             } catch (error) {
-                console.error('❌ Error initializing OpenStreetMap:', error);
                 showMapError('Error initializing map: ' + error.message);
             }
         };
@@ -844,7 +822,6 @@ window.highlightProperty = function(propertyId) {
                     setTimeout(geocodeNext, geocodeDelay);
                 })
                 .catch(error => {
-                    console.warn('⚠️ Geocoding error:', error);
                     geocodeIndex++;
                     setTimeout(geocodeNext, geocodeDelay);
                 });

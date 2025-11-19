@@ -2204,7 +2204,9 @@ class RESBS_Property_Metabox {
                 );
                 $value = isset($_POST[$form_field]) ? wp_kses($_POST[$form_field], $allowed_html) : '';
                 // Debug: Log iframe field saving
-                error_log('Saving iframe field: ' . $form_field . ' = ' . substr($value, 0, 100) . '...');
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    error_log('RESBS: Saving iframe field: ' . $form_field . ' = ' . substr($value, 0, 100) . '...');
+                }
             } elseif ($form_field === 'property_video_embed') {
                 // Allow iframe tags with specific attributes for video embeds
                 $allowed_html = array(
@@ -2222,7 +2224,9 @@ class RESBS_Property_Metabox {
                 );
                 $value = isset($_POST[$form_field]) ? wp_kses($_POST[$form_field], $allowed_html) : '';
                 // Debug: Log video embed field saving
-                error_log('Saving video embed field: ' . $form_field . ' = ' . substr($value, 0, 100) . '...');
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    error_log('RESBS: Saving video embed field: ' . $form_field . ' = ' . substr($value, 0, 100) . '...');
+                }
             } elseif ($form_field === 'property_virtual_tour_description' || 
                       $form_field === 'property_contact_success_message' ||
                       $form_field === 'property_mortgage_loan_terms' ||
@@ -2255,13 +2259,13 @@ class RESBS_Property_Metabox {
                 if ($result !== false) {
                     $saved_count++;
                     // Debug: Log successful save
-                    if ($form_field === 'property_map_iframe') {
-                        error_log('Iframe field saved successfully');
+                    if (defined('WP_DEBUG') && WP_DEBUG && $form_field === 'property_map_iframe') {
+                        error_log('RESBS: Iframe field saved successfully');
                     }
                 } else {
                     // Debug: Log save failure
-                    if ($form_field === 'property_map_iframe') {
-                        error_log('Failed to save iframe field');
+                    if (defined('WP_DEBUG') && WP_DEBUG && $form_field === 'property_map_iframe') {
+                        error_log('RESBS: Failed to save iframe field');
                     }
                 }
             }
@@ -2285,10 +2289,12 @@ class RESBS_Property_Metabox {
             );
             $iframe_value = wp_kses($_POST['property_map_iframe'], $allowed_html);
             $result = update_post_meta($post_id, '_property_map_iframe', $iframe_value);
-            if ($result !== false) {
-                error_log('Iframe field saved directly: ' . substr($iframe_value, 0, 100) . '...');
-            } else {
-                error_log('Failed to save iframe field directly');
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                if ($result !== false) {
+                    error_log('RESBS: Iframe field saved directly: ' . substr($iframe_value, 0, 100) . '...');
+                } else {
+                    error_log('RESBS: Failed to save iframe field directly');
+                }
             }
         }
         
@@ -2330,14 +2336,20 @@ class RESBS_Property_Metabox {
                 if ($result !== false) {
                     $saved_count++;
                 }
-                error_log('RESBS: Gallery updated with ' . count($gallery_image_ids) . ' images: ' . implode(',', $gallery_image_ids));
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    error_log('RESBS: Gallery updated with ' . count($gallery_image_ids) . ' images: ' . implode(',', $gallery_image_ids));
+                }
             }
         }
 
         if (!empty($_FILES['floor_plans_upload']['name'][0])) {
-            error_log('RESBS: Processing floor plans upload - ' . count($_FILES['floor_plans_upload']['name']) . ' files');
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('RESBS: Processing floor plans upload - ' . count($_FILES['floor_plans_upload']['name']) . ' files');
+            }
             $uploaded_ids = $this->handle_file_uploads($post_id, 'floor_plans_upload', '_property_floor_plans');
-            error_log('RESBS: Floor plans upload result - ' . print_r($uploaded_ids, true));
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('RESBS: Floor plans upload result - ' . print_r($uploaded_ids, true));
+            }
         }
 
         // Handle media uploads with better error handling
@@ -2375,7 +2387,9 @@ class RESBS_Property_Metabox {
      * Handle file uploads
      */
     private function handle_file_uploads($post_id, $field_name, $meta_key) {
-        error_log('RESBS: Starting file upload for ' . $field_name);
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('RESBS: Starting file upload for ' . $field_name);
+        }
         
         require_once(ABSPATH . 'wp-admin/includes/image.php');
         require_once(ABSPATH . 'wp-admin/includes/file.php');
@@ -2426,7 +2440,9 @@ class RESBS_Property_Metabox {
             $all_attachments = array_merge($existing, $uploaded_ids);
             update_post_meta($post_id, $meta_key, $all_attachments);
             
-            error_log('RESBS: Updated ' . $meta_key . ' with ' . count($all_attachments) . ' total attachments');
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('RESBS: Updated ' . $meta_key . ' with ' . count($all_attachments) . ' total attachments');
+            }
         }
         
         return $uploaded_ids;
@@ -2534,14 +2550,14 @@ class RESBS_Property_Metabox {
         check_ajax_referer('resbs_metabox_nonce', 'nonce');
         
         if (!current_user_can('upload_files')) {
-            wp_send_json_error(esc_html__('You do not have permission to upload files.', 'realestate-booking-suite'));
+            wp_send_json_error(array('message' => esc_html__('You do not have permission to upload files.', 'realestate-booking-suite')));
         }
         
         // If post_id is provided, verify user can edit that post
         $post_id = isset($_POST['post_id']) ? intval($_POST['post_id']) : 0;
         if ($post_id > 0) {
             if (!current_user_can('edit_post', $post_id)) {
-                wp_send_json_error(esc_html__('You do not have permission to upload files to this property.', 'realestate-booking-suite'));
+                wp_send_json_error(array('message' => esc_html__('You do not have permission to upload files to this property.', 'realestate-booking-suite')));
             }
         }
         
@@ -2614,32 +2630,32 @@ class RESBS_Property_Metabox {
         check_ajax_referer('resbs_metabox_nonce', 'nonce');
         
         if (!current_user_can('delete_posts')) {
-            wp_send_json_error(esc_html__('You do not have permission to delete files.', 'realestate-booking-suite'));
+            wp_send_json_error(array('message' => esc_html__('You do not have permission to delete files.', 'realestate-booking-suite')));
         }
         
         $attachment_id = isset($_POST['attachment_id']) ? intval($_POST['attachment_id']) : 0;
         
         if (!$attachment_id) {
-            wp_send_json_error(esc_html__('Invalid attachment ID.', 'realestate-booking-suite'));
+            wp_send_json_error(array('message' => esc_html__('Invalid attachment ID.', 'realestate-booking-suite')));
         }
         
         // Check if user can delete this specific attachment
         $attachment = get_post($attachment_id);
         if (!$attachment) {
-            wp_send_json_error(esc_html__('Attachment not found.', 'realestate-booking-suite'));
+            wp_send_json_error(array('message' => esc_html__('Attachment not found.', 'realestate-booking-suite')));
         }
         
         // If attachment is attached to a post, verify user can edit that post
         if ($attachment->post_parent > 0) {
             if (!current_user_can('edit_post', $attachment->post_parent)) {
-                wp_send_json_error(esc_html__('You do not have permission to delete this file.', 'realestate-booking-suite'));
+                wp_send_json_error(array('message' => esc_html__('You do not have permission to delete this file.', 'realestate-booking-suite')));
             }
         }
         
         if (wp_delete_attachment($attachment_id, true)) {
             wp_send_json_success();
         } else {
-            wp_send_json_error(esc_html__('Failed to delete attachment.', 'realestate-booking-suite'));
+            wp_send_json_error(array('message' => esc_html__('Failed to delete attachment.', 'realestate-booking-suite')));
         }
     }
 
@@ -2652,24 +2668,28 @@ class RESBS_Property_Metabox {
         $post_id = intval($_POST['post_id']);
         
         if (!$post_id) {
-            wp_send_json_error(esc_html__('Invalid post ID', 'realestate-booking-suite'));
+            wp_send_json_error(array('message' => esc_html__('Invalid post ID', 'realestate-booking-suite')));
         }
         
         // Check if user can edit this post
         if (!current_user_can('edit_post', $post_id)) {
-            wp_send_json_error(esc_html__('You do not have permission to access this property.', 'realestate-booking-suite'));
+            wp_send_json_error(array('message' => esc_html__('You do not have permission to access this property.', 'realestate-booking-suite')));
         }
         
         // Get gallery images
         $gallery_images = get_post_meta($post_id, '_property_gallery', true);
         $gallery_html = '';
         
-        error_log('RESBS: Gallery images for post ' . $post_id . ': ' . print_r($gallery_images, true));
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('RESBS: Gallery images for post ' . $post_id . ': ' . print_r($gallery_images, true));
+        }
         
         if (!empty($gallery_images) && is_array($gallery_images)) {
             foreach ($gallery_images as $image_id) {
                 $image_url = wp_get_attachment_image_url($image_id, 'thumbnail');
-                error_log('RESBS: Image ID ' . $image_id . ' URL: ' . $image_url);
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    error_log('RESBS: Image ID ' . $image_id . ' URL: ' . $image_url);
+                }
                 if ($image_url) {
                     $gallery_html .= '<div class="resbs-gallery-item" data-id="' . esc_attr($image_id) . '">';
                     $gallery_html .= '<img src="' . esc_url($image_url) . '" alt="">';
@@ -2679,7 +2699,9 @@ class RESBS_Property_Metabox {
             }
         }
         
-        error_log('RESBS: Gallery HTML: ' . $gallery_html);
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('RESBS: Gallery HTML: ' . $gallery_html);
+        }
         
         // Get floor plans
         $floor_plans = get_post_meta($post_id, '_property_floor_plans', true);

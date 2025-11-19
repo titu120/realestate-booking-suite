@@ -677,7 +677,9 @@ class RESBS_Security {
             'details' => $sanitized_details
         );
         
-        error_log('RESBS Security Event: ' . wp_json_encode($log_entry, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT));
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('RESBS Security Event: ' . wp_json_encode($log_entry, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT));
+        }
     }
 
     /**

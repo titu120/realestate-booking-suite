@@ -46,7 +46,7 @@ function switchTab(tabName) {
 
     // Location tab functionality (no map initialization needed)
     if (tabName === 'location') {
-        console.log('Location tab clicked');
+        // Location tab activated
     }
 }
 
@@ -58,13 +58,8 @@ function toggleMobileMenu() {
 
 // Filter Amenities
 function filterAmenities(category) {
-    console.log('Filtering amenities by category:', category);
-    
     const items = document.querySelectorAll('.amenity-item');
     const buttons = document.querySelectorAll('.filter-btn');
-    
-    console.log('Found items:', items.length);
-    console.log('Found buttons:', buttons.length);
     
     // Update button styles
     buttons.forEach(btn => {
@@ -77,16 +72,12 @@ function filterAmenities(category) {
     if (clickedButton) {
         clickedButton.classList.add('active', 'filter-active');
         clickedButton.classList.remove('bg-gray-100', 'text-gray-700');
-        console.log('Updated button style for:', category);
     }
     
     // Filter items with better layout control
-    let visibleCount = 0;
     items.forEach(item => {
         const itemCategory = item.dataset.category;
         const itemText = item.textContent.trim();
-        
-        console.log('Item:', itemText, 'Category:', itemCategory, 'Filter:', category);
         
         // Skip items with empty text
         if (!itemText || itemText === '') {
@@ -106,7 +97,6 @@ function filterAmenities(category) {
             item.style.margin = '';
             item.style.padding = '';
             item.style.overflow = 'visible';
-            visibleCount++;
         } else {
             item.style.display = 'none';
             item.style.visibility = 'hidden';
@@ -116,8 +106,6 @@ function filterAmenities(category) {
             item.style.overflow = 'hidden';
         }
     });
-    
-    console.log('Visible items after filtering:', visibleCount);
 }
 
 // Image Viewer - Enhanced with fallback
@@ -186,7 +174,6 @@ function submitContactForm(e) {
     
     // Check if AJAX data is available
     if (typeof resbs_ajax === 'undefined') {
-        console.error('AJAX data not available');
         alert('Form submission error. Please refresh the page and try again.');
         return;
     }
@@ -197,7 +184,6 @@ function submitContactForm(e) {
     // Get nonce from form field (more secure than using global variable)
     const nonceField = e.target.querySelector('input[name="resbs_contact_form_nonce"]');
     if (!nonceField || !nonceField.value) {
-        console.error('Nonce field not found');
         alert('Security check failed. Please refresh the page and try again.');
         return;
     }
@@ -216,27 +202,18 @@ function submitContactForm(e) {
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Sending...';
     submitBtn.disabled = true;
     
-    console.log('Submitting contact form...', {
-        action: 'submit_contact_form',
-        nonce: resbs_ajax.nonce,
-        property_id: resbs_ajax.property_id,
-        ajax_url: resbs_ajax.ajax_url
-    });
-    
     // Submit form via AJAX
     fetch(resbs_ajax.ajax_url, {
         method: 'POST',
         body: formData
     })
     .then(response => {
-        console.log('Response received:', response);
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }
         return response.json();
     })
     .then(data => {
-        console.log('Response data:', data);
         if (data.success) {
             // Show success message
             alert(data.data.message);
@@ -250,7 +227,6 @@ function submitContactForm(e) {
         }
     })
     .catch(error => {
-        console.error('AJAX Error:', error);
         // Fallback for localhost or network issues
         alert('Thank you for your message! (Note: This is a demo - emails are not actually sent on localhost)');
         e.target.reset();
@@ -298,13 +274,12 @@ function shareProperty() {
             url: window.location.href
         });
     } else {
-        console.log('Share link copied to clipboard!');
         navigator.clipboard.writeText(window.location.href);
     }
 }
 
 function saveFavorite() {
-    console.log('Property saved to your favorites!');
+    // Property saved to favorites
 }
 
 function printPage() {
@@ -312,24 +287,24 @@ function printPage() {
 }
 
 function exportPDF() {
-    console.log('PDF export will be downloaded shortly...');
+    // PDF export functionality
 }
 
 function downloadFloorPlan() {
-    console.log('Floor plan downloading...');
+    // Floor plan download functionality
 }
 
 function requestCustomPlan() {
-    console.log('Request sent! Our team will contact you shortly.');
+    // Custom plan request functionality
 }
 
 function scheduleTour() {
-    console.log('Tour scheduling form will open...');
+    // Tour scheduling functionality
 }
 
 // New functions for additional tabs
 function downloadAllImages() {
-    console.log('Downloading all property images...');
+    // Download all images functionality
 }
 
 function shareMedia() {
@@ -340,7 +315,6 @@ function shareMedia() {
             url: window.location.href
         });
     } else {
-        console.log('Media share link copied to clipboard!');
         navigator.clipboard.writeText(window.location.href);
     }
 }
@@ -350,7 +324,6 @@ function submitBookingForm(e) {
     
     // Check if AJAX data is available
     if (typeof resbs_ajax === 'undefined') {
-        console.error('AJAX data not available');
         alert('Form submission error. Please refresh the page and try again.');
         return;
     }
@@ -361,7 +334,6 @@ function submitBookingForm(e) {
     // Get nonce from form field (more secure than using global variable)
     const nonceField = e.target.querySelector('input[name="resbs_booking_form_nonce"]');
     if (!nonceField || !nonceField.value) {
-        console.error('Nonce field not found');
         alert('Security check failed. Please refresh the page and try again.');
         return;
     }
@@ -436,14 +408,12 @@ function submitBookingForm(e) {
         body: formData
     })
     .then(response => {
-        console.log('Booking response received:', response);
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }
         return response.json();
     })
     .then(data => {
-        console.log('Booking response data:', data);
         if (data.success) {
             // Show success message
             alert(data.data.message);
@@ -455,7 +425,6 @@ function submitBookingForm(e) {
         }
     })
     .catch(error => {
-        console.error('Booking AJAX Error:', error);
         // Fallback for localhost or network issues
         alert('Thank you for your booking request! (Note: This is a demo - emails are not actually sent on localhost)');
         e.target.reset();

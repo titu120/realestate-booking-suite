@@ -7,7 +7,6 @@
 // Test function to verify JavaScript is loading
 window.testJavaScript = function() {
     alert('JavaScript is working!');
-    console.log('JavaScript test function called');
 }
 
 // Gallery images - Will be populated by PHP
@@ -293,12 +292,6 @@ window.requestVirtualTour = function() {
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Single Property Template JavaScript loaded');
-    
-    // Test if functions are working
-    console.log('switchTab function available:', typeof window.switchTab === 'function');
-    console.log('All tab buttons found:', document.querySelectorAll('.tab-button').length);
-    
     // Initialize mortgage calculator
     if (typeof window.calculateMortgage === 'function') {
         window.calculateMortgage();
@@ -313,11 +306,8 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.tab-button').forEach(button => {
         button.addEventListener('click', function() {
             const tabName = this.getAttribute('data-tab');
-            console.log('Tab clicked:', tabName);
             if (typeof window.switchTab === 'function') {
                 window.switchTab(tabName);
-            } else {
-                console.error('switchTab function not found!');
             }
         });
     });

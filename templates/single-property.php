@@ -1942,11 +1942,7 @@
                                         $default_term = $mortgage_default_loan_term ? $mortgage_default_loan_term : $mortgage_default_loan_term_global;
                                         
                                         // Debug output (remove this after testing)
-                                        if (current_user_can('manage_options')) {
-                                            echo '<!-- DEBUG: Dashboard loan terms: ' . esc_html($loan_terms_raw) . ' -->';
-                                            echo '<!-- DEBUG: Parsed terms: ' . esc_html(print_r($loan_terms, true)) . ' -->';
-                                            echo '<!-- DEBUG: Default term: ' . esc_html($default_term) . ' -->';
-                                        }
+                                        // Debug comments removed for production
                                         
                                         // Display options from dashboard settings
                                         foreach ($loan_terms as $term):

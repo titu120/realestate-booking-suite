@@ -168,6 +168,15 @@ class RESBS_Elementor_Widgets {
             'all'
         );
         
+        // Load Search Widget CSS
+        wp_enqueue_style(
+            'resbs-elementor-search-widget',
+            RESBS_URL . 'assets/css/elementor-search-widget.css',
+            array('resbs-elementor', 'elementor-frontend', 'font-awesome'),
+            '1.0.0',
+            'all'
+        );
+        
         // Add comprehensive inline CSS with !important to ensure it applies
         $critical_css = $this->get_critical_css();
         wp_add_inline_style('resbs-elementor', $critical_css);
@@ -762,6 +771,15 @@ class RESBS_Elementor_Widgets {
             RESBS_URL . 'assets/js/elementor.js',
             array('jquery', 'elementor-frontend', 'swiper'),
             '1.2.0',
+            true
+        );
+        
+        // Enqueue listings widget JavaScript
+        wp_enqueue_script(
+            'resbs-elementor-listings-widget',
+            RESBS_URL . 'assets/js/elementor-listings-widget.js',
+            array('jquery', 'elementor-frontend'),
+            '1.0.0',
             true
         );
 

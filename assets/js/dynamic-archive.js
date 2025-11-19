@@ -14,24 +14,6 @@ jQuery(document).ready(function($) {
     var mapMarkers = $('#mapMarkers');
     var isLoading = false;
     
-    // Handle form submission with AJAX - DISABLED to allow price filter to work
-    // searchForm.on('submit', function(e) {
-    //     // Check if this is a price filter submission
-    //     var isPriceFilter = $(e.target).find('input[name="min_price"], input[name="max_price"]').length > 0;
-    //     
-    //     if (isPriceFilter) {
-    //         // Allow normal form submission for price filters
-    //         return true;
-    //     }
-    //     
-    //     // Prevent default for other filters and use AJAX
-    //     e.preventDefault();
-    //     
-    //     if (isLoading) return;
-    //     
-    //     performSearch();
-    // });
-    
     // Handle filter changes
     $('.filter-option').on('click', function() {
         if (isLoading) return;

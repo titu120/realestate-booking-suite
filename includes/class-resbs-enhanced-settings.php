@@ -212,12 +212,40 @@ class RESBS_Enhanced_Settings {
     /**
      * Enqueue admin scripts
      */
-    public function enqueue_admin_scripts() {
+    public function enqueue_admin_scripts($hook) {
+        // Only load on settings page
+        if ($hook !== 'resbs-main-menu_page_resbs-settings') {
+            return;
+        }
+        
+        // Enqueue enhanced settings CSS
+        wp_enqueue_style(
+            'resbs-enhanced-settings',
+            RESBS_URL . 'assets/css/enhanced-settings.css',
+            array(),
+            '1.0.0'
+        );
+        
         // Minimal enqueue - just what we need
         wp_enqueue_script('jquery');
         
         // Make ajaxurl available globally
         wp_add_inline_script('jquery', 'var ajaxurl = "' . esc_js(admin_url('admin-ajax.php')) . '";');
+        
+        // Enqueue enhanced settings JS
+        wp_enqueue_script(
+            'resbs-enhanced-settings',
+            RESBS_URL . 'assets/js/enhanced-settings.js',
+            array('jquery'),
+            '1.0.0',
+            true
+        );
+        
+        // Localize script with nonces
+        wp_localize_script('resbs-enhanced-settings', 'resbsEnhancedSettings', array(
+            'nonceLoadTab' => wp_create_nonce('resbs_load_tab_content'),
+            'nonceCreatePage' => wp_create_nonce('resbs_create_page_nonce')
+        ));
     }
     
     /**
@@ -296,526 +324,6 @@ class RESBS_Enhanced_Settings {
             </div>
         </div>
         
-        <style>
-        /* Estatik-style Settings Design */
-        .resbs-enhanced-settings {
-            margin: 0;
-            background: #f1f1f1;
-        }
-        
-        /* Header - Modern Professional */
-        .resbs-settings-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 30px 40px;
-            margin: -20px -20px 30px -20px;
-            color: white;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-        }
-        
-        .resbs-header-left h1 {
-            margin: 0;
-            font-size: 28px;
-            font-weight: 300;
-            color: white;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        
-        .resbs-plugin-branding {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .resbs-logo-container {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            background: rgba(255,255,255,0.1);
-            padding: 10px 15px;
-            border-radius: 8px;
-            backdrop-filter: blur(10px);
-        }
-        
-        .resbs-logo-icon {
-            font-size: 24px;
-            color: white;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-        
-        .resbs-plugin-name {
-            font-size: 16px;
-            font-weight: 600;
-            color: white;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        
-        .resbs-plugin-version {
-            font-size: 12px;
-            color: rgba(255,255,255,0.8);
-            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
-        }
-        
-        /* Container Layout - Modern Card Style */
-        .resbs-settings-container {
-            display: flex;
-            margin: 30px;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-            overflow: hidden;
-            min-height: 600px;
-        }
-        
-        /* Sidebar - Modern Professional */
-        .resbs-settings-sidebar {
-            width: 250px;
-            background: linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%);
-            border-right: 1px solid #e9ecef;
-        }
-        
-        .resbs-settings-nav {
-            padding: 0;
-        }
-        
-        .resbs-nav-tabs {
-            list-style: none;
-            margin: 0;
-            padding: 20px 0;
-        }
-        
-        .resbs-nav-item {
-            margin: 0;
-        }
-        
-        .resbs-nav-link {
-            display: block;
-            padding: 15px 25px;
-            text-decoration: none;
-            color: #6c757d;
-            font-size: 14px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            position: relative;
-            border-left: 3px solid transparent;
-        }
-        
-        .resbs-nav-link:hover {
-            background: rgba(102, 126, 234, 0.1);
-            color: #667eea;
-            border-left-color: rgba(102, 126, 234, 0.3);
-        }
-        
-        .resbs-nav-link.active {
-            background: rgba(102, 126, 234, 0.15);
-            color: #667eea;
-            font-weight: 600;
-            border-left-color: #667eea;
-        }
-        
-        .resbs-nav-text {
-            font-size: 14px;
-        }
-        
-        /* Content Area - Modern Professional */
-        .resbs-settings-content {
-            flex: 1;
-            background: white;
-            padding: 40px;
-            min-height: 600px;
-        }
-        
-        .resbs-settings-content h2 {
-            margin: 0 0 30px 0;
-            font-size: 24px;
-            font-weight: 300;
-            color: #2c3e50;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #e9ecef;
-            position: relative;
-        }
-        
-        .resbs-settings-content h2::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            width: 50px;
-            height: 2px;
-            background: linear-gradient(90deg, #667eea, #764ba2);
-        }
-        
-        /* Form Styling - Simple WordPress Table Style */
-        .resbs-settings-content .form-table {
-            margin-top: 0;
-        }
-        
-        .resbs-settings-content .form-table th {
-            width: 200px;
-            padding: 20px 10px 20px 0;
-            font-weight: 600;
-        }
-        
-        .resbs-settings-content .form-table td {
-            padding: 15px 10px;
-        }
-        
-        .resbs-settings-content .form-table fieldset {
-            margin: 0;
-            padding: 0;
-            border: none;
-        }
-        
-        .resbs-settings-content .form-table fieldset label {
-            display: block;
-            margin-bottom: 8px;
-        }
-        
-        .resbs-color-hex {
-            font-family: 'Courier New', monospace;
-            text-transform: uppercase;
-        }
-        
-        
-        /* Layout Options - Simple Style */
-        .resbs-layout-options {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-            margin-top: 10px;
-        }
-        
-        .resbs-layout-option {
-            border: 1px solid #ddd;
-            border-radius: 3px;
-            padding: 15px;
-            text-align: center;
-            cursor: pointer;
-            transition: none;
-            min-width: 100px;
-            background: #fff;
-        }
-        
-        .resbs-layout-option:hover {
-            border-color: #5b9dd9;
-        }
-        
-        .resbs-layout-option.selected {
-            border-color: #00a0d2;
-            background: #f0f8fc;
-        }
-        
-        .resbs-layout-preview {
-            font-weight: bold;
-            margin-bottom: 8px;
-            color: #333;
-            font-size: 14px;
-        }
-        
-        /* Checkbox Groups */
-        .resbs-checkbox-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            margin-top: 10px;
-        }
-        
-        /* Checkbox and Radio Styling - Modern with Clear Indicators */
-        .resbs-checkbox-group {
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-            margin-top: 15px;
-        }
-        
-        
-        /* Page Creation Cards - Simple Style */
-        .resbs-page-creation-card {
-            background: #f9f9f9;
-            border: 1px solid #ddd;
-            border-radius: 3px;
-            padding: 15px;
-            margin: 15px 0;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        
-        .resbs-page-icon {
-            width: 32px;
-            height: 32px;
-            background: #00a0d2;
-            border-radius: 3px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 16px;
-        }
-        
-        .resbs-page-info h4 {
-            margin: 0 0 5px 0;
-            color: #23282d;
-            font-size: 14px;
-        }
-        
-        .resbs-page-info p {
-            margin: 0;
-            color: #666;
-            font-size: 13px;
-        }
-        
-        .resbs-create-page-btn {
-            background: #00a0d2;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 3px;
-            cursor: pointer;
-            font-size: 13px;
-        }
-        
-        .resbs-create-page-btn:hover {
-            background: #0085ba;
-        }
-        
-        /* Save Button - WordPress Style */
-        .resbs-save-button {
-            background: #2271b1;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 400;
-        }
-        
-        .resbs-save-button:hover {
-            background: #135e96;
-        }
-        
-        /* Description Text - Simple */
-        .resbs-description {
-            font-size: 13px;
-            color: #646970;
-            margin-top: 6px;
-            line-height: 1.5;
-        }
-        
-        /* Pro Tag - Simple */
-        .resbs-pro-tag {
-            background: #f0b849;
-            color: #23282d;
-            font-size: 11px;
-            padding: 2px 6px;
-            border-radius: 3px;
-            margin-left: 8px;
-            font-weight: 600;
-        }
-        
-        /* Success Messages */
-        .notice.notice-success {
-            background: #d1edcc;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-            border-radius: 3px;
-            padding: 12px;
-            margin: 15px 0;
-        }
-        
-        
-        /* Responsive Design */
-        @media (max-width: 1200px) {
-            .resbs-settings-container {
-                flex-direction: column;
-            }
-            
-            .resbs-settings-sidebar {
-                width: 100%;
-            }
-            
-            .resbs-nav-tabs {
-                display: flex;
-                flex-wrap: wrap;
-            }
-            
-            .resbs-nav-item {
-                flex: 1;
-                min-width: 150px;
-            }
-            
-            .resbs-nav-link {
-                border-bottom: none;
-                border-right: 1px solid #e1e1e1;
-            }
-            
-        }
-        
-        
-        /* Loading animation */
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        </style>
-        
-        <script>
-        // MINIMAL WORKING VERSION
-        jQuery(document).ready(function($) {
-            console.log('=== RESBS MINIMAL JS LOADED ===');
-            
-            // Test if jQuery and basic elements exist
-            console.log('jQuery version:', $.fn.jquery);
-            console.log('Nav links found:', $('.resbs-nav-link').length);
-            console.log('Content area found:', $('.resbs-settings-content').length);
-            
-            // Tab switching
-            $('.resbs-nav-link').on('click', function(e) {
-                e.preventDefault();
-                console.log('=== TAB CLICKED ===');
-                
-                // Get tab data
-                var tab = $(this).data('tab');
-                console.log('Tab data:', tab);
-                
-                // Don't reload if same tab
-                if ($(this).hasClass('active')) {
-                    console.log('Same tab, skipping');
-                    return;
-                }
-                
-                // Update active state
-                $('.resbs-nav-link').removeClass('active');
-                $(this).addClass('active');
-                
-                // Show loading spinner with minimum time
-                var loadingStartTime = Date.now();
-                $('.resbs-settings-content').html('<div style="text-align: center; padding: 30px;"><div style="display: inline-block; width: 30px; height: 30px; border: 3px solid #f3f3f3; border-top: 3px solid #00a0d2; border-radius: 50%; animation: spin 1s linear infinite;"></div><p style="margin-top: 15px; font-size: 14px;">Loading...</p></div>');
-                
-                // Load tab content via AJAX
-                $.post(ajaxurl, {
-                    action: 'resbs_load_tab_content',
-                    tab: tab,
-                    nonce: '<?php echo esc_js(wp_create_nonce('resbs_load_tab_content')); ?>'
-                })
-                .done(function(response) {
-                    var loadingTime = Date.now() - loadingStartTime;
-                    var minLoadingTime = 500; // Minimum 500ms loading time
-                    
-                    if (response.success) {
-                        // Ensure minimum loading time for smooth UX
-                        setTimeout(function() {
-                            $('.resbs-settings-content').html(response.data);
-                        }, Math.max(0, minLoadingTime - loadingTime));
-                    } else {
-                        setTimeout(function() {
-                            $('.resbs-settings-content').html('<div class="notice notice-error"><p>Error loading tab content.</p></div>');
-                        }, Math.max(0, minLoadingTime - loadingTime));
-                    }
-                })
-                .fail(function(xhr, status, error) {
-                    var loadingTime = Date.now() - loadingStartTime;
-                    var minLoadingTime = 500;
-                    
-                    setTimeout(function() {
-                        $('.resbs-settings-content').html('<div class="notice notice-error"><p>AJAX Error: ' + error + '</p></div>');
-                    }, Math.max(0, minLoadingTime - loadingTime));
-                });
-            });
-            
-            console.log('=== EVENT HANDLERS ATTACHED ===');
-            
-            // Enhanced Color Picker Functionality
-            function updateColorHex(colorInput, hexInput) {
-                var color = colorInput.val();
-                hexInput.val(color.toUpperCase());
-            }
-            
-            // Initialize color pickers
-            $('input[type="color"]').each(function() {
-                var $colorInput = $(this);
-                var $hexInput = $colorInput.siblings('.resbs-color-hex');
-                
-                // Update on color input change
-                $colorInput.on('input change', function() {
-                    updateColorHex($colorInput, $hexInput);
-                });
-                
-                // Update on hex input change
-                $hexInput.on('input', function() {
-                    var hex = $(this).val();
-                    if (/^#[0-9A-F]{6}$/i.test(hex)) {
-                        $colorInput.val(hex);
-                    }
-                });
-                
-                // Reset button
-                $colorInput.siblings('.resbs-color-reset').on('click', function() {
-                    var defaultColor = $(this).data('default');
-                    $colorInput.val(defaultColor);
-                    updateColorHex($colorInput, $hexInput);
-                });
-            });
-            
-            // Handle Create Page button
-            $(document).on('click', '.resbs-create-page-btn', function(e) {
-                e.preventDefault();
-                var $button = $(this);
-                var pageType = $button.data('page-type');
-                var originalText = $button.text();
-                
-                if (!pageType) {
-                    alert('Error: Page type not specified');
-                    return;
-                }
-                
-                // Disable button and show loading
-                $button.prop('disabled', true).text('Creating...');
-                
-                $.ajax({
-                    url: ajaxurl,
-                    type: 'POST',
-                    data: {
-                        action: 'resbs_create_page',
-                        page_type: pageType,
-                        nonce: '<?php echo esc_js(wp_create_nonce('resbs_create_page_nonce')); ?>'
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            // Show success message
-                            var $message = $('<div>').addClass('notice notice-success inline');
-                            $message.append($('<p>').text(response.data.message));
-                            if (response.data.view_url && response.data.edit_url) {
-                                var $links = $('<p>');
-                                $links.append($('<a>').attr('href', response.data.view_url).attr('target', '_blank').text('View Page'));
-                                $links.append(' | ');
-                                $links.append($('<a>').attr('href', response.data.edit_url).text('Edit Page'));
-                                $message.append($links);
-                            }
-                            
-                            $button.closest('td').append($message);
-                            $button.hide();
-                            
-                            // Reload page after 2 seconds to show updated info
-                            setTimeout(function() {
-                                location.reload();
-                            }, 2000);
-                        } else {
-                            alert('Error: ' + (response.data.message || 'Failed to create page'));
-                            $button.prop('disabled', false).text(originalText);
-                        }
-                    },
-                    error: function() {
-                        alert('Error: Failed to create page. Please try again.');
-                        $button.prop('disabled', false).text(originalText);
-                    }
-                });
-            });
-        });
-        </script>
         <?php
     }
     
@@ -2237,7 +1745,7 @@ class RESBS_Enhanced_Settings {
                 );
                 break;
             default:
-                wp_send_json_error('Invalid page type');
+                wp_send_json_error(array('message' => esc_html__('Invalid page type', 'realestate-booking-suite')));
                 return;
         }
         
@@ -2272,7 +1780,7 @@ class RESBS_Enhanced_Settings {
                 'view_url' => esc_url_raw(get_permalink($page_id))
             ));
         } else {
-            wp_send_json_error('Failed to create page');
+            wp_send_json_error(array('message' => esc_html__('Failed to create page', 'realestate-booking-suite')));
         }
     }
     
@@ -2339,7 +1847,9 @@ class RESBS_Enhanced_Settings {
             return;
         }
         
-        error_log('RESBS TEST AJAX: Called');
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('RESBS TEST AJAX: Called');
+        }
         wp_send_json_success(array('message' => 'AJAX is working!', 'timestamp' => time()));
     }
     
