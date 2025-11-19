@@ -463,9 +463,20 @@ class RESBS_Template_Assets {
     
     /**
      * Helper: Darken color
+     * 
+     * @param string $color Hex color code (e.g., '#0073aa' or '0073aa')
+     * @param int $percent Percentage to darken (0-100)
+     * @return string Hex color code with # prefix
      */
     private function darken_color($color, $percent = 10) {
+        // Validate and sanitize color input
         $color = ltrim($color, '#');
+        // Ensure color is exactly 6 hex characters
+        if (!preg_match('/^[a-fA-F0-9]{6}$/', $color)) {
+            // Fallback to safe default color if invalid
+            $color = '0073aa';
+        }
+        
         $r = hexdec(substr($color, 0, 2));
         $g = hexdec(substr($color, 2, 2));
         $b = hexdec(substr($color, 4, 2));
@@ -477,9 +488,23 @@ class RESBS_Template_Assets {
     
     /**
      * Helper: Convert hex to rgba
+     * 
+     * @param string $hex Hex color code (e.g., '#0073aa' or '0073aa')
+     * @param float $alpha Alpha value (0.0-1.0)
+     * @return string RGBA color string
      */
     private function hex_to_rgba($hex, $alpha = 0.3) {
+        // Validate and sanitize color input
         $hex = ltrim($hex, '#');
+        // Ensure color is exactly 6 hex characters
+        if (!preg_match('/^[a-fA-F0-9]{6}$/', $hex)) {
+            // Fallback to safe default color if invalid
+            $hex = '0073aa';
+        }
+        
+        // Validate and sanitize alpha value
+        $alpha = max(0.0, min(1.0, floatval($alpha)));
+        
         $r = hexdec(substr($hex, 0, 2));
         $g = hexdec(substr($hex, 2, 2));
         $b = hexdec(substr($hex, 4, 2));

@@ -53,11 +53,28 @@ if (!function_exists('resbs_load_elementor_widget_files')) {
                 continue;
             }
             
-            $file_path = RESBS_PATH . $widget['file'];
-            if (file_exists($file_path)) {
-                require_once $file_path;
+            // Validate file path to prevent path traversal (defense-in-depth)
+            // Even though $widget['file'] is from hardcoded array, validate for safety
+            $file_relative = $widget['file'];
+            if (strpos($file_relative, '..') !== false || strpos($file_relative, "\0") !== false) {
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    error_log('RESBS Widget: Invalid file path detected: ' . esc_html($file_relative));
+                }
+                continue; // Skip invalid file paths
+            }
+            
+            $file_path = RESBS_PATH . $file_relative;
+            // Additional validation: ensure file is within plugin directory
+            $real_file_path = realpath($file_path);
+            $real_plugin_path = realpath(RESBS_PATH);
+            if ($real_file_path && $real_plugin_path && strpos($real_file_path, $real_plugin_path) === 0) {
+                if (file_exists($file_path)) {
+                    require_once $file_path;
+                } elseif (defined('WP_DEBUG') && WP_DEBUG) {
+                    error_log('RESBS Widget file not found: ' . esc_html($file_path));
+                }
             } elseif (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log('RESBS Widget file not found: ' . esc_html($file_path));
+                error_log('RESBS Widget: File path outside plugin directory: ' . esc_html($file_path));
             }
         }
         

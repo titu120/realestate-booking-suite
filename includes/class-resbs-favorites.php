@@ -368,7 +368,7 @@ class RESBS_Favorites_Manager {
                         'price' => esc_html(get_post_meta($property_id, '_property_price', true)),
                         'bedrooms' => esc_html(get_post_meta($property_id, '_property_bedrooms', true)),
                         'bathrooms' => esc_html(get_post_meta($property_id, '_property_bathrooms', true)),
-                        'area' => esc_html(get_post_meta($property_id, '_property_area', true)),
+                        'area' => esc_html(get_post_meta($property_id, '_property_size', true) ?: get_post_meta($property_id, '_property_area_sqft', true) ?: ''),
                         'property_type' => is_array($property_type_terms) && !is_wp_error($property_type_terms) ? array_map('esc_html', $property_type_terms) : array(),
                         'property_status' => is_array($property_status_terms) && !is_wp_error($property_status_terms) ? array_map('esc_html', $property_status_terms) : array(),
                         'location' => is_array($property_location_terms) && !is_wp_error($property_location_terms) ? array_map('esc_html', $property_location_terms) : array()
@@ -449,26 +449,34 @@ class RESBS_Favorites_Manager {
     }
 
     /**
-     * Get session favorites
+     * Get session favorites (using cookies/transients instead of PHP sessions)
      */
     private function get_session_favorites() {
-        if (!session_id()) {
-            session_start();
+        // Use transient with user IP for non-logged-in users
+        $client_ip = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field($_SERVER['REMOTE_ADDR']) : 'unknown';
+        $transient_key = 'resbs_favorites_' . md5($client_ip);
+        $favorites = get_transient($transient_key);
+        
+        if (!is_array($favorites)) {
+            return array();
         }
         
-        return isset($_SESSION['resbs_favorites']) ? 
-            array_map('intval', $_SESSION['resbs_favorites']) : array();
+        return array_map('intval', $favorites);
     }
 
     /**
-     * Set session favorites
+     * Set session favorites (using cookies/transients instead of PHP sessions)
      */
     private function set_session_favorites($favorites) {
-        if (!session_id()) {
-            session_start();
-        }
+        // Use transient with user IP for non-logged-in users
+        // Expires in 30 days
+        $client_ip = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field($_SERVER['REMOTE_ADDR']) : 'unknown';
+        $transient_key = 'resbs_favorites_' . md5($client_ip);
         
-        $_SESSION['resbs_favorites'] = array_map('intval', $favorites);
+        $favorites_clean = array_map('intval', $favorites);
+        $favorites_clean = array_values(array_unique($favorites_clean));
+        
+        set_transient($transient_key, $favorites_clean, 30 * DAY_IN_SECONDS);
     }
 
     /**
@@ -513,6 +521,18 @@ class RESBS_Favorites_Manager {
         $posts_per_page = intval($atts['posts_per_page']);
         $orderby = sanitize_text_field($atts['orderby']);
         $order = sanitize_text_field($atts['order']);
+        
+        // Validate orderby value
+        $allowed_orderby = array('date', 'title', 'menu_order', 'rand', 'price', 'featured');
+        if (!in_array($orderby, $allowed_orderby, true)) {
+            $orderby = 'date';
+        }
+        
+        // Validate order value
+        $order = strtoupper($order);
+        if ($order !== 'ASC' && $order !== 'DESC') {
+            $order = 'DESC';
+        }
 
         $favorites = $this->get_user_favorites();
         
@@ -595,158 +615,6 @@ class RESBS_Favorites_Manager {
         
         <!-- Toast notification scripts and styles are now enqueued via wp_enqueue_script/wp_enqueue_style -->
         <!-- Favorite button functionality is now enqueued via wp_enqueue_script in favorites-saved-properties.js -->
-            // Initialize favorite button states on page load
-            function initializeFavoriteButtons() {
-                const favoriteButtons = document.querySelectorAll('.favorite-btn, .resbs-favorite-btn');
-                favoriteButtons.forEach(function(btn) {
-                    const propertyId = btn.getAttribute('data-property-id');
-                    if (!propertyId) return;
-                    
-                    const icon = btn.querySelector('i');
-                    if (!icon) return;
-                    
-                    // Check if button already has favorited class (set by PHP)
-                    if (btn.classList.contains('favorited')) {
-                        icon.classList.remove('far');
-                        icon.classList.add('fas');
-                    } else {
-                        icon.classList.remove('fas');
-                        icon.classList.add('far');
-                    }
-                });
-            }
-            
-            // Initialize buttons on page load
-            initializeFavoriteButtons();
-            
-            // Handle favorite button clicks
-            document.addEventListener('click', function(e) {
-                const favoriteBtn = e.target.closest('.favorite-btn, .resbs-favorite-btn');
-                if (!favoriteBtn) return;
-                
-                e.preventDefault();
-                e.stopPropagation();
-                
-                const propertyId = favoriteBtn.getAttribute('data-property-id');
-                if (!propertyId) {
-                    console.error('Property ID not found');
-                    return;
-                }
-                
-                const icon = favoriteBtn.querySelector('i');
-                if (!icon) return;
-                
-                // Toggle visual state immediately for better UX
-                const isFavorited = favoriteBtn.classList.contains('favorited');
-                if (isFavorited) {
-                    favoriteBtn.classList.remove('favorited');
-                    icon.classList.remove('fas');
-                    icon.classList.add('far');
-                } else {
-                    favoriteBtn.classList.add('favorited');
-                    icon.classList.remove('far');
-                    icon.classList.add('fas');
-                }
-                
-                // Make AJAX request
-                const formData = new FormData();
-                formData.append('action', 'resbs_toggle_favorite');
-                formData.append('property_id', propertyId);
-                
-                // Generate nonce
-                const nonce = '<?php echo esc_js(wp_create_nonce('resbs_favorites_nonce')); ?>';
-                if (!nonce) {
-                    alert('<?php echo esc_js(__('Unable to generate security token. Please refresh the page.', 'realestate-booking-suite')); ?>');
-                    return;
-                }
-                formData.append('nonce', nonce);
-                
-                fetch('<?php echo esc_url(admin_url('admin-ajax.php')); ?>', {
-                    method: 'POST',
-                    body: formData,
-                    credentials: 'same-origin'
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (!data) {
-                        throw new Error('Invalid response from server');
-                    }
-                    
-                    if (data.success) {
-                        // Success - update button state
-                        if (data.data && data.data.is_favorite) {
-                            favoriteBtn.classList.add('favorited');
-                            icon.classList.remove('far');
-                            icon.classList.add('fas');
-                        } else {
-                            favoriteBtn.classList.remove('favorited');
-                            icon.classList.remove('fas');
-                            icon.classList.add('far');
-                            // If removed from favorites, reload page to update list
-                            if (window.location.href.indexOf('saved-properties') !== -1) {
-                                setTimeout(function() {
-                                    window.location.reload();
-                                }, 500);
-                            }
-                        }
-                        
-                        // Show success message as toast notification
-                        if (data.data && data.data.message) {
-                            if (typeof showToastNotification === 'function') {
-                                const safeMessage = String(data.data.message).replace(/[<>]/g, '');
-                                showToastNotification(safeMessage, 'success');
-                            }
-                        }
-                    } else {
-                        // Error - revert visual state
-                        if (isFavorited) {
-                            favoriteBtn.classList.add('favorited');
-                            icon.classList.remove('far');
-                            icon.classList.add('fas');
-                        } else {
-                            favoriteBtn.classList.remove('favorited');
-                            icon.classList.remove('fas');
-                            icon.classList.add('far');
-                        }
-                        
-                        // Show error message
-                        let errorMessage = '<?php echo esc_js(__('An error occurred. Please try again.', 'realestate-booking-suite')); ?>';
-                        
-                        if (data && data.data) {
-                            if (typeof data.data === 'string') {
-                                errorMessage = String(data.data).replace(/[<>]/g, '');
-                            } else if (data.data.message) {
-                                errorMessage = String(data.data.message).replace(/[<>]/g, '');
-                            }
-                        }
-                        
-                        alert(errorMessage);
-                    }
-                })
-                .catch(error => {
-                    console.error('Favorite button error:', error);
-                    
-                    // Revert visual state on error
-                    if (isFavorited) {
-                        favoriteBtn.classList.add('favorited');
-                        icon.classList.remove('far');
-                        icon.classList.add('fas');
-                    } else {
-                        favoriteBtn.classList.remove('favorited');
-                        icon.classList.remove('fas');
-                        icon.classList.add('far');
-                    }
-                    
-                    alert('<?php echo esc_js(__('An error occurred. Please try again.', 'realestate-booking-suite')); ?>');
-                });
-            });
-        });
-        -->
         <?php
         wp_reset_postdata();
         return ob_get_clean();
@@ -771,13 +639,13 @@ class RESBS_Favorites_Manager {
         $property_statuses = get_the_terms($property_id, 'property_status');
         
         $property_type_name = '';
-        if ($property_types && !is_wp_error($property_types)) {
-            $property_type_name = $property_types[0]->name;
+        if ($property_types && !is_wp_error($property_types) && !empty($property_types)) {
+            $property_type_name = sanitize_text_field($property_types[0]->name);
         }
         
         $property_status_name = '';
-        if ($property_statuses && !is_wp_error($property_statuses)) {
-            $property_status_name = $property_statuses[0]->name;
+        if ($property_statuses && !is_wp_error($property_statuses) && !empty($property_statuses)) {
+            $property_status_name = sanitize_text_field($property_statuses[0]->name);
         }
         
         // Get featured image
@@ -902,13 +770,26 @@ class RESBS_Favorites_Manager {
      * Format price
      */
     private function format_price($price) {
-        if (!$price) return '';
+        if (empty($price) && $price !== 0 && $price !== '0') {
+            return '';
+        }
         
-        $num_price = intval($price);
-        if (is_nan($num_price)) return $price;
+        // Ensure price is numeric
+        $num_price = is_numeric($price) ? floatval($price) : 0;
+        $formatted_price = number_format($num_price, 2);
         
+        // Get currency symbol and position
         $currency_symbol = sanitize_text_field(get_option('resbs_currency_symbol', '$'));
-        return $currency_symbol . number_format($num_price);
+        $currency_position = sanitize_text_field(get_option('resbs_currency_position', 'before'));
+        
+        // Escape currency symbol for output
+        $currency_symbol = esc_html($currency_symbol);
+        
+        if ($currency_position === 'before') {
+            return $currency_symbol . $formatted_price;
+        } else {
+            return $formatted_price . $currency_symbol;
+        }
     }
 
     /**

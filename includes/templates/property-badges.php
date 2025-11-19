@@ -17,9 +17,14 @@ if (!defined('ABSPATH')) {
  * @param string $context Display context (card, single, carousel, map)
  */
 function resbs_display_property_badges($property_id, $context = 'card') {
+    // Validate and sanitize property ID
+    $property_id = absint($property_id);
     if (!$property_id) {
         return;
     }
+    
+    // Validate and sanitize context
+    $context = sanitize_key($context);
     
     // Get badge manager instance
     $badge_manager = new RESBS_Badge_Manager();
@@ -36,9 +41,14 @@ function resbs_display_property_badges($property_id, $context = 'card') {
  * @return string Badge HTML
  */
 function resbs_get_property_badges_html($property_id, $context = 'card') {
+    // Validate and sanitize property ID
+    $property_id = absint($property_id);
     if (!$property_id) {
         return '';
     }
+    
+    // Validate and sanitize context
+    $context = sanitize_key($context);
     
     ob_start();
     resbs_display_property_badges($property_id, $context);
@@ -53,15 +63,33 @@ function resbs_get_property_badges_html($property_id, $context = 'card') {
  * @return bool
  */
 function resbs_property_has_badge($property_id, $badge_type) {
-    if (!$property_id || !$badge_type) {
+    // Validate and sanitize property ID
+    $property_id = absint($property_id);
+    if (!$property_id) {
+        return false;
+    }
+    
+    // Validate and sanitize badge type
+    $badge_type = sanitize_key($badge_type);
+    if (empty($badge_type)) {
+        return false;
+    }
+    
+    // Validate badge type against allowed values
+    $allowed_badge_types = array('featured', 'new', 'sold');
+    if (!in_array($badge_type, $allowed_badge_types, true)) {
         return false;
     }
     
     $badge_manager = new RESBS_Badge_Manager();
     $badges = $badge_manager->get_property_badges($property_id);
     
+    if (!is_array($badges)) {
+        return false;
+    }
+    
     foreach ($badges as $badge) {
-        if ($badge['type'] === $badge_type) {
+        if (isset($badge['type']) && $badge['type'] === $badge_type) {
             return true;
         }
     }
@@ -76,12 +104,18 @@ function resbs_property_has_badge($property_id, $badge_type) {
  * @return int Number of badges
  */
 function resbs_get_property_badge_count($property_id) {
+    // Validate and sanitize property ID
+    $property_id = absint($property_id);
     if (!$property_id) {
         return 0;
     }
     
     $badge_manager = new RESBS_Badge_Manager();
     $badges = $badge_manager->get_property_badges($property_id);
+    
+    if (!is_array($badges)) {
+        return 0;
+    }
     
     return count($badges);
 }
@@ -104,24 +138,33 @@ function resbs_badge_shortcode($atts) {
         return '';
     }
     
-    $property_id = intval($atts['property_id']);
-    $context = sanitize_text_field($atts['context']);
-    
+    // Validate and sanitize property ID
+    $property_id = absint($atts['property_id']);
     if (!$property_id) {
         return '';
+    }
+    
+    // Validate and sanitize context
+    $context = sanitize_key($atts['context']);
+    
+    // Validate badge type
+    $badge_type = sanitize_key($atts['type']);
+    $allowed_badge_types = array('all', 'featured', 'new', 'sold');
+    if (!in_array($badge_type, $allowed_badge_types, true)) {
+        $badge_type = 'all';
     }
     
     $badge_manager = new RESBS_Badge_Manager();
     $badges = $badge_manager->get_property_badges($property_id, $context);
     
-    if (empty($badges)) {
+    if (!is_array($badges) || empty($badges)) {
         return '';
     }
     
     // Filter by type if specified
-    if ($atts['type'] !== 'all') {
-        $badges = array_filter($badges, function($badge) use ($atts) {
-            return $badge['type'] === $atts['type'];
+    if ($badge_type !== 'all') {
+        $badges = array_filter($badges, function($badge) use ($badge_type) {
+            return isset($badge['type']) && $badge['type'] === $badge_type;
         });
     }
     
@@ -133,17 +176,29 @@ function resbs_badge_shortcode($atts) {
     echo '<div class="resbs-badges-shortcode">';
     
     foreach ($badges as $badge) {
+        // Validate badge array structure
+        if (!is_array($badge) || !isset($badge['type']) || !isset($badge['text'])) {
+            continue;
+        }
+        
+        // Sanitize badge data
+        $badge_type_safe = sanitize_key($badge['type']);
+        $badge_size = isset($badge['size']) ? sanitize_key($badge['size']) : 'medium';
+        $badge_position = isset($badge['position']) ? sanitize_key($badge['position']) : 'top-left';
+        $badge_style = isset($badge['style']) ? $badge['style'] : '';
+        $badge_text = sanitize_text_field($badge['text']);
+        
         $classes = array(
             'resbs-badge',
-            'resbs-badge-' . $badge['type'],
-            'resbs-badge-' . $badge['size'],
-            'resbs-badge-' . $badge['position']
+            'resbs-badge-' . $badge_type_safe,
+            'resbs-badge-' . $badge_size,
+            'resbs-badge-' . $badge_position
         );
         
         $class_string = implode(' ', $classes);
         
-        echo '<span class="' . esc_attr($class_string) . '" style="' . esc_attr($badge['style']) . '">';
-        echo esc_html($badge['text']);
+        echo '<span class="' . esc_attr($class_string) . '" style="' . esc_attr($badge_style) . '">';
+        echo esc_html($badge_text);
         echo '</span>';
     }
     
@@ -231,10 +286,18 @@ class RESBS_Badge_Widget extends WP_Widget {
      */
     public function update($new_instance, $old_instance) {
         $instance = array();
-        $instance['title'] = sanitize_text_field($new_instance['title']);
-        $instance['property_id'] = intval($new_instance['property_id']);
-        $instance['badge_type'] = sanitize_text_field($new_instance['badge_type']);
-        $instance['context'] = sanitize_text_field($new_instance['context']);
+        $instance['title'] = isset($new_instance['title']) ? sanitize_text_field($new_instance['title']) : '';
+        $instance['property_id'] = isset($new_instance['property_id']) ? absint($new_instance['property_id']) : 0;
+        
+        // Validate badge_type against whitelist
+        $badge_type = isset($new_instance['badge_type']) ? sanitize_key($new_instance['badge_type']) : 'all';
+        $allowed_badge_types = array('all', 'featured', 'new', 'sold');
+        if (!in_array($badge_type, $allowed_badge_types, true)) {
+            $badge_type = 'all';
+        }
+        $instance['badge_type'] = $badge_type;
+        
+        $instance['context'] = isset($new_instance['context']) ? sanitize_key($new_instance['context']) : 'widget';
         
         return $instance;
     }
@@ -243,16 +306,24 @@ class RESBS_Badge_Widget extends WP_Widget {
      * Display widget
      */
     public function widget($args, $instance) {
-        $title = apply_filters('widget_title', sanitize_text_field($instance['title']));
-        $property_id = intval($instance['property_id']);
-        $badge_type = sanitize_text_field($instance['badge_type']);
-        $context = sanitize_text_field($instance['context']);
+        $title = isset($instance['title']) ? apply_filters('widget_title', sanitize_text_field($instance['title'])) : '';
+        $property_id = isset($instance['property_id']) ? absint($instance['property_id']) : 0;
+        
+        // Validate badge_type against whitelist
+        $badge_type = isset($instance['badge_type']) ? sanitize_key($instance['badge_type']) : 'all';
+        $allowed_badge_types = array('all', 'featured', 'new', 'sold');
+        if (!in_array($badge_type, $allowed_badge_types, true)) {
+            $badge_type = 'all';
+        }
+        
+        $context = isset($instance['context']) ? sanitize_key($instance['context']) : 'widget';
         
         // Use current property if no ID specified
         if (!$property_id) {
             $property_id = get_the_ID();
         }
         
+        $property_id = absint($property_id);
         if (!$property_id) {
             return;
         }

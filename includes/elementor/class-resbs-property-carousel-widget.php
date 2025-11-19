@@ -908,8 +908,13 @@ class RESBS_Property_Carousel_Widget extends \Elementor\Widget_Base {
             'hide_empty' => false,
         ));
         
-        foreach ($property_types as $type) {
-            $types[$type->slug] = esc_html($type->name);
+        // Validate get_terms result for WP_Error
+        if (!is_wp_error($property_types) && is_array($property_types)) {
+            foreach ($property_types as $type) {
+                if (isset($type->slug) && isset($type->name)) {
+                    $types[sanitize_text_field($type->slug)] = esc_html($type->name);
+                }
+            }
         }
         
         return $types;
@@ -926,8 +931,13 @@ class RESBS_Property_Carousel_Widget extends \Elementor\Widget_Base {
             'hide_empty' => false,
         ));
         
-        foreach ($property_statuses as $status) {
-            $statuses[$status->slug] = esc_html($status->name);
+        // Validate get_terms result for WP_Error
+        if (!is_wp_error($property_statuses) && is_array($property_statuses)) {
+            foreach ($property_statuses as $status) {
+                if (isset($status->slug) && isset($status->name)) {
+                    $statuses[sanitize_text_field($status->slug)] = esc_html($status->name);
+                }
+            }
         }
         
         return $statuses;
@@ -948,15 +958,36 @@ class RESBS_Property_Carousel_Widget extends \Elementor\Widget_Base {
         $show_price = $settings['show_price'] === 'yes';
         $show_meta = $settings['show_meta'] === 'yes';
         $show_badges = $settings['show_badges'] === 'yes';
-        $orderby = sanitize_text_field($settings['orderby']);
-        $order = sanitize_text_field($settings['order']);
+        
+        // Validate orderby and order against whitelist
+        $orderby_raw = sanitize_text_field($settings['orderby']);
+        $allowed_orderby = array('date', 'title', 'price', 'rand');
+        if (!in_array($orderby_raw, $allowed_orderby, true)) {
+            $orderby_raw = 'date';
+        }
+        $orderby = $orderby_raw;
+        
+        $order_raw = sanitize_text_field($settings['order']);
+        $allowed_order = array('ASC', 'DESC');
+        if (!in_array($order_raw, $allowed_order, true)) {
+            $order_raw = 'DESC';
+        }
+        $order = $order_raw;
+        
         $property_type = sanitize_text_field($settings['property_type']);
         $property_status = sanitize_text_field($settings['property_status']);
         $featured_only = $settings['featured_only'] === 'yes';
-        $widget_style = sanitize_text_field($settings['widget_style']);
+        
+        // Validate widget style against whitelist
+        $widget_style_raw = sanitize_text_field($settings['widget_style']);
+        $allowed_styles = array('default', 'modern', 'classic');
+        if (!in_array($widget_style_raw, $allowed_styles, true)) {
+            $widget_style_raw = 'default';
+        }
+        $widget_style = $widget_style_raw;
 
-        // Generate unique widget ID
-        $widget_id = 'resbs-property-grid-widget-' . $this->get_id();
+        // Sanitize widget ID
+        $widget_id = 'resbs-property-grid-widget-' . absint($this->get_id());
 
         // Build grid CSS classes
         $grid_classes = 'similar-properties-grid';
@@ -994,8 +1025,27 @@ class RESBS_Property_Carousel_Widget extends \Elementor\Widget_Base {
                         $property_featured_image = get_the_post_thumbnail_url($property->ID, 'medium');
                         $property_status_meta = get_post_meta($property->ID, '_property_status', true);
                         
-                        $formatted_price = $property_price ? '$' . number_format($property_price) : 'Price on request';
-                        $location = trim($property_city . ', ' . $property_state, ', ');
+                        // Format price using currency settings
+                        $formatted_price = '';
+                        if ($property_price && is_numeric($property_price)) {
+                            $currency_symbol = sanitize_text_field(get_option('resbs_currency_symbol', '$'));
+                            $currency_position = sanitize_text_field(get_option('resbs_currency_position', 'before'));
+                            $formatted_price_num = number_format(floatval($property_price), 2);
+                            $currency_symbol_escaped = esc_html($currency_symbol);
+                            
+                            if ($currency_position === 'before') {
+                                $formatted_price = $currency_symbol_escaped . $formatted_price_num;
+                            } else {
+                                $formatted_price = $formatted_price_num . $currency_symbol_escaped;
+                            }
+                        } else {
+                            $formatted_price = esc_html__('Price on request', 'realestate-booking-suite');
+                        }
+                        
+                        // Sanitize and format location
+                        $property_city_sanitized = sanitize_text_field($property_city);
+                        $property_state_sanitized = sanitize_text_field($property_state);
+                        $location = trim($property_city_sanitized . ', ' . $property_state_sanitized, ', ');
                         ?>
                         
                         <div class="property-card">
@@ -1011,7 +1061,7 @@ class RESBS_Property_Carousel_Widget extends \Elementor\Widget_Base {
                 <?php endif; ?>
                 
                                 <?php if ($show_badges && $property_status_meta): ?>
-                                    <span class="property-badge"><?php echo esc_html($property_status_meta); ?></span>
+                                    <span class="property-badge"><?php echo esc_html(sanitize_text_field($property_status_meta)); ?></span>
                 <?php endif; ?>
             </div>
                             <div class="property-info">
@@ -1066,21 +1116,28 @@ class RESBS_Property_Carousel_Widget extends \Elementor\Widget_Base {
         }
         
         // Add dynamic inline styles for this widget instance
+        // Escape all values for CSS
+        $widget_id_css = esc_attr($widget_id);
+        $columns_css = absint($columns);
+        $columns_tablet_css = absint($columns_tablet);
+        $columns_mobile_css = absint($columns_mobile);
+        $grid_gap_css = esc_attr($grid_gap);
+        
         $dynamic_css = "
-        #{$widget_id} .similar-properties-grid {
-            gap: {$grid_gap} !important;
-            grid-template-columns: repeat({$columns}, 1fr) !important;
+        #{$widget_id_css} .similar-properties-grid {
+            gap: {$grid_gap_css} !important;
+            grid-template-columns: repeat({$columns_css}, 1fr) !important;
         }
         
         @media (max-width: 1024px) {
-            #{$widget_id} .similar-properties-grid {
-                grid-template-columns: repeat({$columns_tablet}, 1fr) !important;
+            #{$widget_id_css} .similar-properties-grid {
+                grid-template-columns: repeat({$columns_tablet_css}, 1fr) !important;
             }
         }
         
         @media (max-width: 768px) {
-            #{$widget_id} .similar-properties-grid {
-                grid-template-columns: repeat({$columns_mobile}, 1fr) !important;
+            #{$widget_id_css} .similar-properties-grid {
+                grid-template-columns: repeat({$columns_mobile_css}, 1fr) !important;
             }
         }
         ";
@@ -1099,17 +1156,36 @@ class RESBS_Property_Carousel_Widget extends \Elementor\Widget_Base {
             'post_type' => 'property',
             'post_status' => 'publish',
             'posts_per_page' => intval($settings['posts_per_page']),
-            'orderby' => sanitize_text_field($settings['orderby']),
-            'order' => sanitize_text_field($settings['order']),
         );
+        
+        // Validate orderby and order against whitelist
+        $orderby_raw = sanitize_text_field($settings['orderby']);
+        $allowed_orderby = array('date', 'title', 'price', 'rand');
+        if (!in_array($orderby_raw, $allowed_orderby, true)) {
+            $orderby_raw = 'date';
+        }
+        $query_args['orderby'] = $orderby_raw;
+        
+        $order_raw = sanitize_text_field($settings['order']);
+        $allowed_order = array('ASC', 'DESC');
+        if (!in_array($order_raw, $allowed_order, true)) {
+            $order_raw = 'DESC';
+        }
+        $query_args['order'] = $order_raw;
+        
+        // Handle price ordering
+        if ($orderby_raw === 'price') {
+            $query_args['orderby'] = 'meta_value_num';
+            $query_args['meta_key'] = '_property_price';
+        }
 
         // Add meta query for featured properties
         if ($settings['featured_only'] === 'yes') {
             $query_args['meta_query'] = array(
                 array(
                     'key' => '_property_featured',
-                    'value' => 'yes',
-                    'compare' => '='
+                    'value' => array('yes', '1'),
+                    'compare' => 'IN'
                 )
             );
         }
@@ -1118,18 +1194,20 @@ class RESBS_Property_Carousel_Widget extends \Elementor\Widget_Base {
         $tax_query = array();
         
         if (!empty($settings['property_type'])) {
+            $property_type_sanitized = sanitize_text_field($settings['property_type']);
             $tax_query[] = array(
                 'taxonomy' => 'property_type',
                 'field' => 'slug',
-                'terms' => sanitize_text_field($settings['property_type'])
+                'terms' => $property_type_sanitized
             );
         }
 
         if (!empty($settings['property_status'])) {
+            $property_status_sanitized = sanitize_text_field($settings['property_status']);
             $tax_query[] = array(
                 'taxonomy' => 'property_status',
                 'field' => 'slug',
-                'terms' => sanitize_text_field($settings['property_status'])
+                'terms' => $property_status_sanitized
             );
         }
 

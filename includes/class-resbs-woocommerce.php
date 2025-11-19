@@ -775,8 +775,13 @@ class RESBS_WooCommerce {
     }
 }
 
-// Initialize the class
-new RESBS_WooCommerce();
+// Initialize the class and store instance for shortcode
+$GLOBALS['resbs_woocommerce'] = new RESBS_WooCommerce();
 
-// Register shortcode
-add_shortcode('resbs_booking_history', array('RESBS_WooCommerce', 'booking_history_shortcode'));
+// Register shortcode with instance method
+add_shortcode('resbs_booking_history', function($atts) {
+    if (isset($GLOBALS['resbs_woocommerce'])) {
+        return $GLOBALS['resbs_woocommerce']->booking_history_shortcode($atts);
+    }
+    return '<p>' . esc_html__('WooCommerce integration not available.', 'realestate-booking-suite') . '</p>';
+});

@@ -131,40 +131,40 @@ class RESBS_Booking_Manager {
         }
         
         // Verify nonce - check both possible nonce field names for compatibility
-        $nonce = isset($_POST['_wpnonce']) ? $_POST['_wpnonce'] : (isset($_POST['resbs_booking_form_nonce']) ? $_POST['resbs_booking_form_nonce'] : '');
+        $nonce = isset($_POST['_wpnonce']) ? sanitize_text_field($_POST['_wpnonce']) : (isset($_POST['resbs_booking_form_nonce']) ? sanitize_text_field($_POST['resbs_booking_form_nonce']) : '');
         if (!wp_verify_nonce($nonce, 'resbs_booking_form')) {
             if (defined('WP_DEBUG') && WP_DEBUG) {
                 error_log('RESBS: Nonce verification failed');
             }
-            wp_send_json_error(array('message' => 'Security check failed. Please refresh the page and try again.'));
+            wp_send_json_error(array('message' => esc_html__('Security check failed. Please refresh the page and try again.', 'realestate-booking-suite')));
             return;
         }
 
         // Sanitize and validate data
-        $first_name = sanitize_text_field($_POST['first_name']);
-        $last_name = sanitize_text_field($_POST['last_name']);
-        $email = sanitize_email($_POST['email']);
-        $phone = sanitize_text_field($_POST['phone']);
-        $preferred_date = sanitize_text_field($_POST['preferred_date']);
-        $preferred_time = sanitize_text_field($_POST['preferred_time']);
-        $message = sanitize_textarea_field($_POST['message']);
-        $property_id = intval($_POST['property_id']);
+        $first_name = isset($_POST['first_name']) ? sanitize_text_field($_POST['first_name']) : '';
+        $last_name = isset($_POST['last_name']) ? sanitize_text_field($_POST['last_name']) : '';
+        $email = isset($_POST['email']) ? sanitize_email($_POST['email']) : '';
+        $phone = isset($_POST['phone']) ? sanitize_text_field($_POST['phone']) : '';
+        $preferred_date = isset($_POST['preferred_date']) ? sanitize_text_field($_POST['preferred_date']) : '';
+        $preferred_time = isset($_POST['preferred_time']) ? sanitize_text_field($_POST['preferred_time']) : '';
+        $message = isset($_POST['message']) ? sanitize_textarea_field($_POST['message']) : '';
+        $property_id = isset($_POST['property_id']) ? intval($_POST['property_id']) : 0;
 
         // Validate required fields (only name, email, phone are required)
         if (empty($first_name) || empty($last_name) || empty($email) || empty($phone)) {
-            wp_send_json_error(array('message' => 'Please fill in all required fields (Name, Email, Phone).'));
+            wp_send_json_error(array('message' => esc_html__('Please fill in all required fields (Name, Email, Phone).', 'realestate-booking-suite')));
             return;
         }
 
         // Validate email
         if (!is_email($email)) {
-            wp_send_json_error(array('message' => 'Please enter a valid email address.'));
+            wp_send_json_error(array('message' => esc_html__('Please enter a valid email address.', 'realestate-booking-suite')));
             return;
         }
 
         // Validate property exists
         if (!get_post($property_id) || get_post_type($property_id) !== 'property') {
-            wp_send_json_error(array('message' => 'Invalid property selected.'));
+            wp_send_json_error(array('message' => esc_html__('Invalid property selected.', 'realestate-booking-suite')));
             return;
         }
 
@@ -194,7 +194,7 @@ class RESBS_Booking_Manager {
             if (defined('WP_DEBUG') && WP_DEBUG) {
                 error_log('RESBS: Failed to create booking post: ' . $booking_id->get_error_message());
             }
-            wp_send_json_error(array('message' => 'Failed to create booking. Please try again.'));
+            wp_send_json_error(array('message' => esc_html__('Failed to create booking. Please try again.', 'realestate-booking-suite')));
             return;
         }
 
@@ -208,28 +208,40 @@ class RESBS_Booking_Manager {
         if (defined('WP_DEBUG') && WP_DEBUG) {
             error_log('RESBS: Booking submission completed successfully');
         }
-        wp_send_json_success(array('message' => 'Booking submitted successfully!'));
+        wp_send_json_success(array('message' => esc_html__('Booking submitted successfully!', 'realestate-booking-suite')));
     }
 
     /**
      * Send booking notification emails
      */
     private function send_booking_notifications($booking_id, $property_id, $first_name, $last_name, $email, $phone, $preferred_date, $preferred_time, $message) {
-        $property_title = get_the_title($property_id);
-        $property_url = get_permalink($property_id);
+        // Sanitize all data for email
+        $property_title = sanitize_text_field(get_the_title($property_id));
+        $property_url = esc_url_raw(get_permalink($property_id));
+        $first_name_safe = sanitize_text_field($first_name);
+        $last_name_safe = sanitize_text_field($last_name);
+        $email_safe = sanitize_email($email);
+        $phone_safe = sanitize_text_field($phone);
+        $preferred_date_safe = sanitize_text_field($preferred_date);
+        $preferred_time_safe = sanitize_text_field($preferred_time);
+        $message_safe = sanitize_textarea_field($message);
         
         // Email to admin
-        $admin_email = get_option('admin_email');
-        $admin_subject = 'New Property Tour Booking - ' . $property_title;
+        $admin_email = sanitize_email(get_option('admin_email'));
+        
+        // Sanitize email subject to prevent header injection
+        $admin_subject_raw = 'New Property Tour Booking - ' . $property_title;
+        $admin_subject = wp_strip_all_tags($admin_subject_raw);
+        $admin_subject = str_replace(array("\r", "\n"), '', $admin_subject);
         
         // Build date/time info
         $date_time_info = "";
-        if (!empty($preferred_date) && !empty($preferred_time)) {
-            $date_time_info = "Preferred Date: {$preferred_date}\nPreferred Time: {$preferred_time}\n";
-        } elseif (!empty($preferred_date)) {
-            $date_time_info = "Preferred Date: {$preferred_date}\n";
-        } elseif (!empty($preferred_time)) {
-            $date_time_info = "Preferred Time: {$preferred_time}\n";
+        if (!empty($preferred_date_safe) && !empty($preferred_time_safe)) {
+            $date_time_info = "Preferred Date: {$preferred_date_safe}\nPreferred Time: {$preferred_time_safe}\n";
+        } elseif (!empty($preferred_date_safe)) {
+            $date_time_info = "Preferred Date: {$preferred_date_safe}\n";
+        } elseif (!empty($preferred_time_safe)) {
+            $date_time_info = "Preferred Time: {$preferred_time_safe}\n";
         } else {
             $date_time_info = "Date/Time: Not specified (customer will be contacted to schedule)\n";
         }
@@ -241,35 +253,48 @@ class RESBS_Booking_Manager {
         Property URL: {$property_url}
         
         Customer Details:
-        Name: {$first_name} {$last_name}
-        Email: {$email}
-        Phone: {$phone}
+        Name: {$first_name_safe} {$last_name_safe}
+        Email: {$email_safe}
+        Phone: {$phone_safe}
         
         {$date_time_info}
-        Message: {$message}
+        Message: {$message_safe}
         
         Booking ID: {$booking_id}
         ";
         
-        wp_mail($admin_email, $admin_subject, $admin_message);
+        // Sanitize site name for email headers to prevent header injection
+        $site_name = sanitize_text_field(get_bloginfo('name'));
+        $site_name = str_replace(array("\r", "\n"), '', $site_name);
+        
+        // Email headers
+        $admin_headers = array(
+            'Content-Type: text/plain; charset=UTF-8',
+            'From: ' . $site_name . ' <' . $admin_email . '>'
+        );
+        
+        wp_mail($admin_email, $admin_subject, $admin_message, $admin_headers);
         
         // Email to customer
-        $customer_subject = 'Tour Booking Confirmation - ' . $property_title;
+        // Sanitize email subject to prevent header injection
+        $customer_subject_raw = 'Tour Booking Confirmation - ' . $property_title;
+        $customer_subject = wp_strip_all_tags($customer_subject_raw);
+        $customer_subject = str_replace(array("\r", "\n"), '', $customer_subject);
         
         // Build customer date/time info
         $customer_date_time_info = "";
-        if (!empty($preferred_date) && !empty($preferred_time)) {
-            $customer_date_time_info = "We have received your tour booking request for:\nDate: {$preferred_date}\nTime: {$preferred_time}\n\nOur team will contact you within 24 hours to confirm your appointment.";
-        } elseif (!empty($preferred_date)) {
-            $customer_date_time_info = "We have received your tour booking request for:\nDate: {$preferred_date}\n\nOur team will contact you within 24 hours to confirm your appointment time.";
-        } elseif (!empty($preferred_time)) {
-            $customer_date_time_info = "We have received your tour booking request for:\nTime: {$preferred_time}\n\nOur team will contact you within 24 hours to confirm your appointment date.";
+        if (!empty($preferred_date_safe) && !empty($preferred_time_safe)) {
+            $customer_date_time_info = "We have received your tour booking request for:\nDate: {$preferred_date_safe}\nTime: {$preferred_time_safe}\n\nOur team will contact you within 24 hours to confirm your appointment.";
+        } elseif (!empty($preferred_date_safe)) {
+            $customer_date_time_info = "We have received your tour booking request for:\nDate: {$preferred_date_safe}\n\nOur team will contact you within 24 hours to confirm your appointment time.";
+        } elseif (!empty($preferred_time_safe)) {
+            $customer_date_time_info = "We have received your tour booking request for:\nTime: {$preferred_time_safe}\n\nOur team will contact you within 24 hours to confirm your appointment date.";
         } else {
             $customer_date_time_info = "We have received your tour booking request.\n\nOur team will contact you within 24 hours to schedule your appointment.";
         }
         
         $customer_message = "
-        Dear {$first_name},
+        Dear {$first_name_safe},
         
         Thank you for your interest in {$property_title}.
         
@@ -285,7 +310,13 @@ class RESBS_Booking_Manager {
         Real Estate Team
         ";
         
-        wp_mail($email, $customer_subject, $customer_message);
+        // Email headers
+        $customer_headers = array(
+            'Content-Type: text/plain; charset=UTF-8',
+            'From: ' . $site_name . ' <' . $admin_email . '>'
+        );
+        
+        wp_mail($email_safe, $customer_subject, $customer_message, $customer_headers);
     }
 
     /**
@@ -364,8 +395,20 @@ class RESBS_Booking_Manager {
                             </select>
                         </td>
                         <td>
-                            <a href="mailto:<?php echo esc_attr($email); ?>"><?php echo esc_html($email); ?></a><br>
-                            <a href="tel:<?php echo esc_attr($phone); ?>"><?php echo esc_html($phone); ?></a>
+                            <?php if (!empty($email) && is_email($email)): ?>
+                                <a href="mailto:<?php echo esc_attr(sanitize_email($email)); ?>"><?php echo esc_html($email); ?></a><br>
+                            <?php else: ?>
+                                <?php echo esc_html($email); ?><br>
+                            <?php endif; ?>
+                            <?php if (!empty($phone)): ?>
+                                <?php 
+                                // Sanitize phone number for tel: protocol (remove non-phone characters except +, -, spaces)
+                                $phone_clean = preg_replace('/[^0-9+\- ]/', '', $phone);
+                                ?>
+                                <a href="tel:<?php echo esc_attr($phone_clean); ?>"><?php echo esc_html($phone); ?></a>
+                            <?php else: ?>
+                                <?php echo esc_html($phone); ?>
+                            <?php endif; ?>
                         </td>
                         <td>
                             <a href="<?php echo esc_url(get_edit_post_link($booking->ID)); ?>" class="button">Edit</a>
@@ -386,31 +429,31 @@ class RESBS_Booking_Manager {
      */
     public function update_booking_status() {
         // Verify nonce and capability
-        $nonce = isset($_POST['nonce']) ? $_POST['nonce'] : '';
+        $nonce = isset($_POST['nonce']) ? sanitize_text_field($_POST['nonce']) : '';
         if (!wp_verify_nonce($nonce, 'resbs_update_booking_status')) {
-            wp_send_json_error(array('message' => 'Security check failed. Please refresh the page and try again.'));
+            wp_send_json_error(array('message' => esc_html__('Security check failed. Please refresh the page and try again.', 'realestate-booking-suite')));
             return;
         }
 
         // Check user capability
         if (!current_user_can('manage_options')) {
-            wp_send_json_error(array('message' => 'You do not have sufficient permissions.'));
+            wp_send_json_error(array('message' => esc_html__('You do not have sufficient permissions.', 'realestate-booking-suite')));
             return;
         }
 
-        $booking_id = intval($_POST['booking_id']);
-        $status = sanitize_text_field($_POST['status']);
+        $booking_id = isset($_POST['booking_id']) ? intval($_POST['booking_id']) : 0;
+        $status = isset($_POST['status']) ? sanitize_text_field($_POST['status']) : '';
 
         // Validate booking exists
         if (!get_post($booking_id) || get_post_type($booking_id) !== 'property_booking') {
-            wp_send_json_error(array('message' => 'Invalid booking.'));
+            wp_send_json_error(array('message' => esc_html__('Invalid booking.', 'realestate-booking-suite')));
             return;
         }
 
         // Validate status value
         $allowed_statuses = array('pending', 'confirmed', 'completed', 'cancelled');
         if (!in_array($status, $allowed_statuses, true)) {
-            wp_send_json_error(array('message' => 'Invalid status.'));
+            wp_send_json_error(array('message' => esc_html__('Invalid status.', 'realestate-booking-suite')));
             return;
         }
 
@@ -423,23 +466,23 @@ class RESBS_Booking_Manager {
      */
     public function delete_booking() {
         // Verify nonce and capability
-        $nonce = isset($_POST['nonce']) ? $_POST['nonce'] : '';
+        $nonce = isset($_POST['nonce']) ? sanitize_text_field($_POST['nonce']) : '';
         if (!wp_verify_nonce($nonce, 'resbs_delete_booking')) {
-            wp_send_json_error(array('message' => 'Security check failed. Please refresh the page and try again.'));
+            wp_send_json_error(array('message' => esc_html__('Security check failed. Please refresh the page and try again.', 'realestate-booking-suite')));
             return;
         }
 
         // Check user capability
         if (!current_user_can('manage_options')) {
-            wp_send_json_error(array('message' => 'You do not have sufficient permissions.'));
+            wp_send_json_error(array('message' => esc_html__('You do not have sufficient permissions.', 'realestate-booking-suite')));
             return;
         }
 
-        $booking_id = intval($_POST['booking_id']);
+        $booking_id = isset($_POST['booking_id']) ? intval($_POST['booking_id']) : 0;
 
         // Validate booking exists
         if (!get_post($booking_id) || get_post_type($booking_id) !== 'property_booking') {
-            wp_send_json_error(array('message' => 'Invalid booking.'));
+            wp_send_json_error(array('message' => esc_html__('Invalid booking.', 'realestate-booking-suite')));
             return;
         }
 

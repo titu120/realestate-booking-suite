@@ -40,29 +40,29 @@ class RESBS_Contact_Settings {
      */
     public function register_settings() {
         // Contact Information
-        register_setting('resbs_contact_settings', 'resbs_contact_phone');
-        register_setting('resbs_contact_settings', 'resbs_contact_email');
-        register_setting('resbs_contact_settings', 'resbs_contact_address');
-        register_setting('resbs_contact_settings', 'resbs_contact_website');
-        register_setting('resbs_contact_settings', 'resbs_contact_whatsapp');
-        register_setting('resbs_contact_settings', 'resbs_contact_telegram');
+        register_setting('resbs_contact_settings', 'resbs_contact_phone', array('sanitize_callback' => 'sanitize_text_field'));
+        register_setting('resbs_contact_settings', 'resbs_contact_email', array('sanitize_callback' => 'sanitize_email'));
+        register_setting('resbs_contact_settings', 'resbs_contact_address', array('sanitize_callback' => 'sanitize_textarea_field'));
+        register_setting('resbs_contact_settings', 'resbs_contact_website', array('sanitize_callback' => array($this, 'sanitize_url_setting')));
+        register_setting('resbs_contact_settings', 'resbs_contact_whatsapp', array('sanitize_callback' => 'sanitize_text_field'));
+        register_setting('resbs_contact_settings', 'resbs_contact_telegram', array('sanitize_callback' => 'sanitize_text_field'));
         
         // Business Information
-        register_setting('resbs_contact_settings', 'resbs_business_name');
-        register_setting('resbs_contact_settings', 'resbs_business_hours');
-        register_setting('resbs_contact_settings', 'resbs_business_description');
+        register_setting('resbs_contact_settings', 'resbs_business_name', array('sanitize_callback' => 'sanitize_text_field'));
+        register_setting('resbs_contact_settings', 'resbs_business_hours', array('sanitize_callback' => 'sanitize_textarea_field'));
+        register_setting('resbs_contact_settings', 'resbs_business_description', array('sanitize_callback' => 'sanitize_textarea_field'));
         
         // Social Media
-        register_setting('resbs_contact_settings', 'resbs_social_facebook');
-        register_setting('resbs_contact_settings', 'resbs_social_twitter');
-        register_setting('resbs_contact_settings', 'resbs_social_instagram');
-        register_setting('resbs_contact_settings', 'resbs_social_linkedin');
-        register_setting('resbs_contact_settings', 'resbs_social_youtube');
+        register_setting('resbs_contact_settings', 'resbs_social_facebook', array('sanitize_callback' => array($this, 'sanitize_url_setting')));
+        register_setting('resbs_contact_settings', 'resbs_social_twitter', array('sanitize_callback' => array($this, 'sanitize_url_setting')));
+        register_setting('resbs_contact_settings', 'resbs_social_instagram', array('sanitize_callback' => array($this, 'sanitize_url_setting')));
+        register_setting('resbs_contact_settings', 'resbs_social_linkedin', array('sanitize_callback' => array($this, 'sanitize_url_setting')));
+        register_setting('resbs_contact_settings', 'resbs_social_youtube', array('sanitize_callback' => array($this, 'sanitize_url_setting')));
         
         // Display Options
-        register_setting('resbs_contact_settings', 'resbs_show_contact_widget');
-        register_setting('resbs_contact_settings', 'resbs_contact_widget_title');
-        register_setting('resbs_contact_settings', 'resbs_contact_widget_style');
+        register_setting('resbs_contact_settings', 'resbs_show_contact_widget', array('sanitize_callback' => array($this, 'sanitize_bool_setting')));
+        register_setting('resbs_contact_settings', 'resbs_contact_widget_title', array('sanitize_callback' => 'sanitize_text_field'));
+        register_setting('resbs_contact_settings', 'resbs_contact_widget_style', array('sanitize_callback' => array($this, 'sanitize_widget_style')));
     }
 
     /**
@@ -463,24 +463,30 @@ class RESBS_Contact_Settings {
 
         // Sanitize and save settings using security helper
         // Use null coalescing operator to safely handle missing POST values
+        // Validate email before saving
+        $contact_email = RESBS_Security::sanitize_email($_POST['resbs_contact_email'] ?? '');
+        if (!empty($contact_email) && !is_email($contact_email)) {
+            $contact_email = ''; // Clear invalid email
+        }
+        
         $settings = array(
             'resbs_contact_phone' => RESBS_Security::sanitize_text($_POST['resbs_contact_phone'] ?? ''),
-            'resbs_contact_email' => RESBS_Security::sanitize_email($_POST['resbs_contact_email'] ?? ''),
+            'resbs_contact_email' => $contact_email,
             'resbs_contact_address' => RESBS_Security::sanitize_textarea($_POST['resbs_contact_address'] ?? ''),
-            'resbs_contact_website' => RESBS_Security::sanitize_url($_POST['resbs_contact_website'] ?? ''),
+            'resbs_contact_website' => $this->sanitize_url_setting($_POST['resbs_contact_website'] ?? ''),
             'resbs_contact_whatsapp' => RESBS_Security::sanitize_text($_POST['resbs_contact_whatsapp'] ?? ''),
             'resbs_contact_telegram' => RESBS_Security::sanitize_text($_POST['resbs_contact_telegram'] ?? ''),
             'resbs_business_name' => RESBS_Security::sanitize_text($_POST['resbs_business_name'] ?? ''),
             'resbs_business_hours' => RESBS_Security::sanitize_textarea($_POST['resbs_business_hours'] ?? ''),
             'resbs_business_description' => RESBS_Security::sanitize_textarea($_POST['resbs_business_description'] ?? ''),
-            'resbs_social_facebook' => RESBS_Security::sanitize_url($_POST['resbs_social_facebook'] ?? ''),
-            'resbs_social_twitter' => RESBS_Security::sanitize_url($_POST['resbs_social_twitter'] ?? ''),
-            'resbs_social_instagram' => RESBS_Security::sanitize_url($_POST['resbs_social_instagram'] ?? ''),
-            'resbs_social_linkedin' => RESBS_Security::sanitize_url($_POST['resbs_social_linkedin'] ?? ''),
-            'resbs_social_youtube' => RESBS_Security::sanitize_url($_POST['resbs_social_youtube'] ?? ''),
-            'resbs_show_contact_widget' => RESBS_Security::sanitize_bool($_POST['resbs_show_contact_widget'] ?? false),
+            'resbs_social_facebook' => $this->sanitize_url_setting($_POST['resbs_social_facebook'] ?? ''),
+            'resbs_social_twitter' => $this->sanitize_url_setting($_POST['resbs_social_twitter'] ?? ''),
+            'resbs_social_instagram' => $this->sanitize_url_setting($_POST['resbs_social_instagram'] ?? ''),
+            'resbs_social_linkedin' => $this->sanitize_url_setting($_POST['resbs_social_linkedin'] ?? ''),
+            'resbs_social_youtube' => $this->sanitize_url_setting($_POST['resbs_social_youtube'] ?? ''),
+            'resbs_show_contact_widget' => $this->sanitize_bool_setting($_POST['resbs_show_contact_widget'] ?? false),
             'resbs_contact_widget_title' => RESBS_Security::sanitize_text($_POST['resbs_contact_widget_title'] ?? ''),
-            'resbs_contact_widget_style' => RESBS_Security::sanitize_text($_POST['resbs_contact_widget_style'] ?? 'default')
+            'resbs_contact_widget_style' => $this->sanitize_widget_style($_POST['resbs_contact_widget_style'] ?? 'default')
         );
 
         foreach ($settings as $key => $value) {
@@ -511,7 +517,7 @@ class RESBS_Contact_Settings {
             'linkedin' => get_option('resbs_social_linkedin', ''),
             'youtube' => get_option('resbs_social_youtube', ''),
             'show_contact_widget' => get_option('resbs_show_contact_widget', true),
-            'widget_title' => get_option('resbs_contact_widget_title', __('Contact Us', 'realestate-booking-suite')),
+            'widget_title' => get_option('resbs_contact_widget_title', esc_html__('Contact Us', 'realestate-booking-suite')),
             'widget_style' => get_option('resbs_contact_widget_style', 'default')
         );
     }
@@ -525,18 +531,20 @@ class RESBS_Contact_Settings {
         $contact_info = array();
         
         if (!empty($settings['phone'])) {
+            // Sanitize phone number for tel: protocol (remove non-phone characters except +, -, spaces)
+            $phone_clean = preg_replace('/[^0-9+\- ]/', '', $settings['phone']);
             $contact_info['phone'] = array(
                 'label' => esc_html__('Phone:', 'realestate-booking-suite'),
                 'value' => esc_html($settings['phone']),
-                'link' => 'tel:' . esc_attr($settings['phone'])
+                'link' => 'tel:' . esc_attr($phone_clean)
             );
         }
         
-        if (!empty($settings['email'])) {
+        if (!empty($settings['email']) && is_email($settings['email'])) {
             $contact_info['email'] = array(
                 'label' => esc_html__('Email:', 'realestate-booking-suite'),
                 'value' => esc_html($settings['email']),
-                'link' => 'mailto:' . esc_attr($settings['email'])
+                'link' => 'mailto:' . esc_attr(sanitize_email($settings['email']))
             );
         }
         
@@ -549,19 +557,28 @@ class RESBS_Contact_Settings {
         }
         
         if (!empty($settings['telegram'])) {
-            $contact_info['telegram'] = array(
-                'label' => esc_html__('Telegram:', 'realestate-booking-suite'),
-                'value' => esc_html($settings['telegram']),
-                'link' => 'https://t.me/' . esc_attr(ltrim($settings['telegram'], '@'))
-            );
+            // Sanitize Telegram username (remove @ and sanitize)
+            $telegram_username = sanitize_text_field(ltrim($settings['telegram'], '@'));
+            $telegram_username = preg_replace('/[^a-zA-Z0-9_]/', '', $telegram_username); // Only allow alphanumeric and underscore
+            if (!empty($telegram_username)) {
+                $contact_info['telegram'] = array(
+                    'label' => esc_html__('Telegram:', 'realestate-booking-suite'),
+                    'value' => esc_html($settings['telegram']),
+                    'link' => 'https://t.me/' . esc_attr($telegram_username)
+                );
+            }
         }
         
         if (!empty($settings['website'])) {
-            $contact_info['website'] = array(
-                'label' => esc_html__('Website:', 'realestate-booking-suite'),
-                'value' => esc_html($settings['website']),
-                'link' => esc_url($settings['website'])
-            );
+            // Validate URL before using
+            $website_url = esc_url_raw($settings['website']);
+            if (filter_var($website_url, FILTER_VALIDATE_URL)) {
+                $contact_info['website'] = array(
+                    'label' => esc_html__('Website:', 'realestate-booking-suite'),
+                    'value' => esc_html($settings['website']),
+                    'link' => esc_url($website_url)
+                );
+            }
         }
         
         return $contact_info;
@@ -576,46 +593,96 @@ class RESBS_Contact_Settings {
         $social_links = array();
         
         if (!empty($settings['facebook'])) {
-            $social_links['facebook'] = array(
-                'name' => esc_html__('Facebook', 'realestate-booking-suite'),
-                'url' => esc_url($settings['facebook']),
-                'icon' => 'dashicons-facebook'
-            );
+            $facebook_url = esc_url_raw($settings['facebook']);
+            if (filter_var($facebook_url, FILTER_VALIDATE_URL)) {
+                $social_links['facebook'] = array(
+                    'name' => esc_html__('Facebook', 'realestate-booking-suite'),
+                    'url' => esc_url($facebook_url),
+                    'icon' => 'dashicons-facebook'
+                );
+            }
         }
         
         if (!empty($settings['twitter'])) {
-            $social_links['twitter'] = array(
-                'name' => esc_html__('Twitter', 'realestate-booking-suite'),
-                'url' => esc_url($settings['twitter']),
-                'icon' => 'dashicons-twitter'
-            );
+            $twitter_url = esc_url_raw($settings['twitter']);
+            if (filter_var($twitter_url, FILTER_VALIDATE_URL)) {
+                $social_links['twitter'] = array(
+                    'name' => esc_html__('Twitter', 'realestate-booking-suite'),
+                    'url' => esc_url($twitter_url),
+                    'icon' => 'dashicons-twitter'
+                );
+            }
         }
         
         if (!empty($settings['instagram'])) {
-            $social_links['instagram'] = array(
-                'name' => esc_html__('Instagram', 'realestate-booking-suite'),
-                'url' => esc_url($settings['instagram']),
-                'icon' => 'dashicons-instagram'
-            );
+            $instagram_url = esc_url_raw($settings['instagram']);
+            if (filter_var($instagram_url, FILTER_VALIDATE_URL)) {
+                $social_links['instagram'] = array(
+                    'name' => esc_html__('Instagram', 'realestate-booking-suite'),
+                    'url' => esc_url($instagram_url),
+                    'icon' => 'dashicons-instagram'
+                );
+            }
         }
         
         if (!empty($settings['linkedin'])) {
-            $social_links['linkedin'] = array(
-                'name' => esc_html__('LinkedIn', 'realestate-booking-suite'),
-                'url' => esc_url($settings['linkedin']),
-                'icon' => 'dashicons-linkedin'
-            );
+            $linkedin_url = esc_url_raw($settings['linkedin']);
+            if (filter_var($linkedin_url, FILTER_VALIDATE_URL)) {
+                $social_links['linkedin'] = array(
+                    'name' => esc_html__('LinkedIn', 'realestate-booking-suite'),
+                    'url' => esc_url($linkedin_url),
+                    'icon' => 'dashicons-linkedin'
+                );
+            }
         }
         
         if (!empty($settings['youtube'])) {
-            $social_links['youtube'] = array(
-                'name' => esc_html__('YouTube', 'realestate-booking-suite'),
-                'url' => esc_url($settings['youtube']),
-                'icon' => 'dashicons-video-alt3'
-            );
+            $youtube_url = esc_url_raw($settings['youtube']);
+            if (filter_var($youtube_url, FILTER_VALIDATE_URL)) {
+                $social_links['youtube'] = array(
+                    'name' => esc_html__('YouTube', 'realestate-booking-suite'),
+                    'url' => esc_url($youtube_url),
+                    'icon' => 'dashicons-video-alt3'
+                );
+            }
         }
         
         return $social_links;
+    }
+
+    /**
+     * Sanitize widget style value
+     */
+    private function sanitize_widget_style($value) {
+        $allowed_styles = array('default', 'minimal', 'detailed');
+        $sanitized = sanitize_text_field($value);
+        if (!in_array($sanitized, $allowed_styles, true)) {
+            return 'default';
+        }
+        return $sanitized;
+    }
+
+    /**
+     * Sanitize URL setting
+     * Validates URL and returns empty string if invalid
+     */
+    private function sanitize_url_setting($value) {
+        if (empty($value)) {
+            return '';
+        }
+        $sanitized = esc_url_raw($value);
+        // Validate URL
+        if (!filter_var($sanitized, FILTER_VALIDATE_URL)) {
+            return ''; // Return empty if invalid
+        }
+        return $sanitized;
+    }
+
+    /**
+     * Sanitize boolean setting
+     */
+    private function sanitize_bool_setting($value) {
+        return (bool) $value;
     }
 }
 

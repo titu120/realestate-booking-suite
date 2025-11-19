@@ -233,10 +233,25 @@ function resbs_plugin_activation() {
 register_activation_hook(__FILE__, 'resbs_plugin_activation');
 
 /**
+ * Plugin deactivation hook
+ * 
+ * Cleans up scheduled cron jobs when plugin is deactivated
+ */
+function resbs_plugin_deactivation() {
+    // Clear scheduled cron jobs
+    wp_clear_scheduled_hook('resbs_send_search_alerts');
+    
+    // Flush rewrite rules
+    flush_rewrite_rules();
+}
+register_deactivation_hook(__FILE__, 'resbs_plugin_deactivation');
+
+/**
  * Plugin uninstall hook
  * 
  * Removes all plugin data when plugin is uninstalled
- * This includes: custom tables, options, created pages (optional)
+ * This includes: custom tables, options, user meta, post meta, taxonomies
+ * Note: Created pages are preserved to avoid accidental deletion of user content
  */
 function resbs_plugin_uninstall() {
     global $wpdb;
@@ -246,17 +261,18 @@ function resbs_plugin_uninstall() {
         return;
     }
     
-    // Check if user wants to remove data (via option)
-    $remove_data = get_option('resbs_remove_data_on_uninstall', false);
-    if (!$remove_data) {
-        return; // Don't remove data if option is not set
-    }
+    // Clear scheduled cron jobs
+    wp_clear_scheduled_hook('resbs_send_search_alerts');
     
     // Remove custom database tables
     // Table name is safe - constructed from $wpdb->prefix (no user input)
     $table_name = $wpdb->prefix . 'resbs_contact_messages';
     // Use backticks for table name - safe as it's constructed from $wpdb->prefix
     $wpdb->query("DROP TABLE IF EXISTS `" . str_replace('`', '``', $table_name) . "`");
+    
+    // Remove search alerts table
+    $search_alerts_table = $wpdb->prefix . 'resbs_search_alerts';
+    $wpdb->query("DROP TABLE IF EXISTS `" . str_replace('`', '``', $search_alerts_table) . "`");
     
     // Remove all plugin options
     // Using LIKE with wildcard - safe as it's a literal string pattern

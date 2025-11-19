@@ -214,7 +214,8 @@ class RESBS_CPT {
         
         // Security: Sanitize REQUEST_URI input
         // SIMPLE CHECK: If URL contains /property/ and has a slug, it's a single property
-        $request_uri = isset($_SERVER['REQUEST_URI']) ? esc_url_raw($_SERVER['REQUEST_URI']) : '';
+        // Note: sanitize_text_field() is more appropriate for REQUEST_URI (path string) than esc_url_raw()
+        $request_uri = isset($_SERVER['REQUEST_URI']) ? sanitize_text_field($_SERVER['REQUEST_URI']) : '';
         
         // Check if it's a single property page (URL like /property/some-slug/)
         // Note: Single property template is handled by resbs_single_property_template_loader in main plugin file

@@ -409,9 +409,39 @@ class RESBS_Search_Widget extends \Elementor\Widget_Base {
         $settings = $this->get_settings_for_display();
         
         $title = sanitize_text_field($settings['title']);
-        $search_type = sanitize_text_field($settings['search_type']);
+        
+        // Validate search_type against whitelist
+        $search_type_raw = sanitize_text_field($settings['search_type']);
+        $allowed_search_types = array('simple', 'advanced', 'main');
+        if (!in_array($search_type_raw, $allowed_search_types, true)) {
+            $search_type_raw = 'advanced';
+        }
+        $search_type = $search_type_raw;
+        
         $enable_saved_search = $settings['enable_saved_search'] === 'yes';
-        $search_results_page = sanitize_text_field($settings['search_results_page']);
+        
+        // Validate search_results_page
+        $search_results_page_raw = sanitize_text_field($settings['search_results_page']);
+        $results_url = get_post_type_archive_link('property'); // Default fallback
+        if ($search_results_page_raw !== 'default') {
+            $page_id = absint($search_results_page_raw);
+            if ($page_id > 0) {
+                $page = get_post($page_id);
+                if ($page && $page->post_status === 'publish') {
+                    $permalink = get_permalink($page_id);
+                    // Validate URL before using
+                    if ($permalink && filter_var($permalink, FILTER_VALIDATE_URL)) {
+                        $results_url = esc_url_raw($permalink);
+                    }
+                }
+            }
+        }
+        
+        // Ensure results_url is safe
+        if (empty($results_url) || !filter_var($results_url, FILTER_VALIDATE_URL)) {
+            $results_url = get_post_type_archive_link('property');
+        }
+        
         $search_by_location = $settings['search_by_location'] === 'yes';
         
         // Field visibility
@@ -428,8 +458,7 @@ class RESBS_Search_Widget extends \Elementor\Widget_Base {
         $show_features = $settings['show_features_field'] === 'yes';
         $show_floors = $settings['show_floors_field'] === 'yes';
         
-        $widget_id = 'resbs-search-' . $this->get_id();
-        $results_url = $search_results_page !== 'default' ? get_permalink($search_results_page) : get_post_type_archive_link('property');
+        $widget_id = 'resbs-search-' . absint($this->get_id());
         
         // Security: Create nonce for search alerts AJAX (if save search is enabled and user is logged in)
         $search_alerts_nonce = '';
@@ -470,9 +499,14 @@ class RESBS_Search_Widget extends \Elementor\Widget_Base {
                                     <select name="price_min" class="resbs-search-select">
                                         <option value=""><?php esc_html_e('No min', 'realestate-booking-suite'); ?></option>
                                         <?php
+                                        // Get currency settings
+                                        $currency_symbol = sanitize_text_field(get_option('resbs_currency_symbol', '$'));
+                                        $currency_symbol_escaped = esc_html($currency_symbol);
+                                        
                                         $price_steps = array(0, 50000, 100000, 150000, 200000, 250000, 300000, 350000, 400000, 450000, 500000, 600000, 700000, 800000, 900000, 1000000);
                                         foreach ($price_steps as $price) {
-                                            echo '<option value="' . esc_attr($price) . '">$' . esc_html(number_format($price)) . '</option>';
+                                            $formatted_price = number_format($price);
+                                            echo '<option value="' . esc_attr($price) . '">' . $currency_symbol_escaped . esc_html($formatted_price) . '</option>';
                                         }
                                         ?>
                                     </select>
@@ -499,13 +533,17 @@ class RESBS_Search_Widget extends \Elementor\Widget_Base {
                                     <select name="category" class="resbs-search-select">
                                         <option value=""><?php esc_html_e('Select category', 'realestate-booking-suite'); ?></option>
                                         <?php
+                                        // Note: property_category taxonomy doesn't exist - using property_location instead
+                                        // If you need a category taxonomy, register it in class-resbs-cpt.php
                                         $categories = get_terms(array(
-                                            'taxonomy' => 'property_category',
+                                            'taxonomy' => 'property_location',
                                             'hide_empty' => false,
                                         ));
-                                        if (!empty($categories) && !is_wp_error($categories)) {
+                                        if (!is_wp_error($categories) && !empty($categories) && is_array($categories)) {
                                             foreach ($categories as $category) {
-                                                echo '<option value="' . esc_attr($category->slug) . '">' . esc_html($category->name) . '</option>';
+                                                $category_slug = sanitize_text_field($category->slug);
+                                                $category_name = sanitize_text_field($category->name);
+                                                echo '<option value="' . esc_attr($category_slug) . '">' . esc_html($category_name) . '</option>';
                                             }
                                         }
                                         ?>
@@ -524,9 +562,11 @@ class RESBS_Search_Widget extends \Elementor\Widget_Base {
                                             'taxonomy' => 'property_type',
                                             'hide_empty' => false,
                                         ));
-                                        if (!empty($property_types) && !is_wp_error($property_types)) {
+                                        if (!is_wp_error($property_types) && !empty($property_types) && is_array($property_types)) {
                                             foreach ($property_types as $type) {
-                                                echo '<option value="' . esc_attr($type->slug) . '">' . esc_html($type->name) . '</option>';
+                                                $type_slug = sanitize_text_field($type->slug);
+                                                $type_name = sanitize_text_field($type->name);
+                                                echo '<option value="' . esc_attr($type_slug) . '">' . esc_html($type_name) . '</option>';
                                             }
                                         }
                                         ?>

@@ -421,13 +421,45 @@ class RESBS_Slider_Widget extends \Elementor\Widget_Base {
         $show_arrows = $settings['show_arrows'] === 'yes';
         $show_dots = $settings['show_dots'] === 'yes';
         $infinite_loop = $settings['infinite_loop'] === 'yes';
-        $orderby = sanitize_text_field($settings['orderby']);
-        $order = sanitize_text_field($settings['order']);
-        $property_types = $settings['property_type'] ?? array();
-        $property_statuses = $settings['property_status'] ?? array();
+        // Validate orderby and order
+        $orderby_raw = sanitize_text_field($settings['orderby']);
+        $allowed_orderby = array('date', 'title', 'price', 'rand', 'featured');
+        if (!in_array($orderby_raw, $allowed_orderby, true)) {
+            $orderby_raw = 'date';
+        }
+        $orderby = $orderby_raw;
+        
+        $order_raw = sanitize_text_field($settings['order']);
+        $allowed_order = array('ASC', 'DESC');
+        if (!in_array($order_raw, $allowed_order, true)) {
+            $order_raw = 'DESC';
+        }
+        $order = $order_raw;
+        
+        // Validate and sanitize property types and statuses
+        $property_types = array();
+        if (isset($settings['property_type']) && is_array($settings['property_type'])) {
+            foreach ($settings['property_type'] as $type) {
+                $type_sanitized = sanitize_text_field($type);
+                if (!empty($type_sanitized)) {
+                    $property_types[] = $type_sanitized;
+                }
+            }
+        }
+        
+        $property_statuses = array();
+        if (isset($settings['property_status']) && is_array($settings['property_status'])) {
+            foreach ($settings['property_status'] as $status) {
+                $status_sanitized = sanitize_text_field($status);
+                if (!empty($status_sanitized)) {
+                    $property_statuses[] = $status_sanitized;
+                }
+            }
+        }
+        
         $featured_only = $settings['featured_only'] === 'yes';
         
-        $widget_id = 'resbs-slider-' . $this->get_id();
+        $widget_id = 'resbs-slider-' . absint($this->get_id());
         
         // Build query
         $query_args = array(
@@ -442,14 +474,14 @@ class RESBS_Slider_Widget extends \Elementor\Widget_Base {
             $query_args['meta_key'] = '_property_price';
         } elseif ($orderby === 'featured') {
             $query_args['meta_key'] = '_property_featured';
-            $query_args['meta_value'] = 'yes';
+            $query_args['meta_value'] = '1';
         }
         
         $meta_query = array();
         if ($featured_only) {
             $meta_query[] = array(
                 'key' => '_property_featured',
-                'value' => 'yes',
+                'value' => '1',
                 'compare' => '='
             );
         }
@@ -565,10 +597,15 @@ class RESBS_Slider_Widget extends \Elementor\Widget_Base {
         }
         
         // Add widget-specific dynamic styles via wp_add_inline_style
+        // Escape CSS values for safety
+        $widget_id_css = esc_attr($widget_id);
+        $columns_css = absint($columns);
+        $grid_gap_css = esc_attr($grid_gap);
+        
         $dynamic_css = "
-        #{$widget_id} .resbs-slider-grid {
-            grid-template-columns: repeat({$columns}, 1fr) !important;
-            gap: {$grid_gap} !important;
+        #{$widget_id_css} .resbs-slider-grid {
+            grid-template-columns: repeat({$columns_css}, 1fr) !important;
+            gap: {$grid_gap_css} !important;
         }
         ";
         
@@ -596,7 +633,21 @@ class RESBS_Slider_Widget extends \Elementor\Widget_Base {
         $property_status_meta = $property_status_meta ? sanitize_text_field($property_status_meta) : '';
         $featured_image = get_the_post_thumbnail_url($property_id, 'medium');
         
-        $formatted_price = $price ? '$' . number_format($price) : 'Price on request';
+        // Format price with currency settings
+        if ($price && is_numeric($price)) {
+            $currency_symbol = sanitize_text_field(get_option('resbs_currency_symbol', '$'));
+            $currency_position = sanitize_text_field(get_option('resbs_currency_position', 'before'));
+            $formatted_price_num = number_format(floatval($price), 2);
+            $currency_symbol_escaped = esc_html($currency_symbol);
+            
+            if ($currency_position === 'before') {
+                $formatted_price = $currency_symbol_escaped . $formatted_price_num;
+            } else {
+                $formatted_price = $formatted_price_num . $currency_symbol_escaped;
+            }
+        } else {
+            $formatted_price = esc_html__('Price on request', 'realestate-booking-suite');
+        }
         $location = trim($city . ', ' . $state, ', ');
         ?>
         
@@ -655,9 +706,26 @@ class RESBS_Slider_Widget extends \Elementor\Widget_Base {
         $bathrooms = get_post_meta($property_id, '_property_bathrooms', true);
         // Get area using helper function that handles unit conversion
         $area_value = resbs_get_property_area($property_id, '_property_area_sqft');
-        $location = get_the_terms($property_id, 'property_location');
-        $property_type = get_the_terms($property_id, 'property_type');
-        $property_status = get_the_terms($property_id, 'property_status');
+        // Get taxonomy terms and sanitize
+        $location_raw = get_the_terms($property_id, 'property_location');
+        $property_type_raw = get_the_terms($property_id, 'property_type');
+        $property_status_raw = get_the_terms($property_id, 'property_status');
+        
+        // Validate and sanitize taxonomy terms
+        $location = null;
+        if (!is_wp_error($location_raw) && is_array($location_raw) && !empty($location_raw)) {
+            $location = $location_raw[0];
+        }
+        
+        $property_type = null;
+        if (!is_wp_error($property_type_raw) && is_array($property_type_raw) && !empty($property_type_raw)) {
+            $property_type = $property_type_raw[0];
+        }
+        
+        $property_status = null;
+        if (!is_wp_error($property_status_raw) && is_array($property_status_raw) && !empty($property_status_raw)) {
+            $property_status = $property_status_raw[0];
+        }
         
         ?>
         <div class="resbs-property-card">
@@ -690,16 +758,29 @@ class RESBS_Slider_Widget extends \Elementor\Widget_Base {
             </div>
             
             <div class="resbs-property-content">
-                <?php if (!empty($location)): ?>
-                    <div class="resbs-property-location"><?php echo esc_html($location[0]->name); ?></div>
+                <?php if ($location && isset($location->name)): ?>
+                    <div class="resbs-property-location"><?php echo esc_html(sanitize_text_field($location->name)); ?></div>
                 <?php endif; ?>
                 
                 <h3 class="resbs-property-title">
                     <a href="<?php echo esc_url(get_permalink()); ?>"><?php echo esc_html(get_the_title()); ?></a>
                 </h3>
                 
-                <?php if (!empty($price)): ?>
-                    <div class="resbs-property-price">$<?php echo esc_html(number_format($price)); ?></div>
+                <?php if ($price && is_numeric($price)): ?>
+                    <?php 
+                    // Format price with currency settings
+                    $currency_symbol = sanitize_text_field(get_option('resbs_currency_symbol', '$'));
+                    $currency_position = sanitize_text_field(get_option('resbs_currency_position', 'before'));
+                    $formatted_price_num = number_format(floatval($price), 2);
+                    $currency_symbol_escaped = esc_html($currency_symbol);
+                    
+                    if ($currency_position === 'before') {
+                        $formatted_price_display = $currency_symbol_escaped . $formatted_price_num;
+                    } else {
+                        $formatted_price_display = $formatted_price_num . $currency_symbol_escaped;
+                    }
+                    ?>
+                    <div class="resbs-property-price"><?php echo esc_html($formatted_price_display); ?></div>
                 <?php endif; ?>
                 
                 <div class="resbs-property-meta">
@@ -725,11 +806,11 @@ class RESBS_Slider_Widget extends \Elementor\Widget_Base {
                     <?php endif; ?>
                 </div>
                 
-                <?php if (!empty($property_type)): ?>
+                <?php if ($property_type && isset($property_type->name)): ?>
                     <div class="resbs-property-type">
-                        <?php echo esc_html($property_type[0]->name); ?>
-                        <?php if (!empty($property_status)): ?>
-                            • <?php echo esc_html($property_status[0]->name); ?>
+                        <?php echo esc_html(sanitize_text_field($property_type->name)); ?>
+                        <?php if ($property_status && isset($property_status->name)): ?>
+                            • <?php echo esc_html(sanitize_text_field($property_status->name)); ?>
                         <?php endif; ?>
                     </div>
                 <?php endif; ?>

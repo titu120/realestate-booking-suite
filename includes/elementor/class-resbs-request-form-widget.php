@@ -231,8 +231,28 @@ class RESBS_Request_Form_Widget extends \Elementor\Widget_Base {
         $disable_email = isset($settings['disable_email']) && $settings['disable_email'] === 'yes';
         
         $widget_id = 'resbs-request-form-' . absint($this->get_id());
+        
+        // Get current user and validate
         $current_user = wp_get_current_user();
+        $user_display_name = '';
+        $user_email = '';
+        if ($current_user && $current_user->ID > 0) {
+            $user_display_name = sanitize_text_field($current_user->display_name);
+            $user_email = sanitize_email($current_user->user_email);
+        }
+        
+        // Get current property ID and validate
         $current_property_id = get_the_ID();
+        if ($current_property_id) {
+            $current_property_id = absint($current_property_id);
+            // Validate it's actually a property post type
+            $post = get_post($current_property_id);
+            if (!$post || $post->post_type !== 'property') {
+                $current_property_id = 0;
+            }
+        } else {
+            $current_property_id = 0;
+        }
         
         ?>
         <div class="resbs-request-form-widget" id="<?php echo esc_attr($widget_id); ?>">
@@ -261,7 +281,7 @@ class RESBS_Request_Form_Widget extends \Elementor\Widget_Base {
                             <input type="text" 
                                    name="name" 
                                    id="request_name_<?php echo esc_attr($widget_id); ?>" 
-                                   value="<?php echo esc_attr($current_user->display_name); ?>"
+                                   value="<?php echo esc_attr($user_display_name); ?>"
                                    required>
                         </div>
                     <?php endif; ?>
@@ -274,7 +294,7 @@ class RESBS_Request_Form_Widget extends \Elementor\Widget_Base {
                             <input type="email" 
                                    name="email" 
                                    id="request_email_<?php echo esc_attr($widget_id); ?>" 
-                                   value="<?php echo esc_attr($current_user->user_email); ?>"
+                                   value="<?php echo esc_attr($user_email); ?>"
                                    required>
                         </div>
                     <?php endif; ?>

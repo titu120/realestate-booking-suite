@@ -100,7 +100,9 @@ class RESBS_Shortcodes {
                     $this->send_verification_email($user_id, $email, $verification_token);
                     
                     // Store success message
-                    $success_key = 'resbs_reg_success_' . md5($_SERVER['REMOTE_ADDR'] . time());
+                    // Sanitize IP address for transient key generation
+                    $client_ip = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field($_SERVER['REMOTE_ADDR']) : 'unknown';
+                    $success_key = 'resbs_reg_success_' . md5($client_ip . time());
                     set_transient($success_key, 'email_verification', 300); // 5 minutes
                     wp_safe_redirect(add_query_arg('reg_success', $success_key, get_permalink()));
                     exit;
@@ -117,14 +119,18 @@ class RESBS_Shortcodes {
                 }
             } else {
                 // Store errors in transient to display after redirect
-                $transient_key = 'resbs_registration_errors_' . md5($_SERVER['REMOTE_ADDR'] . time());
+                // Sanitize IP address for transient key generation
+                $client_ip = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field($_SERVER['REMOTE_ADDR']) : 'unknown';
+                $transient_key = 'resbs_registration_errors_' . md5($client_ip . time());
                 set_transient($transient_key, $user_id->get_error_messages(), 30);
                 wp_safe_redirect(add_query_arg('reg_errors', $transient_key, get_permalink()));
                 exit;
             }
         } else {
             // Store errors in transient to display after redirect
-            $transient_key = 'resbs_registration_errors_' . md5($_SERVER['REMOTE_ADDR'] . time());
+            // Sanitize IP address for transient key generation
+            $client_ip = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field($_SERVER['REMOTE_ADDR']) : 'unknown';
+            $transient_key = 'resbs_registration_errors_' . md5($client_ip . time());
             set_transient($transient_key, $errors->get_error_messages(), 30);
             wp_safe_redirect(add_query_arg('reg_errors', $transient_key, get_permalink()));
             exit;
@@ -150,7 +156,9 @@ class RESBS_Shortcodes {
         
         if (empty($users)) {
             // Invalid token - redirect with error
-            $error_key = 'resbs_verify_error_' . md5($_SERVER['REMOTE_ADDR'] . time());
+            // Sanitize IP address for transient key generation
+            $client_ip = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field($_SERVER['REMOTE_ADDR']) : 'unknown';
+            $error_key = 'resbs_verify_error_' . md5($client_ip . time());
             set_transient($error_key, 'invalid_token', 300);
             wp_safe_redirect(add_query_arg('verify_error', $error_key, home_url('/register/')));
             exit;
@@ -163,7 +171,9 @@ class RESBS_Shortcodes {
         $expires = get_user_meta($user_id, 'resbs_verification_expires', true);
         if ($expires && time() > $expires) {
             // Token expired - redirect with error
-            $error_key = 'resbs_verify_error_' . md5($_SERVER['REMOTE_ADDR'] . time());
+            // Sanitize IP address for transient key generation
+            $client_ip = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field($_SERVER['REMOTE_ADDR']) : 'unknown';
+            $error_key = 'resbs_verify_error_' . md5($client_ip . time());
             set_transient($error_key, 'expired_token', 300);
             wp_safe_redirect(add_query_arg('verify_error', $error_key, home_url('/register/')));
             exit;
@@ -173,7 +183,9 @@ class RESBS_Shortcodes {
         $verified = get_user_meta($user_id, 'resbs_email_verified', true);
         if ($verified === '1') {
             // Already verified - redirect with message
-            $success_key = 'resbs_verify_success_' . md5($_SERVER['REMOTE_ADDR'] . time());
+            // Sanitize IP address for transient key generation
+            $client_ip = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field($_SERVER['REMOTE_ADDR']) : 'unknown';
+            $success_key = 'resbs_verify_success_' . md5($client_ip . time());
             set_transient($success_key, 'already_verified', 300);
             wp_safe_redirect(add_query_arg('verify_success', $success_key, home_url('/register/')));
             exit;
@@ -189,7 +201,9 @@ class RESBS_Shortcodes {
         wp_set_auth_cookie($user_id);
         
         // Redirect with success message
-        $success_key = 'resbs_verify_success_' . md5($_SERVER['REMOTE_ADDR'] . time());
+        // Sanitize IP address for transient key generation
+        $client_ip = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field($_SERVER['REMOTE_ADDR']) : 'unknown';
+        $success_key = 'resbs_verify_success_' . md5($client_ip . time());
         set_transient($success_key, 'verified', 300);
         wp_safe_redirect(add_query_arg('verify_success', $success_key, home_url('/')));
         exit;

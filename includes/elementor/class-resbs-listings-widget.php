@@ -563,9 +563,34 @@ class RESBS_Listings_Widget extends \Elementor\Widget_Base {
         $settings = $this->get_settings_for_display();
         
         $title = sanitize_text_field($settings['title']);
-        $layout = sanitize_text_field($settings['layout']);
+        
+        // Validate layout against whitelist
+        $layout_raw = sanitize_text_field($settings['layout']);
+        $allowed_layouts = array('grid', 'list', 'map');
+        if (!in_array($layout_raw, $allowed_layouts, true)) {
+            $layout_raw = 'grid';
+        }
+        $layout = $layout_raw;
+        
         $columns = isset($settings['columns']) ? intval($settings['columns']) : 3;
-        $grid_gap = isset($settings['grid_gap']['size']) ? $settings['grid_gap']['size'] . $settings['grid_gap']['unit'] : '1.5rem';
+        // Validate columns
+        if ($columns < 2 || $columns > 4) {
+            $columns = 3;
+        }
+        
+        // Validate and sanitize grid gap
+        $grid_gap = '1.5rem'; // Default
+        if (isset($settings['grid_gap']['size']) && isset($settings['grid_gap']['unit'])) {
+            $gap_size = is_numeric($settings['grid_gap']['size']) ? floatval($settings['grid_gap']['size']) : 1.5;
+            $gap_unit = sanitize_text_field($settings['grid_gap']['unit']);
+            $allowed_units = array('px', 'rem');
+            if (!in_array($gap_unit, $allowed_units, true)) {
+                $gap_unit = 'rem';
+            }
+            // Store raw value, will be escaped when used
+            $grid_gap = $gap_size . $gap_unit;
+        }
+        
         $disable_pagination = $settings['disable_pagination'] === 'yes';
         $view_all_link_name = sanitize_text_field($settings['view_all_link_name']);
         $view_all_page = intval($settings['view_all_page']);
@@ -573,12 +598,45 @@ class RESBS_Listings_Widget extends \Elementor\Widget_Base {
         $show_sorting = $settings['show_sorting'] === 'yes';
         $show_view_toggle = $settings['show_view_toggle'] === 'yes';
         $posts_per_page = intval($settings['posts_per_page']);
-        $orderby = sanitize_text_field($settings['orderby']);
-        $order = sanitize_text_field($settings['order']);
-        $property_types = $settings['property_type'] ?? array();
-        $property_statuses = $settings['property_status'] ?? array();
         
-        $widget_id = 'resbs-listings-' . $this->get_id();
+        // Validate orderby and order against whitelist
+        $orderby_raw = sanitize_text_field($settings['orderby']);
+        $allowed_orderby = array('date', 'title', 'price', 'rand');
+        if (!in_array($orderby_raw, $allowed_orderby, true)) {
+            $orderby_raw = 'date';
+        }
+        $orderby = $orderby_raw;
+        
+        $order_raw = sanitize_text_field($settings['order']);
+        $allowed_order = array('ASC', 'DESC');
+        if (!in_array($order_raw, $allowed_order, true)) {
+            $order_raw = 'DESC';
+        }
+        $order = $order_raw;
+        
+        // Sanitize property types and statuses arrays
+        $property_types = array();
+        if (isset($settings['property_type']) && is_array($settings['property_type'])) {
+            foreach ($settings['property_type'] as $type) {
+                $type_sanitized = sanitize_text_field($type);
+                if (!empty($type_sanitized)) {
+                    $property_types[] = $type_sanitized;
+                }
+            }
+        }
+        
+        $property_statuses = array();
+        if (isset($settings['property_status']) && is_array($settings['property_status'])) {
+            foreach ($settings['property_status'] as $status) {
+                $status_sanitized = sanitize_text_field($status);
+                if (!empty($status_sanitized)) {
+                    $property_statuses[] = $status_sanitized;
+                }
+            }
+        }
+        
+        // Sanitize widget ID
+        $widget_id = 'resbs-listings-' . absint($this->get_id());
         
         // Build query
         $query_args = array(
@@ -596,18 +654,22 @@ class RESBS_Listings_Widget extends \Elementor\Widget_Base {
         
         $tax_query = array();
         if (!empty($property_types)) {
+            // Sanitize each term in the array
+            $property_types_sanitized = array_map('sanitize_text_field', $property_types);
             $tax_query[] = array(
                 'taxonomy' => 'property_type',
                 'field' => 'slug',
-                'terms' => $property_types
+                'terms' => $property_types_sanitized
             );
         }
         
         if (!empty($property_statuses)) {
+            // Sanitize each term in the array
+            $property_statuses_sanitized = array_map('sanitize_text_field', $property_statuses);
             $tax_query[] = array(
                 'taxonomy' => 'property_status',
                 'field' => 'slug',
-                'terms' => $property_statuses
+                'terms' => $property_statuses_sanitized
             );
         }
         
@@ -704,7 +766,7 @@ class RESBS_Listings_Widget extends \Elementor\Widget_Base {
                         <div class="resbs-map-wrapper">
                             <div id="resbs-map-canvas-<?php echo esc_attr($widget_id); ?>" class="resbs-map-canvas"></div>
                         </div>
-                        <script type="application/json" class="resbs-map-data"><?php echo wp_json_encode($map_properties); ?></script>
+                        <script type="application/json" class="resbs-map-data"><?php echo esc_attr(wp_json_encode($map_properties)); ?></script>
                     </div>
                 </div>
                 
@@ -774,10 +836,15 @@ class RESBS_Listings_Widget extends \Elementor\Widget_Base {
         }
         
         // Add dynamic inline styles for this widget instance (grid gap and columns)
+        // Escape widget ID and values for CSS
+        $widget_id_css = esc_attr($widget_id);
+        $columns_css = absint($columns);
+        $grid_gap_css = esc_attr($grid_gap);
+        
         $dynamic_css = "
-        #{$widget_id} .resbs-properties-container {
-            grid-template-columns: repeat({$columns}, 1fr) !important;
-            gap: {$grid_gap} !important;
+        #{$widget_id_css} .resbs-properties-container {
+            grid-template-columns: repeat({$columns_css}, 1fr) !important;
+            gap: {$grid_gap_css} !important;
         }
         ";
         
@@ -805,13 +872,38 @@ class RESBS_Listings_Widget extends \Elementor\Widget_Base {
         if (!$featured_image) {
             $gallery = get_post_meta($property_id, '_property_gallery', true);
             if ($gallery && is_array($gallery) && !empty($gallery)) {
-                $featured_image = wp_get_attachment_image_url($gallery[0], 'medium');
+                // Validate and sanitize gallery array
+                $first_image_id = absint($gallery[0]);
+                if ($first_image_id > 0) {
+                    $featured_image = wp_get_attachment_image_url($first_image_id, 'medium');
+                    if (!$featured_image) {
+                        $featured_image = '';
+                    }
+                }
             }
         }
         
-        // Format price and location
-        $formatted_price = $price ? '$' . number_format($price) : 'Price on request';
-        $location = trim($city . ', ' . $state, ', ');
+        // Format price using currency settings
+        $formatted_price = '';
+        if ($price && is_numeric($price)) {
+            $currency_symbol = sanitize_text_field(get_option('resbs_currency_symbol', '$'));
+            $currency_position = sanitize_text_field(get_option('resbs_currency_position', 'before'));
+            $formatted_price_num = number_format(floatval($price), 2);
+            $currency_symbol_escaped = esc_html($currency_symbol);
+            
+            if ($currency_position === 'before') {
+                $formatted_price = $currency_symbol_escaped . $formatted_price_num;
+            } else {
+                $formatted_price = $formatted_price_num . $currency_symbol_escaped;
+            }
+        } else {
+            $formatted_price = esc_html__('Price on request', 'realestate-booking-suite');
+        }
+        
+        // Sanitize and format location
+        $city_sanitized = sanitize_text_field($city);
+        $state_sanitized = sanitize_text_field($state);
+        $location = trim($city_sanitized . ', ' . $state_sanitized, ', ');
         
         ?>
         <div class="resbs-property-card resbs-layout-<?php echo esc_attr($layout); ?>" data-property-id="<?php echo esc_attr($property_id); ?>">
@@ -829,13 +921,13 @@ class RESBS_Listings_Widget extends \Elementor\Widget_Base {
                 <?php endif; ?>
                 
                 <div class="resbs-property-badges">
-                    <?php if ($featured === 'yes'): ?>
+                    <?php if ($featured === 'yes' || $featured === '1'): ?>
                         <span class="resbs-badge resbs-badge-featured"><?php esc_html_e('Featured', 'realestate-booking-suite'); ?></span>
                     <?php endif; ?>
-                    <?php if ($sold === 'yes'): ?>
+                    <?php if ($sold === 'yes' || $sold === '1'): ?>
                         <span class="resbs-badge resbs-badge-sold"><?php esc_html_e('Sold', 'realestate-booking-suite'); ?></span>
                     <?php elseif ($property_status_meta): ?>
-                        <span class="resbs-badge resbs-badge-status"><?php echo esc_html($property_status_meta); ?></span>
+                        <span class="resbs-badge resbs-badge-status"><?php echo esc_html(sanitize_text_field($property_status_meta)); ?></span>
                     <?php endif; ?>
                 </div>
             </div>

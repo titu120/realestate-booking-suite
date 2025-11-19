@@ -41,6 +41,26 @@
         document.getElementById('fullMessageModal').classList.remove('flex');
     }
     
+    // Handle data attribute based message display
+    document.addEventListener('DOMContentLoaded', function() {
+        const messageLinks = document.querySelectorAll('.show-full-message-link');
+        messageLinks.forEach(function(link) {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const messageId = this.getAttribute('data-message-id');
+                const messageJson = this.getAttribute('data-message');
+                if (messageJson) {
+                    try {
+                        const message = JSON.parse(messageJson);
+                        showFullMessage(messageId, message);
+                    } catch (e) {
+                        console.error('Error parsing message JSON:', e);
+                    }
+                }
+            });
+        });
+    });
+    
     // Make functions globally available
     window.resbsUpdateStatus = updateStatus;
     window.resbsFilterByStatus = filterByStatus;

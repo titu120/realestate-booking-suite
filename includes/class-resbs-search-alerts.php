@@ -401,9 +401,11 @@ class RESBS_Search_Alerts_Manager {
         global $wpdb;
         
         $table_name = $wpdb->prefix . 'resbs_search_alerts';
+        // Escape table name for consistency (table name is safe - constructed from $wpdb->prefix)
+        $table_name_escaped = esc_sql($table_name);
         
         return $wpdb->get_row($wpdb->prepare(
-            "SELECT * FROM $table_name WHERE id = %d",
+            "SELECT * FROM `{$table_name_escaped}` WHERE id = %d",
             $alert_id
         ));
     }
@@ -415,9 +417,11 @@ class RESBS_Search_Alerts_Manager {
         global $wpdb;
         
         $table_name = $wpdb->prefix . 'resbs_search_alerts';
+        // Escape table name for consistency (table name is safe - constructed from $wpdb->prefix)
+        $table_name_escaped = esc_sql($table_name);
         
         return $wpdb->get_results($wpdb->prepare(
-            "SELECT * FROM $table_name WHERE email = %s AND status = 'active' ORDER BY created_at DESC",
+            "SELECT * FROM `{$table_name_escaped}` WHERE email = %s AND status = 'active' ORDER BY created_at DESC",
             $email
         ));
     }
@@ -429,10 +433,12 @@ class RESBS_Search_Alerts_Manager {
         global $wpdb;
         
         $table_name = $wpdb->prefix . 'resbs_search_alerts';
+        // Escape table name for consistency (table name is safe - constructed from $wpdb->prefix)
+        $table_name_escaped = esc_sql($table_name);
         
         // Get alerts that need to be sent
         $alerts = $wpdb->get_results($wpdb->prepare(
-            "SELECT * FROM $table_name 
+            "SELECT * FROM `{$table_name_escaped}` 
              WHERE status = 'active' 
              AND (last_sent IS NULL OR last_sent < %s)
              ORDER BY created_at ASC",
@@ -451,9 +457,13 @@ class RESBS_Search_Alerts_Manager {
         // Parse search criteria
         $criteria = json_decode($alert->search_criteria, true);
         
-        if (!$criteria) {
+        // Validate decoded criteria is an array
+        if (!is_array($criteria) || empty($criteria)) {
             return;
         }
+        
+        // Sanitize criteria values to prevent any potential issues
+        $criteria = $this->sanitize_search_criteria($criteria);
         
         // Find matching properties
         $matching_properties = $this->find_matching_properties($criteria);
@@ -661,14 +671,48 @@ class RESBS_Search_Alerts_Manager {
     /**
      * Get next send time based on frequency
      */
-    private function get_next_send_time() {
+    private function get_next_send_time($frequency = 'daily') {
         $frequencies = array(
             'hourly' => '1 hour ago',
             'daily' => '1 day ago',
             'weekly' => '1 week ago'
         );
         
-        return date('Y-m-d H:i:s', strtotime('1 day ago')); // Default to daily
+        // Validate frequency
+        if (!isset($frequencies[$frequency])) {
+            $frequency = 'daily';
+        }
+        
+        return date('Y-m-d H:i:s', strtotime($frequencies[$frequency]));
+    }
+    
+    /**
+     * Sanitize search criteria array
+     * 
+     * @param array $criteria Search criteria array
+     * @return array Sanitized criteria array
+     */
+    private function sanitize_search_criteria($criteria) {
+        $sanitized = array();
+        
+        // Allowed criteria keys
+        $allowed_keys = array('price_min', 'price_max', 'bedrooms', 'bathrooms', 'property_type', 'property_status', 'location');
+        
+        foreach ($criteria as $key => $value) {
+            // Only allow expected keys
+            if (!in_array($key, $allowed_keys, true)) {
+                continue;
+            }
+            
+            // Sanitize based on key type
+            if (in_array($key, array('price_min', 'price_max', 'bedrooms', 'bathrooms'), true)) {
+                $sanitized[$key] = absint($value);
+            } else {
+                $sanitized[$key] = sanitize_text_field($value);
+            }
+        }
+        
+        return $sanitized;
     }
 
     /**

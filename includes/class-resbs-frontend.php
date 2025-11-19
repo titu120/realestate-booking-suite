@@ -188,42 +188,42 @@ class RESBS_Frontend {
                 
                 <div class="resbs-form-row">
                     <label for="property_price"><?php esc_html_e('Price *', 'realestate-booking-suite'); ?></label>
-                    <input type="number" id="property_price" name="property_price" value="<?php echo $property ? esc_attr(get_post_meta($property->ID, '_resbs_price', true)) : ''; ?>" step="0.01" min="0" required>
+                    <input type="number" id="property_price" name="property_price" value="<?php echo $property ? esc_attr(get_post_meta($property->ID, '_property_price', true)) : ''; ?>" step="0.01" min="0" required>
                 </div>
                 
                 <div class="resbs-form-row">
                     <label for="property_bedrooms"><?php esc_html_e('Bedrooms', 'realestate-booking-suite'); ?></label>
-                    <input type="number" id="property_bedrooms" name="property_bedrooms" value="<?php echo $property ? esc_attr(get_post_meta($property->ID, '_resbs_bedrooms', true)) : ''; ?>" min="0">
+                    <input type="number" id="property_bedrooms" name="property_bedrooms" value="<?php echo $property ? esc_attr(get_post_meta($property->ID, '_property_bedrooms', true)) : ''; ?>" min="0">
                 </div>
                 
                 <div class="resbs-form-row">
                     <label for="property_bathrooms"><?php esc_html_e('Bathrooms', 'realestate-booking-suite'); ?></label>
-                    <input type="number" id="property_bathrooms" name="property_bathrooms" value="<?php echo $property ? esc_attr(get_post_meta($property->ID, '_resbs_bathrooms', true)) : ''; ?>" min="0" step="0.5">
+                    <input type="number" id="property_bathrooms" name="property_bathrooms" value="<?php echo $property ? esc_attr(get_post_meta($property->ID, '_property_bathrooms', true)) : ''; ?>" min="0" step="0.5">
                 </div>
                 
                 <div class="resbs-form-row">
                     <label for="property_area"><?php esc_html_e('Area (sq ft)', 'realestate-booking-suite'); ?></label>
-                    <input type="number" id="property_area" name="property_area" value="<?php echo $property ? esc_attr(get_post_meta($property->ID, '_resbs_area', true)) : ''; ?>" min="0">
+                    <input type="number" id="property_area" name="property_area" value="<?php echo $property ? esc_attr(get_post_meta($property->ID, '_property_size', true) ?: get_post_meta($property->ID, '_property_area_sqft', true)) : ''; ?>" min="0">
                 </div>
                 
                 <div class="resbs-form-row">
                     <label for="property_latitude"><?php esc_html_e('Latitude', 'realestate-booking-suite'); ?></label>
-                    <input type="text" id="property_latitude" name="property_latitude" value="<?php echo $property ? esc_attr(get_post_meta($property->ID, '_resbs_latitude', true)) : ''; ?>">
+                    <input type="text" id="property_latitude" name="property_latitude" value="<?php echo $property ? esc_attr(get_post_meta($property->ID, '_property_latitude', true)) : ''; ?>">
                 </div>
                 
                 <div class="resbs-form-row">
                     <label for="property_longitude"><?php esc_html_e('Longitude', 'realestate-booking-suite'); ?></label>
-                    <input type="text" id="property_longitude" name="property_longitude" value="<?php echo $property ? esc_attr(get_post_meta($property->ID, '_resbs_longitude', true)) : ''; ?>">
+                    <input type="text" id="property_longitude" name="property_longitude" value="<?php echo $property ? esc_attr(get_post_meta($property->ID, '_property_longitude', true)) : ''; ?>">
                 </div>
                 
                 <div class="resbs-form-row">
                     <label for="property_video_url"><?php esc_html_e('Video URL', 'realestate-booking-suite'); ?></label>
-                    <input type="url" id="property_video_url" name="property_video_url" value="<?php echo $property ? esc_attr(get_post_meta($property->ID, '_resbs_video_url', true)) : ''; ?>" placeholder="<?php esc_attr_e('YouTube or Vimeo URL', 'realestate-booking-suite'); ?>">
+                    <input type="url" id="property_video_url" name="property_video_url" value="<?php echo $property ? esc_attr(get_post_meta($property->ID, '_property_video_url', true)) : ''; ?>" placeholder="<?php esc_attr_e('YouTube or Vimeo URL', 'realestate-booking-suite'); ?>">
                 </div>
                 
                 <div class="resbs-form-row">
                     <label for="property_description"><?php esc_html_e('Additional Description', 'realestate-booking-suite'); ?></label>
-                    <textarea id="property_description" name="property_description" rows="3"><?php echo $property ? esc_textarea(get_post_meta($property->ID, '_resbs_description', true)) : ''; ?></textarea>
+                    <textarea id="property_description" name="property_description" rows="3"><?php echo $property ? esc_textarea(get_post_meta($property->ID, '_property_description', true)) : ''; ?></textarea>
                 </div>
                 
                 <div class="resbs-form-row">
@@ -246,7 +246,7 @@ class RESBS_Frontend {
                         <div class="gallery-preview"></div>
                         <?php if ($property): ?>
                             <?php
-                            $gallery = get_post_meta($property->ID, '_resbs_gallery', true);
+                            $gallery = get_post_meta($property->ID, '_property_gallery', true);
                             if (is_string($gallery)) {
                                 $gallery = explode(',', $gallery);
                             }
@@ -398,22 +398,35 @@ class RESBS_Frontend {
         
         // Save meta fields
         $meta_fields = array(
-            'property_price' => 'floatval',
-            'property_bedrooms' => 'floatval',
-            'property_bathrooms' => 'floatval',
-            'property_area' => 'absint',
-            'property_size' => 'absint',
-            'property_latitude' => 'sanitize_text_field',
-            'property_longitude' => 'sanitize_text_field',
-            'property_video_url' => 'esc_url_raw',
-            'property_description' => 'sanitize_textarea_field'
+            'property_price' => array('sanitize' => 'floatval', 'meta_key' => '_property_price'),
+            'property_bedrooms' => array('sanitize' => 'absint', 'meta_key' => '_property_bedrooms'),
+            'property_bathrooms' => array('sanitize' => 'floatval', 'meta_key' => '_property_bathrooms'),
+            'property_area' => array('sanitize' => 'absint', 'meta_key' => '_property_size'), // Save area to _property_size for consistency
+            'property_size' => array('sanitize' => 'absint', 'meta_key' => '_property_size'),
+            'property_latitude' => array('sanitize' => 'sanitize_text_field', 'meta_key' => '_property_latitude'),
+            'property_longitude' => array('sanitize' => 'sanitize_text_field', 'meta_key' => '_property_longitude'),
+            'property_video_url' => array('sanitize' => 'esc_url_raw', 'meta_key' => '_property_video_url'),
+            'property_description' => array('sanitize' => 'sanitize_textarea_field', 'meta_key' => '_property_description')
         );
         
-        foreach ($meta_fields as $field => $sanitize_function) {
-            if (isset($_POST[$field]) && is_callable($sanitize_function)) {
-                $value = call_user_func($sanitize_function, $_POST[$field]);
-                $meta_key = '_property_' . str_replace('property_', '', $field);
-                update_post_meta($post_id, $meta_key, $value);
+        foreach ($meta_fields as $field => $config) {
+            if (isset($_POST[$field]) && is_callable($config['sanitize'])) {
+                $value = call_user_func($config['sanitize'], $_POST[$field]);
+                // Validate latitude/longitude ranges
+                if ($field === 'property_latitude') {
+                    $float_value = floatval($value);
+                    if ($float_value < -90 || $float_value > 90) {
+                        continue; // Skip invalid latitude
+                    }
+                    $value = $float_value;
+                } elseif ($field === 'property_longitude') {
+                    $float_value = floatval($value);
+                    if ($float_value < -180 || $float_value > 180) {
+                        continue; // Skip invalid longitude
+                    }
+                    $value = $float_value;
+                }
+                update_post_meta($post_id, $config['meta_key'], $value);
             }
         }
         
@@ -530,6 +543,13 @@ class RESBS_Frontend {
         }
         
         $uploadedfile = $_FILES['property_image'];
+        
+        // Validate file before upload
+        $validation = RESBS_Security::validate_file_upload($uploadedfile);
+        if (is_wp_error($validation)) {
+            return false;
+        }
+        
         $upload_overrides = array('test_form' => false);
         
         $movefile = wp_handle_upload($uploadedfile, $upload_overrides);
@@ -583,6 +603,12 @@ class RESBS_Frontend {
                     'size' => $_FILES['property_gallery']['size'][$key]
                 );
                 
+                // Validate file before upload
+                $validation = RESBS_Security::validate_file_upload($file);
+                if (is_wp_error($validation)) {
+                    continue; // Skip invalid file
+                }
+                
                 $upload_overrides = array('test_form' => false);
                 $movefile = wp_handle_upload($file, $upload_overrides);
                 
@@ -611,7 +637,7 @@ class RESBS_Frontend {
         }
         
         if (!empty($gallery_ids)) {
-            update_post_meta($post_id, '_resbs_gallery', implode(',', $gallery_ids));
+            update_post_meta($post_id, '_property_gallery', $gallery_ids);
         }
     }
     
@@ -852,10 +878,10 @@ class RESBS_Frontend {
      * Render property item
      */
     private function render_property_item($property) {
-        $price = get_post_meta($property->ID, '_resbs_price', true);
-        $bedrooms = get_post_meta($property->ID, '_resbs_bedrooms', true);
-        $bathrooms = get_post_meta($property->ID, '_resbs_bathrooms', true);
-        $area = get_post_meta($property->ID, '_resbs_area', true);
+        $price = get_post_meta($property->ID, '_property_price', true);
+        $bedrooms = get_post_meta($property->ID, '_property_bedrooms', true);
+        $bathrooms = get_post_meta($property->ID, '_property_bathrooms', true);
+        $area = get_post_meta($property->ID, '_property_size', true) ?: get_post_meta($property->ID, '_property_area_sqft', true);
         $featured_image = get_the_post_thumbnail_url($property->ID, 'medium');
         ?>
         <div class="resbs-property-item" data-property-id="<?php echo esc_attr($property->ID); ?>">
@@ -1275,7 +1301,7 @@ class RESBS_Frontend {
         
         // Add meta query for custom ordering
         if ($orderby === 'price') {
-            $args['meta_key'] = '_resbs_price';
+            $args['meta_key'] = '_property_price';
             $args['orderby'] = 'meta_value_num';
         }
         
@@ -1315,7 +1341,7 @@ class RESBS_Frontend {
         
         if (!empty($filters['price_min']) || !empty($filters['price_max'])) {
             $price_query = array(
-                'key' => '_resbs_price',
+                'key' => '_property_price',
                 'type' => 'NUMERIC'
             );
             
@@ -1342,7 +1368,7 @@ class RESBS_Frontend {
         
         if (!empty($filters['bedrooms'])) {
             $meta_query[] = array(
-                'key' => '_resbs_bedrooms',
+                'key' => '_property_bedrooms',
                 'value' => intval($filters['bedrooms']),
                 'compare' => '>=',
                 'type' => 'NUMERIC'
@@ -1351,7 +1377,7 @@ class RESBS_Frontend {
         
         if (!empty($filters['bathrooms'])) {
             $meta_query[] = array(
-                'key' => '_resbs_bathrooms',
+                'key' => '_property_bathrooms',
                 'value' => floatval($filters['bathrooms']),
                 'compare' => '>=',
                 'type' => 'NUMERIC'
@@ -1393,10 +1419,10 @@ class RESBS_Frontend {
      */
     private function format_property_for_elementor($post) {
         $property_id = $post->ID;
-        $price = get_post_meta($property_id, '_resbs_price', true);
-        $bedrooms = get_post_meta($property_id, '_resbs_bedrooms', true);
-        $bathrooms = get_post_meta($property_id, '_resbs_bathrooms', true);
-        $area = get_post_meta($property_id, '_resbs_area', true);
+        $price = get_post_meta($property_id, '_property_price', true);
+        $bedrooms = get_post_meta($property_id, '_property_bedrooms', true);
+        $bathrooms = get_post_meta($property_id, '_property_bathrooms', true);
+        $area = get_post_meta($property_id, '_property_size', true) ?: get_post_meta($property_id, '_property_area_sqft', true);
         
         // Get featured image
         $featured_image = get_the_post_thumbnail_url($property_id, 'medium');
@@ -1414,7 +1440,7 @@ class RESBS_Frontend {
         }
         
         // Check if property is featured (you can add custom logic here)
-        if (get_post_meta($property_id, '_resbs_featured', true)) {
+        if (get_post_meta($property_id, '_property_featured', true)) {
             $badges[] = array(
                 'type' => 'featured',
                 'text' => esc_html__('Featured', 'realestate-booking-suite')
@@ -1519,10 +1545,10 @@ class RESBS_Frontend {
         
         // Add meta query for custom ordering
         if ($orderby === 'price') {
-            $args['meta_key'] = '_resbs_price';
+            $args['meta_key'] = '_property_price';
             $args['orderby'] = 'meta_value_num';
         } elseif ($orderby === 'featured') {
-            $args['meta_key'] = '_resbs_featured';
+            $args['meta_key'] = '_property_featured';
             $args['meta_value'] = '1';
             $args['orderby'] = 'meta_value';
         }
@@ -1557,7 +1583,7 @@ class RESBS_Frontend {
         
         if (!empty($settings['price_min']) || !empty($settings['price_max'])) {
             $price_query = array(
-                'key' => '_resbs_price',
+                'key' => '_property_price',
                 'type' => 'NUMERIC'
             );
             
@@ -1584,7 +1610,7 @@ class RESBS_Frontend {
         
         if (!empty($settings['featured_only']) && $settings['featured_only'] === 'yes') {
             $meta_query[] = array(
-                'key' => '_resbs_featured',
+                'key' => '_property_featured',
                 'value' => '1',
                 'compare' => '='
             );
@@ -1628,12 +1654,21 @@ class RESBS_Frontend {
      * @return string Darkened hex color
      */
     private function darken_color($color, $percent) {
-        $color = str_replace('#', '', $color);
+        $color = ltrim($color, '#');
+        
+        // Validate hex color format
+        if (!preg_match('/^[a-fA-F0-9]{6}$/', $color)) {
+            $color = '0073aa'; // Fallback to safe default
+        }
+        
         $rgb = array(
             hexdec(substr($color, 0, 2)),
             hexdec(substr($color, 2, 2)),
             hexdec(substr($color, 4, 2))
         );
+        
+        // Validate percent
+        $percent = max(0, min(100, absint($percent)));
         
         for ($i = 0; $i < 3; $i++) {
             $rgb[$i] = round($rgb[$i] * (1 - $percent / 100));
@@ -1773,7 +1808,16 @@ class RESBS_Frontend {
         
         if (isset($_POST['form_data'])) {
             // AJAX submission - parse serialized form data
-            parse_str($_POST['form_data'], $form_data);
+            // Note: parse_str expects URL-encoded string, not sanitized text
+            // We'll sanitize after parsing
+            $form_data_raw = isset($_POST['form_data']) ? $_POST['form_data'] : '';
+            parse_str($form_data_raw, $form_data);
+            // Sanitize parsed data - handle arrays properly
+            if (is_array($form_data)) {
+                array_walk_recursive($form_data, function(&$value) {
+                    $value = sanitize_text_field($value);
+                });
+            }
         } else {
             // Direct POST submission - use $_POST directly
             $form_data = $_POST;
@@ -1913,8 +1957,8 @@ class RESBS_Frontend {
         }
         
         // Rate limiting: Prevent brute force attacks
-        $ip_address = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : 'unknown';
-        $transient_key = 'resbs_login_attempts_' . md5($username . $ip_address);
+        $client_ip = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field($_SERVER['REMOTE_ADDR']) : 'unknown';
+        $transient_key = 'resbs_login_attempts_' . md5($username . $client_ip);
         $attempts = get_transient($transient_key);
         
         if ($attempts && $attempts >= 5) {
@@ -1990,11 +2034,23 @@ class RESBS_Frontend {
                 $orderby = $sort_parts[0];
                 $order = strtoupper($sort_parts[1]);
                 
+                // Validate orderby value
+                $allowed_orderby = array('date', 'title', 'menu_order', 'rand', 'price', 'featured');
+                if (!in_array($orderby, $allowed_orderby, true)) {
+                    $orderby = 'date';
+                }
+                
                 if ($orderby === 'price') {
                     $args['meta_key'] = '_property_price';
                     $args['orderby'] = 'meta_value_num';
                 } else {
                     $args['orderby'] = $orderby;
+                }
+                
+                // Validate order value
+                $order = strtoupper($order);
+                if ($order !== 'ASC' && $order !== 'DESC') {
+                    $order = 'DESC';
                 }
                 $args['order'] = $order;
             }
@@ -2026,7 +2082,7 @@ class RESBS_Frontend {
                 echo '<button type="button" class="resbs-favorite-btn" data-property-id="' . esc_attr($property_id) . '"><span class="dashicons dashicons-heart"></span></button>';
                 echo '</div>';
                 echo '<div class="resbs-property-content">';
-                if ($location) {
+                if ($location && !is_wp_error($location) && !empty($location)) {
                     echo '<div class="resbs-property-location">' . esc_html($location[0]->name) . '</div>';
                 }
                 echo '<h3 class="resbs-property-title"><a href="' . esc_url(get_permalink()) . '">' . esc_html(get_the_title()) . '</a></h3>';

@@ -18,12 +18,34 @@ class RESBS_Contact_Messages {
         global $wpdb;
         $this->table_name = $wpdb->prefix . 'resbs_contact_messages';
         
-        // Create table on activation
-        register_activation_hook(__FILE__, array($this, 'create_contact_messages_table'));
+        // Create table on activation (use main plugin file path)
+        $main_plugin_file = RESBS_PATH . 'realestate-booking-suite.php';
+        if (file_exists($main_plugin_file)) {
+            register_activation_hook($main_plugin_file, array($this, 'create_contact_messages_table'));
+        }
+        
+        // Also create table immediately if it doesn't exist (for existing installations)
+        $this->maybe_create_table();
         
         // Add AJAX handlers
         add_action('wp_ajax_submit_contact_message', array($this, 'handle_contact_message_submission'));
         add_action('wp_ajax_nopriv_submit_contact_message', array($this, 'handle_contact_message_submission'));
+    }
+    
+    /**
+     * Check if table exists and create if needed
+     */
+    private function maybe_create_table() {
+        global $wpdb;
+        // Use esc_like() to escape underscores in table name (underscores are wildcards in SQL LIKE)
+        $table_exists = $wpdb->get_var($wpdb->prepare(
+            "SHOW TABLES LIKE %s",
+            $wpdb->esc_like($this->table_name)
+        ));
+        
+        if ($table_exists !== $this->table_name) {
+            $this->create_contact_messages_table();
+        }
     }
     
     /**
@@ -58,7 +80,7 @@ class RESBS_Contact_Messages {
      */
     public function handle_contact_message_submission() {
         // Verify nonce - check both possible nonce field names for compatibility
-        $nonce = isset($_POST['nonce']) ? $_POST['nonce'] : (isset($_POST['resbs_contact_form_nonce']) ? $_POST['resbs_contact_form_nonce'] : '');
+        $nonce = isset($_POST['nonce']) ? sanitize_text_field($_POST['nonce']) : (isset($_POST['resbs_contact_form_nonce']) ? sanitize_text_field($_POST['resbs_contact_form_nonce']) : '');
         if (!wp_verify_nonce($nonce, 'resbs_contact_form')) {
             wp_send_json_error(array('message' => esc_html__('Security check failed. Please refresh the page and try again.', 'realestate-booking-suite')));
             return;
@@ -126,7 +148,9 @@ class RESBS_Contact_Messages {
         // Get success message from property meta
         $success_message = get_post_meta($property_id, '_property_contact_success_message', true);
         if (empty($success_message)) {
-            $success_message = __('Thank you! Your message has been sent to the agent.', 'realestate-booking-suite');
+            $success_message = esc_html__('Thank you! Your message has been sent to the agent.', 'realestate-booking-suite');
+        } else {
+            $success_message = sanitize_text_field($success_message);
         }
         
         wp_send_json_success(array(
@@ -158,8 +182,12 @@ class RESBS_Contact_Messages {
         $contact_message_id_escaped = absint($contact_message_id);
         
         // Email to agent
-        if (!empty($agent_email)) {
-            $agent_subject = sprintf(__('New Contact Message for %s', 'realestate-booking-suite'), $property_title_escaped);
+        if (!empty($agent_email) && is_email($agent_email)) {
+            // Sanitize email subject to prevent header injection
+            $agent_subject_raw = sprintf(__('New Contact Message for %s', 'realestate-booking-suite'), $property_title_escaped);
+            $agent_subject = wp_strip_all_tags($agent_subject_raw);
+            $agent_subject = str_replace(array("\r", "\n"), '', $agent_subject);
+            
             $agent_message = sprintf(
                 __("New contact message received:\n\n", 'realestate-booking-suite') .
                 __("Property: %s\n", 'realestate-booking-suite') .
@@ -180,11 +208,24 @@ class RESBS_Contact_Messages {
                 $contact_message_id_escaped
             );
             
-            wp_mail(sanitize_email($agent_email), $agent_subject, $agent_message);
+            // Sanitize agent name for email headers to prevent header injection
+            $agent_name_for_headers = sanitize_text_field($agent_name_escaped);
+            $agent_name_for_headers = str_replace(array("\r", "\n"), '', $agent_name_for_headers);
+            
+            // Email headers
+            $agent_headers = array(
+                'Content-Type: text/plain; charset=UTF-8',
+                'From: ' . $agent_name_for_headers . ' <' . sanitize_email($agent_email) . '>'
+            );
+            
+            wp_mail(sanitize_email($agent_email), $agent_subject, $agent_message, $agent_headers);
         }
         
         // Email to customer
-        $customer_subject = sprintf(__('Message Confirmation - %s', 'realestate-booking-suite'), $property_title_escaped);
+        // Sanitize email subject to prevent header injection
+        $customer_subject_raw = sprintf(__('Message Confirmation - %s', 'realestate-booking-suite'), $property_title_escaped);
+        $customer_subject = wp_strip_all_tags($customer_subject_raw);
+        $customer_subject = str_replace(array("\r", "\n"), '', $customer_subject);
         $customer_message = sprintf(
             __("Thank you for your message!\n\n", 'realestate-booking-suite') .
             __("Property: %s\n", 'realestate-booking-suite') .
@@ -200,7 +241,20 @@ class RESBS_Contact_Messages {
             $agent_name_escaped
         );
         
-        wp_mail($email_escaped, $customer_subject, $customer_message);
+        // Sanitize agent name for email headers to prevent header injection
+        $agent_name_for_headers = sanitize_text_field($agent_name_escaped);
+        $agent_name_for_headers = str_replace(array("\r", "\n"), '', $agent_name_for_headers);
+        
+        // Use agent email if available, otherwise use admin email
+        $from_email = !empty($agent_email) && is_email($agent_email) ? sanitize_email($agent_email) : sanitize_email(get_option('admin_email'));
+        
+        // Email headers
+        $customer_headers = array(
+            'Content-Type: text/plain; charset=UTF-8',
+            'From: ' . $agent_name_for_headers . ' <' . $from_email . '>'
+        );
+        
+        wp_mail($email_escaped, $customer_subject, $customer_message, $customer_headers);
     }
     
     /**
@@ -218,7 +272,7 @@ class RESBS_Contact_Messages {
         
         global $wpdb;
         
-        $where_conditions = array();
+        $where_conditions = array();  
         $where_values = array();
         
         if ($property_id) {
@@ -239,7 +293,9 @@ class RESBS_Contact_Messages {
             $where_clause = 'WHERE ' . implode(' AND ', $where_conditions);
         }
         
-        $sql = "SELECT * FROM {$this->table_name} {$where_clause} ORDER BY created_at DESC";
+        // Escape table name for consistency (table name is safe - constructed from $wpdb->prefix)
+        $table_name_escaped = esc_sql($this->table_name);
+        $sql = "SELECT * FROM `{$table_name_escaped}` {$where_clause} ORDER BY created_at DESC";
         
         if (!empty($where_values)) {
             $sql = $wpdb->prepare($sql, $where_values);

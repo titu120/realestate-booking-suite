@@ -61,16 +61,67 @@ class RESBS_Maps_Manager {
      * Register settings
      */
     public function register_settings() {
-        register_setting('resbs_map_settings', 'resbs_google_maps_api_key');
-        register_setting('resbs_map_settings', 'resbs_map_default_lat');
-        register_setting('resbs_map_settings', 'resbs_map_default_lng');
-        register_setting('resbs_map_settings', 'resbs_map_default_zoom');
-        register_setting('resbs_map_settings', 'resbs_map_style');
-        register_setting('resbs_map_settings', 'resbs_map_cluster_markers');
-        register_setting('resbs_map_settings', 'resbs_map_show_search');
-        register_setting('resbs_map_settings', 'resbs_map_show_filters');
-        register_setting('resbs_map_settings', 'resbs_map_marker_icon');
-        register_setting('resbs_map_settings', 'resbs_map_info_window_style');
+        register_setting('resbs_map_settings', 'resbs_google_maps_api_key', array('sanitize_callback' => 'sanitize_text_field'));
+        register_setting('resbs_map_settings', 'resbs_map_default_lat', array('sanitize_callback' => array($this, 'sanitize_latitude')));
+        register_setting('resbs_map_settings', 'resbs_map_default_lng', array('sanitize_callback' => array($this, 'sanitize_longitude')));
+        register_setting('resbs_map_settings', 'resbs_map_default_zoom', array('sanitize_callback' => array($this, 'sanitize_zoom')));
+        register_setting('resbs_map_settings', 'resbs_map_style', array('sanitize_callback' => array($this, 'sanitize_map_style')));
+        register_setting('resbs_map_settings', 'resbs_map_cluster_markers', array('sanitize_callback' => array($this, 'sanitize_boolean')));
+        register_setting('resbs_map_settings', 'resbs_map_show_search', array('sanitize_callback' => array($this, 'sanitize_boolean')));
+        register_setting('resbs_map_settings', 'resbs_map_show_filters', array('sanitize_callback' => array($this, 'sanitize_boolean')));
+        register_setting('resbs_map_settings', 'resbs_map_marker_icon', array('sanitize_callback' => 'esc_url_raw'));
+        register_setting('resbs_map_settings', 'resbs_map_info_window_style', array('sanitize_callback' => 'sanitize_text_field'));
+    }
+
+    /**
+     * Sanitize latitude
+     */
+    private function sanitize_latitude($value) {
+        $float_value = floatval($value);
+        if ($float_value < -90 || $float_value > 90) {
+            return 40.7128; // Default to NYC
+        }
+        return $float_value;
+    }
+
+    /**
+     * Sanitize longitude
+     */
+    private function sanitize_longitude($value) {
+        $float_value = floatval($value);
+        if ($float_value < -180 || $float_value > 180) {
+            return -74.0060; // Default to NYC
+        }
+        return $float_value;
+    }
+
+    /**
+     * Sanitize zoom level
+     */
+    private function sanitize_zoom($value) {
+        $int_value = intval($value);
+        if ($int_value < 1 || $int_value > 20) {
+            return 10; // Default zoom
+        }
+        return $int_value;
+    }
+
+    /**
+     * Sanitize map style
+     */
+    private function sanitize_map_style($value) {
+        $allowed_styles = array('default', 'satellite', 'hybrid', 'terrain');
+        if (in_array($value, $allowed_styles, true)) {
+            return $value;
+        }
+        return 'default';
+    }
+
+    /**
+     * Sanitize boolean
+     */
+    private function sanitize_boolean($value) {
+        return filter_var($value, FILTER_VALIDATE_BOOLEAN);
     }
 
     /**
@@ -79,8 +130,14 @@ class RESBS_Maps_Manager {
     public function enqueue_assets() {
         $api_key = get_option('resbs_google_maps_api_key');
         
-        if ($api_key && (is_active_widget(false, false, 'resbs_property_map_widget') || 
-                        has_shortcode(get_post()->post_content ?? '', 'resbs_property_map'))) {
+        // Check if widget is active or shortcode is used
+        $has_shortcode = false;
+        $post = get_post();
+        if ($post && !empty($post->post_content)) {
+            $has_shortcode = has_shortcode($post->post_content, 'resbs_property_map');
+        }
+        
+        if ($api_key && (is_active_widget(false, false, 'resbs_property_map_widget') || $has_shortcode)) {
             
             // Enqueue Google Maps API
             wp_enqueue_script(
@@ -567,7 +624,7 @@ class RESBS_Maps_Manager {
                     'price' => esc_html(get_post_meta($property_id, '_property_price', true)),
                     'bedrooms' => intval(get_post_meta($property_id, '_property_bedrooms', true)),
                     'bathrooms' => intval(get_post_meta($property_id, '_property_bathrooms', true)),
-                    'area' => esc_html(get_post_meta($property_id, '_property_area', true)),
+                    'area' => esc_html(get_post_meta($property_id, '_property_size', true) ?: get_post_meta($property_id, '_property_area_sqft', true) ?: ''),
                     'featured_image' => esc_url(get_the_post_thumbnail_url($property_id, 'medium')),
                     'property_type' => array_map('esc_html', $property_type_terms),
                     'property_status' => array_map('esc_html', $property_status_terms),
@@ -617,9 +674,11 @@ class RESBS_Maps_Manager {
             ));
         }
 
-        $url = 'https://maps.googleapis.com/maps/api/geocode/json?address=' . urlencode($search_query) . '&key=' . urlencode($api_key);
+        // Sanitize API key before using in URL
+        $api_key_sanitized = sanitize_text_field($api_key);
+        $url = 'https://maps.googleapis.com/maps/api/geocode/json?address=' . urlencode($search_query) . '&key=' . urlencode($api_key_sanitized);
         
-        $response = wp_remote_get($url);
+        $response = wp_remote_get(esc_url_raw($url));
         
         if (is_wp_error($response)) {
             wp_send_json_error(array(
@@ -630,8 +689,24 @@ class RESBS_Maps_Manager {
         $body = wp_remote_retrieve_body($response);
         $data = json_decode($body, true);
 
-        if ($data['status'] === 'OK' && !empty($data['results'])) {
+        // Validate JSON decode result
+        if (!is_array($data)) {
+            wp_send_json_error(array(
+                'message' => esc_html__('Invalid response from geocoding service.', 'realestate-booking-suite')
+            ));
+        }
+
+        // Check if status exists and is OK, and results exist
+        if (isset($data['status']) && $data['status'] === 'OK' && !empty($data['results']) && is_array($data['results'])) {
             $result = $data['results'][0];
+            
+            // Validate result structure
+            if (!isset($result['geometry']['location']) || !isset($result['formatted_address'])) {
+                wp_send_json_error(array(
+                    'message' => esc_html__('Invalid location data received.', 'realestate-booking-suite')
+                ));
+            }
+            
             $location = $result['geometry']['location'];
             
             wp_send_json_success(array(

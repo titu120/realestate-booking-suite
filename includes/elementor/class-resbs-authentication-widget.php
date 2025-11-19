@@ -217,7 +217,9 @@ class RESBS_Authentication_Widget extends \Elementor\Widget_Base {
         $enable_google_auth = isset($settings['enable_google_auth']) && $settings['enable_google_auth'] === 'yes';
         $enable_login_form = isset($settings['enable_login_form']) && $settings['enable_login_form'] === 'yes';
         
-        $widget_id = 'resbs-authentication-' . sanitize_html_class($this->get_id());
+        // Sanitize widget ID - use absint for numeric ID, then sanitize_html_class for the full string
+        $widget_id_raw = absint($this->get_id());
+        $widget_id = 'resbs-authentication-' . sanitize_html_class((string) $widget_id_raw);
         $is_logged_in = is_user_logged_in();
         $current_user = wp_get_current_user();
         $login_url = wp_login_url(get_permalink());

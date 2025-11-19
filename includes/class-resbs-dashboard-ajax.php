@@ -458,22 +458,30 @@ class RESBS_Dashboard_AJAX {
         foreach ($properties as $property) {
             $meta = get_post_meta($property->ID);
             
-            // Note: fputcsv() handles CSV escaping automatically, so we don't use esc_html() here
+            // Sanitize all data before CSV output (defense-in-depth)
+            // Note: fputcsv() handles CSV escaping automatically, but we sanitize for additional security
+            $area_value = '';
+            if (isset($meta['_property_size'][0])) {
+                $area_value = sanitize_text_field($meta['_property_size'][0]);
+            } elseif (isset($meta['_property_area_sqft'][0])) {
+                $area_value = sanitize_text_field($meta['_property_area_sqft'][0]);
+            }
+            
             fputcsv($output, array(
                 intval($property->ID),
-                $property->post_title,
-                isset($meta['_property_price'][0]) ? $meta['_property_price'][0] : '',
-                isset($meta['_property_bedrooms'][0]) ? $meta['_property_bedrooms'][0] : '',
-                isset($meta['_property_bathrooms'][0]) ? $meta['_property_bathrooms'][0] : '',
-                isset($meta['_property_area_sqft'][0]) ? $meta['_property_area_sqft'][0] : '',
-                isset($meta['_property_address'][0]) ? $meta['_property_address'][0] : '',
-                isset($meta['_property_city'][0]) ? $meta['_property_city'][0] : '',
-                isset($meta['_property_state'][0]) ? $meta['_property_state'][0] : '',
-                isset($meta['_property_zip'][0]) ? $meta['_property_zip'][0] : '',
-                isset($meta['_property_type'][0]) ? $meta['_property_type'][0] : '',
-                isset($meta['_property_status'][0]) ? $meta['_property_status'][0] : '',
-                $property->post_date,
-                $property->post_status
+                sanitize_text_field($property->post_title),
+                isset($meta['_property_price'][0]) ? sanitize_text_field($meta['_property_price'][0]) : '',
+                isset($meta['_property_bedrooms'][0]) ? sanitize_text_field($meta['_property_bedrooms'][0]) : '',
+                isset($meta['_property_bathrooms'][0]) ? sanitize_text_field($meta['_property_bathrooms'][0]) : '',
+                $area_value,
+                isset($meta['_property_address'][0]) ? sanitize_text_field($meta['_property_address'][0]) : '',
+                isset($meta['_property_city'][0]) ? sanitize_text_field($meta['_property_city'][0]) : '',
+                isset($meta['_property_state'][0]) ? sanitize_text_field($meta['_property_state'][0]) : '',
+                isset($meta['_property_zip'][0]) ? sanitize_text_field($meta['_property_zip'][0]) : '',
+                isset($meta['_property_type'][0]) ? sanitize_text_field($meta['_property_type'][0]) : '',
+                isset($meta['_property_status'][0]) ? sanitize_text_field($meta['_property_status'][0]) : '',
+                sanitize_text_field($property->post_date),
+                sanitize_text_field($property->post_status)
             ));
         }
         
@@ -496,6 +504,14 @@ class RESBS_Dashboard_AJAX {
             $meta = get_post_meta($property->ID);
             
             // Note: wp_json_encode() handles JSON escaping automatically, so we sanitize but don't HTML-escape
+            // Check both meta keys for area consistency
+            $area_value = '';
+            if (isset($meta['_property_size'][0])) {
+                $area_value = sanitize_text_field($meta['_property_size'][0]);
+            } elseif (isset($meta['_property_area_sqft'][0])) {
+                $area_value = sanitize_text_field($meta['_property_area_sqft'][0]);
+            }
+            
             $data[] = array(
                 'id' => intval($property->ID),
                 'title' => sanitize_text_field($property->post_title),
@@ -504,7 +520,7 @@ class RESBS_Dashboard_AJAX {
                 'price' => isset($meta['_property_price'][0]) ? sanitize_text_field($meta['_property_price'][0]) : '',
                 'bedrooms' => isset($meta['_property_bedrooms'][0]) ? sanitize_text_field($meta['_property_bedrooms'][0]) : '',
                 'bathrooms' => isset($meta['_property_bathrooms'][0]) ? sanitize_text_field($meta['_property_bathrooms'][0]) : '',
-                'area_sqft' => isset($meta['_property_area_sqft'][0]) ? sanitize_text_field($meta['_property_area_sqft'][0]) : '',
+                'area_sqft' => $area_value,
                 'address' => isset($meta['_property_address'][0]) ? sanitize_text_field($meta['_property_address'][0]) : '',
                 'city' => isset($meta['_property_city'][0]) ? sanitize_text_field($meta['_property_city'][0]) : '',
                 'state' => isset($meta['_property_state'][0]) ? sanitize_text_field($meta['_property_state'][0]) : '',

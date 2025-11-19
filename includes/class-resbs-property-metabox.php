@@ -2245,8 +2245,56 @@ class RESBS_Property_Metabox {
                     } elseif ($form_field === 'property_longitude' && ($float_value < -180 || $float_value > 180)) {
                         $value = ''; // Invalid longitude
                     } else {
-                        $value = $float_value; // Valid coordinate
+                        $value = $float_value; // Valid coordinate - save as float
                     }
+                } else {
+                    $value = ''; // Invalid or empty - clear the value
+                }
+            } elseif (in_array($form_field, array(
+                'property_price', 'property_price_per_sqft', 'property_bedrooms', 'property_bathrooms',
+                'property_half_baths', 'property_total_rooms', 'property_floors', 'property_floor_level',
+                'property_area_sqft', 'property_lot_size_sqft', 'property_year_built', 'property_year_remodeled',
+                'property_agent_experience', 'property_agent_properties_sold', 'property_agent_rating',
+                'property_agent_reviews', 'property_mortgage_default_down_payment', 'property_mortgage_default_interest_rate',
+                'property_mortgage_default_loan_term', 'property_tour_duration', 'property_tour_group_size'
+            ), true)) {
+                // Numeric fields - validate and convert to appropriate type
+                $value = isset($_POST[$form_field]) ? $_POST[$form_field] : '';
+                if ($value !== '' && $value !== null) {
+                    // Check if it's a float field (price, price_per_sqft, interest_rate, etc.)
+                    if (in_array($form_field, array('property_price', 'property_price_per_sqft', 'property_mortgage_default_interest_rate'), true)) {
+                        $value = is_numeric($value) ? floatval($value) : '';
+                    } else {
+                        // Integer fields
+                        $value = is_numeric($value) ? absint($value) : '';
+                    }
+                } else {
+                    $value = '';
+                }
+            } elseif (in_array($form_field, array('property_video_url', 'property_virtual_tour'), true)) {
+                // URL fields - validate and sanitize URLs
+                $value = isset($_POST[$form_field]) ? $_POST[$form_field] : '';
+                if (!empty($value)) {
+                    // Validate URL format
+                    if (filter_var($value, FILTER_VALIDATE_URL)) {
+                        $value = esc_url_raw($value);
+                    } else {
+                        $value = ''; // Invalid URL - clear the value
+                    }
+                } else {
+                    $value = '';
+                }
+            } elseif ($form_field === 'property_agent_email') {
+                // Email field - validate and sanitize email
+                $value = isset($_POST[$form_field]) ? $_POST[$form_field] : '';
+                if (!empty($value)) {
+                    $value = sanitize_email($value);
+                    // Validate email format
+                    if (!is_email($value)) {
+                        $value = ''; // Invalid email - clear the value
+                    }
+                } else {
+                    $value = '';
                 }
             } else {
                 $value = isset($_POST[$form_field]) ? sanitize_text_field($_POST[$form_field]) : '';
@@ -2354,18 +2402,32 @@ class RESBS_Property_Metabox {
 
         // Handle media uploads with better error handling
         if (isset($_POST['property_gallery'])) {
-            $gallery = array_map('intval', $_POST['property_gallery']);
-            $result = update_post_meta($post_id, '_property_gallery', $gallery);
-            if ($result !== false) {
-                $saved_count++;
+            // Ensure it's an array before processing
+            $gallery_input = $_POST['property_gallery'];
+            if (is_array($gallery_input)) {
+                $gallery = array_map('absint', $gallery_input);
+                $gallery = array_filter($gallery); // Remove zero values
+                if (!empty($gallery)) {
+                    $result = update_post_meta($post_id, '_property_gallery', $gallery);
+                    if ($result !== false) {
+                        $saved_count++;
+                    }
+                }
             }
         }
 
         if (isset($_POST['property_floor_plans'])) {
-            $floor_plans = array_map('intval', $_POST['property_floor_plans']);
-            $result = update_post_meta($post_id, '_property_floor_plans', $floor_plans);
-            if ($result !== false) {
-                $saved_count++;
+            // Ensure it's an array before processing
+            $floor_plans_input = $_POST['property_floor_plans'];
+            if (is_array($floor_plans_input)) {
+                $floor_plans = array_map('absint', $floor_plans_input);
+                $floor_plans = array_filter($floor_plans); // Remove zero values
+                if (!empty($floor_plans)) {
+                    $result = update_post_meta($post_id, '_property_floor_plans', $floor_plans);
+                    if ($result !== false) {
+                        $saved_count++;
+                    }
+                }
             }
         }
         
@@ -2373,7 +2435,8 @@ class RESBS_Property_Metabox {
         if (isset($_POST['resbs_active_tab'])) {
             $active_tab = sanitize_text_field($_POST['resbs_active_tab']);
             $redirect_url = add_query_arg('tab', $active_tab, get_edit_post_link($post_id, 'raw'));
-            wp_redirect($redirect_url);
+            // Use wp_safe_redirect to prevent open redirect vulnerabilities
+            wp_safe_redirect($redirect_url);
             exit;
         }
         
@@ -2412,6 +2475,15 @@ class RESBS_Property_Metabox {
                             'size' => $files['size'][$i]
                         );
                         
+                        // Validate file before upload
+                        $validation = RESBS_Security::validate_file_upload($file);
+                        if (is_wp_error($validation)) {
+                            if (defined('WP_DEBUG') && WP_DEBUG) {
+                                error_log('RESBS: File validation failed: ' . $validation->get_error_message());
+                            }
+                            continue; // Skip invalid file
+                        }
+                        
                         $attachment_id = media_handle_sideload($file, $post_id);
                         
                         if (!is_wp_error($attachment_id)) {
@@ -2421,6 +2493,15 @@ class RESBS_Property_Metabox {
                 }
             } else {
                 // Handle single file
+                // Validate file before upload
+                $validation = RESBS_Security::validate_file_upload($files);
+                if (is_wp_error($validation)) {
+                    if (defined('WP_DEBUG') && WP_DEBUG) {
+                        error_log('RESBS: File validation failed: ' . $validation->get_error_message());
+                    }
+                    return $uploaded_ids; // Return empty array if validation fails
+                }
+                
                 $attachment_id = media_handle_sideload($files, $post_id);
                 
                 if (!is_wp_error($attachment_id)) {
@@ -2581,6 +2662,17 @@ class RESBS_Property_Metabox {
                         'size' => $_FILES['files']['size'][$key]
                     );
                     
+                    // Validate file before upload
+                    $validation = RESBS_Security::validate_file_upload($file);
+                    if (is_wp_error($validation)) {
+                        $errors[] = sprintf(
+                            esc_html__('Invalid file %s: %s', 'realestate-booking-suite'),
+                            esc_html($file['name']),
+                            esc_html($validation->get_error_message())
+                        );
+                        continue; // Skip invalid file
+                    }
+                    
                     $attachment_id = media_handle_sideload($file, $post_id);
                     
                     if (!is_wp_error($attachment_id)) {
@@ -2597,6 +2689,17 @@ class RESBS_Property_Metabox {
             } else {
                 // Handle single file
                 if ($_FILES['files']['name']) {
+                    // Validate file before upload
+                    $validation = RESBS_Security::validate_file_upload($_FILES['files']);
+                    if (is_wp_error($validation)) {
+                        wp_send_json_error(array(
+                            'message' => sprintf(
+                                esc_html__('Invalid file: %s', 'realestate-booking-suite'),
+                                esc_html($validation->get_error_message())
+                            )
+                        ));
+                    }
+                    
                     $attachment_id = media_handle_sideload($_FILES['files'], $post_id);
                     
                     if (!is_wp_error($attachment_id)) {

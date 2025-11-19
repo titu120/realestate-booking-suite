@@ -496,8 +496,13 @@ class RESBS_Property_Grid_Widget extends \Elementor\Widget_Base {
             'hide_empty' => false,
         ));
         
-        foreach ($property_types as $type) {
-            $types[$type->slug] = esc_html($type->name);
+        // Validate get_terms result for WP_Error
+        if (!is_wp_error($property_types) && is_array($property_types)) {
+            foreach ($property_types as $type) {
+                if (isset($type->slug) && isset($type->name)) {
+                    $types[sanitize_text_field($type->slug)] = esc_html($type->name);
+                }
+            }
         }
         
         return $types;
@@ -514,8 +519,13 @@ class RESBS_Property_Grid_Widget extends \Elementor\Widget_Base {
             'hide_empty' => false,
         ));
         
-        foreach ($property_statuses as $status) {
-            $statuses[$status->slug] = esc_html($status->name);
+        // Validate get_terms result for WP_Error
+        if (!is_wp_error($property_statuses) && is_array($property_statuses)) {
+            foreach ($property_statuses as $status) {
+                if (isset($status->slug) && isset($status->name)) {
+                    $statuses[sanitize_text_field($status->slug)] = esc_html($status->name);
+                }
+            }
         }
         
         return $statuses;
@@ -531,7 +541,15 @@ class RESBS_Property_Grid_Widget extends \Elementor\Widget_Base {
         $title = sanitize_text_field($settings['title']);
         $posts_per_page = intval($settings['posts_per_page']);
         $columns = intval($settings['columns']);
-        $layout = sanitize_text_field($settings['layout']);
+        
+        // Validate layout against whitelist
+        $layout_raw = sanitize_text_field($settings['layout']);
+        $allowed_layouts = array('grid', 'list', 'carousel');
+        if (!in_array($layout_raw, $allowed_layouts, true)) {
+            $layout_raw = 'grid';
+        }
+        $layout = $layout_raw;
+        
         $carousel_autoplay = $settings['carousel_autoplay'] === 'yes';
         $carousel_autoplay_speed = intval($settings['carousel_autoplay_speed']);
         $carousel_show_dots = $settings['carousel_show_dots'] === 'yes';
@@ -546,15 +564,36 @@ class RESBS_Property_Grid_Widget extends \Elementor\Widget_Base {
         $show_badges = $settings['show_badges'] === 'yes';
         $show_favorite_button = $settings['show_favorite_button'] === 'yes';
         $show_book_button = $settings['show_book_button'] === 'yes';
-        $orderby = sanitize_text_field($settings['orderby']);
-        $order = sanitize_text_field($settings['order']);
+        
+        // Validate orderby and order against whitelist
+        $orderby_raw = sanitize_text_field($settings['orderby']);
+        $allowed_orderby = array('date', 'title', 'price', 'rand');
+        if (!in_array($orderby_raw, $allowed_orderby, true)) {
+            $orderby_raw = 'date';
+        }
+        $orderby = $orderby_raw;
+        
+        $order_raw = sanitize_text_field($settings['order']);
+        $allowed_order = array('ASC', 'DESC');
+        if (!in_array($order_raw, $allowed_order, true)) {
+            $order_raw = 'DESC';
+        }
+        $order = $order_raw;
+        
         $property_type = sanitize_text_field($settings['property_type']);
         $property_status = sanitize_text_field($settings['property_status']);
         $featured_only = $settings['featured_only'] === 'yes';
-        $widget_style = sanitize_text_field($settings['widget_style']);
+        
+        // Validate widget style against whitelist
+        $widget_style_raw = sanitize_text_field($settings['widget_style']);
+        $allowed_styles = array('default', 'modern', 'classic');
+        if (!in_array($widget_style_raw, $allowed_styles, true)) {
+            $widget_style_raw = 'default';
+        }
+        $widget_style = $widget_style_raw;
 
-        // Generate unique widget ID
-        $widget_id = 'resbs-elementor-widget-' . $this->get_id();
+        // Sanitize widget ID
+        $widget_id = 'resbs-elementor-widget-' . absint($this->get_id());
 
         ?>
         <div class="resbs-property-grid-widget resbs-style-<?php echo esc_attr($widget_style); ?> resbs-layout-<?php echo esc_attr($layout); ?>" 
@@ -609,8 +648,13 @@ class RESBS_Property_Grid_Widget extends \Elementor\Widget_Base {
                                             'taxonomy' => 'property_type',
                                             'hide_empty' => false,
                                         ));
-                                        foreach ($property_types as $type) {
-                                            echo '<option value="' . esc_attr($type->slug) . '">' . esc_html($type->name) . '</option>';
+                                        // Validate get_terms result for WP_Error
+                                        if (!is_wp_error($property_types) && is_array($property_types)) {
+                                            foreach ($property_types as $type) {
+                                                if (isset($type->slug) && isset($type->name)) {
+                                                    echo '<option value="' . esc_attr(sanitize_text_field($type->slug)) . '">' . esc_html($type->name) . '</option>';
+                                                }
+                                            }
                                         }
                                         ?>
                                     </select>
@@ -629,8 +673,13 @@ class RESBS_Property_Grid_Widget extends \Elementor\Widget_Base {
                                             'taxonomy' => 'property_location',
                                             'hide_empty' => false,
                                         ));
-                                        foreach ($locations as $location) {
-                                            echo '<option value="' . esc_attr($location->slug) . '">' . esc_html($location->name) . '</option>';
+                                        // Validate get_terms result for WP_Error
+                                        if (!is_wp_error($locations) && is_array($locations)) {
+                                            foreach ($locations as $location) {
+                                                if (isset($location->slug) && isset($location->name)) {
+                                                    echo '<option value="' . esc_attr(sanitize_text_field($location->slug)) . '">' . esc_html($location->name) . '</option>';
+                                                }
+                                            }
                                         }
                                         ?>
                                     </select>
@@ -711,17 +760,36 @@ class RESBS_Property_Grid_Widget extends \Elementor\Widget_Base {
             'post_type' => 'property',
             'post_status' => 'publish',
             'posts_per_page' => intval($settings['posts_per_page']),
-            'orderby' => sanitize_text_field($settings['orderby']),
-            'order' => sanitize_text_field($settings['order']),
         );
+        
+        // Validate orderby and order against whitelist
+        $orderby_raw = sanitize_text_field($settings['orderby']);
+        $allowed_orderby = array('date', 'title', 'price', 'rand');
+        if (!in_array($orderby_raw, $allowed_orderby, true)) {
+            $orderby_raw = 'date';
+        }
+        $query_args['orderby'] = $orderby_raw;
+        
+        $order_raw = sanitize_text_field($settings['order']);
+        $allowed_order = array('ASC', 'DESC');
+        if (!in_array($order_raw, $allowed_order, true)) {
+            $order_raw = 'DESC';
+        }
+        $query_args['order'] = $order_raw;
+        
+        // Handle price ordering
+        if ($orderby_raw === 'price') {
+            $query_args['orderby'] = 'meta_value_num';
+            $query_args['meta_key'] = '_property_price';
+        }
 
         // Add meta query for featured properties
         if ($settings['featured_only'] === 'yes') {
             $query_args['meta_query'] = array(
                 array(
                     'key' => '_property_featured',
-                    'value' => 'yes',
-                    'compare' => '='
+                    'value' => array('yes', '1'),
+                    'compare' => 'IN'
                 )
             );
         }
@@ -811,11 +879,21 @@ class RESBS_Property_Grid_Widget extends \Elementor\Widget_Base {
                         <?php 
                         $badge_manager = new RESBS_Badge_Manager();
                         $badges = $badge_manager->get_property_badges($property_id, 'widget');
-                        foreach ($badges as $badge): ?>
-                            <span class="resbs-badge resbs-badge-<?php echo esc_attr($badge['type']); ?>">
-                                <?php echo esc_html($badge['text']); ?>
-                            </span>
-                        <?php endforeach; ?>
+                        // Validate badges array structure
+                        if (is_array($badges)) {
+                            foreach ($badges as $badge) {
+                                if (is_array($badge) && isset($badge['type']) && isset($badge['text'])) {
+                                    $badge_type = sanitize_key($badge['type']);
+                                    $badge_text = sanitize_text_field($badge['text']);
+                                    ?>
+                                    <span class="resbs-badge resbs-badge-<?php echo esc_attr($badge_type); ?>">
+                                        <?php echo esc_html($badge_text); ?>
+                                    </span>
+                                    <?php
+                                }
+                            }
+                        }
+                        ?>
                     </div>
                 <?php endif; ?>
 
@@ -868,10 +946,10 @@ class RESBS_Property_Grid_Widget extends \Elementor\Widget_Base {
                             </div>
                         <?php endif; ?>
 
-                        <?php if (!empty($property_location)): ?>
+                        <?php if (!empty($property_location) && !is_wp_error($property_location) && is_array($property_location) && isset($property_location[0]) && isset($property_location[0]->name)): ?>
                             <div class="resbs-property-meta-item">
                                 <span class="dashicons dashicons-location"></span>
-                                <span><?php echo esc_html($property_location[0]->name); ?></span>
+                                <span><?php echo esc_html(sanitize_text_field($property_location[0]->name)); ?></span>
                             </div>
                         <?php endif; ?>
                     </div>

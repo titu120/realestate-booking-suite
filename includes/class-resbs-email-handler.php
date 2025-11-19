@@ -42,9 +42,10 @@ class RESBS_Email_Handler {
         }
         
         // Check if we're on localhost
-        $is_localhost = (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false || 
-                        strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false ||
-                        strpos($_SERVER['HTTP_HOST'], 'testthree') !== false);
+        $http_host = isset($_SERVER['HTTP_HOST']) ? sanitize_text_field($_SERVER['HTTP_HOST']) : '';
+        $is_localhost = (strpos($http_host, 'localhost') !== false || 
+                        strpos($http_host, '127.0.0.1') !== false ||
+                        strpos($http_host, 'testthree') !== false);
         
         // Get and sanitize form data
         $name = sanitize_text_field($_POST['contact_name']);
@@ -82,8 +83,10 @@ class RESBS_Email_Handler {
         $agent_email = sanitize_email(get_post_meta($property_id, '_property_agent_email', true));
         $agent_name = sanitize_text_field(get_post_meta($property_id, '_property_agent_name', true));
         
-        // Email subject
-        $subject = sprintf('New inquiry for property: %s', sanitize_text_field($property_title));
+        // Email subject - sanitize to prevent header injection
+        $subject_raw = sprintf('New inquiry for property: %s', sanitize_text_field($property_title));
+        $subject = wp_strip_all_tags($subject_raw);
+        $subject = str_replace(array("\r", "\n"), '', $subject);
         
         // Email content
         $email_content = "
@@ -98,13 +101,16 @@ class RESBS_Email_Handler {
         <p><em>This inquiry was sent through your property listing website.</em></p>
         ";
         
-        // Email headers
+        // Email headers - sanitize to prevent header injection
         $admin_email = sanitize_email(get_option('admin_email'));
         $site_name = sanitize_text_field(get_bloginfo('name'));
+        $site_name = str_replace(array("\r", "\n"), '', $site_name); // Remove newlines
+        $reply_name = sanitize_text_field($name);
+        $reply_name = str_replace(array("\r", "\n"), '', $reply_name); // Remove newlines
         $headers = array(
             'Content-Type: text/html; charset=UTF-8',
             'From: ' . $site_name . ' <' . $admin_email . '>',
-            'Reply-To: ' . sanitize_text_field($name) . ' <' . sanitize_email($email) . '>'
+            'Reply-To: ' . $reply_name . ' <' . sanitize_email($email) . '>'
         );
         
         // Send email to agent
@@ -117,7 +123,9 @@ class RESBS_Email_Handler {
         $admin_email_sent = wp_mail($admin_email, $subject, $email_content, $headers);
         
         // Send confirmation email to customer
-        $customer_subject = 'Thank you for your inquiry - ' . sanitize_text_field(get_bloginfo('name'));
+        $customer_subject_raw = 'Thank you for your inquiry - ' . sanitize_text_field(get_bloginfo('name'));
+        $customer_subject = wp_strip_all_tags($customer_subject_raw);
+        $customer_subject = str_replace(array("\r", "\n"), '', $customer_subject);
         $customer_content = "
         <h2>Thank you for your inquiry!</h2>
         <p>Dear " . esc_html($name) . ",</p>
@@ -131,9 +139,12 @@ class RESBS_Email_Handler {
         <p>Best regards,<br>" . esc_html($agent_name) . "</p>
         ";
         
+        // Sanitize agent name for header to prevent header injection
+        $agent_name_safe = sanitize_text_field($agent_name);
+        $agent_name_safe = str_replace(array("\r", "\n"), '', $agent_name_safe);
         $customer_headers = array(
             'Content-Type: text/html; charset=UTF-8',
-            'From: ' . sanitize_text_field($agent_name) . ' <' . sanitize_email($agent_email) . '>'
+            'From: ' . $agent_name_safe . ' <' . sanitize_email($agent_email) . '>'
         );
         
         $customer_email_sent = wp_mail($email, $customer_subject, $customer_content, $customer_headers);
@@ -157,7 +168,7 @@ class RESBS_Email_Handler {
             ));
         } else {
             wp_send_json_error(array(
-                'message' => 'Sorry, there was an error sending your message. Please try again.'
+                'message' => esc_html__('Sorry, there was an error sending your message. Please try again.', 'realestate-booking-suite')
             ));
         }
     }
@@ -224,8 +235,10 @@ class RESBS_Email_Handler {
         $agent_email = sanitize_email(get_post_meta($property_id, '_property_agent_email', true));
         $agent_name = sanitize_text_field(get_post_meta($property_id, '_property_agent_name', true));
         
-        // Email subject
-        $subject = sprintf('New tour booking for property: %s', sanitize_text_field($property_title));
+        // Email subject - sanitize to prevent header injection
+        $subject_raw = sprintf('New tour booking for property: %s', sanitize_text_field($property_title));
+        $subject = wp_strip_all_tags($subject_raw);
+        $subject = str_replace(array("\r", "\n"), '', $subject);
         
         // Email content
         $email_content = "
@@ -242,13 +255,16 @@ class RESBS_Email_Handler {
         <p><em>This booking request was sent through your property listing website.</em></p>
         ";
         
-        // Email headers
+        // Email headers - sanitize to prevent header injection
         $admin_email = sanitize_email(get_option('admin_email'));
         $site_name = sanitize_text_field(get_bloginfo('name'));
+        $site_name = str_replace(array("\r", "\n"), '', $site_name); // Remove newlines
+        $reply_name = sanitize_text_field($name);
+        $reply_name = str_replace(array("\r", "\n"), '', $reply_name); // Remove newlines
         $headers = array(
             'Content-Type: text/html; charset=UTF-8',
             'From: ' . $site_name . ' <' . $admin_email . '>',
-            'Reply-To: ' . sanitize_text_field($name) . ' <' . sanitize_email($email) . '>'
+            'Reply-To: ' . $reply_name . ' <' . sanitize_email($email) . '>'
         );
         
         // Send email to agent
@@ -261,7 +277,9 @@ class RESBS_Email_Handler {
         $admin_email_sent = wp_mail($admin_email, $subject, $email_content, $headers);
         
         // Send confirmation email to customer
-        $customer_subject = 'Tour booking confirmed - ' . sanitize_text_field($site_name);
+        $customer_subject_raw = 'Tour booking confirmed - ' . sanitize_text_field($site_name);
+        $customer_subject = wp_strip_all_tags($customer_subject_raw);
+        $customer_subject = str_replace(array("\r", "\n"), '', $customer_subject);
         $customer_content = "
         <h2>Tour Booking Confirmed!</h2>
         <p>Dear " . esc_html($name) . ",</p>
@@ -276,9 +294,12 @@ class RESBS_Email_Handler {
         <p>Best regards,<br>" . esc_html($agent_name) . "</p>
         ";
         
+        // Sanitize agent name for header to prevent header injection
+        $agent_name_safe = sanitize_text_field($agent_name);
+        $agent_name_safe = str_replace(array("\r", "\n"), '', $agent_name_safe);
         $customer_headers = array(
             'Content-Type: text/html; charset=UTF-8',
-            'From: ' . sanitize_text_field($agent_name) . ' <' . sanitize_email($agent_email) . '>'
+            'From: ' . $agent_name_safe . ' <' . sanitize_email($agent_email) . '>'
         );
         
         $customer_email_sent = wp_mail($email, $customer_subject, $customer_content, $customer_headers);
@@ -293,7 +314,7 @@ class RESBS_Email_Handler {
             ));
         } else {
             wp_send_json_error(array(
-                'message' => 'Sorry, there was an error processing your booking. Please try again.'
+                'message' => esc_html__('Sorry, there was an error processing your booking. Please try again.', 'realestate-booking-suite')
             ));
         }
     }

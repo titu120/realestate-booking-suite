@@ -185,7 +185,8 @@ class RESBS_QuickView_Manager {
             'price' => get_post_meta($property_id, '_property_price', true),
             'bedrooms' => get_post_meta($property_id, '_property_bedrooms', true),
             'bathrooms' => get_post_meta($property_id, '_property_bathrooms', true),
-            'area' => get_post_meta($property_id, '_property_area', true),
+            // Try multiple possible area meta keys
+            'area' => get_post_meta($property_id, '_property_size', true) ?: get_post_meta($property_id, '_property_area_sqft', true),
             'latitude' => get_post_meta($property_id, '_property_latitude', true),
             'longitude' => get_post_meta($property_id, '_property_longitude', true),
             'amenities' => get_post_meta($property_id, '_property_amenities', true),
@@ -193,24 +194,38 @@ class RESBS_QuickView_Manager {
             'featured' => get_post_meta($property_id, '_property_featured', true),
             'new' => get_post_meta($property_id, '_property_new', true),
             'sold' => get_post_meta($property_id, '_property_sold', true),
-            'property_type' => wp_get_post_terms($property_id, 'property_type', array('fields' => 'names')),
-            'property_status' => wp_get_post_terms($property_id, 'property_status', array('fields' => 'names')),
-            'property_location' => wp_get_post_terms($property_id, 'property_location', array('fields' => 'names'))
+            // Get taxonomy terms and sanitize
+            'property_type' => $this->sanitize_terms(wp_get_post_terms($property_id, 'property_type', array('fields' => 'names'))),
+            'property_status' => $this->sanitize_terms(wp_get_post_terms($property_id, 'property_status', array('fields' => 'names'))),
+            'property_location' => $this->sanitize_terms(wp_get_post_terms($property_id, 'property_location', array('fields' => 'names')))
         );
 
         // Get gallery images
         $gallery_meta = get_post_meta($property_id, '_property_gallery', true);
         if ($gallery_meta) {
-            $gallery_ids = explode(',', $gallery_meta);
+            // Handle both array and comma-separated string formats
+            if (is_array($gallery_meta)) {
+                $gallery_ids = array_map('absint', $gallery_meta);
+            } else {
+                // Comma-separated string
+                $gallery_ids = array_map('absint', explode(',', $gallery_meta));
+            }
+            
             foreach ($gallery_ids as $image_id) {
+                $image_id = absint($image_id);
+                if (!$image_id) {
+                    continue;
+                }
+                
                 $image_url = wp_get_attachment_image_url($image_id, 'large');
                 $image_thumb = wp_get_attachment_image_url($image_id, 'thumbnail');
                 if ($image_url) {
+                    $alt_text = get_post_meta($image_id, '_wp_attachment_image_alt', true);
                     $data['gallery'][] = array(
                         'id' => $image_id,
-                        'url' => $image_url,
-                        'thumb' => $image_thumb,
-                        'alt' => get_post_meta($image_id, '_wp_attachment_image_alt', true)
+                        'url' => esc_url_raw($image_url),
+                        'thumb' => esc_url_raw($image_thumb),
+                        'alt' => sanitize_text_field($alt_text)
                     );
                 }
             }
@@ -465,13 +480,37 @@ class RESBS_QuickView_Manager {
     }
 
     /**
+     * Sanitize taxonomy terms array
+     * 
+     * @param array|WP_Error $terms Terms array or WP_Error
+     * @return array Sanitized terms array
+     */
+    private function sanitize_terms($terms) {
+        if (is_wp_error($terms) || !is_array($terms)) {
+            return array();
+        }
+        
+        $sanitized = array();
+        foreach ($terms as $term) {
+            $sanitized[] = sanitize_text_field($term);
+        }
+        
+        return $sanitized;
+    }
+    
+    /**
      * Format price
      */
     private function format_price($price) {
         $currency_symbol = sanitize_text_field(get_option('resbs_currency_symbol', '$'));
         $currency_position = sanitize_text_field(get_option('resbs_currency_position', 'before'));
         
+        // Ensure price is numeric
+        $price = is_numeric($price) ? floatval($price) : 0;
         $formatted_price = number_format($price);
+        
+        // Escape currency symbol and position for output
+        $currency_symbol = esc_html($currency_symbol);
         
         if ($currency_position === 'before') {
             return $currency_symbol . $formatted_price;

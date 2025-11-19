@@ -568,10 +568,10 @@ class RESBS_Email_Manager {
             'resbs_email_admin_notifications' => RESBS_Security::sanitize_bool($_POST['resbs_email_admin_notifications'] ?? false),
             'resbs_email_smtp_enabled' => RESBS_Security::sanitize_bool($_POST['resbs_email_smtp_enabled'] ?? false),
             'resbs_email_smtp_host' => RESBS_Security::sanitize_text($_POST['resbs_email_smtp_host'] ?? ''),
-            'resbs_email_smtp_port' => RESBS_Security::sanitize_int($_POST['resbs_email_smtp_port'] ?? 587, 587),
+            'resbs_email_smtp_port' => $this->sanitize_smtp_port($_POST['resbs_email_smtp_port'] ?? 587),
             'resbs_email_smtp_username' => RESBS_Security::sanitize_text($_POST['resbs_email_smtp_username'] ?? ''),
             'resbs_email_smtp_password' => RESBS_Security::sanitize_text($_POST['resbs_email_smtp_password'] ?? ''),
-            'resbs_email_smtp_encryption' => RESBS_Security::sanitize_text($_POST['resbs_email_smtp_encryption'] ?? 'tls')
+            'resbs_email_smtp_encryption' => $this->sanitize_smtp_encryption($_POST['resbs_email_smtp_encryption'] ?? 'tls')
         );
 
         // Save email templates
@@ -732,9 +732,11 @@ class RESBS_Email_Manager {
         $reply_to = sanitize_email($reply_to);
         
         // Escape from name for email header (remove any potentially dangerous characters)
+        // Remove newlines and carriage returns to prevent header injection
         $from_name = sanitize_text_field($from_name);
+        $from_name = str_replace(array("\r", "\n"), '', $from_name);
 
-        // Set headers
+        // Set headers - use proper escaping for email headers
         $headers = array(
             'From: ' . $from_name . ' <' . $from_email . '>',
             'Reply-To: ' . $reply_to,
@@ -746,8 +748,11 @@ class RESBS_Email_Manager {
             $message = $this->wrap_html_email($message);
         }
 
-        // Send email (subject is already escaped in replace_placeholders, but ensure it's safe)
-        $sent = wp_mail($to, wp_strip_all_tags($subject), $message, $headers);
+        // Send email - sanitize subject to prevent header injection
+        // Remove newlines and strip HTML tags
+        $subject_safe = wp_strip_all_tags($subject);
+        $subject_safe = str_replace(array("\r", "\n"), '', $subject_safe);
+        $sent = wp_mail($to, $subject_safe, $message, $headers);
 
         // Log email sending
         if (defined('WP_DEBUG') && WP_DEBUG) {
@@ -782,8 +787,16 @@ class RESBS_Email_Manager {
                 // Note: <style> tag is required for HTML emails as email clients don't support external CSS files
                 $email_styles = $this->get_email_styles();
                 if ($email_styles) {
-                    // Output CSS content (already sanitized from trusted plugin file)
-                    echo $email_styles;
+                    // Output CSS content - validate it doesn't contain script tags
+                    // CSS from trusted plugin file, but validate to prevent XSS if file is compromised
+                    if (stripos($email_styles, '<script') === false && stripos($email_styles, 'javascript:') === false) {
+                        echo $email_styles; // Safe to output - no script tags found
+                    } else {
+                        // If script tags found, output empty (shouldn't happen with trusted file)
+                        if (defined('WP_DEBUG') && WP_DEBUG) {
+                            error_log('RESBS Email: CSS file contains potentially dangerous content');
+                        }
+                    }
                 }
                 ?>
             </style>
@@ -1116,6 +1129,15 @@ The {site_name} Team', 'realestate-booking-suite')
         $template_type = RESBS_Security::sanitize_text($_POST['template_type']);
         $template_content = RESBS_Security::sanitize_textarea($_POST['template_content']);
 
+        // Validate template type against whitelist
+        $allowed_template_types = array('property_submission', 'booking_confirmation', 'booking_cancellation', 'search_alert');
+        if (!in_array($template_type, $allowed_template_types, true)) {
+            wp_send_json_error(array(
+                'message' => esc_html__('Invalid template type.', 'realestate-booking-suite')
+            ));
+            return;
+        }
+
         // Generate preview with sample data
         $sample_data = $this->get_sample_data($template_type);
         $preview = $this->replace_placeholders($template_content, $template_type, 1, $sample_data);
@@ -1154,6 +1176,30 @@ The {site_name} Team', 'realestate-booking-suite')
         );
 
         return $sample_data;
+    }
+
+    /**
+     * Sanitize SMTP encryption value
+     */
+    private function sanitize_smtp_encryption($value) {
+        $allowed_values = array('none', 'tls', 'ssl');
+        $sanitized = sanitize_text_field($value);
+        if (!in_array($sanitized, $allowed_values, true)) {
+            return 'tls'; // Default to TLS
+        }
+        return $sanitized;
+    }
+
+    /**
+     * Sanitize SMTP port value
+     */
+    private function sanitize_smtp_port($value) {
+        $port = RESBS_Security::sanitize_int($value, 587);
+        // Validate port is in common SMTP port range
+        if ($port < 1 || $port > 65535) {
+            return 587; // Default to 587
+        }
+        return $port;
     }
 }
 

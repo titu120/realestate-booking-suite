@@ -252,7 +252,13 @@ class RESBS_Enhanced_Settings {
      * Settings page callback
      */
     public function settings_page_callback() {
-        $this->current_tab = isset($_GET['tab']) ? sanitize_text_field($_GET['tab']) : 'general';
+        $tab = isset($_GET['tab']) ? sanitize_text_field($_GET['tab']) : 'general';
+        // Validate tab value against allowed tabs
+        $allowed_tabs = array('general', 'map', 'listings', 'user-profile', 'login-signup', 'seo');
+        if (!in_array($tab, $allowed_tabs, true)) {
+            $tab = 'general';
+        }
+        $this->current_tab = $tab;
         ?>
         <div class="wrap resbs-enhanced-settings">
 
@@ -1256,6 +1262,12 @@ class RESBS_Enhanced_Settings {
         // Get and sanitize tab
         $tab = isset($_POST['current_tab']) ? sanitize_text_field($_POST['current_tab']) : 'general';
         
+        // Validate tab value against allowed tabs
+        $allowed_tabs = array('general', 'map', 'listings', 'user-profile', 'login-signup', 'seo');
+        if (!in_array($tab, $allowed_tabs, true)) {
+            $tab = 'general';
+        }
+        
         // Handle different tabs
         switch ($tab) {
             case 'general':
@@ -1278,7 +1290,7 @@ class RESBS_Enhanced_Settings {
                 break;
         }
         
-        wp_redirect(add_query_arg(array('page' => 'resbs-settings', 'tab' => $tab, 'updated' => '1'), admin_url('admin.php')));
+        wp_safe_redirect(add_query_arg(array('page' => 'resbs-settings', 'tab' => $tab, 'updated' => '1'), admin_url('admin.php')));
         exit;
     }
     
@@ -1298,6 +1310,12 @@ class RESBS_Enhanced_Settings {
         
         // Get and sanitize tab
         $tab = isset($_POST['current_tab']) ? sanitize_text_field($_POST['current_tab']) : 'general';
+        
+        // Validate tab value against allowed tabs
+        $allowed_tabs = array('general', 'map', 'listings', 'user-profile', 'login-signup', 'seo');
+        if (!in_array($tab, $allowed_tabs, true)) {
+            $tab = 'general';
+        }
         
         // Handle different tabs
         switch ($tab) {
@@ -1321,7 +1339,7 @@ class RESBS_Enhanced_Settings {
                 break;
         }
         
-        wp_redirect(add_query_arg(array('page' => 'resbs-settings', 'tab' => $tab, 'reset' => '1'), admin_url('admin.php')));
+        wp_safe_redirect(add_query_arg(array('page' => 'resbs-settings', 'tab' => $tab, 'reset' => '1'), admin_url('admin.php')));
         exit;
     }
     
@@ -1618,7 +1636,7 @@ class RESBS_Enhanced_Settings {
         }
         
         // Handle array settings
-        if (isset($_POST['resbs_sort_options'])) {
+        if (isset($_POST['resbs_sort_options']) && is_array($_POST['resbs_sort_options'])) {
             update_option('resbs_sort_options', array_map('sanitize_text_field', $_POST['resbs_sort_options']));
         }
     }
@@ -1712,6 +1730,13 @@ class RESBS_Enhanced_Settings {
         
         $page_type = sanitize_text_field($_POST['page_type']);
         
+        // Validate page type against allowed values
+        $allowed_page_types = array('profile', 'search', 'login', 'buyer-registration');
+        if (!in_array($page_type, $allowed_page_types, true)) {
+            wp_send_json_error(array('message' => esc_html__('Invalid page type', 'realestate-booking-suite')));
+            return;
+        }
+        
         // Define page content based on type
         $page_config = array();
         
@@ -1752,7 +1777,10 @@ class RESBS_Enhanced_Settings {
         // Check if page already exists
         $existing_page = get_page_by_path($page_config['slug']);
         if ($existing_page) {
-            wp_send_json_error(array('message' => 'Page already exists', 'page_id' => $existing_page->ID));
+            wp_send_json_error(array(
+                'message' => esc_html__('Page already exists', 'realestate-booking-suite'),
+                'page_id' => absint($existing_page->ID)
+            ));
             return;
         }
         
@@ -1774,9 +1802,9 @@ class RESBS_Enhanced_Settings {
             }
             
             wp_send_json_success(array(
-                'page_id' => $page_id,
-                'message' => 'Page created successfully',
-                'edit_url' => esc_url_raw(admin_url('post.php?post=' . $page_id . '&action=edit')),
+                'page_id' => absint($page_id),
+                'message' => esc_html__('Page created successfully', 'realestate-booking-suite'),
+                'edit_url' => esc_url_raw(admin_url('post.php?post=' . absint($page_id) . '&action=edit')),
                 'view_url' => esc_url_raw(get_permalink($page_id))
             ));
         } else {
@@ -1803,6 +1831,12 @@ class RESBS_Enhanced_Settings {
         // Get and sanitize tab
         $tab = isset($_POST['tab']) ? sanitize_text_field($_POST['tab']) : 'general';
         
+        // Validate tab value against allowed tabs
+        $allowed_tabs = array('general', 'map', 'listings', 'user-profile', 'login-signup', 'seo');
+        if (!in_array($tab, $allowed_tabs, true)) {
+            $tab = 'general';
+        }
+        
         ob_start();
         switch ($tab) {
             case 'general':
@@ -1828,7 +1862,13 @@ class RESBS_Enhanced_Settings {
         }
         $content = ob_get_clean();
         
-        wp_send_json_success($content);
+        // Content is HTML output from trusted admin functions, but we should still validate it's not empty
+        if (empty($content)) {
+            wp_send_json_error(array('message' => esc_html__('No content available', 'realestate-booking-suite')));
+            return;
+        }
+        
+        wp_send_json_success(array('content' => $content));
     }
     
     /**

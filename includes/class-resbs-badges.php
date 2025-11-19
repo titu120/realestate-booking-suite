@@ -88,14 +88,14 @@ class RESBS_Badge_Manager {
      */
     public function register_settings() {
         foreach ($this->badge_types as $type => $config) {
-            register_setting('resbs_badge_settings', 'resbs_badge_' . $type . '_enabled');
-            register_setting('resbs_badge_settings', 'resbs_badge_' . $type . '_text');
-            register_setting('resbs_badge_settings', 'resbs_badge_' . $type . '_color');
-            register_setting('resbs_badge_settings', 'resbs_badge_' . $type . '_bg_color');
-            register_setting('resbs_badge_settings', 'resbs_badge_' . $type . '_text_color');
-            register_setting('resbs_badge_settings', 'resbs_badge_' . $type . '_position');
-            register_setting('resbs_badge_settings', 'resbs_badge_' . $type . '_size');
-            register_setting('resbs_badge_settings', 'resbs_badge_' . $type . '_border_radius');
+            register_setting('resbs_badge_settings', 'resbs_badge_' . $type . '_enabled', array('sanitize_callback' => array($this, 'sanitize_bool_setting')));
+            register_setting('resbs_badge_settings', 'resbs_badge_' . $type . '_text', array('sanitize_callback' => 'sanitize_text_field'));
+            register_setting('resbs_badge_settings', 'resbs_badge_' . $type . '_color', array('sanitize_callback' => 'sanitize_hex_color'));
+            register_setting('resbs_badge_settings', 'resbs_badge_' . $type . '_bg_color', array('sanitize_callback' => 'sanitize_hex_color'));
+            register_setting('resbs_badge_settings', 'resbs_badge_' . $type . '_text_color', array('sanitize_callback' => 'sanitize_hex_color'));
+            register_setting('resbs_badge_settings', 'resbs_badge_' . $type . '_position', array('sanitize_callback' => array($this, 'sanitize_position_setting')));
+            register_setting('resbs_badge_settings', 'resbs_badge_' . $type . '_size', array('sanitize_callback' => array($this, 'sanitize_size_setting')));
+            register_setting('resbs_badge_settings', 'resbs_badge_' . $type . '_border_radius', array('sanitize_callback' => array($this, 'sanitize_border_radius_setting')));
         }
     }
 
@@ -181,7 +181,7 @@ class RESBS_Badge_Manager {
         
         // Check nonce
         if (!isset($_POST['resbs_property_badges_nonce']) || 
-            !wp_verify_nonce($_POST['resbs_property_badges_nonce'], 'resbs_property_badges_nonce')) {
+            !wp_verify_nonce(sanitize_text_field($_POST['resbs_property_badges_nonce']), 'resbs_property_badges_nonce')) {
             return;
         }
 
@@ -411,7 +411,7 @@ class RESBS_Badge_Manager {
         
         // Verify nonce and check capability (combined security check)
         RESBS_Security::verify_nonce_and_capability(
-            $_POST['resbs_badge_settings_nonce'],
+            sanitize_text_field($_POST['resbs_badge_settings_nonce']),
             'resbs_badge_settings_nonce',
             'manage_options'
         );
@@ -434,15 +434,17 @@ class RESBS_Badge_Manager {
                         break;
                     case 'bg_color':
                     case 'text_color':
-                        $value = sanitize_hex_color($value);
+                        $value = $this->sanitize_hex_color_setting($value);
                         break;
                     case 'position':
                         $allowed_positions = array('top-left', 'top-right', 'bottom-left', 'bottom-right');
-                        $value = in_array($value, $allowed_positions) ? $value : 'top-left';
+                        $value = sanitize_text_field($value);
+                        $value = in_array($value, $allowed_positions, true) ? $value : 'top-left';
                         break;
                     case 'size':
                         $allowed_sizes = array('small', 'medium', 'large');
-                        $value = in_array($value, $allowed_sizes) ? $value : 'medium';
+                        $value = sanitize_text_field($value);
+                        $value = in_array($value, $allowed_sizes, true) ? $value : 'medium';
                         break;
                     case 'border_radius':
                         $value = RESBS_Security::sanitize_int($value, 4);
@@ -563,13 +565,14 @@ class RESBS_Badge_Manager {
         $text_color = get_option('resbs_badge_' . $type . '_text_color', $this->badge_types[$type]['default_text_color']);
         $border_radius = get_option('resbs_badge_' . $type . '_border_radius', '4');
         
-        $bg_color = sanitize_hex_color($bg_color);
-        $text_color = sanitize_hex_color($text_color);
+        $bg_color = $this->sanitize_hex_color_setting($bg_color);
+        $text_color = $this->sanitize_hex_color_setting($text_color);
         $border_radius = absint($border_radius);
         
-        $style = 'background-color: ' . $bg_color . '; ';
-        $style .= 'color: ' . $text_color . '; ';
-        $style .= 'border-radius: ' . $border_radius . 'px;';
+        // Escape CSS values for output
+        $style = 'background-color: ' . esc_attr($bg_color) . '; ';
+        $style .= 'color: ' . esc_attr($text_color) . '; ';
+        $style .= 'border-radius: ' . esc_attr($border_radius) . 'px;';
         
         return $style;
     }
@@ -594,8 +597,8 @@ class RESBS_Badge_Manager {
             $size = get_option('resbs_badge_' . $type . '_size', 'medium');
             
             // Sanitize values
-            $bg_color = sanitize_hex_color($bg_color);
-            $text_color = sanitize_hex_color($text_color);
+            $bg_color = $this->sanitize_hex_color_setting($bg_color);
+            $text_color = $this->sanitize_hex_color_setting($text_color);
             $border_radius = absint($border_radius);
             $size = sanitize_key($size);
             
@@ -624,10 +627,27 @@ class RESBS_Badge_Manager {
         
         // Save CSS to file
         $upload_dir = wp_upload_dir();
-        $css_file = trailingslashit($upload_dir['basedir']) . 'resbs-badges.css';
-        
-        if (file_put_contents($css_file, $css)) {
-            update_option('resbs_badges_css_version', time());
+        if (isset($upload_dir['basedir']) && !empty($upload_dir['basedir'])) {
+            $css_file = trailingslashit($upload_dir['basedir']) . 'resbs-badges.css';
+            
+            // Validate file path is within uploads directory (prevent path traversal)
+            $real_upload_dir = realpath($upload_dir['basedir']);
+            $real_css_file = realpath(dirname($css_file));
+            
+            if ($real_upload_dir && $real_css_file && strpos($real_css_file, $real_upload_dir) === 0) {
+                // Ensure directory exists
+                $css_dir = dirname($css_file);
+                if (!file_exists($css_dir)) {
+                    wp_mkdir_p($css_dir);
+                }
+                
+                // Write file with proper permissions
+                if (file_put_contents($css_file, $css)) {
+                    // Set safe file permissions (644)
+                    chmod($css_file, 0644);
+                    update_option('resbs_badges_css_version', time());
+                }
+            }
         }
     }
 
@@ -636,14 +656,73 @@ class RESBS_Badge_Manager {
      */
     public function get_dynamic_css_url() {
         $upload_dir = wp_upload_dir();
-        $css_file = $upload_dir['basedir'] . '/resbs-badges.css';
-        
-        if (file_exists($css_file)) {
-            $version = absint(get_option('resbs_badges_css_version', '1.0.0'));
-            return esc_url($upload_dir['baseurl'] . '/resbs-badges.css?ver=' . $version);
+        if (isset($upload_dir['basedir']) && !empty($upload_dir['basedir'])) {
+            $css_file = $upload_dir['basedir'] . '/resbs-badges.css';
+            
+            // Validate file path is within uploads directory (prevent path traversal)
+            $real_upload_dir = realpath($upload_dir['basedir']);
+            $real_css_file = realpath($css_file);
+            
+            if ($real_upload_dir && $real_css_file && strpos($real_css_file, $real_upload_dir) === 0) {
+                if (file_exists($css_file)) {
+                    $version = absint(get_option('resbs_badges_css_version', '1.0.0'));
+                    return esc_url($upload_dir['baseurl'] . '/resbs-badges.css?ver=' . $version);
+                }
+            }
         }
         
         return false;
+    }
+
+    /**
+     * Sanitize hex color setting
+     */
+    private function sanitize_hex_color_setting($value) {
+        $color = sanitize_hex_color($value);
+        // Validate hex color format (3 or 6 characters after #)
+        if (!empty($color) && !preg_match('/^#[a-fA-F0-9]{3,6}$/', $color)) {
+            return '#000000'; // Fallback to black
+        }
+        return $color ?: '#000000';
+    }
+
+    /**
+     * Sanitize boolean setting
+     */
+    public function sanitize_bool_setting($value) {
+        return (bool) $value;
+    }
+
+    /**
+     * Sanitize position setting
+     */
+    public function sanitize_position_setting($value) {
+        $allowed_positions = array('top-left', 'top-right', 'bottom-left', 'bottom-right');
+        $sanitized = sanitize_text_field($value);
+        if (!in_array($sanitized, $allowed_positions, true)) {
+            return 'top-left';
+        }
+        return $sanitized;
+    }
+
+    /**
+     * Sanitize size setting
+     */
+    public function sanitize_size_setting($value) {
+        $allowed_sizes = array('small', 'medium', 'large');
+        $sanitized = sanitize_text_field($value);
+        if (!in_array($sanitized, $allowed_sizes, true)) {
+            return 'medium';
+        }
+        return $sanitized;
+    }
+
+    /**
+     * Sanitize border radius setting
+     */
+    public function sanitize_border_radius_setting($value) {
+        $radius = RESBS_Security::sanitize_int($value, 4);
+        return max(0, min(50, $radius));
     }
 }
 

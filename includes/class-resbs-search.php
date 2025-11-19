@@ -354,12 +354,12 @@ class RESBS_Search {
         // Add sorting
         switch ($sort_by) {
             case 'price_asc':
-                $args['meta_key'] = '_resbs_price';
+                $args['meta_key'] = '_property_price';
                 $args['orderby'] = 'meta_value_num';
                 $args['order'] = 'ASC';
                 break;
             case 'price_desc':
-                $args['meta_key'] = '_resbs_price';
+                $args['meta_key'] = '_property_price';
                 $args['orderby'] = 'meta_value_num';
                 $args['order'] = 'DESC';
                 break;
@@ -372,12 +372,13 @@ class RESBS_Search {
                 $args['order'] = 'DESC';
                 break;
             case 'popularity':
-                $args['meta_key'] = '_resbs_view_count';
+                // Use view count if available, otherwise fallback to date
+                $args['meta_key'] = '_property_view_count';
                 $args['orderby'] = 'meta_value_num';
                 $args['order'] = 'DESC';
                 break;
             case 'area_desc':
-                $args['meta_key'] = '_resbs_area';
+                $args['meta_key'] = '_property_size';
                 $args['orderby'] = 'meta_value_num';
                 $args['order'] = 'DESC';
                 break;
@@ -389,7 +390,7 @@ class RESBS_Search {
         // Price filter
         if ($price_min > 0 || $price_max > 0) {
             $price_query = array(
-                'key' => '_resbs_price',
+                'key' => '_property_price',
                 'type' => 'NUMERIC'
             );
             
@@ -410,7 +411,7 @@ class RESBS_Search {
         // Bedrooms filter
         if ($bedrooms > 0) {
             $args['meta_query'][] = array(
-                'key' => '_resbs_bedrooms',
+                'key' => '_property_bedrooms',
                 'value' => $bedrooms,
                 'compare' => '>=',
                 'type' => 'NUMERIC'
@@ -420,7 +421,7 @@ class RESBS_Search {
         // Bathrooms filter
         if ($bathrooms > 0) {
             $args['meta_query'][] = array(
-                'key' => '_resbs_bathrooms',
+                'key' => '_property_bathrooms',
                 'value' => $bathrooms,
                 'compare' => '>=',
                 'type' => 'NUMERIC'
@@ -450,7 +451,7 @@ class RESBS_Search {
             $amenities_query = array('relation' => 'OR');
             foreach ($amenities as $amenity) {
                 $amenities_query[] = array(
-                    'key' => '_resbs_amenities',
+                    'key' => '_property_amenities',
                     'value' => $amenity,
                     'compare' => 'LIKE'
                 );
@@ -486,13 +487,17 @@ class RESBS_Search {
                 $title = get_the_title();
                 $excerpt = get_the_excerpt();
                 $permalink = get_permalink();
-                $price = get_post_meta($post_id, '_resbs_price', true);
-                $bedrooms = get_post_meta($post_id, '_resbs_bedrooms', true);
-                $bathrooms = get_post_meta($post_id, '_resbs_bathrooms', true);
-                $area = get_post_meta($post_id, '_resbs_area', true);
-                $latitude = get_post_meta($post_id, '_resbs_latitude', true);
-                $longitude = get_post_meta($post_id, '_resbs_longitude', true);
-                $amenities = get_post_meta($post_id, '_resbs_amenities', true);
+                $price = get_post_meta($post_id, '_property_price', true);
+                $bedrooms = get_post_meta($post_id, '_property_bedrooms', true);
+                $bathrooms = get_post_meta($post_id, '_property_bathrooms', true);
+                // Try multiple possible area meta keys
+                $area = get_post_meta($post_id, '_property_size', true);
+                if (empty($area)) {
+                    $area = get_post_meta($post_id, '_property_area_sqft', true);
+                }
+                $latitude = get_post_meta($post_id, '_property_latitude', true);
+                $longitude = get_post_meta($post_id, '_property_longitude', true);
+                $amenities = get_post_meta($post_id, '_property_amenities', true);
                 $thumbnail = get_the_post_thumbnail_url($post_id, 'medium');
                 $location_terms = wp_get_post_terms($post_id, 'property_location', array('fields' => 'names'));
                 $property_type_terms = wp_get_post_terms($post_id, 'property_type', array('fields' => 'names'));

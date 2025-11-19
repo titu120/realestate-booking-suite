@@ -253,10 +253,6 @@ if (count($args['meta_query']) > 1) {
     $args['meta_query']['relation'] = 'AND';
 }
 
-// Execute the query
-// Clear any potential caching issues
-wp_cache_flush();
-
 // SIMPLE PROPERTY TYPE FILTER
 if (!empty($property_type_filter)) {
     $args['tax_query'] = array(
@@ -775,8 +771,7 @@ $property_statuses = get_terms(array(
             $map_center_lat = 23.8103; // Fallback only - property locations take priority
             $map_center_lng = 90.4125; // Fallback only - property locations take priority
             
-            // Debug: Using free OpenStreetMap
-            echo '<!-- DEBUG: Using FREE OpenStreetMap with Leaflet.js - No API keys required, unlimited usage, completely free! -->';
+            // Using free OpenStreetMap with Leaflet.js
             
             // Prepare properties data for JavaScript
             // IMPORTANT: Add ALL properties to map - use geocoding for those without coordinates
@@ -842,12 +837,10 @@ $property_statuses = get_terms(array(
                         $lat_float = null;
                         $lng_float = null;
                         $needs_geocoding = true;
-                        echo '<!-- DEBUG: Property "' . esc_html($property_title) . '" (ID: ' . esc_html($property_id) . ') has invalid coordinates, will geocode -->';
                     }
                 } else {
                     // No coordinates - need geocoding
                     $needs_geocoding = true;
-                    echo '<!-- DEBUG: Property "' . esc_html($property_title) . '" (ID: ' . esc_html($property_id) . ') has NO coordinates, will geocode from address -->';
                 }
                 
                 // Get location taxonomy term FIRST (most reliable for geocoding)
@@ -864,7 +857,6 @@ $property_statuses = get_terms(array(
                 if (!empty($location_name)) {
                     // Use location taxonomy as primary - it's usually the most accurate (e.g., "Uttara Dhaka", "Jashore")
                     $address_string = $location_name . ', Bangladesh';
-                    echo '<!-- DEBUG: Property "' . esc_html($property_title) . '" using location taxonomy: ' . esc_html($location_name) . ' -->';
                 } else {
                     // Fallback to address fields
                     if ($address) $address_string .= $address;

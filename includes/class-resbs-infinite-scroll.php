@@ -84,13 +84,8 @@ class RESBS_Infinite_Scroll_Manager {
      * AJAX handler for loading more properties
      */
     public function ajax_load_more_properties() {
-        // Verify nonce using security helper
+        // Verify nonce using security helper (checks if nonce exists)
         $nonce = isset($_POST['nonce']) ? $_POST['nonce'] : '';
-        if (empty($nonce)) {
-            wp_send_json_error(array(
-                'message' => esc_html__('Security check failed. Please refresh the page and try again.', 'realestate-booking-suite')
-            ));
-        }
         RESBS_Security::verify_ajax_nonce($nonce, 'resbs_infinite_scroll_nonce');
         
         // Rate limiting check
@@ -377,7 +372,7 @@ class RESBS_Infinite_Scroll_Manager {
                     </a>
                 </h3>
 
-                <?php if ($property_location && !is_wp_error($property_location)): ?>
+                <?php if ($property_location && !is_wp_error($property_location) && !empty($property_location)): ?>
                     <div class="resbs-property-location">
                         <span class="dashicons dashicons-location"></span>
                         <?php echo esc_html($property_location[0]->name); ?>
@@ -437,15 +432,26 @@ class RESBS_Infinite_Scroll_Manager {
      * Format price
      */
     private function format_price($price) {
-        if (!$price) return '';
-        
-        $num_price = absint($price);
-        if ($num_price === 0 && $price !== 0 && $price !== '0') {
-            return sanitize_text_field($price);
+        if (empty($price) && $price !== 0 && $price !== '0') {
+            return '';
         }
         
+        // Ensure price is numeric
+        $num_price = is_numeric($price) ? floatval($price) : 0;
+        $formatted_price = number_format($num_price, 2);
+        
+        // Get currency symbol and position
         $currency_symbol = sanitize_text_field(get_option('resbs_currency_symbol', '$'));
-        return $currency_symbol . number_format($num_price);
+        $currency_position = sanitize_text_field(get_option('resbs_currency_position', 'before'));
+        
+        // Escape currency symbol for output
+        $currency_symbol = esc_html($currency_symbol);
+        
+        if ($currency_position === 'before') {
+            return $currency_symbol . $formatted_price;
+        } else {
+            return $formatted_price . $currency_symbol;
+        }
     }
 
     /**

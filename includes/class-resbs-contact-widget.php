@@ -193,7 +193,14 @@ class RESBS_Contact_Widget extends WP_Widget {
         $instance['show_telegram'] = isset($new_instance['show_telegram']);
         $instance['show_business_hours'] = isset($new_instance['show_business_hours']);
         $instance['show_social_links'] = isset($new_instance['show_social_links']);
-        $instance['widget_style'] = sanitize_text_field($new_instance['widget_style']);
+        
+        // Validate widget_style against allowed values
+        $widget_style = isset($new_instance['widget_style']) ? sanitize_text_field($new_instance['widget_style']) : 'default';
+        $allowed_styles = array('default', 'minimal', 'detailed');
+        if (!in_array($widget_style, $allowed_styles, true)) {
+            $widget_style = 'default';
+        }
+        $instance['widget_style'] = $widget_style;
         
         return $instance;
     }
@@ -211,7 +218,13 @@ class RESBS_Contact_Widget extends WP_Widget {
         $show_telegram = (bool) $instance['show_telegram'];
         $show_business_hours = (bool) $instance['show_business_hours'];
         $show_social_links = (bool) $instance['show_social_links'];
-        $widget_style = sanitize_text_field($instance['widget_style']);
+        
+        // Validate widget_style against allowed values
+        $widget_style = isset($instance['widget_style']) ? sanitize_text_field($instance['widget_style']) : 'default';
+        $allowed_styles = array('default', 'minimal', 'detailed');
+        if (!in_array($widget_style, $allowed_styles, true)) {
+            $widget_style = 'default';
+        }
         
         // Get contact settings
         $contact_settings = new RESBS_Contact_Settings();
@@ -227,25 +240,25 @@ class RESBS_Contact_Widget extends WP_Widget {
         
         ?>
         <div class="resbs-contact-widget-content resbs-contact-style-<?php echo esc_attr($widget_style); ?>">
-            <?php if ($show_phone && !empty($contact_info['phone'])): ?>
+            <?php if ($show_phone && !empty($contact_info['phone']) && is_array($contact_info['phone'])): ?>
                 <div class="resbs-contact-item resbs-contact-phone">
                     <span class="resbs-contact-icon dashicons dashicons-phone"></span>
                     <div class="resbs-contact-details">
-                        <span class="resbs-contact-label"><?php echo esc_html($contact_info['phone']['label']); ?></span>
-                        <a href="<?php echo esc_url($contact_info['phone']['link']); ?>" class="resbs-contact-value">
-                            <?php echo esc_html($contact_info['phone']['value']); ?>
+                        <span class="resbs-contact-label"><?php echo esc_html(isset($contact_info['phone']['label']) ? $contact_info['phone']['label'] : ''); ?></span>
+                        <a href="<?php echo esc_url(isset($contact_info['phone']['link']) ? $contact_info['phone']['link'] : ''); ?>" class="resbs-contact-value">
+                            <?php echo esc_html(isset($contact_info['phone']['value']) ? $contact_info['phone']['value'] : ''); ?>
                         </a>
                     </div>
                 </div>
             <?php endif; ?>
             
-            <?php if ($show_email && !empty($contact_info['email'])): ?>
+            <?php if ($show_email && !empty($contact_info['email']) && is_array($contact_info['email'])): ?>
                 <div class="resbs-contact-item resbs-contact-email">
                     <span class="resbs-contact-icon dashicons dashicons-email"></span>
                     <div class="resbs-contact-details">
-                        <span class="resbs-contact-label"><?php echo esc_html($contact_info['email']['label']); ?></span>
-                        <a href="<?php echo esc_url($contact_info['email']['link']); ?>" class="resbs-contact-value">
-                            <?php echo esc_html($contact_info['email']['value']); ?>
+                        <span class="resbs-contact-label"><?php echo esc_html(isset($contact_info['email']['label']) ? $contact_info['email']['label'] : ''); ?></span>
+                        <a href="<?php echo esc_url(isset($contact_info['email']['link']) ? $contact_info['email']['link'] : ''); ?>" class="resbs-contact-value">
+                            <?php echo esc_html(isset($contact_info['email']['value']) ? $contact_info['email']['value'] : ''); ?>
                         </a>
                     </div>
                 </div>
@@ -261,37 +274,37 @@ class RESBS_Contact_Widget extends WP_Widget {
                 </div>
             <?php endif; ?>
             
-            <?php if ($show_website && !empty($contact_info['website'])): ?>
+            <?php if ($show_website && !empty($contact_info['website']) && is_array($contact_info['website'])): ?>
                 <div class="resbs-contact-item resbs-contact-website">
                     <span class="resbs-contact-icon dashicons dashicons-admin-site"></span>
                     <div class="resbs-contact-details">
-                        <span class="resbs-contact-label"><?php echo esc_html($contact_info['website']['label']); ?></span>
-                        <a href="<?php echo esc_url($contact_info['website']['link']); ?>" target="_blank" rel="noopener" class="resbs-contact-value">
-                            <?php echo esc_html($contact_info['website']['value']); ?>
+                        <span class="resbs-contact-label"><?php echo esc_html(isset($contact_info['website']['label']) ? $contact_info['website']['label'] : ''); ?></span>
+                        <a href="<?php echo esc_url(isset($contact_info['website']['link']) ? $contact_info['website']['link'] : ''); ?>" target="_blank" rel="noopener" class="resbs-contact-value">
+                            <?php echo esc_html(isset($contact_info['website']['value']) ? $contact_info['website']['value'] : ''); ?>
                         </a>
                     </div>
                 </div>
             <?php endif; ?>
             
-            <?php if ($show_whatsapp && !empty($contact_info['whatsapp'])): ?>
+            <?php if ($show_whatsapp && !empty($contact_info['whatsapp']) && is_array($contact_info['whatsapp'])): ?>
                 <div class="resbs-contact-item resbs-contact-whatsapp">
                     <span class="resbs-contact-icon dashicons dashicons-whatsapp"></span>
                     <div class="resbs-contact-details">
-                        <span class="resbs-contact-label"><?php echo esc_html($contact_info['whatsapp']['label']); ?></span>
-                        <a href="<?php echo esc_url($contact_info['whatsapp']['link']); ?>" target="_blank" rel="noopener" class="resbs-contact-value">
-                            <?php echo esc_html($contact_info['whatsapp']['value']); ?>
+                        <span class="resbs-contact-label"><?php echo esc_html(isset($contact_info['whatsapp']['label']) ? $contact_info['whatsapp']['label'] : ''); ?></span>
+                        <a href="<?php echo esc_url(isset($contact_info['whatsapp']['link']) ? $contact_info['whatsapp']['link'] : ''); ?>" target="_blank" rel="noopener" class="resbs-contact-value">
+                            <?php echo esc_html(isset($contact_info['whatsapp']['value']) ? $contact_info['whatsapp']['value'] : ''); ?>
                         </a>
                     </div>
                 </div>
             <?php endif; ?>
             
-            <?php if ($show_telegram && !empty($contact_info['telegram'])): ?>
+            <?php if ($show_telegram && !empty($contact_info['telegram']) && is_array($contact_info['telegram'])): ?>
                 <div class="resbs-contact-item resbs-contact-telegram">
                     <span class="resbs-contact-icon dashicons dashicons-telegram"></span>
                     <div class="resbs-contact-details">
-                        <span class="resbs-contact-label"><?php echo esc_html($contact_info['telegram']['label']); ?></span>
-                        <a href="<?php echo esc_url($contact_info['telegram']['link']); ?>" target="_blank" rel="noopener" class="resbs-contact-value">
-                            <?php echo esc_html($contact_info['telegram']['value']); ?>
+                        <span class="resbs-contact-label"><?php echo esc_html(isset($contact_info['telegram']['label']) ? $contact_info['telegram']['label'] : ''); ?></span>
+                        <a href="<?php echo esc_url(isset($contact_info['telegram']['link']) ? $contact_info['telegram']['link'] : ''); ?>" target="_blank" rel="noopener" class="resbs-contact-value">
+                            <?php echo esc_html(isset($contact_info['telegram']['value']) ? $contact_info['telegram']['value'] : ''); ?>
                         </a>
                     </div>
                 </div>
@@ -319,13 +332,15 @@ class RESBS_Contact_Widget extends WP_Widget {
                         <span class="resbs-contact-label"><?php esc_html_e('Follow Us:', 'realestate-booking-suite'); ?></span>
                         <div class="resbs-social-links">
                             <?php foreach ($social_links as $platform => $social): ?>
-                                <a href="<?php echo esc_url($social['url']); ?>" 
-                                   target="_blank" 
-                                   rel="noopener" 
-                                   class="resbs-social-link resbs-social-<?php echo esc_attr($platform); ?>"
-                                   title="<?php echo esc_attr($social['name']); ?>">
-                                    <span class="dashicons <?php echo esc_attr($social['icon']); ?>"></span>
-                                </a>
+                                <?php if (is_array($social) && isset($social['url']) && isset($social['name']) && isset($social['icon'])): ?>
+                                    <a href="<?php echo esc_url($social['url']); ?>" 
+                                       target="_blank" 
+                                       rel="noopener" 
+                                       class="resbs-social-link resbs-social-<?php echo esc_attr(sanitize_text_field($platform)); ?>"
+                                       title="<?php echo esc_attr($social['name']); ?>">
+                                        <span class="dashicons <?php echo esc_attr($social['icon']); ?>"></span>
+                                    </a>
+                                <?php endif; ?>
                             <?php endforeach; ?>
                         </div>
                     </div>

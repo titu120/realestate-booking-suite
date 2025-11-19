@@ -74,12 +74,15 @@ class RESBS_Admin_Contact_Messages {
         
         // Handle actions with nonce verification
         if (isset($_GET['action']) && isset($_GET['id'])) {
-            // Verify nonce for security
-            if (!isset($_GET['_wpnonce']) || !wp_verify_nonce($_GET['_wpnonce'], 'resbs_contact_message_action_' . intval($_GET['id']))) {
+            // Sanitize ID first
+            $id = intval($_GET['id']);
+            
+            // Verify nonce for security (sanitize nonce before verification)
+            $nonce = isset($_GET['_wpnonce']) ? sanitize_text_field($_GET['_wpnonce']) : '';
+            if (empty($nonce) || !wp_verify_nonce($nonce, 'resbs_contact_message_action_' . $id)) {
                 wp_die(esc_html__('Security check failed. Please try again.', 'realestate-booking-suite'));
             }
             
-            $id = intval($_GET['id']);
             $action = sanitize_text_field($_GET['action']);
             
             switch ($action) {
@@ -162,15 +165,31 @@ class RESBS_Admin_Contact_Messages {
                                 </td>
                                 <td>
                                     <div style="max-width: 300px; word-wrap: break-word;">
-                                        <?php echo esc_html(wp_trim_words($message->message, 20)); ?>
-                                        <?php if (strlen($message->message) > 100): ?>
-                                            <br><a href="#" onclick="showFullMessage(<?php echo esc_js($message->id); ?>, <?php echo esc_js(wp_json_encode($message->message)); ?>)"><?php echo esc_html__('Read more...', 'realestate-booking-suite'); ?></a>
+                                        <?php 
+                                        $message_preview = sanitize_text_field($message->message);
+                                        echo esc_html(wp_trim_words($message_preview, 20)); 
+                                        ?>
+                                        <?php if (strlen($message_preview) > 100): ?>
+                                            <?php 
+                                            // Sanitize message for JavaScript
+                                            $message_safe = sanitize_textarea_field($message->message);
+                                            // Use data attribute for safer JSON passing (escaped for HTML attribute)
+                                            $message_json = wp_json_encode($message_safe);
+                                            ?>
+                                            <br><a href="#" 
+                                                   class="show-full-message-link" 
+                                                   data-message-id="<?php echo esc_attr($message->id); ?>" 
+                                                   data-message="<?php echo esc_attr($message_json); ?>"><?php echo esc_html__('Read more...', 'realestate-booking-suite'); ?></a>
                                         <?php endif; ?>
                                     </div>
                                 </td>
                                 <td>
-                                    <span class="status-<?php echo esc_attr($message->status); ?>">
-                                        <?php echo esc_html(ucfirst($message->status)); ?>
+                                    <?php 
+                                    $status = sanitize_text_field($message->status);
+                                    $status_display = ucfirst($status);
+                                    ?>
+                                    <span class="status-<?php echo esc_attr($status); ?>">
+                                        <?php echo esc_html($status_display); ?>
                                     </span>
                                 </td>
                                 <td>
@@ -186,7 +205,16 @@ class RESBS_Admin_Contact_Messages {
                                             <option value="archived" <?php selected($message->status, 'archived'); ?>><?php echo esc_html__('Archived', 'realestate-booking-suite'); ?></option>
                                         </select>
                                         <br><br>
-                                        <a href="mailto:<?php echo esc_attr($message->email); ?>?subject=<?php echo esc_attr(sprintf(__('Re: Contact Message #%d', 'realestate-booking-suite'), $message->id)); ?>" class="reply-link"><?php echo esc_html__('Reply', 'realestate-booking-suite'); ?></a>
+                                        <?php 
+                                        // Sanitize email and subject for mailto link
+                                        $email = sanitize_email($message->email);
+                                        $subject_raw = sprintf(esc_html__('Re: Contact Message #%d', 'realestate-booking-suite'), absint($message->id));
+                                        // Sanitize subject to prevent email header injection
+                                        $subject = wp_strip_all_tags($subject_raw);
+                                        $subject = str_replace(array("\r", "\n"), '', $subject);
+                                        $subject = urlencode($subject);
+                                        ?>
+                                        <a href="mailto:<?php echo esc_attr($email); ?>?subject=<?php echo esc_attr($subject); ?>" class="reply-link"><?php echo esc_html__('Reply', 'realestate-booking-suite'); ?></a>
                                         <br>
                                         <a href="<?php echo esc_url(wp_nonce_url(add_query_arg(array('action' => 'delete', 'id' => $message->id), admin_url('edit.php?post_type=property&page=contact-messages')), 'resbs_contact_message_action_' . $message->id)); ?>" 
                                            onclick="return confirm('<?php echo esc_js(__('Are you sure you want to delete this contact message?', 'realestate-booking-suite')); ?>')" 
@@ -209,7 +237,7 @@ class RESBS_Admin_Contact_Messages {
                         <i class="fas fa-times text-xl"></i>
                     </button>
                 </div>
-                <div id="fullMessageContent" class="text-gray-700 whitespace-pre-wrap"></div>
+                <div id="fullMessageContent" class="text-gray-700 whitespace-pre-wrap" style="word-wrap: break-word;"></div>
             </div>
         </div>
         
@@ -227,8 +255,9 @@ class RESBS_Admin_Contact_Messages {
             return;
         }
         
-        // Verify nonce
-        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'resbs_contact_message_admin_action')) {
+        // Verify nonce (sanitize before verification)
+        $nonce = isset($_POST['nonce']) ? sanitize_text_field($_POST['nonce']) : '';
+        if (empty($nonce) || !wp_verify_nonce($nonce, 'resbs_contact_message_admin_action')) {
             wp_send_json_error(array('message' => esc_html__('Security check failed. Please refresh the page and try again.', 'realestate-booking-suite')));
             return;
         }
@@ -245,7 +274,7 @@ class RESBS_Admin_Contact_Messages {
         $table_name = $wpdb->prefix . 'resbs_contact_messages';
         
         $allowed_statuses = array('unread', 'read', 'replied', 'archived');
-        if (!in_array($status, $allowed_statuses)) {
+        if (!in_array($status, $allowed_statuses, true)) {
             wp_send_json_error(array('message' => esc_html__('Invalid status', 'realestate-booking-suite')));
             return;
         }
@@ -278,7 +307,7 @@ class RESBS_Admin_Contact_Messages {
         $table_name = $wpdb->prefix . 'resbs_contact_messages';
         
         $allowed_statuses = array('unread', 'read', 'replied', 'archived');
-        if (!in_array($status, $allowed_statuses)) {
+        if (!in_array($status, $allowed_statuses, true)) {
             return false;
         }
         
@@ -301,8 +330,9 @@ class RESBS_Admin_Contact_Messages {
             return;
         }
         
-        // Verify nonce
-        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'resbs_contact_message_admin_action')) {
+        // Verify nonce (sanitize before verification)
+        $nonce = isset($_POST['nonce']) ? sanitize_text_field($_POST['nonce']) : '';
+        if (empty($nonce) || !wp_verify_nonce($nonce, 'resbs_contact_message_admin_action')) {
             wp_send_json_error(array('message' => esc_html__('Security check failed. Please refresh the page and try again.', 'realestate-booking-suite')));
             return;
         }

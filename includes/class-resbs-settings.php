@@ -175,44 +175,111 @@ class RESBS_Settings {
      */
     public function register_settings() {
         // General Settings
-        register_setting('resbs_general_settings', 'resbs_default_currency');
-        register_setting('resbs_general_settings', 'resbs_map_api_key');
+        register_setting('resbs_general_settings', 'resbs_default_currency', array('sanitize_callback' => 'sanitize_text_field'));
+        register_setting('resbs_general_settings', 'resbs_map_api_key', array('sanitize_callback' => 'sanitize_text_field'));
         
         // Mortgage Calculator Settings
-        register_setting('resbs_general_settings', 'resbs_mortgage_loan_terms');
-        register_setting('resbs_general_settings', 'resbs_mortgage_default_loan_term');
-        register_setting('resbs_general_settings', 'resbs_mortgage_default_down_payment');
-        register_setting('resbs_general_settings', 'resbs_mortgage_default_interest_rate');
+        register_setting('resbs_general_settings', 'resbs_mortgage_loan_terms', array('sanitize_callback' => 'sanitize_textarea_field'));
+        register_setting('resbs_general_settings', 'resbs_mortgage_default_loan_term', array('sanitize_callback' => array($this, 'sanitize_int')));
+        register_setting('resbs_general_settings', 'resbs_mortgage_default_down_payment', array('sanitize_callback' => array($this, 'sanitize_float')));
+        register_setting('resbs_general_settings', 'resbs_mortgage_default_interest_rate', array('sanitize_callback' => array($this, 'sanitize_float')));
         
         // Badge Settings
-        register_setting('resbs_badge_settings', 'resbs_badge_color');
-        register_setting('resbs_badge_settings', 'resbs_badge_text_color');
-        register_setting('resbs_badge_settings', 'resbs_badge_position');
+        register_setting('resbs_badge_settings', 'resbs_badge_color', array('sanitize_callback' => array($this, 'sanitize_hex_color')));
+        register_setting('resbs_badge_settings', 'resbs_badge_text_color', array('sanitize_callback' => array($this, 'sanitize_hex_color')));
+        register_setting('resbs_badge_settings', 'resbs_badge_position', array('sanitize_callback' => 'sanitize_text_field'));
         
         // Map Settings
-        register_setting('resbs_map_settings', 'resbs_google_maps_api_key');
-        register_setting('resbs_map_settings', 'resbs_map_zoom_level');
-        register_setting('resbs_map_settings', 'resbs_map_center_lat');
-        register_setting('resbs_map_settings', 'resbs_map_center_lng');
+        register_setting('resbs_map_settings', 'resbs_google_maps_api_key', array('sanitize_callback' => 'sanitize_text_field'));
+        register_setting('resbs_map_settings', 'resbs_map_zoom_level', array('sanitize_callback' => array($this, 'sanitize_int')));
+        register_setting('resbs_map_settings', 'resbs_map_center_lat', array('sanitize_callback' => array($this, 'sanitize_float')));
+        register_setting('resbs_map_settings', 'resbs_map_center_lng', array('sanitize_callback' => array($this, 'sanitize_float')));
         
         // Contact Settings
-        register_setting('resbs_contact_settings', 'resbs_contact_phone');
-        register_setting('resbs_contact_settings', 'resbs_contact_email');
-        register_setting('resbs_contact_settings', 'resbs_contact_address');
+        register_setting('resbs_contact_settings', 'resbs_contact_phone', array('sanitize_callback' => 'sanitize_text_field'));
+        register_setting('resbs_contact_settings', 'resbs_contact_email', array('sanitize_callback' => 'sanitize_email'));
+        register_setting('resbs_contact_settings', 'resbs_contact_address', array('sanitize_callback' => 'sanitize_textarea_field'));
         
         // Email Settings
-        register_setting('resbs_email_settings', 'resbs_booking_notification_email');
-        register_setting('resbs_email_settings', 'resbs_submission_notification_email');
-        register_setting('resbs_email_settings', 'resbs_booking_email_subject');
-        register_setting('resbs_email_settings', 'resbs_submission_email_subject');
+        register_setting('resbs_email_settings', 'resbs_booking_notification_email', array('sanitize_callback' => 'sanitize_email'));
+        register_setting('resbs_email_settings', 'resbs_submission_notification_email', array('sanitize_callback' => 'sanitize_email'));
+        register_setting('resbs_email_settings', 'resbs_booking_email_subject', array('sanitize_callback' => 'sanitize_text_field'));
+        register_setting('resbs_email_settings', 'resbs_submission_email_subject', array('sanitize_callback' => 'sanitize_text_field'));
         
         // Appearance Settings
-        register_setting('resbs_appearance_settings', 'resbs_property_card_color');
-        register_setting('resbs_appearance_settings', 'resbs_button_color');
-        register_setting('resbs_appearance_settings', 'resbs_primary_color');
+        register_setting('resbs_appearance_settings', 'resbs_property_card_color', array('sanitize_callback' => array($this, 'sanitize_hex_color')));
+        register_setting('resbs_appearance_settings', 'resbs_button_color', array('sanitize_callback' => array($this, 'sanitize_hex_color')));
+        register_setting('resbs_appearance_settings', 'resbs_primary_color', array('sanitize_callback' => array($this, 'sanitize_hex_color')));
         
         // Quick Actions Settings
-        register_setting('resbs_quick_actions_settings', 'resbs_quick_actions');
+        register_setting('resbs_quick_actions_settings', 'resbs_quick_actions', array('sanitize_callback' => array($this, 'sanitize_quick_actions')));
+    }
+    
+    /**
+     * Sanitize integer value
+     * 
+     * @param mixed $value Input value
+     * @return int Sanitized integer
+     */
+    public function sanitize_int($value) {
+        return absint($value);
+    }
+    
+    /**
+     * Sanitize float value
+     * 
+     * @param mixed $value Input value
+     * @return float Sanitized float
+     */
+    public function sanitize_float($value) {
+        return floatval($value);
+    }
+    
+    /**
+     * Sanitize hex color value
+     * 
+     * @param string $value Input value
+     * @return string Sanitized hex color
+     */
+    public function sanitize_hex_color($value) {
+        $value = sanitize_text_field($value);
+        // Validate hex color format
+        if (preg_match('/^#[a-fA-F0-9]{6}$/', $value)) {
+            return $value;
+        }
+        // Return default if invalid
+        return '#0073aa';
+    }
+    
+    /**
+     * Sanitize quick actions array
+     * 
+     * @param mixed $value Input value
+     * @return array Sanitized array
+     */
+    public function sanitize_quick_actions($value) {
+        if (!is_array($value)) {
+            return array();
+        }
+        
+        $sanitized = array();
+        foreach ($value as $index => $action) {
+            if (!is_array($action)) {
+                continue;
+            }
+            
+            if (!empty($action['title'])) {
+                $sanitized[] = array(
+                    'title' => sanitize_text_field($action['title']),
+                    'icon' => sanitize_text_field($action['icon'] ?? ''),
+                    'action' => sanitize_text_field($action['action'] ?? ''),
+                    'style' => sanitize_text_field($action['style'] ?? ''),
+                    'enabled' => isset($action['enabled']) ? absint($action['enabled']) : 0
+                );
+            }
+        }
+        
+        return $sanitized;
     }
     
     /**

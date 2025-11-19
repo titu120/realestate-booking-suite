@@ -68,15 +68,24 @@ class RESBS_Dynamic_Archive_AJAX {
         
         // Get search parameters
         $search_query = isset($_POST['search']) ? sanitize_text_field($_POST['search']) : '';
-        $min_price = isset($_POST['min_price']) ? intval($_POST['min_price']) : '';
-        $max_price = isset($_POST['max_price']) ? intval($_POST['max_price']) : '';
+        // Prices should use floatval since they can be decimals
+        $min_price = isset($_POST['min_price']) && is_numeric($_POST['min_price']) ? floatval($_POST['min_price']) : '';
+        $max_price = isset($_POST['max_price']) && is_numeric($_POST['max_price']) ? floatval($_POST['max_price']) : '';
         // Sanitize taxonomy terms (use sanitize_title for slugs)
         $property_type = isset($_POST['property_type']) ? sanitize_title($_POST['property_type']) : '';
-        $bedrooms = isset($_POST['bedrooms']) ? intval($_POST['bedrooms']) : '';
-        $bathrooms = isset($_POST['bathrooms']) ? intval($_POST['bathrooms']) : '';
-        $min_sqft = isset($_POST['min_sqft']) ? intval($_POST['min_sqft']) : '';
-        $max_sqft = isset($_POST['max_sqft']) ? intval($_POST['max_sqft']) : '';
+        $bedrooms = isset($_POST['bedrooms']) && is_numeric($_POST['bedrooms']) ? absint($_POST['bedrooms']) : '';
+        // Bathrooms can be decimals (e.g., 2.5)
+        $bathrooms = isset($_POST['bathrooms']) && is_numeric($_POST['bathrooms']) ? floatval($_POST['bathrooms']) : '';
+        $min_sqft = isset($_POST['min_sqft']) && is_numeric($_POST['min_sqft']) ? absint($_POST['min_sqft']) : '';
+        $max_sqft = isset($_POST['max_sqft']) && is_numeric($_POST['max_sqft']) ? absint($_POST['max_sqft']) : '';
+        // Validate year_built is numeric
         $year_built = isset($_POST['year_built']) ? sanitize_text_field($_POST['year_built']) : '';
+        if (!empty($year_built)) {
+            $year_built = str_replace('+', '', $year_built);
+            if (!is_numeric($year_built)) {
+                $year_built = ''; // Clear invalid value
+            }
+        }
         $property_status = isset($_POST['property_status']) ? sanitize_title($_POST['property_status']) : '';
         
         // Validate and sanitize sort_by parameter (whitelist approach)
@@ -153,36 +162,46 @@ class RESBS_Dynamic_Archive_AJAX {
         }
         
         // Add square footage filter
+        // Check both _property_size and _property_area_sqft for consistency
         if (!empty($min_sqft) || !empty($max_sqft)) {
             $sqft_query = array(
-                'key' => '_property_area_sqft',
-                'type' => 'NUMERIC',
+                'relation' => 'OR',
+                array(
+                    'key' => '_property_size',
+                    'type' => 'NUMERIC',
+                ),
+                array(
+                    'key' => '_property_area_sqft',
+                    'type' => 'NUMERIC',
+                )
             );
             
-            if (!empty($min_sqft)) {
-                $sqft_query['value'] = $min_sqft;
-                $sqft_query['compare'] = '>=';
-            }
-            
-            if (!empty($max_sqft)) {
-                if (!empty($min_sqft)) {
-                    $sqft_query['compare'] = 'BETWEEN';
-                    $sqft_query['value'] = array($min_sqft, $max_sqft);
-                } else {
-                    $sqft_query['value'] = $max_sqft;
-                    $sqft_query['compare'] = '<=';
-                }
+            // Add value and compare to both sub-queries
+            if (!empty($min_sqft) && !empty($max_sqft)) {
+                $sqft_query[0]['value'] = array($min_sqft, $max_sqft);
+                $sqft_query[0]['compare'] = 'BETWEEN';
+                $sqft_query[1]['value'] = array($min_sqft, $max_sqft);
+                $sqft_query[1]['compare'] = 'BETWEEN';
+            } elseif (!empty($min_sqft)) {
+                $sqft_query[0]['value'] = $min_sqft;
+                $sqft_query[0]['compare'] = '>=';
+                $sqft_query[1]['value'] = $min_sqft;
+                $sqft_query[1]['compare'] = '>=';
+            } else {
+                $sqft_query[0]['value'] = $max_sqft;
+                $sqft_query[0]['compare'] = '<=';
+                $sqft_query[1]['value'] = $max_sqft;
+                $sqft_query[1]['compare'] = '<=';
             }
             
             $args['meta_query'][] = $sqft_query;
         }
         
         // Add year built filter
-        if (!empty($year_built)) {
-            $year_value = str_replace('+', '', $year_built);
+        if (!empty($year_built) && is_numeric($year_built)) {
             $args['meta_query'][] = array(
                 'key' => '_property_year_built',
-                'value' => $year_value,
+                'value' => absint($year_built),
                 'compare' => '>=',
                 'type' => 'NUMERIC'
             );
@@ -256,7 +275,8 @@ class RESBS_Dynamic_Archive_AJAX {
                 $price = get_post_meta(get_the_ID(), '_property_price', true);
                 $bedrooms = get_post_meta(get_the_ID(), '_property_bedrooms', true);
                 $bathrooms = get_post_meta(get_the_ID(), '_property_bathrooms', true);
-                $area_sqft = get_post_meta(get_the_ID(), '_property_area_sqft', true);
+                // Check both meta keys for area consistency
+                $area_sqft = get_post_meta(get_the_ID(), '_property_size', true) ?: get_post_meta(get_the_ID(), '_property_area_sqft', true);
                 $address = get_post_meta(get_the_ID(), '_property_address', true);
                 $city = get_post_meta(get_the_ID(), '_property_city', true);
                 $state = get_post_meta(get_the_ID(), '_property_state', true);
@@ -269,12 +289,12 @@ class RESBS_Dynamic_Archive_AJAX {
                 $property_statuses = get_the_terms(get_the_ID(), 'property_status');
                 
                 $property_type_name = '';
-                if ($property_types && !is_wp_error($property_types)) {
+                if ($property_types && !is_wp_error($property_types) && !empty($property_types)) {
                     $property_type_name = esc_html($property_types[0]->name);
                 }
                 
                 $property_status_name = '';
-                if ($property_statuses && !is_wp_error($property_statuses)) {
+                if ($property_statuses && !is_wp_error($property_statuses) && !empty($property_statuses)) {
                     $property_status_name = esc_html($property_statuses[0]->name);
                 }
                 

@@ -85,23 +85,49 @@ class RESBS_Property_Grid {
         $show_meta = $atts['show_meta'] === 'true';
         $show_excerpt = $atts['show_excerpt'] === 'true';
         
+        // Validate image_size
+        $image_size = sanitize_text_field($atts['image_size']);
+        $allowed_image_sizes = array('thumbnail', 'medium', 'medium_large', 'large', 'full');
+        if (!in_array($image_size, $allowed_image_sizes, true)) {
+            $image_size = 'medium';
+        }
+        
+        // Validate orderby and order
+        $allowed_orderby = array('date', 'title', 'price', 'menu_order', 'rand');
+        $orderby = sanitize_text_field($atts['orderby']);
+        if (!in_array($orderby, $allowed_orderby, true)) {
+            $orderby = 'date';
+        }
+        
+        $allowed_order = array('ASC', 'DESC');
+        $order = sanitize_text_field($atts['order']);
+        if (!in_array($order, $allowed_order, true)) {
+            $order = 'DESC';
+        }
+        
         // Build query args
         $args = array(
             'post_type' => 'property',
             'post_status' => 'publish',
             'posts_per_page' => $limit,
             'paged' => 1,
-            'orderby' => sanitize_text_field($atts['orderby']),
-            'order' => sanitize_text_field($atts['order']),
+            'orderby' => $orderby,
+            'order' => $order,
             'meta_query' => array(),
             'tax_query' => array()
         );
         
+        // Handle price ordering
+        if ($orderby === 'price') {
+            $args['meta_key'] = '_property_price';
+            $args['orderby'] = 'meta_value_num';
+        }
+        
         // Featured properties filter
         if ($featured_only) {
             $args['meta_query'][] = array(
-                'key' => '_resbs_featured',
-                'value' => 'yes',
+                'key' => '_property_featured',
+                'value' => '1',
                 'compare' => '='
             );
         }
@@ -147,7 +173,7 @@ class RESBS_Property_Grid {
             <?php if ($query->have_posts()): ?>
                 <div class="resbs-property-grid resbs-grid-<?php echo esc_attr($columns); ?>-columns">
                     <?php while ($query->have_posts()): $query->the_post(); ?>
-                        <?php $this->render_property_card(get_the_ID(), $show_badges, $show_price, $show_meta, $show_excerpt, $atts['image_size']); ?>
+                        <?php $this->render_property_card(get_the_ID(), $show_badges, $show_price, $show_meta, $show_excerpt, $image_size); ?>
                     <?php endwhile; ?>
                 </div>
                 
@@ -191,16 +217,40 @@ class RESBS_Property_Grid {
      * Render individual property card
      */
     private function render_property_card($post_id, $show_badges, $show_price, $show_meta, $show_excerpt, $image_size) {
-        $price = get_post_meta($post_id, '_resbs_price', true);
-        $bedrooms = get_post_meta($post_id, '_resbs_bedrooms', true);
-        $bathrooms = get_post_meta($post_id, '_resbs_bathrooms', true);
-        $area = get_post_meta($post_id, '_resbs_area', true);
-        $featured = get_post_meta($post_id, '_resbs_featured', true);
-        $video_url = get_post_meta($post_id, '_resbs_video_url', true);
+        $price = get_post_meta($post_id, '_property_price', true);
+        $bedrooms = get_post_meta($post_id, '_property_bedrooms', true);
+        $bathrooms = get_post_meta($post_id, '_property_bathrooms', true);
+        // Try multiple possible area meta keys
+        $area = get_post_meta($post_id, '_property_size', true) ?: get_post_meta($post_id, '_property_area_sqft', true);
+        $featured = get_post_meta($post_id, '_property_featured', true);
+        $video_url = get_post_meta($post_id, '_property_video_url', true);
         
-        $property_status = wp_get_post_terms($post_id, 'property_status', array('fields' => 'names'));
-        $property_type = wp_get_post_terms($post_id, 'property_type', array('fields' => 'names'));
-        $location = wp_get_post_terms($post_id, 'property_location', array('fields' => 'names'));
+        // Get taxonomy terms and sanitize
+        $property_status_raw = wp_get_post_terms($post_id, 'property_status', array('fields' => 'names'));
+        $property_type_raw = wp_get_post_terms($post_id, 'property_type', array('fields' => 'names'));
+        $location_raw = wp_get_post_terms($post_id, 'property_location', array('fields' => 'names'));
+        
+        // Sanitize taxonomy terms
+        $property_status = array();
+        if (!is_wp_error($property_status_raw) && is_array($property_status_raw)) {
+            foreach ($property_status_raw as $status) {
+                $property_status[] = sanitize_text_field($status);
+            }
+        }
+        
+        $property_type = array();
+        if (!is_wp_error($property_type_raw) && is_array($property_type_raw)) {
+            foreach ($property_type_raw as $type) {
+                $property_type[] = sanitize_text_field($type);
+            }
+        }
+        
+        $location = array();
+        if (!is_wp_error($location_raw) && is_array($location_raw)) {
+            foreach ($location_raw as $loc) {
+                $location[] = sanitize_text_field($loc);
+            }
+        }
         
         $thumbnail = get_the_post_thumbnail_url($post_id, $image_size);
         $permalink = get_permalink($post_id);
@@ -228,7 +278,7 @@ class RESBS_Property_Grid {
                 
                 <?php if ($show_badges): ?>
                     <div class="resbs-property-badges">
-                        <?php if ($featured === 'yes'): ?>
+                        <?php if ($featured === '1' || $featured === 'yes'): ?>
                             <span class="resbs-badge resbs-badge-featured"><?php esc_html_e('Featured', 'realestate-booking-suite'); ?></span>
                         <?php endif; ?>
                         
@@ -236,11 +286,11 @@ class RESBS_Property_Grid {
                             <span class="resbs-badge resbs-badge-new"><?php esc_html_e('New', 'realestate-booking-suite'); ?></span>
                         <?php endif; ?>
                         
-                        <?php if (!empty($property_status) && in_array('Sold', $property_status)): ?>
+                        <?php if (!empty($property_status) && in_array('Sold', $property_status, true)): ?>
                             <span class="resbs-badge resbs-badge-sold"><?php esc_html_e('Sold', 'realestate-booking-suite'); ?></span>
                         <?php endif; ?>
                         
-                        <?php if (!empty($property_status) && in_array('Rent', $property_status)): ?>
+                        <?php if (!empty($property_status) && in_array('Rent', $property_status, true)): ?>
                             <span class="resbs-badge resbs-badge-rent"><?php esc_html_e('For Rent', 'realestate-booking-suite'); ?></span>
                         <?php endif; ?>
                     </div>
@@ -265,10 +315,10 @@ class RESBS_Property_Grid {
                     </div>
                 <?php endif; ?>
                 
-                <?php if ($show_price && $price): ?>
+                <?php if ($show_price && $price && is_numeric($price)): ?>
                     <div class="resbs-property-price">
                         <?php echo esc_html(resbs_format_price($price)); ?>
-                        <?php if (!empty($property_status) && in_array('Rent', $property_status)): ?>
+                        <?php if (!empty($property_status) && in_array('Rent', $property_status, true)): ?>
                             <span class="resbs-price-period"><?php esc_html_e('/month', 'realestate-booking-suite'); ?></span>
                         <?php endif; ?>
                     </div>
@@ -276,21 +326,21 @@ class RESBS_Property_Grid {
                 
                 <?php if ($show_meta): ?>
                     <div class="resbs-property-meta">
-                        <?php if ($bedrooms): ?>
+                        <?php if ($bedrooms && is_numeric($bedrooms)): ?>
                             <span class="resbs-meta-item">
                                 <span class="dashicons dashicons-bed"></span>
-                                <?php echo esc_html($bedrooms); ?> <?php echo esc_html($bedrooms == 1 ? __('Bed', 'realestate-booking-suite') : __('Beds', 'realestate-booking-suite')); ?>
+                                <?php echo esc_html(absint($bedrooms)); ?> <?php echo esc_html($bedrooms == 1 ? esc_html__('Bed', 'realestate-booking-suite') : esc_html__('Beds', 'realestate-booking-suite')); ?>
                             </span>
                         <?php endif; ?>
                         
-                        <?php if ($bathrooms): ?>
+                        <?php if ($bathrooms && is_numeric($bathrooms)): ?>
                             <span class="resbs-meta-item">
                                 <span class="dashicons dashicons-shower"></span>
-                                <?php echo esc_html($bathrooms); ?> <?php echo esc_html($bathrooms == 1 ? __('Bath', 'realestate-booking-suite') : __('Baths', 'realestate-booking-suite')); ?>
+                                <?php echo esc_html(floatval($bathrooms)); ?> <?php echo esc_html($bathrooms == 1 ? esc_html__('Bath', 'realestate-booking-suite') : esc_html__('Baths', 'realestate-booking-suite')); ?>
                             </span>
                         <?php endif; ?>
                         
-                        <?php if ($area): ?>
+                        <?php if ($area && is_numeric($area)): ?>
                             <span class="resbs-meta-item">
                                 <span class="dashicons dashicons-fullscreen-alt"></span>
                                 <?php echo esc_html(number_format(floatval($area))); ?> <?php esc_html_e('sq ft', 'realestate-booking-suite'); ?>
@@ -319,19 +369,27 @@ class RESBS_Property_Grid {
      * Handle AJAX load more
      */
     public function handle_load_more() {
-        // Verify nonce
-        if (!wp_verify_nonce($_POST['nonce'], 'resbs_grid_nonce')) {
-            wp_die(esc_html__('Security check failed.', 'realestate-booking-suite'));
+        // Verify nonce (sanitize before verification)
+        $nonce = isset($_POST['nonce']) ? sanitize_text_field($_POST['nonce']) : '';
+        if (empty($nonce) || !wp_verify_nonce($nonce, 'resbs_grid_nonce')) {
+            wp_send_json_error(array('message' => esc_html__('Security check failed.', 'realestate-booking-suite')));
+            return;
         }
         
-        $page = intval($_POST['page']);
-        $limit = intval($_POST['limit']);
-        $columns = intval($_POST['columns']);
-        $show_badges = $_POST['show_badges'] === 'true';
-        $show_price = $_POST['show_price'] === 'true';
-        $show_meta = $_POST['show_meta'] === 'true';
-        $show_excerpt = $_POST['show_excerpt'] === 'true';
-        $image_size = sanitize_text_field($_POST['image_size']);
+        $page = isset($_POST['page']) ? intval($_POST['page']) : 1;
+        $limit = isset($_POST['limit']) ? intval($_POST['limit']) : 12;
+        $columns = isset($_POST['columns']) ? intval($_POST['columns']) : 3;
+        $show_badges = isset($_POST['show_badges']) && $_POST['show_badges'] === 'true';
+        $show_price = isset($_POST['show_price']) && $_POST['show_price'] === 'true';
+        $show_meta = isset($_POST['show_meta']) && $_POST['show_meta'] === 'true';
+        $show_excerpt = isset($_POST['show_excerpt']) && $_POST['show_excerpt'] === 'true';
+        
+        // Validate image_size
+        $image_size = isset($_POST['image_size']) ? sanitize_text_field($_POST['image_size']) : 'medium';
+        $allowed_image_sizes = array('thumbnail', 'medium', 'medium_large', 'large', 'full');
+        if (!in_array($image_size, $allowed_image_sizes, true)) {
+            $image_size = 'medium';
+        }
         
         // Build query args (same as shortcode)
         $args = array(
@@ -360,14 +418,25 @@ class RESBS_Property_Grid {
             ));
         } else {
             wp_reset_postdata();
-            wp_send_json_error(esc_html__('No more properties found.', 'realestate-booking-suite'));
+            wp_send_json_error(array('message' => esc_html__('No more properties found.', 'realestate-booking-suite')));
         }
     }
 }
 
-// Initialize the class
-new RESBS_Property_Grid();
+// Initialize the class and store instance for AJAX handlers
+$GLOBALS['resbs_property_grid'] = new RESBS_Property_Grid();
 
-// Add AJAX handlers
-add_action('wp_ajax_resbs_load_more_properties', array('RESBS_Property_Grid', 'handle_load_more'));
-add_action('wp_ajax_nopriv_resbs_load_more_properties', array('RESBS_Property_Grid', 'handle_load_more'));
+add_action('wp_ajax_resbs_load_more_properties', function() {
+    if (isset($GLOBALS['resbs_property_grid'])) {
+        $GLOBALS['resbs_property_grid']->handle_load_more();
+    } else {
+        wp_send_json_error(array('message' => esc_html__('Property grid handler not available.', 'realestate-booking-suite')));
+    }
+});
+add_action('wp_ajax_nopriv_resbs_load_more_properties', function() {
+    if (isset($GLOBALS['resbs_property_grid'])) {
+        $GLOBALS['resbs_property_grid']->handle_load_more();
+    } else {
+        wp_send_json_error(array('message' => esc_html__('Property grid handler not available.', 'realestate-booking-suite')));
+    }
+});

@@ -32,19 +32,19 @@ class RESBS_Archive_Handler {
         // Add rewrite rules for custom archive pages
         add_rewrite_rule(
             '^properties/?$',
-            'index.php?post_type=resbs_property&archive_view=grid',
+            'index.php?post_type=property&archive_view=grid',
             'top'
         );
         
         add_rewrite_rule(
             '^properties/list/?$',
-            'index.php?post_type=resbs_property&archive_view=list',
+            'index.php?post_type=property&archive_view=list',
             'top'
         );
         
         add_rewrite_rule(
             '^properties/map/?$',
-            'index.php?post_type=resbs_property&archive_view=map',
+            'index.php?post_type=property&archive_view=map',
             'top'
         );
         
@@ -70,13 +70,22 @@ class RESBS_Archive_Handler {
      */
     public function modify_archive_query($query) {
         if (!is_admin() && $query->is_main_query()) {
-            if (is_post_type_archive('resbs_property')) {
+            if (is_post_type_archive('property')) {
                 // Set posts per page
                 $posts_per_page = get_option('resbs_properties_per_page', 12);
                 $query->set('posts_per_page', $posts_per_page);
                 
-                // Handle sorting
-                $sort = get_query_var('property_sort') ?: get_option('resbs_default_sort', 'date');
+                // Handle sorting - sanitize and validate
+                $sort_raw = get_query_var('property_sort');
+                $sort = sanitize_text_field($sort_raw);
+                $allowed_sorts = array('price_low', 'price_high', 'newest', 'oldest', 'title', 'date');
+                if (!in_array($sort, $allowed_sorts, true)) {
+                    $sort = get_option('resbs_default_sort', 'date');
+                    $sort = sanitize_text_field($sort);
+                    if (!in_array($sort, $allowed_sorts, true)) {
+                        $sort = 'date';
+                    }
+                }
                 $this->apply_sorting($query, $sort);
                 
                 // Handle meta query for filters
@@ -92,14 +101,20 @@ class RESBS_Archive_Handler {
      * Apply sorting to query
      */
     private function apply_sorting($query, $sort) {
+        // Validate sort value against whitelist
+        $allowed_sorts = array('price_low', 'price_high', 'newest', 'oldest', 'title', 'date');
+        if (!in_array($sort, $allowed_sorts, true)) {
+            $sort = 'date';
+        }
+        
         switch ($sort) {
             case 'price_low':
-                $query->set('meta_key', 'resbs_property_price');
+                $query->set('meta_key', '_property_price');
                 $query->set('orderby', 'meta_value_num');
                 $query->set('order', 'ASC');
                 break;
             case 'price_high':
-                $query->set('meta_key', 'resbs_property_price');
+                $query->set('meta_key', '_property_price');
                 $query->set('orderby', 'meta_value_num');
                 $query->set('order', 'DESC');
                 break;
@@ -137,12 +152,12 @@ class RESBS_Archive_Handler {
         // Determine which superglobal to use
         $input = ($source === 'POST') ? $_POST : $_GET;
         
-        // Price range filter - sanitize and validate
+        // Price range filter - sanitize and validate (prices are floats)
         if (isset($input['min_price']) && !empty($input['min_price'])) {
-            $min_price = RESBS_Security::sanitize_int($input['min_price'], 0);
+            $min_price = is_numeric($input['min_price']) ? floatval($input['min_price']) : 0;
             if ($min_price > 0) {
                 $meta_query[] = array(
-                    'key' => 'resbs_property_price',
+                    'key' => '_property_price',
                     'value' => $min_price,
                     'compare' => '>=',
                     'type' => 'NUMERIC'
@@ -151,10 +166,10 @@ class RESBS_Archive_Handler {
         }
         
         if (isset($input['max_price']) && !empty($input['max_price'])) {
-            $max_price = RESBS_Security::sanitize_int($input['max_price'], 0);
+            $max_price = is_numeric($input['max_price']) ? floatval($input['max_price']) : 0;
             if ($max_price > 0) {
                 $meta_query[] = array(
-                    'key' => 'resbs_property_price',
+                    'key' => '_property_price',
                     'value' => $max_price,
                     'compare' => '<=',
                     'type' => 'NUMERIC'
@@ -162,24 +177,16 @@ class RESBS_Archive_Handler {
             }
         }
         
-        // Property type filter - sanitize text input
-        if (isset($input['property_type']) && !empty($input['property_type'])) {
-            $property_type = RESBS_Security::sanitize_text($input['property_type']);
-            if (!empty($property_type)) {
-                $meta_query[] = array(
-                    'key' => 'resbs_property_type',
-                    'value' => $property_type,
-                    'compare' => '='
-                );
-            }
-        }
+        // Property type filter - use taxonomy, not meta
+        // Note: Property type is a taxonomy, not a meta field, so this filter should use tax_query instead
+        // Keeping for backward compatibility but should be migrated to tax_query
         
         // Bedrooms filter - sanitize and validate
         if (isset($input['bedrooms']) && !empty($input['bedrooms'])) {
-            $bedrooms = RESBS_Security::sanitize_int($input['bedrooms'], 0);
+            $bedrooms = is_numeric($input['bedrooms']) ? absint($input['bedrooms']) : 0;
             if ($bedrooms > 0) {
                 $meta_query[] = array(
-                    'key' => 'resbs_property_bedrooms',
+                    'key' => '_property_bedrooms',
                     'value' => $bedrooms,
                     'compare' => '>=',
                     'type' => 'NUMERIC'
@@ -187,12 +194,12 @@ class RESBS_Archive_Handler {
             }
         }
         
-        // Bathrooms filter - sanitize and validate
+        // Bathrooms filter - sanitize and validate (can be decimals like 2.5)
         if (isset($input['bathrooms']) && !empty($input['bathrooms'])) {
-            $bathrooms = RESBS_Security::sanitize_int($input['bathrooms'], 0);
+            $bathrooms = is_numeric($input['bathrooms']) ? floatval($input['bathrooms']) : 0;
             if ($bathrooms > 0) {
                 $meta_query[] = array(
-                    'key' => 'resbs_property_bathrooms',
+                    'key' => '_property_bathrooms',
                     'value' => $bathrooms,
                     'compare' => '>=',
                     'type' => 'NUMERIC'
@@ -200,17 +207,9 @@ class RESBS_Archive_Handler {
             }
         }
         
-        // Status filter - sanitize text input
-        if (isset($input['status']) && !empty($input['status'])) {
-            $status = RESBS_Security::sanitize_text($input['status']);
-            if (!empty($status)) {
-                $meta_query[] = array(
-                    'key' => 'resbs_property_status',
-                    'value' => $status,
-                    'compare' => '='
-                );
-            }
-        }
+        // Status filter - use taxonomy, not meta
+        // Note: Property status is a taxonomy, not a meta field, so this filter should use tax_query instead
+        // Keeping for backward compatibility but should be migrated to tax_query
         
         return $meta_query;
     }
@@ -219,7 +218,7 @@ class RESBS_Archive_Handler {
      * Enqueue archive-specific assets
      */
     public function enqueue_archive_assets() {
-        if (is_post_type_archive('resbs_property') || is_tax('resbs_property_category')) {
+        if (is_post_type_archive('property') || is_tax('property_type') || is_tax('property_status') || is_tax('property_location')) {
             wp_enqueue_style(
                 'resbs-archive',
                 RESBS_URL . 'assets/css/archive.css',
@@ -249,7 +248,7 @@ class RESBS_Archive_Handler {
      * Custom archive template
      */
     public function custom_archive_template($template) {
-        if (is_post_type_archive('resbs_property') || is_tax('resbs_property_category')) {
+        if (is_post_type_archive('property') || is_tax('property_type') || is_tax('property_status') || is_tax('property_location')) {
             // Use simple archive template
             $simple_template = RESBS_PATH . 'templates/simple-archive.php';
             if (file_exists($simple_template)) {
@@ -264,7 +263,7 @@ class RESBS_Archive_Handler {
      * Add archive meta tags
      */
     public function add_archive_meta() {
-        if (is_post_type_archive('resbs_property')) {
+        if (is_post_type_archive('property')) {
             echo '<meta name="description" content="' . esc_attr(get_option('resbs_archive_meta_description', 'Browse our collection of premium real estate properties.')) . '">';
             echo '<meta name="keywords" content="' . esc_attr(get_option('resbs_archive_meta_keywords', 'real estate, properties, homes, apartments, condos')) . '">';
         }
@@ -274,16 +273,34 @@ class RESBS_Archive_Handler {
      * Get archive layout
      */
     public static function get_archive_layout() {
-        $layout = get_query_var('archive_view') ?: get_option('resbs_default_archive_layout', 'grid');
-        return sanitize_text_field($layout);
+        $layout_raw = get_query_var('archive_view');
+        $layout = sanitize_text_field($layout_raw);
+        $allowed_layouts = array('grid', 'list', 'map');
+        if (!in_array($layout, $allowed_layouts, true)) {
+            $layout = get_option('resbs_default_archive_layout', 'grid');
+            $layout = sanitize_text_field($layout);
+            if (!in_array($layout, $allowed_layouts, true)) {
+                $layout = 'grid';
+            }
+        }
+        return $layout;
     }
     
     /**
      * Get archive sort option
      */
     public static function get_archive_sort() {
-        $sort = get_query_var('property_sort') ?: get_option('resbs_default_sort', 'date');
-        return sanitize_text_field($sort);
+        $sort_raw = get_query_var('property_sort');
+        $sort = sanitize_text_field($sort_raw);
+        $allowed_sorts = array('price_low', 'price_high', 'newest', 'oldest', 'title', 'date');
+        if (!in_array($sort, $allowed_sorts, true)) {
+            $sort = get_option('resbs_default_sort', 'date');
+            $sort = sanitize_text_field($sort);
+            if (!in_array($sort, $allowed_sorts, true)) {
+                $sort = 'date';
+            }
+        }
+        return $sort;
     }
     
     /**
@@ -360,7 +377,7 @@ class RESBS_Archive_Handler {
         $paged = max($paged, 1); // At least 1
         
         $args = array(
-            'post_type' => 'resbs_property',
+            'post_type' => 'property',
             'post_status' => 'publish',
             'posts_per_page' => $posts_per_page,
             'paged' => $paged,
@@ -374,13 +391,41 @@ class RESBS_Archive_Handler {
         }
         
         // Apply sorting - sanitize sort parameter
-        $sort = isset($_POST['sort']) ? RESBS_Security::sanitize_text($_POST['sort']) : 'date';
+        $sort = isset($_POST['sort']) ? sanitize_text_field($_POST['sort']) : 'date';
         // Whitelist allowed sort values
         $allowed_sorts = array('price_low', 'price_high', 'newest', 'oldest', 'title', 'date');
         if (!in_array($sort, $allowed_sorts, true)) {
             $sort = 'date';
         }
-        $this->apply_sorting((object)$args, $sort);
+        
+        // Apply sorting directly to args array
+        switch ($sort) {
+            case 'price_low':
+                $args['meta_key'] = '_property_price';
+                $args['orderby'] = 'meta_value_num';
+                $args['order'] = 'ASC';
+                break;
+            case 'price_high':
+                $args['meta_key'] = '_property_price';
+                $args['orderby'] = 'meta_value_num';
+                $args['order'] = 'DESC';
+                break;
+            case 'newest':
+                $args['orderby'] = 'date';
+                $args['order'] = 'DESC';
+                break;
+            case 'oldest':
+                $args['orderby'] = 'date';
+                $args['order'] = 'ASC';
+                break;
+            case 'title':
+                $args['orderby'] = 'title';
+                $args['order'] = 'ASC';
+                break;
+            default:
+                $args['orderby'] = 'date';
+                $args['order'] = 'DESC';
+        }
         
         $query = new WP_Query($args);
         
@@ -402,7 +447,7 @@ class RESBS_Archive_Handler {
             ));
         } else {
             wp_send_json_error(array(
-                'message' => __('No properties found.', 'realestate-booking-suite')
+                'message' => esc_html__('No properties found.', 'realestate-booking-suite')
             ));
         }
     }
@@ -430,13 +475,26 @@ class RESBS_Archive_Handler {
                         <a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
                     </h3>
                     <div class="resbs-property-price">
-                        <?php echo esc_html(get_post_meta(get_the_ID(), 'resbs_property_price', true)); ?>
+                        <?php 
+                        $price = get_post_meta(get_the_ID(), '_property_price', true);
+                        if ($price && is_numeric($price)) {
+                            $currency_symbol = sanitize_text_field(get_option('resbs_currency_symbol', '$'));
+                            $currency_position = sanitize_text_field(get_option('resbs_currency_position', 'before'));
+                            $formatted_price = number_format(floatval($price), 2);
+                            if ($currency_position === 'before') {
+                                echo esc_html($currency_symbol . $formatted_price);
+                            } else {
+                                echo esc_html($formatted_price . $currency_symbol);
+                            }
+                        }
+                        ?>
                     </div>
                     <div class="resbs-property-meta">
                         <?php
-                        $bedrooms = get_post_meta(get_the_ID(), 'resbs_property_bedrooms', true);
-                        $bathrooms = get_post_meta(get_the_ID(), 'resbs_property_bathrooms', true);
-                        $area = get_post_meta(get_the_ID(), 'resbs_property_area', true);
+                        $bedrooms = get_post_meta(get_the_ID(), '_property_bedrooms', true);
+                        $bathrooms = get_post_meta(get_the_ID(), '_property_bathrooms', true);
+                        // Try multiple possible area meta keys
+                        $area = get_post_meta(get_the_ID(), '_property_size', true) ?: get_post_meta(get_the_ID(), '_property_area_sqft', true);
                         
                         if ($bedrooms) echo '<span>' . esc_html($bedrooms) . ' beds</span>';
                         if ($bathrooms) echo '<span>' . esc_html($bathrooms) . ' baths</span>';

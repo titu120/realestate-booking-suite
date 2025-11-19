@@ -312,7 +312,7 @@ class RESBS_Security {
         self::check_capability($capability, true);
         
         // If POST request and nonce action provided, verify nonce
-        $request_method = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'GET';
+        $request_method = isset($_SERVER['REQUEST_METHOD']) ? sanitize_text_field($_SERVER['REQUEST_METHOD']) : 'GET';
         if ($request_method === 'POST' && !empty($nonce_action)) {
             $nonce = isset($_POST['_wpnonce']) ? $_POST['_wpnonce'] : '';
             if (empty($nonce)) {
@@ -405,14 +405,28 @@ class RESBS_Security {
      * Sanitize integer input
      */
     public static function sanitize_int($input, $default = 0) {
-        return intval($input) ?: $default;
+        // Check if input is numeric or can be converted to integer
+        if (is_numeric($input)) {
+            $value = intval($input);
+            // Return the value even if it's 0 (0 is a valid integer)
+            return $value;
+        }
+        // Return default only if input is not numeric
+        return $default;
     }
 
     /**
      * Sanitize float input
      */
     public static function sanitize_float($input, $default = 0.0) {
-        return floatval($input) ?: $default;
+        // Check if input is numeric or can be converted to float
+        if (is_numeric($input)) {
+            $value = floatval($input);
+            // Return the value even if it's 0.0 (0.0 is a valid float)
+            return $value;
+        }
+        // Return default only if input is not numeric
+        return $default;
     }
 
     /**
@@ -636,7 +650,7 @@ class RESBS_Security {
         // Check for malicious content
         if (isset($file['tmp_name']) && is_readable($file['tmp_name'])) {
             $file_content = file_get_contents($file['tmp_name']);
-            if (strpos($file_content, '<?php') !== false || strpos($file_content, '<script') !== false) {
+            if ($file_content !== false && (strpos($file_content, '<?php') !== false || strpos($file_content, '<script') !== false)) {
                 return new WP_Error('malicious_content', esc_html__('File contains malicious content.', 'realestate-booking-suite'));
             }
         }
