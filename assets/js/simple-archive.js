@@ -1,19 +1,26 @@
 // Simple Archive JavaScript functionality
 // Extracted from simple-archive.php template
+// All PHP variables are passed via wp_localize_script
 
-// Make functions globally accessible for onclick handlers
-window.toggleMobileMenu = function() {
-    const menu = document.getElementById('mobileMenu');
-    menu.classList.toggle('active');
-};
+(function() {
+    'use strict';
 
-// Dropdown Toggle
-let activeDropdown = null;
+    // Get localized data from WordPress
+    const resbsData = typeof resbs_archive !== 'undefined' ? resbs_archive : {};
+    const useOpenStreetMap = resbsData.use_openstreetmap || false;
+    const propertiesData = resbsData.properties_data || [];
+    const mapSettings = resbsData.map_settings || {};
+    const mapCenterLat = parseFloat(resbsData.map_center_lat) || 23.8103;
+    const mapCenterLng = parseFloat(resbsData.map_center_lng) || 90.4125;
+    const mapZoom = parseInt(resbsData.map_zoom) || 10;
+    const ajaxUrl = resbsData.ajax_url || '';
+    const favoritesNonce = resbsData.favorites_nonce || '';
+    const translations = resbsData.translations || {};
 
+    // Simple dropdown toggle functionality
 window.toggleDropdown = function(dropdownId) {
     const dropdown = document.getElementById(dropdownId);
     const allDropdowns = document.querySelectorAll('.dropdown-content');
-    const button = event.target.closest('.filter-chip');
 
     // Close all other dropdowns
     allDropdowns.forEach(dd => {
@@ -25,220 +32,861 @@ window.toggleDropdown = function(dropdownId) {
     // Toggle current dropdown
     if (dropdown.style.display === 'block') {
         dropdown.style.display = 'none';
-        activeDropdown = null;
     } else {
         dropdown.style.display = 'block';
-        activeDropdown = dropdown;
+        }
+    };
+
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function(event) {
+        const dropdowns = document.querySelectorAll('.dropdown-content');
+        const filterButtons = document.querySelectorAll('.filter-chip');
         
-        // Position dropdown relative to button
-        if (button) {
-            const buttonRect = button.getBoundingClientRect();
-            const containerRect = document.querySelector('.dropdowns-container').getBoundingClientRect();
-            
-            dropdown.style.position = 'absolute';
-            dropdown.style.left = (buttonRect.left - containerRect.left) + 'px';
-            dropdown.style.top = '100%';
-            dropdown.style.right = 'auto';
-            dropdown.style.width = 'auto';
-            dropdown.style.minWidth = '200px';
+        let clickedInsideDropdown = false;
+        let clickedInsideFilterButton = false;
+        
+        // Check if click was inside a dropdown
+        dropdowns.forEach(dropdown => {
+            if (dropdown.contains(event.target)) {
+                clickedInsideDropdown = true;
+            }
+        });
+        
+        // Check if click was inside a filter button
+        filterButtons.forEach(button => {
+            if (button.contains(event.target)) {
+                clickedInsideFilterButton = true;
+            }
+        });
+        
+        // Close all dropdowns if click was outside
+        if (!clickedInsideDropdown && !clickedInsideFilterButton) {
+            dropdowns.forEach(dropdown => {
+                dropdown.style.display = 'none';
+            });
         }
-    }
-}
-
-// Change Layout (Grid/Column)
-window.changeLayout = function(layout) {
-    const gridBtn = document.getElementById('gridBtn');
-    const columnBtn = document.getElementById('columnBtn');
-    const propertyGrid = document.getElementById('propertyGrid');
-
-    if (layout === 'grid') {
-        gridBtn.classList.add('active');
-        columnBtn.classList.remove('active');
-        propertyGrid.className = 'property-grid';
-        propertyGrid.style.gridTemplateColumns = '1fr';
-
-        // For larger screens, use 2 columns
-        if (window.innerWidth >= 768) {
-            propertyGrid.style.gridTemplateColumns = 'repeat(2, 1fr)';
-        }
-    } else {
-        columnBtn.classList.add('active');
-        gridBtn.classList.remove('active');
-        propertyGrid.className = 'property-grid';
-        propertyGrid.style.gridTemplateColumns = '1fr';
-    }
-}
-
-// Toggle View (List/Map)
-window.toggleView = function(view) {
-    const viewBtns = document.querySelectorAll('.view-btn');
-    viewBtns.forEach(btn => {
-        btn.classList.remove('active');
     });
 
-    event.target.closest('.view-btn').classList.add('active');
+    // Clear price filter function
+    window.clearPriceFilter = function() {
+        const minPriceInput = document.querySelector('input[name="min_price"]');
+        const maxPriceInput = document.querySelector('input[name="max_price"]');
+        const searchForm = document.getElementById('searchForm');
+        
+        if (minPriceInput) minPriceInput.value = '';
+        if (maxPriceInput) maxPriceInput.value = '';
+        if (searchForm) searchForm.submit();
+    };
 
-    // This would typically change the entire layout
-    console.log('Switching to', view, 'view');
-}
+    // Clear type filter function
+    window.clearTypeFilter = function() {
+        const anyTypeRadio = document.querySelector('input[name="property_type"][value=""]');
+        const searchForm = document.getElementById('searchForm');
+        
+        if (anyTypeRadio) anyTypeRadio.checked = true;
+        if (searchForm) searchForm.submit();
+    };
 
-// Highlight Property on Map Click
+    // Clear bedrooms filter function
+    window.clearBedroomsFilter = function() {
+        const minBedroomsInput = document.querySelector('input[name="min_bedrooms"]');
+        const maxBedroomsInput = document.querySelector('input[name="max_bedrooms"]');
+        const searchForm = document.getElementById('searchForm');
+        
+        if (minBedroomsInput) minBedroomsInput.value = '';
+        if (maxBedroomsInput) maxBedroomsInput.value = '';
+        if (searchForm) searchForm.submit();
+    };
+
+    // Clear bathrooms filter function
+    window.clearBathroomsFilter = function() {
+        const minBathroomsInput = document.querySelector('input[name="min_bathrooms"]');
+        const maxBathroomsInput = document.querySelector('input[name="max_bathrooms"]');
+        const searchForm = document.getElementById('searchForm');
+        
+        if (minBathroomsInput) minBathroomsInput.value = '';
+        if (maxBathroomsInput) maxBathroomsInput.value = '';
+        if (searchForm) searchForm.submit();
+    };
+
+    // Clear more filters function
+    window.clearMoreFilters = function() {
+        const minSqftInput = document.querySelector('input[name="min_sqft"]');
+        const maxSqftInput = document.querySelector('input[name="max_sqft"]');
+        const yearBuiltSelect = document.querySelector('select[name="year_built"]');
+        const propertyStatusSelect = document.querySelector('select[name="property_status"]');
+        const searchForm = document.getElementById('searchForm');
+        
+        if (minSqftInput) minSqftInput.value = '';
+        if (maxSqftInput) maxSqftInput.value = '';
+        if (yearBuiltSelect) yearBuiltSelect.value = '';
+        if (propertyStatusSelect) propertyStatusSelect.value = '';
+        if (searchForm) searchForm.submit();
+    };
+
+    // Handle sort change dynamically
+    window.handleSortChange = function(sortValue) {
+        // Get current URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        
+        // Update sort_by parameter
+        urlParams.set('sort_by', sortValue);
+        
+        // Remove paged parameter to go back to page 1
+        urlParams.delete('paged');
+        
+        // Build new URL with updated parameters
+        const newUrl = window.location.pathname + '?' + urlParams.toString();
+        
+        // Navigate to new URL
+        window.location.href = newUrl;
+    };
+
+    // Show Map View - Always show map when clicked
+    window.showMapView = function() {
+        const mapSection = document.querySelector('.map-section');
+        const listingsContainer = document.querySelector('.listings-container');
+        const viewButtons = document.querySelectorAll('.view-btn');
+        const mapToggleBtn = document.getElementById('mapToggleBtn');
+        
+        // Remove active class from all view buttons
+        viewButtons.forEach(btn => btn.classList.remove('active'));
+        
+        // Always show map view
+        if (mapSection) {
+            mapSection.classList.remove('map-hidden');
+            mapSection.classList.add('map-visible');
+        }
+        if (listingsContainer) {
+            listingsContainer.classList.add('map-visible');
+        }
+        
+        // Update button states
+        const mapViewBtn = document.querySelector('.view-btn[onclick*="showMapView"]');
+        if (mapViewBtn) mapViewBtn.classList.add('active');
+        if (mapToggleBtn) mapToggleBtn.classList.add('active');
+        
+        console.log('Map view activated. Listings container classes:', listingsContainer ? listingsContainer.className : 'N/A');
+        
+        // Initialize map if using OpenStreetMap
+        if (useOpenStreetMap && typeof initializeOpenStreetMap === 'function') {
+            setTimeout(function() {
+                initializeOpenStreetMap();
+            }, 300);
+        }
+    };
+
+    // Show List View - Always hide map when clicked
+    window.showListView = function() {
+        const mapSection = document.querySelector('.map-section');
+        const listingsContainer = document.querySelector('.listings-container');
+        const viewButtons = document.querySelectorAll('.view-btn');
+        const mapToggleBtn = document.getElementById('mapToggleBtn');
+        
+        // Remove active class from all view buttons
+        viewButtons.forEach(btn => btn.classList.remove('active'));
+        
+        // Always hide map view
+        if (mapSection) {
+            mapSection.classList.remove('map-visible');
+            mapSection.classList.add('map-hidden');
+        }
+        if (listingsContainer) {
+            listingsContainer.classList.remove('map-visible');
+        }
+        
+        // Update button states
+        const listViewBtn = document.querySelector('.view-btn[onclick*="showListView"]');
+        if (listViewBtn) listViewBtn.classList.add('active');
+        if (mapToggleBtn) mapToggleBtn.classList.remove('active');
+        
+        console.log('List view activated. Map hidden.');
+    };
+
+    // Show map function - Always show map when clicked
+    window.showMap = function() {
+        const mapSection = document.querySelector('.map-section');
+        const listingsContainer = document.querySelector('.listings-container');
+        const mapToggleBtn = document.getElementById('mapToggleBtn');
+        const gridBtn = document.getElementById('gridBtn');
+        
+        // Always show map
+        if (mapSection) {
+            mapSection.classList.remove('map-hidden');
+            mapSection.classList.add('map-visible');
+        }
+        if (listingsContainer) {
+            listingsContainer.classList.add('map-visible');
+        }
+        
+        // Update button states
+        if (mapToggleBtn) mapToggleBtn.classList.add('active');
+        if (gridBtn) gridBtn.classList.remove('active');
+        
+        // Update view buttons
+        document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
+        const mapViewBtn = document.querySelector('.view-btn[onclick*="showMapView"]');
+        if (mapViewBtn) mapViewBtn.classList.add('active');
+        
+        console.log('Map button clicked - Map shown');
+        
+        // Initialize map if using OpenStreetMap
+        if (useOpenStreetMap && typeof initializeOpenStreetMap === 'function') {
+            setTimeout(function() {
+                initializeOpenStreetMap();
+            }, 300);
+        }
+    };
+
+    // Show grid layout function - Always hide map when clicked
+    window.showGridLayout = function() {
+        const mapSection = document.querySelector('.map-section');
+        const listingsContainer = document.querySelector('.listings-container');
+        const propertyGrid = document.getElementById('propertyGrid');
+        const gridBtn = document.getElementById('gridBtn');
+        const mapToggleBtn = document.getElementById('mapToggleBtn');
+        
+        // Always hide map
+        if (mapSection) {
+            mapSection.classList.remove('map-visible');
+            mapSection.classList.add('map-hidden');
+        }
+        if (listingsContainer) {
+            listingsContainer.classList.remove('map-visible');
+        }
+        
+        if (propertyGrid) {
+            propertyGrid.classList.remove('list-view');
+        }
+        
+        // Update button states
+        if (gridBtn) gridBtn.classList.add('active');
+        if (mapToggleBtn) mapToggleBtn.classList.remove('active');
+        
+        // Update view buttons
+        document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
+        const listViewBtn = document.querySelector('.view-btn[onclick*="showListView"]');
+        if (listViewBtn) listViewBtn.classList.add('active');
+        
+        console.log('Grid button clicked - Map hidden');
+    };
+
+    // Highlight property function (for map markers)
 window.highlightProperty = function(propertyId) {
-    // Remove previous highlights
+        // Remove active class from all property cards
     document.querySelectorAll('.property-card').forEach(card => {
-        card.classList.remove('ring-4', 'ring-teal-500');
-    });
-
+            card.classList.remove('highlighted');
+        });
+        
+        // Add active class to selected property card
+        const selectedCard = document.querySelector(`[data-property-id="${propertyId}"]`);
+        if (selectedCard) {
+            selectedCard.classList.add('highlighted');
+            selectedCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        
+        // Update map marker states
     document.querySelectorAll('.map-marker').forEach(marker => {
         marker.classList.remove('active');
     });
 
-    // Add highlight to selected property
-    const propertyCard = document.querySelector(`.property-card[data-property-id="${propertyId}"]`);
-    const mapMarker = document.querySelector(`.map-marker[data-property-id="${propertyId}"]`);
-
-    if (propertyCard) {
-        propertyCard.classList.add('ring-4', 'ring-teal-500');
-        propertyCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-
-    if (mapMarker) {
-        mapMarker.classList.add('active');
-    }
-}
-
-// Initialize all functionality when DOM is ready
-document.addEventListener('DOMContentLoaded', function() {
-    
-    // Close dropdown when clicking outside
-    document.addEventListener('click', function(event) {
-        const dropdowns = document.querySelectorAll('.dropdown-content');
-        const filterButtons = document.querySelectorAll('.filter-chip');
-
-        let clickedOnButton = false;
-        filterButtons.forEach(button => {
-            if (button.contains(event.target)) {
-                clickedOnButton = true;
-            }
-        });
-
-        if (!clickedOnButton) {
-            let clickedInsideDropdown = false;
-            dropdowns.forEach(dropdown => {
-                if (dropdown.contains(event.target)) {
-                    clickedInsideDropdown = true;
-                }
-            });
-
-            if (!clickedInsideDropdown) {
-                dropdowns.forEach(dropdown => {
-                    dropdown.style.display = 'none';
-                });
-                activeDropdown = null;
-            }
+        const selectedMarker = document.querySelector(`.map-marker[data-property-id="${propertyId}"]`);
+        if (selectedMarker) {
+            selectedMarker.classList.add('active');
         }
-    });
+    };
 
-    // Property Card Hover - Highlight Map Marker
-    document.querySelectorAll('.property-card').forEach(card => {
-        card.addEventListener('mouseenter', function() {
-            const propertyId = this.getAttribute('data-property-id');
-            const marker = document.querySelector(`.map-marker[data-property-id="${propertyId}"]`);
-            if (marker) {
-                marker.classList.add('active');
+    // Toast notification function
+    function showToastNotification(message, type) {
+        // Remove existing toasts
+        const existingToasts = document.querySelectorAll('.resbs-toast-notification');
+        existingToasts.forEach(toast => toast.remove());
+        
+        // Create toast element
+        const toast = document.createElement('div');
+        toast.className = 'resbs-toast-notification resbs-toast-' + (type || 'success');
+        toast.innerHTML = '<span class="resbs-toast-message">' + message + '</span><button class="resbs-toast-close">&times;</button>';
+        
+        // Add to body
+        document.body.appendChild(toast);
+        
+        // Show toast with animation
+        setTimeout(() => {
+            toast.classList.add('show');
+        }, 10);
+        
+        // Auto-hide after 3 seconds
+        const autoHide = setTimeout(() => {
+            hideToast(toast);
+        }, 3000);
+        
+        // Close button click
+        const closeBtn = toast.querySelector('.resbs-toast-close');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                clearTimeout(autoHide);
+                hideToast(toast);
+            });
+        }
+    }
+
+    function hideToast(toast) {
+        toast.classList.remove('show');
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.parentNode.removeChild(toast);
             }
-        });
+        }, 300);
+    }
 
-        card.addEventListener('mouseleave', function() {
-            const propertyId = this.getAttribute('data-property-id');
-            const marker = document.querySelector(`.map-marker[data-property-id="${propertyId}"]`);
-            if (marker && !this.classList.contains('ring-4')) {
-                marker.classList.remove('active');
-            }
-        });
-    });
+    // Reset all filters to default - Make it global
+    window.resetAllFilters = function() {
+        try {
+            console.log('resetAllFilters called - redirecting to base URL');
+            
+            // Get the base URL without any query parameters
+            const baseUrl = window.location.pathname;
+            
+            // Add cache-busting parameter to force fresh load, then redirect to clean URL
+            // This ensures browser doesn't use cached version with old filter values
+            const timestamp = Date.now();
+            window.location.href = baseUrl + '?reset=' + timestamp;
+            
+        } catch (error) {
+            console.error('Error resetting filters:', error);
+            // Fallback: reload page without query params
+            window.location.href = window.location.pathname;
+        }
+    };
 
-    // Search Functionality
-    const searchInput = document.getElementById('searchInput');
-    if (searchInput) {
-        searchInput.addEventListener('input', function(e) {
-            const searchTerm = e.target.value.toLowerCase();
-            document.querySelectorAll('.property-card').forEach(card => {
-                const text = card.textContent.toLowerCase();
-                if (text.includes(searchTerm)) {
-                    card.style.display = 'block';
+    // Favorite button functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize favorite button states on page load
+        function initializeFavoriteButtons() {
+            const favoriteButtons = document.querySelectorAll('.favorite-btn, .resbs-favorite-btn');
+            favoriteButtons.forEach(function(btn) {
+                const propertyId = btn.getAttribute('data-property-id');
+                if (!propertyId) return;
+                
+                const icon = btn.querySelector('i');
+                if (!icon) return;
+                
+                // Check if button already has favorited class (set by PHP)
+                if (btn.classList.contains('favorited')) {
+                    icon.classList.remove('far');
+                    icon.classList.add('fas');
                 } else {
-                    card.style.display = 'none';
+                    icon.classList.remove('fas');
+                    icon.classList.add('far');
                 }
             });
-
-            // Update results count
-            const visibleCards = document.querySelectorAll('.property-card[style="display: block;"]').length;
-            const allCards = document.querySelectorAll('.property-card').length;
-            const resultsCount = document.getElementById('resultsCount');
-            if (resultsCount) {
-                resultsCount.textContent = searchTerm ? visibleCards : allCards;
-            }
-        });
-    }
-
-    // Heart/Favorite Toggle
-    document.querySelectorAll('.favorite-btn').forEach(btn => {
-        btn.addEventListener('click', function(e) {
+        }
+        
+        // Initialize buttons on page load
+        initializeFavoriteButtons();
+        
+        // Handle favorite button clicks
+        document.addEventListener('click', function(e) {
+            const favoriteBtn = e.target.closest('.favorite-btn, .resbs-favorite-btn');
+            if (!favoriteBtn) return;
+            
             e.preventDefault();
-            const heart = this.querySelector('i');
-            heart.classList.toggle('far');
-            heart.classList.toggle('fas');
-            heart.classList.toggle('text-red-500');
-        });
-    });
-
-    // Smooth Scroll
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-            e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
-            if (target) {
-                target.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
+            e.stopPropagation();
+            
+            const propertyId = favoriteBtn.getAttribute('data-property-id');
+            if (!propertyId) {
+                console.error('Property ID not found');
+                return;
             }
-        });
-    });
-
-    // Intersection Observer for Property Cards Animation
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.style.opacity = '0';
-                entry.target.style.transform = 'translateY(20px)';
-                setTimeout(() => {
-                    entry.target.style.transition = 'all 0.6s ease';
-                    entry.target.style.opacity = '1';
-                    entry.target.style.transform = 'translateY(0)';
-                }, 100);
+            
+            const icon = favoriteBtn.querySelector('i');
+            if (!icon) return;
+            
+            // Toggle visual state immediately for better UX
+            const isFavorited = favoriteBtn.classList.contains('favorited');
+            if (isFavorited) {
+                favoriteBtn.classList.remove('favorited');
+                icon.classList.remove('fas');
+                icon.classList.add('far');
+            } else {
+                favoriteBtn.classList.add('favorited');
+                icon.classList.remove('far');
+                icon.classList.add('fas');
             }
+            
+            // Make AJAX request
+            if (!ajaxUrl || !favoritesNonce) {
+                console.error('AJAX URL or nonce not available');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('action', 'resbs_toggle_favorite');
+            formData.append('property_id', propertyId);
+            formData.append('nonce', favoritesNonce);
+            
+            fetch(ajaxUrl, {
+                method: 'POST',
+                body: formData,
+                credentials: 'same-origin'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (!data) {
+                    throw new Error('Invalid response from server');
+                }
+                
+                if (data.success) {
+                    // Success - update button state
+                    if (data.data && data.data.is_favorite) {
+                        favoriteBtn.classList.add('favorited');
+                        icon.classList.remove('far');
+                        icon.classList.add('fas');
+                    } else {
+                        favoriteBtn.classList.remove('favorited');
+                        icon.classList.remove('fas');
+                        icon.classList.add('far');
+                    }
+                    
+                    // Show success message as toast notification
+                    if (data.data && data.data.message) {
+                        showToastNotification(data.data.message, 'success');
+                    }
+                } else {
+                    // Error - revert visual state
+                    if (isFavorited) {
+                        favoriteBtn.classList.add('favorited');
+                        icon.classList.remove('far');
+                        icon.classList.add('fas');
+                    } else {
+                        favoriteBtn.classList.remove('favorited');
+                        icon.classList.remove('fas');
+                        icon.classList.add('far');
+                    }
+                    
+                    // Show error message
+                    let errorMessage = translations.error_occurred || 'An error occurred. Please try again.';
+                    
+                    if (data && data.data) {
+                        // data.data can be a string or an object
+                        if (typeof data.data === 'string') {
+                            errorMessage = data.data;
+                        } else if (data.data.message) {
+                            errorMessage = data.data.message;
+                        }
+                    }
+                    
+                    alert(errorMessage);
+                }
+            })
+            .catch(error => {
+                console.error('Favorite button error:', error);
+                
+                // Revert visual state on error
+                if (isFavorited) {
+                    favoriteBtn.classList.add('favorited');
+                    icon.classList.remove('far');
+                    icon.classList.add('fas');
+                } else {
+                    favoriteBtn.classList.remove('favorited');
+                    icon.classList.remove('fas');
+                    icon.classList.add('far');
+                }
+                
+                alert(translations.error_occurred || 'An error occurred. Please try again.');
+            });
         });
-    }, { threshold: 0.1 });
-
-    document.querySelectorAll('.property-card').forEach(card => {
-        observer.observe(card);
-    });
-
-    // Initialize layout for different screen sizes
-    window.addEventListener('resize', function() {
+        
+        const mapSection = document.querySelector('.map-section');
+        const listingsContainer = document.querySelector('.listings-container');
+        
+        // Ensure map starts hidden
+        if (mapSection) {
+            mapSection.classList.add('map-hidden');
+            mapSection.classList.remove('map-visible');
+        }
+        
+        // Ensure listings container starts in list view
+        if (listingsContainer) {
+            listingsContainer.classList.remove('map-visible');
+        }
+        
+        // Set initial button states
+        const listViewBtn = document.querySelector('.view-btn[onclick*="showListView"]');
+        const mapViewBtn = document.querySelector('.view-btn[onclick*="showMapView"]');
+        const mapToggleBtn = document.getElementById('mapToggleBtn');
         const gridBtn = document.getElementById('gridBtn');
-        if (gridBtn && gridBtn.classList.contains('active')) {
-            changeLayout('grid');
+        
+        if (listViewBtn) listViewBtn.classList.add('active');
+        if (mapViewBtn) mapViewBtn.classList.remove('active');
+        if (mapToggleBtn) mapToggleBtn.classList.remove('active');
+        if (gridBtn) gridBtn.classList.add('active');
+        
+        // Initialize OpenStreetMap (free, no setup required)
+        if (useOpenStreetMap) {
+            // Set global properties data
+            window.propertiesData = propertiesData;
+            window.mapInitialized = false;
+            window.resbsMapSettings = mapSettings;
+            
+            // Initialize map when ready
+            if (typeof initializeOpenStreetMap === 'function') {
+                initializeOpenStreetMap();
+            }
         }
     });
 
-    // Initialize layout on page load
-    changeLayout('grid');
-});
+    // OpenStreetMap initialization functions (only if using OpenStreetMap)
+    if (useOpenStreetMap) {
+        // Leaflet Variables - Must be global
+        window.map = null;
+        window.markers = [];
+        window.popups = [];
+        window.markerClusterGroup = null;
+        window.propertiesData = propertiesData;
+        window.mapInitialized = false;
+        window.resbsMapSettings = mapSettings;
 
-// Loading Animation on Page Load
-window.addEventListener('load', function() {
-    document.body.classList.add('page-transition');
-});
+        // Initialize OpenStreetMap with Leaflet
+        window.initializeOpenStreetMap = function() {
+            console.log('=== initializeOpenStreetMap called ===');
+            console.log('Leaflet.js loaded:', typeof L !== 'undefined');
+            
+            if (typeof L === 'undefined') {
+                console.warn('⚠️ Leaflet.js is not loaded yet, will wait...');
+                setTimeout(function() {
+                    if (typeof L !== 'undefined') {
+                        console.log('✅ Leaflet.js loaded, initializing map...');
+                        window.initializeOpenStreetMap();
+                    } else {
+                        console.error('❌ Leaflet.js failed to load after additional wait');
+                        const mapContainer = document.getElementById('googleMap');
+                        if (mapContainer && mapContainer.offsetParent !== null) {
+                            showMapError('Map library failed to load. Please refresh the page.');
+                        }
+                    }
+                }, 1000);
+                return;
+            }
+            
+            const mapContainer = document.getElementById('googleMap');
+            if (!mapContainer) {
+                console.error('❌ Map container (#googleMap) not found in DOM');
+                return;
+            }
+            
+            // Check if map already exists
+            if (window.map) {
+                console.log('✅ Map already initialized, skipping...');
+                setTimeout(function() {
+                    if (window.map) {
+                        window.map.invalidateSize();
+                    }
+                }, 100);
+                return;
+            }
+            
+            // Separate properties with and without coordinates
+            const propertiesWithCoords = [];
+            const propertiesNeedingGeocode = [];
+            
+            if (window.propertiesData && window.propertiesData.length > 0) {
+                window.propertiesData.forEach(function(property) {
+                    const lat = parseFloat(property.lat);
+                    const lng = parseFloat(property.lng);
+                    
+                    const hasValidCoords = !isNaN(lat) && !isNaN(lng) && 
+                        lat >= -90 && lat <= 90 && 
+                        lng >= -180 && lng <= 180 &&
+                        lat !== 0 && lng !== 0;
+                    
+                    if (hasValidCoords) {
+                        propertiesWithCoords.push(property);
+                    } else {
+                        if (!property.full_address || property.full_address.trim() === '') {
+                            if (property.location_name && property.location_name.trim() !== '') {
+                                property.full_address = property.location_name + ', Bangladesh';
+                            } else if (property.city && property.city.trim() !== '') {
+                                property.full_address = property.city + ', Bangladesh';
+                            } else if (property.address && property.address.trim() !== '') {
+                                property.full_address = property.address + ', Bangladesh';
+                            }
+                        }
+                        
+                        if (property.full_address && property.full_address.trim() !== '') {
+                            property.needs_geocoding = true;
+                            propertiesNeedingGeocode.push(property);
+                        }
+                    }
+                });
+            }
+            
+            // Calculate map center
+            let centerLat = mapCenterLat;
+            let centerLng = mapCenterLng;
+            
+            if (propertiesWithCoords.length > 0) {
+                let minLat = Infinity, maxLat = -Infinity;
+                let minLng = Infinity, maxLng = -Infinity;
+                
+                propertiesWithCoords.forEach(function(property) {
+                    const lat = parseFloat(property.lat);
+                    const lng = parseFloat(property.lng);
+                    minLat = Math.min(minLat, lat);
+                    maxLat = Math.max(maxLat, lat);
+                    minLng = Math.min(minLng, lng);
+                    maxLng = Math.max(maxLng, lng);
+                });
+                
+                centerLat = (minLat + maxLat) / 2;
+                centerLng = (minLng + maxLng) / 2;
+            }
+            
+            try {
+                console.log('🗺️ Creating OpenStreetMap with Leaflet...');
+                const mapZoomLevel = window.resbsMapSettings ? window.resbsMapSettings.zoom : mapZoom;
+                
+                window.map = L.map('googleMap', {
+                    center: [centerLat, centerLng],
+                    zoom: mapZoomLevel,
+                    zoomControl: true
+                });
+                
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                    maxZoom: 19
+                }).addTo(window.map);
+                
+                console.log('✅ OpenStreetMap loaded successfully');
+                
+                // Add markers for properties with coordinates
+                if (propertiesWithCoords.length > 0) {
+                    addLeafletMarkers(propertiesWithCoords);
+                    
+                    if (propertiesWithCoords.length > 1) {
+                        const bounds = L.latLngBounds([]);
+                        propertiesWithCoords.forEach(function(property) {
+                            bounds.extend([parseFloat(property.lat), parseFloat(property.lng)]);
+                        });
+                        window.map.fitBounds(bounds, {padding: [50, 50]});
+                    }
+                }
+                
+                // Geocode properties that need it
+                if (propertiesNeedingGeocode.length > 0) {
+                    geocodePropertiesNominatim(propertiesNeedingGeocode);
+                }
+                
+                window.mapInitialized = true;
+                
+            } catch (error) {
+                console.error('❌ Error initializing OpenStreetMap:', error);
+                showMapError('Error initializing map: ' + error.message);
+            }
+        };
+
+        // Add Leaflet markers
+        function addLeafletMarkers(propertiesArray) {
+            if (!window.map || !propertiesArray || propertiesArray.length === 0) return;
+            
+            const mapSettings = window.resbsMapSettings || {};
+            const enableCluster = mapSettings.enableCluster || false;
+            
+            // Clear existing markers
+            if (window.markerClusterGroup) {
+                window.map.removeLayer(window.markerClusterGroup);
+                window.markerClusterGroup = null;
+            }
+            window.markers.forEach(function(marker) {
+                window.map.removeLayer(marker);
+            });
+            window.markers = [];
+            window.popups = [];
+            
+            // Initialize cluster group if enabled
+            if (enableCluster && typeof L.markerClusterGroup !== 'undefined') {
+                window.markerClusterGroup = L.markerClusterGroup({
+                    maxClusterRadius: 50,
+                    spiderfyOnMaxZoom: true,
+                    showCoverageOnHover: false,
+                    zoomToBoundsOnClick: true
+                });
+                window.markerClusterGroup.addTo(window.map);
+            }
+            
+            // Add markers
+            propertiesArray.forEach(function(property) {
+                if (property.lat && property.lng) {
+                    const marker = createLeafletMarker(property);
+                    if (marker) {
+                        if (enableCluster && window.markerClusterGroup) {
+                            window.markerClusterGroup.addLayer(marker);
+                } else {
+                            marker.addTo(window.map);
+                        }
+                        window.markers.push(marker);
+                    }
+                }
+            });
+        }
+
+        // Create a Leaflet marker
+        function createLeafletMarker(property) {
+            if (!window.map || !property.lat || !property.lng) return null;
+            
+            const mapSettings = window.resbsMapSettings || {};
+            const markerType = mapSettings.markerType || 'icon';
+            const useSingleMarker = mapSettings.useSingleMarker || false;
+            const singleMarkerColor = mapSettings.singleMarkerColor || '#333333';
+            let markerColor = property.marker_color || '#10b981';
+            
+            if (useSingleMarker) {
+                markerColor = singleMarkerColor;
+            }
+            
+            let markerIcon;
+            if (markerType === 'price' && property.price) {
+                const priceText = property.price.replace(/[$,]/g, '').replace(/Price on request/i, 'P.O.R');
+                markerIcon = L.divIcon({
+                    className: 'leaflet-marker-price',
+                    html: `<div style="background-color: ${markerColor}; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; white-space: nowrap; border: 2px solid #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">${priceText}</div>`,
+                    iconSize: [60, 20],
+                    iconAnchor: [30, 10]
+                });
+            } else {
+                const iconHtml = `<div style="width: 20px; height: 20px; border-radius: 50%; background-color: ${markerColor}; border: 2px solid #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>`;
+                markerIcon = L.divIcon({
+                    className: 'leaflet-marker-custom',
+                    html: iconHtml,
+                    iconSize: [20, 20],
+                    iconAnchor: [10, 10]
+                });
+            }
+            
+            const marker = L.marker([parseFloat(property.lat), parseFloat(property.lng)], {
+                icon: markerIcon
+            });
+            
+            const popupContent = `
+                <div class="property-info-window" style="min-width: 250px; padding: 10px;">
+                    ${property.image ? `<img src="${property.image}" style="width: 100%; height: 150px; object-fit: cover; border-radius: 8px; margin-bottom: 10px;" alt="${property.title}">` : ''}
+                    <h3 style="margin: 0 0 10px 0; font-size: 16px; font-weight: 600;">${property.title}</h3>
+                    <p style="margin: 0 0 8px 0; font-size: 18px; font-weight: bold; color: #10b981;">${property.price}</p>
+                    <div style="display: flex; gap: 15px; margin-bottom: 10px; font-size: 14px; color: #666;">
+                        ${property.bedrooms ? `<span>🛏️ ${property.bedrooms} beds</span>` : ''}
+                        ${property.bathrooms ? `<span>🚿 ${property.bathrooms} baths</span>` : ''}
+                        ${property.area_sqft ? `<span>📏 ${property.area_sqft.toLocaleString()} sq ft</span>` : ''}
+                    </div>
+                    <a href="${property.permalink}" target="_blank" style="display: inline-block; padding: 8px 16px; background: #10b981; color: white; text-decoration: none; border-radius: 6px; font-size: 14px; font-weight: 500; margin-top: 8px;">
+                        View Details →
+                    </a>
+                </div>
+            `;
+            
+            marker.bindPopup(popupContent);
+            return marker;
+        }
+
+        // Geocode properties using Nominatim
+        function geocodePropertiesNominatim(propertiesArray) {
+            if (!propertiesArray || propertiesArray.length === 0 || !window.map) return;
+            
+            let geocodeIndex = 0;
+            const geocodeDelay = 1000;
+            
+            function geocodeNext() {
+                if (geocodeIndex >= propertiesArray.length) {
+                    updateLeafletBounds();
+                    return;
+                }
+                
+                const property = propertiesArray[geocodeIndex];
+                if (!property.full_address) {
+                    geocodeIndex++;
+                    setTimeout(geocodeNext, geocodeDelay);
+                    return;
+                }
+                
+                const geocodeUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(property.full_address)}&limit=1`;
+                
+                fetch(geocodeUrl, {
+                    headers: {
+                        'User-Agent': 'RealEstate-Booking-Suite-WordPress-Plugin/1.0'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.length > 0) {
+                        const result = data[0];
+                        property.lat = parseFloat(result.lat);
+                        property.lng = parseFloat(result.lon);
+                        property.needs_geocoding = false;
+                        
+                        const marker = createLeafletMarker(property);
+                        if (marker) {
+                            const mapSettings = window.resbsMapSettings || {};
+                            const enableCluster = mapSettings.enableCluster || false;
+                            
+                            if (enableCluster && window.markerClusterGroup) {
+                                window.markerClusterGroup.addLayer(marker);
+                            } else {
+                                marker.addTo(window.map);
+                            }
+                            window.markers.push(marker);
+                        }
+                    }
+                    geocodeIndex++;
+                    setTimeout(geocodeNext, geocodeDelay);
+                })
+                .catch(error => {
+                    console.warn('⚠️ Geocoding error:', error);
+                    geocodeIndex++;
+                    setTimeout(geocodeNext, geocodeDelay);
+                });
+            }
+            
+            geocodeNext();
+        }
+
+        // Update map bounds
+        function updateLeafletBounds() {
+            if (!window.map || !window.markers || window.markers.length === 0) return;
+            
+            const bounds = L.latLngBounds([]);
+            window.markers.forEach(function(marker) {
+                bounds.extend(marker.getLatLng());
+            });
+            
+            if (window.markers.length > 0) {
+                window.map.fitBounds(bounds, {padding: [50, 50]});
+            }
+        }
+
+        // Show map error
+        function showMapError(message) {
+            const mapContainer = document.getElementById('googleMap');
+            if (!mapContainer) return;
+            
+            const existingError = mapContainer.querySelector('.resbs-map-error');
+            if (existingError) existingError.remove();
+            
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'resbs-map-error';
+            errorDiv.style.cssText = 'position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); z-index: 1000; max-width: 450px; text-align: center; border: 2px solid #ef4444;';
+            errorDiv.innerHTML = `
+                <div style="color: #ef4444; font-size: 48px; margin-bottom: 15px;">⚠️</div>
+                <h3 style="color: #1f2937; margin: 0 0 10px 0; font-size: 18px; font-weight: 600;">Map Error</h3>
+                <p style="color: #6b7280; margin: 0 0 20px 0; font-size: 14px; line-height: 1.5;">${message}</p>
+            `;
+            
+            mapContainer.style.position = 'relative';
+            mapContainer.appendChild(errorDiv);
+        }
+    }
+
+})();

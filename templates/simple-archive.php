@@ -940,6 +940,18 @@ $property_statuses = get_terms(array(
                     }
                 }
             }
+            
+            // Pass data to JavaScript via filter (for wp_localize_script)
+            add_filter('resbs_archive_js_data', function($data) use ($use_openstreetmap, $properties_data, $map_settings, $map_center_lat, $map_center_lng, $map_zoom) {
+                return array(
+                    'use_openstreetmap' => $use_openstreetmap,
+                    'properties_data' => $properties_data,
+                    'map_settings' => $map_settings,
+                    'map_center_lat' => $map_center_lat,
+                    'map_center_lng' => $map_center_lng,
+                    'map_zoom' => $map_zoom
+                );
+            }, 10, 1);
             ?>
         
         <!-- Pagination -->
@@ -969,44 +981,105 @@ $property_statuses = get_terms(array(
 // All CSS is now enqueued via wp_enqueue_style in class-resbs-template-assets.php
 ?>
 
-<!-- Inline styles have been moved to assets/css/simple-arc
+<!-- Inline styles have been moved to assets/css/simple-archive-layout.css -->
+<!-- Dynamic colors are handled via wp_add_inline_style in class-resbs-template-assets.php -->
+<!-- All CSS is now enqueued via wp_enqueue_style in class-resbs-template-assets.php -->
 
 <!-- Archive dropdown and other scripts are now enqueued via wp_enqueue_script -->
-<script>
-// Simple dropdown toggle functionality
-function toggleDropdown(dropdownId) {
-    const dropdown = document.getElementById(dropdownId);
-    const allDropdowns = document.querySelectorAll('.dropdown-content');
-    
-    // Close all other dropdowns
-    allDropdowns.forEach(dd => {
-        if (dd.id !== dropdownId) {
-            dd.style.display = 'none';
-        }
-    });
-    
-    // Toggle current dropdown
-    if (dropdown.style.display === 'block') {
-        dropdown.style.display = 'none';
-    } else {
-        dropdown.style.display = 'block';
-    }
-}
+<!-- All JavaScript has been moved to assets/js/simple-archive.js for WordPress.org compliance -->
+<?php if ($use_openstreetmap): ?>
+<!-- Leaflet.js CSS and JS will be loaded via wp_enqueue_script in class-resbs-template-assets.php -->
+<?php endif; ?>
 
-// Close dropdowns when clicking outside
-document.addEventListener('click', function(event) {
-    const dropdowns = document.querySelectorAll('.dropdown-content');
-    const filterButtons = document.querySelectorAll('.filter-chip');
-    
-    let clickedInsideDropdown = false;
-    let clickedInsideFilterButton = false;
-    
-    // Check if click was inside a dropdown
-    dropdowns.forEach(dropdown => {
-        if (dropdown.contains(event.target)) {
-            clickedInsideDropdown = true;
+<?php if ($use_openstreetmap): ?>
+<!-- OpenStreetMap initialization is now handled in assets/js/simple-archive.js -->
+<?php elseif (!empty($google_maps_api_key)): ?>
+<!-- Google Maps script - kept for backward compatibility -->
+<script>
+console.log('=== Google Maps Integration Started ===');
+console.log('API Key from PHP:', '<?php echo substr(esc_js($google_maps_api_key), 0, 10); ?>...');
+console.log('Total properties in query:', <?php echo absint($properties_query->found_posts); ?>);
+console.log('Total properties being added to map:', <?php echo absint(count($properties_data)); ?>);
+
+// Google Maps Variables - Must be global
+window.map = null;
+window.markers = [];
+window.infoWindows = [];
+window.propertiesData = <?php echo wp_json_encode($properties_data); ?>;
+window.googleMapsApiKey = '<?php echo esc_js($google_maps_api_key); ?>';
+window.mapInitialized = false;
+window.geocoder = null;
+
+// Debug: Verify API key was loaded correctly
+console.log('API Key Status:', {
+    'exists': typeof window.googleMapsApiKey !== 'undefined',
+    'length': window.googleMapsApiKey ? window.googleMapsApiKey.length : 0,
+    'startsWith_Aiza': window.googleMapsApiKey ? window.googleMapsApiKey.startsWith('AIza') : false,
+    'first_10_chars': window.googleMapsApiKey ? window.googleMapsApiKey.substring(0, 10) + '...' : 'NOT SET'
+});
+
+console.log('=== PROPERTIES DATA DEBUG ===');
+console.log('All properties data:', window.propertiesData);
+if (window.propertiesData && window.propertiesData.length > 0) {
+    console.log('Property details:');
+    window.propertiesData.forEach(function(prop, idx) {
+        if (prop.lat && prop.lng) {
+            console.log('  [' + (idx + 1) + ']', prop.title, '- Has coordinates - Lat:', prop.lat, ', Lng:', prop.lng);
+        } else {
+            console.log('  [' + (idx + 1) + ']', prop.title, '- Needs geocoding:', prop.full_address || 'No address');
         }
     });
+} else {
+    console.warn('⚠️ WARNING: No properties found!');
+}
+console.log('Window variables set. API Key length:', window.googleMapsApiKey ? window.googleMapsApiKey.length : 0);
+
+// Initialize map function (called by Google Maps API callback)
+window.initMap = function() {
+    console.log('=== initMap called ===');
+    console.log('Google Maps API loaded:', typeof google !== 'undefined' && typeof google.maps !== 'undefined');
+    console.log('Properties data:', window.propertiesData ? window.propertiesData.length + ' properties' : 'none');
+    
+    const mapContainer = document.getElementById('googleMap');
+    if (!mapContainer) {
+        console.error('❌ Map container (#googleMap) not found in DOM');
+        return;
+    }
+    
+    console.log('Map container found:', mapContainer);
+    console.log('Map container visible:', mapContainer.offsetParent !== null);
+    console.log('Map container dimensions:', mapContainer.offsetWidth + 'x' + mapContainer.offsetHeight);
+    
+    // Wait a bit if container is not visible
+    if (mapContainer.offsetParent === null) {
+        console.log('⏳ Map container is hidden, will initialize when shown');
+        return;
+    }
+    
+    // IMPORTANT: Show ALL properties on map - geocode those without coordinates
+    let centerLat = <?php echo esc_js($map_center_lat); ?>; // Fallback only
+    let centerLng = <?php echo esc_js($map_center_lng); ?>; // Fallback only
+    
+    // Initialize geocoder for properties without coordinates
+    window.geocoder = new google.maps.Geocoder();
+    
+    // Continue with Google Maps initialization...
+    // (Rest of Google Maps code continues in the script block below)
+};
+</script>
+
+<?php endif; ?>
+
+<?php
+wp_reset_postdata();
+
+// Use helper function to safely get footer (avoids deprecation warnings in block themes)
+if (function_exists('resbs_get_footer')) {
+    resbs_get_footer();
+} else {
+    get_footer();
+}
+?>
     
     // Check if click was inside a filter button
     filterButtons.forEach(button => {

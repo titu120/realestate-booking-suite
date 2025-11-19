@@ -333,11 +333,32 @@ class RESBS_Template_Assets {
             true
         );
         
-        // Localize script
+        // Get properties data from template via filter
+        $archive_data = apply_filters('resbs_archive_js_data', array());
+        
+        // Prepare default data
+        $use_openstreetmap = isset($archive_data['use_openstreetmap']) ? $archive_data['use_openstreetmap'] : true;
+        $properties_data = isset($archive_data['properties_data']) ? $archive_data['properties_data'] : array();
+        $map_settings = isset($archive_data['map_settings']) ? $archive_data['map_settings'] : resbs_get_map_settings('archive');
+        $map_center_lat = isset($archive_data['map_center_lat']) ? $archive_data['map_center_lat'] : 23.8103;
+        $map_center_lng = isset($archive_data['map_center_lng']) ? $archive_data['map_center_lng'] : 90.4125;
+        $map_zoom = isset($archive_data['map_zoom']) ? $archive_data['map_zoom'] : resbs_get_default_zoom_level();
+        
+        // Localize script with all necessary data
         wp_localize_script('resbs-simple-archive', 'resbs_archive', array(
             'ajax_url' => esc_url(admin_url('admin-ajax.php')),
             'nonce' => esc_js(wp_create_nonce('resbs_favorites_nonce')),
-            'favorites_nonce' => esc_js(wp_create_nonce('resbs_favorites_nonce'))
+            'favorites_nonce' => esc_js(wp_create_nonce('resbs_favorites_nonce')),
+            'use_openstreetmap' => $use_openstreetmap,
+            'properties_data' => $properties_data,
+            'map_settings' => $map_settings,
+            'map_center_lat' => $map_center_lat,
+            'map_center_lng' => $map_center_lng,
+            'map_zoom' => $map_zoom,
+            'translations' => array(
+                'error_occurred' => esc_js(__('An error occurred. Please try again.', 'realestate-booking-suite')),
+                'unable_to_generate_token' => esc_js(__('Unable to generate security token. Please refresh the page.', 'realestate-booking-suite'))
+            )
         ));
     }
     
