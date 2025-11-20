@@ -37,6 +37,11 @@ class RESBS_Enhanced_Settings {
         add_action('admin_post_resbs_export_properties', array($this, 'handle_export_properties'));
         add_action('wp_ajax_resbs_cleanup_orphaned_data', array($this, 'handle_cleanup_orphaned_data'));
         add_action('wp_ajax_resbs_get_data_stats', array($this, 'handle_get_data_stats'));
+        
+        // Fields Builder AJAX handlers
+        add_action('wp_ajax_resbs_save_custom_field', array($this, 'handle_save_custom_field'));
+        add_action('wp_ajax_resbs_delete_custom_field', array($this, 'handle_delete_custom_field'));
+        add_action('wp_ajax_resbs_get_custom_fields', array($this, 'handle_get_custom_fields'));
     }
     
     /**
@@ -2660,8 +2665,566 @@ class RESBS_Enhanced_Settings {
     }
     
     public function fields_builder_callback() {
-        echo '<h1>' . esc_html__('Fields Builder', 'realestate-booking-suite') . '</h1>';
-        echo '<p>' . esc_html__('Fields builder functionality will be implemented here.', 'realestate-booking-suite') . '</p>';
+        // Check user capability
+        if (!current_user_can('manage_options')) {
+            wp_die(esc_html__('You do not have permission to access this page.', 'realestate-booking-suite'));
+        }
+        
+        // Get existing custom fields
+        $custom_fields = get_option('resbs_custom_fields', array());
+        
+        // Get standard fields list
+        $standard_fields = $this->get_standard_property_fields();
+        
+        // Create nonces
+        $save_nonce = wp_create_nonce('resbs_save_custom_field');
+        $delete_nonce = wp_create_nonce('resbs_delete_custom_field');
+        $get_nonce = wp_create_nonce('resbs_get_custom_fields');
+        
+        ?>
+        <div class="wrap resbs-admin-wrap">
+            <!-- Header -->
+            <div class="resbs-welcome-header" style="background: #fff; padding: 20px; margin: 20px 0; border: 1px solid #ddd; border-radius: 4px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h1 style="margin: 0; font-size: 28px; font-weight: 600;">
+                            <span class="dashicons dashicons-admin-generic" style="vertical-align: middle; margin-right: 10px;"></span>
+                            <?php esc_html_e('Fields Builder', 'realestate-booking-suite'); ?>
+                        </h1>
+                        <p style="margin: 10px 0 0 0; color: #666;">
+                            <?php esc_html_e('Create and manage custom fields for your properties.', 'realestate-booking-suite'); ?>
+                        </p>
+                    </div>
+                    <button type="button" class="button button-primary" id="resbs-add-field-btn">
+                        <span class="dashicons dashicons-plus-alt" style="vertical-align: middle;"></span>
+                        <?php esc_html_e('Add Custom Field', 'realestate-booking-suite'); ?>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Statistics -->
+            <div class="resbs-stats-overview" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 20px 0;">
+                <div class="resbs-stat-card" style="background: #fff; padding: 20px; border: 1px solid #ddd; border-radius: 4px;">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <div style="font-size: 32px; color: #666;">
+                            <span class="dashicons dashicons-admin-generic"></span>
+                        </div>
+                        <div>
+                            <div style="font-size: 32px; font-weight: bold; color: #333;"><?php echo esc_html(count($standard_fields)); ?></div>
+                            <div style="color: #666; font-size: 14px;"><?php esc_html_e('Standard Fields', 'realestate-booking-suite'); ?></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="resbs-stat-card" style="background: #fff; padding: 20px; border: 1px solid #ddd; border-radius: 4px;">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <div style="font-size: 32px; color: #666;">
+                            <span class="dashicons dashicons-plus-alt"></span>
+                        </div>
+                        <div>
+                            <div style="font-size: 32px; font-weight: bold; color: #333;"><?php echo esc_html(count($custom_fields)); ?></div>
+                            <div style="color: #666; font-size: 14px;"><?php esc_html_e('Custom Fields', 'realestate-booking-suite'); ?></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Info Box -->
+            <div style="background: #e7f5ff; border-left: 4px solid #0073aa; padding: 15px 20px; margin: 20px 0; border-radius: 4px;">
+                <h3 style="margin: 0 0 10px 0; font-size: 16px;">
+                    <span class="dashicons dashicons-info" style="vertical-align: middle; color: #0073aa;"></span>
+                    <?php esc_html_e('What is Fields Builder?', 'realestate-booking-suite'); ?>
+                </h3>
+                <p style="margin: 0; color: #333; line-height: 1.6;">
+                    <?php esc_html_e('Fields Builder allows you to create custom fields for your properties without coding. These fields will appear in the "Custom Fields" tab when editing any property. You can add extra information like "Pet Friendly", "Energy Rating", "HOA Fees", or any other data specific to your real estate business.', 'realestate-booking-suite'); ?>
+                </p>
+                <p style="margin: 10px 0 0 0; color: #666; font-size: 13px;">
+                    <strong><?php esc_html_e('Where do custom fields appear?', 'realestate-booking-suite'); ?></strong><br>
+                    <?php esc_html_e('1. In the WordPress admin: When editing a property, go to the "Custom Fields" tab in the Property Information section.', 'realestate-booking-suite'); ?><br>
+                    <?php esc_html_e('2. The data is saved with each property and can be displayed on your website using custom code or templates.', 'realestate-booking-suite'); ?>
+                </p>
+            </div>
+
+            <!-- Main Content -->
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin: 20px 0;">
+                <!-- Custom Fields List -->
+                <div style="background: #fff; padding: 20px; border: 1px solid #ddd; border-radius: 4px;">
+                    <h2 style="margin-top: 0; padding-bottom: 15px; border-bottom: 1px solid #ddd;">
+                        <span class="dashicons dashicons-list-view" style="vertical-align: middle;"></span>
+                        <?php esc_html_e('Custom Fields', 'realestate-booking-suite'); ?>
+                    </h2>
+                    
+                    <div id="resbs-custom-fields-list">
+                        <?php if (empty($custom_fields)): ?>
+                            <div style="text-align: center; padding: 40px 20px; color: #999;">
+                                <span class="dashicons dashicons-admin-generic" style="font-size: 48px; display: block; margin-bottom: 10px;"></span>
+                                <p><?php esc_html_e('No custom fields yet. Click "Add Custom Field" to create one.', 'realestate-booking-suite'); ?></p>
+                            </div>
+                        <?php else: ?>
+                            <?php foreach ($custom_fields as $field_id => $field): ?>
+                                <div class="resbs-field-item" data-field-id="<?php echo esc_attr($field_id); ?>" style="padding: 15px; border: 1px solid #ddd; border-radius: 4px; margin-bottom: 15px; background: #f9f9f9;">
+                                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                                        <div style="flex: 1;">
+                                            <h3 style="margin: 0 0 10px 0; font-size: 16px;">
+                                                <?php echo esc_html($field['label']); ?>
+                                                <?php if (!empty($field['required'])): ?>
+                                                    <span style="color: #d63638; font-size: 12px;">*</span>
+                                                <?php endif; ?>
+                                            </h3>
+                                            <div style="font-size: 13px; color: #666; margin-bottom: 8px;">
+                                                <strong><?php esc_html_e('Type:', 'realestate-booking-suite'); ?></strong> 
+                                                <?php echo esc_html(ucfirst(str_replace('_', ' ', $field['type']))); ?>
+                                            </div>
+                                            <?php if (!empty($field['meta_key'])): ?>
+                                                <div style="font-size: 12px; color: #999; font-family: monospace;">
+                                                    <?php echo esc_html($field['meta_key']); ?>
+                                                </div>
+                                            <?php endif; ?>
+                                        </div>
+                                        <div style="display: flex; gap: 5px;">
+                                            <button type="button" class="button button-small resbs-edit-field" data-field-id="<?php echo esc_attr($field_id); ?>">
+                                                <span class="dashicons dashicons-edit" style="font-size: 16px;"></span>
+                                            </button>
+                                            <button type="button" class="button button-small resbs-delete-field" data-field-id="<?php echo esc_attr($field_id); ?>" data-nonce="<?php echo esc_attr($delete_nonce); ?>">
+                                                <span class="dashicons dashicons-trash" style="font-size: 16px;"></span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </div>
+                </div>
+
+                <!-- Standard Fields Info -->
+                <div style="background: #fff; padding: 20px; border: 1px solid #ddd; border-radius: 4px;">
+                    <h2 style="margin-top: 0; padding-bottom: 15px; border-bottom: 1px solid #ddd;">
+                        <span class="dashicons dashicons-info" style="vertical-align: middle;"></span>
+                        <?php esc_html_e('Standard Fields', 'realestate-booking-suite'); ?>
+                    </h2>
+                    
+                    <p style="color: #666; font-size: 14px; margin-bottom: 15px;">
+                        <?php esc_html_e('These are the default property fields that come with the plugin. They cannot be modified but you can add custom fields to extend functionality.', 'realestate-booking-suite'); ?>
+                    </p>
+                    
+                    <div style="max-height: 500px; overflow-y: auto;">
+                        <ul style="list-style: none; padding: 0; margin: 0;">
+                            <?php foreach ($standard_fields as $field_key => $field_label): ?>
+                                <li style="padding: 8px 0; border-bottom: 1px solid #f0f0f0; font-size: 13px;">
+                                    <span class="dashicons dashicons-yes-alt" style="color: #46b450; font-size: 16px; vertical-align: middle;"></span>
+                                    <?php echo esc_html($field_label); ?>
+                                </li>
+                            <?php endforeach; ?>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add/Edit Field Modal -->
+        <div id="resbs-field-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 100000; overflow-y: auto;">
+            <div style="max-width: 600px; margin: 50px auto; background: #fff; border-radius: 4px; padding: 30px; position: relative;">
+                <button type="button" class="resbs-close-modal" style="position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 24px; cursor: pointer; color: #666;">&times;</button>
+                
+                <h2 id="resbs-modal-title" style="margin-top: 0;"><?php esc_html_e('Add Custom Field', 'realestate-booking-suite'); ?></h2>
+                
+                <form id="resbs-field-form">
+                    <input type="hidden" id="resbs-field-id" name="field_id" value="">
+                    <input type="hidden" name="nonce" value="<?php echo esc_attr($save_nonce); ?>">
+                    
+                    <table class="form-table">
+                        <tr>
+                            <th scope="row">
+                                <label for="resbs-field-label"><?php esc_html_e('Field Label', 'realestate-booking-suite'); ?> <span style="color: #d63638;">*</span></label>
+                            </th>
+                            <td>
+                                <input type="text" id="resbs-field-label" name="label" class="regular-text" required>
+                                <p class="description"><?php esc_html_e('The label displayed to users', 'realestate-booking-suite'); ?></p>
+                            </td>
+                        </tr>
+                        
+                        <tr>
+                            <th scope="row">
+                                <label for="resbs-field-type"><?php esc_html_e('Field Type', 'realestate-booking-suite'); ?> <span style="color: #d63638;">*</span></label>
+                            </th>
+                            <td>
+                                <select id="resbs-field-type" name="type" class="regular-text" required>
+                                    <option value="text"><?php esc_html_e('Text', 'realestate-booking-suite'); ?></option>
+                                    <option value="textarea"><?php esc_html_e('Textarea', 'realestate-booking-suite'); ?></option>
+                                    <option value="number"><?php esc_html_e('Number', 'realestate-booking-suite'); ?></option>
+                                    <option value="email"><?php esc_html_e('Email', 'realestate-booking-suite'); ?></option>
+                                    <option value="url"><?php esc_html_e('URL', 'realestate-booking-suite'); ?></option>
+                                    <option value="select"><?php esc_html_e('Select', 'realestate-booking-suite'); ?></option>
+                                    <option value="checkbox"><?php esc_html_e('Checkbox', 'realestate-booking-suite'); ?></option>
+                                    <option value="radio"><?php esc_html_e('Radio', 'realestate-booking-suite'); ?></option>
+                                    <option value="date"><?php esc_html_e('Date', 'realestate-booking-suite'); ?></option>
+                                </select>
+                            </td>
+                        </tr>
+                        
+                        <tr id="resbs-options-row" style="display: none;">
+                            <th scope="row">
+                                <label for="resbs-field-options"><?php esc_html_e('Options', 'realestate-booking-suite'); ?></label>
+                            </th>
+                            <td>
+                                <textarea id="resbs-field-options" name="options" class="large-text" rows="4" placeholder="<?php esc_attr_e('One option per line', 'realestate-booking-suite'); ?>"></textarea>
+                                <p class="description"><?php esc_html_e('Enter one option per line (for Select/Radio fields)', 'realestate-booking-suite'); ?></p>
+                            </td>
+                        </tr>
+                        
+                        <tr>
+                            <th scope="row">
+                                <label for="resbs-field-meta-key"><?php esc_html_e('Meta Key', 'realestate-booking-suite'); ?></label>
+                            </th>
+                            <td>
+                                <input type="text" id="resbs-field-meta-key" name="meta_key" class="regular-text" placeholder="property_custom_field">
+                                <p class="description"><?php esc_html_e('Unique identifier (auto-generated if left empty)', 'realestate-booking-suite'); ?></p>
+                            </td>
+                        </tr>
+                        
+                        <tr>
+                            <th scope="row">
+                                <label for="resbs-field-placeholder"><?php esc_html_e('Placeholder', 'realestate-booking-suite'); ?></label>
+                            </th>
+                            <td>
+                                <input type="text" id="resbs-field-placeholder" name="placeholder" class="regular-text">
+                            </td>
+                        </tr>
+                        
+                        <tr>
+                            <th scope="row">
+                                <label for="resbs-field-default"><?php esc_html_e('Default Value', 'realestate-booking-suite'); ?></label>
+                            </th>
+                            <td>
+                                <input type="text" id="resbs-field-default" name="default_value" class="regular-text">
+                            </td>
+                        </tr>
+                        
+                        <tr>
+                            <th scope="row">
+                                <label for="resbs-field-group"><?php esc_html_e('Field Group', 'realestate-booking-suite'); ?></label>
+                            </th>
+                            <td>
+                                <select id="resbs-field-group" name="group" class="regular-text">
+                                    <option value="general"><?php esc_html_e('General', 'realestate-booking-suite'); ?></option>
+                                    <option value="details"><?php esc_html_e('Property Details', 'realestate-booking-suite'); ?></option>
+                                    <option value="location"><?php esc_html_e('Location', 'realestate-booking-suite'); ?></option>
+                                    <option value="features"><?php esc_html_e('Features & Amenities', 'realestate-booking-suite'); ?></option>
+                                    <option value="media"><?php esc_html_e('Media', 'realestate-booking-suite'); ?></option>
+                                    <option value="other"><?php esc_html_e('Other', 'realestate-booking-suite'); ?></option>
+                                </select>
+                            </td>
+                        </tr>
+                        
+                        <tr>
+                            <th scope="row"><?php esc_html_e('Settings', 'realestate-booking-suite'); ?></th>
+                            <td>
+                                <label>
+                                    <input type="checkbox" id="resbs-field-required" name="required" value="1">
+                                    <?php esc_html_e('Required Field', 'realestate-booking-suite'); ?>
+                                </label>
+                                <br>
+                                <label>
+                                    <input type="checkbox" id="resbs-field-show-in-search" name="show_in_search" value="1">
+                                    <?php esc_html_e('Show in Search Filters', 'realestate-booking-suite'); ?>
+                                </label>
+                                <br>
+                                <label>
+                                    <input type="checkbox" id="resbs-field-show-in-listing" name="show_in_listing" value="1" checked>
+                                    <?php esc_html_e('Show in Property Listing', 'realestate-booking-suite'); ?>
+                                </label>
+                            </td>
+                        </tr>
+                    </table>
+                    
+                    <p class="submit">
+                        <button type="submit" class="button button-primary"><?php esc_html_e('Save Field', 'realestate-booking-suite'); ?></button>
+                        <button type="button" class="button resbs-cancel-field"><?php esc_html_e('Cancel', 'realestate-booking-suite'); ?></button>
+                    </p>
+                </form>
+                
+                <div id="resbs-field-message" style="margin-top: 15px; display: none;"></div>
+            </div>
+        </div>
+
+        <script type="text/javascript">
+        jQuery(document).ready(function($) {
+            var $modal = $('#resbs-field-modal');
+            var $form = $('#resbs-field-form');
+            var $fieldType = $('#resbs-field-type');
+            var $optionsRow = $('#resbs-options-row');
+            
+            // Show/hide options field based on field type
+            $fieldType.on('change', function() {
+                if ($(this).val() === 'select' || $(this).val() === 'radio') {
+                    $optionsRow.show();
+                } else {
+                    $optionsRow.hide();
+                }
+            });
+            
+            // Open modal for new field
+            $('#resbs-add-field-btn').on('click', function() {
+                $form[0].reset();
+                $('#resbs-field-id').val('');
+                $('#resbs-modal-title').text('<?php esc_html_e('Add Custom Field', 'realestate-booking-suite'); ?>');
+                $optionsRow.hide();
+                $modal.show();
+            });
+            
+            // Edit field
+            $('.resbs-edit-field').on('click', function() {
+                var fieldId = $(this).data('field-id');
+                // Load field data via AJAX
+                $.ajax({
+                    url: ajaxurl,
+                    type: 'POST',
+                    data: {
+                        action: 'resbs_get_custom_fields',
+                        field_id: fieldId,
+                        nonce: '<?php echo esc_js($get_nonce); ?>'
+                    },
+                    success: function(response) {
+                        if (response.success && response.data) {
+                            var field = response.data;
+                            $('#resbs-field-id').val(fieldId);
+                            $('#resbs-field-label').val(field.label || '');
+                            $('#resbs-field-type').val(field.type || 'text').trigger('change');
+                            $('#resbs-field-meta-key').val(field.meta_key || '');
+                            $('#resbs-field-placeholder').val(field.placeholder || '');
+                            $('#resbs-field-default').val(field.default_value || '');
+                            $('#resbs-field-group').val(field.group || 'general');
+                            $('#resbs-field-required').prop('checked', field.required == 1);
+                            $('#resbs-field-show-in-search').prop('checked', field.show_in_search == 1);
+                            $('#resbs-field-show-in-listing').prop('checked', field.show_in_listing == 1);
+                            $('#resbs-field-options').val(field.options ? field.options.join('\n') : '');
+                            $('#resbs-modal-title').text('<?php esc_html_e('Edit Custom Field', 'realestate-booking-suite'); ?>');
+                            $modal.show();
+                        }
+                    }
+                });
+            });
+            
+            // Close modal
+            $('.resbs-close-modal, .resbs-cancel-field').on('click', function() {
+                $modal.hide();
+                $form[0].reset();
+                $('#resbs-field-message').hide().html('');
+            });
+            
+            // Save field
+            $form.on('submit', function(e) {
+                e.preventDefault();
+                var formData = $(this).serialize();
+                formData += '&action=resbs_save_custom_field';
+                
+                $('#resbs-field-message').html('<span class="spinner is-active" style="float: none; margin: 0 10px;"></span> <?php esc_html_e('Saving...', 'realestate-booking-suite'); ?>').show();
+                
+                $.ajax({
+                    url: ajaxurl,
+                    type: 'POST',
+                    data: formData,
+                    success: function(response) {
+                        if (response.success) {
+                            $('#resbs-field-message').html('<div class="notice notice-success"><p>' + response.data.message + '</p></div>');
+                            setTimeout(function() {
+                                location.reload();
+                            }, 1500);
+                        } else {
+                            $('#resbs-field-message').html('<div class="notice notice-error"><p>' + response.data + '</p></div>');
+                        }
+                    },
+                    error: function() {
+                        $('#resbs-field-message').html('<div class="notice notice-error"><p><?php esc_html_e('Failed to save field. Please try again.', 'realestate-booking-suite'); ?></p></div>');
+                    }
+                });
+            });
+            
+            // Delete field
+            $('.resbs-delete-field').on('click', function() {
+                if (!confirm('<?php esc_html_e('Are you sure you want to delete this field?', 'realestate-booking-suite'); ?>')) {
+                    return;
+                }
+                
+                var fieldId = $(this).data('field-id');
+                var nonce = $(this).data('nonce');
+                var $item = $(this).closest('.resbs-field-item');
+                
+                $.ajax({
+                    url: ajaxurl,
+                    type: 'POST',
+                    data: {
+                        action: 'resbs_delete_custom_field',
+                        field_id: fieldId,
+                        nonce: nonce
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            $item.fadeOut(function() {
+                                $(this).remove();
+                                if ($('#resbs-custom-fields-list .resbs-field-item').length === 0) {
+                                    $('#resbs-custom-fields-list').html('<div style="text-align: center; padding: 40px 20px; color: #999;"><span class="dashicons dashicons-admin-generic" style="font-size: 48px; display: block; margin-bottom: 10px;"></span><p><?php esc_html_e('No custom fields yet. Click "Add Custom Field" to create one.', 'realestate-booking-suite'); ?></p></div>');
+                                }
+                            });
+                        } else {
+                            alert(response.data);
+                        }
+                    },
+                    error: function() {
+                        alert('<?php esc_html_e('Failed to delete field. Please try again.', 'realestate-booking-suite'); ?>');
+                    }
+                });
+            });
+        });
+        </script>
+        <?php
+    }
+    
+    /**
+     * Get standard property fields
+     */
+    private function get_standard_property_fields() {
+        return array(
+            '_property_price' => __('Price', 'realestate-booking-suite'),
+            '_property_bedrooms' => __('Bedrooms', 'realestate-booking-suite'),
+            '_property_bathrooms' => __('Bathrooms', 'realestate-booking-suite'),
+            '_property_area_sqft' => __('Area (sqft)', 'realestate-booking-suite'),
+            '_property_address' => __('Address', 'realestate-booking-suite'),
+            '_property_city' => __('City', 'realestate-booking-suite'),
+            '_property_state' => __('State', 'realestate-booking-suite'),
+            '_property_zip' => __('ZIP Code', 'realestate-booking-suite'),
+            '_property_country' => __('Country', 'realestate-booking-suite'),
+            '_property_latitude' => __('Latitude', 'realestate-booking-suite'),
+            '_property_longitude' => __('Longitude', 'realestate-booking-suite'),
+            '_property_year_built' => __('Year Built', 'realestate-booking-suite'),
+            '_property_features' => __('Features', 'realestate-booking-suite'),
+            '_property_amenities' => __('Amenities', 'realestate-booking-suite'),
+        );
+    }
+    
+    /**
+     * Handle save custom field AJAX request
+     */
+    public function handle_save_custom_field() {
+        check_ajax_referer('resbs_save_custom_field', 'nonce');
+        
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(esc_html__('Unauthorized', 'realestate-booking-suite'));
+        }
+        
+        $field_id = isset($_POST['field_id']) ? sanitize_text_field($_POST['field_id']) : '';
+        $label = isset($_POST['label']) ? sanitize_text_field($_POST['label']) : '';
+        $type = isset($_POST['type']) ? sanitize_text_field($_POST['type']) : 'text';
+        $meta_key = isset($_POST['meta_key']) ? sanitize_text_field($_POST['meta_key']) : '';
+        $placeholder = isset($_POST['placeholder']) ? sanitize_text_field($_POST['placeholder']) : '';
+        $default_value = isset($_POST['default_value']) ? sanitize_text_field($_POST['default_value']) : '';
+        $group = isset($_POST['group']) ? sanitize_text_field($_POST['group']) : 'general';
+        $required = isset($_POST['required']) ? 1 : 0;
+        $show_in_search = isset($_POST['show_in_search']) ? 1 : 0;
+        $show_in_listing = isset($_POST['show_in_listing']) ? 1 : 0;
+        $options = isset($_POST['options']) ? sanitize_textarea_field($_POST['options']) : '';
+        
+        if (empty($label)) {
+            wp_send_json_error(esc_html__('Field label is required', 'realestate-booking-suite'));
+        }
+        
+        // Generate meta key if not provided
+        if (empty($meta_key)) {
+            $meta_key = '_property_' . sanitize_key(str_replace(' ', '_', strtolower($label)));
+        } else {
+            // Remove _property_ prefix if already present to avoid double prefix
+            $meta_key = preg_replace('/^_property_/', '', $meta_key);
+            $meta_key = '_property_' . sanitize_key($meta_key);
+        }
+        
+        // Process options
+        $options_array = array();
+        if (!empty($options) && in_array($type, array('select', 'radio'))) {
+            $options_lines = explode("\n", $options);
+            foreach ($options_lines as $line) {
+                $line = trim($line);
+                if (!empty($line)) {
+                    $options_array[] = $line;
+                }
+            }
+        }
+        
+        // Get existing fields
+        $custom_fields = get_option('resbs_custom_fields', array());
+        
+        // Create or update field
+        if (empty($field_id)) {
+            $field_id = 'field_' . time() . '_' . wp_generate_password(6, false);
+        }
+        
+        $custom_fields[$field_id] = array(
+            'label' => $label,
+            'type' => $type,
+            'meta_key' => $meta_key,
+            'placeholder' => $placeholder,
+            'default_value' => $default_value,
+            'group' => $group,
+            'required' => $required,
+            'show_in_search' => $show_in_search,
+            'show_in_listing' => $show_in_listing,
+            'options' => $options_array,
+        );
+        
+        update_option('resbs_custom_fields', $custom_fields);
+        
+        wp_send_json_success(array(
+            'message' => esc_html__('Field saved successfully!', 'realestate-booking-suite')
+        ));
+    }
+    
+    /**
+     * Handle delete custom field AJAX request
+     */
+    public function handle_delete_custom_field() {
+        check_ajax_referer('resbs_delete_custom_field', 'nonce');
+        
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(esc_html__('Unauthorized', 'realestate-booking-suite'));
+        }
+        
+        $field_id = isset($_POST['field_id']) ? sanitize_text_field($_POST['field_id']) : '';
+        
+        if (empty($field_id)) {
+            wp_send_json_error(esc_html__('Field ID is required', 'realestate-booking-suite'));
+        }
+        
+        $custom_fields = get_option('resbs_custom_fields', array());
+        
+        if (isset($custom_fields[$field_id])) {
+            unset($custom_fields[$field_id]);
+            update_option('resbs_custom_fields', $custom_fields);
+            wp_send_json_success(array(
+                'message' => esc_html__('Field deleted successfully', 'realestate-booking-suite')
+            ));
+        } else {
+            wp_send_json_error(esc_html__('Field not found', 'realestate-booking-suite'));
+        }
+    }
+    
+    /**
+     * Handle get custom fields AJAX request
+     */
+    public function handle_get_custom_fields() {
+        check_ajax_referer('resbs_get_custom_fields', 'nonce');
+        
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(esc_html__('Unauthorized', 'realestate-booking-suite'));
+        }
+        
+        $field_id = isset($_POST['field_id']) ? sanitize_text_field($_POST['field_id']) : '';
+        
+        $custom_fields = get_option('resbs_custom_fields', array());
+        
+        if (!empty($field_id) && isset($custom_fields[$field_id])) {
+            wp_send_json_success($custom_fields[$field_id]);
+        } else {
+            wp_send_json_success($custom_fields);
+        }
     }
     
     public function demo_content_callback() {

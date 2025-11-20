@@ -893,6 +893,63 @@
                                     <?php endif; ?>
                                 </div>
                             </div>
+                            
+                            <!-- Custom Fields Section -->
+                            <?php
+                            $custom_fields = get_option('resbs_custom_fields', array());
+                            if (!empty($custom_fields) && is_array($custom_fields)) {
+                                $has_custom_fields = false;
+                                $custom_fields_data = array();
+                                
+                                foreach ($custom_fields as $field_id => $field) {
+                                    if (!is_array($field) || empty($field['label'])) {
+                                        continue;
+                                    }
+                                    
+                                    $label = $field['label'];
+                                    $meta_key = isset($field['meta_key']) ? trim($field['meta_key']) : '';
+                                    
+                                    if (empty($meta_key)) {
+                                        $meta_key = '_property_' . sanitize_key(str_replace(' ', '_', strtolower($label)));
+                                    } else {
+                                        $meta_key = preg_replace('/^_property_+/', '', $meta_key);
+                                        $meta_key = '_property_' . ltrim($meta_key, '_');
+                                    }
+                                    
+                                    $value = get_post_meta($post->ID, $meta_key, true);
+                                    
+                                    if (!empty($value)) {
+                                        $has_custom_fields = true;
+                                        $custom_fields_data[] = array(
+                                            'label' => $label,
+                                            'value' => $value,
+                                            'type' => isset($field['type']) ? $field['type'] : 'text'
+                                        );
+                                    }
+                                }
+                                
+                                if ($has_custom_fields) {
+                                    ?>
+                                    <div class="property-features-section mb-8" style="margin-top: 40px;">
+                                        <h4 class="text-lg font-semibold mb-4"><?php echo esc_html__('Additional Information', 'realestate-booking-suite'); ?></h4>
+                                        <div class="property-features-grid">
+                                            <?php foreach ($custom_fields_data as $custom_field): ?>
+                                                <div class="feature-detail-item">
+                                                    <div class="feature-detail-icon">
+                                                        <i class="fas fa-info-circle"></i>
+                                                    </div>
+                                                    <div class="feature-detail-content">
+                                                        <span class="feature-detail-label"><?php echo esc_html($custom_field['label']); ?></span>
+                                                        <span class="feature-detail-value"><?php echo esc_html($custom_field['value']); ?></span>
+                                                    </div>
+                                                </div>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    </div>
+                                    <?php
+                                }
+                            }
+                            ?>
                         </div>
 
                         <!-- Floor Plan Tab -->

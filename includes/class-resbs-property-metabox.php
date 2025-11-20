@@ -182,7 +182,32 @@ class RESBS_Property_Metabox {
             <!-- Tab switching script is now enqueued via wp_enqueue_script in property-metabox-tabs.js -->
             <!-- Tab styles are now enqueued via wp_enqueue_style -->
             <div class="resbs-stunning-tabs">
-                <nav class="resbs-tab-navigation">
+                <nav class="resbs-tab-navigation" style="overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; scrollbar-width: thin; max-width: 100%; position: relative;">
+                    <style>
+                        .resbs-tab-navigation {
+                            overflow-x: auto !important;
+                            overflow-y: hidden !important;
+                            -webkit-overflow-scrolling: touch;
+                            scrollbar-width: thin;
+                            scrollbar-color: #cbd5e0 transparent;
+                        }
+                        .resbs-tab-navigation::-webkit-scrollbar {
+                            height: 8px;
+                        }
+                        .resbs-tab-navigation::-webkit-scrollbar-track {
+                            background: transparent;
+                        }
+                        .resbs-tab-navigation::-webkit-scrollbar-thumb {
+                            background: #cbd5e0;
+                            border-radius: 4px;
+                        }
+                        .resbs-tab-navigation::-webkit-scrollbar-thumb:hover {
+                            background: #a0aec0;
+                        }
+                        .resbs-tab-nav-btn {
+                            flex-shrink: 0;
+                        }
+                    </style>
                     <button type="button" class="resbs-tab-nav-btn active" data-tab="overview" onclick="switchTab('overview')">
                         <span class="resbs-tab-icon">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -246,6 +271,17 @@ class RESBS_Property_Metabox {
                             </svg>
                         </span>
                         <span class="resbs-tab-text"><?php esc_html_e('Agent', 'realestate-booking-suite'); ?></span>
+                    </button>
+                    <button type="button" class="resbs-tab-nav-btn" data-tab="custom-fields" onclick="switchTab('custom-fields')">
+                        <span class="resbs-tab-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" stroke="currentColor" stroke-width="2"/>
+                                <line x1="9" y1="9" x2="15" y2="9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                <line x1="9" y1="12" x2="15" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                <line x1="9" y1="15" x2="15" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        </span>
+                        <span class="resbs-tab-text"><?php esc_html_e('Custom Fields', 'realestate-booking-suite'); ?></span>
                     </button>
                     <button type="button" class="resbs-tab-nav-btn" data-tab="booking" onclick="switchTab('booking')">
                         <span class="resbs-tab-icon">
@@ -1416,6 +1452,108 @@ class RESBS_Property_Metabox {
                             </div>
                         </div>
                     </div>
+                    
+                </div>
+                
+                <!-- Custom Fields Tab -->
+                <div id="custom-fields" class="resbs-tab-content">
+                    <div class="resbs-content-grid">
+                        <div class="resbs-content-card">
+                            <div class="resbs-card-header">
+                                <div class="resbs-card-icon">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                                <div class="resbs-card-title">
+                                    <h3><?php esc_html_e('Custom Fields', 'realestate-booking-suite'); ?></h3>
+                                    <p><?php esc_html_e('Additional property information created in Fields Builder', 'realestate-booking-suite'); ?></p>
+                                </div>
+                            </div>
+                            <div class="resbs-card-body" style="padding: 32px;">
+                                <?php
+                                $custom_fields = get_option('resbs_custom_fields', array());
+                                
+                                if (empty($custom_fields) || !is_array($custom_fields)) {
+                                    ?>
+                                    <div style="text-align: center; padding: 40px;">
+                                        <p style="font-size: 16px; color: #666;"><?php esc_html_e('No custom fields created yet.', 'realestate-booking-suite'); ?></p>
+                                        <a href="<?php echo esc_url(admin_url('admin.php?page=resbs-fields-builder')); ?>" class="button button-primary" style="margin-top: 15px;"><?php esc_html_e('Go to Fields Builder', 'realestate-booking-suite'); ?></a>
+                                    </div>
+                                    <?php
+                                } else {
+                                    foreach ($custom_fields as $field_id => $field) {
+                                        if (!is_array($field) || empty($field['label'])) {
+                                            continue;
+                                        }
+                                        
+                                        $label = $field['label'];
+                                        $type = isset($field['type']) ? $field['type'] : 'text';
+                                        $meta_key = isset($field['meta_key']) ? trim($field['meta_key']) : '';
+                                        
+                                        if (empty($meta_key)) {
+                                            $meta_key = '_property_' . sanitize_key(str_replace(' ', '_', strtolower($label)));
+                                        } else {
+                                            $meta_key = preg_replace('/^_property_+/', '', $meta_key);
+                                            $meta_key = '_property_' . ltrim($meta_key, '_');
+                                        }
+                                        
+                                        $value = get_post_meta($post->ID, $meta_key, true);
+                                        $field_name = str_replace('_property_', 'property_', $meta_key);
+                                        $required = isset($field['required']) && $field['required'] ? 'required' : '';
+                                        ?>
+                                        <div class="resbs-form-group" style="margin-bottom: 25px;">
+                                            <label for="<?php echo esc_attr($field_name); ?>" style="display: block; margin-bottom: 10px; font-weight: 600; color: #2d3748;">
+                                                <?php echo esc_html($label); ?>
+                                                <?php if ($required): ?>
+                                                    <span style="color: #d63638;">*</span>
+                                                <?php endif; ?>
+                                            </label>
+                                            
+                                            <?php
+                                            switch ($type) {
+                                                case 'textarea':
+                                                    ?>
+                                                    <textarea id="<?php echo esc_attr($field_name); ?>" name="<?php echo esc_attr($field_name); ?>" class="resbs-stunning-input" rows="4" <?php echo $required; ?>><?php echo esc_textarea($value); ?></textarea>
+                                                    <?php
+                                                    break;
+                                                case 'select':
+                                                    ?>
+                                                    <select id="<?php echo esc_attr($field_name); ?>" name="<?php echo esc_attr($field_name); ?>" class="resbs-stunning-select" <?php echo $required; ?>>
+                                                        <option value=""><?php esc_html_e('Select...', 'realestate-booking-suite'); ?></option>
+                                                        <?php if (isset($field['options']) && is_array($field['options'])): ?>
+                                                            <?php foreach ($field['options'] as $option): ?>
+                                                                <option value="<?php echo esc_attr($option); ?>" <?php selected($value, $option); ?>><?php echo esc_html($option); ?></option>
+                                                            <?php endforeach; ?>
+                                                        <?php endif; ?>
+                                                    </select>
+                                                    <?php
+                                                    break;
+                                                case 'checkbox':
+                                                    ?>
+                                                    <label class="resbs-checkbox-label">
+                                                        <input type="checkbox" id="<?php echo esc_attr($field_name); ?>" name="<?php echo esc_attr($field_name); ?>" value="1" <?php checked($value, '1'); ?>>
+                                                        <span class="resbs-checkbox-text"><?php echo esc_html($label); ?></span>
+                                                    </label>
+                                                    <?php
+                                                    break;
+                                                default:
+                                                    ?>
+                                                    <input type="<?php echo esc_attr($type); ?>" id="<?php echo esc_attr($field_name); ?>" name="<?php echo esc_attr($field_name); ?>" class="resbs-stunning-input" value="<?php echo esc_attr($value); ?>" <?php echo $required; ?>>
+                                                    <?php
+                                                    break;
+                                            }
+                                            ?>
+                                        </div>
+                                        <?php
+                                    }
+                                }
+                                ?>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -2124,6 +2262,8 @@ class RESBS_Property_Metabox {
             'property_longitude' => '_property_longitude',
             'property_hide_address' => '_property_hide_address',
             'property_map_iframe' => '_property_map_iframe',
+            
+            // Save custom fields
             'property_features' => '_property_features',
             'property_amenities' => '_property_amenities',
             'property_nearby_schools' => '_property_nearby_schools',
@@ -2185,6 +2325,46 @@ class RESBS_Property_Metabox {
         $saved_count = 0;
         
         // Save all fields with better error handling
+        // Save custom fields
+        $custom_fields = get_option('resbs_custom_fields', array());
+        foreach ($custom_fields as $field_id => $field) {
+            $meta_key = $field['meta_key'];
+            $field_name = str_replace('_property_', 'property_', $meta_key);
+            
+            if (isset($_POST[$field_name])) {
+                $value = $_POST[$field_name];
+                
+                // Sanitize based on field type
+                switch ($field['type']) {
+                    case 'email':
+                        $value = sanitize_email($value);
+                        break;
+                    case 'url':
+                        $value = esc_url_raw($value);
+                        break;
+                    case 'number':
+                        $value = is_numeric($value) ? floatval($value) : '';
+                        break;
+                    case 'textarea':
+                        $value = sanitize_textarea_field($value);
+                        break;
+                    case 'checkbox':
+                        $value = $value ? '1' : '';
+                        break;
+                    default:
+                        $value = sanitize_text_field($value);
+                        break;
+                }
+                
+                update_post_meta($post_id, $meta_key, $value);
+            } else {
+                // For checkboxes, if not set, save empty
+                if ($field['type'] === 'checkbox') {
+                    update_post_meta($post_id, $meta_key, '');
+                }
+            }
+        }
+        
         foreach ($fields_to_save as $form_field => $meta_key) {
             // Special handling for HTML fields (iframe and video embed)
             if ($form_field === 'property_map_iframe') {
