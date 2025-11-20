@@ -22,6 +22,10 @@ class RESBS_Enhanced_Settings {
         add_action('admin_init', array($this, 'register_settings'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
         
+        // Fix menu highlighting for All Properties vs My Properties
+        add_filter('parent_file', array($this, 'fix_properties_menu_highlight'));
+        add_filter('submenu_file', array($this, 'fix_properties_submenu_highlight'));
+        
         // Add AJAX handlers
         add_action('admin_post_resbs_save_settings', array($this, 'handle_settings_save'));
         add_action('admin_post_resbs_reset_settings', array($this, 'handle_reset_settings'));
@@ -36,8 +40,8 @@ class RESBS_Enhanced_Settings {
     public function add_admin_menu() {
         // Main menu page
         add_menu_page(
-            esc_html__('RealEstate Booking Suite', 'realestate-booking-suite'),
-            esc_html__('RealEstate Booking Suite', 'realestate-booking-suite'),
+            esc_html__('RealEstate  Suite', 'realestate-booking-suite'),
+            esc_html__('RealEstate  Suite', 'realestate-booking-suite'),
             'manage_options',
             'resbs-main-menu',
             array($this, 'dashboard_callback'),
@@ -55,13 +59,14 @@ class RESBS_Enhanced_Settings {
             array($this, 'dashboard_callback')
         );
         
-        // My Properties
+        // My Properties - filter by current user
+        $current_user_id = get_current_user_id();
         add_submenu_page(
             'resbs-main-menu',
             esc_html__('My Properties', 'realestate-booking-suite'),
             esc_html__('My Properties', 'realestate-booking-suite'),
             'manage_options',
-            'edit.php?post_type=property'
+            'edit.php?post_type=property&author=' . $current_user_id
         );
         
         // Add New Property
@@ -1891,6 +1896,47 @@ class RESBS_Enhanced_Settings {
             error_log('RESBS TEST AJAX: Called');
         }
         wp_send_json_success(array('message' => 'AJAX is working!', 'timestamp' => time()));
+    }
+    
+    /**
+     * Fix menu highlighting for Properties pages
+     * Ensures correct parent menu is highlighted
+     */
+    public function fix_properties_menu_highlight($parent_file) {
+        global $typenow;
+        
+        // Only apply to property post type pages
+        if ($typenow === 'property') {
+            return 'resbs-main-menu';
+        }
+        
+        return $parent_file;
+    }
+    
+    /**
+     * Fix submenu highlighting for All Properties vs My Properties
+     * Ensures only the correct submenu item is highlighted
+     */
+    public function fix_properties_submenu_highlight($submenu_file) {
+        global $typenow, $pagenow;
+        
+        // Only apply to property post type pages
+        if ($typenow !== 'property' || $pagenow !== 'edit.php') {
+            return $submenu_file;
+        }
+        
+        // Check if we're viewing "My Properties" (author filter is set and matches current user)
+        $current_user_id = get_current_user_id();
+        $author_filter = isset($_GET['author']) ? intval($_GET['author']) : 0;
+        
+        if ($author_filter > 0 && $author_filter === $current_user_id) {
+            // We're viewing "My Properties" - highlight that menu item
+            return 'edit.php?post_type=property&author=' . $current_user_id;
+        }
+        
+        // For "All Properties" (no author filter or different author), let WordPress handle it
+        // Return the default to ensure "All Properties" is highlighted
+        return $submenu_file;
     }
     
     // Placeholder methods for other menu items

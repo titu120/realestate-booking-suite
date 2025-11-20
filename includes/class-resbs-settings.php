@@ -80,8 +80,8 @@ class RESBS_Settings {
     public function add_admin_menu() {
         // Main menu page
         add_menu_page(
-            esc_html__('RealEstate Booking Suite', 'realestate-booking-suite'),
-            esc_html__('RealEstate Booking Suite', 'realestate-booking-suite'),
+            esc_html__('RealEstate  Suite', 'realestate-booking-suite'),
+            esc_html__('RealEstate  Suite', 'realestate-booking-suite'),
             'manage_options',
             'resbs-main-menu',
             array($this, 'dashboard_page_callback'),
