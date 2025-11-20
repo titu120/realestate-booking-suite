@@ -1941,9 +1941,254 @@ class RESBS_Enhanced_Settings {
     
     // Placeholder methods for other menu items
     public function dashboard_callback() {
-        echo '<h1>' . esc_html__('Dashboard', 'realestate-booking-suite') . '</h1>';
-        echo '<p>' . esc_html__('Welcome to RealEstate Booking Suite Dashboard!', 'realestate-booking-suite') . '</p>';
-        echo '<p>' . esc_html__('Use the Settings menu to configure your plugin.', 'realestate-booking-suite') . '</p>';
+        // Check user capability
+        if (!current_user_can('manage_options')) {
+            wp_die(esc_html__('You do not have permission to access this page.', 'realestate-booking-suite'));
+        }
+        
+        // Get property counts
+        $property_counts = wp_count_posts('property');
+        $total_properties = $property_counts->publish;
+        $draft_properties = $property_counts->draft;
+        $pending_properties = $property_counts->pending;
+        $private_properties = $property_counts->private;
+        $trash_properties = $property_counts->trash;
+        
+        // Get current user's properties count
+        $current_user_id = get_current_user_id();
+        $my_properties_count = count_user_posts($current_user_id, 'property', true);
+        
+        // Get recent properties
+        $recent_properties = get_posts(array(
+            'post_type' => 'property',
+            'posts_per_page' => 5,
+            'post_status' => array('publish', 'pending', 'draft'),
+            'orderby' => 'date',
+            'order' => 'DESC'
+        ));
+        
+        // Get system info
+        $wp_version = get_bloginfo('version');
+        $php_version = PHP_VERSION;
+        $plugin_version = '1.0.0';
+        
+        // Get property types count
+        $property_types = get_terms(array(
+            'taxonomy' => 'property_type',
+            'hide_empty' => false,
+        ));
+        $property_types_count = !is_wp_error($property_types) ? count($property_types) : 0;
+        
+        // Get property locations count
+        $property_locations = get_terms(array(
+            'taxonomy' => 'property_location',
+            'hide_empty' => false,
+        ));
+        $property_locations_count = !is_wp_error($property_locations) ? count($property_locations) : 0;
+        
+        ?>
+        <div class="wrap resbs-admin-wrap">
+            <!-- Welcome Header -->
+            <div class="resbs-welcome-header" style="background: #fff; padding: 20px; margin: 20px 0; border: 1px solid #ddd; border-radius: 4px;">
+                <div class="resbs-welcome-content">
+                    <h1 style="margin: 0; font-size: 24px; color: #333;">
+                        <span class="dashicons dashicons-building" style="vertical-align: middle; margin-right: 8px;"></span>
+                        <?php esc_html_e('RealEstate Booking Suite', 'realestate-booking-suite'); ?>
+                    </h1>
+                    <p style="margin: 8px 0 0 0; font-size: 14px; color: #666;">
+                        <?php esc_html_e('Professional real estate booking and management system', 'realestate-booking-suite'); ?>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Statistics Overview -->
+            <div class="resbs-stats-overview" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 20px 0;">
+                <div class="resbs-stat-card" style="background: #fff; padding: 20px; border: 1px solid #ddd; border-radius: 4px;">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <div style="font-size: 32px; color: #666;">
+                            <span class="dashicons dashicons-building"></span>
+                        </div>
+                        <div>
+                            <div style="font-size: 32px; font-weight: bold; color: #333;"><?php echo esc_html($total_properties); ?></div>
+                            <div style="color: #666; font-size: 14px;"><?php esc_html_e('Published Properties', 'realestate-booking-suite'); ?></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="resbs-stat-card" style="background: #fff; padding: 20px; border: 1px solid #ddd; border-radius: 4px;">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <div style="font-size: 32px; color: #666;">
+                            <span class="dashicons dashicons-edit"></span>
+                        </div>
+                        <div>
+                            <div style="font-size: 32px; font-weight: bold; color: #333;"><?php echo esc_html($draft_properties); ?></div>
+                            <div style="color: #666; font-size: 14px;"><?php esc_html_e('Draft Properties', 'realestate-booking-suite'); ?></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="resbs-stat-card" style="background: #fff; padding: 20px; border: 1px solid #ddd; border-radius: 4px;">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <div style="font-size: 32px; color: #666;">
+                            <span class="dashicons dashicons-admin-users"></span>
+                        </div>
+                        <div>
+                            <div style="font-size: 32px; font-weight: bold; color: #333;"><?php echo esc_html($my_properties_count); ?></div>
+                            <div style="color: #666; font-size: 14px;"><?php esc_html_e('My Properties', 'realestate-booking-suite'); ?></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="resbs-stat-card" style="background: #fff; padding: 20px; border: 1px solid #ddd; border-radius: 4px;">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <div style="font-size: 32px; color: #666;">
+                            <span class="dashicons dashicons-clock"></span>
+                        </div>
+                        <div>
+                            <div style="font-size: 32px; font-weight: bold; color: #333;"><?php echo esc_html($pending_properties); ?></div>
+                            <div style="color: #666; font-size: 14px;"><?php esc_html_e('Pending Review', 'realestate-booking-suite'); ?></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content Grid -->
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin: 20px 0;">
+                <!-- Quick Actions -->
+                <div style="background: #fff; padding: 20px; border: 1px solid #ddd; border-radius: 4px;">
+                    <h2 style="margin-top: 0; padding-bottom: 15px; border-bottom: 1px solid #ddd;">
+                        <span class="dashicons dashicons-admin-tools" style="vertical-align: middle;"></span>
+                        <?php esc_html_e('Quick Actions', 'realestate-booking-suite'); ?>
+                    </h2>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 20px;">
+                        <a href="<?php echo esc_url(admin_url('edit.php?post_type=property')); ?>" style="display: flex; align-items: center; gap: 10px; padding: 15px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 4px; text-decoration: none; color: #333;">
+                            <span class="dashicons dashicons-list-view" style="font-size: 24px; color: #666;"></span>
+                            <div>
+                                <strong><?php esc_html_e('All Properties', 'realestate-booking-suite'); ?></strong>
+                                <div style="font-size: 12px; color: #666;"><?php esc_html_e('View all properties', 'realestate-booking-suite'); ?></div>
+                            </div>
+                        </a>
+                        
+                        <a href="<?php echo esc_url(admin_url('edit.php?post_type=property&author=' . $current_user_id)); ?>" style="display: flex; align-items: center; gap: 10px; padding: 15px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 4px; text-decoration: none; color: #333;">
+                            <span class="dashicons dashicons-admin-users" style="font-size: 24px; color: #666;"></span>
+                            <div>
+                                <strong><?php esc_html_e('My Properties', 'realestate-booking-suite'); ?></strong>
+                                <div style="font-size: 12px; color: #666;"><?php esc_html_e('View my properties', 'realestate-booking-suite'); ?></div>
+                            </div>
+                        </a>
+                        
+                        <a href="<?php echo esc_url(admin_url('post-new.php?post_type=property')); ?>" style="display: flex; align-items: center; gap: 10px; padding: 15px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 4px; text-decoration: none; color: #333;">
+                            <span class="dashicons dashicons-plus-alt" style="font-size: 24px; color: #666;"></span>
+                            <div>
+                                <strong><?php esc_html_e('Add New Property', 'realestate-booking-suite'); ?></strong>
+                                <div style="font-size: 12px; color: #666;"><?php esc_html_e('Create new listing', 'realestate-booking-suite'); ?></div>
+                            </div>
+                        </a>
+                        
+                        <a href="<?php echo esc_url(admin_url('admin.php?page=resbs-settings')); ?>" style="display: flex; align-items: center; gap: 10px; padding: 15px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 4px; text-decoration: none; color: #333;">
+                            <span class="dashicons dashicons-admin-settings" style="font-size: 24px; color: #666;"></span>
+                            <div>
+                                <strong><?php esc_html_e('Settings', 'realestate-booking-suite'); ?></strong>
+                                <div style="font-size: 12px; color: #666;"><?php esc_html_e('Configure plugin', 'realestate-booking-suite'); ?></div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Recent Properties -->
+                <div style="background: #fff; padding: 20px; border: 1px solid #ddd; border-radius: 4px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #ddd;">
+                        <h2 style="margin: 0;">
+                            <span class="dashicons dashicons-clock" style="vertical-align: middle;"></span>
+                            <?php esc_html_e('Recent Properties', 'realestate-booking-suite'); ?>
+                        </h2>
+                        <a href="<?php echo esc_url(admin_url('edit.php?post_type=property')); ?>" style="font-size: 12px; color: #0073aa; text-decoration: none;">
+                            <?php esc_html_e('View All', 'realestate-booking-suite'); ?>
+                        </a>
+                    </div>
+                    <div>
+                        <?php if (!empty($recent_properties)): ?>
+                            <?php foreach ($recent_properties as $property): ?>
+                                <div style="display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid #f0f0f0;">
+                                    <div style="width: 50px; height: 50px; background: #f0f0f0; border-radius: 4px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                        <?php 
+                                        $thumbnail = get_the_post_thumbnail($property->ID, array(50, 50));
+                                        if ($thumbnail): 
+                                            echo wp_kses_post($thumbnail);
+                                        else: ?>
+                                            <span class="dashicons dashicons-format-image" style="color: #999;"></span>
+                                        <?php endif; ?>
+                                    </div>
+                                    <div style="flex: 1; min-width: 0;">
+                                        <a href="<?php echo esc_url(get_edit_post_link($property->ID)); ?>" style="font-weight: 600; color: #333; text-decoration: none; display: block; margin-bottom: 4px;">
+                                            <?php echo esc_html(wp_trim_words($property->post_title, 5)); ?>
+                                        </a>
+                                        <div style="font-size: 12px; color: #666;">
+                                            <?php echo esc_html(human_time_diff(strtotime($property->post_date), current_time('timestamp')) . ' ' . esc_html__('ago', 'realestate-booking-suite')); ?>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <span style="display: inline-block; padding: 4px 8px; background: #e0f2fe; color: #0369a1; border-radius: 4px; font-size: 11px; font-weight: 600;">
+                                            <?php echo esc_html(ucfirst($property->post_status)); ?>
+                                        </span>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <div style="text-align: center; padding: 40px 20px; color: #999;">
+                                <span class="dashicons dashicons-building" style="font-size: 48px; display: block; margin-bottom: 10px;"></span>
+                                <p><?php esc_html_e('No properties found.', 'realestate-booking-suite'); ?></p>
+                                <a href="<?php echo esc_url(admin_url('post-new.php?post_type=property')); ?>" style="display: inline-block; margin-top: 10px; padding: 8px 16px; background: #0073aa; color: white; text-decoration: none; border-radius: 4px;">
+                                    <?php esc_html_e('Add Property', 'realestate-booking-suite'); ?>
+                                </a>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Additional Info -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin: 20px 0;">
+                <div style="background: #fff; padding: 20px; border: 1px solid #ddd; border-radius: 4px;">
+                    <h3 style="margin-top: 0;">
+                        <span class="dashicons dashicons-category" style="vertical-align: middle;"></span>
+                        <?php esc_html_e('Property Types', 'realestate-booking-suite'); ?>
+                    </h3>
+                    <div style="font-size: 32px; font-weight: bold; color: #333; margin: 10px 0;">
+                        <?php echo esc_html($property_types_count); ?>
+                    </div>
+                    <a href="<?php echo esc_url(admin_url('edit-tags.php?taxonomy=property_type&post_type=property')); ?>" style="font-size: 12px; color: #0073aa; text-decoration: none;">
+                        <?php esc_html_e('Manage Types →', 'realestate-booking-suite'); ?>
+                    </a>
+                </div>
+                
+                <div style="background: #fff; padding: 20px; border: 1px solid #ddd; border-radius: 4px;">
+                    <h3 style="margin-top: 0;">
+                        <span class="dashicons dashicons-location" style="vertical-align: middle;"></span>
+                        <?php esc_html_e('Locations', 'realestate-booking-suite'); ?>
+                    </h3>
+                    <div style="font-size: 32px; font-weight: bold; color: #333; margin: 10px 0;">
+                        <?php echo esc_html($property_locations_count); ?>
+                    </div>
+                    <a href="<?php echo esc_url(admin_url('edit-tags.php?taxonomy=property_location&post_type=property')); ?>" style="font-size: 12px; color: #0073aa; text-decoration: none;">
+                        <?php esc_html_e('Manage Locations →', 'realestate-booking-suite'); ?>
+                    </a>
+                </div>
+                
+                <div style="background: #fff; padding: 20px; border: 1px solid #ddd; border-radius: 4px;">
+                    <h3 style="margin-top: 0;">
+                        <span class="dashicons dashicons-info" style="vertical-align: middle;"></span>
+                        <?php esc_html_e('System Info', 'realestate-booking-suite'); ?>
+                    </h3>
+                    <div style="font-size: 12px; color: #666; line-height: 1.8;">
+                        <div><strong><?php esc_html_e('Plugin:', 'realestate-booking-suite'); ?></strong> <?php echo esc_html($plugin_version); ?></div>
+                        <div><strong><?php esc_html_e('WordPress:', 'realestate-booking-suite'); ?></strong> <?php echo esc_html($wp_version); ?></div>
+                        <div><strong><?php esc_html_e('PHP:', 'realestate-booking-suite'); ?></strong> <?php echo esc_html($php_version); ?></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <?php
     }
     
     public function data_manager_callback() {

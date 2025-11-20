@@ -98,15 +98,7 @@
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
-.resbs-stat-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: #0073aa;
-}
+
 
 .resbs-stat-card.resbs-stat-primary::before {
     background: #0073aa;
