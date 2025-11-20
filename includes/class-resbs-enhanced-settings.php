@@ -32,6 +32,11 @@ class RESBS_Enhanced_Settings {
         add_action('wp_ajax_resbs_create_page', array($this, 'handle_create_page'));
         add_action('wp_ajax_resbs_load_tab_content', array($this, 'handle_load_tab_content'));
         add_action('wp_ajax_resbs_test_ajax', array($this, 'handle_test_ajax'));
+        
+        // Data Manager AJAX handlers
+        add_action('admin_post_resbs_export_properties', array($this, 'handle_export_properties'));
+        add_action('wp_ajax_resbs_cleanup_orphaned_data', array($this, 'handle_cleanup_orphaned_data'));
+        add_action('wp_ajax_resbs_get_data_stats', array($this, 'handle_get_data_stats'));
     }
     
     /**
@@ -2192,8 +2197,466 @@ class RESBS_Enhanced_Settings {
     }
     
     public function data_manager_callback() {
-        echo '<h1>' . esc_html__('Data Manager', 'realestate-booking-suite') . '</h1>';
-        echo '<p>' . esc_html__('Data manager functionality will be implemented here.', 'realestate-booking-suite') . '</p>';
+        // Check user capability
+        if (!current_user_can('manage_options')) {
+            wp_die(esc_html__('You do not have permission to access this page.', 'realestate-booking-suite'));
+        }
+        
+        // Get data statistics
+        $property_counts = wp_count_posts('property');
+        $total_properties = $property_counts->publish + $property_counts->draft + $property_counts->pending;
+        $published_properties = $property_counts->publish;
+        $draft_properties = $property_counts->draft;
+        $pending_properties = $property_counts->pending;
+        $trash_properties = $property_counts->trash;
+        
+        // Get property types and locations
+        $property_types = get_terms(array(
+            'taxonomy' => 'property_type',
+            'hide_empty' => false,
+        ));
+        $property_types_count = !is_wp_error($property_types) ? count($property_types) : 0;
+        
+        $property_locations = get_terms(array(
+            'taxonomy' => 'property_location',
+            'hide_empty' => false,
+        ));
+        $property_locations_count = !is_wp_error($property_locations) ? count($property_locations) : 0;
+        
+        // Get bookings count
+        $bookings_count = 0;
+        if (post_type_exists('property_booking')) {
+            $booking_counts = wp_count_posts('property_booking');
+            $bookings_count = $booking_counts->publish + $booking_counts->pending;
+        }
+        
+        // Get orphaned meta count (approximate)
+        global $wpdb;
+        $orphaned_meta = $wpdb->get_var("
+            SELECT COUNT(*) 
+            FROM {$wpdb->postmeta} pm
+            LEFT JOIN {$wpdb->posts} p ON pm.post_id = p.ID
+            WHERE p.ID IS NULL AND pm.meta_key LIKE '_property_%'
+        ");
+        
+        // Get database size info
+        $db_size = $wpdb->get_var("
+            SELECT ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) AS 'DB Size in MB'
+            FROM information_schema.tables
+            WHERE table_schema = DATABASE()
+        ");
+        
+        // Create nonces
+        $export_nonce = wp_create_nonce('resbs_export_properties');
+        $cleanup_nonce = wp_create_nonce('resbs_cleanup_orphaned_data');
+        $stats_nonce = wp_create_nonce('resbs_get_data_stats');
+        
+        ?>
+        <div class="wrap resbs-admin-wrap">
+            <!-- Header -->
+            <div class="resbs-welcome-header" style="background: #fff; padding: 20px; margin: 20px 0; border: 1px solid #ddd; border-radius: 4px;">
+                <h1 style="margin: 0; font-size: 28px; font-weight: 600;">
+                    <span class="dashicons dashicons-database" style="vertical-align: middle; margin-right: 10px;"></span>
+                    <?php esc_html_e('Data Manager', 'realestate-booking-suite'); ?>
+                </h1>
+                <p style="margin: 10px 0 0 0; color: #666;">
+                    <?php esc_html_e('Manage, export, import, and optimize your property data.', 'realestate-booking-suite'); ?>
+                </p>
+            </div>
+
+            <!-- Statistics Overview -->
+            <div class="resbs-stats-overview" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 20px 0;">
+                <div class="resbs-stat-card" style="background: #fff; padding: 20px; border: 1px solid #ddd; border-radius: 4px;">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <div style="font-size: 32px; color: #666;">
+                            <span class="dashicons dashicons-building"></span>
+                        </div>
+                        <div>
+                            <div style="font-size: 32px; font-weight: bold; color: #333;"><?php echo esc_html($total_properties); ?></div>
+                            <div style="color: #666; font-size: 14px;"><?php esc_html_e('Total Properties', 'realestate-booking-suite'); ?></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="resbs-stat-card" style="background: #fff; padding: 20px; border: 1px solid #ddd; border-radius: 4px;">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <div style="font-size: 32px; color: #666;">
+                            <span class="dashicons dashicons-yes-alt"></span>
+                        </div>
+                        <div>
+                            <div style="font-size: 32px; font-weight: bold; color: #333;"><?php echo esc_html($published_properties); ?></div>
+                            <div style="color: #666; font-size: 14px;"><?php esc_html_e('Published', 'realestate-booking-suite'); ?></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="resbs-stat-card" style="background: #fff; padding: 20px; border: 1px solid #ddd; border-radius: 4px;">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <div style="font-size: 32px; color: #666;">
+                            <span class="dashicons dashicons-category"></span>
+                        </div>
+                        <div>
+                            <div style="font-size: 32px; font-weight: bold; color: #333;"><?php echo esc_html($property_types_count); ?></div>
+                            <div style="color: #666; font-size: 14px;"><?php esc_html_e('Property Types', 'realestate-booking-suite'); ?></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="resbs-stat-card" style="background: #fff; padding: 20px; border: 1px solid #ddd; border-radius: 4px;">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <div style="font-size: 32px; color: #666;">
+                            <span class="dashicons dashicons-location"></span>
+                        </div>
+                        <div>
+                            <div style="font-size: 32px; font-weight: bold; color: #333;"><?php echo esc_html($property_locations_count); ?></div>
+                            <div style="color: #666; font-size: 14px;"><?php esc_html_e('Locations', 'realestate-booking-suite'); ?></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <?php if ($bookings_count > 0): ?>
+                <div class="resbs-stat-card" style="background: #fff; padding: 20px; border: 1px solid #ddd; border-radius: 4px;">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <div style="font-size: 32px; color: #666;">
+                            <span class="dashicons dashicons-calendar-alt"></span>
+                        </div>
+                        <div>
+                            <div style="font-size: 32px; font-weight: bold; color: #333;"><?php echo esc_html($bookings_count); ?></div>
+                            <div style="color: #666; font-size: 14px;"><?php esc_html_e('Bookings', 'realestate-booking-suite'); ?></div>
+                        </div>
+                    </div>
+                </div>
+                <?php endif; ?>
+            </div>
+
+            <!-- Main Content Grid -->
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin: 20px 0;">
+                <!-- Export/Import Section -->
+                <div style="background: #fff; padding: 20px; border: 1px solid #ddd; border-radius: 4px;">
+                    <h2 style="margin-top: 0; padding-bottom: 15px; border-bottom: 1px solid #ddd;">
+                        <span class="dashicons dashicons-download" style="vertical-align: middle;"></span>
+                        <?php esc_html_e('Export & Import', 'realestate-booking-suite'); ?>
+                    </h2>
+                    
+                    <div style="margin-top: 20px;">
+                        <h3 style="margin-top: 0; font-size: 16px;"><?php esc_html_e('Export Properties', 'realestate-booking-suite'); ?></h3>
+                        <p style="color: #666; font-size: 14px;">
+                            <?php esc_html_e('Export your properties to CSV or JSON format for backup or migration purposes.', 'realestate-booking-suite'); ?>
+                        </p>
+                        
+                        <div style="display: flex; gap: 10px; margin-top: 15px;">
+                            <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" style="display: inline;">
+                                <input type="hidden" name="action" value="resbs_export_properties">
+                                <input type="hidden" name="format" value="csv">
+                                <input type="hidden" name="nonce" value="<?php echo esc_attr($export_nonce); ?>">
+                                <button type="submit" class="button button-primary">
+                                    <span class="dashicons dashicons-media-spreadsheet" style="vertical-align: middle;"></span>
+                                    <?php esc_html_e('Export as CSV', 'realestate-booking-suite'); ?>
+                                </button>
+                            </form>
+                            <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" style="display: inline;">
+                                <input type="hidden" name="action" value="resbs_export_properties">
+                                <input type="hidden" name="format" value="json">
+                                <input type="hidden" name="nonce" value="<?php echo esc_attr($export_nonce); ?>">
+                                <button type="submit" class="button button-primary">
+                                    <span class="dashicons dashicons-media-code" style="vertical-align: middle;"></span>
+                                    <?php esc_html_e('Export as JSON', 'realestate-booking-suite'); ?>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
+                        <h3 style="margin-top: 0; font-size: 16px;"><?php esc_html_e('Import Properties', 'realestate-booking-suite'); ?></h3>
+                        <p style="color: #666; font-size: 14px;">
+                            <?php esc_html_e('Import properties from a previously exported CSV or JSON file.', 'realestate-booking-suite'); ?>
+                        </p>
+                        
+                        <form id="resbs-import-form" style="margin-top: 15px;">
+                            <input type="file" id="resbs-import-file" accept=".csv,.json" style="margin-bottom: 10px;">
+                            <br>
+                            <button type="button" class="button button-secondary" id="resbs-import-btn" data-nonce="<?php echo esc_attr($export_nonce); ?>">
+                                <span class="dashicons dashicons-upload" style="vertical-align: middle;"></span>
+                                <?php esc_html_e('Import Properties', 'realestate-booking-suite'); ?>
+                            </button>
+                        </form>
+                        
+                        <div id="resbs-import-status" style="margin-top: 15px; display: none;"></div>
+                    </div>
+                </div>
+
+                <!-- Data Management Tools -->
+                <div style="background: #fff; padding: 20px; border: 1px solid #ddd; border-radius: 4px;">
+                    <h2 style="margin-top: 0; padding-bottom: 15px; border-bottom: 1px solid #ddd;">
+                        <span class="dashicons dashicons-admin-tools" style="vertical-align: middle;"></span>
+                        <?php esc_html_e('Data Tools', 'realestate-booking-suite'); ?>
+                    </h2>
+                    
+                    <div style="margin-top: 20px;">
+                        <h3 style="margin-top: 0; font-size: 16px;"><?php esc_html_e('Cleanup Orphaned Data', 'realestate-booking-suite'); ?></h3>
+                        <p style="color: #666; font-size: 14px;">
+                            <?php esc_html_e('Remove orphaned post meta data that is no longer associated with properties.', 'realestate-booking-suite'); ?>
+                        </p>
+                        <p style="color: #d63638; font-size: 13px; margin-top: 5px;">
+                            <strong><?php esc_html_e('Found:', 'realestate-booking-suite'); ?></strong> 
+                            <?php echo esc_html($orphaned_meta); ?> <?php esc_html_e('orphaned meta entries', 'realestate-booking-suite'); ?>
+                        </p>
+                        <button type="button" class="button button-secondary resbs-cleanup-btn" data-nonce="<?php echo esc_attr($cleanup_nonce); ?>" style="margin-top: 10px;">
+                            <span class="dashicons dashicons-trash" style="vertical-align: middle;"></span>
+                            <?php esc_html_e('Cleanup Orphaned Data', 'realestate-booking-suite'); ?>
+                        </button>
+                        <div id="resbs-cleanup-status" style="margin-top: 15px; display: none;"></div>
+                    </div>
+                    
+                    <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
+                        <h3 style="margin-top: 0; font-size: 16px;"><?php esc_html_e('Database Information', 'realestate-booking-suite'); ?></h3>
+                        <div style="font-size: 13px; color: #666; line-height: 1.8; margin-top: 10px;">
+                            <div><strong><?php esc_html_e('Database Size:', 'realestate-booking-suite'); ?></strong> <?php echo esc_html($db_size ? $db_size . ' MB' : 'N/A'); ?></div>
+                            <div><strong><?php esc_html_e('Draft Properties:', 'realestate-booking-suite'); ?></strong> <?php echo esc_html($draft_properties); ?></div>
+                            <div><strong><?php esc_html_e('Pending Properties:', 'realestate-booking-suite'); ?></strong> <?php echo esc_html($pending_properties); ?></div>
+                            <div><strong><?php esc_html_e('Trashed Properties:', 'realestate-booking-suite'); ?></strong> <?php echo esc_html($trash_properties); ?></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Additional Info -->
+            <div style="background: #fff; padding: 20px; border: 1px solid #ddd; border-radius: 4px; margin-top: 20px;">
+                <h2 style="margin-top: 0; padding-bottom: 15px; border-bottom: 1px solid #ddd;">
+                    <span class="dashicons dashicons-info" style="vertical-align: middle;"></span>
+                    <?php esc_html_e('Data Management Tips', 'realestate-booking-suite'); ?>
+                </h2>
+                <ul style="color: #666; line-height: 1.8; margin: 15px 0; padding-left: 20px;">
+                    <li><?php esc_html_e('Always backup your database before performing cleanup operations.', 'realestate-booking-suite'); ?></li>
+                    <li><?php esc_html_e('Export your data regularly to prevent data loss.', 'realestate-booking-suite'); ?></li>
+                    <li><?php esc_html_e('Orphaned data cleanup is safe and only removes metadata not linked to any property.', 'realestate-booking-suite'); ?></li>
+                    <li><?php esc_html_e('CSV exports are best for spreadsheet applications, JSON for programmatic use.', 'realestate-booking-suite'); ?></li>
+                </ul>
+            </div>
+        </div>
+        
+        <script type="text/javascript">
+        jQuery(document).ready(function($) {
+            // Cleanup functionality
+            $('.resbs-cleanup-btn').on('click', function() {
+                if (!confirm('<?php esc_html_e('Are you sure you want to cleanup orphaned data? This action cannot be undone.', 'realestate-booking-suite'); ?>')) {
+                    return;
+                }
+                
+                var nonce = $(this).data('nonce');
+                var $status = $('#resbs-cleanup-status');
+                var $btn = $(this);
+                
+                $status.html('<span class="spinner is-active" style="float: none; margin: 0 10px;"></span> <?php esc_html_e('Cleaning up...', 'realestate-booking-suite'); ?>').show();
+                $btn.prop('disabled', true);
+                
+                $.ajax({
+                    url: ajaxurl,
+                    type: 'POST',
+                    data: {
+                        action: 'resbs_cleanup_orphaned_data',
+                        nonce: nonce
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            $status.html('<div class="notice notice-success"><p>' + response.data.message + '</p></div>');
+                            setTimeout(function() {
+                                location.reload();
+                            }, 2000);
+                        } else {
+                            $status.html('<div class="notice notice-error"><p>' + response.data + '</p></div>');
+                        }
+                        $btn.prop('disabled', false);
+                    },
+                    error: function() {
+                        $status.html('<div class="notice notice-error"><p><?php esc_html_e('Cleanup failed. Please try again.', 'realestate-booking-suite'); ?></p></div>');
+                        $btn.prop('disabled', false);
+                    }
+                });
+            });
+        });
+        </script>
+        <?php
+    }
+    
+    /**
+     * Handle export properties request (admin-post action)
+     */
+    public function handle_export_properties() {
+        // Verify nonce
+        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'resbs_export_properties')) {
+            wp_die(esc_html__('Security check failed', 'realestate-booking-suite'), esc_html__('Error', 'realestate-booking-suite'), array('response' => 403));
+        }
+        
+        if (!current_user_can('manage_options')) {
+            wp_die(esc_html__('Unauthorized', 'realestate-booking-suite'), esc_html__('Error', 'realestate-booking-suite'), array('response' => 403));
+        }
+        
+        $format = isset($_POST['format']) ? sanitize_text_field($_POST['format']) : 'csv';
+        
+        if (!in_array($format, array('csv', 'json'))) {
+            wp_die(esc_html__('Invalid format', 'realestate-booking-suite'), esc_html__('Error', 'realestate-booking-suite'), array('response' => 400));
+        }
+        
+        // Get all properties
+        $properties = get_posts(array(
+            'post_type' => 'property',
+            'posts_per_page' => -1,
+            'post_status' => array('publish', 'draft', 'pending'),
+            'orderby' => 'date',
+            'order' => 'DESC'
+        ));
+        
+        if (empty($properties)) {
+            wp_die(esc_html__('No properties found to export', 'realestate-booking-suite'), esc_html__('Error', 'realestate-booking-suite'), array('response' => 404));
+        }
+        
+        // Prepare data
+        $export_data = array();
+        foreach ($properties as $property) {
+            $meta = get_post_meta($property->ID);
+            $property_data = array(
+                'ID' => $property->ID,
+                'title' => $property->post_title,
+                'content' => $property->post_content,
+                'excerpt' => $property->post_excerpt,
+                'status' => $property->post_status,
+                'author' => $property->post_author,
+                'date' => $property->post_date,
+                'modified' => $property->post_modified,
+            );
+            
+            // Add meta fields - properly handle arrays
+            foreach ($meta as $key => $value) {
+                if (strpos($key, '_property_') === 0) {
+                    // Handle array values properly
+                    if (is_array($value)) {
+                        if (count($value) === 1) {
+                            $property_data[$key] = $value[0];
+                        } else {
+                            // Convert array to JSON string for export
+                            $property_data[$key] = json_encode($value);
+                        }
+                    } else {
+                        $property_data[$key] = $value;
+                    }
+                    
+                    // Handle serialized data (like gallery)
+                    if (is_string($property_data[$key]) && is_serialized($property_data[$key])) {
+                        $unserialized = maybe_unserialize($property_data[$key]);
+                        if (is_array($unserialized)) {
+                            $property_data[$key] = json_encode($unserialized);
+                        }
+                    }
+                }
+            }
+            
+            // Add taxonomies
+            $types = wp_get_post_terms($property->ID, 'property_type', array('fields' => 'names'));
+            $statuses = wp_get_post_terms($property->ID, 'property_status', array('fields' => 'names'));
+            $locations = wp_get_post_terms($property->ID, 'property_location', array('fields' => 'names'));
+            $tags = wp_get_post_terms($property->ID, 'property_tag', array('fields' => 'names'));
+            
+            $property_data['property_types'] = !is_wp_error($types) ? implode(', ', $types) : '';
+            $property_data['property_statuses'] = !is_wp_error($statuses) ? implode(', ', $statuses) : '';
+            $property_data['property_locations'] = !is_wp_error($locations) ? implode(', ', $locations) : '';
+            $property_data['property_tags'] = !is_wp_error($tags) ? implode(', ', $tags) : '';
+            
+            $export_data[] = $property_data;
+        }
+        
+        // Set headers to force download
+        $filename = 'properties-export-' . date('Y-m-d-H-i-s') . '.' . $format;
+        
+        // Clear any previous output
+        if (ob_get_level()) {
+            ob_end_clean();
+        }
+        
+        if ($format === 'json') {
+            // Output JSON directly with download headers
+            header('Content-Type: application/json; charset=utf-8');
+            header('Content-Disposition: attachment; filename="' . $filename . '"');
+            header('Pragma: no-cache');
+            header('Expires: 0');
+            header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+            
+            echo json_encode($export_data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+            exit;
+        } else {
+            // Output CSV directly with download headers
+            header('Content-Type: text/csv; charset=utf-8');
+            header('Content-Disposition: attachment; filename="' . $filename . '"');
+            header('Pragma: no-cache');
+            header('Expires: 0');
+            header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+            
+            // Output UTF-8 BOM for Excel compatibility
+            echo "\xEF\xBB\xBF";
+            
+            $output = fopen('php://output', 'w');
+            
+            // Write headers
+            if (!empty($export_data)) {
+                fputcsv($output, array_keys($export_data[0]));
+            }
+            
+            // Write data
+            foreach ($export_data as $row) {
+                fputcsv($output, $row);
+            }
+            
+            fclose($output);
+            exit;
+        }
+    }
+    
+    /**
+     * Handle cleanup orphaned data AJAX request
+     */
+    public function handle_cleanup_orphaned_data() {
+        check_ajax_referer('resbs_cleanup_orphaned_data', 'nonce');
+        
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(esc_html__('Unauthorized', 'realestate-booking-suite'));
+        }
+        
+        global $wpdb;
+        
+        // Delete orphaned post meta
+        $deleted = $wpdb->query("
+            DELETE pm FROM {$wpdb->postmeta} pm
+            LEFT JOIN {$wpdb->posts} p ON pm.post_id = p.ID
+            WHERE p.ID IS NULL AND pm.meta_key LIKE '_property_%'
+        ");
+        
+        if ($deleted === false) {
+            wp_send_json_error(esc_html__('Failed to cleanup orphaned data', 'realestate-booking-suite'));
+        }
+        
+        wp_send_json_success(array(
+            'message' => sprintf(esc_html__('Successfully removed %d orphaned meta entries.', 'realestate-booking-suite'), $deleted)
+        ));
+    }
+    
+    /**
+     * Handle get data stats AJAX request
+     */
+    public function handle_get_data_stats() {
+        check_ajax_referer('resbs_get_data_stats', 'nonce');
+        
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(esc_html__('Unauthorized', 'realestate-booking-suite'));
+        }
+        
+        $property_counts = wp_count_posts('property');
+        
+        wp_send_json_success(array(
+            'total' => $property_counts->publish + $property_counts->draft + $property_counts->pending,
+            'published' => $property_counts->publish,
+            'draft' => $property_counts->draft,
+            'pending' => $property_counts->pending
+        ));
     }
     
     public function fields_builder_callback() {
