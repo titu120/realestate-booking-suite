@@ -300,28 +300,28 @@ $property_statuses = get_terms(array(
 
                 <!-- Filter Buttons -->
                 <div class="filter-buttons">
-                    <button type="button" onclick="toggleDropdown('priceDropdown')" class="filter-chip">
+                    <button type="button" onclick="toggleDropdown('priceDropdown', event)" class="filter-chip">
                         <span><?php echo esc_html__('Price', 'realestate-booking-suite'); ?></span>
                         <i class="fas fa-chevron-down"></i>
                     </button>
 
-                    <button type="button" onclick="toggleDropdown('typeDropdown')" class="filter-chip">
+                    <button type="button" onclick="toggleDropdown('typeDropdown', event)" class="filter-chip">
                         <span><?php echo esc_html__('Type', 'realestate-booking-suite'); ?></span>
                         <i class="fas fa-chevron-down"></i>
                     </button>
 
-                    <button type="button" onclick="toggleDropdown('bedroomsDropdown')" class="filter-chip">
+                    <button type="button" onclick="toggleDropdown('bedroomsDropdown', event)" class="filter-chip">
                         <span><?php echo esc_html__('Bedrooms', 'realestate-booking-suite'); ?></span>
                         <i class="fas fa-chevron-down"></i>
                     </button>
 
-                    <button type="button" onclick="toggleDropdown('bathroomsDropdown')" class="filter-chip">
+                    <button type="button" onclick="toggleDropdown('bathroomsDropdown', event)" class="filter-chip">
                         <span><?php echo esc_html__('Bathrooms', 'realestate-booking-suite'); ?></span>
                         <i class="fas fa-chevron-down"></i>
                     </button>
 
 
-                    <button type="button" onclick="toggleDropdown('moreFiltersDropdown')" class="filter-chip">
+                    <button type="button" onclick="toggleDropdown('moreFiltersDropdown', event)" class="filter-chip">
                         <span><?php echo esc_html__('More filters', 'realestate-booking-suite'); ?></span>
                         <i class="fas fa-sliders-h"></i>
                     </button>

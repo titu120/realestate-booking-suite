@@ -225,7 +225,7 @@
         display: flex;
         flex-wrap: wrap;
         gap: 12px;
-        position: relative;
+        position: static;
         align-items: flex-start;
     }
 
@@ -276,22 +276,29 @@
     .rbs-archive .dropdowns-container {
         position: relative;
         margin-top: 16px;
+        min-height: 0;
     }
 
     .rbs-archive .dropdown-content {
         display: none;
         position: absolute;
-        top: 100%;
+        top: 0;
         left: 0;
-        z-index: 50;
-        background-color: white;
+        z-index: 10000 !important;
+        background-color: white !important;
         border: 1px solid #e5e7eb;
         border-radius: 12px;
         padding: 24px;
         box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
         animation: slideDown 0.3s ease;
-        min-width: 200px;
+        min-width: 300px;
+        max-width: 500px;
         width: auto;
+    }
+    
+    .rbs-archive .dropdown-content.active {
+        display: block !important;
+        visibility: visible !important;
     }
 
     @keyframes rbs-archive-slideDown {

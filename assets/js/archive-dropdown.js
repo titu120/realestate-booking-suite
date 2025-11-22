@@ -5,24 +5,31 @@
  * @package RealEstate_Booking_Suite
  */
 
-// Simple dropdown toggle functionality
-function toggleDropdown(dropdownId) {
-    const dropdown = document.getElementById(dropdownId);
-    const allDropdowns = document.querySelectorAll('.dropdown-content');
-    
-    // Close all other dropdowns
-    allDropdowns.forEach(dd => {
-        if (dd.id !== dropdownId) {
-            dd.style.display = 'none';
+// Simple dropdown toggle functionality - only define if not already defined
+if (typeof window.toggleDropdown === 'undefined') {
+    window.toggleDropdown = function(dropdownId, event) {
+        const dropdown = document.getElementById(dropdownId);
+        if (!dropdown) return;
+        
+        const allDropdowns = document.querySelectorAll('.dropdown-content');
+        
+        // Close all other dropdowns
+        allDropdowns.forEach(dd => {
+            if (dd.id !== dropdownId) {
+                dd.style.display = 'none';
+                dd.classList.remove('active');
+            }
+        });
+        
+        // Toggle current dropdown
+        if (dropdown.style.display === 'block' || dropdown.classList.contains('active')) {
+            dropdown.style.display = 'none';
+            dropdown.classList.remove('active');
+        } else {
+            dropdown.style.display = 'block';
+            dropdown.classList.add('active');
         }
-    });
-    
-    // Toggle current dropdown
-    if (dropdown.style.display === 'block') {
-        dropdown.style.display = 'none';
-    } else {
-        dropdown.style.display = 'block';
-    }
+    };
 }
 
 // Close dropdowns when clicking outside

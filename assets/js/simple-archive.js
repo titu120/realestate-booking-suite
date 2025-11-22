@@ -17,25 +17,87 @@
     const favoritesNonce = resbsData.favorites_nonce || '';
     const translations = resbsData.translations || {};
 
-    // Simple dropdown toggle functionality
-window.toggleDropdown = function(dropdownId) {
-    const dropdown = document.getElementById(dropdownId);
-    const allDropdowns = document.querySelectorAll('.dropdown-content');
+     // Simple dropdown toggle functionality
+ window.toggleDropdown = function(dropdownId, event) {
+     if (event) {
+         event.stopPropagation();
+         event.preventDefault();
+     }
+     
+     const dropdown = document.getElementById(dropdownId);
+     if (!dropdown) {
+         console.error('Dropdown not found:', dropdownId);
+         return;
+     }
+     
+     const allDropdowns = document.querySelectorAll('.dropdown-content');
 
-    // Close all other dropdowns
-    allDropdowns.forEach(dd => {
-        if (dd.id !== dropdownId) {
-            dd.style.display = 'none';
-        }
-    });
+     // Close all other dropdowns
+     allDropdowns.forEach(dd => {
+         if (dd.id !== dropdownId) {
+             dd.style.display = 'none';
+             dd.classList.remove('active');
+         }
+     });
 
-    // Toggle current dropdown
-    if (dropdown.style.display === 'block') {
-        dropdown.style.display = 'none';
-    } else {
-        dropdown.style.display = 'block';
-        }
-    };
+     // Toggle current dropdown
+     const isActive = dropdown.style.display === 'block' || dropdown.classList.contains('active');
+     
+     if (isActive) {
+         dropdown.style.display = 'none';
+         dropdown.classList.remove('active');
+     } else {
+         // Find the button that triggered this
+         let button = null;
+         if (event && event.currentTarget) {
+             button = event.currentTarget;
+         } else if (event && event.target) {
+             button = event.target.closest('.filter-chip');
+         }
+         
+         // Fallback: find button by onclick attribute
+         if (!button) {
+             const buttons = document.querySelectorAll('.filter-chip');
+             buttons.forEach(btn => {
+                 const onclick = btn.getAttribute('onclick');
+                 if (onclick && onclick.includes("'" + dropdownId + "'")) {
+                     button = btn;
+                 }
+             });
+         }
+         
+         if (button) {
+             const buttonRect = button.getBoundingClientRect();
+             const container = document.querySelector('.dropdowns-container');
+             
+             if (container) {
+                 const containerRect = container.getBoundingClientRect();
+                 
+                 // Calculate position relative to dropdowns-container
+                 const relativeLeft = buttonRect.left - containerRect.left;
+                 const relativeTop = buttonRect.bottom - containerRect.top + 12;
+                 
+                 dropdown.style.position = 'absolute';
+                 dropdown.style.top = relativeTop + 'px';
+                 dropdown.style.left = relativeLeft + 'px';
+                 dropdown.style.right = 'auto';
+                 dropdown.style.display = 'block';
+                 dropdown.classList.add('active');
+             } else {
+                 // Fallback: use fixed positioning
+                 dropdown.style.position = 'fixed';
+                 dropdown.style.top = (buttonRect.bottom + 12) + 'px';
+                 dropdown.style.left = buttonRect.left + 'px';
+                 dropdown.style.display = 'block';
+                 dropdown.classList.add('active');
+             }
+         } else {
+             // No button found, just show dropdown at default position
+             dropdown.style.display = 'block';
+             dropdown.classList.add('active');
+         }
+     }
+ };
 
     // Close dropdowns when clicking outside
     document.addEventListener('click', function(event) {
