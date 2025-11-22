@@ -462,7 +462,6 @@
 
     .rbs-archive .layout-toggle {
         display: flex;
-        background-color: #f3f4f6;
         border-radius: 8px;
         padding: 4px;
     }
@@ -559,14 +558,9 @@
         transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    .rbs-archive .property-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 20px 25px rgba(0, 0, 0, 0.15);
-    }
 
     .rbs-archive .property-card.highlighted {
-        transform: translateY(-8px);
-        box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.3), 0 20px 25px rgba(0, 0, 0, 0.15);
+
         border-color: #0f766e;
     }
 
@@ -787,14 +781,10 @@
         cursor: pointer;
         transition: color 0.3s;
         border: unset;
-    }
-    .rbs-archive .view-details-btn:hover {
-        background-color: unset;
+        padding: 5px 12px;
+        border-radius: 6px;
     }
 
-    .rbs-archive .view-details-btn:hover {
-        color: #0d5c54;
-    }
 
     /* Map Section */
     .rbs-archive .map-section {

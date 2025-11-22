@@ -2081,6 +2081,23 @@
     </div>
 
     <!-- PHP data is now passed via wp_localize_script in template assets class -->
+    <!-- Also pass gallery images directly from template as backup -->
+    <script type="text/javascript">
+        // Ensure gallery images are available to JavaScript
+        (function() {
+            var templateGalleryImages = <?php echo json_encode($gallery_urls); ?>;
+            if (templateGalleryImages && templateGalleryImages.length > 0) {
+                // Set on window object for global access
+                window.galleryImagesFromTemplate = templateGalleryImages;
+                // Also update resbs_ajax if it exists
+                if (typeof resbs_ajax !== 'undefined') {
+                    resbs_ajax.gallery_images = templateGalleryImages;
+                }
+                // Also set on window.galleryImages
+                window.galleryImages = templateGalleryImages;
+            }
+        })();
+    </script>
     
     <!-- Amenities and phone code styles are now enqueued via wp_enqueue_style -->
 

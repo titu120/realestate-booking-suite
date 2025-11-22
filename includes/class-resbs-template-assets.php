@@ -94,20 +94,44 @@ class RESBS_Template_Assets {
         global $post;
         $all_images = array();
         if ($post) {
-            $gallery_images = get_post_meta($post->ID, '_property_gallery_images', true);
-            if (is_array($gallery_images) && !empty($gallery_images)) {
-                foreach ($gallery_images as $img_id) {
-                    $img_url = wp_get_attachment_image_url($img_id, 'full');
-                    if ($img_url) {
-                        $all_images[] = $img_url;
+            // Use the same meta key and logic as the template
+            $gallery_images = get_post_meta($post->ID, '_property_gallery', true);
+            
+            // Convert gallery attachment IDs to URLs (handle both IDs and URLs) - same logic as template
+            if (!empty($gallery_images)) {
+                if (is_array($gallery_images)) {
+                    foreach ($gallery_images as $image_item) {
+                        // Check if it's an attachment ID (numeric) or URL (string)
+                        if (is_numeric($image_item)) {
+                            $image_url = wp_get_attachment_image_url($image_item, 'full');
+                            if ($image_url) {
+                                $all_images[] = $image_url;
+                            }
+                        } elseif (is_string($image_item) && filter_var($image_item, FILTER_VALIDATE_URL)) {
+                            // It's already a URL
+                            $all_images[] = $image_item;
+                        }
+                    }
+                } elseif (is_string($gallery_images)) {
+                    // Handle comma-separated string
+                    $gallery_array = explode(',', $gallery_images);
+                    foreach ($gallery_array as $image_item) {
+                        $image_item = trim($image_item);
+                        if (is_numeric($image_item)) {
+                            $image_url = wp_get_attachment_image_url($image_item, 'full');
+                            if ($image_url) {
+                                $all_images[] = $image_url;
+                            }
+                        } elseif (filter_var($image_item, FILTER_VALIDATE_URL)) {
+                            $all_images[] = $image_item;
+                        }
                     }
                 }
             }
         }
         
-        if (empty($all_images)) {
-            $all_images[] = get_template_directory_uri() . '/assets/images/placeholder-property.jpg';
-        }
+        // Don't add placeholder if no images - let JavaScript handle it
+        // Only add placeholder if we really have no images at all
         
         wp_localize_script('resbs-single-property', 'resbs_ajax', array(
             'ajax_url' => esc_url(admin_url('admin-ajax.php')),
@@ -442,8 +466,6 @@ class RESBS_Template_Assets {
         
         .view-details-btn:hover {
             background: {$main_color_dark};
-            transform: translateY(-1px);
-            box-shadow: 0 2px 8px {$main_color_rgba};
         }
         
         .search-btn {

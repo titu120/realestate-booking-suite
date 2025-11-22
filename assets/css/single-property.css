@@ -632,10 +632,7 @@
     display: block !important;
 }
 
-.single-property .location-feature:hover {
-    transform: translateY(-4px) !important;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1) !important;
-}
+
 
 .single-property .location-feature i {
     font-size: 2rem !important;
@@ -961,10 +958,7 @@
     display: block !important;
 }
 
-.single-property .property-card:hover {
-    transform: translateY(-5px) !important;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1) !important;
-}
+
 
 .single-property .property-image {
     position: relative !important;
@@ -2071,7 +2065,7 @@
     border: 1px solid var(--rebs-medium-gray) !important;
     cursor: pointer !important;
     display: inline-block !important;
-    color: #059669;
+    color: #fff;
 }
 
 /* Breadcrumb */

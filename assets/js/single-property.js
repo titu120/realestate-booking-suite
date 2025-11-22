@@ -6,14 +6,35 @@ let currentImageIndex = 0;
 
 // Wait for window.galleryImages to be available
 function initializeGalleryImages() {
+    // First priority: Direct from template (most reliable)
+    if (window.galleryImagesFromTemplate && window.galleryImagesFromTemplate.length > 0) {
+        galleryImages = window.galleryImagesFromTemplate;
+        window.galleryImages = window.galleryImagesFromTemplate;
+        // Also update resbs_ajax if it exists
+        if (typeof resbs_ajax !== 'undefined') {
+            resbs_ajax.gallery_images = window.galleryImagesFromTemplate;
+        }
+        return;
+    }
+    
+    // Second priority: Get from wp_localize_script data
+    if (typeof resbs_ajax !== 'undefined' && resbs_ajax.gallery_images && resbs_ajax.gallery_images.length > 0) {
+        galleryImages = resbs_ajax.gallery_images;
+        window.galleryImages = resbs_ajax.gallery_images;
+        return;
+    }
+    
+    // Third priority: Try window.galleryImages
     if (window.galleryImages && Array.isArray(window.galleryImages) && window.galleryImages.length > 0) {
         galleryImages = window.galleryImages;
-    } else {
-        // Try to get images from gallery elements on the page as fallback
-        const galleryImgs = document.querySelectorAll('.gallery-img');
-        if (galleryImgs.length > 0) {
-            galleryImages = Array.from(galleryImgs).map(img => img.src);
-        }
+        return;
+    }
+    
+    // Last resort: Try to get images from gallery elements on the page
+    const galleryImgs = document.querySelectorAll('.gallery-img, .media-gallery-image');
+    if (galleryImgs.length > 0) {
+        galleryImages = Array.from(galleryImgs).map(img => img.src);
+        window.galleryImages = galleryImages;
     }
 }
 
@@ -108,51 +129,114 @@ function filterAmenities(category) {
     });
 }
 
-// Image Viewer - Enhanced with fallback
-function openImageViewer(index) {
-    // Try to get images from window.galleryImages if local array is empty
+// Image Viewer - Enhanced with fallback (make it global)
+window.openImageViewer = function(index) {
+    // Ensure galleryImages is populated - check all sources
     if (!galleryImages || galleryImages.length === 0) {
-        if (window.galleryImages && window.galleryImages.length > 0) {
+        if (window.galleryImagesFromTemplate && window.galleryImagesFromTemplate.length > 0) {
+            galleryImages = window.galleryImagesFromTemplate;
+            window.galleryImages = window.galleryImagesFromTemplate;
+        } else if (typeof resbs_ajax !== 'undefined' && resbs_ajax.gallery_images && resbs_ajax.gallery_images.length > 0) {
+            galleryImages = resbs_ajax.gallery_images;
+            window.galleryImages = resbs_ajax.gallery_images;
+        } else if (window.galleryImages && window.galleryImages.length > 0) {
             galleryImages = window.galleryImages;
         } else {
-            alert('No images available to display.');
-            return;
+            // Fallback: Extract from DOM
+            const galleryImgs = document.querySelectorAll('.gallery-img, .media-gallery-image');
+            if (galleryImgs.length > 0) {
+                galleryImages = Array.from(galleryImgs).map(img => img.src);
+                window.galleryImages = galleryImages;
+            } else {
+                console.error('No images available to display.');
+                return;
+            }
         }
     }
     
-    if (index >= galleryImages.length) {
+    // Ensure index is valid
+    if (index < 0 || index >= galleryImages.length) {
+        index = 0;
+    }
+    
+    const viewerImage = document.getElementById('viewerImage');
+    const imageViewer = document.getElementById('imageViewer');
+    
+    if (!viewerImage || !imageViewer) {
+        console.error('Image viewer elements not found');
         return;
     }
     
     const imageUrl = galleryImages[index];
     currentImageIndex = index;
-    document.getElementById('viewerImage').src = imageUrl;
-    document.getElementById('imageViewer').classList.add('active');
+    viewerImage.src = imageUrl;
+    imageViewer.classList.add('active');
     document.body.style.overflow = 'hidden';
 }
 
 
-function closeImageViewer() {
-    document.getElementById('imageViewer').classList.remove('active');
-    document.body.style.overflow = 'auto';
+window.closeImageViewer = function() {
+    const imageViewer = document.getElementById('imageViewer');
+    if (imageViewer) {
+        imageViewer.classList.remove('active');
+        document.body.style.overflow = 'auto';
+    }
 }
 
-function nextImage() {
+window.nextImage = function() {
+    // Ensure galleryImages is populated
+    if (!galleryImages || galleryImages.length === 0) {
+        if (typeof resbs_ajax !== 'undefined' && resbs_ajax.gallery_images && resbs_ajax.gallery_images.length > 0) {
+            galleryImages = resbs_ajax.gallery_images;
+        } else if (window.galleryImages && window.galleryImages.length > 0) {
+            galleryImages = window.galleryImages;
+        } else {
+            return;
+        }
+    }
+    
     currentImageIndex = (currentImageIndex + 1) % galleryImages.length;
-    document.getElementById('viewerImage').src = galleryImages[currentImageIndex];
+    const viewerImage = document.getElementById('viewerImage');
+    if (viewerImage && galleryImages[currentImageIndex]) {
+        viewerImage.src = galleryImages[currentImageIndex];
+    }
 }
 
-function prevImage() {
+window.prevImage = function() {
+    // Ensure galleryImages is populated
+    if (!galleryImages || galleryImages.length === 0) {
+        if (typeof resbs_ajax !== 'undefined' && resbs_ajax.gallery_images && resbs_ajax.gallery_images.length > 0) {
+            galleryImages = resbs_ajax.gallery_images;
+        } else if (window.galleryImages && window.galleryImages.length > 0) {
+            galleryImages = window.galleryImages;
+        } else {
+            return;
+        }
+    }
+    
     currentImageIndex = (currentImageIndex - 1 + galleryImages.length) % galleryImages.length;
-    document.getElementById('viewerImage').src = galleryImages[currentImageIndex];
+    const viewerImage = document.getElementById('viewerImage');
+    if (viewerImage && galleryImages[currentImageIndex]) {
+        viewerImage.src = galleryImages[currentImageIndex];
+    }
 }
 
 // Keyboard navigation for image viewer
 document.addEventListener('keydown', function(e) {
-    if (document.getElementById('imageViewer').classList.contains('active')) {
-        if (e.key === 'ArrowRight') nextImage();
-        if (e.key === 'ArrowLeft') prevImage();
-        if (e.key === 'Escape') closeImageViewer();
+    const imageViewer = document.getElementById('imageViewer');
+    if (imageViewer && imageViewer.classList.contains('active')) {
+        if (e.key === 'ArrowRight') {
+            e.preventDefault();
+            nextImage();
+        }
+        if (e.key === 'ArrowLeft') {
+            e.preventDefault();
+            prevImage();
+        }
+        if (e.key === 'Escape') {
+            e.preventDefault();
+            closeImageViewer();
+        }
     }
 });
 
@@ -512,8 +596,18 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Add click handlers to gallery images as fallback
     document.querySelectorAll('.gallery-img').forEach((img, index) => {
+        // Remove existing onclick attribute to avoid conflicts
+        img.removeAttribute('onclick');
+        img.style.cursor = 'pointer';
+        
         img.addEventListener('click', function(e) {
             e.preventDefault();
+            e.stopPropagation();
+            
+            // Ensure galleryImages is initialized
+            if (!galleryImages || galleryImages.length === 0) {
+                initializeGalleryImages();
+            }
             
             // Try the main image viewer first
             if (galleryImages && galleryImages.length > 0) {
@@ -524,6 +618,29 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 // Fallback to simple popup
                 showImagePopup(img.src);
+            }
+        });
+    });
+    
+    // Add click handlers to gallery overlay
+    document.querySelectorAll('.gallery-overlay').forEach((overlay, index) => {
+        overlay.removeAttribute('onclick');
+        overlay.style.cursor = 'pointer';
+        
+        overlay.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Ensure galleryImages is initialized
+            if (!galleryImages || galleryImages.length === 0) {
+                initializeGalleryImages();
+            }
+            
+            if (galleryImages && galleryImages.length > 0) {
+                openImageViewer(4); // Start from index 4 (the "+More" overlay)
+            } else if (window.galleryImages && window.galleryImages.length > 0) {
+                galleryImages = window.galleryImages;
+                openImageViewer(4);
             }
         });
     });

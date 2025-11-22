@@ -79,10 +79,44 @@ window.filterAmenities = function(category) {
 
 // Image Viewer - Make them global
 window.openImageViewer = function(index) {
+    // Ensure galleryImages is populated - check all sources
+    if (!galleryImages || galleryImages.length === 0) {
+        if (window.galleryImagesFromTemplate && window.galleryImagesFromTemplate.length > 0) {
+            galleryImages = window.galleryImagesFromTemplate;
+            window.galleryImages = window.galleryImagesFromTemplate;
+        } else if (typeof resbs_ajax !== 'undefined' && resbs_ajax.gallery_images && resbs_ajax.gallery_images.length > 0) {
+            galleryImages = resbs_ajax.gallery_images;
+            window.galleryImages = resbs_ajax.gallery_images;
+        } else if (window.galleryImages && window.galleryImages.length > 0) {
+            galleryImages = window.galleryImages;
+        } else {
+            // Fallback: Extract from DOM
+            const galleryImgs = document.querySelectorAll('.gallery-img, .media-gallery-image');
+            if (galleryImgs.length > 0) {
+                galleryImages = Array.from(galleryImgs).map(img => img.src);
+                window.galleryImages = galleryImages;
+            } else {
+                console.error('No gallery images found');
+                return;
+            }
+        }
+    }
+    
+    // Ensure index is valid
+    if (index < 0 || index >= galleryImages.length) {
+        index = 0;
+    }
+    
     currentImageIndex = index;
     const viewerImage = document.getElementById('viewerImage');
     const imageViewer = document.getElementById('imageViewer');
-    if (viewerImage && imageViewer && galleryImages[index]) {
+    
+    if (!viewerImage || !imageViewer) {
+        console.error('Image viewer elements not found');
+        return;
+    }
+    
+    if (galleryImages[index]) {
         viewerImage.src = galleryImages[index];
         imageViewer.classList.add('active');
         document.body.style.overflow = 'hidden';
@@ -98,6 +132,17 @@ window.closeImageViewer = function() {
 }
 
 window.nextImage = function() {
+    // Ensure galleryImages is populated
+    if (!galleryImages || galleryImages.length === 0) {
+        if (typeof resbs_ajax !== 'undefined' && resbs_ajax.gallery_images && resbs_ajax.gallery_images.length > 0) {
+            galleryImages = resbs_ajax.gallery_images;
+        } else if (window.galleryImages && window.galleryImages.length > 0) {
+            galleryImages = window.galleryImages;
+        } else {
+            return;
+        }
+    }
+    
     currentImageIndex = (currentImageIndex + 1) % galleryImages.length;
     const viewerImage = document.getElementById('viewerImage');
     if (viewerImage && galleryImages[currentImageIndex]) {
@@ -106,6 +151,17 @@ window.nextImage = function() {
 }
 
 window.prevImage = function() {
+    // Ensure galleryImages is populated
+    if (!galleryImages || galleryImages.length === 0) {
+        if (typeof resbs_ajax !== 'undefined' && resbs_ajax.gallery_images && resbs_ajax.gallery_images.length > 0) {
+            galleryImages = resbs_ajax.gallery_images;
+        } else if (window.galleryImages && window.galleryImages.length > 0) {
+            galleryImages = window.galleryImages;
+        } else {
+            return;
+        }
+    }
+    
     currentImageIndex = (currentImageIndex - 1 + galleryImages.length) % galleryImages.length;
     const viewerImage = document.getElementById('viewerImage');
     if (viewerImage && galleryImages[currentImageIndex]) {
@@ -115,10 +171,26 @@ window.prevImage = function() {
 
 // Keyboard navigation for image viewer
 document.addEventListener('keydown', function(e) {
-    if (document.getElementById('imageViewer').classList.contains('active')) {
-        if (e.key === 'ArrowRight') nextImage();
-        if (e.key === 'ArrowLeft') prevImage();
-        if (e.key === 'Escape') closeImageViewer();
+    const imageViewer = document.getElementById('imageViewer');
+    if (imageViewer && imageViewer.classList.contains('active')) {
+        if (e.key === 'ArrowRight') {
+            e.preventDefault();
+            if (typeof window.nextImage === 'function') {
+                window.nextImage();
+            }
+        }
+        if (e.key === 'ArrowLeft') {
+            e.preventDefault();
+            if (typeof window.prevImage === 'function') {
+                window.prevImage();
+            }
+        }
+        if (e.key === 'Escape') {
+            e.preventDefault();
+            if (typeof window.closeImageViewer === 'function') {
+                window.closeImageViewer();
+            }
+        }
     }
 });
 
@@ -297,10 +369,78 @@ document.addEventListener('DOMContentLoaded', function() {
         window.calculateMortgage();
     }
     
-    // Initialize gallery images from PHP data
-    if (window.galleryImagesFromPHP && window.galleryImagesFromPHP.length > 0) {
+    // Initialize gallery images from PHP data - Check multiple sources (priority order)
+    if (window.galleryImagesFromTemplate && window.galleryImagesFromTemplate.length > 0) {
+        // First priority: Direct from template (most reliable)
+        galleryImages = window.galleryImagesFromTemplate;
+        window.galleryImages = window.galleryImagesFromTemplate;
+        // Also update resbs_ajax if it exists
+        if (typeof resbs_ajax !== 'undefined') {
+            resbs_ajax.gallery_images = window.galleryImagesFromTemplate;
+        }
+    } else if (typeof resbs_ajax !== 'undefined' && resbs_ajax.gallery_images && resbs_ajax.gallery_images.length > 0) {
+        // Second priority: Get from wp_localize_script data
+        galleryImages = resbs_ajax.gallery_images;
+        window.galleryImages = resbs_ajax.gallery_images;
+    } else if (window.galleryImagesFromPHP && window.galleryImagesFromPHP.length > 0) {
+        // Third priority: Fallback to window.galleryImagesFromPHP
         initGalleryImages(window.galleryImagesFromPHP);
+    } else {
+        // Last resort: Extract images from DOM
+        const galleryImgs = document.querySelectorAll('.gallery-img, .media-gallery-image');
+        if (galleryImgs.length > 0) {
+            galleryImages = Array.from(galleryImgs).map(img => img.src);
+            window.galleryImages = galleryImages;
+        }
     }
+    
+    // Debug: Log gallery images count (remove in production)
+    if (galleryImages && galleryImages.length > 0) {
+        console.log('Gallery images initialized:', galleryImages.length, 'images');
+    } else {
+        console.warn('No gallery images found!');
+    }
+    
+    // Add click event listeners to gallery images
+    document.querySelectorAll('.gallery-img').forEach((img, index) => {
+        // Remove existing onclick and add event listener
+        img.removeAttribute('onclick');
+        img.style.cursor = 'pointer';
+        img.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (galleryImages && galleryImages.length > 0) {
+                openImageViewer(index);
+            } else if (window.galleryImages && window.galleryImages.length > 0) {
+                galleryImages = window.galleryImages;
+                openImageViewer(index);
+            } else {
+                // Fallback: use image src directly
+                const allImgs = Array.from(document.querySelectorAll('.gallery-img')).map(i => i.src);
+                if (allImgs.length > 0) {
+                    galleryImages = allImgs;
+                    window.galleryImages = allImgs;
+                    openImageViewer(index);
+                }
+            }
+        });
+    });
+    
+    // Add click event listeners to gallery overlay
+    document.querySelectorAll('.gallery-overlay').forEach((overlay, index) => {
+        overlay.removeAttribute('onclick');
+        overlay.style.cursor = 'pointer';
+        overlay.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (galleryImages && galleryImages.length > 0) {
+                openImageViewer(4); // Start from index 4 (the "+More" overlay)
+            } else if (window.galleryImages && window.galleryImages.length > 0) {
+                galleryImages = window.galleryImages;
+                openImageViewer(4);
+            }
+        });
+    });
     
     // Add click event listeners to tab buttons as backup
     document.querySelectorAll('.tab-button').forEach(button => {
