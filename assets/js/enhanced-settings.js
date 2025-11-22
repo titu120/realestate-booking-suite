@@ -1,55 +1,12 @@
-// MINIMAL WORKING VERSION
+// ENHANCED SETTINGS - SIMPLE URL-BASED NAVIGATION
 jQuery(document).ready(function($) {
-    // Tab switching
-    $('.resbs-nav-link').on('click', function(e) {
-        e.preventDefault();
-        
-        // Get tab data
-        var tab = $(this).data('tab');
-        
-        // Don't reload if same tab
-        if ($(this).hasClass('active')) {
-            return;
-        }
-        
-        // Update active state
+    // Tabs now use direct links, no AJAX needed
+    // Just ensure active state is correct on page load
+    var currentTab = window.location.search.match(/[?&]tab=([^&]+)/);
+    if (currentTab) {
         $('.resbs-nav-link').removeClass('active');
-        $(this).addClass('active');
-        
-        // Show loading spinner with minimum time
-        var loadingStartTime = Date.now();
-        $('.resbs-settings-content').html('<div style="text-align: center; padding: 30px;"><div style="display: inline-block; width: 30px; height: 30px; border: 3px solid #f3f3f3; border-top: 3px solid #00a0d2; border-radius: 50%; animation: spin 1s linear infinite;"></div><p style="margin-top: 15px; font-size: 14px;">Loading...</p></div>');
-        
-        // Load tab content via AJAX
-        $.post(ajaxurl, {
-            action: 'resbs_load_tab_content',
-            tab: tab,
-            nonce: resbsEnhancedSettings.nonceLoadTab
-        })
-        .done(function(response) {
-            var loadingTime = Date.now() - loadingStartTime;
-            var minLoadingTime = 500; // Minimum 500ms loading time
-            
-            if (response.success) {
-                // Ensure minimum loading time for smooth UX
-                setTimeout(function() {
-                    $('.resbs-settings-content').html(response.data);
-                }, Math.max(0, minLoadingTime - loadingTime));
-            } else {
-                setTimeout(function() {
-                    $('.resbs-settings-content').html('<div class="notice notice-error"><p>Error loading tab content.</p></div>');
-                }, Math.max(0, minLoadingTime - loadingTime));
-            }
-        })
-        .fail(function(xhr, status, error) {
-            var loadingTime = Date.now() - loadingStartTime;
-            var minLoadingTime = 500;
-            
-            setTimeout(function() {
-                $('.resbs-settings-content').html('<div class="notice notice-error"><p>AJAX Error: ' + error + '</p></div>');
-            }, Math.max(0, minLoadingTime - loadingTime));
-        });
-    });
+        $('.resbs-nav-link[href*="tab=' + currentTab[1] + '"]').addClass('active');
+    }
     
     // Enhanced Color Picker Functionality
     function updateColorHex(colorInput, hexInput) {
@@ -57,29 +14,51 @@ jQuery(document).ready(function($) {
         hexInput.val(color.toUpperCase());
     }
     
-    // Initialize color pickers
-    $('input[type="color"]').each(function() {
+    // Initialize color pickers - Use event delegation for dynamically loaded content
+    $(document).on('input change', 'input[type="color"]', function() {
         var $colorInput = $(this);
-        var $hexInput = $colorInput.siblings('.resbs-color-hex');
-        
-        // Update on color input change
-        $colorInput.on('input change', function() {
+        var $hexInput = $colorInput.closest('td').find('.resbs-color-hex');
+        if ($hexInput.length) {
             updateColorHex($colorInput, $hexInput);
-        });
-        
-        // Update on hex input change
-        $hexInput.on('input', function() {
-            var hex = $(this).val();
-            if (/^#[0-9A-F]{6}$/i.test(hex)) {
+        }
+    });
+    
+    $(document).on('input', '.resbs-color-hex', function() {
+        var $hexInput = $(this);
+        var hex = $hexInput.val();
+        if (/^#[0-9A-F]{6}$/i.test(hex)) {
+            var $colorInput = $hexInput.closest('td').find('input[type="color"]');
+            if ($colorInput.length) {
                 $colorInput.val(hex);
             }
-        });
+        }
+    });
+    
+    $(document).on('click', '.resbs-color-reset', function() {
+        var $button = $(this);
+        var defaultColor = $button.data('default');
+        var $colorInput = $button.closest('td').find('input[type="color"]');
+        var $hexInput = $button.closest('td').find('.resbs-color-hex');
         
-        // Reset button
-        $colorInput.siblings('.resbs-color-reset').on('click', function() {
-            var defaultColor = $(this).data('default');
+        if ($colorInput.length && defaultColor) {
             $colorInput.val(defaultColor);
-            updateColorHex($colorInput, $hexInput);
+            if ($hexInput.length) {
+                updateColorHex($colorInput, $hexInput);
+            }
+        }
+    });
+    
+    // Sync hex input to color input before form submit
+    $(document).on('submit', 'form', function() {
+        $(this).find('.resbs-color-hex').each(function() {
+            var $hexInput = $(this);
+            var hex = $hexInput.val();
+            if (/^#[0-9A-F]{6}$/i.test(hex)) {
+                var $colorInput = $hexInput.closest('td').find('input[type="color"]');
+                if ($colorInput.length) {
+                    $colorInput.val(hex);
+                }
+            }
         });
     });
     

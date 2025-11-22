@@ -273,14 +273,6 @@ class RESBS_Property_Metabox {
                         <span class="resbs-tab-text"><?php esc_html_e('Agent', 'realestate-booking-suite'); ?></span>
                     </button>
                     <button type="button" class="resbs-tab-nav-btn" data-tab="custom-fields" onclick="switchTab('custom-fields')">
-                        <span class="resbs-tab-icon">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" stroke="currentColor" stroke-width="2"/>
-                                <line x1="9" y1="9" x2="15" y2="9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                                <line x1="9" y1="12" x2="15" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                                <line x1="9" y1="15" x2="15" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                            </svg>
-                        </span>
                         <span class="resbs-tab-text"><?php esc_html_e('Custom Fields', 'realestate-booking-suite'); ?></span>
                     </button>
                     <button type="button" class="resbs-tab-nav-btn" data-tab="booking" onclick="switchTab('booking')">
@@ -1460,16 +1452,10 @@ class RESBS_Property_Metabox {
                     <div class="resbs-content-grid">
                         <div class="resbs-content-card">
                             <div class="resbs-card-header">
-                                <div class="resbs-card-icon">
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                        <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                        <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                    </svg>
-                                </div>
+
                                 <div class="resbs-card-title">
                                     <h3><?php esc_html_e('Custom Fields', 'realestate-booking-suite'); ?></h3>
-                                    <p><?php esc_html_e('Additional property information created in Fields Builder', 'realestate-booking-suite'); ?></p>
+                                  
                                 </div>
                             </div>
                             <div class="resbs-card-body" style="padding: 32px;">

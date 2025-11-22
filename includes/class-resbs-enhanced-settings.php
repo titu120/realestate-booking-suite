@@ -238,7 +238,7 @@ class RESBS_Enhanced_Settings {
             'resbs-enhanced-settings',
             RESBS_URL . 'assets/css/enhanced-settings.css',
             array(),
-            '1.0.0'
+            time() // Force reload on every page load
         );
         
         // Minimal enqueue - just what we need
@@ -275,40 +275,86 @@ class RESBS_Enhanced_Settings {
         }
         $this->current_tab = $tab;
         ?>
+        <style>
+        /* FORCE ESTATIK STYLE - INLINE TO OVERRIDE EVERYTHING */
+        .resbs-enhanced-settings { margin: 0 !important; background: #fff !important; }
+        .resbs-enhanced-settings .wrap { margin: 0 !important; padding: 0 !important; max-width: 100% !important; background: #fff !important; }
+        .resbs-settings-container { display: flex !important; margin: 0 !important; background: #fff !important; border: none !important; box-shadow: none !important; width: 100% !important; }
+        .resbs-settings-sidebar { width: 220px !important; background: #fff !important; border-right: 1px solid #e5e5e5 !important; flex-shrink: 0 !important; padding: 0 !important; min-width: 220px !important; }
+        .resbs-settings-nav { background: #fff !important; }
+        .resbs-nav-tabs { background: #fff !important; }
+        .resbs-nav-item { background: #fff !important; }
+        .resbs-nav-link { background: #fff !important; }
+        .resbs-nav-link:hover { background: #f9f9f9 !important; }
+        .resbs-nav-link.active { background: #f9f9f9 !important; }
+        .resbs-nav-tabs { list-style: none !important; margin: 0 !important; padding: 0 !important; }
+        .resbs-nav-item { margin: 0 !important; border-bottom: 1px solid #e5e5e5 !important; }
+        .resbs-nav-link { display: block !important; padding: 12px 20px !important; text-decoration: none !important; color: #555 !important; font-size: 13px !important; font-weight: 600 !important; border-left: 3px solid transparent !important; outline: none !important; border: none !important; border-left: 3px solid transparent !important; }
+        .resbs-nav-link:hover { background: #f9f9f9 !important; color: #23282d !important; outline: none !important; }
+        .resbs-nav-link.active { background: #f9f9f9 !important; color: #23282d !important; font-weight: 600 !important; border-left-color: #46b450 !important; outline: none !important; }
+        .resbs-nav-link:focus { outline: none !important; border: none !important; border-left: 3px solid transparent !important; }
+        .resbs-nav-link:active { outline: none !important; border: none !important; border-left: 3px solid transparent !important; }
+        .resbs-nav-link.active:focus { border-left-color: #46b450 !important; }
+        .resbs-nav-link.active:active { border-left-color: #46b450 !important; }
+        .resbs-settings-content { flex: 1 !important; background: #fff !important; padding: 30px 40px 30px 50px !important; }
+        .resbs-settings-content h2 { margin: 0 0 25px 0 !important; font-size: 23px !important; font-weight: 600 !important; color: #23282d !important; padding: 0 !important; border: none !important; }
+        .resbs-color-picker-group { display: flex !important; align-items: center !important; gap: 10px !important; }
+        .resbs-color-input { width: 50px !important; height: 30px !important; border: 1px solid #8c8f94 !important; border-radius: 3px !important; }
+        .resbs-color-hex { width: 100px !important; padding: 5px 8px !important; border: 1px solid #8c8f94 !important; border-radius: 3px !important; font-size: 13px !important; }
+        .resbs-form-actions { margin-top: 25px !important; display: flex !important; gap: 10px !important; padding-top: 20px !important; border-top: 1px solid #e5e5e5 !important; }
+        .resbs-save-button { background: #2271b1 !important; color: #fff !important; border-color: #2271b1 !important; padding: 0 12px !important; min-height: 30px !important; border-radius: 3px !important; font-size: 13px !important; }
+        .resbs-save-button:hover { background: #135e96 !important; border-color: #135e96 !important; }
+        .resbs-settings-page-title { margin: 0 0 20px 0 !important; padding: 20px 0 0 20px !important; font-size: 23px !important; font-weight: 600 !important; color: #23282d !important; line-height: 1.3 !important; }
+        .resbs-settings-container { margin-top: 0 !important; padding-top: 20px !important; }
+        .resbs-enhanced-settings .wrap { padding-top: 20px !important; }
+        .resbs-settings-content .form-table th { padding: 20px 10px 20px 0 !important; background: #fff !important; }
+        .resbs-settings-content .form-table td { padding: 20px 10px !important; background: #fff !important; }
+        .resbs-settings-content .form-table { background: #fff !important; }
+        .resbs-settings-content form { background: #fff !important; }
+        .resbs-enhanced-settings .wrap { background: #fff !important; }
+        .resbs-settings-container { background: #fff !important; }
+        .resbs-settings-sidebar { background: #fff !important; }
+        .resbs-settings-content { background: #fff !important; }
+        .resbs-nav-link { background: #fff !important; }
+        .resbs-nav-link.active { background: #f9f9f9 !important; }
+        .resbs-settings-content fieldset { background: #fff !important; }
+        .resbs-settings-content label { background: transparent !important; }
+        .resbs-settings-content input, .resbs-settings-content select, .resbs-settings-content textarea { background: #fff !important; }
+        </style>
         <div class="wrap resbs-enhanced-settings">
-
+            <h1 class="resbs-settings-page-title"><?php esc_html_e('Settings', 'realestate-booking-suite'); ?></h1>
             
             <div class="resbs-settings-container">
                 <div class="resbs-settings-sidebar">
                     <div class="resbs-settings-nav">
                         <ul class="resbs-nav-tabs">
                             <li class="resbs-nav-item">
-                                <a href="#" data-tab="general" class="resbs-nav-link <?php echo esc_attr($this->current_tab === 'general' ? 'active' : ''); ?>">
+                                <a href="<?php echo esc_url(add_query_arg(array('page' => 'resbs-settings', 'tab' => 'general'), admin_url('admin.php'))); ?>" class="resbs-nav-link <?php echo esc_attr($this->current_tab === 'general' ? 'active' : ''); ?>">
                                     <span class="resbs-nav-text"><?php esc_html_e('General', 'realestate-booking-suite'); ?></span>
                                 </a>
                             </li>
                             <li class="resbs-nav-item">
-                                <a href="#" data-tab="map" class="resbs-nav-link <?php echo esc_attr($this->current_tab === 'map' ? 'active' : ''); ?>">
+                                <a href="<?php echo esc_url(add_query_arg(array('page' => 'resbs-settings', 'tab' => 'map'), admin_url('admin.php'))); ?>" class="resbs-nav-link <?php echo esc_attr($this->current_tab === 'map' ? 'active' : ''); ?>">
                                     <span class="resbs-nav-text"><?php esc_html_e('Map', 'realestate-booking-suite'); ?></span>
                                 </a>
                             </li>
                             <li class="resbs-nav-item">
-                                <a href="#" data-tab="listings" class="resbs-nav-link <?php echo esc_attr($this->current_tab === 'listings' ? 'active' : ''); ?>">
+                                <a href="<?php echo esc_url(add_query_arg(array('page' => 'resbs-settings', 'tab' => 'listings'), admin_url('admin.php'))); ?>" class="resbs-nav-link <?php echo esc_attr($this->current_tab === 'listings' ? 'active' : ''); ?>">
                                     <span class="resbs-nav-text"><?php esc_html_e('Listings', 'realestate-booking-suite'); ?></span>
                                 </a>
                             </li>
                             <li class="resbs-nav-item">
-                                <a href="#" data-tab="user-profile" class="resbs-nav-link <?php echo esc_attr($this->current_tab === 'user-profile' ? 'active' : ''); ?>">
+                                <a href="<?php echo esc_url(add_query_arg(array('page' => 'resbs-settings', 'tab' => 'user-profile'), admin_url('admin.php'))); ?>" class="resbs-nav-link <?php echo esc_attr($this->current_tab === 'user-profile' ? 'active' : ''); ?>">
                                     <span class="resbs-nav-text"><?php esc_html_e('User profile', 'realestate-booking-suite'); ?></span>
                                 </a>
                             </li>
                             <li class="resbs-nav-item">
-                                <a href="#" data-tab="login-signup" class="resbs-nav-link <?php echo esc_attr($this->current_tab === 'login-signup' ? 'active' : ''); ?>">
+                                <a href="<?php echo esc_url(add_query_arg(array('page' => 'resbs-settings', 'tab' => 'login-signup'), admin_url('admin.php'))); ?>" class="resbs-nav-link <?php echo esc_attr($this->current_tab === 'login-signup' ? 'active' : ''); ?>">
                                     <span class="resbs-nav-text"><?php esc_html_e('Log in & Sign up', 'realestate-booking-suite'); ?></span>
                                 </a>
                             </li>
                             <li class="resbs-nav-item">
-                                <a href="#" data-tab="seo" class="resbs-nav-link <?php echo esc_attr($this->current_tab === 'seo' ? 'active' : ''); ?>">
+                                <a href="<?php echo esc_url(add_query_arg(array('page' => 'resbs-settings', 'tab' => 'seo'), admin_url('admin.php'))); ?>" class="resbs-nav-link <?php echo esc_attr($this->current_tab === 'seo' ? 'active' : ''); ?>">
                                     <span class="resbs-nav-text"><?php esc_html_e('SEO', 'realestate-booking-suite'); ?></span>
                                 </a>
                             </li>
@@ -464,9 +510,11 @@ class RESBS_Enhanced_Settings {
                 <tr>
                     <th scope="row"><label for="resbs_main_color"><?php esc_html_e('Main color', 'realestate-booking-suite'); ?></label></th>
                     <td>
-                        <input type="color" id="resbs_main_color" name="resbs_main_color" value="<?php echo esc_attr(get_option('resbs_main_color', '#28a745')); ?>" style="width: 60px; height: 30px; vertical-align: middle;">
-                        <input type="text" class="resbs-color-hex" value="<?php echo esc_attr(get_option('resbs_main_color', '#28a745')); ?>" placeholder="#28a745" maxlength="7" style="width: 100px; margin-left: 10px;">
-                        <button type="button" class="resbs-color-reset button" data-default="#28a745" style="margin-left: 10px;"><?php esc_html_e('Reset', 'realestate-booking-suite'); ?></button>
+                        <div class="resbs-color-picker-group">
+                            <input type="color" id="resbs_main_color" name="resbs_main_color" value="<?php echo esc_attr(get_option('resbs_main_color', '#28a745')); ?>" class="resbs-color-input">
+                            <input type="text" class="resbs-color-hex" value="<?php echo esc_attr(get_option('resbs_main_color', '#28a745')); ?>" placeholder="#28a745" maxlength="7">
+                            <button type="button" class="resbs-color-reset button" data-default="#28a745"><?php esc_html_e('Reset', 'realestate-booking-suite'); ?></button>
+                        </div>
                         <p class="description"><?php esc_html_e('Large buttons', 'realestate-booking-suite'); ?></p>
                     </td>
                 </tr>
@@ -474,22 +522,24 @@ class RESBS_Enhanced_Settings {
                 <tr>
                     <th scope="row"><label for="resbs_secondary_color"><?php esc_html_e('Secondary color', 'realestate-booking-suite'); ?></label></th>
                     <td>
-                        <input type="color" id="resbs_secondary_color" name="resbs_secondary_color" value="<?php echo esc_attr(get_option('resbs_secondary_color', '#0073aa')); ?>" style="width: 60px; height: 30px; vertical-align: middle;">
-                        <input type="text" class="resbs-color-hex" value="<?php echo esc_attr(get_option('resbs_secondary_color', '#0073aa')); ?>" placeholder="#0073aa" maxlength="7" style="width: 100px; margin-left: 10px;">
-                        <button type="button" class="resbs-color-reset button" data-default="#0073aa" style="margin-left: 10px;"><?php esc_html_e('Reset', 'realestate-booking-suite'); ?></button>
+                        <div class="resbs-color-picker-group">
+                            <input type="color" id="resbs_secondary_color" name="resbs_secondary_color" value="<?php echo esc_attr(get_option('resbs_secondary_color', '#0073aa')); ?>" class="resbs-color-input">
+                            <input type="text" class="resbs-color-hex" value="<?php echo esc_attr(get_option('resbs_secondary_color', '#0073aa')); ?>" placeholder="#0073aa" maxlength="7">
+                            <button type="button" class="resbs-color-reset button" data-default="#0073aa"><?php esc_html_e('Reset', 'realestate-booking-suite'); ?></button>
+                        </div>
                         <p class="description"><?php esc_html_e('Small buttons', 'realestate-booking-suite'); ?></p>
                     </td>
                 </tr>
             </table>
             
-            <div style="margin-top: 20px;">
+            <div class="resbs-form-actions">
                 <button type="submit" class="resbs-save-button"><?php esc_html_e('SAVE CHANGES', 'realestate-booking-suite'); ?></button>
-                <button type="button" class="button button-secondary resbs-reset-button" onclick="if(confirm('<?php esc_attr_e('Are you sure you want to reset all General settings to default values? This cannot be undone.', 'realestate-booking-suite'); ?>')) { document.getElementById('resetGeneralForm').submit(); }" style="margin-left: 10px;"><?php esc_html_e('Reset to Defaults', 'realestate-booking-suite'); ?></button>
+                <button type="button" class="button button-secondary resbs-reset-button" onclick="if(confirm('<?php esc_attr_e('Are you sure you want to reset all General settings to default values? This cannot be undone.', 'realestate-booking-suite'); ?>')) { document.getElementById('resetGeneralForm').submit(); }"><?php esc_html_e('Reset to Defaults', 'realestate-booking-suite'); ?></button>
             </div>
         </form>
         
         <!-- Reset Form -->
-        <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" id="resetGeneralForm" style="display: none;">
+        <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" id="resetGeneralForm" class="resbs-hidden-form">
             <?php wp_nonce_field('resbs_enhanced_settings-options'); ?>
             <input type="hidden" name="action" value="resbs_reset_settings">
             <input type="hidden" name="current_tab" value="general">
@@ -1507,19 +1557,27 @@ class RESBS_Enhanced_Settings {
             update_option('resbs_date_format', sanitize_text_field($_POST['resbs_date_format']));
         }
         
-        // Handle colors
+        // Handle colors - check both color input and hex input
         if (isset($_POST['resbs_main_color'])) {
             $main_color = sanitize_text_field($_POST['resbs_main_color']);
-            // Validate hex color
-            if (preg_match('/^#[a-fA-F0-9]{6}$/', $main_color)) {
+            // Validate hex color (accepts both with and without #)
+            if (preg_match('/^#?[a-fA-F0-9]{6}$/', $main_color)) {
+                // Ensure it starts with #
+                if (substr($main_color, 0, 1) !== '#') {
+                    $main_color = '#' . $main_color;
+                }
                 update_option('resbs_main_color', $main_color);
             }
         }
         
         if (isset($_POST['resbs_secondary_color'])) {
             $secondary_color = sanitize_text_field($_POST['resbs_secondary_color']);
-            // Validate hex color
-            if (preg_match('/^#[a-fA-F0-9]{6}$/', $secondary_color)) {
+            // Validate hex color (accepts both with and without #)
+            if (preg_match('/^#?[a-fA-F0-9]{6}$/', $secondary_color)) {
+                // Ensure it starts with #
+                if (substr($secondary_color, 0, 1) !== '#') {
+                    $secondary_color = '#' . $secondary_color;
+                }
                 update_option('resbs_secondary_color', $secondary_color);
             }
         }
@@ -2727,22 +2785,6 @@ class RESBS_Enhanced_Settings {
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <!-- Info Box -->
-            <div style="background: #e7f5ff; border-left: 4px solid #0073aa; padding: 15px 20px; margin: 20px 0; border-radius: 4px;">
-                <h3 style="margin: 0 0 10px 0; font-size: 16px;">
-                    <span class="dashicons dashicons-info" style="vertical-align: middle; color: #0073aa;"></span>
-                    <?php esc_html_e('What is Fields Builder?', 'realestate-booking-suite'); ?>
-                </h3>
-                <p style="margin: 0; color: #333; line-height: 1.6;">
-                    <?php esc_html_e('Fields Builder allows you to create custom fields for your properties without coding. These fields will appear in the "Custom Fields" tab when editing any property. You can add extra information like "Pet Friendly", "Energy Rating", "HOA Fees", or any other data specific to your real estate business.', 'realestate-booking-suite'); ?>
-                </p>
-                <p style="margin: 10px 0 0 0; color: #666; font-size: 13px;">
-                    <strong><?php esc_html_e('Where do custom fields appear?', 'realestate-booking-suite'); ?></strong><br>
-                    <?php esc_html_e('1. In the WordPress admin: When editing a property, go to the "Custom Fields" tab in the Property Information section.', 'realestate-booking-suite'); ?><br>
-                    <?php esc_html_e('2. The data is saved with each property and can be displayed on your website using custom code or templates.', 'realestate-booking-suite'); ?>
-                </p>
             </div>
 
             <!-- Main Content -->

@@ -3184,4 +3184,8 @@ p.property-date i {
 p.property-location {
     margin: 0;
 }
-
+a:focus{
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+}

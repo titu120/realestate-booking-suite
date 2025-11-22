@@ -1,80 +1,35 @@
-/* Estatik-style Settings Design */
+/* Estatik-Style Settings Design - FORCE OVERRIDE */
 .resbs-enhanced-settings {
-    margin: 0;
-    background: #f1f1f1;
+    margin: 0 !important;
+    background: #fff !important;
 }
 
-/* Header - Modern Professional */
-.resbs-settings-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    padding: 30px 40px;
-    margin: -20px -20px 30px -20px;
-    color: white;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+.resbs-enhanced-settings .wrap {
+    margin: 0 !important;
+    padding: 0 !important;
+    max-width: 100% !important;
 }
 
-.resbs-header-left h1 {
-    margin: 0;
-    font-size: 28px;
-    font-weight: 300;
-    color: white;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.resbs-plugin-branding {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.resbs-logo-container {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    background: rgba(255,255,255,0.1);
-    padding: 10px 15px;
-    border-radius: 8px;
-    backdrop-filter: blur(10px);
-}
-
-.resbs-logo-icon {
-    font-size: 24px;
-    color: white;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
-}
-
-.resbs-plugin-name {
-    font-size: 16px;
-    font-weight: 600;
-    color: white;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.resbs-plugin-version {
-    font-size: 12px;
-    color: rgba(255,255,255,0.8);
-    text-shadow: 0 1px 2px rgba(0,0,0,0.1);
-}
-
-/* Container Layout - Modern Card Style */
+/* Container Layout - Estatik Style */
 .resbs-settings-container {
-    display: flex;
-    margin: 30px;
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-    overflow: hidden;
-    min-height: 600px;
+    display: flex !important;
+    margin: 0 !important;
+    background: #fff !important;
+    border: none !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+    min-height: auto !important;
+    width: 100% !important;
 }
 
-/* Sidebar - Modern Professional */
+/* Sidebar - Estatik Style */
 .resbs-settings-sidebar {
-    width: 250px;
-    background: linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%);
-    border-right: 1px solid #e9ecef;
+    width: 220px !important;
+    background: #fff !important;
+    border-right: 1px solid #e5e5e5 !important;
+    flex-shrink: 0 !important;
+    padding: 0 !important;
+    min-width: 220px !important;
 }
 
 .resbs-settings-nav {
@@ -84,83 +39,79 @@
 .resbs-nav-tabs {
     list-style: none;
     margin: 0;
-    padding: 20px 0;
+    padding: 0;
 }
 
 .resbs-nav-item {
     margin: 0;
+    border-bottom: 1px solid #e5e5e5;
 }
 
 .resbs-nav-link {
     display: block;
-    padding: 15px 25px;
+    padding: 12px 20px;
     text-decoration: none;
-    color: #6c757d;
-    font-size: 14px;
-    font-weight: 500;
-    transition: all 0.3s ease;
+    color: #555;
+    font-size: 13px;
+    font-weight: 400;
+    transition: none;
     position: relative;
     border-left: 3px solid transparent;
+    cursor: pointer;
 }
 
 .resbs-nav-link:hover {
-    background: rgba(102, 126, 234, 0.1);
-    color: #667eea;
-    border-left-color: rgba(102, 126, 234, 0.3);
+    background: #f9f9f9;
+    color: #23282d;
 }
 
 .resbs-nav-link.active {
-    background: rgba(102, 126, 234, 0.15);
-    color: #667eea;
-    font-weight: 600;
-    border-left-color: #667eea;
+    background: #f9f9f9 !important;
+    color: #23282d !important;
+    font-weight: 600 !important;
+    border-left-color: #46b450 !important;
 }
 
 .resbs-nav-text {
-    font-size: 14px;
+    font-size: 13px;
+    line-height: 1.5;
 }
 
-/* Content Area - Modern Professional */
+/* Content Area - Estatik Style */
 .resbs-settings-content {
     flex: 1;
-    background: white;
-    padding: 40px;
-    min-height: 600px;
+    background: #fff;
+    padding: 30px 40px;
+    min-height: auto;
 }
 
 .resbs-settings-content h2 {
-    margin: 0 0 30px 0;
-    font-size: 24px;
-    font-weight: 300;
-    color: #2c3e50;
-    padding-bottom: 15px;
-    border-bottom: 2px solid #e9ecef;
-    position: relative;
+    margin: 0 0 25px 0;
+    font-size: 23px;
+    font-weight: 400;
+    color: #23282d;
+    padding: 0;
+    border: none;
+    line-height: 1.3;
 }
 
-.resbs-settings-content h2::after {
-    content: '';
-    position: absolute;
-    bottom: -2px;
-    left: 0;
-    width: 50px;
-    height: 2px;
-    background: linear-gradient(90deg, #667eea, #764ba2);
-}
-
-/* Form Styling - Simple WordPress Table Style */
+/* Form Styling - Estatik Style */
 .resbs-settings-content .form-table {
     margin-top: 0;
+    width: 100%;
 }
 
 .resbs-settings-content .form-table th {
     width: 200px;
-    padding: 20px 10px 20px 0;
+    padding: 15px 10px 15px 0;
     font-weight: 600;
+    color: #23282d;
+    vertical-align: top;
 }
 
 .resbs-settings-content .form-table td {
     padding: 15px 10px;
+    vertical-align: top;
 }
 
 .resbs-settings-content .form-table fieldset {
@@ -172,163 +123,136 @@
 .resbs-settings-content .form-table fieldset label {
     display: block;
     margin-bottom: 8px;
+    font-weight: 400;
+}
+
+.resbs-settings-content .form-table fieldset label input[type="radio"] {
+    margin-right: 5px;
+}
+
+/* Color Picker Group - Estatik Style */
+.resbs-color-picker-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.resbs-color-input {
+    width: 50px;
+    height: 30px;
+    vertical-align: middle;
+    border: 1px solid #8c8f94;
+    border-radius: 3px;
+    cursor: pointer;
+    padding: 0;
 }
 
 .resbs-color-hex {
+    width: 100px;
     font-family: 'Courier New', monospace;
     text-transform: uppercase;
-}
-
-
-/* Layout Options - Simple Style */
-.resbs-layout-options {
-    display: flex;
-    gap: 15px;
-    flex-wrap: wrap;
-    margin-top: 10px;
-}
-
-.resbs-layout-option {
-    border: 1px solid #ddd;
+    padding: 5px 8px;
+    border: 1px solid #8c8f94;
     border-radius: 3px;
-    padding: 15px;
-    text-align: center;
-    cursor: pointer;
-    transition: none;
-    min-width: 100px;
-    background: #fff;
-}
-
-.resbs-layout-option:hover {
-    border-color: #5b9dd9;
-}
-
-.resbs-layout-option.selected {
-    border-color: #00a0d2;
-    background: #f0f8fc;
-}
-
-.resbs-layout-preview {
-    font-weight: bold;
-    margin-bottom: 8px;
-    color: #333;
-    font-size: 14px;
-}
-
-/* Checkbox Groups */
-.resbs-checkbox-group {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-top: 10px;
-}
-
-/* Checkbox and Radio Styling - Modern with Clear Indicators */
-.resbs-checkbox-group {
-    display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
-    margin-top: 15px;
-}
-
-
-/* Page Creation Cards - Simple Style */
-.resbs-page-creation-card {
-    background: #f9f9f9;
-    border: 1px solid #ddd;
-    border-radius: 3px;
-    padding: 15px;
-    margin: 15px 0;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-.resbs-page-icon {
-    width: 32px;
-    height: 32px;
-    background: #00a0d2;
-    border-radius: 3px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 16px;
-}
-
-.resbs-page-info h4 {
-    margin: 0 0 5px 0;
-    color: #23282d;
-    font-size: 14px;
-}
-
-.resbs-page-info p {
-    margin: 0;
-    color: #666;
     font-size: 13px;
 }
 
-.resbs-create-page-btn {
-    background: #00a0d2;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 3px;
-    cursor: pointer;
+.resbs-color-reset {
+    margin-left: 0;
+    padding: 5px 12px;
+    height: auto;
     font-size: 13px;
 }
 
-.resbs-create-page-btn:hover {
-    background: #0085ba;
+/* Form Actions - Estatik Style */
+.resbs-form-actions {
+    margin-top: 25px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    padding-top: 20px;
+    border-top: 1px solid #e5e5e5;
 }
 
-/* Save Button - WordPress Style */
 .resbs-save-button {
     background: #2271b1;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 4px;
+    color: #fff;
+    border-color: #2271b1;
+    padding: 0 12px;
+    min-height: 30px;
+    border-radius: 3px;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 400;
+    text-decoration: none;
+    display: inline-block;
+    border-style: solid;
+    border-width: 1px;
 }
 
 .resbs-save-button:hover {
     background: #135e96;
+    border-color: #135e96;
+    color: #fff;
 }
 
-/* Description Text - Simple */
-.resbs-description {
+.resbs-reset-button {
+    margin-left: 0;
+}
+
+/* Hidden Form */
+.resbs-hidden-form {
+    display: none;
+}
+
+/* Description Text */
+.resbs-settings-content .description {
     font-size: 13px;
     color: #646970;
     margin-top: 6px;
     line-height: 1.5;
+    font-style: normal;
 }
 
-/* Pro Tag - Simple */
-.resbs-pro-tag {
-    background: #f0b849;
-    color: #23282d;
-    font-size: 11px;
-    padding: 2px 6px;
+/* Input Fields */
+.resbs-settings-content input[type="text"],
+.resbs-settings-content input[type="email"],
+.resbs-settings-content input[type="number"],
+.resbs-settings-content select,
+.resbs-settings-content textarea {
+    width: 100%;
+    max-width: 400px;
+    padding: 5px 8px;
+    border: 1px solid #8c8f94;
     border-radius: 3px;
-    margin-left: 8px;
-    font-weight: 600;
+    font-size: 13px;
 }
 
-/* Success Messages */
-.notice.notice-success {
-    background: #d1edcc;
-    color: #155724;
-    border: 1px solid #c3e6cb;
-    border-radius: 3px;
-    padding: 12px;
+.resbs-settings-content .regular-text {
+    width: 100%;
+    max-width: 400px;
+}
+
+/* Notice Messages */
+.resbs-settings-content .notice {
     margin: 15px 0;
+    padding: 12px;
+    border-left: 4px solid;
+    background: #fff;
 }
 
+.resbs-settings-content .notice.notice-success {
+    border-left-color: #46b450;
+    background: #f7fcf0;
+}
 
-/* Responsive Design */
+.resbs-settings-content .notice.notice-error {
+    border-left-color: #dc3232;
+    background: #fef7f1;
+}
+
+/* Responsive */
 @media (max-width: 1200px) {
     .resbs-settings-container {
         flex-direction: column;
@@ -336,29 +260,36 @@
     
     .resbs-settings-sidebar {
         width: 100%;
+        border-right: none;
+        border-bottom: 1px solid #e5e5e5;
     }
     
     .resbs-nav-tabs {
         display: flex;
         flex-wrap: wrap;
+        overflow-x: auto;
     }
     
     .resbs-nav-item {
         flex: 1;
         min-width: 150px;
+        border-bottom: none;
+        border-right: 1px solid #e5e5e5;
     }
     
     .resbs-nav-link {
-        border-bottom: none;
-        border-right: 1px solid #e1e1e1;
+        border-left: none;
+        border-bottom: 3px solid transparent;
     }
     
+    .resbs-nav-link.active {
+        border-left: none;
+        border-bottom-color: #46b450;
+    }
 }
-
 
 /* Loading animation */
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
-
