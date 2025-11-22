@@ -21,6 +21,7 @@ class RESBS_Enhanced_Settings {
         add_action('admin_menu', array($this, 'add_admin_menu'));
         add_action('admin_init', array($this, 'register_settings'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
+        add_action('admin_head', array($this, 'add_critical_styles'));
         
         // Fix menu highlighting for All Properties vs My Properties
         add_filter('parent_file', array($this, 'fix_properties_menu_highlight'));
@@ -241,6 +242,43 @@ class RESBS_Enhanced_Settings {
             time() // Force reload on every page load
         );
         
+        // Add critical override styles inline (WordPress-approved method)
+        $critical_css = '
+        /* FORCE ESTATIK STYLE - INLINE TO OVERRIDE EVERYTHING */
+        .resbs-enhanced-settings { margin: 0 !important; background: #fff !important; }
+        .resbs-enhanced-settings .wrap { margin: 0 !important; padding: 0 !important; max-width: 100% !important; background: #fff !important; padding-top: 20px !important; }
+        .resbs-settings-container { display: flex !important; margin: 0 !important; background: #fff !important; border: none !important; box-shadow: none !important; width: 100% !important; margin-top: 0 !important; padding-top: 20px !important; }
+        .resbs-settings-sidebar { width: 220px !important; background: #fff !important; border-right: 1px solid #e5e5e5 !important; flex-shrink: 0 !important; padding: 0 !important; min-width: 220px !important; }
+        .resbs-settings-nav { background: #fff !important; }
+        .resbs-nav-tabs { background: #fff !important; list-style: none !important; margin: 0 !important; padding: 0 !important; }
+        .resbs-nav-item { background: #fff !important; margin: 0 !important; border-bottom: 1px solid #e5e5e5 !important; }
+        .resbs-nav-link { background: #fff !important; display: block !important; padding: 12px 20px !important; text-decoration: none !important; color: #555 !important; font-size: 13px !important; font-weight: 600 !important; border-left: 3px solid transparent !important; outline: none !important; border: none !important; }
+        .resbs-nav-link:hover { background: #f9f9f9 !important; color: #23282d !important; outline: none !important; }
+        .resbs-nav-link.active { background: #f9f9f9 !important; color: #23282d !important; font-weight: 600 !important; border-left-color: #46b450 !important; outline: none !important; }
+        .resbs-nav-link:focus { outline: none !important; border: none !important; border-left: 3px solid transparent !important; }
+        .resbs-nav-link:active { outline: none !important; border: none !important; border-left: 3px solid transparent !important; }
+        .resbs-nav-link.active:focus { border-left-color: #46b450 !important; }
+        .resbs-nav-link.active:active { border-left-color: #46b450 !important; }
+        .resbs-settings-content { flex: 1 !important; background: #fff !important; padding: 30px 40px 30px 50px !important; }
+        .resbs-settings-content h2 { margin: 0 0 25px 0 !important; font-size: 23px !important; font-weight: 600 !important; color: #23282d !important; padding: 0 !important; border: none !important; }
+        .resbs-color-picker-group { display: flex !important; align-items: center !important; gap: 10px !important; }
+        .resbs-color-input { width: 50px !important; height: 30px !important; border: 1px solid #8c8f94 !important; border-radius: 3px !important; }
+        .resbs-color-hex { width: 100px !important; padding: 5px 8px !important; border: 1px solid #8c8f94 !important; border-radius: 3px !important; font-size: 13px !important; }
+        .resbs-form-actions { margin-top: 25px !important; display: flex !important; gap: 10px !important; padding-top: 20px !important; border-top: 1px solid #e5e5e5 !important; }
+        .resbs-save-button { background: #2271b1 !important; color: #fff !important; border-color: #2271b1 !important; padding: 0 12px !important; min-height: 30px !important; border-radius: 3px !important; font-size: 13px !important; }
+        .resbs-save-button:hover { background: #135e96 !important; border-color: #135e96 !important; }
+        .resbs-settings-page-title { margin: 0 0 20px 0 !important; padding: 20px 0 0 20px !important; font-size: 23px !important; font-weight: 600 !important; color: #23282d !important; line-height: 1.3 !important; }
+        .resbs-settings-content .form-table th { padding: 20px 10px 20px 0 !important; background: #fff !important; }
+        .resbs-settings-content .form-table td { padding: 20px 10px !important; background: #fff !important; }
+        .resbs-settings-content .form-table { background: #fff !important; }
+        .resbs-settings-content form { background: #fff !important; }
+        .resbs-settings-sidebar { background: #fff !important; }
+        .resbs-settings-content fieldset { background: #fff !important; }
+        .resbs-settings-content label { background: transparent !important; }
+        .resbs-settings-content input, .resbs-settings-content select, .resbs-settings-content textarea { background: #fff !important; }
+        ';
+        wp_add_inline_style('resbs-enhanced-settings', $critical_css);
+        
         // Minimal enqueue - just what we need
         wp_enqueue_script('jquery');
         
@@ -264,32 +302,24 @@ class RESBS_Enhanced_Settings {
     }
     
     /**
-     * Settings page callback
+     * Add critical styles to admin head (backup method)
      */
-    public function settings_page_callback() {
-        $tab = isset($_GET['tab']) ? sanitize_text_field($_GET['tab']) : 'general';
-        // Validate tab value against allowed tabs
-        $allowed_tabs = array('general', 'map', 'listings', 'user-profile', 'login-signup', 'seo');
-        if (!in_array($tab, $allowed_tabs, true)) {
-            $tab = 'general';
+    public function add_critical_styles() {
+        $screen = get_current_screen();
+        if (!$screen || strpos($screen->id, 'resbs-settings') === false) {
+            return;
         }
-        $this->current_tab = $tab;
-        ?>
-        <style>
+        
+        $critical_css = '
         /* FORCE ESTATIK STYLE - INLINE TO OVERRIDE EVERYTHING */
         .resbs-enhanced-settings { margin: 0 !important; background: #fff !important; }
-        .resbs-enhanced-settings .wrap { margin: 0 !important; padding: 0 !important; max-width: 100% !important; background: #fff !important; }
-        .resbs-settings-container { display: flex !important; margin: 0 !important; background: #fff !important; border: none !important; box-shadow: none !important; width: 100% !important; }
+        .resbs-enhanced-settings .wrap { margin: 0 !important; padding: 0 !important; max-width: 100% !important; background: #fff !important; padding-top: 20px !important; }
+        .resbs-settings-container { display: flex !important; margin: 0 !important; background: #fff !important; border: none !important; box-shadow: none !important; width: 100% !important; margin-top: 0 !important; padding-top: 20px !important; }
         .resbs-settings-sidebar { width: 220px !important; background: #fff !important; border-right: 1px solid #e5e5e5 !important; flex-shrink: 0 !important; padding: 0 !important; min-width: 220px !important; }
         .resbs-settings-nav { background: #fff !important; }
-        .resbs-nav-tabs { background: #fff !important; }
-        .resbs-nav-item { background: #fff !important; }
-        .resbs-nav-link { background: #fff !important; }
-        .resbs-nav-link:hover { background: #f9f9f9 !important; }
-        .resbs-nav-link.active { background: #f9f9f9 !important; }
-        .resbs-nav-tabs { list-style: none !important; margin: 0 !important; padding: 0 !important; }
-        .resbs-nav-item { margin: 0 !important; border-bottom: 1px solid #e5e5e5 !important; }
-        .resbs-nav-link { display: block !important; padding: 12px 20px !important; text-decoration: none !important; color: #555 !important; font-size: 13px !important; font-weight: 600 !important; border-left: 3px solid transparent !important; outline: none !important; border: none !important; border-left: 3px solid transparent !important; }
+        .resbs-nav-tabs { background: #fff !important; list-style: none !important; margin: 0 !important; padding: 0 !important; }
+        .resbs-nav-item { background: #fff !important; margin: 0 !important; border-bottom: 1px solid #e5e5e5 !important; }
+        .resbs-nav-link { background: #fff !important; display: block !important; padding: 12px 20px !important; text-decoration: none !important; color: #555 !important; font-size: 13px !important; font-weight: 600 !important; border-left: 3px solid transparent !important; outline: none !important; border: none !important; }
         .resbs-nav-link:hover { background: #f9f9f9 !important; color: #23282d !important; outline: none !important; }
         .resbs-nav-link.active { background: #f9f9f9 !important; color: #23282d !important; font-weight: 600 !important; border-left-color: #46b450 !important; outline: none !important; }
         .resbs-nav-link:focus { outline: none !important; border: none !important; border-left: 3px solid transparent !important; }
@@ -305,22 +335,34 @@ class RESBS_Enhanced_Settings {
         .resbs-save-button { background: #2271b1 !important; color: #fff !important; border-color: #2271b1 !important; padding: 0 12px !important; min-height: 30px !important; border-radius: 3px !important; font-size: 13px !important; }
         .resbs-save-button:hover { background: #135e96 !important; border-color: #135e96 !important; }
         .resbs-settings-page-title { margin: 0 0 20px 0 !important; padding: 20px 0 0 20px !important; font-size: 23px !important; font-weight: 600 !important; color: #23282d !important; line-height: 1.3 !important; }
-        .resbs-settings-container { margin-top: 0 !important; padding-top: 20px !important; }
-        .resbs-enhanced-settings .wrap { padding-top: 20px !important; }
         .resbs-settings-content .form-table th { padding: 20px 10px 20px 0 !important; background: #fff !important; }
         .resbs-settings-content .form-table td { padding: 20px 10px !important; background: #fff !important; }
         .resbs-settings-content .form-table { background: #fff !important; }
         .resbs-settings-content form { background: #fff !important; }
-        .resbs-enhanced-settings .wrap { background: #fff !important; }
-        .resbs-settings-container { background: #fff !important; }
         .resbs-settings-sidebar { background: #fff !important; }
-        .resbs-settings-content { background: #fff !important; }
-        .resbs-nav-link { background: #fff !important; }
-        .resbs-nav-link.active { background: #f9f9f9 !important; }
         .resbs-settings-content fieldset { background: #fff !important; }
         .resbs-settings-content label { background: transparent !important; }
         .resbs-settings-content input, .resbs-settings-content select, .resbs-settings-content textarea { background: #fff !important; }
-        </style>
+        ';
+        
+        // Output CSS directly (safe - controlled content, no user input)
+        echo '<style id="resbs-enhanced-settings-critical">' . "\n";
+        echo $critical_css;
+        echo '</style>' . "\n";
+    }
+    
+    /**
+     * Settings page callback
+     */
+    public function settings_page_callback() {
+        $tab = isset($_GET['tab']) ? sanitize_text_field($_GET['tab']) : 'general';
+        // Validate tab value against allowed tabs
+        $allowed_tabs = array('general', 'map', 'listings', 'user-profile', 'login-signup', 'seo');
+        if (!in_array($tab, $allowed_tabs, true)) {
+            $tab = 'general';
+        }
+        $this->current_tab = $tab;
+        ?>
         <div class="wrap resbs-enhanced-settings">
             <h1 class="resbs-settings-page-title"><?php esc_html_e('Settings', 'realestate-booking-suite'); ?></h1>
             

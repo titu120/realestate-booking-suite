@@ -679,6 +679,5 @@ jQuery(document).ready(function($) {
     // Initialize on page load
     $(window).on('load', function() {
         // Any additional initialization after page load
-        console.log('Archive page loaded');
     });
 });

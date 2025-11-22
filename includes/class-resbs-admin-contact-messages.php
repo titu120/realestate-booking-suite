@@ -102,12 +102,13 @@ class RESBS_Admin_Contact_Messages {
         // Table name is safe - constructed from $wpdb->prefix (no user input)
         // Using esc_sql for table name and direct query since no user input is involved
         $table_name_escaped = esc_sql($table_name);
-        $contact_messages = $wpdb->get_results("
+        $posts_table = $wpdb->posts;
+        $contact_messages = $wpdb->get_results($wpdb->prepare("
             SELECT cm.*, p.post_title as property_title 
-            FROM `{$table_name_escaped}` cm 
-            LEFT JOIN {$wpdb->posts} p ON cm.property_id = p.ID 
+            FROM `%1s` cm 
+            LEFT JOIN `%1s` p ON cm.property_id = p.ID 
             ORDER BY cm.created_at DESC
-        ");
+        ", $table_name_escaped, $posts_table));
         
         // Create a global nonce for AJAX operations
         $ajax_nonce = wp_create_nonce('resbs_contact_message_admin_action');

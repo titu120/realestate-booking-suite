@@ -91,19 +91,15 @@
     // Quick view function
     function resbsOpenQuickView(propertyId) {
         if (!propertyId || !Number.isInteger(propertyId) || propertyId <= 0) {
-            console.error('Invalid property ID for quick view');
             return;
         }
-        console.log('Opening quick view for property:', propertyId);
     }
     
     // Contact form function
     function resbsOpenContactForm(propertyId) {
         if (!propertyId || !Number.isInteger(propertyId) || propertyId <= 0) {
-            console.error('Invalid property ID for contact form');
             return;
         }
-        console.log('Opening contact form for property:', propertyId);
     }
     
     // Make functions globally available

@@ -1,9 +1,6 @@
 /* RealEstate Booking Suite - JavaScript */
 
 jQuery(document).ready(function($) {
-    console.log('RESBS Main JS loaded!');
-    console.log('WooCommerce AJAX data:', typeof resbs_wc_ajax !== 'undefined' ? resbs_wc_ajax : 'Not available');
-    
     // Admin Metabox Gallery Functionality
     if ($('#resbs_add_gallery').length) {
         var galleryFrame;
@@ -289,7 +286,6 @@ jQuery(document).ready(function($) {
         
         function updateMap(properties) {
             if (typeof google === 'undefined' || !google.maps) {
-                console.log('Google Maps not loaded');
                 return;
             }
             
@@ -532,13 +528,9 @@ jQuery(document).ready(function($) {
     // WooCommerce Integration - Book Now Button
     $(document).on('click', '.resbs-book-now-btn', function(e) {
         e.preventDefault();
-        console.log('Book Now button clicked!');
         
         var button = $(this);
         var propertyId = $('.resbs-single-property').data('property-id');
-        
-        console.log('Property ID:', propertyId);
-        console.log('WooCommerce AJAX data:', typeof resbs_wc_ajax !== 'undefined' ? resbs_wc_ajax : 'Not available');
         
         if (!propertyId) {
             showMessage('Property ID not found.', 'error');
@@ -570,8 +562,6 @@ jQuery(document).ready(function($) {
             return;
         }
         
-        console.log('WooCommerce AJAX data:', resbs_wc_ajax);
-        
         // Get booking form data (use form data if available, otherwise defaults)
         var checkinDate = $('#checkin_date').val() || '';
         var checkoutDate = $('#checkout_date').val() || '';
@@ -598,15 +588,6 @@ jQuery(document).ready(function($) {
         
         button.prop('disabled', true).text('Adding to Cart...');
         
-        console.log('Sending AJAX request with data:', {
-                action: 'resbs_add_to_cart',
-                nonce: resbs_wc_ajax.nonce,
-                property_id: propertyId,
-                checkin_date: checkinDate,
-                checkout_date: checkoutDate,
-                guests: guests
-            });
-            
         $.ajax({
             url: resbs_wc_ajax.ajax_url,
             type: 'POST',
@@ -631,10 +612,7 @@ jQuery(document).ready(function($) {
                 }
             },
             error: function(xhr, status, error) {
-                console.log('AJAX Error:', xhr.responseText);
-                console.log('Status:', status);
-                console.log('Error:', error);
-                showMessage('Error adding property to cart. Please check console for details.', 'error');
+                showMessage('Error adding property to cart. Please try again.', 'error');
             },
             complete: function() {
                 button.prop('disabled', false).text('Book Now');
@@ -642,30 +620,14 @@ jQuery(document).ready(function($) {
         });
     });
     
-    // Check if buttons exist
-    console.log('Validate Dates buttons found:', $('.resbs-booking-submit-btn').length);
-    console.log('Book Now buttons found:', $('.resbs-book-now-btn').length);
-    
-    // Test button clicks
-    $('.resbs-booking-submit-btn').on('click', function() {
-        console.log('Direct click handler - Validate Dates clicked!');
-    });
-    
-    $('.resbs-book-now-btn').on('click', function() {
-        console.log('Direct click handler - Book Now clicked!');
-    });
-    
     // Check Availability Button (in booking form) - Just validates dates
     $(document).on('click', '.resbs-booking-submit-btn', function() {
-        console.log('Validate Dates button clicked!');
         var button = $(this);
         var form = button.closest('.resbs-booking-form');
         
         var checkinDate = form.find('#checkin_date').val();
         var checkoutDate = form.find('#checkout_date').val();
         var guests = form.find('#guests').val();
-        
-        console.log('Form data:', {checkinDate, checkoutDate, guests});
         
         if (!checkinDate || !checkoutDate || !guests) {
             showMessage('Please select check-in and check-out dates.', 'error');

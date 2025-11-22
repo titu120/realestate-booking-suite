@@ -66,12 +66,10 @@
                         }
                     })
                     .catch(error => {
-                        console.log('Geolocation reverse lookup failed:', error);
                         detectCountryByIP();
                     });
             },
             function(error) {
-                console.log('Geolocation permission denied or failed:', error);
                 detectCountryByIP();
             },
             { timeout: 5000, enableHighAccuracy: false }
@@ -90,7 +88,6 @@
                 }
             })
             .catch(error => {
-                console.log('IP-based geolocation failed:', error);
                 fetch('https://api.country.is/')
                     .then(response => response.json())
                     .then(data => {
@@ -98,7 +95,9 @@
                             setTelCodeByCountry(data.country);
                         }
                     })
-                    .catch(err => console.log('Alternative geolocation failed:', err));
+                    .catch(function(err) {
+                        // Alternative geolocation failed - silently continue
+                    });
             });
     }
 })();

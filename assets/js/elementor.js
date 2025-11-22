@@ -1190,7 +1190,6 @@ jQuery(document).ready(function($) {
         // Initialize Google Maps for listings
         if (typeof google !== 'undefined' && google.maps) {
             // Map implementation here
-            console.log('Map view initialized');
         }
     }
 

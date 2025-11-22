@@ -382,7 +382,6 @@
         clearTimeout(autoSaveTimeout);
         autoSaveTimeout = setTimeout(function() {
             // Auto-save could be implemented here
-            console.log('Auto-save triggered');
         }, 2000);
     });
 

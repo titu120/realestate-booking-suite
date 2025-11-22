@@ -768,86 +768,39 @@ class RESBS_Email_Manager {
 
     /**
      * Wrap email in HTML template
+     * WordPress.org compliant - no <style> tags in PHP files
+     * All styles are applied inline for email client compatibility
      */
     private function wrap_html_email($content) {
         $site_name = get_bloginfo('name');
         $site_url = home_url();
         
-        ob_start();
-        ?>
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title><?php echo esc_html($site_name); ?></title>
-            <style>
-                <?php 
-                // Load CSS from external file: assets/css/email-styles.css
-                // Note: <style> tag is required for HTML emails as email clients don't support external CSS files
-                $email_styles = $this->get_email_styles();
-                if ($email_styles) {
-                    // Output CSS content - validate it doesn't contain script tags
-                    // CSS from trusted plugin file, but validate to prevent XSS if file is compromised
-                    if (stripos($email_styles, '<script') === false && stripos($email_styles, 'javascript:') === false) {
-                        echo $email_styles; // Safe to output - no script tags found
-                    } else {
-                        // If script tags found, output empty (shouldn't happen with trusted file)
-                        if (defined('WP_DEBUG') && WP_DEBUG) {
-                            error_log('RESBS Email: CSS file contains potentially dangerous content');
-                        }
-                    }
-                }
-                ?>
-            </style>
-        </head>
-        <body>
-            <div class="resbs-email-container">
-                <div class="resbs-email-header">
-                    <h1><?php echo esc_html($site_name); ?></h1>
-                </div>
-                
-                <div class="resbs-email-content">
-                    <?php echo wp_kses_post($content); ?>
-                </div>
-                
-                <div class="resbs-email-footer">
-                    <p><?php esc_html_e('This email was sent from', 'realestate-booking-suite'); ?> <a href="<?php echo esc_url($site_url); ?>"><?php echo esc_html($site_name); ?></a></p>
-                </div>
-            </div>
-        </body>
-        </html>
-        <?php
-        return ob_get_clean();
-    }
-
-    /**
-     * Get email styles from external CSS file
-     * 
-     * @return string|false CSS content or false on failure
-     */
-    private function get_email_styles() {
-        $css_file = RESBS_PATH . 'assets/css/email-styles.css';
+        // Build HTML email template with inline styles (WordPress.org compliant)
+        // Note: Email clients require inline styles, so we apply them directly to elements
+        // CSS definitions are maintained in assets/css/email-styles.css for reference
+        $html = '<!DOCTYPE html>' . "\n";
+        $html .= '<html>' . "\n";
+        $html .= '<head>' . "\n";
+        $html .= '<meta charset="UTF-8">' . "\n";
+        $html .= '<meta name="viewport" content="width=device-width, initial-scale=1.0">' . "\n";
+        $html .= '<title>' . esc_html($site_name) . '</title>' . "\n";
+        $html .= '</head>' . "\n";
+        $html .= '<body>' . "\n";
+        $html .= '<div class="resbs-email-container" style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif; line-height: 1.6; color: #333; background: #ffffff;">' . "\n";
+        $html .= '<div class="resbs-email-header" style="background: #0073aa; color: #ffffff; padding: 20px; text-align: center; border-radius: 4px 4px 0 0;">' . "\n";
+        $html .= '<h1 style="margin: 0; font-size: 24px; font-weight: 600;">' . esc_html($site_name) . '</h1>' . "\n";
+        $html .= '</div>' . "\n";
+        $html .= '<div class="resbs-email-content" style="padding: 30px 20px; background: #ffffff;">' . "\n";
+        $html .= wp_kses_post($content) . "\n";
+        $html .= '</div>' . "\n";
+        $html .= '<div class="resbs-email-footer" style="background: #f8f9fa; border-top: 1px solid #e9ecef; padding: 20px; text-align: center; border-radius: 0 0 4px 4px;">' . "\n";
+        $html .= '<p style="margin: 0; color: #666; font-size: 12px; line-height: 1.4;">' . esc_html__('This email was sent from', 'realestate-booking-suite') . ' <a href="' . esc_url($site_url) . '" style="color: #0073aa; text-decoration: none;">' . esc_html($site_name) . '</a></p>' . "\n";
+        $html .= '</div>' . "\n";
+        $html .= '</div>' . "\n";
+        $html .= '</body>' . "\n";
+        $html .= '</html>';
         
-        // Check if file exists before reading
-        if (!file_exists($css_file)) {
-            if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log('RESBS Email: CSS file not found: ' . $css_file);
-            }
-            return false;
-        }
-        
-        // Read CSS from external file
-        $css_content = file_get_contents($css_file);
-        
-        if ($css_content === false) {
-            if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log('RESBS Email: Failed to read CSS file: ' . $css_file);
-            }
-            return false;
-        }
-        
-        return $css_content;
+        return $html;
     }
 
     /**

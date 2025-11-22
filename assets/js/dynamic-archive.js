@@ -68,14 +68,10 @@ jQuery(document).ready(function($) {
             success: function(response) {
                 if (response.success) {
                     updateResults(response);
-                } else {
-                    // Silent failure - no alert
-                    console.log('Search failed silently');
                 }
             },
             error: function() {
                 // Silent error - no alert
-                console.log('AJAX error occurred silently');
             },
             complete: function() {
                 isLoading = false;
@@ -199,7 +195,6 @@ jQuery(document).ready(function($) {
     function updatePagination(response) {
         // This would be implemented based on your pagination needs
         // For now, we'll just log the response
-        console.log('Pagination data:', response);
     }
     
     // Show loading state
@@ -217,7 +212,6 @@ jQuery(document).ready(function($) {
     // Show error message - DISABLED to prevent alerts
     function showError(message) {
         // Silent error - no alert
-        console.log('Error (silent):', message);
     }
     
     // Number formatting helper

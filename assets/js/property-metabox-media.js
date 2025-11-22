@@ -9,14 +9,11 @@
     'use strict';
     
     $(document).ready(function() {
-        console.log('📸 WordPress Media Uploader Starting...');
-        
         var galleryImages = [];
         
         // Agent Photo Uploader
         $('#upload-agent-photo').click(function(e) {
             e.preventDefault();
-            console.log('👤 Opening WordPress Media Library for Agent Photo...');
             
             var agentPhotoUploader = wp.media({
                 title: 'Select Agent Photo',
@@ -31,7 +28,6 @@
             
             agentPhotoUploader.on('select', function() {
                 var attachment = agentPhotoUploader.state().get('selection').first().toJSON();
-                console.log('👤 Agent photo selected:', attachment.url);
                 
                 // Update the hidden input
                 $('#property_agent_photo').val(attachment.url);
@@ -54,7 +50,6 @@
         // Remove Agent Photo
         $(document).on('click', '#remove-agent-photo', function(e) {
             e.preventDefault();
-            console.log('🗑️ Removing agent photo...');
             
             // Clear the hidden input
             $('#property_agent_photo').val('');
@@ -71,7 +66,6 @@
         // WordPress Media Uploader
         $('#upload-gallery-button').click(function(e) {
             e.preventDefault();
-            console.log('📁 Opening WordPress Media Library...');
             
             var mediaUploader = wp.media({
                 title: 'Select Property Images',
@@ -86,12 +80,10 @@
             
             mediaUploader.on('select', function() {
                 var selection = mediaUploader.state().get('selection');
-                console.log('📸 Selected images:', selection.length);
                 
                 selection.map(function(attachment) {
                     var attachmentData = attachment.toJSON();
                     galleryImages.push(attachmentData.id);
-                    console.log('➕ Added image:', attachmentData.id, attachmentData.filename);
                 });
                 
                 // Update hidden input
@@ -99,8 +91,6 @@
                 
                 // Display selected images
                 displayGalleryImages();
-                
-                console.log('✅ Success! Added ' + selection.length + ' image(s) to gallery. Click "Update" to save.');
             });
             
             mediaUploader.open();
@@ -136,16 +126,11 @@
             });
             $('#gallery-images').val(galleryImages.join(','));
             displayGalleryImages();
-            console.log('➖ Removed image:', imageId);
         });
-        
-        console.log('📸 WordPress Media Uploader Ready!');
     });
     
     // Function to refresh galleries
     function refreshGalleries() {
-        console.log('Refreshing galleries...');
-        
         // Get current post ID from URL
         var postId = window.location.search.match(/post=(\d+)/);
         if (!postId) return;
@@ -161,33 +146,21 @@
         })
         .then(response => response.json())
         .then(data => {
-            console.log('Gallery data received:', data);
             if (data.success) {
                 // Update gallery grid
                 var galleryGrid = document.getElementById('gallery-grid');
                 if (galleryGrid && data.data.gallery) {
-                    console.log('Updating gallery with HTML:', data.data.gallery);
                     galleryGrid.innerHTML = data.data.gallery;
-                    
-                    // Check if images are now visible
-                    var galleryItems = galleryGrid.querySelectorAll('.resbs-gallery-item');
-                    console.log('Gallery now has', galleryItems.length, 'items');
                 }
                 
                 // Update floor plans grid
                 var floorPlansGrid = document.getElementById('floor-plans-grid');
                 if (floorPlansGrid && data.data.floor_plans) {
-                    console.log('Updating floor plans with HTML:', data.data.floor_plans);
                     floorPlansGrid.innerHTML = data.data.floor_plans;
                 }
-                
-                console.log('Galleries refreshed successfully');
-            } else {
-                console.error('Gallery refresh failed:', data);
             }
         })
         .catch(error => {
-            console.error('Error refreshing galleries:', error);
             // Fallback to page reload
             setTimeout(function() {
                 window.location.reload();
@@ -197,7 +170,6 @@
     
     // Function to show image previews
     function showImagePreviews(files, inputName) {
-        console.log('Showing previews for:', files.length, 'files');
         
         // Determine which gallery to use
         var galleryId = inputName.includes('gallery') ? 'gallery-grid' : 'floor-plans-grid';
@@ -234,26 +206,18 @@
     
     // Handle file inputs
     document.addEventListener('DOMContentLoaded', function() {
-        console.log('=== UPLOAD SYSTEM INITIALIZED ===');
-        
         // Add CSS animations
         var style = document.createElement('style');
         style.textContent = '@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } } @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } } @keyframes fadeIn { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } } .preview-item { transition: all 0.3s ease; } .preview-item:hover { transform: scale(1.05); box-shadow: 0 4px 16px rgba(0,0,0,0.2); }';
         document.head.appendChild(style);
         
         var fileInputs = document.querySelectorAll('input[type="file"]');
-        console.log('Found file inputs:', fileInputs.length);
         
         fileInputs.forEach(function(input, index) {
-            console.log('Setting up input ' + index + ':', input.name);
-            
             input.addEventListener('change', function(e) {
                 var files = e.target.files;
-                console.log('File input changed:', e.target.name, files.length);
                 
                 if (files.length > 0) {
-                    var fileNames = Array.from(files).map(f => f.name).join(', ');
-                    console.log('Files selected:', fileNames);
                     
                     // Update the input area with visual feedback
                     var container = input.closest('div');
@@ -276,10 +240,6 @@
                     
                     // Show preview images immediately
                     showImagePreviews(files, input.name);
-                    
-                    setTimeout(function() {
-                        console.log('Images ready for upload! Click "Update" to save them.');
-                    }, 1000);
                 }
             });
         });
@@ -290,7 +250,6 @@
             document.querySelectorAll('.preview-item').forEach(function(preview) {
                 preview.remove();
             });
-            console.log('Images uploaded successfully! Check the gallery below.');
         }
     });
     
