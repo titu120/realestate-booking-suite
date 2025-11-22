@@ -779,6 +779,13 @@ $property_statuses = get_terms(array(
             $properties_data = array();
             $properties_without_coords = array();
             
+            // DEBUG: Check if query has posts
+            if (!$properties_query->have_posts()) {
+                error_log('RESBS WARNING: properties_query has NO posts! Total found: ' . $properties_query->found_posts);
+            } else {
+                error_log('RESBS: properties_query has posts. Total: ' . $properties_query->found_posts);
+            }
+            
             while ($properties_query->have_posts()): $properties_query->the_post();
                 $property_id = get_the_ID();
                 $property_title = get_the_title();
@@ -869,22 +876,41 @@ $property_statuses = get_terms(array(
                     if (empty($address_string) && $city) {
                         $address_string = $city . ', Bangladesh';
                     }
+                    
+                    // If still empty, try property title (might contain location info)
+                    if (empty($address_string) && !empty($property_title)) {
+                        // Check if title contains location keywords
+                        $title_lower = strtolower($property_title);
+                        $bangladesh_cities = array('dhaka', 'chittagong', 'sylhet', 'comilla', 'feni', 'coxbazar', 'rajshahi', 'khulna', 'barisal', 'rangpur', 'mymensingh');
+                        foreach ($bangladesh_cities as $city_name) {
+                            if (strpos($title_lower, $city_name) !== false) {
+                                $address_string = ucfirst($city_name) . ', Bangladesh';
+                                break;
+                            }
+                        }
+                    }
                 }
                 
                 // ALWAYS add property to data array - even if it needs geocoding
                 // Ensure needs_geocoding is TRUE if no coordinates exist
                 $needs_geocoding = ($lat_float === null || $lng_float === null);
                 
+                // If no address string was built, try to use property title as fallback
+                if (empty($address_string) && !empty($property_title)) {
+                    // Use property title + Bangladesh as last resort
+                    $address_string = $property_title . ', Bangladesh';
+                }
+                
                 $property_data = array(
                     'id' => absint($property_id),
                     'title' => sanitize_text_field($property_title),
-                        'price' => $price ? '$' . number_format(absint($price)) : 'Price on request',
-                        'bedrooms' => $bedrooms ? absint($bedrooms) : '',
-                        'bathrooms' => $bathrooms ? floatval($bathrooms) : '',
-                        'area_sqft' => $area_sqft ? absint($area_sqft) : '',
-                        'permalink' => esc_url_raw(get_permalink()),
-                        'image' => $featured_image ? esc_url_raw($featured_image) : '',
-                        'marker_color' => sanitize_hex_color($marker_color),
+                    'price' => $price ? '$' . number_format(absint($price)) : 'Price on request',
+                    'bedrooms' => $bedrooms ? absint($bedrooms) : '',
+                    'bathrooms' => $bathrooms ? floatval($bathrooms) : '',
+                    'area_sqft' => $area_sqft ? absint($area_sqft) : '',
+                    'permalink' => esc_url_raw(get_permalink()),
+                    'image' => $featured_image ? esc_url_raw($featured_image) : '',
+                    'marker_color' => sanitize_hex_color($marker_color),
                     'days_old' => floatval($days_old),
                     'city' => $city ? sanitize_text_field($city) : '',
                     'address' => $address ? sanitize_text_field($address) : '',
@@ -904,16 +930,32 @@ $property_statuses = get_terms(array(
                     $properties_without_coords[] = $property_data;
                 }
                 
-                // Add ALL properties to the array
+                // Add ALL properties to the array - NO EXCEPTIONS
                 $properties_data[] = $property_data;
+                
+                // Debug each property
+                error_log('RESBS: Added property #' . count($properties_data) . ' - ' . $property_title);
+                error_log('  - Has lat/lng: ' . (isset($property_data['lat']) && isset($property_data['lng']) ? 'YES (' . $property_data['lat'] . ',' . $property_data['lng'] . ')' : 'NO'));
+                error_log('  - City: ' . ($property_data['city'] ?: 'NONE'));
+                error_log('  - Address: ' . ($property_data['address'] ?: 'NONE'));
+                error_log('  - Location name: ' . ($property_data['location_name'] ?: 'NONE'));
+                error_log('  - Full address: ' . ($property_data['full_address'] ?: 'NONE'));
             endwhile;
             wp_reset_postdata();
             
-            if (count($properties_data) > 0) {
-                // Properties data prepared for map rendering
+            // Debug: Log properties count
+            error_log('=== RESBS ARCHIVE SUMMARY ===');
+            error_log('Total properties prepared: ' . count($properties_data));
+            error_log('Properties with coords: ' . count(array_filter($properties_data, function($p) { return isset($p['lat']) && isset($p['lng']); })));
+            error_log('Properties needing geocoding: ' . count(array_filter($properties_data, function($p) { return !empty($p['full_address']); })));
+            
+            if (count($properties_data) === 0) {
+                error_log('❌ ERROR: No properties were added to $properties_data array!');
+                error_log('  - properties_query->found_posts: ' . $properties_query->found_posts);
+                error_log('  - properties_query->post_count: ' . $properties_query->post_count);
             }
             
-            // Pass data to JavaScript via filter (for wp_localize_script)
+            // Pass data to JavaScript via filter (for wp_localize_script) - for backwards compatibility
             add_filter('resbs_archive_js_data', function($data) use ($use_openstreetmap, $properties_data, $map_settings, $map_center_lat, $map_center_lng, $map_zoom) {
                 return array(
                     'use_openstreetmap' => $use_openstreetmap,
@@ -925,6 +967,100 @@ $property_statuses = get_terms(array(
                 );
             }, 10, 1);
             ?>
+            
+            <!-- Pass properties data directly to JavaScript - Store in data attribute that CANNOT be overwritten -->
+            <script type="text/javascript">
+            // CRITICAL: Store data in a way that CANNOT be overwritten
+            // Use a hidden div with data attribute as backup, AND set window variables
+            (function() {
+                'use strict';
+                
+                console.log('🚀🚀🚀 INLINE SCRIPT RUNNING - Setting properties data...');
+                
+                // Get properties data from PHP
+                var propertiesData = <?php echo json_encode($properties_data); ?>;
+                
+                console.log('=== PHP SENDING PROPERTIES DATA ===');
+                console.log('Total properties from PHP:', propertiesData.length);
+                
+                if (propertiesData.length === 0) {
+                    console.error('❌ ERROR: PHP sent ZERO properties!');
+                    return;
+                }
+                
+                // CRITICAL: Store in MULTIPLE places to prevent loss
+                // 1. Store in a hidden div data attribute (cannot be overwritten by JS)
+                var dataDiv = document.createElement('div');
+                dataDiv.id = 'resbs-properties-data-storage';
+                dataDiv.style.display = 'none';
+                dataDiv.setAttribute('data-properties', JSON.stringify(propertiesData));
+                document.body.appendChild(dataDiv);
+                console.log('✅ Stored data in hidden div');
+                
+                // 2. Store in window with a unique key that won't conflict
+                window.RESBS_PROPERTIES_DATA = propertiesData;
+                console.log('✅ Stored in window.RESBS_PROPERTIES_DATA:', window.RESBS_PROPERTIES_DATA.length);
+                
+                // 3. Store in window.resbs_archive
+                if (typeof window.resbs_archive === 'undefined') {
+                    window.resbs_archive = {};
+                }
+                // Preserve existing data
+                var existingData = {
+                    ajax_url: window.resbs_archive.ajax_url || (typeof resbs_archive !== 'undefined' ? resbs_archive.ajax_url : ''),
+                    favorites_nonce: window.resbs_archive.favorites_nonce || (typeof resbs_archive !== 'undefined' ? resbs_archive.favorites_nonce : ''),
+                    translations: window.resbs_archive.translations || (typeof resbs_archive !== 'undefined' ? resbs_archive.translations : {})
+                };
+                
+                // Set properties_data - make it non-writable to prevent overwriting
+                Object.defineProperty(window.resbs_archive, 'properties_data', {
+                    value: propertiesData,
+                    writable: false,
+                    configurable: false,
+                    enumerable: true
+                });
+                
+                window.resbs_archive.use_openstreetmap = <?php echo $use_openstreetmap ? 'true' : 'false'; ?>;
+                window.resbs_archive.map_settings = <?php echo json_encode($map_settings); ?>;
+                window.resbs_archive.map_center_lat = <?php echo floatval($map_center_lat); ?>;
+                window.resbs_archive.map_center_lng = <?php echo floatval($map_center_lng); ?>;
+                window.resbs_archive.map_zoom = <?php echo intval($map_zoom); ?>;
+                window.resbs_archive.ajax_url = existingData.ajax_url;
+                window.resbs_archive.favorites_nonce = existingData.favorites_nonce;
+                window.resbs_archive.translations = existingData.translations;
+                
+                console.log('✅ Set window.resbs_archive.properties_data (LOCKED):', window.resbs_archive.properties_data.length);
+                
+                // 4. Also update global resbs_archive if it exists
+                if (typeof resbs_archive !== 'undefined') {
+                    resbs_archive.properties_data = propertiesData;
+                    resbs_archive.use_openstreetmap = window.resbs_archive.use_openstreetmap;
+                    resbs_archive.map_settings = window.resbs_archive.map_settings;
+                    resbs_archive.map_center_lat = window.resbs_archive.map_center_lat;
+                    resbs_archive.map_center_lng = window.resbs_archive.map_center_lng;
+                    resbs_archive.map_zoom = window.resbs_archive.map_zoom;
+                    console.log('✅ Updated global resbs_archive');
+                }
+                
+                // 5. Set window.propertiesData
+                window.propertiesData = propertiesData;
+                console.log('✅ Set window.propertiesData:', window.propertiesData.length);
+                
+                console.log('✅✅✅ ALL DATA STORED IN MULTIPLE LOCATIONS -', propertiesData.length, 'properties ready!');
+                
+                // Verify data was set correctly
+                console.log('✅ Properties data set!');
+                console.log('  - window.resbs_archive.properties_data:', window.resbs_archive.properties_data ? window.resbs_archive.properties_data.length : 'undefined');
+                console.log('  - window.propertiesData:', window.propertiesData ? window.propertiesData.length : 'undefined');
+                
+                // Store a reference that won't be lost
+                if (propertiesData.length > 0) {
+                    console.log('✅ SUCCESS: ' + propertiesData.length + ' properties ready for map!');
+                } else {
+                    console.error('❌ ERROR: PHP sent 0 properties! Check if properties_query has posts.');
+                }
+            })();
+            </script>
         
         <!-- Pagination -->
         <?php if ($properties_query->max_num_pages > 1): ?>

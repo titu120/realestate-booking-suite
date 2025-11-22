@@ -330,11 +330,44 @@ class RESBS_Template_Assets {
         // Add dynamic inline styles for colors
         $this->add_simple_archive_dynamic_styles();
         
-        // Enqueue archive JS
+        // Get properties data from template via filter (check early for dependencies)
+        $archive_data = apply_filters('resbs_archive_js_data', array());
+        $use_openstreetmap = isset($archive_data['use_openstreetmap']) ? $archive_data['use_openstreetmap'] : true;
+        
+        // Enqueue Leaflet CSS and JS if using OpenStreetMap
+        if ($use_openstreetmap) {
+            // Enqueue Leaflet CSS
+            if (!wp_style_is('leaflet', 'enqueued')) {
+                wp_enqueue_style(
+                    'leaflet',
+                    'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
+                    array(),
+                    '1.9.4'
+                );
+            }
+            
+            // Enqueue Leaflet JS
+            if (!wp_script_is('leaflet', 'enqueued')) {
+                wp_enqueue_script(
+                    'leaflet',
+                    'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
+                    array(),
+                    '1.9.4',
+                    true
+                );
+            }
+        }
+        
+        // Enqueue archive JS - Make sure Leaflet loads first if using OpenStreetMap
+        $dependencies = array('jquery');
+        if ($use_openstreetmap) {
+            $dependencies[] = 'leaflet';
+        }
+        
         wp_enqueue_script(
             'resbs-simple-archive',
             RESBS_URL . 'assets/js/simple-archive.js',
-            array('jquery'),
+            $dependencies,
             '1.0.0',
             true
         );
@@ -357,11 +390,7 @@ class RESBS_Template_Assets {
             true
         );
         
-        // Get properties data from template via filter
-        $archive_data = apply_filters('resbs_archive_js_data', array());
-        
         // Prepare default data
-        $use_openstreetmap = isset($archive_data['use_openstreetmap']) ? $archive_data['use_openstreetmap'] : true;
         $properties_data = isset($archive_data['properties_data']) ? $archive_data['properties_data'] : array();
         $map_settings = isset($archive_data['map_settings']) ? $archive_data['map_settings'] : resbs_get_map_settings('archive');
         $map_center_lat = isset($archive_data['map_center_lat']) ? $archive_data['map_center_lat'] : 23.8103;

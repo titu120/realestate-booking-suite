@@ -5,10 +5,10 @@
 (function() {
     'use strict';
 
-    // Get localized data from WordPress
+    // Get localized data from WordPress (may be empty initially, will be populated by inline script)
     const resbsData = typeof resbs_archive !== 'undefined' ? resbs_archive : {};
     const useOpenStreetMap = resbsData.use_openstreetmap || false;
-    const propertiesData = resbsData.properties_data || [];
+    // Don't set propertiesData here - it will be set by inline script or when map initializes
     const mapSettings = resbsData.map_settings || {};
     const mapCenterLat = parseFloat(resbsData.map_center_lat) || 23.8103;
     const mapCenterLng = parseFloat(resbsData.map_center_lng) || 90.4125;
@@ -206,21 +206,37 @@
 
     // Show Map View - Always show map when clicked
     window.showMapView = function() {
+        console.log('=== showMapView called ===');
         const mapSection = document.querySelector('.map-section');
         const listingsContainer = document.querySelector('.listings-container');
         const viewButtons = document.querySelectorAll('.view-btn');
         const mapToggleBtn = document.getElementById('mapToggleBtn');
         
+        console.log('Map section found?', !!mapSection);
+        console.log('Listings container found?', !!listingsContainer);
+        
         // Remove active class from all view buttons
         viewButtons.forEach(btn => btn.classList.remove('active'));
         
-        // Always show map view
+        // Always show map view - FORCE visibility with inline styles
         if (mapSection) {
             mapSection.classList.remove('map-hidden');
             mapSection.classList.add('map-visible');
+            // Force display with inline style to override any CSS
+            mapSection.style.display = 'block';
+            mapSection.style.visibility = 'visible';
+            mapSection.style.opacity = '1';
+            mapSection.style.width = 'auto';
+            mapSection.style.height = '500px';
+            console.log('Map section classes:', mapSection.className);
+            console.log('Map section computed display:', window.getComputedStyle(mapSection).display);
+        } else {
+            console.error('❌ Map section not found!');
         }
+        
         if (listingsContainer) {
             listingsContainer.classList.add('map-visible');
+            console.log('Listings container classes:', listingsContainer.className);
         }
         
         // Update button states
@@ -228,12 +244,61 @@
         if (mapViewBtn) mapViewBtn.classList.add('active');
         if (mapToggleBtn) mapToggleBtn.classList.add('active');
         
+        console.log('Map should now be visible. Initializing...');
+        
+        // Ensure map container is visible
+        const mapContainer = document.getElementById('googleMap');
+        if (mapContainer) {
+            mapContainer.style.display = 'block';
+            mapContainer.style.visibility = 'visible';
+            mapContainer.style.width = '100%';
+            mapContainer.style.height = '100%';
+            mapContainer.style.minHeight = '500px';
+            console.log('Map container forced visible');
+        } else {
+            console.error('❌ Map container #googleMap not found!');
+        }
         
         // Initialize map if using OpenStreetMap
-        if (useOpenStreetMap && typeof initializeOpenStreetMap === 'function') {
+        // CRITICAL: Get fresh data from window.resbs_archive (set by inline script)
+        function refreshPropertiesData() {
+            // Priority 1: window.resbs_archive (set by inline script - most reliable)
+            if (typeof window.resbs_archive !== 'undefined' && window.resbs_archive.properties_data && Array.isArray(window.resbs_archive.properties_data)) {
+                window.propertiesData = window.resbs_archive.properties_data;
+                console.log('Refreshed from window.resbs_archive:', window.propertiesData.length);
+                return window.propertiesData;
+            }
+            // Priority 2: window.propertiesData (also set by inline script)
+            if (window.propertiesData && Array.isArray(window.propertiesData) && window.propertiesData.length > 0) {
+                console.log('Using existing window.propertiesData:', window.propertiesData.length);
+                return window.propertiesData;
+            }
+            // Priority 3: resbs_archive (from wp_localize_script - might be empty)
+            const resbsData = typeof resbs_archive !== 'undefined' ? resbs_archive : {};
+            if (resbsData.properties_data && Array.isArray(resbsData.properties_data) && resbsData.properties_data.length > 0) {
+                window.propertiesData = resbsData.properties_data;
+                console.log('Refreshed from resbs_archive:', window.propertiesData.length);
+                return window.propertiesData;
+            }
+            console.error('No properties data found in any source!');
+            return [];
+        }
+        
+        const useOpenStreetMap = (typeof window.resbs_archive !== 'undefined' && window.resbs_archive.use_openstreetmap) || 
+                                 (typeof resbs_archive !== 'undefined' && resbs_archive.use_openstreetmap) || 
+                                 false;
+        
+        if (useOpenStreetMap && typeof window.initializeOpenStreetMap === 'function') {
+            // Refresh data immediately before initializing
+            refreshPropertiesData();
+            
+            // Wait a tiny bit to ensure data is set
             setTimeout(function() {
-                initializeOpenStreetMap();
-            }, 300);
+                // Refresh again to be sure
+                refreshPropertiesData();
+                console.log('Calling initializeOpenStreetMap with', window.propertiesData ? window.propertiesData.length : 0, 'properties');
+                window.initializeOpenStreetMap();
+            }, 100);
         }
     };
 
@@ -290,10 +355,60 @@
         
         
         // Initialize map if using OpenStreetMap
-        if (useOpenStreetMap && typeof initializeOpenStreetMap === 'function') {
+        // CRITICAL: Get fresh data from window.resbs_archive (set by inline script)
+        function refreshPropertiesData() {
+            console.log('=== refreshPropertiesData called ===');
+            console.log('window.resbs_archive exists?', typeof window.resbs_archive !== 'undefined');
+            
+            // Priority 1: window.resbs_archive (set by inline script - most reliable)
+            if (typeof window.resbs_archive !== 'undefined' && window.resbs_archive.properties_data) {
+                console.log('window.resbs_archive.properties_data type:', typeof window.resbs_archive.properties_data);
+                console.log('window.resbs_archive.properties_data is array?', Array.isArray(window.resbs_archive.properties_data));
+                console.log('window.resbs_archive.properties_data length:', window.resbs_archive.properties_data ? (Array.isArray(window.resbs_archive.properties_data) ? window.resbs_archive.properties_data.length : 'NOT ARRAY') : 'NULL/UNDEFINED');
+                
+                if (Array.isArray(window.resbs_archive.properties_data) && window.resbs_archive.properties_data.length > 0) {
+                    window.propertiesData = window.resbs_archive.properties_data;
+                    console.log('✅ Refreshed from window.resbs_archive (showMap):', window.propertiesData.length);
+                    return window.propertiesData;
+                } else {
+                    console.warn('⚠️ window.resbs_archive.properties_data is empty or not an array!');
+                    console.log('Full window.resbs_archive:', window.resbs_archive);
+                }
+            }
+            // Priority 2: window.propertiesData (also set by inline script)
+            if (window.propertiesData && Array.isArray(window.propertiesData) && window.propertiesData.length > 0) {
+                console.log('✅ Using existing window.propertiesData (showMap):', window.propertiesData.length);
+                return window.propertiesData;
+            }
+            // Priority 3: resbs_archive (from wp_localize_script - might be empty)
+            const resbsData = typeof resbs_archive !== 'undefined' ? resbs_archive : {};
+            if (resbsData.properties_data && Array.isArray(resbsData.properties_data) && resbsData.properties_data.length > 0) {
+                window.propertiesData = resbsData.properties_data;
+                console.log('✅ Refreshed from resbs_archive (showMap):', window.propertiesData.length);
+                return window.propertiesData;
+            }
+            console.error('❌ No properties data found in any source (showMap)!');
+            console.error('  - window.resbs_archive:', typeof window.resbs_archive);
+            console.error('  - window.propertiesData:', window.propertiesData);
+            console.error('  - resbs_archive:', typeof resbs_archive);
+            return [];
+        }
+        
+        const useOpenStreetMap = (typeof window.resbs_archive !== 'undefined' && window.resbs_archive.use_openstreetmap) || 
+                                 (typeof resbs_archive !== 'undefined' && resbs_archive.use_openstreetmap) || 
+                                 false;
+        
+        if (useOpenStreetMap && typeof window.initializeOpenStreetMap === 'function') {
+            // Refresh data immediately before initializing
+            refreshPropertiesData();
+            
+            // Wait a tiny bit to ensure data is set
             setTimeout(function() {
-                initializeOpenStreetMap();
-            }, 300);
+                // Refresh again to be sure
+                refreshPropertiesData();
+                console.log('Calling initializeOpenStreetMap (showMap) with', window.propertiesData ? window.propertiesData.length : 0, 'properties');
+                window.initializeOpenStreetMap();
+            }, 100);
         }
     };
 
@@ -581,158 +696,385 @@ window.highlightProperty = function(propertyId) {
         
         // Initialize OpenStreetMap (free, no setup required)
         if (useOpenStreetMap) {
-            // Set global properties data
-            window.propertiesData = propertiesData;
-            window.mapInitialized = false;
-            window.resbsMapSettings = mapSettings;
-            
-            // Initialize map when ready
-            if (typeof initializeOpenStreetMap === 'function') {
-                initializeOpenStreetMap();
+            // Get properties data from resbs_archive (set by inline script)
+            // IMPORTANT: Check multiple sources and wait a bit for inline script to run
+            function getPropertiesData() {
+                // Check window.resbs_archive first (set by inline script)
+                if (typeof window.resbs_archive !== 'undefined' && window.resbs_archive.properties_data && window.resbs_archive.properties_data.length > 0) {
+                    console.log('DOMContentLoaded: Found data in window.resbs_archive:', window.resbs_archive.properties_data.length);
+                    return window.resbs_archive.properties_data;
+                }
+                // Check window.propertiesData (also set by inline script)
+                if (window.propertiesData && Array.isArray(window.propertiesData) && window.propertiesData.length > 0) {
+                    console.log('DOMContentLoaded: Found data in window.propertiesData:', window.propertiesData.length);
+                    return window.propertiesData;
+                }
+                // Check resbs_archive (from wp_localize_script - might be empty)
+                const currentResbsData = typeof resbs_archive !== 'undefined' ? resbs_archive : {};
+                if (currentResbsData.properties_data && currentResbsData.properties_data.length > 0) {
+                    console.log('DOMContentLoaded: Found data in resbs_archive:', currentResbsData.properties_data.length);
+                    return currentResbsData.properties_data;
+                }
+                console.warn('DOMContentLoaded: No properties data found yet, will check again when map initializes');
+                return [];
             }
+            
+            const currentPropertiesData = getPropertiesData();
+            
+            // Set global properties data
+            window.propertiesData = currentPropertiesData;
+            window.mapInitialized = false;
+            const currentResbsData = typeof window.resbs_archive !== 'undefined' ? window.resbs_archive : (typeof resbs_archive !== 'undefined' ? resbs_archive : {});
+            window.resbsMapSettings = currentResbsData.map_settings || mapSettings;
+            
+            console.log('DOMContentLoaded: Properties data available:', currentPropertiesData.length);
+            
+            // Don't initialize map on page load - wait for user to click map button
+            // Map will be initialized when showMapView() or showMap() is called
         }
     });
 
     // OpenStreetMap initialization functions (only if using OpenStreetMap)
+    // Note: propertiesData will be loaded from resbs_archive when map initializes
     if (useOpenStreetMap) {
         // Leaflet Variables - Must be global
         window.map = null;
         window.markers = [];
         window.popups = [];
         window.markerClusterGroup = null;
-        window.propertiesData = propertiesData;
+        // Don't set propertiesData here - it will be loaded when map initializes
         window.mapInitialized = false;
         window.resbsMapSettings = mapSettings;
 
         // Initialize OpenStreetMap with Leaflet
         window.initializeOpenStreetMap = function() {
-            if (typeof L === 'undefined') {
-                setTimeout(function() {
-                    if (typeof L !== 'undefined') {
-                        window.initializeOpenStreetMap();
+            // Wait for Leaflet with retries
+            let attempts = 0;
+            const maxAttempts = 25; // 25 attempts = 5 seconds total
+            
+            function checkLeaflet() {
+                if (typeof L !== 'undefined' && typeof L.map === 'function') {
+                    // Leaflet is loaded, proceed with initialization
+                    proceedWithMapInit();
+                } else {
+                    attempts++;
+                    if (attempts < maxAttempts) {
+                        setTimeout(checkLeaflet, 200);
                     } else {
+                        // Only show error if map section is actually visible
+                        const mapSection = document.querySelector('.map-section');
                         const mapContainer = document.getElementById('googleMap');
-                        if (mapContainer && mapContainer.offsetParent !== null) {
-                            showMapError('Map library failed to load. Please refresh the page.');
-                        }
-                    }
-                }, 1000);
-                return;
-            }
-            
-            const mapContainer = document.getElementById('googleMap');
-            if (!mapContainer) {
-                return;
-            }
-            
-            // Check if map already exists
-            if (window.map) {
-                setTimeout(function() {
-                    if (window.map) {
-                        window.map.invalidateSize();
-                    }
-                }, 100);
-                return;
-            }
-            
-            // Separate properties with and without coordinates
-            const propertiesWithCoords = [];
-            const propertiesNeedingGeocode = [];
-            
-            if (window.propertiesData && window.propertiesData.length > 0) {
-                window.propertiesData.forEach(function(property) {
-                    const lat = parseFloat(property.lat);
-                    const lng = parseFloat(property.lng);
-                    
-                    const hasValidCoords = !isNaN(lat) && !isNaN(lng) && 
-                        lat >= -90 && lat <= 90 && 
-                        lng >= -180 && lng <= 180 &&
-                        lat !== 0 && lng !== 0;
-                    
-                    if (hasValidCoords) {
-                        propertiesWithCoords.push(property);
-                    } else {
-                        if (!property.full_address || property.full_address.trim() === '') {
-                            if (property.location_name && property.location_name.trim() !== '') {
-                                property.full_address = property.location_name + ', Bangladesh';
-                            } else if (property.city && property.city.trim() !== '') {
-                                property.full_address = property.city + ', Bangladesh';
-                            } else if (property.address && property.address.trim() !== '') {
-                                property.full_address = property.address + ', Bangladesh';
+                        if (mapSection && mapContainer) {
+                            const computedStyle = window.getComputedStyle(mapSection);
+                            const isVisible = !mapSection.classList.contains('map-hidden') && 
+                                            computedStyle.display !== 'none' && 
+                                            computedStyle.visibility !== 'hidden';
+                            if (isVisible) {
+                                showMapError('Map library failed to load. Please refresh the page.');
                             }
                         }
-                        
-                        if (property.full_address && property.full_address.trim() !== '') {
-                            property.needs_geocoding = true;
-                            propertiesNeedingGeocode.push(property);
+                    }
+                }
+            }
+            
+            function proceedWithMapInit() {
+                const mapContainer = document.getElementById('googleMap');
+                if (!mapContainer) {
+                    console.error('Map container not found!');
+                    return;
+                }
+                
+                // Check if map already exists
+                if (window.map) {
+                    setTimeout(function() {
+                        if (window.map) {
+                            window.map.invalidateSize();
+                        }
+                    }, 100);
+                    return;
+                }
+                
+                // CRITICAL: Read from MULTIPLE sources in order of priority
+                console.log('=== proceedWithMapInit: Reading properties data ===');
+                
+                let propsData = [];
+                
+                // Priority 1: Read from hidden div data attribute (MOST RELIABLE - cannot be overwritten)
+                const dataDiv = document.getElementById('resbs-properties-data-storage');
+                if (dataDiv) {
+                    const storedData = dataDiv.getAttribute('data-properties');
+                    if (storedData) {
+                        try {
+                            propsData = JSON.parse(storedData);
+                            console.log('✅✅✅ Read', propsData.length, 'properties from hidden div (MOST RELIABLE)');
+                        } catch(e) {
+                            console.error('Failed to parse data from div:', e);
                         }
                     }
-                });
-            }
-            
-            // Calculate map center
-            let centerLat = mapCenterLat;
-            let centerLng = mapCenterLng;
-            
-            if (propertiesWithCoords.length > 0) {
-                let minLat = Infinity, maxLat = -Infinity;
-                let minLng = Infinity, maxLng = -Infinity;
+                }
                 
-                propertiesWithCoords.forEach(function(property) {
-                    const lat = parseFloat(property.lat);
-                    const lng = parseFloat(property.lng);
-                    minLat = Math.min(minLat, lat);
-                    maxLat = Math.max(maxLat, lat);
-                    minLng = Math.min(minLng, lng);
-                    maxLng = Math.max(maxLng, lng);
-                });
+                // Priority 2: window.RESBS_PROPERTIES_DATA (unique key, less likely to conflict)
+                if ((!propsData || propsData.length === 0) && typeof window.RESBS_PROPERTIES_DATA !== 'undefined' && Array.isArray(window.RESBS_PROPERTIES_DATA)) {
+                    propsData = window.RESBS_PROPERTIES_DATA;
+                    console.log('✅ Read', propsData.length, 'properties from window.RESBS_PROPERTIES_DATA');
+                }
                 
-                centerLat = (minLat + maxLat) / 2;
-                centerLng = (minLng + maxLng) / 2;
-            }
-            
-            try {
-                const mapZoomLevel = window.resbsMapSettings ? window.resbsMapSettings.zoom : mapZoom;
-                
-                window.map = L.map('googleMap', {
-                    center: [centerLat, centerLng],
-                    zoom: mapZoomLevel,
-                    zoomControl: true
-                });
-                
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-                    maxZoom: 19
-                }).addTo(window.map);
-                
-                // Add markers for properties with coordinates
-                if (propertiesWithCoords.length > 0) {
-                    addLeafletMarkers(propertiesWithCoords);
-                    
-                    if (propertiesWithCoords.length > 1) {
-                        const bounds = L.latLngBounds([]);
-                        propertiesWithCoords.forEach(function(property) {
-                            bounds.extend([parseFloat(property.lat), parseFloat(property.lng)]);
-                        });
-                        window.map.fitBounds(bounds, {padding: [50, 50]});
+                // Priority 3: window.resbs_archive.properties_data
+                if ((!propsData || propsData.length === 0) && typeof window.resbs_archive !== 'undefined' && window.resbs_archive.properties_data) {
+                    if (Array.isArray(window.resbs_archive.properties_data)) {
+                        propsData = window.resbs_archive.properties_data;
+                        console.log('✅ Read', propsData.length, 'properties from window.resbs_archive.properties_data');
+                    } else {
+                        console.warn('⚠️ window.resbs_archive.properties_data exists but is not an array:', typeof window.resbs_archive.properties_data);
                     }
                 }
                 
-                // Geocode properties that need it
-                if (propertiesNeedingGeocode.length > 0) {
-                    geocodePropertiesNominatim(propertiesNeedingGeocode);
+                // Priority 4: window.propertiesData
+                if ((!propsData || propsData.length === 0) && window.propertiesData && Array.isArray(window.propertiesData)) {
+                    propsData = window.propertiesData;
+                    console.log('✅ Read', propsData.length, 'properties from window.propertiesData');
                 }
                 
-                window.mapInitialized = true;
+                // Priority 5: global resbs_archive
+                if ((!propsData || propsData.length === 0) && typeof resbs_archive !== 'undefined' && resbs_archive.properties_data && Array.isArray(resbs_archive.properties_data)) {
+                    propsData = resbs_archive.properties_data;
+                    console.log('✅ Read', propsData.length, 'properties from resbs_archive');
+                }
                 
-            } catch (error) {
-                showMapError('Error initializing map: ' + error.message);
+                // Final check
+                if (!propsData || !Array.isArray(propsData) || propsData.length === 0) {
+                    console.error('❌❌❌ NO DATA FOUND IN ANY SOURCE!');
+                    console.error('  - Hidden div exists?', !!dataDiv);
+                    console.error('  - window.RESBS_PROPERTIES_DATA:', typeof window.RESBS_PROPERTIES_DATA);
+                    console.error('  - window.resbs_archive:', typeof window.resbs_archive);
+                    console.error('  - window.propertiesData:', typeof window.propertiesData);
+                    console.error('  - resbs_archive:', typeof resbs_archive);
+                }
+                
+                // Ensure it's an array
+                if (!Array.isArray(propsData)) {
+                    console.error('❌ propsData is not an array!', typeof propsData);
+                    propsData = [];
+                }
+                
+                // Set global for other functions
+                window.propertiesData = propsData;
+                
+                console.log('Final propsData count:', propsData.length);
+                
+                if (propsData.length === 0) {
+                    console.error('❌ CANNOT PROCEED - NO PROPERTIES DATA!');
+                    const mapContainer = document.getElementById('googleMap');
+                    if (mapContainer) {
+                        const noPropsDiv = document.createElement('div');
+                        noPropsDiv.className = 'resbs-map-no-properties';
+                        noPropsDiv.style.cssText = 'position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); z-index: 1000; text-align: center;';
+                        noPropsDiv.innerHTML = '<p style="margin: 0; color: #666;">No properties with location data found.</p>';
+                        mapContainer.appendChild(noPropsDiv);
+                    }
+                    return;
+                }
+                
+                // Separate properties with and without coordinates
+                const propertiesWithCoords = [];
+                const propertiesNeedingGeocode = [];
+                
+                console.log('=== MAP INITIALIZATION DEBUG ===');
+                console.log('Properties data source:', propsData);
+                console.log('Properties count:', propsData ? propsData.length : 0);
+                if (propsData && propsData.length > 0) {
+                    console.log('First property sample:', JSON.stringify(propsData[0], null, 2));
+                }
+                
+                if (propsData && propsData.length > 0) {
+                    propsData.forEach(function(property, index) {
+                        console.log('Processing property', index + 1, ':', property.title);
+                        console.log('  - Has lat:', property.lat, 'Has lng:', property.lng);
+                        console.log('  - City:', property.city, 'Address:', property.address);
+                        console.log('  - Location name:', property.location_name);
+                        console.log('  - Full address:', property.full_address);
+                        
+                        const lat = property.lat ? parseFloat(property.lat) : NaN;
+                        const lng = property.lng ? parseFloat(property.lng) : NaN;
+                        
+                        const hasValidCoords = !isNaN(lat) && !isNaN(lng) && 
+                            lat >= -90 && lat <= 90 && 
+                            lng >= -180 && lng <= 180 &&
+                            lat !== 0 && lng !== 0;
+                        
+                        if (hasValidCoords) {
+                            console.log('  ✓ Property has valid coordinates:', lat, lng);
+                            propertiesWithCoords.push(property);
+                        } else {
+                            // Try to build address from available data - be very permissive
+                            let addressToUse = property.full_address || '';
+                            
+                            if (!addressToUse || addressToUse.trim() === '') {
+                                if (property.location_name && property.location_name.trim() !== '') {
+                                    addressToUse = property.location_name + ', Bangladesh';
+                                } else if (property.city && property.city.trim() !== '') {
+                                    addressToUse = property.city + ', Bangladesh';
+                                } else if (property.address && property.address.trim() !== '') {
+                                    addressToUse = property.address + ', Bangladesh';
+                                } else if (property.title && property.title.trim() !== '') {
+                                    // Last resort: use property title - extract city name if possible
+                                    const title = property.title.trim();
+                                    const bangladeshCities = ['Dhaka', 'Chittagong', 'Sylhet', 'Comilla', 'Feni', 'Coxbazar', 'Cox\'s Bazar', 'Rajshahi', 'Khulna', 'Barisal', 'Rangpur', 'Mymensingh'];
+                                    let foundCity = '';
+                                    for (let i = 0; i < bangladeshCities.length; i++) {
+                                        if (title.toLowerCase().includes(bangladeshCities[i].toLowerCase())) {
+                                            foundCity = bangladeshCities[i];
+                                            break;
+                                        }
+                                    }
+                                    if (foundCity) {
+                                        addressToUse = foundCity + ', Bangladesh';
+                                    } else {
+                                        addressToUse = title + ', Bangladesh';
+                                    }
+                                }
+                            }
+                            
+                            // ALWAYS add to geocoding if we have ANY address data - be very permissive
+                            if (addressToUse && addressToUse.trim() !== '') {
+                                property.full_address = addressToUse.trim();
+                                property.needs_geocoding = true;
+                                console.log('  → Property will be geocoded:', property.title, '→', property.full_address);
+                                propertiesNeedingGeocode.push(property);
+                            } else {
+                                // Even if no address, try to use title as last resort
+                                if (property.title && property.title.trim() !== '') {
+                                    property.full_address = property.title.trim() + ', Bangladesh';
+                                    property.needs_geocoding = true;
+                                    console.log('  → Property will be geocoded using title:', property.title, '→', property.full_address);
+                                    propertiesNeedingGeocode.push(property);
+                                } else {
+                                    console.warn('  ✗ Property has NO usable data:', property.title, property);
+                                }
+                            }
+                        }
+                    });
+                } else {
+                    console.error('❌ No properties data found in propsData!');
+                }
+                
+                console.log('=== SUMMARY ===');
+                console.log('Properties with coords:', propertiesWithCoords.length);
+                console.log('Properties needing geocoding:', propertiesNeedingGeocode.length);
+                console.log('Total processable:', propertiesWithCoords.length + propertiesNeedingGeocode.length);
+                
+                // Calculate map center
+                let centerLat = mapCenterLat;
+                let centerLng = mapCenterLng;
+                
+                if (propertiesWithCoords.length > 0) {
+                    let minLat = Infinity, maxLat = -Infinity;
+                    let minLng = Infinity, maxLng = -Infinity;
+                    
+                    propertiesWithCoords.forEach(function(property) {
+                        const lat = parseFloat(property.lat);
+                        const lng = parseFloat(property.lng);
+                        minLat = Math.min(minLat, lat);
+                        maxLat = Math.max(maxLat, lat);
+                        minLng = Math.min(minLng, lng);
+                        maxLng = Math.max(maxLng, lng);
+                    });
+                    
+                    centerLat = (minLat + maxLat) / 2;
+                    centerLng = (minLng + maxLng) / 2;
+                }
+                
+                try {
+                    const mapZoomLevel = window.resbsMapSettings ? window.resbsMapSettings.zoom : mapZoom;
+                    
+                    window.map = L.map('googleMap', {
+                        center: [centerLat, centerLng],
+                        zoom: mapZoomLevel,
+                        zoomControl: true
+                    });
+                    
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                        maxZoom: 19
+                    }).addTo(window.map);
+                    
+                    // Add markers for properties with coordinates
+                    if (propertiesWithCoords.length > 0) {
+                        console.log('Adding markers for', propertiesWithCoords.length, 'properties');
+                        addLeafletMarkers(propertiesWithCoords);
+                        
+                        if (propertiesWithCoords.length > 1) {
+                            const bounds = L.latLngBounds([]);
+                            propertiesWithCoords.forEach(function(property) {
+                                bounds.extend([parseFloat(property.lat), parseFloat(property.lng)]);
+                            });
+                            window.map.fitBounds(bounds, {padding: [50, 50]});
+                        } else if (propertiesWithCoords.length === 1) {
+                            // Single property - center on it
+                            window.map.setView([parseFloat(propertiesWithCoords[0].lat), parseFloat(propertiesWithCoords[0].lng)], 13);
+                        }
+                    }
+                    
+                    // Geocode properties that need it
+                    if (propertiesNeedingGeocode.length > 0) {
+                        console.log('Geocoding', propertiesNeedingGeocode.length, 'properties');
+                        geocodePropertiesNominatim(propertiesNeedingGeocode);
+                    }
+                    
+                    // Remove any existing "no properties" message first
+                    const mapContainer = document.getElementById('googleMap');
+                    if (mapContainer) {
+                        const existingMsg = mapContainer.querySelector('.resbs-map-no-properties');
+                        if (existingMsg) existingMsg.remove();
+                    }
+                    
+                    // Only show "no properties" message if we truly have NO properties data at all
+                    if ((!propsData || propsData.length === 0) && propertiesWithCoords.length === 0 && propertiesNeedingGeocode.length === 0) {
+                        console.error('❌ No properties data found at all!');
+                        console.error('  - propsData:', propsData);
+                        console.error('  - Properties with coords:', propertiesWithCoords.length);
+                        console.error('  - Properties needing geocoding:', propertiesNeedingGeocode.length);
+                        
+                        if (mapContainer) {
+                            const noPropsDiv = document.createElement('div');
+                            noPropsDiv.className = 'resbs-map-no-properties';
+                            noPropsDiv.style.cssText = 'position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); z-index: 1000; text-align: center;';
+                            noPropsDiv.innerHTML = '<p style="margin: 0; color: #666;">No properties with location data found.</p>';
+                            mapContainer.appendChild(noPropsDiv);
+                        }
+                    } else if (propertiesWithCoords.length === 0 && propertiesNeedingGeocode.length === 0 && propsData && propsData.length > 0) {
+                        // Properties exist but have no location data - don't show error, just log warning
+                        console.warn('⚠️ Properties exist (' + propsData.length + ') but have no location data.');
+                        console.warn('  - Properties need: city, address, location taxonomy, or lat/lng coordinates');
+                        console.warn('  - Sample property:', propsData[0]);
+                    }
+                    
+                    window.mapInitialized = true;
+                    
+                } catch (error) {
+                    // Only show error if map section is visible
+                    const mapSection = document.querySelector('.map-section');
+                    if (mapSection && !mapSection.classList.contains('map-hidden')) {
+                        const computedStyle = window.getComputedStyle(mapSection);
+                        if (computedStyle.display !== 'none' && computedStyle.visibility !== 'hidden') {
+                            showMapError('Error initializing map: ' + error.message);
+                        }
+                    }
+                }
             }
+            
+            // Start checking for Leaflet
+            checkLeaflet();
         };
 
         // Add Leaflet markers
         function addLeafletMarkers(propertiesArray) {
-            if (!window.map || !propertiesArray || propertiesArray.length === 0) return;
+            if (!window.map || !propertiesArray || propertiesArray.length === 0) {
+                console.warn('Cannot add markers - map:', window.map, 'properties:', propertiesArray);
+                return;
+            }
+            
+            console.log('Adding', propertiesArray.length, 'markers to map');
             
             const mapSettings = window.resbsMapSettings || {};
             const enableCluster = mapSettings.enableCluster || false;
@@ -760,19 +1102,28 @@ window.highlightProperty = function(propertyId) {
             }
             
             // Add markers
+            let markersAdded = 0;
             propertiesArray.forEach(function(property) {
                 if (property.lat && property.lng) {
                     const marker = createLeafletMarker(property);
                     if (marker) {
                         if (enableCluster && window.markerClusterGroup) {
                             window.markerClusterGroup.addLayer(marker);
-                } else {
+                        } else {
                             marker.addTo(window.map);
                         }
                         window.markers.push(marker);
+                        markersAdded++;
+                        console.log('Marker added for:', property.title, property.lat, property.lng);
+                    } else {
+                        console.warn('Failed to create marker for:', property.title);
                     }
+                } else {
+                    console.warn('Property missing coordinates:', property.title);
                 }
             });
+            
+            console.log('Total markers added:', markersAdded);
         }
 
         // Create a Leaflet marker
@@ -834,19 +1185,28 @@ window.highlightProperty = function(propertyId) {
 
         // Geocode properties using Nominatim
         function geocodePropertiesNominatim(propertiesArray) {
-            if (!propertiesArray || propertiesArray.length === 0 || !window.map) return;
+            if (!propertiesArray || propertiesArray.length === 0 || !window.map) {
+                console.warn('geocodePropertiesNominatim: Cannot geocode - no properties or no map');
+                return;
+            }
+            
+            console.log('🚀 Starting geocoding for', propertiesArray.length, 'properties');
             
             let geocodeIndex = 0;
-            const geocodeDelay = 1000;
+            const geocodeDelay = 1000; // 1 second delay to respect API limits
             
             function geocodeNext() {
                 if (geocodeIndex >= propertiesArray.length) {
+                    console.log('✅ Geocoding complete! Updating map bounds...');
                     updateLeafletBounds();
                     return;
                 }
                 
                 const property = propertiesArray[geocodeIndex];
-                if (!property.full_address) {
+                console.log(`📍 Geocoding ${geocodeIndex + 1}/${propertiesArray.length}: "${property.title}" → "${property.full_address}"`);
+                
+                if (!property.full_address || property.full_address.trim() === '') {
+                    console.warn('⚠️ Skipping property (no address):', property.title);
                     geocodeIndex++;
                     setTimeout(geocodeNext, geocodeDelay);
                     return;
@@ -867,6 +1227,8 @@ window.highlightProperty = function(propertyId) {
                         property.lng = parseFloat(result.lon);
                         property.needs_geocoding = false;
                         
+                        console.log('Geocoded property:', property.title, property.lat, property.lng);
+                        
                         const marker = createLeafletMarker(property);
                         if (marker) {
                             const mapSettings = window.resbsMapSettings || {};
@@ -878,12 +1240,27 @@ window.highlightProperty = function(propertyId) {
                                 marker.addTo(window.map);
                             }
                             window.markers.push(marker);
+                            console.log('Marker added after geocoding:', property.title);
+                            
+                            // Update bounds after adding marker
+                            if (window.markers.length > 0) {
+                                const bounds = L.latLngBounds([]);
+                                window.markers.forEach(function(m) {
+                                    bounds.extend(m.getLatLng());
+                                });
+                                window.map.fitBounds(bounds, {padding: [50, 50]});
+                            }
+                        } else {
+                            console.warn('Failed to create marker after geocoding:', property.title);
                         }
+                    } else {
+                        console.warn('Geocoding failed - no results for:', property.full_address);
                     }
                     geocodeIndex++;
                     setTimeout(geocodeNext, geocodeDelay);
                 })
                 .catch(error => {
+                    console.error('Geocoding error for:', property.full_address, error);
                     geocodeIndex++;
                     setTimeout(geocodeNext, geocodeDelay);
                 });
@@ -906,10 +1283,21 @@ window.highlightProperty = function(propertyId) {
             }
         }
 
-        // Show map error
+        // Show map error - only if map section is visible
         function showMapError(message) {
             const mapContainer = document.getElementById('googleMap');
             if (!mapContainer) return;
+            
+            // Only show error if map section is actually visible
+            const mapSection = document.querySelector('.map-section');
+            if (!mapSection || mapSection.classList.contains('map-hidden')) {
+                return;
+            }
+            
+            const computedStyle = window.getComputedStyle(mapSection);
+            if (computedStyle.display === 'none' || computedStyle.visibility === 'hidden') {
+                return;
+            }
             
             const existingError = mapContainer.querySelector('.resbs-map-error');
             if (existingError) existingError.remove();
