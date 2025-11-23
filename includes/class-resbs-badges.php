@@ -181,7 +181,7 @@ class RESBS_Badge_Manager {
         
         // Check nonce
         if (!isset($_POST['resbs_property_badges_nonce']) || 
-            !wp_verify_nonce(sanitize_text_field($_POST['resbs_property_badges_nonce']), 'resbs_property_badges_nonce')) {
+            !isset($_POST['resbs_property_badges_nonce']) || !wp_verify_nonce($_POST['resbs_property_badges_nonce'], 'resbs_property_badges_nonce')) {
             return;
         }
 
@@ -409,9 +409,13 @@ class RESBS_Badge_Manager {
             );
         }
         
+        // CRITICAL: Do NOT sanitize nonce before verification
         // Verify nonce and check capability (combined security check)
+        if (!isset($_POST['resbs_badge_settings_nonce'])) {
+            wp_die(esc_html__('Security check failed.', 'realestate-booking-suite'));
+        }
         RESBS_Security::verify_nonce_and_capability(
-            sanitize_text_field($_POST['resbs_badge_settings_nonce']),
+            $_POST['resbs_badge_settings_nonce'],
             'resbs_badge_settings_nonce',
             'manage_options'
         );

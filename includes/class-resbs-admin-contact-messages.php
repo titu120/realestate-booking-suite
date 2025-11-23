@@ -77,8 +77,8 @@ class RESBS_Admin_Contact_Messages {
             // Sanitize ID first
             $id = intval($_GET['id']);
             
-            // Verify nonce for security (sanitize nonce before verification)
-            $nonce = isset($_GET['_wpnonce']) ? sanitize_text_field($_GET['_wpnonce']) : '';
+            // CRITICAL: Do NOT sanitize nonce before verification
+            $nonce = isset($_GET['_wpnonce']) ? $_GET['_wpnonce'] : '';
             if (empty($nonce) || !wp_verify_nonce($nonce, 'resbs_contact_message_action_' . $id)) {
                 wp_die(esc_html__('Security check failed. Please try again.', 'realestate-booking-suite'));
             }
@@ -100,15 +100,13 @@ class RESBS_Admin_Contact_Messages {
         
         // Get contact messages
         // Table name is safe - constructed from $wpdb->prefix (no user input)
-        // Using esc_sql for table name and direct query since no user input is involved
-        $table_name_escaped = esc_sql($table_name);
-        $posts_table = $wpdb->posts;
+        // Using proper identifier placeholder %i for table names
         $contact_messages = $wpdb->get_results($wpdb->prepare("
             SELECT cm.*, p.post_title as property_title 
-            FROM `%1s` cm 
-            LEFT JOIN `%1s` p ON cm.property_id = p.ID 
+            FROM %i cm 
+            LEFT JOIN %i p ON cm.property_id = p.ID 
             ORDER BY cm.created_at DESC
-        ", $table_name_escaped, $posts_table));
+        ", $table_name, $wpdb->posts));
         
         // Create a global nonce for AJAX operations
         $ajax_nonce = wp_create_nonce('resbs_contact_message_admin_action');
@@ -256,8 +254,8 @@ class RESBS_Admin_Contact_Messages {
             return;
         }
         
-        // Verify nonce (sanitize before verification)
-        $nonce = isset($_POST['nonce']) ? sanitize_text_field($_POST['nonce']) : '';
+        // CRITICAL: Do NOT sanitize nonce before verification
+        $nonce = isset($_POST['nonce']) ? $_POST['nonce'] : '';
         if (empty($nonce) || !wp_verify_nonce($nonce, 'resbs_contact_message_admin_action')) {
             wp_send_json_error(array('message' => esc_html__('Security check failed. Please refresh the page and try again.', 'realestate-booking-suite')));
             return;
@@ -331,8 +329,8 @@ class RESBS_Admin_Contact_Messages {
             return;
         }
         
-        // Verify nonce (sanitize before verification)
-        $nonce = isset($_POST['nonce']) ? sanitize_text_field($_POST['nonce']) : '';
+        // CRITICAL: Do NOT sanitize nonce before verification
+        $nonce = isset($_POST['nonce']) ? $_POST['nonce'] : '';
         if (empty($nonce) || !wp_verify_nonce($nonce, 'resbs_contact_message_admin_action')) {
             wp_send_json_error(array('message' => esc_html__('Security check failed. Please refresh the page and try again.', 'realestate-booking-suite')));
             return;

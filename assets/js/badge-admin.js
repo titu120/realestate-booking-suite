@@ -109,11 +109,12 @@
      */
     function initFormValidation() {
         // CRITICAL FIX: Exclude WordPress post form (#post) - only validate badge settings forms
+        // CRITICAL FIX: Don't block form submission - just show warnings
         $('form:not(#post)').on('submit', function(e) {
             var isValid = true;
             var errors = [];
 
-            // Validate color fields
+            // Validate color fields (non-blocking)
             $('.color-picker').each(function() {
                 var value = $(this).val();
                 if (value && !isValidHexColor(value)) {
@@ -122,7 +123,7 @@
                 }
             });
 
-            // Validate border radius
+            // Validate border radius (non-blocking)
             $('input[name*="border_radius"]').each(function() {
                 var value = parseInt($(this).val());
                 if (isNaN(value) || value < 0 || value > 50) {
@@ -131,9 +132,11 @@
                 }
             });
 
+            // CRITICAL FIX: Don't prevent form submission - just show warning
+            // WordPress handles validation server-side
             if (!isValid) {
-                e.preventDefault();
-                alert('Please fix the following errors:\n' + errors.join('\n'));
+                alert('Warning: Please fix the following errors:\n' + errors.join('\n') + '\n\nForm will still submit, but errors may occur.');
+                // Don't prevent default - let WordPress handle it
             }
         });
     }

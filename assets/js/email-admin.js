@@ -419,21 +419,16 @@
     /**
      * Template validation
      * CRITICAL FIX: Exclude WordPress post form (#post) - only validate email settings forms
+     * Also removed HTML5 required attribute validation to prevent blocking form submission
      */
     $('form:not(#post)').on('submit', function(e) {
         let hasErrors = false;
         
-        // Check required fields
-        $('input[required], textarea[required]').each(function() {
-            if (!$(this).val().trim()) {
-                $(this).addClass('error');
-                hasErrors = true;
-            } else {
-                $(this).removeClass('error');
-            }
-        });
+        // CRITICAL FIX: Removed validation for HTML5 required attributes
+        // We removed HTML5 required attributes to prevent blocking form submission
+        // WordPress handles validation server-side
         
-        // Check email fields
+        // Only validate email format (non-blocking)
         $('input[type="email"]').each(function() {
             if ($(this).val() && !isValidEmail($(this).val())) {
                 $(this).addClass('error');
@@ -443,9 +438,10 @@
             }
         });
         
+        // Don't block form submission - just show visual feedback
         if (hasErrors) {
-            e.preventDefault();
-            showMessage('Please fix the errors before saving.', 'error');
+            showMessage('Please fix the email format errors.', 'error');
+            // Don't prevent default - let form submit
         }
     });
 

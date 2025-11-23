@@ -80,7 +80,8 @@ class RESBS_Contact_Messages {
      */
     public function handle_contact_message_submission() {
         // Verify nonce - check both possible nonce field names for compatibility
-        $nonce = isset($_POST['nonce']) ? sanitize_text_field($_POST['nonce']) : (isset($_POST['resbs_contact_form_nonce']) ? sanitize_text_field($_POST['resbs_contact_form_nonce']) : '');
+        // CRITICAL: Do NOT sanitize nonce before verification
+        $nonce = isset($_POST['nonce']) ? $_POST['nonce'] : (isset($_POST['resbs_contact_form_nonce']) ? $_POST['resbs_contact_form_nonce'] : '');
         if (!wp_verify_nonce($nonce, 'resbs_contact_form')) {
             wp_send_json_error(array('message' => esc_html__('Security check failed. Please refresh the page and try again.', 'realestate-booking-suite')));
             return;

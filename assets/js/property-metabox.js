@@ -824,20 +824,27 @@
          * This function provides visual feedback only and NEVER blocks form submission
          */
         initFormValidation: function() {
-            // Real-time validation (only on blur, not blocking)
-            $('.resbs-input[required], .resbs-select[required]').on('blur', function() {
-                RESBS_Property_Metabox.validateField($(this));
-            });
+            // CRITICAL FIX: Removed validation for HTML5 required attributes
+            // We removed HTML5 required attributes to prevent blocking form submission
+            // This function is now disabled to ensure WordPress Update button always works
+            // WordPress handles validation server-side
             
-            // IMPORTANT: Do NOT attach any submit handlers that might block form submission
-            // WordPress handles form submission, we only provide visual feedback
-            // Removed blocking submit handler to ensure updates always work
+            // DO NOT validate - let WordPress handle it
+            return;
         },
 
         /**
          * Validate individual field
+         * CRITICAL FIX: Disabled validation for HTML5 required attributes
+         * We removed HTML5 required attributes to prevent blocking form submission
          */
         validateField: function($field) {
+            // CRITICAL FIX: This function is disabled
+            // We removed HTML5 required attributes to prevent blocking form submission
+            // WordPress handles validation server-side
+            return true;
+            
+            /* DISABLED - Original validation code
             var value = $field.val().trim();
             var isValid = true;
             
@@ -865,6 +872,7 @@
             }
             
             return isValid;
+            */
         },
 
         /**

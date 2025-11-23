@@ -2213,10 +2213,7 @@ class RESBS_Property_Metabox {
      * Save property metabox data
      */
     public function save_property_metabox($post_id) {
-        // CRITICAL FIX: Make WordPress Update button work
-        // ABSOLUTE MINIMUM CHECKS - only skip autosave
-        
-        // Skip ONLY autosave - allow everything else
+        // Skip autosave
         if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
             return;
         }
@@ -2245,16 +2242,16 @@ class RESBS_Property_Metabox {
         
         $post_id = intval($post_id);
         
-        // Basic permission check
-        if (!current_user_can('edit_post', $post_id)) {
-            // Fallback check
-            if (!current_user_can('edit_posts')) {
-                return;
-            }
+        // SECURITY FIX: Verify nonce to prevent CSRF attacks
+        if (!isset($_POST['resbs_property_metabox_nonce']) || 
+            !wp_verify_nonce($_POST['resbs_property_metabox_nonce'], 'resbs_property_metabox_nonce')) {
+            return;
         }
         
-        // NO NONCE CHECK - WordPress handles security
-        // This ensures Update button always works
+        // SECURITY FIX: Strict capability check - no fallback
+        if (!current_user_can('edit_post', $post_id)) {
+            return;
+        }
         
         // Save property metabox data
         // Define fields to save
@@ -2553,14 +2550,20 @@ class RESBS_Property_Metabox {
 
         // Handle gallery images from WordPress Media Library with better error handling
         if (isset($_POST['gallery_images']) && !empty($_POST['gallery_images'])) {
-            $gallery_image_ids = explode(',', sanitize_text_field($_POST['gallery_images']));
-            $gallery_image_ids = array_map('intval', $gallery_image_ids);
-            $gallery_image_ids = array_filter($gallery_image_ids); // Remove empty values
+            // SECURITY FIX: Validate input before explode
+            $gallery_input = sanitize_text_field($_POST['gallery_images']);
             
-            if (!empty($gallery_image_ids)) {
-                $result = update_post_meta($post_id, '_property_gallery', $gallery_image_ids);
-                if ($result !== false) {
-                    $saved_count++;
+            // Ensure it's a valid comma-separated list of numbers
+            if (preg_match('/^[\d,]+$/', $gallery_input)) {
+                $gallery_image_ids = explode(',', $gallery_input);
+                $gallery_image_ids = array_map('intval', $gallery_image_ids);
+                $gallery_image_ids = array_filter($gallery_image_ids); // Remove empty values
+                
+                if (!empty($gallery_image_ids)) {
+                    $result = update_post_meta($post_id, '_property_gallery', $gallery_image_ids);
+                    if ($result !== false) {
+                        $saved_count++;
+                    }
                 }
             }
         }
@@ -2571,11 +2574,16 @@ class RESBS_Property_Metabox {
 
         // Handle media uploads with better error handling
         if (isset($_POST['property_gallery'])) {
-            // Ensure it's an array before processing
+            // SECURITY FIX: Validate array input before processing
             $gallery_input = $_POST['property_gallery'];
+            
+            // Ensure it's an array before processing
             if (is_array($gallery_input)) {
-                $gallery = array_map('absint', $gallery_input);
+                // Validate all elements are numeric
+                $gallery = array_filter($gallery_input, 'is_numeric');
+                $gallery = array_map('absint', $gallery);
                 $gallery = array_filter($gallery); // Remove zero values
+                
                 if (!empty($gallery)) {
                     $result = update_post_meta($post_id, '_property_gallery', $gallery);
                     if ($result !== false) {
@@ -2586,11 +2594,16 @@ class RESBS_Property_Metabox {
         }
 
         if (isset($_POST['property_floor_plans'])) {
-            // Ensure it's an array before processing
+            // SECURITY FIX: Validate array input before processing
             $floor_plans_input = $_POST['property_floor_plans'];
+            
+            // Ensure it's an array before processing
             if (is_array($floor_plans_input)) {
-                $floor_plans = array_map('absint', $floor_plans_input);
+                // Validate all elements are numeric
+                $floor_plans = array_filter($floor_plans_input, 'is_numeric');
+                $floor_plans = array_map('absint', $floor_plans);
                 $floor_plans = array_filter($floor_plans); // Remove zero values
+                
                 if (!empty($floor_plans)) {
                     $result = update_post_meta($post_id, '_property_floor_plans', $floor_plans);
                     if ($result !== false) {

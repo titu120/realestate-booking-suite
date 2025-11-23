@@ -2716,11 +2716,13 @@ class RESBS_Enhanced_Settings {
         global $wpdb;
         
         // Delete orphaned post meta
-        $deleted = $wpdb->query("
+        // Using esc_like for LIKE pattern and prepare for safety
+        $like_pattern = $wpdb->esc_like('_property_') . '%';
+        $deleted = $wpdb->query($wpdb->prepare("
             DELETE pm FROM {$wpdb->postmeta} pm
             LEFT JOIN {$wpdb->posts} p ON pm.post_id = p.ID
-            WHERE p.ID IS NULL AND pm.meta_key LIKE '_property_%'
-        ");
+            WHERE p.ID IS NULL AND pm.meta_key LIKE %s
+        ", $like_pattern));
         
         if ($deleted === false) {
             wp_send_json_error(esc_html__('Failed to cleanup orphaned data', 'realestate-booking-suite'));
@@ -2909,7 +2911,8 @@ class RESBS_Enhanced_Settings {
                                 <label for="resbs-field-label"><?php esc_html_e('Field Label', 'realestate-booking-suite'); ?> <span style="color: #d63638;">*</span></label>
                             </th>
                             <td>
-                                <input type="text" id="resbs-field-label" name="label" class="regular-text" required>
+                                <!-- CRITICAL FIX: Removed HTML5 required attribute - WordPress handles validation server-side -->
+                                <input type="text" id="resbs-field-label" name="label" class="regular-text">
                                 <p class="description"><?php esc_html_e('The label displayed to users', 'realestate-booking-suite'); ?></p>
                             </td>
                         </tr>
@@ -2919,7 +2922,8 @@ class RESBS_Enhanced_Settings {
                                 <label for="resbs-field-type"><?php esc_html_e('Field Type', 'realestate-booking-suite'); ?> <span style="color: #d63638;">*</span></label>
                             </th>
                             <td>
-                                <select id="resbs-field-type" name="type" class="regular-text" required>
+                                <!-- CRITICAL FIX: Removed HTML5 required attribute - WordPress handles validation server-side -->
+                                <select id="resbs-field-type" name="type" class="regular-text">
                                     <option value="text"><?php esc_html_e('Text', 'realestate-booking-suite'); ?></option>
                                     <option value="textarea"><?php esc_html_e('Textarea', 'realestate-booking-suite'); ?></option>
                                     <option value="number"><?php esc_html_e('Number', 'realestate-booking-suite'); ?></option>

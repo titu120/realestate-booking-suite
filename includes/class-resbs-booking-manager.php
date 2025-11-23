@@ -115,8 +115,9 @@ class RESBS_Booking_Manager {
     public function handle_booking_submission() {
         
         // Verify nonce - check both possible nonce field names for compatibility
-        $nonce = isset($_POST['_wpnonce']) ? sanitize_text_field($_POST['_wpnonce']) : (isset($_POST['resbs_booking_form_nonce']) ? sanitize_text_field($_POST['resbs_booking_form_nonce']) : '');
-        if (!wp_verify_nonce($nonce, 'resbs_booking_form')) {
+        // CRITICAL: Do NOT sanitize nonce before verification - wp_verify_nonce expects raw nonce
+        $nonce = isset($_POST['_wpnonce']) ? $_POST['_wpnonce'] : (isset($_POST['resbs_booking_form_nonce']) ? $_POST['resbs_booking_form_nonce'] : '');
+        if (empty($nonce) || !wp_verify_nonce($nonce, 'resbs_booking_form')) {
             wp_send_json_error(array('message' => esc_html__('Security check failed. Please refresh the page and try again.', 'realestate-booking-suite')));
             return;
         }
@@ -399,8 +400,9 @@ class RESBS_Booking_Manager {
      */
     public function update_booking_status() {
         // Verify nonce and capability
-        $nonce = isset($_POST['nonce']) ? sanitize_text_field($_POST['nonce']) : '';
-        if (!wp_verify_nonce($nonce, 'resbs_update_booking_status')) {
+        // CRITICAL: Do NOT sanitize nonce before verification
+        $nonce = isset($_POST['nonce']) ? $_POST['nonce'] : '';
+        if (empty($nonce) || !wp_verify_nonce($nonce, 'resbs_update_booking_status')) {
             wp_send_json_error(array('message' => esc_html__('Security check failed. Please refresh the page and try again.', 'realestate-booking-suite')));
             return;
         }
@@ -436,8 +438,9 @@ class RESBS_Booking_Manager {
      */
     public function delete_booking() {
         // Verify nonce and capability
-        $nonce = isset($_POST['nonce']) ? sanitize_text_field($_POST['nonce']) : '';
-        if (!wp_verify_nonce($nonce, 'resbs_delete_booking')) {
+        // CRITICAL: Do NOT sanitize nonce before verification
+        $nonce = isset($_POST['nonce']) ? $_POST['nonce'] : '';
+        if (empty($nonce) || !wp_verify_nonce($nonce, 'resbs_delete_booking')) {
             wp_send_json_error(array('message' => esc_html__('Security check failed. Please refresh the page and try again.', 'realestate-booking-suite')));
             return;
         }

@@ -369,8 +369,8 @@ class RESBS_Property_Grid {
      * Handle AJAX load more
      */
     public function handle_load_more() {
-        // Verify nonce (sanitize before verification)
-        $nonce = isset($_POST['nonce']) ? sanitize_text_field($_POST['nonce']) : '';
+        // CRITICAL: Do NOT sanitize nonce before verification
+        $nonce = isset($_POST['nonce']) ? $_POST['nonce'] : '';
         if (empty($nonce) || !wp_verify_nonce($nonce, 'resbs_grid_nonce')) {
             wp_send_json_error(array('message' => esc_html__('Security check failed.', 'realestate-booking-suite')));
             return;

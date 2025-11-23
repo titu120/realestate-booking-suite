@@ -1473,10 +1473,11 @@ class RESBS_Frontend {
             return; // Let other handlers process it
         }
         
+        // CRITICAL: Do NOT sanitize nonce before verification
         // Only process if this handler's nonce matches
         // If not, let other handlers (Favorites Manager) process it
-        $nonce = sanitize_text_field($_POST['nonce']);
-        if (!wp_verify_nonce($nonce, 'resbs_elementor_nonce')) {
+        $nonce = isset($_POST['nonce']) ? $_POST['nonce'] : '';
+        if (empty($nonce) || !wp_verify_nonce($nonce, 'resbs_elementor_nonce')) {
             // Not our nonce - let other handlers process it
             return;
         }

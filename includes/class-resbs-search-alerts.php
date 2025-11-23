@@ -401,11 +401,10 @@ class RESBS_Search_Alerts_Manager {
         global $wpdb;
         
         $table_name = $wpdb->prefix . 'resbs_search_alerts';
-        // Escape table name for consistency (table name is safe - constructed from $wpdb->prefix)
-        $table_name_escaped = esc_sql($table_name);
-        
+        // Use proper identifier placeholder %i for table name
         return $wpdb->get_row($wpdb->prepare(
-            "SELECT * FROM `{$table_name_escaped}` WHERE id = %d",
+            "SELECT * FROM %i WHERE id = %d",
+            $table_name,
             $alert_id
         ));
     }
@@ -417,11 +416,10 @@ class RESBS_Search_Alerts_Manager {
         global $wpdb;
         
         $table_name = $wpdb->prefix . 'resbs_search_alerts';
-        // Escape table name for consistency (table name is safe - constructed from $wpdb->prefix)
-        $table_name_escaped = esc_sql($table_name);
-        
+        // Use proper identifier placeholder %i for table name
         return $wpdb->get_results($wpdb->prepare(
-            "SELECT * FROM `{$table_name_escaped}` WHERE email = %s AND status = 'active' ORDER BY created_at DESC",
+            "SELECT * FROM %i WHERE email = %s AND status = 'active' ORDER BY created_at DESC",
+            $table_name,
             $email
         ));
     }

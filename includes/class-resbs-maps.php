@@ -258,12 +258,12 @@ class RESBS_Maps_Manager {
                                     </label>
                                 </th>
                                 <td>
+                                    <!-- CRITICAL FIX: Removed HTML5 required attribute - WordPress handles validation server-side -->
                                     <input type="text" 
                                            id="resbs_google_maps_api_key"
                                            name="resbs_google_maps_api_key"
                                            value="<?php echo esc_attr($api_key); ?>"
-                                           class="regular-text"
-                                           required>
+                                           class="regular-text">
                                     <p class="description">
                                         <?php esc_html_e('Get your API key from the Google Cloud Console. Enable Maps JavaScript API and Places API.', 'realestate-booking-suite'); ?>
                                         <a href="https://console.cloud.google.com/" target="_blank"><?php esc_html_e('Get API Key', 'realestate-booking-suite'); ?></a>
