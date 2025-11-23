@@ -394,11 +394,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Debug: Log gallery images count (remove in production)
+    // Gallery images initialized
     if (galleryImages && galleryImages.length > 0) {
-        console.log('Gallery images initialized:', galleryImages.length, 'images');
-    } else {
-        console.warn('No gallery images found!');
+        // Gallery images available
     }
     
     // Add click event listeners to gallery images

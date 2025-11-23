@@ -118,16 +118,6 @@ class RESBS_Enhanced_Settings {
             'resbs-settings',
             array($this, 'settings_page_callback')
         );
-        
-        // Demo Content
-        add_submenu_page(
-            'resbs-main-menu',
-            esc_html__('Demo Content', 'realestate-booking-suite'),
-            esc_html__('Demo Content', 'realestate-booking-suite'),
-            'manage_options',
-            'resbs-demo-content',
-            array($this, 'demo_content_callback')
-        );
     }
     
     /**
@@ -443,7 +433,7 @@ class RESBS_Enhanced_Settings {
         ?>
         <h2><?php esc_html_e('Email Settings', 'realestate-booking-suite'); ?></h2>
         
-        <?php if (isset($_GET['updated']) && $_GET['updated'] == '1'): ?>
+        <?php if (isset($_GET['updated']) && sanitize_text_field($_GET['updated']) == '1'): ?>
             <div class="notice notice-success"><p><?php esc_html_e('Settings saved successfully!', 'realestate-booking-suite'); ?></p></div>
         <?php endif; ?>
         
@@ -508,11 +498,11 @@ class RESBS_Enhanced_Settings {
         ?>
         <h2><?php esc_html_e('General', 'realestate-booking-suite'); ?></h2>
         
-        <?php if (isset($_GET['updated']) && $_GET['updated'] == '1'): ?>
+        <?php if (isset($_GET['updated']) && sanitize_text_field($_GET['updated']) == '1'): ?>
             <div class="notice notice-success"><p><?php esc_html_e('Settings saved successfully!', 'realestate-booking-suite'); ?></p></div>
         <?php endif; ?>
         
-        <?php if (isset($_GET['reset']) && $_GET['reset'] == '1'): ?>
+        <?php if (isset($_GET['reset']) && sanitize_text_field($_GET['reset']) == '1'): ?>
             <div class="notice notice-success"><p><?php esc_html_e('Settings reset to defaults successfully!', 'realestate-booking-suite'); ?></p></div>
         <?php endif; ?>
         
@@ -596,7 +586,7 @@ class RESBS_Enhanced_Settings {
         ?>
         <h2><?php esc_html_e('Appearance', 'realestate-booking-suite'); ?></h2>
         
-        <?php if (isset($_GET['updated']) && $_GET['updated'] == '1'): ?>
+        <?php if (isset($_GET['updated']) && sanitize_text_field($_GET['updated']) == '1'): ?>
             <div class="notice notice-success"><p><?php esc_html_e('Settings saved successfully!', 'realestate-booking-suite'); ?></p></div>
         <?php endif; ?>
         
@@ -672,7 +662,7 @@ class RESBS_Enhanced_Settings {
         ?>
         <h2><?php esc_html_e('Currency Settings', 'realestate-booking-suite'); ?></h2>
         
-        <?php if (isset($_GET['updated']) && $_GET['updated'] == '1'): ?>
+        <?php if (isset($_GET['updated']) && sanitize_text_field($_GET['updated']) == '1'): ?>
             <div class="notice notice-success"><p><?php esc_html_e('Settings saved successfully!', 'realestate-booking-suite'); ?></p></div>
         <?php endif; ?>
         
@@ -751,11 +741,11 @@ class RESBS_Enhanced_Settings {
         ?>
         <h2><?php esc_html_e('Map', 'realestate-booking-suite'); ?></h2>
         
-        <?php if (isset($_GET['updated']) && $_GET['updated'] == '1'): ?>
+        <?php if (isset($_GET['updated']) && sanitize_text_field($_GET['updated']) == '1'): ?>
             <div class="notice notice-success"><p><?php esc_html_e('Settings saved successfully!', 'realestate-booking-suite'); ?></p></div>
         <?php endif; ?>
         
-        <?php if (isset($_GET['reset']) && $_GET['reset'] == '1'): ?>
+        <?php if (isset($_GET['reset']) && sanitize_text_field($_GET['reset']) == '1'): ?>
             <div class="notice notice-success"><p><?php esc_html_e('Settings reset to defaults successfully!', 'realestate-booking-suite'); ?></p></div>
         <?php endif; ?>
         
@@ -882,11 +872,11 @@ class RESBS_Enhanced_Settings {
         ?>
         <h2><?php esc_html_e('Listings', 'realestate-booking-suite'); ?></h2>
         
-        <?php if (isset($_GET['updated']) && $_GET['updated'] == '1'): ?>
+        <?php if (isset($_GET['updated']) && sanitize_text_field($_GET['updated']) == '1'): ?>
             <div class="notice notice-success"><p><?php esc_html_e('Settings saved successfully!', 'realestate-booking-suite'); ?></p></div>
         <?php endif; ?>
         
-        <?php if (isset($_GET['reset']) && $_GET['reset'] == '1'): ?>
+        <?php if (isset($_GET['reset']) && sanitize_text_field($_GET['reset']) == '1'): ?>
             <div class="notice notice-success"><p><?php esc_html_e('Settings reset to defaults successfully!', 'realestate-booking-suite'); ?></p></div>
         <?php endif; ?>
         
@@ -1088,11 +1078,11 @@ class RESBS_Enhanced_Settings {
         ?>
         <h2><?php esc_html_e('User Profile', 'realestate-booking-suite'); ?></h2>
         
-        <?php if (isset($_GET['updated']) && $_GET['updated'] == '1'): ?>
+        <?php if (isset($_GET['updated']) && sanitize_text_field($_GET['updated']) == '1'): ?>
             <div class="notice notice-success"><p><?php esc_html_e('Settings saved successfully!', 'realestate-booking-suite'); ?></p></div>
         <?php endif; ?>
         
-        <?php if (isset($_GET['reset']) && $_GET['reset'] == '1'): ?>
+        <?php if (isset($_GET['reset']) && sanitize_text_field($_GET['reset']) == '1'): ?>
             <div class="notice notice-success"><p><?php esc_html_e('Settings reset to defaults successfully!', 'realestate-booking-suite'); ?></p></div>
         <?php endif; ?>
         
@@ -1167,11 +1157,11 @@ class RESBS_Enhanced_Settings {
         ?>
         <h2><?php esc_html_e('Log in & Sign up', 'realestate-booking-suite'); ?></h2>
         
-        <?php if (isset($_GET['updated']) && $_GET['updated'] == '1'): ?>
+        <?php if (isset($_GET['updated']) && sanitize_text_field($_GET['updated']) == '1'): ?>
             <div class="notice notice-success"><p><?php esc_html_e('Settings saved successfully!', 'realestate-booking-suite'); ?></p></div>
         <?php endif; ?>
         
-        <?php if (isset($_GET['reset']) && $_GET['reset'] == '1'): ?>
+        <?php if (isset($_GET['reset']) && sanitize_text_field($_GET['reset']) == '1'): ?>
             <div class="notice notice-success"><p><?php esc_html_e('Settings reset to defaults successfully!', 'realestate-booking-suite'); ?></p></div>
         <?php endif; ?>
         
@@ -1272,11 +1262,11 @@ class RESBS_Enhanced_Settings {
         ?>
         <h2><?php esc_html_e('SEO', 'realestate-booking-suite'); ?></h2>
         
-        <?php if (isset($_GET['updated']) && $_GET['updated'] == '1'): ?>
+        <?php if (isset($_GET['updated']) && sanitize_text_field($_GET['updated']) == '1'): ?>
             <div class="notice notice-success"><p><?php esc_html_e('Settings saved successfully!', 'realestate-booking-suite'); ?></p></div>
         <?php endif; ?>
         
-        <?php if (isset($_GET['reset']) && $_GET['reset'] == '1'): ?>
+        <?php if (isset($_GET['reset']) && sanitize_text_field($_GET['reset']) == '1'): ?>
             <div class="notice notice-success"><p><?php esc_html_e('Settings reset to defaults successfully!', 'realestate-booking-suite'); ?></p></div>
         <?php endif; ?>
         
@@ -2002,9 +1992,6 @@ class RESBS_Enhanced_Settings {
             return;
         }
         
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log('RESBS TEST AJAX: Called');
-        }
         wp_send_json_success(array('message' => 'AJAX is working!', 'timestamp' => time()));
     }
     
@@ -2681,7 +2668,7 @@ class RESBS_Enhanced_Settings {
         if ($format === 'json') {
             // Output JSON directly with download headers
             header('Content-Type: application/json; charset=utf-8');
-            header('Content-Disposition: attachment; filename="' . $filename . '"');
+            header('Content-Disposition: attachment; filename="' . esc_attr($filename) . '"');
             header('Pragma: no-cache');
             header('Expires: 0');
             header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
@@ -2691,7 +2678,7 @@ class RESBS_Enhanced_Settings {
         } else {
             // Output CSV directly with download headers
             header('Content-Type: text/csv; charset=utf-8');
-            header('Content-Disposition: attachment; filename="' . $filename . '"');
+            header('Content-Disposition: attachment; filename="' . esc_attr($filename) . '"');
             header('Pragma: no-cache');
             header('Expires: 0');
             header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
@@ -3309,10 +3296,5 @@ class RESBS_Enhanced_Settings {
         } else {
             wp_send_json_success($custom_fields);
         }
-    }
-    
-    public function demo_content_callback() {
-        echo '<h1>' . esc_html__('Demo Content', 'realestate-booking-suite') . '</h1>';
-        echo '<p>' . esc_html__('Demo content functionality will be implemented here.', 'realestate-booking-suite') . '</p>';
     }
 }

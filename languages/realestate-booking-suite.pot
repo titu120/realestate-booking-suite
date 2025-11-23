@@ -1,0 +1,55 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: RealEstate Booking Suite 1.0.0\n"
+"Report-Msgid-Bugs-To: https://softivus.com/support\n"
+"POT-Creation-Date: 2023-11-23 12:00+0000\n"
+"PO-Revision-Date: 2023-11-23 12:00+0000\n"
+"Last-Translator: Softivus <info@softivus.com>\n"
+"Language-Team: Softivus <info@softivus.com>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.0\n"
+"X-Domain: realestate-booking-suite\n"
+
+#: realestate-booking-suite.php:55
+msgid "My Saved Properties"
+msgstr ""
+
+#: realestate-booking-suite.php:157
+msgid "Submit Property"
+msgstr ""
+
+#: includes/class-resbs-cpt.php:80
+msgid "Properties"
+msgstr ""
+
+#: includes/class-resbs-cpt.php:81
+msgid "Property"
+msgstr ""
+
+#: includes/class-resbs-cpt.php:84
+msgid "Add New"
+msgstr ""
+
+#: includes/class-resbs-cpt.php:85
+msgid "Add New Property"
+msgstr ""
+
+#: includes/class-resbs-demo-importer.php:28
+#: includes/class-resbs-demo-importer.php:42
+msgid "Import Demo Content"
+msgstr ""
+
+#: includes/class-resbs-demo-importer.php:29
+msgid "Demo Import"
+msgstr ""
+
+#: includes/class-resbs-demo-importer.php:45
+msgid "One Click Demo Import"
+msgstr ""
+
+#: includes/class-resbs-demo-importer.php:46
+msgid "Click the button below to import sample properties, agents, and settings. This will help you understand how the plugin works."
+msgstr ""

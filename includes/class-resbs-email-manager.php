@@ -754,14 +754,6 @@ class RESBS_Email_Manager {
         $subject_safe = str_replace(array("\r", "\n"), '', $subject_safe);
         $sent = wp_mail($to, $subject_safe, $message, $headers);
 
-        // Log email sending
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            if ($sent) {
-                error_log('RESBS Email sent successfully to: ' . $to);
-            } else {
-                error_log('RESBS Email failed to send to: ' . $to);
-            }
-        }
 
         return $sent;
     }

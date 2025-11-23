@@ -441,45 +441,40 @@
                 </div>
 
                 <!-- Image Gallery -->
+                <?php 
+                    // Show ONLY gallery images, not post thumbnail
+                    $all_images = [];
+                    if (!empty($gallery_urls)) {
+                        $all_images = $gallery_urls;
+                    }
+                    $total_images = count($all_images);
+                ?>
+                <?php if ($total_images > 0): ?>
                 <div class="card">
                     <div class="gallery">
-                        <?php 
-                            // Show ONLY gallery images, not post thumbnail
-                            $all_images = [];
-                            if (!empty($gallery_urls)) {
-                                $all_images = $gallery_urls;
-                            }
-                            $total_images = count($all_images);
-                        ?>
-
                         <?php 
                         // Check if lightbox is disabled
                         $lightbox_disabled = resbs_is_lightbox_disabled_single_page();
                         ?>
-                        <?php if ($total_images > 0): ?>
-                            <div class="gallery-item gallery-main">
-                                <img src="<?php echo esc_url($all_images[0]); ?>" alt="<?php echo esc_attr(get_the_title()); ?>" class="gallery-img"<?php if (!$lightbox_disabled): ?> onclick="<?php echo esc_js('openImageViewer(' . absint(0) . ')'); ?>"<?php endif; ?>>
-                            </div>
+                        <div class="gallery-item gallery-main">
+                            <img src="<?php echo esc_url($all_images[0]); ?>" alt="<?php echo esc_attr(get_the_title()); ?>" class="gallery-img"<?php if (!$lightbox_disabled): ?> onclick="<?php echo esc_js('openImageViewer(' . absint(0) . ')'); ?>"<?php endif; ?>>
+                        </div>
 
-                            <?php for ($i = 1; $i < 5; $i++): ?>
-                                <?php if ($i < $total_images): ?>
-                                    <div class="gallery-item <?php echo esc_attr(($i == 4 && $total_images > 5) ? 'gallery-more' : ''); ?>">
-                                        <img src="<?php echo esc_url($all_images[$i]); ?>" alt="<?php echo esc_attr(get_the_title()); ?>" class="gallery-img"<?php if (!$lightbox_disabled): ?> onclick="<?php echo esc_js('openImageViewer(' . absint($i) . ')'); ?>"<?php endif; ?>>
-                                        <?php if ($i == 4 && $total_images > 5): ?>
-                                            <div class="gallery-overlay"<?php if (!$lightbox_disabled): ?> onclick="<?php echo esc_js('openImageViewer(' . absint(4) . ')'); ?>"<?php endif; ?>>
-                                                <span>+<?php echo esc_html($total_images - 5); ?> <?php echo esc_html__('More', 'realestate-booking-suite'); ?></span>
-                                            </div>
-                                        <?php endif; ?>
-                                    </div>
-                                <?php endif; ?>
-                            <?php endfor; ?>
-                            <?php else: ?>
-                                <div class="gallery-item gallery-main">
-                                    <img src="<?php echo esc_url(get_template_directory_uri() . '/assets/images/placeholder-property.jpg'); ?>" alt="<?php echo esc_attr__('No image available', 'realestate-booking-suite'); ?>" class="gallery-img">
+                        <?php for ($i = 1; $i < 5; $i++): ?>
+                            <?php if ($i < $total_images): ?>
+                                <div class="gallery-item <?php echo esc_attr(($i == 4 && $total_images > 5) ? 'gallery-more' : ''); ?>">
+                                    <img src="<?php echo esc_url($all_images[$i]); ?>" alt="<?php echo esc_attr(get_the_title()); ?>" class="gallery-img"<?php if (!$lightbox_disabled): ?> onclick="<?php echo esc_js('openImageViewer(' . absint($i) . ')'); ?>"<?php endif; ?>>
+                                    <?php if ($i == 4 && $total_images > 5): ?>
+                                        <div class="gallery-overlay"<?php if (!$lightbox_disabled): ?> onclick="<?php echo esc_js('openImageViewer(' . absint(4) . ')'); ?>"<?php endif; ?>>
+                                            <span>+<?php echo esc_html($total_images - 5); ?> <?php echo esc_html__('More', 'realestate-booking-suite'); ?></span>
+                                        </div>
+                                    <?php endif; ?>
                                 </div>
                             <?php endif; ?>
+                        <?php endfor; ?>
                     </div>
                 </div>
+                <?php endif; ?>
 
                 <!-- Key Features -->
                 <div class="card">
@@ -1998,8 +1993,6 @@
                                         // Get default term from dashboard or property settings
                                         $default_term = $mortgage_default_loan_term ? $mortgage_default_loan_term : $mortgage_default_loan_term_global;
                                         
-                                        // Debug output (remove this after testing)
-                                        // Debug comments removed for production
                                         
                                         // Display options from dashboard settings
                                         foreach ($loan_terms as $term):

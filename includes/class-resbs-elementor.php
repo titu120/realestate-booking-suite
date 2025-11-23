@@ -57,9 +57,6 @@ if (!function_exists('resbs_load_elementor_widget_files')) {
             // Even though $widget['file'] is from hardcoded array, validate for safety
             $file_relative = $widget['file'];
             if (strpos($file_relative, '..') !== false || strpos($file_relative, "\0") !== false) {
-                if (defined('WP_DEBUG') && WP_DEBUG) {
-                    error_log('RESBS Widget: Invalid file path detected: ' . esc_html($file_relative));
-                }
                 continue; // Skip invalid file paths
             }
             
@@ -70,11 +67,7 @@ if (!function_exists('resbs_load_elementor_widget_files')) {
             if ($real_file_path && $real_plugin_path && strpos($real_file_path, $real_plugin_path) === 0) {
                 if (file_exists($file_path)) {
                     require_once $file_path;
-                } elseif (defined('WP_DEBUG') && WP_DEBUG) {
-                    error_log('RESBS Widget file not found: ' . esc_html($file_path));
                 }
-            } elseif (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log('RESBS Widget: File path outside plugin directory: ' . esc_html($file_path));
             }
         }
         
@@ -134,15 +127,9 @@ class RESBS_Elementor_Widgets {
                     // Verify it extends Widget_Base
                     if ($widget_instance instanceof \Elementor\Widget_Base) {
                         $widgets_manager->register($widget_instance);
-                    } else {
-                        if (defined('WP_DEBUG') && WP_DEBUG) {
-                            error_log('RESBS Widget does not extend Widget_Base: ' . esc_html($widget_class));
-                        }
                     }
                 } catch (\Exception $e) {
-                    if (defined('WP_DEBUG') && WP_DEBUG) {
-                        error_log('RESBS Widget Registration Error (' . esc_html($widget_class) . '): ' . esc_html($e->getMessage()));
-                    }
+                    // Silent error handling for production
                 }
             }
         }

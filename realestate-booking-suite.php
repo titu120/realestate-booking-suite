@@ -340,7 +340,7 @@ function resbs_manual_flush_rewrite_rules() {
     }
     
     // Check if parameter is set
-    if (!isset($_GET['resbs_flush']) || $_GET['resbs_flush'] !== '1') {
+    if (!isset($_GET['resbs_flush']) || sanitize_text_field($_GET['resbs_flush']) !== '1') {
         return;
     }
     
@@ -537,6 +537,10 @@ require_once RESBS_PATH . 'includes/class-resbs-email-handler.php';
 // Load enhanced settings functionality (NEW ESTATIK-STYLE)
 require_once RESBS_PATH . 'includes/class-resbs-enhanced-settings.php';
 new RESBS_Enhanced_Settings();
+
+// Load Demo Importer
+require_once RESBS_PATH . 'includes/class-resbs-demo-importer.php';
+new RESBS_Demo_Importer();
 
 // Load simple archive handler
 require_once RESBS_PATH . 'includes/class-resbs-simple-archive.php';

@@ -1502,12 +1502,12 @@ class RESBS_Property_Metabox {
                                             switch ($type) {
                                                 case 'textarea':
                                                     ?>
-                                                    <textarea id="<?php echo esc_attr($field_name); ?>" name="<?php echo esc_attr($field_name); ?>" class="resbs-stunning-input" rows="4" <?php echo $required; ?>><?php echo esc_textarea($value); ?></textarea>
+                                                    <textarea id="<?php echo esc_attr($field_name); ?>" name="<?php echo esc_attr($field_name); ?>" class="resbs-stunning-input" rows="4" <?php echo esc_attr($required); ?>><?php echo esc_textarea($value); ?></textarea>
                                                     <?php
                                                     break;
                                                 case 'select':
                                                     ?>
-                                                    <select id="<?php echo esc_attr($field_name); ?>" name="<?php echo esc_attr($field_name); ?>" class="resbs-stunning-select" <?php echo $required; ?>>
+                                                    <select id="<?php echo esc_attr($field_name); ?>" name="<?php echo esc_attr($field_name); ?>" class="resbs-stunning-select" <?php echo esc_attr($required); ?>>
                                                         <option value=""><?php esc_html_e('Select...', 'realestate-booking-suite'); ?></option>
                                                         <?php if (isset($field['options']) && is_array($field['options'])): ?>
                                                             <?php foreach ($field['options'] as $option): ?>
@@ -1527,7 +1527,7 @@ class RESBS_Property_Metabox {
                                                     break;
                                                 default:
                                                     ?>
-                                                    <input type="<?php echo esc_attr($type); ?>" id="<?php echo esc_attr($field_name); ?>" name="<?php echo esc_attr($field_name); ?>" class="resbs-stunning-input" value="<?php echo esc_attr($value); ?>" <?php echo $required; ?>>
+                                                    <input type="<?php echo esc_attr($type); ?>" id="<?php echo esc_attr($field_name); ?>" name="<?php echo esc_attr($field_name); ?>" class="resbs-stunning-input" value="<?php echo esc_attr($value); ?>" <?php echo esc_attr($required); ?>>
                                                     <?php
                                                     break;
                                             }
@@ -2369,10 +2369,6 @@ class RESBS_Property_Metabox {
                     )
                 );
                 $value = isset($_POST[$form_field]) ? wp_kses($_POST[$form_field], $allowed_html) : '';
-                // Debug: Log iframe field saving
-                if (defined('WP_DEBUG') && WP_DEBUG) {
-                    error_log('RESBS: Saving iframe field: ' . $form_field . ' = ' . substr($value, 0, 100) . '...');
-                }
             } elseif ($form_field === 'property_video_embed') {
                 // Allow iframe tags with specific attributes for video embeds
                 $allowed_html = array(
@@ -2389,10 +2385,6 @@ class RESBS_Property_Metabox {
                     )
                 );
                 $value = isset($_POST[$form_field]) ? wp_kses($_POST[$form_field], $allowed_html) : '';
-                // Debug: Log video embed field saving
-                if (defined('WP_DEBUG') && WP_DEBUG) {
-                    error_log('RESBS: Saving video embed field: ' . $form_field . ' = ' . substr($value, 0, 100) . '...');
-                }
             } elseif ($form_field === 'property_virtual_tour_description' || 
                       $form_field === 'property_contact_success_message' ||
                       $form_field === 'property_mortgage_loan_terms' ||
@@ -2425,7 +2417,7 @@ class RESBS_Property_Metabox {
                 'property_mortgage_default_loan_term', 'property_tour_duration', 'property_tour_group_size'
             ), true)) {
                 // Numeric fields - validate and convert to appropriate type
-                $value = isset($_POST[$form_field]) ? $_POST[$form_field] : '';
+                $value = isset($_POST[$form_field]) ? sanitize_text_field($_POST[$form_field]) : '';
                 if ($value !== '' && $value !== null) {
                     // Check if it's a float field (price, price_per_sqft, interest_rate, etc.)
                     if (in_array($form_field, array('property_price', 'property_price_per_sqft', 'property_mortgage_default_interest_rate'), true)) {
@@ -2439,7 +2431,7 @@ class RESBS_Property_Metabox {
                 }
             } elseif (in_array($form_field, array('property_video_url', 'property_virtual_tour'), true)) {
                 // URL fields - validate and sanitize URLs
-                $value = isset($_POST[$form_field]) ? $_POST[$form_field] : '';
+                $value = isset($_POST[$form_field]) ? sanitize_text_field($_POST[$form_field]) : '';
                 if (!empty($value)) {
                     // Validate URL format
                     if (filter_var($value, FILTER_VALIDATE_URL)) {
@@ -2452,7 +2444,7 @@ class RESBS_Property_Metabox {
                 }
             } elseif ($form_field === 'property_agent_email') {
                 // Email field - validate and sanitize email
-                $value = isset($_POST[$form_field]) ? $_POST[$form_field] : '';
+                $value = isset($_POST[$form_field]) ? sanitize_text_field($_POST[$form_field]) : '';
                 if (!empty($value)) {
                     $value = sanitize_email($value);
                     // Validate email format
@@ -2472,15 +2464,6 @@ class RESBS_Property_Metabox {
                 $result = update_post_meta($post_id, $meta_key, $value);
                 if ($result !== false) {
                     $saved_count++;
-                    // Debug: Log successful save
-                    if (defined('WP_DEBUG') && WP_DEBUG && $form_field === 'property_map_iframe') {
-                        error_log('RESBS: Iframe field saved successfully');
-                    }
-                } else {
-                    // Debug: Log save failure
-                    if (defined('WP_DEBUG') && WP_DEBUG && $form_field === 'property_map_iframe') {
-                        error_log('RESBS: Failed to save iframe field');
-                    }
                 }
             }
         }
@@ -2503,13 +2486,6 @@ class RESBS_Property_Metabox {
             );
             $iframe_value = wp_kses($_POST['property_map_iframe'], $allowed_html);
             $result = update_post_meta($post_id, '_property_map_iframe', $iframe_value);
-            if (defined('WP_DEBUG') && WP_DEBUG) {
-                if ($result !== false) {
-                    error_log('RESBS: Iframe field saved directly: ' . substr($iframe_value, 0, 100) . '...');
-                } else {
-                    error_log('RESBS: Failed to save iframe field directly');
-                }
-            }
         }
         
         // Handle checkboxes (they might not be in POST if unchecked)
@@ -2550,20 +2526,11 @@ class RESBS_Property_Metabox {
                 if ($result !== false) {
                     $saved_count++;
                 }
-                if (defined('WP_DEBUG') && WP_DEBUG) {
-                    error_log('RESBS: Gallery updated with ' . count($gallery_image_ids) . ' images: ' . implode(',', $gallery_image_ids));
-                }
             }
         }
 
         if (!empty($_FILES['floor_plans_upload']['name'][0])) {
-            if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log('RESBS: Processing floor plans upload - ' . count($_FILES['floor_plans_upload']['name']) . ' files');
-            }
             $uploaded_ids = $this->handle_file_uploads($post_id, 'floor_plans_upload', '_property_floor_plans');
-            if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log('RESBS: Floor plans upload result - ' . print_r($uploaded_ids, true));
-            }
         }
 
         // Handle media uploads with better error handling
@@ -2616,10 +2583,6 @@ class RESBS_Property_Metabox {
      * Handle file uploads
      */
     private function handle_file_uploads($post_id, $field_name, $meta_key) {
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log('RESBS: Starting file upload for ' . $field_name);
-        }
-        
         require_once(ABSPATH . 'wp-admin/includes/image.php');
         require_once(ABSPATH . 'wp-admin/includes/file.php');
         require_once(ABSPATH . 'wp-admin/includes/media.php');
@@ -2644,9 +2607,6 @@ class RESBS_Property_Metabox {
                         // Validate file before upload
                         $validation = RESBS_Security::validate_file_upload($file);
                         if (is_wp_error($validation)) {
-                            if (defined('WP_DEBUG') && WP_DEBUG) {
-                                error_log('RESBS: File validation failed: ' . $validation->get_error_message());
-                            }
                             continue; // Skip invalid file
                         }
                         
@@ -2662,9 +2622,6 @@ class RESBS_Property_Metabox {
                 // Validate file before upload
                 $validation = RESBS_Security::validate_file_upload($files);
                 if (is_wp_error($validation)) {
-                    if (defined('WP_DEBUG') && WP_DEBUG) {
-                        error_log('RESBS: File validation failed: ' . $validation->get_error_message());
-                    }
                     return $uploaded_ids; // Return empty array if validation fails
                 }
                 
@@ -2686,10 +2643,6 @@ class RESBS_Property_Metabox {
             // Merge with new uploads
             $all_attachments = array_merge($existing, $uploaded_ids);
             update_post_meta($post_id, $meta_key, $all_attachments);
-            
-            if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log('RESBS: Updated ' . $meta_key . ' with ' . count($all_attachments) . ' total attachments');
-            }
         }
         
         return $uploaded_ids;
@@ -2949,16 +2902,9 @@ class RESBS_Property_Metabox {
         $gallery_images = get_post_meta($post_id, '_property_gallery', true);
         $gallery_html = '';
         
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log('RESBS: Gallery images for post ' . $post_id . ': ' . print_r($gallery_images, true));
-        }
-        
         if (!empty($gallery_images) && is_array($gallery_images)) {
             foreach ($gallery_images as $image_id) {
                 $image_url = wp_get_attachment_image_url($image_id, 'thumbnail');
-                if (defined('WP_DEBUG') && WP_DEBUG) {
-                    error_log('RESBS: Image ID ' . $image_id . ' URL: ' . $image_url);
-                }
                 if ($image_url) {
                     $gallery_html .= '<div class="resbs-gallery-item" data-id="' . esc_attr($image_id) . '">';
                     $gallery_html .= '<img src="' . esc_url($image_url) . '" alt="">';
@@ -2966,10 +2912,6 @@ class RESBS_Property_Metabox {
                     $gallery_html .= '</div>';
                 }
             }
-        }
-        
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log('RESBS: Gallery HTML: ' . $gallery_html);
         }
         
         // Get floor plans

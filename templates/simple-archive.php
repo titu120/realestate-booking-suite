@@ -8,7 +8,7 @@
 
 // IMPORTANT: Check for reset BEFORE any output (including get_header())
 // If reset parameter is present, redirect to clean URL and set all values to defaults
-if (isset($_GET['reset'])) {
+if (isset($_GET['reset']) && sanitize_text_field($_GET['reset']) !== '') {
     // Verify nonce for security (optional but recommended for state-changing operations)
     // For public archive pages, we'll use a simple validation
     // Get the archive page URL without any query parameters
@@ -779,11 +779,10 @@ $property_statuses = get_terms(array(
             $properties_data = array();
             $properties_without_coords = array();
             
-            // DEBUG: Check if query has posts
             if (!$properties_query->have_posts()) {
-                error_log('RESBS WARNING: properties_query has NO posts! Total found: ' . $properties_query->found_posts);
+                // No posts found
             } else {
-                error_log('RESBS: properties_query has posts. Total: ' . $properties_query->found_posts);
+                // Posts found
             }
             
             while ($properties_query->have_posts()): $properties_query->the_post();
@@ -930,30 +929,11 @@ $property_statuses = get_terms(array(
                     $properties_without_coords[] = $property_data;
                 }
                 
+                
                 // Add ALL properties to the array - NO EXCEPTIONS
                 $properties_data[] = $property_data;
-                
-                // Debug each property
-                error_log('RESBS: Added property #' . count($properties_data) . ' - ' . $property_title);
-                error_log('  - Has lat/lng: ' . (isset($property_data['lat']) && isset($property_data['lng']) ? 'YES (' . $property_data['lat'] . ',' . $property_data['lng'] . ')' : 'NO'));
-                error_log('  - City: ' . ($property_data['city'] ?: 'NONE'));
-                error_log('  - Address: ' . ($property_data['address'] ?: 'NONE'));
-                error_log('  - Location name: ' . ($property_data['location_name'] ?: 'NONE'));
-                error_log('  - Full address: ' . ($property_data['full_address'] ?: 'NONE'));
             endwhile;
             wp_reset_postdata();
-            
-            // Debug: Log properties count
-            error_log('=== RESBS ARCHIVE SUMMARY ===');
-            error_log('Total properties prepared: ' . count($properties_data));
-            error_log('Properties with coords: ' . count(array_filter($properties_data, function($p) { return isset($p['lat']) && isset($p['lng']); })));
-            error_log('Properties needing geocoding: ' . count(array_filter($properties_data, function($p) { return !empty($p['full_address']); })));
-            
-            if (count($properties_data) === 0) {
-                error_log('❌ ERROR: No properties were added to $properties_data array!');
-                error_log('  - properties_query->found_posts: ' . $properties_query->found_posts);
-                error_log('  - properties_query->post_count: ' . $properties_query->post_count);
-            }
             
             // Pass data to JavaScript via filter (for wp_localize_script) - for backwards compatibility
             add_filter('resbs_archive_js_data', function($data) use ($use_openstreetmap, $properties_data, $map_settings, $map_center_lat, $map_center_lng, $map_zoom) {
@@ -975,16 +955,10 @@ $property_statuses = get_terms(array(
             (function() {
                 'use strict';
                 
-                console.log('🚀🚀🚀 INLINE SCRIPT RUNNING - Setting properties data...');
-                
                 // Get properties data from PHP
                 var propertiesData = <?php echo json_encode($properties_data); ?>;
                 
-                console.log('=== PHP SENDING PROPERTIES DATA ===');
-                console.log('Total properties from PHP:', propertiesData.length);
-                
                 if (propertiesData.length === 0) {
-                    console.error('❌ ERROR: PHP sent ZERO properties!');
                     return;
                 }
                 
@@ -995,11 +969,9 @@ $property_statuses = get_terms(array(
                 dataDiv.style.display = 'none';
                 dataDiv.setAttribute('data-properties', JSON.stringify(propertiesData));
                 document.body.appendChild(dataDiv);
-                console.log('✅ Stored data in hidden div');
                 
                 // 2. Store in window with a unique key that won't conflict
                 window.RESBS_PROPERTIES_DATA = propertiesData;
-                console.log('✅ Stored in window.RESBS_PROPERTIES_DATA:', window.RESBS_PROPERTIES_DATA.length);
                 
                 // 3. Store in window.resbs_archive
                 if (typeof window.resbs_archive === 'undefined') {
@@ -1029,8 +1001,6 @@ $property_statuses = get_terms(array(
                 window.resbs_archive.favorites_nonce = existingData.favorites_nonce;
                 window.resbs_archive.translations = existingData.translations;
                 
-                console.log('✅ Set window.resbs_archive.properties_data (LOCKED):', window.resbs_archive.properties_data.length);
-                
                 // 4. Also update global resbs_archive if it exists
                 if (typeof resbs_archive !== 'undefined') {
                     resbs_archive.properties_data = propertiesData;
@@ -1039,26 +1009,10 @@ $property_statuses = get_terms(array(
                     resbs_archive.map_center_lat = window.resbs_archive.map_center_lat;
                     resbs_archive.map_center_lng = window.resbs_archive.map_center_lng;
                     resbs_archive.map_zoom = window.resbs_archive.map_zoom;
-                    console.log('✅ Updated global resbs_archive');
                 }
                 
                 // 5. Set window.propertiesData
                 window.propertiesData = propertiesData;
-                console.log('✅ Set window.propertiesData:', window.propertiesData.length);
-                
-                console.log('✅✅✅ ALL DATA STORED IN MULTIPLE LOCATIONS -', propertiesData.length, 'properties ready!');
-                
-                // Verify data was set correctly
-                console.log('✅ Properties data set!');
-                console.log('  - window.resbs_archive.properties_data:', window.resbs_archive.properties_data ? window.resbs_archive.properties_data.length : 'undefined');
-                console.log('  - window.propertiesData:', window.propertiesData ? window.propertiesData.length : 'undefined');
-                
-                // Store a reference that won't be lost
-                if (propertiesData.length > 0) {
-                    console.log('✅ SUCCESS: ' + propertiesData.length + ' properties ready for map!');
-                } else {
-                    console.error('❌ ERROR: PHP sent 0 properties! Check if properties_query has posts.');
-                }
             })();
             </script>
         

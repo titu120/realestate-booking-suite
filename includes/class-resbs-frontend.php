@@ -1280,9 +1280,9 @@ class RESBS_Frontend {
             wp_send_json_error(esc_html__('Security check failed.', 'realestate-booking-suite'));
         }
         
-        $settings = isset($_POST['settings']) ? $_POST['settings'] : array();
+        $settings = isset($_POST['settings']) && is_array($_POST['settings']) ? RESBS_Security::sanitize_array($_POST['settings']) : array();
         $page = isset($_POST['page']) ? intval($_POST['page']) : 1;
-        $filters = isset($_POST['filters']) ? $_POST['filters'] : array();
+        $filters = isset($_POST['filters']) && is_array($_POST['filters']) ? RESBS_Security::sanitize_array($_POST['filters']) : array();
         
         // Sanitize settings
         $posts_per_page = isset($settings['posts_per_page']) ? intval($settings['posts_per_page']) : 12;
@@ -1527,7 +1527,7 @@ class RESBS_Frontend {
             wp_send_json_error(esc_html__('Security check failed.', 'realestate-booking-suite'));
         }
         
-        $settings = isset($_POST['settings']) ? $_POST['settings'] : array();
+        $settings = isset($_POST['settings']) && is_array($_POST['settings']) ? RESBS_Security::sanitize_array($_POST['settings']) : array();
         
         // Sanitize settings
         $posts_per_page = isset($settings['posts_per_page']) ? intval($settings['posts_per_page']) : 12;
@@ -2017,7 +2017,7 @@ class RESBS_Frontend {
         }
         
         $widget_id = isset($_POST['widget_id']) ? sanitize_text_field($_POST['widget_id']) : '';
-        $filters = isset($_POST['filters']) ? $_POST['filters'] : array();
+        $filters = isset($_POST['filters']) && is_array($_POST['filters']) ? RESBS_Security::sanitize_array($_POST['filters']) : array();
         
         // Build query
         $args = array(

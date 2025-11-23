@@ -690,10 +690,6 @@ class RESBS_Security {
             'user_agent' => esc_html(sanitize_text_field($_SERVER['HTTP_USER_AGENT'] ?? '')),
             'details' => $sanitized_details
         );
-        
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log('RESBS Security Event: ' . wp_json_encode($log_entry, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT));
-        }
     }
 
     /**
