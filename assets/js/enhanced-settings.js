@@ -49,7 +49,8 @@ jQuery(document).ready(function($) {
     });
     
     // Sync hex input to color input before form submit
-    $(document).on('submit', 'form', function() {
+    // IMPORTANT: Only attach to settings forms, NOT WordPress post forms
+    $(document).on('submit', 'form:not(#post)', function() {
         $(this).find('.resbs-color-hex').each(function() {
             var $hexInput = $(this);
             var hex = $hexInput.val();

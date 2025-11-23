@@ -7,11 +7,41 @@
 (function($) {
     'use strict';
 
+        // CRITICAL FIX: Ensure WordPress Update button ALWAYS works
+        // We do NOT interfere with WordPress form submission at all
+        
+        // CRITICAL: Ensure WordPress Update button works
+        // We do NOT interfere with WordPress form submission
+        
+        // Run immediately (before document ready)
+        (function() {
+            // Remove any handlers we might have added
+            if (typeof jQuery !== 'undefined') {
+                jQuery('#post').off('submit.resbs-validation');
+                jQuery('#post').off('submit.resbs');
+                jQuery('#publish, #save-post').off('click.resbs-block');
+                jQuery('#publish, #save-post').off('click.resbs');
+            }
+        })();
+        
         // Initialize when document is ready
         $(document).ready(function() {
-            // Initialize only essential features
+            // Remove OUR handlers only (with .resbs namespace)
+            $('#post').off('submit.resbs-validation');
+            $('#post').off('submit.resbs');
+            $('#publish, #save-post').off('click.resbs-block');
+            $('#publish, #save-post').off('click.resbs');
+            
+            // Ensure buttons are NOT disabled
+            $('#publish, #save-post').removeClass('resbs-disabled');
+            $('#publish, #save-post').prop('disabled', false);
+            
+            // Initialize only essential UI features
             RESBS_Property_Metabox.initNumberInputs();
             RESBS_Property_Metabox.initMediaUploader();
+            
+            // DO NOT attach any form submission handlers
+            // WordPress Update button works by default - we don't touch it
         });
     
     // Additional initialization for upload areas
@@ -68,8 +98,10 @@
             this.initNumberInputs();
             this.initMediaUploader();
             this.initMapIntegration();
-            this.initFormValidation();
-            this.initAutoSave();
+            // DO NOT call initFormValidation - it might interfere with WordPress
+            // this.initFormValidation(); // DISABLED
+            // DO NOT call initAutoSave - it might interfere with WordPress
+            // this.initAutoSave(); // DISABLED
             this.initEnhancedFeatures();
         },
 
@@ -788,29 +820,18 @@
         },
 
         /**
-         * Initialize form validation
+         * Initialize form validation - NON-BLOCKING VERSION
+         * This function provides visual feedback only and NEVER blocks form submission
          */
         initFormValidation: function() {
-            // Real-time validation
+            // Real-time validation (only on blur, not blocking)
             $('.resbs-input[required], .resbs-select[required]').on('blur', function() {
                 RESBS_Property_Metabox.validateField($(this));
             });
             
-            // Form submission validation
-            $('#post').on('submit', function(e) {
-                var isValid = true;
-                
-                $('.resbs-input[required], .resbs-select[required]').each(function() {
-                    if (!RESBS_Property_Metabox.validateField($(this))) {
-                        isValid = false;
-                    }
-                });
-                
-                if (!isValid) {
-                    e.preventDefault();
-                    alert('Please fill in all required fields.');
-                }
-            });
+            // IMPORTANT: Do NOT attach any submit handlers that might block form submission
+            // WordPress handles form submission, we only provide visual feedback
+            // Removed blocking submit handler to ensure updates always work
         },
 
         /**
@@ -847,42 +868,22 @@
         },
 
         /**
-         * Initialize auto-save functionality
+         * Initialize auto-save functionality - COMPLETELY DISABLED
          */
         initAutoSave: function() {
-            var autoSaveTimeout;
-            
-            $('.resbs-input, .resbs-select, .resbs-textarea').on('input change', function() {
-                clearTimeout(autoSaveTimeout);
-                
-                autoSaveTimeout = setTimeout(function() {
-                    RESBS_Property_Metabox.autoSave();
-                }, 2000); // Auto-save after 2 seconds of inactivity
-            });
+            // COMPLETELY DISABLED: Never run auto-save
+            // WordPress has its own auto-save mechanism
+            // Our auto-save was interfering with form submission
+            return;
         },
 
         /**
-         * Auto-save form data
+         * Auto-save form data - DISABLED
          */
         autoSave: function() {
-            var formData = $('#post').serialize();
-            
-            $.ajax({
-                url: resbs_metabox.ajax_url,
-                type: 'POST',
-                data: {
-                    action: 'resbs_auto_save_property',
-                    form_data: formData,
-                    post_id: $('#post_ID').val(),
-                    nonce: resbs_metabox.nonce
-                },
-                success: function(response) {
-                    if (response.success) {
-                        // Show auto-save indicator
-                        RESBS_Property_Metabox.showAutoSaveIndicator();
-                    }
-                }
-            });
+            // COMPLETELY DISABLED: Never auto-save
+            // This was interfering with WordPress Update button
+            return;
         },
 
         /**

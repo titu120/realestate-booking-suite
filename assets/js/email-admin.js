@@ -418,8 +418,9 @@
 
     /**
      * Template validation
+     * CRITICAL FIX: Exclude WordPress post form (#post) - only validate email settings forms
      */
-    $('form').on('submit', function(e) {
+    $('form:not(#post)').on('submit', function(e) {
         let hasErrors = false;
         
         // Check required fields

@@ -497,13 +497,16 @@ function resbs_enqueue_assets() {
         );
         
         // Re-enable Dynamic Archive JS but with modifications
-        wp_enqueue_script(
-            'resbs-dynamic-archive',
-            RESBS_URL . 'assets/js/dynamic-archive.js',
-            array('jquery'),
-            '1.0.0',
-            true
-        );
+        // Only load on frontend, NOT in admin (to avoid interfering with property edit page)
+        if (!is_admin()) {
+            wp_enqueue_script(
+                'resbs-dynamic-archive',
+                RESBS_URL . 'assets/js/dynamic-archive.js',
+                array('jquery'),
+                '1.0.0',
+                true
+            );
+        }
         
 
         

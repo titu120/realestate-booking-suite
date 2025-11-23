@@ -108,7 +108,8 @@
      * Initialize form validation
      */
     function initFormValidation() {
-        $('form').on('submit', function(e) {
+        // CRITICAL FIX: Exclude WordPress post form (#post) - only validate badge settings forms
+        $('form:not(#post)').on('submit', function(e) {
             var isValid = true;
             var errors = [];
 
