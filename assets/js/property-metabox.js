@@ -13,7 +13,7 @@
         // CRITICAL: Ensure WordPress Update button works
         // We do NOT interfere with WordPress form submission
         
-        // Run immediately (before document ready)
+        // Run immediately (before document ready) to fix tabs ASAP
         (function() {
             // Remove any handlers we might have added
             if (typeof jQuery !== 'undefined') {
@@ -21,6 +21,42 @@
                 jQuery('#post').off('submit.resbs');
                 jQuery('#publish, #save-post').off('click.resbs-block');
                 jQuery('#publish, #save-post').off('click.resbs');
+                
+                // CRITICAL: Fix tabs immediately if jQuery is available
+                // This runs before document ready to prevent other scripts from setting overview
+                if (jQuery(document).ready) {
+                    jQuery(document).ready(function($) {
+                        // Check for tab in URL parameter and set it immediately
+                        var urlParams = new URLSearchParams(window.location.search);
+                        var urlTab = urlParams.get('tab');
+                        
+                        if (urlTab) {
+                            // Hide all tabs and buttons
+                            $('.resbs-tab-content').removeClass('active').hide();
+                            $('.resbs-tab-nav-btn').removeClass('active');
+                            
+                            // Show the tab from URL
+                            var $activeContent = $('#' + urlTab);
+                            var $activeBtn = $('[data-tab="' + urlTab + '"]');
+                            
+                            if ($activeContent.length && $activeBtn.length) {
+                                $activeContent.addClass('active').show();
+                                $activeBtn.addClass('active');
+                                
+                                // Update hidden input field
+                                var $hiddenInput = $('#resbs_active_tab');
+                                if ($hiddenInput.length) {
+                                    $hiddenInput.val(urlTab);
+                                }
+                                
+                                // Update localStorage
+                                if (typeof localStorage !== 'undefined') {
+                                    localStorage.setItem('resbs_active_tab', urlTab);
+                                }
+                            }
+                        }
+                    });
+                }
             }
         })();
         
@@ -40,8 +76,43 @@
             RESBS_Property_Metabox.initNumberInputs();
             RESBS_Property_Metabox.initMediaUploader();
             
-            // DO NOT attach any form submission handlers
-            // WordPress Update button works by default - we don't touch it
+            // CRITICAL: Fix tab display on page load (restore from URL or localStorage)
+            RESBS_Property_Metabox.fixTabDisplay();
+            
+            // CRITICAL: Update hidden tab field before form submission
+            // This ensures the active tab is preserved after Update button click
+            $('#post').on('submit', function(e) {
+                // Get currently active tab
+                var $activeTab = $('.resbs-tab-content.active');
+                var activeTabId = null;
+                
+                if ($activeTab.length) {
+                    activeTabId = $activeTab.attr('id');
+                }
+                
+                // If no active tab found, try to get from localStorage
+                if (!activeTabId) {
+                    activeTabId = localStorage.getItem('resbs_active_tab');
+                }
+                
+                // Update hidden input field
+                if (activeTabId) {
+                    var $hiddenInput = $('#resbs_active_tab');
+                    if ($hiddenInput.length) {
+                        $hiddenInput.val(activeTabId);
+                    } else {
+                        // If hidden input doesn't exist, create it
+                        $('<input>').attr({
+                            type: 'hidden',
+                            id: 'resbs_active_tab',
+                            name: 'resbs_active_tab',
+                            value: activeTabId
+                        }).appendTo('#post');
+                    }
+                }
+            });
+            
+            // DO NOT prevent form submission - let WordPress handle it
         });
     
     // Additional initialization for upload areas
@@ -136,6 +207,12 @@
             // Save tab immediately when clicked
             localStorage.setItem('resbs_active_tab', tabId);
             
+            // Update hidden input field for form submission
+            var $hiddenInput = $('#resbs_active_tab');
+            if ($hiddenInput.length) {
+                $hiddenInput.val(tabId);
+            }
+            
             // SIMPLE APPROACH: Just hide all tabs and show the selected one
             $container.find('.resbs-tab-content').removeClass('active').hide();
             $container.find('.resbs-tab-btn, .resbs-tab-nav-btn').removeClass('active');
@@ -157,16 +234,48 @@
         $('.resbs-tabs, .resbs-stunning-tabs').each(function() {
             var $container = $(this);
             
-            // Check if there's already an active tab
+            // Check for tab in URL parameter first (from redirect after save)
+            var urlParams = new URLSearchParams(window.location.search);
+            var urlTab = urlParams.get('tab');
+            
+            // If we have a URL tab parameter, use it (this takes priority)
+            if (urlTab) {
+                // Hide all tabs first
+                $container.find('.resbs-tab-content').removeClass('active').hide();
+                $container.find('.resbs-tab-btn, .resbs-tab-nav-btn').removeClass('active');
+                
+                // Show the tab from URL
+                var $activeContent = $container.find('#' + urlTab);
+                var $activeBtn = $container.find('[data-tab="' + urlTab + '"]');
+                
+                if ($activeContent.length && $activeBtn.length) {
+                    $activeContent.addClass('active').show();
+                    $activeBtn.addClass('active');
+                    
+                    // Update hidden input field
+                    var $hiddenInput = $('#resbs_active_tab');
+                    if ($hiddenInput.length) {
+                        $hiddenInput.val(urlTab);
+                    }
+                    
+                    // Update localStorage
+                    if (typeof localStorage !== 'undefined') {
+                        localStorage.setItem('resbs_active_tab', urlTab);
+                    }
+                    return; // Exit early since we found and set the URL tab
+                }
+            }
+            
+            // Check if there's already an active tab (only if no URL parameter)
             var $activeTab = $container.find('.resbs-tab-content.active');
-            if ($activeTab.length > 0) {
+            if ($activeTab.length > 0 && !urlTab) {
                 return;
             }
             
-            // Try to use saved tab from localStorage
+            // Try to use saved tab from localStorage (if no URL parameter)
             var savedTab = localStorage.getItem('resbs_active_tab');
             
-            if (savedTab) {
+            if (savedTab && !urlTab) {
                 // Hide all tabs first
                 $container.find('.resbs-tab-content').removeClass('active').hide();
                 $container.find('.resbs-tab-btn, .resbs-tab-nav-btn').removeClass('active');
@@ -175,13 +284,22 @@
                 var $activeContent = $container.find('#' + savedTab);
                 var $activeBtn = $container.find('[data-tab="' + savedTab + '"]');
                 
-                if ($activeContent.length) {
+                if ($activeContent.length && $activeBtn.length) {
                     $activeContent.addClass('active').show();
                     $activeBtn.addClass('active');
+                    
+                    // Update hidden input field
+                    var $hiddenInput = $('#resbs_active_tab');
+                    if ($hiddenInput.length) {
+                        $hiddenInput.val(savedTab);
+                    }
                 } else {
                     // Fallback to overview tab
                     this.showOverviewTab($container);
                 }
+            } else if (!savedTab && !urlTab) {
+                // No saved tab and no URL parameter - show overview
+                this.showOverviewTab($container);
             }
         });
     },
@@ -1224,6 +1342,53 @@
             RESBS_Property_Metabox.initMapIntegration();
         };
         document.head.appendChild(script);
+    }
+
+    // CRITICAL: Also run fixTabDisplay on window load to ensure it runs after all scripts
+    // This ensures we override any other scripts that might set the overview tab
+    $(window).on('load', function() {
+        // Small delay to ensure all other scripts have run
+        setTimeout(function() {
+            if (typeof RESBS_Property_Metabox !== 'undefined' && RESBS_Property_Metabox.fixTabDisplay) {
+                RESBS_Property_Metabox.fixTabDisplay();
+            }
+        }, 50);
+    });
+    
+    // CRITICAL: Run immediately when DOM is ready (before other scripts)
+    // This ensures we set the correct tab before any other script can override it
+    if (typeof jQuery !== 'undefined') {
+        jQuery(function($) {
+            // Check for tab in URL parameter and set it immediately
+            var urlParams = new URLSearchParams(window.location.search);
+            var urlTab = urlParams.get('tab');
+            
+            if (urlTab) {
+                // Force hide all tabs and remove active classes
+                $('.resbs-tab-content').removeClass('active').hide();
+                $('.resbs-tab-nav-btn').removeClass('active');
+                
+                // Show the tab from URL
+                var $activeContent = $('#' + urlTab);
+                var $activeBtn = $('[data-tab="' + urlTab + '"]');
+                
+                if ($activeContent.length && $activeBtn.length) {
+                    $activeContent.addClass('active').show();
+                    $activeBtn.addClass('active');
+                    
+                    // Update hidden input field
+                    var $hiddenInput = $('#resbs_active_tab');
+                    if ($hiddenInput.length) {
+                        $hiddenInput.val(urlTab);
+                    }
+                    
+                    // Update localStorage
+                    if (typeof localStorage !== 'undefined') {
+                        localStorage.setItem('resbs_active_tab', urlTab);
+                    }
+                }
+            }
+        });
     }
 
 })(jQuery);

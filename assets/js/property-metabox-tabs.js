@@ -43,6 +43,17 @@ function switchTab(tabId) {
         targetTab.style.setProperty('min-height', '200px', 'important');
         targetBtn.classList.add('active');
         
+        // Update hidden input field for form submission
+        var hiddenInput = document.getElementById('resbs_active_tab');
+        if (hiddenInput) {
+            hiddenInput.value = tabId;
+        }
+        
+        // Update localStorage
+        if (typeof localStorage !== 'undefined') {
+            localStorage.setItem('resbs_active_tab', tabId);
+        }
+        
         // Double-check visibility after a short delay
         setTimeout(function() {
             var computedDisplay = window.getComputedStyle(targetTab).display;

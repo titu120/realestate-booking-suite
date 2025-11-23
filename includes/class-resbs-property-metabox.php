@@ -19,6 +19,8 @@ class RESBS_Property_Metabox {
         add_action('add_meta_boxes', array($this, 'add_property_metaboxes'));
         add_action('save_post', array($this, 'save_property_metabox'), 10, 1);
         add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_assets'));
+        // Use redirect_post_location filter to preserve tab after save
+        add_filter('redirect_post_location', array($this, 'redirect_with_tab'), 10, 2);
         add_action('wp_ajax_resbs_upload_property_media', array($this, 'handle_media_upload'));
         add_action('wp_ajax_resbs_delete_property_media', array($this, 'handle_media_delete'));
         add_action('wp_ajax_resbs_get_gallery', array($this, 'get_gallery_data'));
@@ -160,8 +162,14 @@ class RESBS_Property_Metabox {
         $tour_group_size = get_post_meta($post->ID, '_property_tour_group_size', true);
         $tour_safety = get_post_meta($post->ID, '_property_tour_safety', true);
         
+        // Get active tab from URL parameter (for redirect after save) or default to overview
+        $active_tab = isset($_GET['tab']) ? sanitize_text_field($_GET['tab']) : 'overview';
+        
         ?>
         <div class="resbs-stunning-metabox">
+            <!-- Hidden field to preserve active tab on form submission -->
+            <input type="hidden" name="resbs_active_tab" id="resbs_active_tab" value="<?php echo esc_attr($active_tab); ?>">
+            
             <!-- Header Section -->
             <div class="resbs-metabox-header">
                 <div class="resbs-header-content">
@@ -208,7 +216,7 @@ class RESBS_Property_Metabox {
                             flex-shrink: 0;
                         }
                     </style>
-                    <button type="button" class="resbs-tab-nav-btn active" data-tab="overview" onclick="switchTab('overview')">
+                    <button type="button" class="resbs-tab-nav-btn<?php echo ($active_tab === 'overview') ? ' active' : ''; ?>" data-tab="overview" onclick="switchTab('overview')">
                         <span class="resbs-tab-icon">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M3 9L12 2L21 9V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -289,7 +297,7 @@ class RESBS_Property_Metabox {
             <!-- Tab Content -->
             <div class="resbs-stunning-content">
                 <!-- Overview Tab -->
-                <div id="overview" class="resbs-tab-content active">
+                <div id="overview" class="resbs-tab-content<?php echo ($active_tab === 'overview') ? ' active' : ''; ?>"<?php echo ($active_tab === 'overview') ? '' : ' style="display:none;"'; ?>>
                     <div class="resbs-content-grid">
                         <!-- Property Classification Card -->
                         <div class="resbs-content-card resbs-card-primary">
@@ -2210,6 +2218,29 @@ class RESBS_Property_Metabox {
     }
 
     /**
+     * Redirect with tab parameter after save
+     * This filter is called by WordPress after post save to modify the redirect URL
+     */
+    public function redirect_with_tab($location, $post_id) {
+        // Only for property post type
+        $post_type = get_post_type($post_id);
+        if ($post_type !== 'property') {
+            return $location;
+        }
+        
+        // Check if we have an active tab in POST
+        if (isset($_POST['resbs_active_tab']) && !empty($_POST['resbs_active_tab'])) {
+            $active_tab = sanitize_text_field($_POST['resbs_active_tab']);
+            // Remove existing tab parameter if present
+            $location = remove_query_arg('tab', $location);
+            // Add tab parameter to redirect URL
+            $location = add_query_arg('tab', $active_tab, $location);
+        }
+        
+        return $location;
+    }
+
+    /**
      * Save property metabox data
      */
     public function save_property_metabox($post_id) {
@@ -2613,14 +2644,8 @@ class RESBS_Property_Metabox {
             }
         }
         
-        // Handle tab persistence redirect
-        if (isset($_POST['resbs_active_tab'])) {
-            $active_tab = sanitize_text_field($_POST['resbs_active_tab']);
-            $redirect_url = add_query_arg('tab', $active_tab, get_edit_post_link($post_id, 'raw'));
-            // Use wp_safe_redirect to prevent open redirect vulnerabilities
-            wp_safe_redirect($redirect_url);
-            exit;
-        }
+        // Tab persistence is handled by redirect_post_location filter
+        // The redirect happens via WordPress filter, not here
         
         // Silent file uploads - no success messages
         // Removed upload success messages to prevent alert issues
