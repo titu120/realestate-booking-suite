@@ -1979,31 +1979,20 @@
                             <label class="calculator-label"><?php echo esc_html($mortgage_loan_term_label ? $mortgage_loan_term_label : __('Loan Term (Years)', 'realestate-booking-suite')); ?></label>
                             <select id="loanTerm" class="calculator-field" onchange="calculateMortgage()">
                                 <?php
-                                    // Use ONLY dashboard settings - no hardcoded fallbacks
-                                    if (!empty($mortgage_loan_terms)) {
-                                        $loan_terms_raw = $mortgage_loan_terms;
-                                        // Handle both comma-separated and newline-separated values
-                                        $loan_terms = array_map('trim', preg_split('/[,\n\r]+/', $loan_terms_raw));
-                                        
-                                        // Ensure we have valid numeric terms
-                                        $loan_terms = array_filter($loan_terms, function($term) {
-                                            return is_numeric($term) && $term > 0;
-                                        });
-                                        
-                                        // Get default term from dashboard or property settings
-                                        $default_term = $mortgage_default_loan_term ? $mortgage_default_loan_term : $mortgage_default_loan_term_global;
-                                        
-                                        
-                                        // Display options from dashboard settings
-                                        foreach ($loan_terms as $term):
-                                    ?>
-                                        <option value="<?php echo esc_attr($term); ?>"<?php selected($term, $default_term); ?>><?php echo esc_html($term); ?> <?php echo esc_html__('Years', 'realestate-booking-suite'); ?></option>
-                                    <?php 
-                                        endforeach;
-                                    } else {
-                                        // Only show this if no dashboard settings are configured
-                                        echo '<option value="">' . esc_html__('Please configure loan terms in dashboard', 'realestate-booking-suite') . '</option>';
+                                    // Get default term from dashboard or property settings
+                                    $default_term = $mortgage_default_loan_term ? $mortgage_default_loan_term : $mortgage_default_loan_term_global;
+                                    
+                                    // If no default term is set, use 30 years as a user-friendly default
+                                    if (empty($default_term) || !is_numeric($default_term)) {
+                                        $default_term = '30';
                                     }
+                                    
+                                    // Always generate 1-50 years range for user-friendly experience
+                                    for ($year = 1; $year <= 50; $year++):
+                                ?>
+                                    <option value="<?php echo esc_attr($year); ?>"<?php selected($year, $default_term); ?>><?php echo esc_html($year); ?> <?php echo esc_html__('Years', 'realestate-booking-suite'); ?></option>
+                                <?php 
+                                    endfor;
                                 ?>
                             </select>
                         </div>

@@ -329,19 +329,59 @@ function updateDownPayment(value) {
 }
 
 function calculateMortgage() {
+    // Get and parse input values
     const priceStr = document.getElementById('propertyPrice').value.replace(/[$,]/g, '');
     const price = parseFloat(priceStr);
     const downPaymentPercent = parseFloat(document.getElementById('downPayment').value);
     const interestRate = parseFloat(document.getElementById('interestRate').value);
-    const loanTerm = parseFloat(document.getElementById('loanTerm').value);
+    const loanTermElement = document.getElementById('loanTerm');
+    const loanTerm = parseFloat(loanTermElement ? loanTermElement.value : 0);
     
+    // Validate all inputs
+    if (isNaN(price) || price <= 0) {
+        document.getElementById('monthlyPayment').textContent = '$0';
+        return;
+    }
+    
+    if (isNaN(downPaymentPercent) || downPaymentPercent < 0 || downPaymentPercent > 100) {
+        document.getElementById('monthlyPayment').textContent = '$0';
+        return;
+    }
+    
+    if (isNaN(interestRate) || interestRate < 0) {
+        document.getElementById('monthlyPayment').textContent = '$0';
+        return;
+    }
+    
+    if (isNaN(loanTerm) || loanTerm <= 0) {
+        document.getElementById('monthlyPayment').textContent = '$0';
+        return;
+    }
+    
+    // Calculate mortgage
     const downPayment = price * (downPaymentPercent / 100);
     const loanAmount = price - downPayment;
+    
+    // Handle zero interest rate (simple division)
+    if (interestRate === 0) {
+        const monthlyPayment = loanAmount / (loanTerm * 12);
+        document.getElementById('monthlyPayment').textContent = 
+            '$' + monthlyPayment.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        return;
+    }
+    
     const monthlyRate = (interestRate / 100) / 12;
     const numberOfPayments = loanTerm * 12;
     
+    // Standard mortgage formula
     const monthlyPayment = loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, numberOfPayments)) / 
                           (Math.pow(1 + monthlyRate, numberOfPayments) - 1);
+    
+    // Check if result is valid
+    if (isNaN(monthlyPayment) || !isFinite(monthlyPayment)) {
+        document.getElementById('monthlyPayment').textContent = '$0';
+        return;
+    }
     
     document.getElementById('monthlyPayment').textContent = 
         '$' + monthlyPayment.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
@@ -580,6 +620,37 @@ function showImagePopup(imageSrc) {
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
     calculateMortgage();
+    
+    // Ensure loan term dropdown triggers calculation (backup for onchange attribute)
+    const loanTermSelect = document.getElementById('loanTerm');
+    if (loanTermSelect) {
+        loanTermSelect.addEventListener('change', function() {
+            calculateMortgage();
+        });
+    }
+    
+    // Also add event listeners for other calculator inputs as backup
+    const propertyPriceInput = document.getElementById('propertyPrice');
+    if (propertyPriceInput) {
+        propertyPriceInput.addEventListener('input', function() {
+            calculateMortgage();
+        });
+    }
+    
+    const interestRateInput = document.getElementById('interestRate');
+    if (interestRateInput) {
+        interestRateInput.addEventListener('input', function() {
+            calculateMortgage();
+        });
+    }
+    
+    const downPaymentSlider = document.getElementById('downPayment');
+    if (downPaymentSlider) {
+        downPaymentSlider.addEventListener('input', function() {
+            updateDownPayment(this.value);
+            calculateMortgage();
+        });
+    }
     
     // Initialize tabs - ensure overview is active by default
     const overviewTab = document.getElementById('overview-tab');

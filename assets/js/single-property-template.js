@@ -236,23 +236,57 @@ window.calculateMortgage = function() {
         return;
     }
 
+    // Get and parse input values
     const priceStr = priceElement.value.replace(/[$,]/g, '');
     const price = parseFloat(priceStr);
     const downPaymentPercent = parseFloat(downPaymentElement.value);
     const interestRate = parseFloat(interestRateElement.value);
     const loanTerm = parseFloat(loanTermElement.value);
 
-    if (isNaN(price) || isNaN(downPaymentPercent) || isNaN(interestRate) || isNaN(loanTerm)) {
+    // Validate all inputs with specific checks
+    if (isNaN(price) || price <= 0) {
+        monthlyPaymentElement.textContent = '$0';
+        return;
+    }
+    
+    if (isNaN(downPaymentPercent) || downPaymentPercent < 0 || downPaymentPercent > 100) {
+        monthlyPaymentElement.textContent = '$0';
+        return;
+    }
+    
+    if (isNaN(interestRate) || interestRate < 0) {
+        monthlyPaymentElement.textContent = '$0';
+        return;
+    }
+    
+    if (isNaN(loanTerm) || loanTerm <= 0) {
+        monthlyPaymentElement.textContent = '$0';
         return;
     }
 
+    // Calculate mortgage
     const downPayment = price * (downPaymentPercent / 100);
     const loanAmount = price - downPayment;
+    
+    // Handle zero interest rate (simple division)
+    if (interestRate === 0) {
+        const monthlyPayment = loanAmount / (loanTerm * 12);
+        monthlyPaymentElement.textContent = '$' + monthlyPayment.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        return;
+    }
+    
     const monthlyRate = (interestRate / 100) / 12;
     const numberOfPayments = loanTerm * 12;
 
+    // Standard mortgage formula
     const monthlyPayment = loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, numberOfPayments)) /
                           (Math.pow(1 + monthlyRate, numberOfPayments) - 1);
+
+    // Check if result is valid
+    if (isNaN(monthlyPayment) || !isFinite(monthlyPayment)) {
+        monthlyPaymentElement.textContent = '$0';
+        return;
+    }
 
     monthlyPaymentElement.textContent = '$' + monthlyPayment.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
@@ -367,6 +401,47 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize mortgage calculator
     if (typeof window.calculateMortgage === 'function') {
         window.calculateMortgage();
+    }
+    
+    // Ensure loan term dropdown triggers calculation (backup for onchange attribute)
+    const loanTermSelect = document.getElementById('loanTerm');
+    if (loanTermSelect) {
+        loanTermSelect.addEventListener('change', function() {
+            if (typeof window.calculateMortgage === 'function') {
+                window.calculateMortgage();
+            }
+        });
+    }
+    
+    // Also add event listeners for other calculator inputs as backup
+    const propertyPriceInput = document.getElementById('propertyPrice');
+    if (propertyPriceInput) {
+        propertyPriceInput.addEventListener('input', function() {
+            if (typeof window.calculateMortgage === 'function') {
+                window.calculateMortgage();
+            }
+        });
+    }
+    
+    const interestRateInput = document.getElementById('interestRate');
+    if (interestRateInput) {
+        interestRateInput.addEventListener('input', function() {
+            if (typeof window.calculateMortgage === 'function') {
+                window.calculateMortgage();
+            }
+        });
+    }
+    
+    const downPaymentSlider = document.getElementById('downPayment');
+    if (downPaymentSlider) {
+        downPaymentSlider.addEventListener('input', function() {
+            if (typeof window.updateDownPayment === 'function') {
+                window.updateDownPayment(this.value);
+            }
+            if (typeof window.calculateMortgage === 'function') {
+                window.calculateMortgage();
+            }
+        });
     }
     
     // Initialize gallery images from PHP data - Check multiple sources (priority order)
