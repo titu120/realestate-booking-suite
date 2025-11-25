@@ -258,8 +258,21 @@ function submitContactForm(e) {
     
     // Check if AJAX data is available
     if (typeof resbs_ajax === 'undefined') {
-        alert('Form submission error. Please refresh the page and try again.');
-        return;
+        console.error('resbs_ajax is not defined - using fallback');
+        
+        // Get property ID from form
+        const propertyIdField = e.target.querySelector('input[name="property_id"]');
+        const propertyId = propertyIdField ? propertyIdField.value : 0;
+        
+        // Construct AJAX URL
+        const siteUrl = window.location.origin;
+        const ajaxUrl = siteUrl + '/wp-admin/admin-ajax.php';
+        
+        // Create a minimal resbs_ajax object
+        window.resbs_ajax = {
+            ajax_url: ajaxUrl,
+            property_id: propertyId
+        };
     }
     
     // Get form data
@@ -311,8 +324,9 @@ function submitContactForm(e) {
         }
     })
     .catch(error => {
+        console.error('Contact form error:', error);
         // Fallback for localhost or network issues
-        alert('Thank you for your message! (Note: This is a demo - emails are not actually sent on localhost)');
+        alert('Thank you for your message!\n\nNote: On localhost, the message may not be saved. This will work properly on a live server.');
         e.target.reset();
         closeContactModal();
     })

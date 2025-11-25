@@ -2066,7 +2066,7 @@
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            <form onsubmit="submitContactForm(event)" class="space-y-4">
+            <form onsubmit="return submitContactForm(event); return false;" class="space-y-4">
                 <?php wp_nonce_field('resbs_contact_form', 'resbs_contact_form_nonce'); ?>
                 <input type="hidden" name="property_id" value="<?php echo esc_attr($post->ID); ?>">
                 <div class="form-group">

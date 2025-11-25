@@ -202,18 +202,95 @@ class RESBS_Frontend {
                 </div>
                 
                 <div class="resbs-form-row">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div>
+                            <label for="property_half_baths"><?php esc_html_e('Half Baths', 'realestate-booking-suite'); ?></label>
+                            <input type="number" id="property_half_baths" name="property_half_baths" value="<?php echo $property ? esc_attr(get_post_meta($property->ID, '_property_half_baths', true)) : ''; ?>" min="0">
+                        </div>
+                        <div>
+                            <label for="property_total_rooms"><?php esc_html_e('Total Rooms', 'realestate-booking-suite'); ?></label>
+                            <input type="number" id="property_total_rooms" name="property_total_rooms" value="<?php echo $property ? esc_attr(get_post_meta($property->ID, '_property_total_rooms', true)) : ''; ?>" min="0">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="resbs-form-row">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div>
+                            <label for="property_floors"><?php esc_html_e('Floors', 'realestate-booking-suite'); ?></label>
+                            <input type="number" id="property_floors" name="property_floors" value="<?php echo $property ? esc_attr(get_post_meta($property->ID, '_property_floors', true)) : ''; ?>" min="0">
+                        </div>
+                        <div>
+                            <label for="property_floor_level"><?php esc_html_e('Floor Level', 'realestate-booking-suite'); ?></label>
+                            <input type="number" id="property_floor_level" name="property_floor_level" value="<?php echo $property ? esc_attr(get_post_meta($property->ID, '_property_floor_level', true)) : ''; ?>" min="0">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="resbs-form-row">
                     <label for="property_area"><?php esc_html_e('Area (sq ft)', 'realestate-booking-suite'); ?></label>
                     <input type="number" id="property_area" name="property_area" value="<?php echo $property ? esc_attr(get_post_meta($property->ID, '_property_size', true) ?: get_post_meta($property->ID, '_property_area_sqft', true)) : ''; ?>" min="0">
                 </div>
                 
                 <div class="resbs-form-row">
+                    <label for="property_price_per_sqft"><?php esc_html_e('Price per Sq Ft', 'realestate-booking-suite'); ?></label>
+                    <input type="number" id="property_price_per_sqft" name="property_price_per_sqft" value="<?php echo $property ? esc_attr(get_post_meta($property->ID, '_property_price_per_sqft', true)) : ''; ?>" step="0.01" min="0" placeholder="0">
+                </div>
+                
+                <div class="resbs-form-row">
+                    <label for="property_lot_size"><?php esc_html_e('Lot Size (sq ft)', 'realestate-booking-suite'); ?></label>
+                    <input type="number" id="property_lot_size" name="property_lot_size" value="<?php echo $property ? esc_attr(get_post_meta($property->ID, '_property_lot_size_sqft', true)) : ''; ?>" min="0">
+                </div>
+                
+                <div class="resbs-form-row">
+                    <label for="property_year_built"><?php esc_html_e('Year Built', 'realestate-booking-suite'); ?></label>
+                    <input type="number" id="property_year_built" name="property_year_built" value="<?php echo $property ? esc_attr(get_post_meta($property->ID, '_property_year_built', true)) : ''; ?>" min="1800" max="<?php echo esc_attr(date('Y')); ?>" placeholder="1990">
+                </div>
+                
+                <div class="resbs-form-row">
+                    <label for="property_year_remodeled"><?php esc_html_e('Year Remodeled', 'realestate-booking-suite'); ?></label>
+                    <input type="number" id="property_year_remodeled" name="property_year_remodeled" value="<?php echo $property ? esc_attr(get_post_meta($property->ID, '_property_year_remodeled', true)) : ''; ?>" min="1800" max="<?php echo esc_attr(date('Y')); ?>" placeholder="2000">
+                </div>
+                
+                <div class="resbs-form-row">
+                    <label for="property_address"><?php esc_html_e('Address', 'realestate-booking-suite'); ?></label>
+                    <input type="text" id="property_address" name="property_address" value="<?php echo $property ? esc_attr(get_post_meta($property->ID, '_property_address', true)) : ''; ?>" placeholder="<?php esc_attr_e('Enter full address', 'realestate-booking-suite'); ?>">
+                </div>
+                
+                <div class="resbs-form-row">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div>
+                            <label for="property_city"><?php esc_html_e('City', 'realestate-booking-suite'); ?></label>
+                            <input type="text" id="property_city" name="property_city" value="<?php echo $property ? esc_attr(get_post_meta($property->ID, '_property_city', true)) : ''; ?>" placeholder="<?php esc_attr_e('City', 'realestate-booking-suite'); ?>">
+                        </div>
+                        <div>
+                            <label for="property_state"><?php esc_html_e('State/Province', 'realestate-booking-suite'); ?></label>
+                            <input type="text" id="property_state" name="property_state" value="<?php echo $property ? esc_attr(get_post_meta($property->ID, '_property_state', true)) : ''; ?>" placeholder="<?php esc_attr_e('State/Province', 'realestate-booking-suite'); ?>">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="resbs-form-row">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div>
+                            <label for="property_zip"><?php esc_html_e('ZIP/Postal Code', 'realestate-booking-suite'); ?></label>
+                            <input type="text" id="property_zip" name="property_zip" value="<?php echo $property ? esc_attr(get_post_meta($property->ID, '_property_zip', true)) : ''; ?>" placeholder="<?php esc_attr_e('ZIP/Postal Code', 'realestate-booking-suite'); ?>">
+                        </div>
+                        <div>
+                            <label for="property_country"><?php esc_html_e('Country', 'realestate-booking-suite'); ?></label>
+                            <input type="text" id="property_country" name="property_country" value="<?php echo $property ? esc_attr(get_post_meta($property->ID, '_property_country', true)) : ''; ?>" placeholder="<?php esc_attr_e('Country', 'realestate-booking-suite'); ?>">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="resbs-form-row">
                     <label for="property_latitude"><?php esc_html_e('Latitude', 'realestate-booking-suite'); ?></label>
-                    <input type="text" id="property_latitude" name="property_latitude" value="<?php echo $property ? esc_attr(get_post_meta($property->ID, '_property_latitude', true)) : ''; ?>">
+                    <input type="text" id="property_latitude" name="property_latitude" value="<?php echo $property ? esc_attr(get_post_meta($property->ID, '_property_latitude', true)) : ''; ?>" placeholder="23.8103">
                 </div>
                 
                 <div class="resbs-form-row">
                     <label for="property_longitude"><?php esc_html_e('Longitude', 'realestate-booking-suite'); ?></label>
-                    <input type="text" id="property_longitude" name="property_longitude" value="<?php echo $property ? esc_attr(get_post_meta($property->ID, '_property_longitude', true)) : ''; ?>">
+                    <input type="text" id="property_longitude" name="property_longitude" value="<?php echo $property ? esc_attr(get_post_meta($property->ID, '_property_longitude', true)) : ''; ?>" placeholder="90.4125">
                 </div>
                 
                 <div class="resbs-form-row">
@@ -274,14 +351,46 @@ class RESBS_Frontend {
                         'taxonomy' => 'property_type',
                         'hide_empty' => false
                     ));
+                    
+                    // If no property types exist or error, create default types
+                    if (is_wp_error($property_types) || empty($property_types)) {
+                        $default_types = array(
+                            'House' => 'house',
+                            'Apartment' => 'apartment',
+                            'Condo' => 'condo',
+                            'Townhouse' => 'townhouse',
+                            'Villa' => 'villa',
+                            'Commercial' => 'commercial',
+                            'Land' => 'land'
+                        );
+                        
+                        $created_terms = array();
+                        foreach ($default_types as $name => $slug) {
+                            // Check if term exists
+                            $term = term_exists($slug, 'property_type');
+                            if (!$term) {
+                                // Create the term
+                                $term = wp_insert_term($name, 'property_type', array('slug' => $slug));
+                                if (!is_wp_error($term) && isset($term['term_id'])) {
+                                    $created_terms[] = (object) array('term_id' => $term['term_id'], 'name' => $name);
+                                }
+                            } else {
+                                $term_id = is_array($term) ? $term['term_id'] : $term;
+                                $created_terms[] = (object) array('term_id' => $term_id, 'name' => $name);
+                            }
+                        }
+                        $property_types = $created_terms;
+                    }
                     ?>
-                    <select id="property_type" name="property_type">
+                    <select id="property_type" name="property_type" required>
                         <option value=""><?php esc_html_e('Select Property Type', 'realestate-booking-suite'); ?></option>
-                        <?php foreach ($property_types as $type): ?>
-                            <option value="<?php echo esc_attr($type->term_id); ?>" <?php selected($property ? wp_get_post_terms($property->ID, 'property_type', array('fields' => 'ids')) : array(), $type->term_id); ?>>
-                                <?php echo esc_html($type->name); ?>
-                            </option>
-                        <?php endforeach; ?>
+                        <?php if (!empty($property_types) && !is_wp_error($property_types)): ?>
+                            <?php foreach ($property_types as $type): ?>
+                                <option value="<?php echo esc_attr($type->term_id); ?>" <?php selected($property ? wp_get_post_terms($property->ID, 'property_type', array('fields' => 'ids')) : array(), $type->term_id); ?>>
+                                    <?php echo esc_html($type->name); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
                     </select>
                 </div>
                 
@@ -292,15 +401,143 @@ class RESBS_Frontend {
                         'taxonomy' => 'property_status',
                         'hide_empty' => false
                     ));
+                    
+                    // If no property statuses exist or error, create default statuses
+                    if (is_wp_error($property_statuses) || empty($property_statuses)) {
+                        $default_statuses = array(
+                            'For Sale' => 'for-sale',
+                            'For Rent' => 'for-rent',
+                            'Sold' => 'sold',
+                            'Rented' => 'rented',
+                            'Off Market' => 'off-market'
+                        );
+                        
+                        $created_terms = array();
+                        foreach ($default_statuses as $name => $slug) {
+                            // Check if term exists
+                            $term = term_exists($slug, 'property_status');
+                            if (!$term) {
+                                // Create the term
+                                $term = wp_insert_term($name, 'property_status', array('slug' => $slug));
+                                if (!is_wp_error($term) && isset($term['term_id'])) {
+                                    $created_terms[] = (object) array('term_id' => $term['term_id'], 'name' => $name);
+                                }
+                            } else {
+                                $term_id = is_array($term) ? $term['term_id'] : $term;
+                                $created_terms[] = (object) array('term_id' => $term_id, 'name' => $name);
+                            }
+                        }
+                        $property_statuses = $created_terms;
+                    }
                     ?>
-                    <select id="property_status" name="property_status">
+                    <select id="property_status" name="property_status" required>
                         <option value=""><?php esc_html_e('Select Property Status', 'realestate-booking-suite'); ?></option>
-                        <?php foreach ($property_statuses as $status): ?>
-                            <option value="<?php echo esc_attr($status->term_id); ?>" <?php selected($property ? wp_get_post_terms($property->ID, 'property_status', array('fields' => 'ids')) : array(), $status->term_id); ?>>
-                                <?php echo esc_html($status->name); ?>
-                            </option>
-                        <?php endforeach; ?>
+                        <?php if (!empty($property_statuses) && !is_wp_error($property_statuses)): ?>
+                            <?php foreach ($property_statuses as $status): ?>
+                                <option value="<?php echo esc_attr($status->term_id); ?>" <?php selected($property ? wp_get_post_terms($property->ID, 'property_status', array('fields' => 'ids')) : array(), $status->term_id); ?>>
+                                    <?php echo esc_html($status->name); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
                     </select>
+                </div>
+                
+                <div class="resbs-form-row">
+                    <label for="property_condition"><?php esc_html_e('Property Condition', 'realestate-booking-suite'); ?></label>
+                    <?php
+                    $property_condition = $property ? get_post_meta($property->ID, '_property_condition', true) : '';
+                    ?>
+                    <select id="property_condition" name="property_condition">
+                        <option value=""><?php esc_html_e('Select Condition', 'realestate-booking-suite'); ?></option>
+                        <option value="excellent" <?php selected($property_condition, 'excellent'); ?>><?php esc_html_e('Excellent', 'realestate-booking-suite'); ?></option>
+                        <option value="very-good" <?php selected($property_condition, 'very-good'); ?>><?php esc_html_e('Very Good', 'realestate-booking-suite'); ?></option>
+                        <option value="good" <?php selected($property_condition, 'good'); ?>><?php esc_html_e('Good', 'realestate-booking-suite'); ?></option>
+                        <option value="fair" <?php selected($property_condition, 'fair'); ?>><?php esc_html_e('Fair', 'realestate-booking-suite'); ?></option>
+                        <option value="needs-work" <?php selected($property_condition, 'needs-work'); ?>><?php esc_html_e('Needs Work', 'realestate-booking-suite'); ?></option>
+                    </select>
+                </div>
+                
+                <h3 style="margin-top: 30px; margin-bottom: 15px; border-bottom: 2px solid #0073aa; padding-bottom: 10px;"><?php esc_html_e('Agent Information', 'realestate-booking-suite'); ?></h3>
+                
+                <div class="resbs-form-row">
+                    <div class="resbs-form-group">
+                        <label for="property_agent_name"><?php esc_html_e('Agent Name', 'realestate-booking-suite'); ?></label>
+                        <?php
+                        $agent_name = $property ? get_post_meta($property->ID, '_property_agent_name', true) : '';
+                        ?>
+                        <input type="text" id="property_agent_name" name="property_agent_name" value="<?php echo esc_attr($agent_name); ?>" placeholder="John Smith">
+                    </div>
+                    <div class="resbs-form-group">
+                        <label for="property_agent_title"><?php esc_html_e('Agent Title', 'realestate-booking-suite'); ?></label>
+                        <?php
+                        $agent_title = $property ? get_post_meta($property->ID, '_property_agent_title', true) : '';
+                        ?>
+                        <input type="text" id="property_agent_title" name="property_agent_title" value="<?php echo esc_attr($agent_title); ?>" placeholder="Real Estate Agent">
+                    </div>
+                </div>
+                
+                <div class="resbs-form-row">
+                    <div class="resbs-form-group">
+                        <label for="property_agent_phone"><?php esc_html_e('Agent Phone', 'realestate-booking-suite'); ?></label>
+                        <?php
+                        $agent_phone = $property ? get_post_meta($property->ID, '_property_agent_phone', true) : '';
+                        ?>
+                        <input type="tel" id="property_agent_phone" name="property_agent_phone" value="<?php echo esc_attr($agent_phone); ?>" placeholder="+1 (555) 123-4567">
+                    </div>
+                    <div class="resbs-form-group">
+                        <label for="property_agent_email"><?php esc_html_e('Agent Email', 'realestate-booking-suite'); ?></label>
+                        <?php
+                        $agent_email = $property ? get_post_meta($property->ID, '_property_agent_email', true) : '';
+                        ?>
+                        <input type="email" id="property_agent_email" name="property_agent_email" value="<?php echo esc_attr($agent_email); ?>" placeholder="agent@example.com">
+                    </div>
+                </div>
+                
+                <div class="resbs-form-row">
+                    <div class="resbs-form-group">
+                        <label for="property_agent_experience"><?php esc_html_e('Experience', 'realestate-booking-suite'); ?></label>
+                        <?php
+                        $agent_experience = $property ? get_post_meta($property->ID, '_property_agent_experience', true) : '';
+                        ?>
+                        <input type="text" id="property_agent_experience" name="property_agent_experience" value="<?php echo esc_attr($agent_experience); ?>" placeholder="5+ Years">
+                        <p class="resbs-input-help"><?php esc_html_e('Years of experience (e.g., 5+ Years)', 'realestate-booking-suite'); ?></p>
+                    </div>
+                    <div class="resbs-form-group">
+                        <label for="property_agent_response_time"><?php esc_html_e('Response Time', 'realestate-booking-suite'); ?></label>
+                        <?php
+                        $agent_response_time = $property ? get_post_meta($property->ID, '_property_agent_response_time', true) : '';
+                        ?>
+                        <input type="text" id="property_agent_response_time" name="property_agent_response_time" value="<?php echo esc_attr($agent_response_time); ?>" placeholder="< 1 Hour">
+                        <p class="resbs-input-help"><?php esc_html_e('Average response time (e.g., < 1 Hour)', 'realestate-booking-suite'); ?></p>
+                    </div>
+                </div>
+                
+                <div class="resbs-form-row">
+                    <div class="resbs-form-group">
+                        <label for="property_agent_properties_sold"><?php esc_html_e('Properties Sold', 'realestate-booking-suite'); ?></label>
+                        <?php
+                        $agent_properties_sold = $property ? get_post_meta($property->ID, '_property_agent_properties_sold', true) : '';
+                        ?>
+                        <input type="text" id="property_agent_properties_sold" name="property_agent_properties_sold" value="<?php echo esc_attr($agent_properties_sold); ?>" placeholder="100+">
+                        <p class="resbs-input-help"><?php esc_html_e('Number of properties sold (e.g., 100+)', 'realestate-booking-suite'); ?></p>
+                    </div>
+                    <div class="resbs-form-group">
+                        <label for="property_agent_rating"><?php esc_html_e('Agent Rating', 'realestate-booking-suite'); ?></label>
+                        <?php
+                        $agent_rating = $property ? get_post_meta($property->ID, '_property_agent_rating', true) : '5';
+                        ?>
+                        <select id="property_agent_rating" name="property_agent_rating">
+                            <?php 
+                            $current_rating = $agent_rating;
+                            for ($i = 1; $i <= 5; $i++): 
+                                $star_text = ($i == 1) ? 'Star' : 'Stars';
+                                $selected = selected($current_rating, $i, false);
+                            ?>
+                                <option value="<?php echo esc_attr($i); ?>" <?php echo $selected; // selected() already returns escaped HTML ?>><?php echo esc_html($i . ' ' . $star_text); ?></option>
+                            <?php endfor; ?>
+                        </select>
+                        <p class="resbs-input-help"><?php esc_html_e('Agent rating out of 5 stars', 'realestate-booking-suite'); ?></p>
+                    </div>
                 </div>
                 
                 <div class="resbs-form-row">
@@ -399,14 +636,35 @@ class RESBS_Frontend {
         // Save meta fields
         $meta_fields = array(
             'property_price' => array('sanitize' => 'floatval', 'meta_key' => '_property_price'),
+            'property_price_per_sqft' => array('sanitize' => 'floatval', 'meta_key' => '_property_price_per_sqft'),
             'property_bedrooms' => array('sanitize' => 'absint', 'meta_key' => '_property_bedrooms'),
             'property_bathrooms' => array('sanitize' => 'floatval', 'meta_key' => '_property_bathrooms'),
+            'property_half_baths' => array('sanitize' => 'absint', 'meta_key' => '_property_half_baths'),
+            'property_total_rooms' => array('sanitize' => 'absint', 'meta_key' => '_property_total_rooms'),
+            'property_floors' => array('sanitize' => 'absint', 'meta_key' => '_property_floors'),
+            'property_floor_level' => array('sanitize' => 'absint', 'meta_key' => '_property_floor_level'),
             'property_area' => array('sanitize' => 'absint', 'meta_key' => '_property_size'), // Save area to _property_size for consistency
             'property_size' => array('sanitize' => 'absint', 'meta_key' => '_property_size'),
+            'property_lot_size' => array('sanitize' => 'absint', 'meta_key' => '_property_lot_size_sqft'),
+            'property_year_built' => array('sanitize' => 'absint', 'meta_key' => '_property_year_built'),
+            'property_year_remodeled' => array('sanitize' => 'absint', 'meta_key' => '_property_year_remodeled'),
             'property_latitude' => array('sanitize' => 'sanitize_text_field', 'meta_key' => '_property_latitude'),
             'property_longitude' => array('sanitize' => 'sanitize_text_field', 'meta_key' => '_property_longitude'),
             'property_video_url' => array('sanitize' => 'esc_url_raw', 'meta_key' => '_property_video_url'),
-            'property_description' => array('sanitize' => 'sanitize_textarea_field', 'meta_key' => '_property_description')
+            'property_description' => array('sanitize' => 'sanitize_textarea_field', 'meta_key' => '_property_description'),
+            'property_condition' => array('sanitize' => 'sanitize_text_field', 'meta_key' => '_property_condition'),
+            'property_city' => array('sanitize' => 'sanitize_text_field', 'meta_key' => '_property_city'),
+            'property_state' => array('sanitize' => 'sanitize_text_field', 'meta_key' => '_property_state'),
+            'property_zip' => array('sanitize' => 'sanitize_text_field', 'meta_key' => '_property_zip'),
+            'property_country' => array('sanitize' => 'sanitize_text_field', 'meta_key' => '_property_country'),
+            'property_agent_name' => array('sanitize' => 'sanitize_text_field', 'meta_key' => '_property_agent_name'),
+            'property_agent_title' => array('sanitize' => 'sanitize_text_field', 'meta_key' => '_property_agent_title'),
+            'property_agent_phone' => array('sanitize' => 'sanitize_text_field', 'meta_key' => '_property_agent_phone'),
+            'property_agent_email' => array('sanitize' => 'sanitize_email', 'meta_key' => '_property_agent_email'),
+            'property_agent_experience' => array('sanitize' => 'sanitize_text_field', 'meta_key' => '_property_agent_experience'),
+            'property_agent_response_time' => array('sanitize' => 'sanitize_text_field', 'meta_key' => '_property_agent_response_time'),
+            'property_agent_properties_sold' => array('sanitize' => 'sanitize_text_field', 'meta_key' => '_property_agent_properties_sold'),
+            'property_agent_rating' => array('sanitize' => 'absint', 'meta_key' => '_property_agent_rating')
         );
         
         foreach ($meta_fields as $field => $config) {
