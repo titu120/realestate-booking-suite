@@ -724,3 +724,5 @@ window.onclick = function(event) {
         closeContactModal();
     }
 }
+
+// Map initialization is now handled inline in the template for better reliability

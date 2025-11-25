@@ -1,0 +1,53 @@
+RealEstate Booking Suite WordPress Plugin
+Copyright (c) 2024 Softivus
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along
+with this program; if not, write to the Free Software Foundation, Inc.,
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+---
+
+ADDITIONAL TERMS FOR CODECANYON PURCHASERS:
+
+This plugin is sold through CodeCanyon under the Envato Regular License.
+For detailed license terms, please refer to:
+https://codecanyon.net/licenses/standard
+
+---
+
+THIRD-PARTY LICENSES:
+
+Font Awesome 6.4.0
+Copyright (c) Fonticons, Inc.
+License: SIL OFL 1.1
+https://fontawesome.com/license
+
+Google Fonts (Inter)
+License: SIL Open Font License
+https://fonts.google.com/specimen/Inter
+
+WordPress
+Copyright (c) WordPress Foundation
+License: GPL v2 or later
+https://wordpress.org/about/license/
+
+WooCommerce (if used)
+Copyright (c) Automattic
+License: GPL v3
+https://woocommerce.com/
+
+Elementor (if used)
+Copyright (c) Elementor Ltd.
+License: GPL v3
+https://elementor.com/
+

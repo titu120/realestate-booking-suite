@@ -6,8 +6,11 @@
  * Author URI: https://softivus.com
  * Version: 1.0.0
  * Text Domain: realestate-booking-suite
- * Requires at least: 5.2
- * Requires PHP: 7.1
+ * Requires at least: 5.8
+ * Requires PHP: 7.4
+ * Tested up to: 6.4
+ * License: GPL-2.0-or-later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  */
 
 // Prevent direct access

@@ -54,6 +54,13 @@
         $country      = get_post_meta($post->ID, '_property_country', true);
         $latitude     = get_post_meta($post->ID, '_property_latitude', true);
         $longitude    = get_post_meta($post->ID, '_property_longitude', true);
+        // Fallback: try without underscore prefix (same as archive page)
+        if (empty($latitude)) {
+            $latitude = get_post_meta($post->ID, 'property_latitude', true);
+        }
+        if (empty($longitude)) {
+            $longitude = get_post_meta($post->ID, 'property_longitude', true);
+        }
         $map_iframe   = get_post_meta($post->ID, '_property_map_iframe', true);
         // Try alternative field names
         if (!$map_iframe) {
@@ -1028,11 +1035,17 @@
                             
                             <!-- Map -->
                             <?php 
-                            // Show map only if enabled in settings and map iframe exists (dynamically from Listings settings)
-                            if ($map_iframe && resbs_should_show_map_single_listing()): ?>
-                            <div class="mb-6">
-                                <h4 class="text-lg font-semibold mb-4"><?php echo esc_html__('Map Location', 'realestate-booking-suite'); ?></h4>
-                                <div class="map-container" style="width: 100%; height: 100vh; border-radius: 8px; overflow: hidden;">
+                            // Show map if enabled in settings and either map iframe OR coordinates exist
+                            $has_map_data = ($map_iframe || (!empty($latitude) && !empty($longitude)));
+                            
+                            if ($has_map_data && resbs_should_show_map_single_listing()): 
+                                // Use coordinates if available and no iframe (Leaflet doesn't need API key)
+                                $use_coordinates = (!empty($latitude) && !empty($longitude) && !$map_iframe);
+                            ?>
+                            <div style="margin: 0 !important; padding: 0 !important; margin-bottom: 0 !important; padding-bottom: 0 !important; display: block;">
+                                <h4 class="text-lg font-semibold" style="margin-bottom: 8px; margin-top: 0;"><?php echo esc_html__('Map Location', 'realestate-booking-suite'); ?></h4>
+                                <div class="map-container" style="width: 100% !important; height: 300px !important; min-height: 300px !important; max-height: 300px !important; border-radius: 8px; overflow: hidden; position: relative; margin: 0 !important; padding: 0 !important; margin-bottom: 0 !important; padding-bottom: 0 !important; z-index: 1; display: block !important;">
+                                    <?php if ($map_iframe): ?>
                                     <?php 
                                     // Allow iframe tags for maps
                                     $allowed_html = array(
@@ -1058,14 +1071,162 @@
                                     
                                     echo wp_kses($styled_iframe, $allowed_html);
                                     ?>
+                                    <?php elseif ($use_coordinates): ?>
+                                        <?php
+                                        // Generate unique map ID
+                                        $map_id = 'resbs-property-map-' . $post->ID;
+                                        $lat_val = floatval($latitude);
+                                        $lng_val = floatval($longitude);
+                                        ?>
+                                        <!-- Map container - OpenStreetMap with Leaflet (NO API KEY NEEDED) -->
+                                        <div id="<?php echo esc_attr($map_id); ?>" style="width: 100%; height: 300px; min-height: 300px; max-height: 300px; margin: 0 !important; padding: 0 !important; margin-bottom: 0 !important; padding-bottom: 0 !important; display: block !important; visibility: visible !important; position: relative; z-index: 1;"></div>
+                                        <script type="text/javascript">
+                                        (function() {
+                                            var mapId = '<?php echo esc_js($map_id); ?>';
+                                            var lat = <?php echo $lat_val; ?>;
+                                            var lng = <?php echo $lng_val; ?>;
+                                            var mapInstance = null;
+                                            var mapInitialized = false;
+                                            
+                                            function initLeafletMap() {
+                                                if (mapInitialized && mapInstance) return;
+                                                
+                                                var mapElement = document.getElementById(mapId);
+                                                if (!mapElement) {
+                                                    setTimeout(initLeafletMap, 50);
+                                                    return;
+                                                }
+                                                
+                                                // Ensure element is visible and has dimensions
+                                                var rect = mapElement.getBoundingClientRect();
+                                                if (rect.width === 0 || rect.height === 0) {
+                                                    setTimeout(initLeafletMap, 100);
+                                                    return;
+                                                }
+                                                
+                                                // Force visible
+                                                mapElement.style.display = 'block';
+                                                mapElement.style.visibility = 'visible';
+                                                mapElement.style.width = '100%';
+                                                mapElement.style.height = '300px';
+                                                
+                                                // Check if Leaflet is loaded
+                                                if (typeof L === 'undefined' || typeof L.map !== 'function') {
+                                                    setTimeout(initLeafletMap, 100);
+                                                    return;
+                                                }
+                                                
+                                                try {
+                                                    // Fix Leaflet icon paths
+                                                    delete L.Icon.Default.prototype._getIconUrl;
+                                                    L.Icon.Default.mergeOptions({
+                                                        iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+                                                        shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+                                                        iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png'
+                                                    });
+                                                    
+                                                    // Initialize map
+                                                    mapInstance = L.map(mapId, {
+                                                        center: [lat, lng],
+                                                        zoom: 15,
+                                                        zoomControl: true
+                                                    });
+                                                    
+                                                    // Add OpenStreetMap tiles
+                                                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                                                        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                                                        maxZoom: 19
+                                                    }).addTo(mapInstance);
+                                                    
+                                                    // Add marker
+                                                    L.marker([lat, lng]).addTo(mapInstance);
+                                                    
+                                                    mapInitialized = true;
+                                                    
+                                                    // CRITICAL: Call invalidateSize multiple times to fix rendering
+                                                    setTimeout(function() {
+                                                        if (mapInstance) {
+                                                            mapInstance.invalidateSize();
+                                                        }
+                                                    }, 100);
+                                                    
+                                                    setTimeout(function() {
+                                                        if (mapInstance) {
+                                                            mapInstance.invalidateSize();
+                                                        }
+                                                    }, 300);
+                                                    
+                                                    setTimeout(function() {
+                                                        if (mapInstance) {
+                                                            mapInstance.invalidateSize();
+                                                        }
+                                                    }, 600);
+                                                    
+                                                    setTimeout(function() {
+                                                        if (mapInstance) {
+                                                            mapInstance.invalidateSize();
+                                                        }
+                                                    }, 1000);
+                                                    
+                                                } catch(e) {
+                                                    console.error('Leaflet map error:', e);
+                                                    mapInitialized = false;
+                                                    setTimeout(initLeafletMap, 200);
+                                                }
+                                            }
+                                            
+                                            // Initialize when DOM is ready
+                                            if (document.readyState === 'loading') {
+                                                document.addEventListener('DOMContentLoaded', function() {
+                                                    setTimeout(initLeafletMap, 100);
+                                                });
+                                            } else {
+                                                setTimeout(initLeafletMap, 100);
+                                            }
+                                            
+                                            // Also try on window load
+                                            window.addEventListener('load', function() {
+                                                setTimeout(function() {
+                                                    initLeafletMap();
+                                                    if (mapInstance) {
+                                                        mapInstance.invalidateSize();
+                                                    }
+                                                }, 200);
+                                            });
+                                            
+                                            // Force retry after delays
+                                            setTimeout(initLeafletMap, 500);
+                                            setTimeout(initLeafletMap, 1000);
+                                            setTimeout(initLeafletMap, 2000);
+                                        })();
+                                        </script>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                             <?php endif; ?>
+                            <style type="text/css">
+                            .single-property .map-container {
+                                height: 300px !important;
+                                min-height: 300px !important;
+                                max-height: 300px !important;
+                                margin-bottom: 0 !important;
+                                padding-bottom: 0 !important;
+                                margin: 0 !important;
+                            }
+                            #<?php echo esc_attr($map_id ?? 'resbs-property-map'); ?>,
+                            .map-container > div,
+                            div[id^="resbs-property-map-"] {
+                                margin-bottom: 0 !important;
+                                padding-bottom: 0 !important;
+                                margin: 0 !important;
+                                height: 300px !important;
+                            }
+                            </style>
                             
                             <!-- Nearby Features -->
-                            <div class="mb-6">
-                                <h4 class="text-lg font-semibold mb-4"><?php echo esc_html__('Nearby Features', 'realestate-booking-suite'); ?></h4>
-                                <div class="nearby-features-grid">
+                            <div style="margin-bottom: 0; margin-top: 10px; padding-bottom: 0;">
+                                <h4 class="text-lg font-semibold" style="margin-bottom: 8px; margin-top: 0;"><?php echo esc_html__('Nearby Features', 'realestate-booking-suite'); ?></h4>
+                                <div class="nearby-features-grid" style="margin: 0; padding: 0; margin-top: 0;">
                                     <?php if ($nearby_schools): ?>
                                     <div class="location-feature location-feature-blue">
                                         <i class="fas fa-graduation-cap"></i>
