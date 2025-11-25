@@ -1032,7 +1032,7 @@
                             if ($map_iframe && resbs_should_show_map_single_listing()): ?>
                             <div class="mb-6">
                                 <h4 class="text-lg font-semibold mb-4"><?php echo esc_html__('Map Location', 'realestate-booking-suite'); ?></h4>
-                                <div class="map-container" style="width: 100%; height: 400px; border-radius: 8px; overflow: hidden;">
+                                <div class="map-container" style="width: 100%; height: 100vh; border-radius: 8px; overflow: hidden;">
                                     <?php 
                                     // Allow iframe tags for maps
                                     $allowed_html = array(

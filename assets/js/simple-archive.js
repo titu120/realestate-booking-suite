@@ -204,6 +204,136 @@
     };
 
     // Show Map View - Always show map when clicked
+    // Store scroll prevention handlers
+    let scrollPreventionHandlers = {
+        wheel: null,
+        touchmove: null,
+        scroll: null,
+        windowScroll: null
+    };
+    
+    // Function to prevent body scrolling
+    function enableScrollPrevention() {
+        const mainContent = document.querySelector('.main-content');
+        const rbsArchive = document.querySelector('.rbs-archive');
+        
+        // Prevent body scrolling when map view is active
+        document.body.classList.add('map-view-active');
+        document.documentElement.classList.add('map-view-active');
+        if (mainContent) mainContent.classList.add('map-view-active');
+        if (rbsArchive) rbsArchive.classList.add('map-view-active');
+        
+        // Store current scroll position
+        const scrollY = window.scrollY;
+        
+        // Prevent all scroll events on body/html when map is active
+        scrollPreventionHandlers.wheel = function(e) {
+            const propertiesList = document.querySelector('.listings-container.map-visible .properties-list');
+            const target = e.target;
+            
+            // Check if the event is within the properties list or its children
+            if (propertiesList && (propertiesList.contains(target) || propertiesList === target)) {
+                // Check if we're at the boundaries
+                const isAtTop = propertiesList.scrollTop <= 0;
+                const isAtBottom = propertiesList.scrollHeight - propertiesList.scrollTop <= propertiesList.clientHeight + 1;
+                
+                // Prevent scroll propagation if at boundaries
+                if ((isAtTop && e.deltaY < 0) || (isAtBottom && e.deltaY > 0)) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return false;
+                }
+                return; // Allow scrolling within properties list
+            }
+            
+            // Prevent all other scrolling
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+        };
+        
+        scrollPreventionHandlers.touchmove = function(e) {
+            const propertiesList = document.querySelector('.listings-container.map-visible .properties-list');
+            const target = e.target;
+            
+            // Check if the event is within the properties list or its children
+            if (propertiesList && (propertiesList.contains(target) || propertiesList === target)) {
+                // Check if we're at the boundaries
+                const isAtTop = propertiesList.scrollTop <= 0;
+                const isAtBottom = propertiesList.scrollHeight - propertiesList.scrollTop <= propertiesList.clientHeight + 1;
+                
+                // Prevent scroll propagation if at boundaries
+                if ((isAtTop && e.touches[0].clientY > e.touches[0].clientY) || 
+                    (isAtBottom && e.touches[0].clientY < e.touches[0].clientY)) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return false;
+                }
+                return; // Allow scrolling within properties list
+            }
+            
+            // Prevent all other scrolling
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+        };
+        
+        scrollPreventionHandlers.scroll = function(e) {
+            // Always prevent body/html scrolling
+            if (e.target === document.body || e.target === document.documentElement) {
+                window.scrollTo(0, scrollY); // Maintain scroll position
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+            }
+        };
+        
+        // Prevent scroll on window
+        const preventWindowScroll = function(e) {
+            window.scrollTo(0, scrollY);
+            e.preventDefault();
+            return false;
+        };
+        
+        document.body.addEventListener('wheel', scrollPreventionHandlers.wheel, { passive: false });
+        document.body.addEventListener('touchmove', scrollPreventionHandlers.touchmove, { passive: false });
+        document.body.addEventListener('scroll', scrollPreventionHandlers.scroll, { passive: false });
+        window.addEventListener('scroll', preventWindowScroll, { passive: false });
+        
+        // Store window scroll handler
+        scrollPreventionHandlers.windowScroll = preventWindowScroll;
+    }
+    
+    // Function to re-enable body scrolling
+    function disableScrollPrevention() {
+        const mainContent = document.querySelector('.main-content');
+        const rbsArchive = document.querySelector('.rbs-archive');
+        
+        // Re-enable body scrolling
+        document.body.classList.remove('map-view-active');
+        document.documentElement.classList.remove('map-view-active');
+        if (mainContent) mainContent.classList.remove('map-view-active');
+        if (rbsArchive) rbsArchive.classList.remove('map-view-active');
+        
+        // Remove event listeners
+        if (scrollPreventionHandlers.wheel) {
+            document.body.removeEventListener('wheel', scrollPreventionHandlers.wheel);
+            scrollPreventionHandlers.wheel = null;
+        }
+        if (scrollPreventionHandlers.touchmove) {
+            document.body.removeEventListener('touchmove', scrollPreventionHandlers.touchmove);
+            scrollPreventionHandlers.touchmove = null;
+        }
+        if (scrollPreventionHandlers.scroll) {
+            document.body.removeEventListener('scroll', scrollPreventionHandlers.scroll);
+            scrollPreventionHandlers.scroll = null;
+        }
+        if (scrollPreventionHandlers.windowScroll) {
+            window.removeEventListener('scroll', scrollPreventionHandlers.windowScroll);
+            scrollPreventionHandlers.windowScroll = null;
+        }
+    }
+    
     window.showMapView = function() {
         const mapSection = document.querySelector('.map-section');
         const listingsContainer = document.querySelector('.listings-container');
