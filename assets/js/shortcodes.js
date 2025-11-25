@@ -384,7 +384,14 @@
                         var message = response.data.message || 'Property submitted successfully!';
                         // If message contains HTML (like links), allow it
                         var $messageDiv = $('<div class="resbs-message resbs-message-success">' + message + '</div>');
-                        $widget.prepend($messageDiv);
+                        
+                        // Append message after the form (at the bottom) instead of prepending at top
+                        $form.after($messageDiv);
+                        
+                        // Scroll to message smoothly
+                        setTimeout(function() {
+                            $messageDiv[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }, 100);
                         
                         // Auto-hide after 8 seconds
                         setTimeout(function() {
@@ -552,7 +559,13 @@
         showMessage: function($widget, message, type) {
             var $message = $('<div class="resbs-message resbs-message-' + type + '">' + message + '</div>');
             
-            $widget.prepend($message);
+            // Append message at the bottom instead of prepending at top
+            $widget.append($message);
+            
+            // Scroll to message smoothly
+            setTimeout(function() {
+                $message[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 100);
             
             setTimeout(function() {
                 $message.fadeOut(function() {

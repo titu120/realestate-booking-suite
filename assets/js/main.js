@@ -75,13 +75,29 @@ jQuery(document).ready(function($) {
                 success: function(response) {
                     if (response.success) {
                         messageDiv.removeClass('resbs-error').addClass('resbs-success').html(response.data).show();
+                        
+                        // Scroll to message smoothly
+                        setTimeout(function() {
+                            messageDiv[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }, 100);
+                        
                         form[0].reset();
                     } else {
                         messageDiv.removeClass('resbs-success').addClass('resbs-error').html(response.data).show();
+                        
+                        // Scroll to error message
+                        setTimeout(function() {
+                            messageDiv[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }, 100);
                     }
                 },
                 error: function() {
                     messageDiv.removeClass('resbs-success').addClass('resbs-error').html(resbs_ajax.messages.error).show();
+                    
+                    // Scroll to error message
+                    setTimeout(function() {
+                        messageDiv[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 100);
                 },
                 complete: function() {
                     // Re-enable submit button

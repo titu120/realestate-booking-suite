@@ -32,6 +32,32 @@ class RESBS_Shortcode_AJAX {
         
         add_action('wp_ajax_resbs_load_more_properties', array($this, 'load_more_properties'));
         add_action('wp_ajax_nopriv_resbs_load_more_properties', array($this, 'load_more_properties'));
+        
+        // Allow logged-in users to upload files for property submissions
+        add_filter('user_has_cap', array($this, 'allow_upload_files_for_properties'), 10, 4);
+    }
+    
+    /**
+     * Temporarily grant upload_files capability to logged-in users for property submissions
+     */
+    public function allow_upload_files_for_properties($allcaps, $caps, $args, $user) {
+        // Only apply during property submission AJAX requests
+        if (!defined('DOING_AJAX') || !DOING_AJAX) {
+            return $allcaps;
+        }
+        
+        // Check if this is a property submission or upload request
+        $action = isset($_POST['action']) ? $_POST['action'] : (isset($_REQUEST['action']) ? $_REQUEST['action'] : '');
+        if (!in_array($action, array('resbs_submit_property', 'resbs_upload_image', 'resbs_upload_property_media'))) {
+            return $allcaps;
+        }
+        
+        // Grant upload_files capability to logged-in users
+        if (is_user_logged_in() && isset($caps[0]) && $caps[0] === 'upload_files') {
+            $allcaps['upload_files'] = true;
+        }
+        
+        return $allcaps;
     }
 
     /**
@@ -366,12 +392,8 @@ class RESBS_Shortcode_AJAX {
             ));
         }
 
-        // Check if user has capability to create posts
-        if (!current_user_can('edit_posts')) {
-            wp_send_json_error(array(
-                'message' => esc_html__('You do not have permission to submit properties.', 'realestate-booking-suite')
-            ));
-        }
+        // Allow any logged-in user to submit properties
+        // Removed the edit_posts capability check to allow all users to submit
 
         // Verify nonce - check both possible nonce field names
         $nonce = isset($_POST['nonce']) ? $_POST['nonce'] : (isset($_POST['resbs_submit_nonce']) ? $_POST['resbs_submit_nonce'] : '');
@@ -686,14 +708,15 @@ class RESBS_Shortcode_AJAX {
             }
         }
 
-        // Check if files are being uploaded and verify upload capability
+        // Check if files are being uploaded
         $has_files = (!empty($_FILES['property_featured_image']) && $_FILES['property_featured_image']['error'] === UPLOAD_ERR_OK) ||
                      (!empty($_FILES['property_gallery'])) ||
                      (!empty($_FILES['property_agent_photo']) && $_FILES['property_agent_photo']['error'] === UPLOAD_ERR_OK);
         
-        if ($has_files && !current_user_can('upload_files')) {
+        // Allow any logged-in user to upload files for their properties
+        if ($has_files && !is_user_logged_in()) {
             wp_send_json_error(array(
-                'message' => esc_html__('You do not have permission to upload files.', 'realestate-booking-suite')
+                'message' => esc_html__('You must be logged in to upload files.', 'realestate-booking-suite')
             ));
         }
 

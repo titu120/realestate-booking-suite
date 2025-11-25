@@ -457,6 +457,73 @@ class RESBS_Frontend {
                     </select>
                 </div>
                 
+                <h3 style="margin-top: 30px; margin-bottom: 15px; border-bottom: 2px solid #0073aa; padding-bottom: 10px;"><?php esc_html_e('Property Features', 'realestate-booking-suite'); ?></h3>
+                
+                <div class="resbs-form-row">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div>
+                            <label for="property_parking"><?php esc_html_e('Parking', 'realestate-booking-suite'); ?></label>
+                            <?php
+                            $parking = $property ? get_post_meta($property->ID, '_property_parking', true) : '';
+                            ?>
+                            <input type="text" id="property_parking" name="property_parking" value="<?php echo esc_attr($parking); ?>" placeholder="e.g. 2 Car Garage, Street Parking">
+                        </div>
+                        <div>
+                            <label for="property_heating"><?php esc_html_e('Heating', 'realestate-booking-suite'); ?></label>
+                            <?php
+                            $heating = $property ? get_post_meta($property->ID, '_property_heating', true) : '';
+                            ?>
+                            <input type="text" id="property_heating" name="property_heating" value="<?php echo esc_attr($heating); ?>" placeholder="e.g. Central Heating, Gas">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="resbs-form-row">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div>
+                            <label for="property_cooling"><?php esc_html_e('Cooling', 'realestate-booking-suite'); ?></label>
+                            <?php
+                            $cooling = $property ? get_post_meta($property->ID, '_property_cooling', true) : '';
+                            ?>
+                            <input type="text" id="property_cooling" name="property_cooling" value="<?php echo esc_attr($cooling); ?>" placeholder="e.g. Central Air, AC Units">
+                        </div>
+                        <div>
+                            <label for="property_basement"><?php esc_html_e('Basement', 'realestate-booking-suite'); ?></label>
+                            <?php
+                            $basement = $property ? get_post_meta($property->ID, '_property_basement', true) : '';
+                            ?>
+                            <input type="text" id="property_basement" name="property_basement" value="<?php echo esc_attr($basement); ?>" placeholder="e.g. Finished, Unfinished, None">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="resbs-form-row">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div>
+                            <label for="property_roof"><?php esc_html_e('Roof', 'realestate-booking-suite'); ?></label>
+                            <?php
+                            $roof = $property ? get_post_meta($property->ID, '_property_roof', true) : '';
+                            ?>
+                            <input type="text" id="property_roof" name="property_roof" value="<?php echo esc_attr($roof); ?>" placeholder="e.g. Shingle, Tile, Metal">
+                        </div>
+                        <div>
+                            <label for="property_exterior_material"><?php esc_html_e('Exterior Material', 'realestate-booking-suite'); ?></label>
+                            <?php
+                            $exterior_material = $property ? get_post_meta($property->ID, '_property_exterior_material', true) : '';
+                            ?>
+                            <input type="text" id="property_exterior_material" name="property_exterior_material" value="<?php echo esc_attr($exterior_material); ?>" placeholder="e.g. Brick, Vinyl, Stucco">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="resbs-form-row">
+                    <label for="property_floor_covering"><?php esc_html_e('Floor Covering', 'realestate-booking-suite'); ?></label>
+                    <?php
+                    $floor_covering = $property ? get_post_meta($property->ID, '_property_floor_covering', true) : '';
+                    ?>
+                    <input type="text" id="property_floor_covering" name="property_floor_covering" value="<?php echo esc_attr($floor_covering); ?>" placeholder="e.g. Hardwood, Carpet, Tile">
+                </div>
+                
                 <h3 style="margin-top: 30px; margin-bottom: 15px; border-bottom: 2px solid #0073aa; padding-bottom: 10px;"><?php esc_html_e('Agent Information', 'realestate-booking-suite'); ?></h3>
                 
                 <div class="resbs-form-row">
@@ -664,7 +731,14 @@ class RESBS_Frontend {
             'property_agent_experience' => array('sanitize' => 'sanitize_text_field', 'meta_key' => '_property_agent_experience'),
             'property_agent_response_time' => array('sanitize' => 'sanitize_text_field', 'meta_key' => '_property_agent_response_time'),
             'property_agent_properties_sold' => array('sanitize' => 'sanitize_text_field', 'meta_key' => '_property_agent_properties_sold'),
-            'property_agent_rating' => array('sanitize' => 'absint', 'meta_key' => '_property_agent_rating')
+            'property_agent_rating' => array('sanitize' => 'absint', 'meta_key' => '_property_agent_rating'),
+            'property_parking' => array('sanitize' => 'sanitize_text_field', 'meta_key' => '_property_parking'),
+            'property_heating' => array('sanitize' => 'sanitize_text_field', 'meta_key' => '_property_heating'),
+            'property_cooling' => array('sanitize' => 'sanitize_text_field', 'meta_key' => '_property_cooling'),
+            'property_basement' => array('sanitize' => 'sanitize_text_field', 'meta_key' => '_property_basement'),
+            'property_roof' => array('sanitize' => 'sanitize_text_field', 'meta_key' => '_property_roof'),
+            'property_exterior_material' => array('sanitize' => 'sanitize_text_field', 'meta_key' => '_property_exterior_material'),
+            'property_floor_covering' => array('sanitize' => 'sanitize_text_field', 'meta_key' => '_property_floor_covering')
         );
         
         foreach ($meta_fields as $field => $config) {
