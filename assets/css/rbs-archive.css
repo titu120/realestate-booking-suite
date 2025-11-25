@@ -251,8 +251,7 @@
     .rbs-archive .filter-chip:hover {
         border-color: #0f766e;
         color: #0f766e;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
     }
 
     .rbs-archive .search-btn {
@@ -761,11 +760,9 @@
         color: #0f766e;
     }
     .rbs-archive  button:focus{
-        border: unset;
         color: #0f766e;
     }
     .rbs-archive  button:hover{
-        border: unset;
         color: #0f766e;
     }
 

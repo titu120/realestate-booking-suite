@@ -478,8 +478,8 @@ class RESBS_Template_Assets {
         }
         
         .apply-filter-btn {
-            background-color: {$main_color};
-            color: white;
+            background-color: {$main_color} !important;
+            color: white !important;
             font-weight: 600;
         }
         
