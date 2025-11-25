@@ -806,90 +806,182 @@
                         <div id="features-tab" class="tab-content">
                             <h3 class="section-title"><?php echo esc_html__('Property Features', 'realestate-booking-suite'); ?></h3>
                             
+                            <!-- Features List Section -->
+                            <?php if (!empty($features_array) && is_array($features_array) && count($features_array) > 0): ?>
+                            <div class="property-features-section mb-8">
+                                <h4 class="text-lg font-semibold mb-4"><?php echo esc_html__('Features', 'realestate-booking-suite'); ?></h4>
+                                <div class="property-features-list" style="display: flex; flex-wrap: wrap; gap: 12px;">
+                                    <?php foreach ($features_array as $feature): 
+                                        $feature_trimmed = trim($feature);
+                                        if (empty($feature_trimmed)) continue;
+                                    ?>
+                                    <div class="feature-badge" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 8px; color: #0369a1; font-size: 14px; font-weight: 500;">
+                                        <i class="fas fa-check-circle" style="color: #0ea5e9;"></i>
+                                        <span><?php echo esc_html($feature_trimmed); ?></span>
+                                    </div>
+                                    <?php endforeach; ?>
+                                </div>
+                            </div>
+                            <?php endif; ?>
+                            
+                            <!-- Amenities List Section -->
+                            <?php if (!empty($amenities_array) && is_array($amenities_array) && count($amenities_array) > 0): ?>
+                            <div class="property-features-section mb-8">
+                                <h4 class="text-lg font-semibold mb-4"><?php echo esc_html__('Amenities', 'realestate-booking-suite'); ?></h4>
+                                <div class="property-amenities-list" style="display: flex; flex-wrap: wrap; gap: 12px;">
+                                    <?php foreach ($amenities_array as $amenity): 
+                                        $amenity_trimmed = trim($amenity);
+                                        if (empty($amenity_trimmed)) continue;
+                                    ?>
+                                    <div class="amenity-badge" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; color: #166534; font-size: 14px; font-weight: 500;">
+                                        <i class="fas fa-star" style="color: #22c55e;"></i>
+                                        <span><?php echo esc_html($amenity_trimmed); ?></span>
+                                    </div>
+                                    <?php endforeach; ?>
+                                </div>
+                            </div>
+                            <?php endif; ?>
+                            
                             <!-- Property Features Section -->
                             <div class="property-features-section mb-8">
                                 <h4 class="text-lg font-semibold mb-4"><?php echo esc_html__('Property Details', 'realestate-booking-suite'); ?></h4>
                                 <div class="property-features-grid">
-                                    <?php if ($parking): ?>
+                                    <?php 
+                                    // Debug: Check if values exist (remove after testing)
+                                    // Uncomment to debug: var_dump($parking, $heating, $cooling, $basement, $roof, $exterior_material, $floor_covering);
+                                    
+                                    // Helper function to get display labels
+                                    function resbs_get_parking_label($value) {
+                                        $labels = array(
+                                            'garage' => __('Garage', 'realestate-booking-suite'),
+                                            'driveway' => __('Driveway', 'realestate-booking-suite'),
+                                            'street' => __('Street Parking', 'realestate-booking-suite'),
+                                            'none' => __('No Parking', 'realestate-booking-suite')
+                                        );
+                                        return isset($labels[$value]) ? $labels[$value] : ucfirst($value);
+                                    }
+                                    
+                                    function resbs_get_heating_label($value) {
+                                        $labels = array(
+                                            'central' => __('Central Heating', 'realestate-booking-suite'),
+                                            'gas' => __('Gas Heating', 'realestate-booking-suite'),
+                                            'electric' => __('Electric Heating', 'realestate-booking-suite'),
+                                            'wood' => __('Wood Heating', 'realestate-booking-suite'),
+                                            'none' => __('No Heating', 'realestate-booking-suite')
+                                        );
+                                        return isset($labels[$value]) ? $labels[$value] : ucfirst($value);
+                                    }
+                                    
+                                    function resbs_get_cooling_label($value) {
+                                        $labels = array(
+                                            'central' => __('Central Air', 'realestate-booking-suite'),
+                                            'window' => __('Window Units', 'realestate-booking-suite'),
+                                            'none' => __('No Cooling', 'realestate-booking-suite')
+                                        );
+                                        return isset($labels[$value]) ? $labels[$value] : ucfirst($value);
+                                    }
+                                    
+                                    function resbs_get_basement_label($value) {
+                                        $labels = array(
+                                            'finished' => __('Finished Basement', 'realestate-booking-suite'),
+                                            'unfinished' => __('Unfinished Basement', 'realestate-booking-suite'),
+                                            'crawl' => __('Crawl Space', 'realestate-booking-suite'),
+                                            'none' => __('No Basement', 'realestate-booking-suite')
+                                        );
+                                        return isset($labels[$value]) ? $labels[$value] : ucfirst($value);
+                                    }
+                                    
+                                    function resbs_get_roof_label($value) {
+                                        $labels = array(
+                                            'asphalt' => __('Asphalt Shingles', 'realestate-booking-suite'),
+                                            'metal' => __('Metal Roof', 'realestate-booking-suite'),
+                                            'tile' => __('Tile Roof', 'realestate-booking-suite'),
+                                            'slate' => __('Slate Roof', 'realestate-booking-suite'),
+                                            'wood' => __('Wood Shingles', 'realestate-booking-suite')
+                                        );
+                                        return isset($labels[$value]) ? $labels[$value] : ucfirst($value);
+                                    }
+                                    ?>
+                                    <?php if (!empty($parking)): ?>
                                     <div class="feature-detail-item">
                                         <div class="feature-detail-icon">
                                             <i class="fas fa-car"></i>
                                         </div>
                                         <div class="feature-detail-content">
                                             <span class="feature-detail-label"><?php echo esc_html__('Parking', 'realestate-booking-suite'); ?></span>
-                                            <span class="feature-detail-value"><?php echo esc_html(ucfirst($parking)); ?></span>
+                                            <span class="feature-detail-value"><?php echo esc_html(resbs_get_parking_label($parking)); ?></span>
                                         </div>
                                     </div>
                                     <?php endif; ?>
                                     
-                                    <?php if ($heating): ?>
+                                    <?php if (!empty($heating)): ?>
                                     <div class="feature-detail-item">
                                         <div class="feature-detail-icon">
                                             <i class="fas fa-thermometer-half"></i>
                                         </div>
                                         <div class="feature-detail-content">
                                             <span class="feature-detail-label"><?php echo esc_html__('Heating', 'realestate-booking-suite'); ?></span>
-                                            <span class="feature-detail-value"><?php echo esc_html($heating); ?></span>
+                                            <span class="feature-detail-value"><?php echo esc_html(resbs_get_heating_label($heating)); ?></span>
                                         </div>
                                     </div>
                                     <?php endif; ?>
                                     
-                                    <?php if ($cooling): ?>
+                                    <?php if (!empty($cooling)): ?>
                                     <div class="feature-detail-item">
                                         <div class="feature-detail-icon">
                                             <i class="fas fa-snowflake"></i>
                                         </div>
                                         <div class="feature-detail-content">
                                             <span class="feature-detail-label"><?php echo esc_html__('Cooling', 'realestate-booking-suite'); ?></span>
-                                            <span class="feature-detail-value"><?php echo esc_html($cooling); ?></span>
+                                            <span class="feature-detail-value"><?php echo esc_html(resbs_get_cooling_label($cooling)); ?></span>
                                         </div>
                                     </div>
                                     <?php endif; ?>
                                     
-                                    <?php if ($basement): ?>
+                                    <?php if (!empty($basement)): ?>
                                     <div class="feature-detail-item">
                                         <div class="feature-detail-icon">
                                             <i class="fas fa-layer-group"></i>
                                         </div>
                                         <div class="feature-detail-content">
                                             <span class="feature-detail-label"><?php echo esc_html__('Basement', 'realestate-booking-suite'); ?></span>
-                                            <span class="feature-detail-value"><?php echo esc_html($basement); ?></span>
+                                            <span class="feature-detail-value"><?php echo esc_html(resbs_get_basement_label($basement)); ?></span>
                                         </div>
                                     </div>
                                     <?php endif; ?>
                                     
-                                    <?php if ($roof): ?>
+                                    <?php if (!empty($roof)): ?>
                                     <div class="feature-detail-item">
                                         <div class="feature-detail-icon">
                                             <i class="fas fa-home"></i>
                                         </div>
                                         <div class="feature-detail-content">
                                             <span class="feature-detail-label"><?php echo esc_html__('Roof', 'realestate-booking-suite'); ?></span>
-                                            <span class="feature-detail-value"><?php echo esc_html($roof); ?></span>
+                                            <span class="feature-detail-value"><?php echo esc_html(resbs_get_roof_label($roof)); ?></span>
                                         </div>
                                     </div>
                                     <?php endif; ?>
                                     
-                                    <?php if ($exterior_material): ?>
+                                    <?php if (!empty($exterior_material)): ?>
                                     <div class="feature-detail-item">
                                         <div class="feature-detail-icon">
                                             <i class="fas fa-cube"></i>
                                         </div>
                                         <div class="feature-detail-content">
                                             <span class="feature-detail-label"><?php echo esc_html__('Exterior Material', 'realestate-booking-suite'); ?></span>
-                                            <span class="feature-detail-value"><?php echo esc_html($exterior_material); ?></span>
+                                            <span class="feature-detail-value"><?php echo esc_html(ucfirst($exterior_material)); ?></span>
                                         </div>
                                     </div>
                                     <?php endif; ?>
                                     
-                                    <?php if ($floor_covering): ?>
+                                    <?php if (!empty($floor_covering)): ?>
                                     <div class="feature-detail-item">
                                         <div class="feature-detail-icon">
                                             <i class="fas fa-th-large"></i>
                                         </div>
                                         <div class="feature-detail-content">
                                             <span class="feature-detail-label"><?php echo esc_html__('Floor Covering', 'realestate-booking-suite'); ?></span>
-                                            <span class="feature-detail-value"><?php echo esc_html($floor_covering); ?></span>
+                                            <span class="feature-detail-value"><?php echo esc_html(ucfirst($floor_covering)); ?></span>
                                         </div>
                                     </div>
                                     <?php endif; ?>

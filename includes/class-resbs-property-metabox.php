@@ -519,21 +519,6 @@ class RESBS_Property_Metabox {
                                 </div>
                             </div>
                             <div class="resbs-card-body">
-                                <?php if (!get_option('resbs_map_api_key')): ?>
-                                <div class="resbs-alert resbs-alert-warning">
-                                    <div class="resbs-alert-icon">
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M10.29 3.86L1.82 18C1.64573 18.3024 1.57299 18.6453 1.61211 18.9873C1.65124 19.3293 1.80026 19.6522 2.03588 19.9067C2.2715 20.1612 2.58172 20.3343 2.92278 20.4015C3.26384 20.4687 3.61736 20.4273 3.93 20.283L12 16.77L20.07 20.283C20.3826 20.4273 20.7362 20.4687 21.0772 20.4015C21.4183 20.3343 21.7285 20.1612 21.9641 19.9067C22.1997 19.6522 22.3488 19.3293 22.3879 18.9873C22.427 18.6453 22.3543 18.3024 22.18 18L13.71 3.86C13.5318 3.56631 13.2807 3.32312 12.9812 3.15447C12.6817 2.98582 12.3438 2.89725 12 2.89725C11.6562 2.89725 11.3183 2.98582 11.0188 3.15447C10.7193 3.32312 10.4682 3.56631 10.29 3.86Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                            <line x1="12" y1="9" x2="12" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                            <line x1="12" y1="17" x2="12.01" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                        </svg>
-                                    </div>
-                                    <div class="resbs-alert-content">
-                                        <p><?php esc_html_e('You need to configure your Google Maps API key to use location features.', 'realestate-booking-suite'); ?></p>
-                                        <a href="<?php echo esc_url(admin_url('admin.php?page=resbs-general-settings')); ?>" class="resbs-btn resbs-btn-primary"><?php esc_html_e('Configure API Key', 'realestate-booking-suite'); ?></a>
-                                    </div>
-                                </div>
-                                <?php endif; ?>
 
                                 <div class="resbs-form-group">
                                     <label class="resbs-stunning-checkbox">
@@ -569,9 +554,9 @@ class RESBS_Property_Metabox {
                                 </div>
 
                                 <!-- Map Coordinates Section - ALWAYS VISIBLE -->
-                                <div class="resbs-form-group" style="margin-top: 30px; padding-top: 25px; border-top: 3px solid #3b82f6; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);">
-                                    <h4 style="margin-bottom: 20px; font-size: 18px; color: #1e40af; font-weight: 700; display: flex; align-items: center;">
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 10px; color: #3b82f6;">
+                                <div class="resbs-form-group" style="margin-top: 30px; padding-top: 25px;  ">
+                                    <h4 style="margin-bottom: 20px; font-size: 18px; font-weight: 700; display: flex; align-items: center;">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 10px;">
                                             <path d="M21 10C21 17 12 23 12 23S3 17 3 10C3 7.61305 3.94821 5.32387 5.63604 3.63604C7.32387 1.94821 9.61305 1 12 1C14.3869 1 16.6761 1.94821 18.3639 3.63604C20.0518 5.32387 21 7.61305 21 10Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                             <circle cx="12" cy="10" r="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                         </svg>
@@ -590,7 +575,7 @@ class RESBS_Property_Metabox {
                                                    value="<?php echo esc_attr($latitude); ?>" 
                                                    class="resbs-stunning-input" 
                                                    placeholder="23.8103"
-                                                   style="width: 100%; padding: 12px; font-size: 14px; border: 2px solid #3b82f6; border-radius: 8px; background: white;">
+                                                   style="width: 100%; padding: 12px; font-size: 14px;  border-radius: 8px; background: white;">
                                             <p style="margin-top: 6px; font-size: 12px; color: #6b7280;">
                                                 <?php esc_html_e('Range: -90 to 90', 'realestate-booking-suite'); ?>
                                             </p>
@@ -606,7 +591,7 @@ class RESBS_Property_Metabox {
                                                    value="<?php echo esc_attr($longitude); ?>" 
                                                    class="resbs-stunning-input" 
                                                    placeholder="90.4125"
-                                                   style="width: 100%; padding: 12px; font-size: 14px; border: 2px solid #3b82f6; border-radius: 8px; background: white;">
+                                                   style="width: 100%; padding: 12px; font-size: 14px;  border-radius: 8px; background: white;">
                                             <p style="margin-top: 6px; font-size: 12px; color: #6b7280;">
                                                 <?php esc_html_e('Range: -180 to 180', 'realestate-booking-suite'); ?>
                                             </p>
@@ -619,15 +604,7 @@ class RESBS_Property_Metabox {
                                         $map_api_key_main = get_option('resbs_google_maps_api_key', '');
                                     }
                                     if (!empty($map_api_key_main)): ?>
-                                        <p style="margin-bottom: 15px; padding: 12px; background: #dbeafe; border-left: 4px solid #3b82f6; border-radius: 4px; color: #1e40af; font-size: 13px;">
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle; margin-right: 5px; color: #3b82f6;">
-                                                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
-                                                <path d="M12 16V12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                                                <path d="M12 8H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                                            </svg>
-                                            <strong><?php esc_html_e('Auto-Geocoding Enabled:', 'realestate-booking-suite'); ?></strong>
-                                            <?php esc_html_e('Coordinates will be automatically updated as you type in the address fields above. You can also click the map or drag the marker to set coordinates manually.', 'realestate-booking-suite'); ?>
-                                        </p>
+
                                     <?php else: ?>
                                         <p style="padding: 12px; background: #fef3c7; border-left: 4px solid #f59e0b; border-radius: 4px; color: #92400e; font-size: 13px; margin-bottom: 15px;">
                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle; margin-right: 5px;">
@@ -975,7 +952,7 @@ class RESBS_Property_Metabox {
                                     
                                     <div class="resbs-form-group">
                                         <label for="property_virtual_tour_description"><?php esc_html_e('Virtual Tour Description', 'realestate-booking-suite'); ?></label>
-                                        <textarea id="property_virtual_tour_description" name="property_virtual_tour_description" class="resbs-stunning-input" rows="3" placeholder="Experience this property from anywhere with our interactive 3D tour."><?php echo esc_textarea($virtual_tour_description ?: 'Experience this property from anywhere with our interactive 3D tour.'); ?></textarea>
+                                        <textarea id="property_virtual_tour_description" name="property_virtual_tour_description" class="resbs-stunning-input" rows="3" placeholder="Experience this property from anywhere with our interactive 3D tour."><?php echo esc_textarea($virtual_tour_description); ?></textarea>
                                         <p class="resbs-input-help"><?php esc_html_e('Customize the description text for the virtual tour', 'realestate-booking-suite'); ?></p>
                                     </div>
                                     
@@ -2316,6 +2293,13 @@ class RESBS_Property_Metabox {
             // Save custom fields
             'property_features' => '_property_features',
             'property_amenities' => '_property_amenities',
+            'property_parking' => '_property_parking',
+            'property_heating' => '_property_heating',
+            'property_cooling' => '_property_cooling',
+            'property_basement' => '_property_basement',
+            'property_roof' => '_property_roof',
+            'property_exterior_material' => '_property_exterior_material',
+            'property_floor_covering' => '_property_floor_covering',
             'property_nearby_schools' => '_property_nearby_schools',
             'property_nearby_shopping' => '_property_nearby_shopping',
             'property_nearby_restaurants' => '_property_nearby_restaurants',
@@ -2416,6 +2400,11 @@ class RESBS_Property_Metabox {
         }
         
         foreach ($fields_to_save as $form_field => $meta_key) {
+            // Skip virtual tour description - it's saved separately after the loop
+            if ($form_field === 'property_virtual_tour_description') {
+                continue;
+            }
+            
             // Special handling for HTML fields (iframe and video embed)
             if ($form_field === 'property_map_iframe') {
                 // Allow iframe tags with specific attributes for maps
@@ -2453,8 +2442,15 @@ class RESBS_Property_Metabox {
                       $form_field === 'property_contact_success_message' ||
                       $form_field === 'property_mortgage_loan_terms' ||
                       $form_field === 'property_mortgage_disclaimer_text') {
-                // Special handling for textarea fields
-                $value = isset($_POST[$form_field]) ? sanitize_textarea_field($_POST[$form_field]) : '';
+                // Special handling for textarea fields - always save even if empty
+                // Check if field exists in POST (even if empty string)
+                if (array_key_exists($form_field, $_POST)) {
+                    $value = sanitize_textarea_field($_POST[$form_field]);
+                    $value = trim($value); // Trim to ensure empty strings are truly empty
+                } else {
+                    // Field not in POST at all - set to empty
+                    $value = '';
+                }
             } elseif ($form_field === 'property_latitude' || $form_field === 'property_longitude') {
                 // Special handling for coordinates - save as float
                 $value = isset($_POST[$form_field]) ? sanitize_text_field($_POST[$form_field]) : '';
@@ -2522,15 +2518,48 @@ class RESBS_Property_Metabox {
                 $value = isset($_POST[$form_field]) ? sanitize_text_field($_POST[$form_field]) : '';
             }
             
-            // Only update if value is different or if it's a new field
+            // Always update the field (even if empty) to ensure it's saved
             $existing_value = get_post_meta($post_id, $meta_key, true);
-            if ($value !== $existing_value) {
-                $result = update_post_meta($post_id, $meta_key, $value);
-                if ($result !== false) {
-                    $saved_count++;
-                }
+            // Always update - this ensures empty values are saved to clear the field
+            $result = update_post_meta($post_id, $meta_key, $value);
+            if ($result !== false) {
+                $saved_count++;
             }
         }
+        
+        // Direct save for property detail fields to ensure they're saved
+        $detail_fields = array(
+            'property_parking' => '_property_parking',
+            'property_heating' => '_property_heating',
+            'property_cooling' => '_property_cooling',
+            'property_basement' => '_property_basement',
+            'property_roof' => '_property_roof',
+            'property_exterior_material' => '_property_exterior_material',
+            'property_floor_covering' => '_property_floor_covering'
+        );
+        
+        foreach ($detail_fields as $form_field => $meta_key) {
+            if (isset($_POST[$form_field])) {
+                $value = sanitize_text_field($_POST[$form_field]);
+                update_post_meta($post_id, $meta_key, $value);
+            } else {
+                // If not set, clear the value
+                update_post_meta($post_id, $meta_key, '');
+            }
+        }
+        
+        // Direct save for virtual tour description to ensure it's saved even when empty
+        // This MUST run AFTER the loop to override any previous save
+        // Always save this field, even if it's completely empty
+        $tour_desc = '';
+        // Use array_key_exists to check if field exists in POST (even if empty string)
+        if (array_key_exists('property_virtual_tour_description', $_POST)) {
+            $tour_desc = sanitize_textarea_field($_POST['property_virtual_tour_description']);
+            $tour_desc = trim($tour_desc); // Remove all whitespace including newlines
+        }
+        // FORCE update - always save, even if empty - this ensures the field is cleared
+        delete_post_meta($post_id, '_property_virtual_tour_description'); // Delete first to ensure clean save
+        update_post_meta($post_id, '_property_virtual_tour_description', $tour_desc);
         
         // Direct save for iframe field to ensure it's saved
         if (isset($_POST['property_map_iframe'])) {
