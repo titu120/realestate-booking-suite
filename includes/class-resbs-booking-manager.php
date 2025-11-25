@@ -132,9 +132,9 @@ class RESBS_Booking_Manager {
         $message = isset($_POST['message']) ? sanitize_textarea_field($_POST['message']) : '';
         $property_id = isset($_POST['property_id']) ? intval($_POST['property_id']) : 0;
 
-        // Validate required fields (only name, email, phone are required)
-        if (empty($first_name) || empty($last_name) || empty($email) || empty($phone)) {
-            wp_send_json_error(array('message' => esc_html__('Please fill in all required fields (Name, Email, Phone).', 'realestate-booking-suite')));
+        // Validate required fields (name and email are required, phone is optional)
+        if (empty($first_name) || empty($last_name) || empty($email)) {
+            wp_send_json_error(array('message' => esc_html__('Please fill in all required fields (Name and Email).', 'realestate-booking-suite')));
             return;
         }
 
@@ -186,6 +186,10 @@ class RESBS_Booking_Manager {
      * Send booking notification emails
      */
     private function send_booking_notifications($booking_id, $property_id, $first_name, $last_name, $email, $phone, $preferred_date, $preferred_time, $message) {
+        // Check if booking emails are enabled
+        if (!get_option('resbs_email_enable_booking_emails', true)) {
+            return; // Emails disabled, exit early
+        }
         // Sanitize all data for email
         $property_title = sanitize_text_field(get_the_title($property_id));
         $property_url = esc_url_raw(get_permalink($property_id));

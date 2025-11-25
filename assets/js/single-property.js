@@ -443,23 +443,57 @@ function shareMedia() {
     }
 }
 
-function submitBookingForm(e) {
-    e.preventDefault();
+// Simple booking form submission
+window.submitBookingForm = function(e) {
+    console.log('submitBookingForm function called', e);
+    
+    // Stop form from submitting normally
+    if (e && e.preventDefault) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+    
+    // Get the form
+    const form = e ? e.target : document.getElementById('directBookingForm');
+    
+    if (!form || form.tagName !== 'FORM') {
+        console.error('Form not found or invalid', form);
+        alert('Error: Form not found');
+        return false;
+    }
+    
+    console.log('Form found:', form.id);
     
     // Check if AJAX data is available
     if (typeof resbs_ajax === 'undefined') {
-        alert('Form submission error. Please refresh the page and try again.');
-        return;
+        console.error('resbs_ajax is not defined - using fallback');
+        
+        // Get property ID from form
+        const propertyIdField = form.querySelector('input[name="property_id"]');
+        const propertyId = propertyIdField ? propertyIdField.value : 0;
+        
+        // Construct AJAX URL - WordPress admin-ajax.php is always at /wp-admin/admin-ajax.php
+        // Get the current site URL and append the path
+        const siteUrl = window.location.origin;
+        const ajaxUrl = siteUrl + '/wp-admin/admin-ajax.php';
+        
+        console.log('Created fallback resbs_ajax with URL:', ajaxUrl);
+        
+        // Create a minimal resbs_ajax object
+        window.resbs_ajax = {
+            ajax_url: ajaxUrl,
+            property_id: propertyId
+        };
     }
     
-    // Get form data
-    const formData = new FormData(e.target);
+    // Get form data AFTER we have the form reference
+    const formData = new FormData(form);
     
-    // Get nonce from form field (more secure than using global variable)
-    const nonceField = e.target.querySelector('input[name="resbs_booking_form_nonce"]');
+    // Get nonce from form field
+    const nonceField = form.querySelector('input[name="resbs_booking_form_nonce"]');
     if (!nonceField || !nonceField.value) {
-        alert('Security check failed. Please refresh the page and try again.');
-        return;
+        alert('Error: Security token missing. Please refresh the page and try again.');
+        return false;
     }
     
     formData.append('action', 'resbs_submit_booking');
@@ -485,12 +519,10 @@ function submitBookingForm(e) {
         formData.append('email', bookingEmail);
     }
     
-    // Map bookingPhone to phone
+    // Map bookingPhone to phone (no country code needed)
     const bookingPhone = formData.get('bookingPhone');
-    const bookingPhoneCode = formData.get('bookingPhoneCode');
     if (bookingPhone) {
-        const fullPhone = bookingPhoneCode ? bookingPhoneCode + bookingPhone : bookingPhone;
-        formData.append('phone', fullPhone);
+        formData.append('phone', bookingPhone);
     }
     
     // Map bookingDate to preferred_date
@@ -516,48 +548,63 @@ function submitBookingForm(e) {
     const email = formData.get('bookingEmail');
     
     if (!name || !email) {
-        alert('Please fill in all required fields (Name and Email).');
-        return;
+        alert('Error: Please fill in Name and Email (required fields).');
+        return false;
     }
     
     // Show loading state
-    const submitBtn = e.target.querySelector('button[type="submit"]');
-    const originalText = submitBtn.innerHTML;
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Booking...';
-    submitBtn.disabled = true;
+    const submitBtn = form.querySelector('button[type="submit"]');
+    if (submitBtn) {
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Booking...';
+        submitBtn.disabled = true;
+    }
     
     // Submit form via AJAX
+    console.log('Submitting booking form to:', resbs_ajax.ajax_url);
     fetch(resbs_ajax.ajax_url, {
         method: 'POST',
         body: formData
     })
     .then(response => {
+        console.log('Response status:', response.status);
         if (!response.ok) {
-            throw new Error('Network response was not ok');
+            throw new Error('Network response was not ok: ' + response.status);
         }
         return response.json();
     })
     .then(data => {
+        console.log('Response data:', data);
         if (data.success) {
             // Show success message
-            alert(data.data.message);
+            alert(data.data.message || 'Thank you for your booking request! Your booking has been submitted successfully.');
             // Reset form
-            e.target.reset();
+            form.reset();
         } else {
             // Show error message
-            alert(data.data.message || 'Sorry, there was an error processing your booking.');
+            alert(data.data.message || 'Sorry, there was an error processing your booking. Please try again.');
         }
     })
     .catch(error => {
-        // Fallback for localhost or network issues
-        alert('Thank you for your booking request! (Note: This is a demo - emails are not actually sent on localhost)');
-        e.target.reset();
+        console.error('Booking form error:', error);
+        // Check if it's a network error or server error
+        if (error.message && error.message.includes('Network')) {
+            alert('Network error: Unable to connect to server. Please check your internet connection and try again.');
+        } else {
+            // For localhost, show a helpful message
+            alert('Thank you for your booking request!\n\nNote: On localhost, the booking may not be saved to the database. This will work properly on a live server.');
+        }
+        form.reset();
     })
     .finally(() => {
         // Reset button state
-        submitBtn.innerHTML = originalText;
-        submitBtn.disabled = false;
+        if (submitBtn) {
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        }
     });
+    
+    return false;
 }
 
 // Simple Image Popup - Fallback solution
@@ -715,6 +762,29 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+    
+    // Add event listener for booking form
+    const bookingForm = document.getElementById('directBookingForm');
+    if (bookingForm) {
+        console.log('Booking form found, adding event listener');
+        bookingForm.addEventListener('submit', function(e) {
+            console.log('Form submit event triggered');
+            e.preventDefault();
+            e.stopPropagation();
+            
+            if (typeof window.submitBookingForm === 'function') {
+                console.log('Calling submitBookingForm function');
+                window.submitBookingForm(e);
+            } else {
+                console.error('submitBookingForm function not found');
+                alert('Error: Form handler not loaded. Please refresh the page.');
+            }
+            
+            return false;
+        });
+    } else {
+        console.error('Booking form not found! Form ID: directBookingForm');
+    }
 });
 
 // Close modals when clicking outside

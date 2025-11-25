@@ -146,9 +146,11 @@ class RESBS_Contact_Messages {
         // Send email notifications
         $this->send_contact_message_notifications($contact_message_id, $property_id, $name, $email, $phone, $message);
         
-        // Get success message from property meta
+        // Get success message from property meta (with default for new properties only)
+        $exists = metadata_exists('post', $property_id, '_property_contact_success_message');
         $success_message = get_post_meta($property_id, '_property_contact_success_message', true);
-        if (empty($success_message)) {
+        // Only show default if meta doesn't exist (new property), not if it's empty (user cleared it)
+        if (!$exists) {
             $success_message = esc_html__('Thank you! Your message has been sent to the agent.', 'realestate-booking-suite');
         } else {
             $success_message = sanitize_text_field($success_message);

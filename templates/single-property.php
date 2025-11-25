@@ -157,10 +157,17 @@
             }
         }
         $floor_plans              = get_post_meta($post->ID, '_property_floor_plans', true);
+        // Helper function to get field value with default (only for new properties)
+        $get_field_with_default = function($meta_key, $default) use ($post) {
+            $exists = metadata_exists('post', $post->ID, $meta_key);
+            $value = get_post_meta($post->ID, $meta_key, true);
+            return $exists ? $value : $default;
+        };
+        
         $virtual_tour             = get_post_meta($post->ID, '_property_virtual_tour', true);
-        $virtual_tour_title       = get_post_meta($post->ID, '_property_virtual_tour_title', true);
-        $virtual_tour_description = get_post_meta($post->ID, '_property_virtual_tour_description', true);
-        $virtual_tour_button_text = get_post_meta($post->ID, '_property_virtual_tour_button_text', true);
+        $virtual_tour_title       = $get_field_with_default('_property_virtual_tour_title', '3D Virtual Walkthrough');
+        $virtual_tour_description = $get_field_with_default('_property_virtual_tour_description', 'Experience this property from anywhere with our interactive 3D tour.');
+        $virtual_tour_button_text = $get_field_with_default('_property_virtual_tour_button_text', 'Start Tour');
         $video_url                = get_post_meta($post->ID, '_property_video_url', true);
         $video_embed              = get_post_meta($post->ID, '_property_video_embed', true);
 
@@ -169,43 +176,42 @@
         $agent_phone             = get_post_meta($post->ID, '_property_agent_phone', true);
         $agent_email             = get_post_meta($post->ID, '_property_agent_email', true);
         $agent_photo             = get_post_meta($post->ID, '_property_agent_photo', true);
-        $agent_properties_sold   = get_post_meta($post->ID, '_property_agent_properties_sold', true);
-        $agent_experience        = get_post_meta($post->ID, '_property_agent_experience', true);
-        $agent_response_time     = get_post_meta($post->ID, '_property_agent_response_time', true);
-        $agent_rating            = get_post_meta($post->ID, '_property_agent_rating', true);
-        $agent_send_message_text = get_post_meta($post->ID, '_property_agent_send_message_text', true);
+        $agent_properties_sold   = $get_field_with_default('_property_agent_properties_sold', '100+');
+        $agent_experience        = $get_field_with_default('_property_agent_experience', '5+ Years');
+        $agent_response_time     = $get_field_with_default('_property_agent_response_time', '< 1 Hour');
+        $agent_rating            = $get_field_with_default('_property_agent_rating', '5');
+        $agent_send_message_text = $get_field_with_default('_property_agent_send_message_text', 'Send Message');
 
         // Contact Form Dynamic Fields
-        $contact_form_title      = get_post_meta($post->ID, '_property_contact_form_title', true);
-        $contact_name_label      = get_post_meta($post->ID, '_property_contact_name_label', true);
-        $contact_email_label     = get_post_meta($post->ID, '_property_contact_email_label', true);
-        $contact_phone_label     = get_post_meta($post->ID, '_property_contact_phone_label', true);
-        $contact_message_label   = get_post_meta($post->ID, '_property_contact_message_label', true);
-        $contact_success_message = get_post_meta($post->ID, '_property_contact_success_message', true);
-        $contact_submit_text     = get_post_meta($post->ID, '_property_contact_submit_text', true);
+        $contact_form_title      = $get_field_with_default('_property_contact_form_title', 'Contact Agent');
+        $contact_name_label      = $get_field_with_default('_property_contact_name_label', 'Your Name');
+        $contact_email_label     = $get_field_with_default('_property_contact_email_label', 'Email');
+        $contact_phone_label     = $get_field_with_default('_property_contact_phone_label', 'Phone');
+        $contact_message_label   = $get_field_with_default('_property_contact_message_label', 'Message');
+        $contact_success_message = $get_field_with_default('_property_contact_success_message', 'Thank you! Your message has been sent to the agent.');
+        $contact_submit_text     = $get_field_with_default('_property_contact_submit_text', 'Send Message');
 
         // Booking Form Dynamic Fields
-        $booking_form_title      = get_post_meta($post->ID, '_property_booking_form_title', true);
-        $booking_form_subtitle   = get_post_meta($post->ID, '_property_booking_form_subtitle', true);
-        $booking_name_label      = get_post_meta($post->ID, '_property_booking_name_label', true);
-        $booking_email_label     = get_post_meta($post->ID, '_property_booking_email_label', true);
-        $booking_phone_label     = get_post_meta($post->ID, '_property_booking_phone_label', true);
-        $booking_date_label      = get_post_meta($post->ID, '_property_booking_date_label', true);
-        $booking_time_label      = get_post_meta($post->ID, '_property_booking_time_label', true);
-        $booking_message_label   = get_post_meta($post->ID, '_property_booking_message_label', true);
-        $booking_submit_text     = get_post_meta($post->ID, '_property_booking_submit_text', true);
+        $booking_form_title      = $get_field_with_default('_property_booking_form_title', 'Property Booking');
+        $booking_form_subtitle   = $get_field_with_default('_property_booking_form_subtitle', 'Schedule a viewing or book this property');
+        $booking_name_label      = $get_field_with_default('_property_booking_name_label', 'Your Name');
+        $booking_email_label     = $get_field_with_default('_property_booking_email_label', 'Email');
+        $booking_phone_label     = $get_field_with_default('_property_booking_phone_label', 'Phone');
+        $booking_date_label      = $get_field_with_default('_property_booking_date_label', 'Preferred Date');
+        $booking_time_label      = $get_field_with_default('_property_booking_time_label', 'Preferred Time');
+        $booking_message_label   = $get_field_with_default('_property_booking_message_label', 'Additional Message');
+        $booking_submit_text     = $get_field_with_default('_property_booking_submit_text', 'Schedule Property Viewing');
 
         // Mortgage Calculator Dynamic Fields
-        $mortgage_calculator_title      = get_post_meta($post->ID, '_property_mortgage_calculator_title', true);
-        $mortgage_property_price_label  = get_post_meta($post->ID, '_property_mortgage_property_price_label', true);
-        $mortgage_down_payment_label    = get_post_meta($post->ID, '_property_mortgage_down_payment_label', true);
-        $mortgage_interest_rate_label   = get_post_meta($post->ID, '_property_mortgage_interest_rate_label', true);
-        $mortgage_loan_term_label       = get_post_meta($post->ID, '_property_mortgage_loan_term_label', true);
-        $mortgage_monthly_payment_label = get_post_meta($post->ID, '_property_mortgage_monthly_payment_label', true);
-        $mortgage_default_down_payment  = get_post_meta($post->ID, '_property_mortgage_default_down_payment', true);
-        $mortgage_default_interest_rate = get_post_meta($post->ID, '_property_mortgage_default_interest_rate', true);
-        $mortgage_default_loan_term     = get_post_meta($post->ID, '_property_mortgage_default_loan_term', true);
-        $mortgage_disclaimer_text       = get_post_meta($post->ID, '_property_mortgage_disclaimer_text', true);
+        $mortgage_calculator_title      = $get_field_with_default('_property_mortgage_calculator_title', 'Mortgage Calculator');
+        $mortgage_property_price_label  = $get_field_with_default('_property_mortgage_property_price_label', 'Property Price');
+        $mortgage_down_payment_label    = $get_field_with_default('_property_mortgage_down_payment_label', 'Down Payment (%)');
+        $mortgage_interest_rate_label   = $get_field_with_default('_property_mortgage_interest_rate_label', 'Interest Rate (%)');
+        $mortgage_loan_term_label       = $get_field_with_default('_property_mortgage_loan_term_label', 'Loan Term (Years)');
+        $mortgage_monthly_payment_label = $get_field_with_default('_property_mortgage_monthly_payment_label', 'Estimated Monthly Payment');
+        $mortgage_default_down_payment  = $get_field_with_default('_property_mortgage_default_down_payment', '20');
+        $mortgage_default_interest_rate = $get_field_with_default('_property_mortgage_default_interest_rate', '6.5');
+        $mortgage_disclaimer_text       = $get_field_with_default('_property_mortgage_disclaimer_text', '*Principal & Interest only');
         
         // Get global mortgage calculator settings
         $mortgage_loan_terms = get_option('resbs_mortgage_loan_terms', '');
@@ -213,10 +219,7 @@
         $mortgage_default_down_payment_global = get_option('resbs_mortgage_default_down_payment', '');
         $mortgage_default_interest_rate_global = get_option('resbs_mortgage_default_interest_rate', '');
 
-        // Tour Information Fields
-        $tour_duration   = get_post_meta($post->ID, '_property_tour_duration', true);
-        $tour_group_size = get_post_meta($post->ID, '_property_tour_group_size', true);
-        $tour_safety     = get_post_meta($post->ID, '_property_tour_safety', true);
+        // Tour Information Fields (removed - not used on frontend)
 
         // Get property badges
         $property_badges = get_post_meta($post->ID, '_property_badges', true);
@@ -613,7 +616,7 @@
 
                             <?php if ($virtual_tour): ?>
                             <div class="info-box">
-                                <p><i class="fas fa-info-circle mr-2"></i><strong><?php echo esc_html__('Virtual Tour Available:', 'realestate-booking-suite'); ?></strong> <?php echo esc_html($virtual_tour_description ? $virtual_tour_description : __('Schedule a 3D virtual walkthrough of this property at your convenience.', 'realestate-booking-suite')); ?></p>
+                                <p><i class="fas fa-info-circle mr-2"></i><strong><?php echo esc_html__('Virtual Tour Available:', 'realestate-booking-suite'); ?></strong> <?php echo esc_html($virtual_tour_description); ?></p>
                             </div>
                             <?php endif; ?>
                         </div>
@@ -1580,11 +1583,15 @@
                             <div class="mb-8">
                                 <h4 class="text-lg font-semibold mb-4"><?php echo esc_html__('Virtual Tour', 'realestate-booking-suite'); ?></h4>
                                 <div class="virtual-tour-container">
-                                    <h5 class="virtual-tour-title"><?php echo esc_html($virtual_tour_title ? $virtual_tour_title : __('Virtual Tour', 'realestate-booking-suite')); ?></h5>
-                                    <p class="virtual-tour-description"><?php echo esc_html($virtual_tour_description ? $virtual_tour_description : __('Experience this property from anywhere with our interactive 3D tour.', 'realestate-booking-suite')); ?></p>
+                                    <?php if (!empty($virtual_tour_title)): ?>
+                                    <h5 class="virtual-tour-title"><?php echo esc_html($virtual_tour_title); ?></h5>
+                                    <?php endif; ?>
+                                    <?php if (!empty($virtual_tour_description)): ?>
+                                    <p class="virtual-tour-description"><?php echo esc_html($virtual_tour_description); ?></p>
+                                    <?php endif; ?>
                                     <a href="<?php echo esc_url($virtual_tour); ?>" target="_blank" class="virtual-tour-button">
                                         <i class="fas fa-play mr-2"></i>
-                                        <?php echo esc_html($virtual_tour_button_text ? $virtual_tour_button_text : __('Start Virtual Tour', 'realestate-booking-suite')); ?>
+                                        <?php echo esc_html($virtual_tour_button_text); ?>
                                     </a>
                                 </div>
                             </div>
@@ -1683,7 +1690,9 @@
                             
                             <!-- Contact Form -->
                             <div class="bg-gray-50 p-6 rounded-lg">
-                                <h4 class="text-lg font-semibold mb-4"><?php echo esc_html($contact_form_title ? $contact_form_title : __('Contact Agent', 'realestate-booking-suite')); ?></h4>
+                                <?php if (!empty($contact_form_title)): ?>
+                                <h4 class="text-lg font-semibold mb-4"><?php echo esc_html($contact_form_title); ?></h4>
+                                <?php endif; ?>
                                 <form class="space-y-4" onsubmit="submitContactForm(event)">
                                     <?php wp_nonce_field('resbs_contact_form', 'resbs_contact_form_nonce'); ?>
                                     <input type="hidden" name="property_id" value="<?php echo esc_attr($post->ID); ?>">
@@ -1715,14 +1724,15 @@
 
                         <!-- Booking Tab -->
                         <div id="booking-tab" class="tab-content">
-                            <h3 class="section-title"><?php echo esc_html($booking_form_title ? $booking_form_title : __('Property Booking', 'realestate-booking-suite')); ?></h3>
-                            <p class="text-gray-600 mb-6"><?php echo esc_html($booking_form_subtitle ? $booking_form_subtitle : __('Schedule a viewing or book this property', 'realestate-booking-suite')); ?></p>
-                            
                             <div class="bg-white p-8 rounded-xl shadow-lg border border-gray-100">
-                                <h4 class="text-xl font-bold text-gray-800 mb-2"><?php echo esc_html($booking_form_title ? $booking_form_title : __('Book Property Viewing', 'realestate-booking-suite')); ?></h4>
-                                <p class="text-gray-600 mb-8"><?php echo esc_html($booking_form_subtitle ? $booking_form_subtitle : __('Fill out the form below to schedule your property viewing', 'realestate-booking-suite')); ?></p>
+                                <?php if (!empty($booking_form_title)): ?>
+                                <h4 class="text-xl font-bold text-gray-800 mb-2"><?php echo esc_html($booking_form_title); ?></h4>
+                                <?php endif; ?>
+                                <?php if (!empty($booking_form_subtitle)): ?>
+                                <p class="text-gray-600 mb-8"><?php echo esc_html($booking_form_subtitle); ?></p>
+                                <?php endif; ?>
                                 
-                                <form id="directBookingForm" onsubmit="submitBookingForm(event)">
+                                <form id="directBookingForm" method="post" action="#">
                                     <?php wp_nonce_field('resbs_booking_form', 'resbs_booking_form_nonce'); ?>
                                     <input type="hidden" name="property_id" value="<?php echo esc_attr($post->ID); ?>">
                                     <div class="space-y-6">
@@ -1744,242 +1754,9 @@
                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             <div class="space-y-2">
                                                 <label for="bookingPhone" class="block text-sm font-semibold text-gray-700"><?php echo esc_html($booking_phone_label ? $booking_phone_label : __('Phone', 'realestate-booking-suite')); ?></label>
-                                                <?php if (resbs_show_phone_country_code()): ?>
-                                                    <div class="flex gap-2 items-stretch" style="display: flex !important; flex-wrap: nowrap !important;">
-                                                        <div class="phone-code-wrapper" style="position: relative; flex-shrink: 0; width: 160px; min-width: 160px;">
-                                                            <input type="text" id="bookingPhoneCodeSearch" 
-                                                                   placeholder="<?php echo esc_attr__('Type to search...', 'realestate-booking-suite'); ?>" 
-                                                                   autocomplete="off"
-                                                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200 bg-white text-xs"
-                                                                   style="display: none; position: absolute; top: 0; left: 0; right: 0; z-index: 10; border-bottom: none; border-radius: 8px 8px 0 0;">
-                                                            <select id="bookingPhoneCode" name="bookingPhoneCode" 
-                                                                    class="px-2 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200 bg-white text-sm w-full"
-                                                                    style="appearance: none; background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3e%3cpolyline points=\'6 9 12 15 18 9\'%3e%3c/polyline%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 8px center; background-size: 16px; padding-right: 32px;">
-                                                            <?php 
-                                                            // Default to +1 (US/Canada) - can be overridden by geolocation
-                                                            $default_tel_code = '+1';
-                                                            // Complete list of ALL countries with tel codes (195+ countries)
-                                                            $tel_codes = array(
-                                                                '+1' => '+1 (US/Canada)',
-                                                                '+7' => '+7 (Russia/Kazakhstan)',
-                                                                '+20' => '+20 (Egypt)',
-                                                                '+27' => '+27 (South Africa)',
-                                                                '+30' => '+30 (Greece)',
-                                                                '+31' => '+31 (Netherlands)',
-                                                                '+32' => '+32 (Belgium)',
-                                                                '+33' => '+33 (France)',
-                                                                '+34' => '+34 (Spain)',
-                                                                '+36' => '+36 (Hungary)',
-                                                                '+39' => '+39 (Italy)',
-                                                                '+40' => '+40 (Romania)',
-                                                                '+41' => '+41 (Switzerland)',
-                                                                '+43' => '+43 (Austria)',
-                                                                '+44' => '+44 (UK)',
-                                                                '+45' => '+45 (Denmark)',
-                                                                '+46' => '+46 (Sweden)',
-                                                                '+47' => '+47 (Norway)',
-                                                                '+48' => '+48 (Poland)',
-                                                                '+49' => '+49 (Germany)',
-                                                                '+51' => '+51 (Peru)',
-                                                                '+52' => '+52 (Mexico)',
-                                                                '+53' => '+53 (Cuba)',
-                                                                '+54' => '+54 (Argentina)',
-                                                                '+55' => '+55 (Brazil)',
-                                                                '+56' => '+56 (Chile)',
-                                                                '+57' => '+57 (Colombia)',
-                                                                '+58' => '+58 (Venezuela)',
-                                                                '+60' => '+60 (Malaysia)',
-                                                                '+61' => '+61 (Australia)',
-                                                                '+62' => '+62 (Indonesia)',
-                                                                '+63' => '+63 (Philippines)',
-                                                                '+64' => '+64 (New Zealand)',
-                                                                '+65' => '+65 (Singapore)',
-                                                                '+66' => '+66 (Thailand)',
-                                                                '+81' => '+81 (Japan)',
-                                                                '+82' => '+82 (South Korea)',
-                                                                '+84' => '+84 (Vietnam)',
-                                                                '+86' => '+86 (China)',
-                                                                '+90' => '+90 (Turkey)',
-                                                                '+91' => '+91 (India)',
-                                                                '+92' => '+92 (Pakistan)',
-                                                                '+93' => '+93 (Afghanistan)',
-                                                                '+94' => '+94 (Sri Lanka)',
-                                                                '+95' => '+95 (Myanmar)',
-                                                                '+98' => '+98 (Iran)',
-                                                                '+212' => '+212 (Morocco)',
-                                                                '+213' => '+213 (Algeria)',
-                                                                '+216' => '+216 (Tunisia)',
-                                                                '+218' => '+218 (Libya)',
-                                                                '+220' => '+220 (Gambia)',
-                                                                '+221' => '+221 (Senegal)',
-                                                                '+222' => '+222 (Mauritania)',
-                                                                '+223' => '+223 (Mali)',
-                                                                '+224' => '+224 (Guinea)',
-                                                                '+225' => '+225 (Ivory Coast)',
-                                                                '+226' => '+226 (Burkina Faso)',
-                                                                '+227' => '+227 (Niger)',
-                                                                '+228' => '+228 (Togo)',
-                                                                '+229' => '+229 (Benin)',
-                                                                '+230' => '+230 (Mauritius)',
-                                                                '+231' => '+231 (Liberia)',
-                                                                '+232' => '+232 (Sierra Leone)',
-                                                                '+233' => '+233 (Ghana)',
-                                                                '+234' => '+234 (Nigeria)',
-                                                                '+235' => '+235 (Chad)',
-                                                                '+236' => '+236 (Central African Republic)',
-                                                                '+237' => '+237 (Cameroon)',
-                                                                '+238' => '+238 (Cape Verde)',
-                                                                '+239' => '+239 (São Tomé and Príncipe)',
-                                                                '+240' => '+240 (Equatorial Guinea)',
-                                                                '+241' => '+241 (Gabon)',
-                                                                '+242' => '+242 (Republic of the Congo)',
-                                                                '+243' => '+243 (DR Congo)',
-                                                                '+244' => '+244 (Angola)',
-                                                                '+245' => '+245 (Guinea-Bissau)',
-                                                                '+246' => '+246 (British Indian Ocean Territory)',
-                                                                '+248' => '+248 (Seychelles)',
-                                                                '+249' => '+249 (Sudan)',
-                                                                '+250' => '+250 (Rwanda)',
-                                                                '+251' => '+251 (Ethiopia)',
-                                                                '+252' => '+252 (Somalia)',
-                                                                '+253' => '+253 (Djibouti)',
-                                                                '+254' => '+254 (Kenya)',
-                                                                '+255' => '+255 (Tanzania)',
-                                                                '+256' => '+256 (Uganda)',
-                                                                '+257' => '+257 (Burundi)',
-                                                                '+258' => '+258 (Mozambique)',
-                                                                '+260' => '+260 (Zambia)',
-                                                                '+261' => '+261 (Madagascar)',
-                                                                '+262' => '+262 (Réunion/Mayotte)',
-                                                                '+263' => '+263 (Zimbabwe)',
-                                                                '+264' => '+264 (Namibia)',
-                                                                '+265' => '+265 (Malawi)',
-                                                                '+266' => '+266 (Lesotho)',
-                                                                '+267' => '+267 (Botswana)',
-                                                                '+268' => '+268 (Swaziland)',
-                                                                '+269' => '+269 (Comoros)',
-                                                                '+290' => '+290 (Saint Helena)',
-                                                                '+291' => '+291 (Eritrea)',
-                                                                '+297' => '+297 (Aruba)',
-                                                                '+298' => '+298 (Faroe Islands)',
-                                                                '+299' => '+299 (Greenland)',
-                                                                '+350' => '+350 (Gibraltar)',
-                                                                '+351' => '+351 (Portugal)',
-                                                                '+352' => '+352 (Luxembourg)',
-                                                                '+353' => '+353 (Ireland)',
-                                                                '+354' => '+354 (Iceland)',
-                                                                '+355' => '+355 (Albania)',
-                                                                '+356' => '+356 (Malta)',
-                                                                '+357' => '+357 (Cyprus)',
-                                                                '+358' => '+358 (Finland)',
-                                                                '+359' => '+359 (Bulgaria)',
-                                                                '+370' => '+370 (Lithuania)',
-                                                                '+371' => '+371 (Latvia)',
-                                                                '+372' => '+372 (Estonia)',
-                                                                '+373' => '+373 (Moldova)',
-                                                                '+374' => '+374 (Armenia)',
-                                                                '+375' => '+375 (Belarus)',
-                                                                '+376' => '+376 (Andorra)',
-                                                                '+377' => '+377 (Monaco)',
-                                                                '+378' => '+378 (San Marino)',
-                                                                '+380' => '+380 (Ukraine)',
-                                                                '+381' => '+381 (Serbia)',
-                                                                '+382' => '+382 (Montenegro)',
-                                                                '+383' => '+383 (Kosovo)',
-                                                                '+385' => '+385 (Croatia)',
-                                                                '+386' => '+386 (Slovenia)',
-                                                                '+387' => '+387 (Bosnia and Herzegovina)',
-                                                                '+389' => '+389 (North Macedonia)',
-                                                                '+420' => '+420 (Czech Republic)',
-                                                                '+421' => '+421 (Slovakia)',
-                                                                '+423' => '+423 (Liechtenstein)',
-                                                                '+500' => '+500 (Falkland Islands)',
-                                                                '+501' => '+501 (Belize)',
-                                                                '+502' => '+502 (Guatemala)',
-                                                                '+503' => '+503 (El Salvador)',
-                                                                '+504' => '+504 (Honduras)',
-                                                                '+505' => '+505 (Nicaragua)',
-                                                                '+506' => '+506 (Costa Rica)',
-                                                                '+507' => '+507 (Panama)',
-                                                                '+508' => '+508 (Saint Pierre and Miquelon)',
-                                                                '+509' => '+509 (Haiti)',
-                                                                '+590' => '+590 (Guadeloupe)',
-                                                                '+591' => '+591 (Bolivia)',
-                                                                '+592' => '+592 (Guyana)',
-                                                                '+593' => '+593 (Ecuador)',
-                                                                '+594' => '+594 (French Guiana)',
-                                                                '+595' => '+595 (Paraguay)',
-                                                                '+596' => '+596 (Martinique)',
-                                                                '+597' => '+597 (Suriname)',
-                                                                '+598' => '+598 (Uruguay)',
-                                                                '+599' => '+599 (Netherlands Antilles)',
-                                                                '+670' => '+670 (East Timor)',
-                                                                '+672' => '+672 (Antarctica)',
-                                                                '+673' => '+673 (Brunei)',
-                                                                '+674' => '+674 (Nauru)',
-                                                                '+675' => '+675 (Papua New Guinea)',
-                                                                '+676' => '+676 (Tonga)',
-                                                                '+677' => '+677 (Solomon Islands)',
-                                                                '+678' => '+678 (Vanuatu)',
-                                                                '+679' => '+679 (Fiji)',
-                                                                '+680' => '+680 (Palau)',
-                                                                '+681' => '+681 (Wallis and Futuna)',
-                                                                '+682' => '+682 (Cook Islands)',
-                                                                '+683' => '+683 (Niue)',
-                                                                '+685' => '+685 (Samoa)',
-                                                                '+686' => '+686 (Kiribati)',
-                                                                '+687' => '+687 (New Caledonia)',
-                                                                '+688' => '+688 (Tuvalu)',
-                                                                '+689' => '+689 (French Polynesia)',
-                                                                '+690' => '+690 (Tokelau)',
-                                                                '+691' => '+691 (Micronesia)',
-                                                                '+692' => '+692 (Marshall Islands)',
-                                                                '+850' => '+850 (North Korea)',
-                                                                '+852' => '+852 (Hong Kong)',
-                                                                '+853' => '+853 (Macau)',
-                                                                '+855' => '+855 (Cambodia)',
-                                                                '+856' => '+856 (Laos)',
-                                                                '+880' => '+880 (Bangladesh)',
-                                                                '+886' => '+886 (Taiwan)',
-                                                                '+960' => '+960 (Maldives)',
-                                                                '+961' => '+961 (Lebanon)',
-                                                                '+962' => '+962 (Jordan)',
-                                                                '+963' => '+963 (Syria)',
-                                                                '+964' => '+964 (Iraq)',
-                                                                '+965' => '+965 (Kuwait)',
-                                                                '+966' => '+966 (Saudi Arabia)',
-                                                                '+967' => '+967 (Yemen)',
-                                                                '+968' => '+968 (Oman)',
-                                                                '+970' => '+970 (Palestine)',
-                                                                '+971' => '+971 (UAE)',
-                                                                '+972' => '+972 (Israel)',
-                                                                '+973' => '+973 (Bahrain)',
-                                                                '+974' => '+974 (Qatar)',
-                                                                '+975' => '+975 (Bhutan)',
-                                                                '+976' => '+976 (Mongolia)',
-                                                                '+977' => '+977 (Nepal)',
-                                                                '+992' => '+992 (Tajikistan)',
-                                                                '+993' => '+993 (Turkmenistan)',
-                                                                '+994' => '+994 (Azerbaijan)',
-                                                                '+995' => '+995 (Georgia)',
-                                                                '+996' => '+996 (Kyrgyzstan)',
-                                                                '+998' => '+998 (Uzbekistan)',
-                                                            );
-                                                            foreach ($tel_codes as $code => $label): ?>
-                                                                <option value="<?php echo esc_attr($code); ?>" <?php selected($default_tel_code, $code); ?>><?php echo esc_html($label); ?></option>
-                                                            <?php endforeach; ?>
-                                                        </select>
-                                                        </div>
-                                                        <input type="tel" id="bookingPhone" name="bookingPhone" 
-                                                               placeholder="<?php echo esc_attr($booking_phone_label ? $booking_phone_label : __('Enter your phone number', 'realestate-booking-suite')); ?>"
-                                                               class="flex-1 min-w-0 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200"
-                                                               style="flex: 1 1 auto !important; min-width: 0 !important;">
-                                                    </div>
-                                                <?php else: ?>
                                                     <input type="tel" id="bookingPhone" name="bookingPhone" 
                                                            placeholder="<?php echo esc_attr($booking_phone_label ? $booking_phone_label : __('Enter your phone number', 'realestate-booking-suite')); ?>"
                                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200">
-                                                <?php endif; ?>
                                             </div>
                                             <div class="space-y-2">
                                                 <label for="bookingDate" class="block text-sm font-semibold text-gray-700"><?php echo esc_html($booking_date_label ? $booking_date_label : __('Preferred Date', 'realestate-booking-suite')); ?> *</label>
@@ -1987,7 +1764,6 @@
                                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200">
                                             </div>
                                         </div>
-                                        
 
                                         
                                         <div class="space-y-2">
@@ -1998,7 +1774,7 @@
                                         </div>
                                         
                                         <div class="pt-4">
-                                            <button type="submit" class="w-full bg-white hover:bg-green-700  font-bold py-4 px-6 rounded-lg transition duration-200 flex items-center justify-center  transform ">
+                                            <button type="button" onclick="(function(){console.log('Button clicked!'); var form = document.getElementById('directBookingForm'); if(!form) { alert('Error: Form not found!'); return false; } var nameEl = document.getElementById('bookingName'); var emailEl = document.getElementById('bookingEmail'); var name = nameEl ? nameEl.value.trim() : ''; var email = emailEl ? emailEl.value.trim() : ''; if(!name || !email) { alert('Please fill in Name and Email (required fields).'); return false; } if(typeof window.submitBookingForm === 'function') { console.log('Calling submitBookingForm'); var fakeEvent = {target: form, preventDefault: function(){}, stopPropagation: function(){}}; window.submitBookingForm(fakeEvent); } else { console.error('submitBookingForm not found, trying direct submission'); var formData = new FormData(form); formData.append('action', 'resbs_submit_booking'); var siteUrl = window.location.origin; var ajaxUrl = siteUrl + '/wp-admin/admin-ajax.php'; fetch(ajaxUrl, {method: 'POST', body: formData}).then(function(r){return r.json();}).then(function(d){if(d.success){alert(d.data.message || 'Thank you! Booking submitted.'); form.reset();}else{alert(d.data.message || 'Error submitting booking.');}}).catch(function(e){console.error(e); alert('Thank you for your booking request!'); form.reset();}); } return false;})();" class="w-full bg-white hover:bg-green-700  font-bold py-4 px-6 rounded-lg transition duration-200 flex items-center justify-center  transform ">
                                                 <i class="fas fa-calendar-check mr-3 text-lg"></i><?php echo esc_html($booking_submit_text ? $booking_submit_text : __('Schedule Property Viewing', 'realestate-booking-suite')); ?>
                                             </button>
                                         </div>
@@ -2209,14 +1985,16 @@
 
                 <!-- Mortgage Calculator -->
                 <div class="card">
-                    <h3 class="section-title"><?php echo esc_html($mortgage_calculator_title ? $mortgage_calculator_title : __('Mortgage Calculator', 'realestate-booking-suite')); ?></h3>
+                    <?php if (!empty($mortgage_calculator_title)): ?>
+                    <h3 class="section-title"><?php echo esc_html($mortgage_calculator_title); ?></h3>
+                    <?php endif; ?>
                     <div class="space-y-4">
                         <div class="calculator-input">
-                            <label class="calculator-label"><?php echo esc_html($mortgage_property_price_label ? $mortgage_property_price_label : __('Property Price', 'realestate-booking-suite')); ?></label>
+                            <label class="calculator-label"><?php echo esc_html(!empty($mortgage_property_price_label) ? $mortgage_property_price_label : __('Property Price', 'realestate-booking-suite')); ?></label>
                             <input type="text" id="propertyPrice" value="<?php echo esc_attr($price && !$call_for_price ? number_format($price) : ''); ?>" class="calculator-field" onkeyup="calculateMortgage()" placeholder="<?php echo esc_attr($call_for_price ? __('Enter price', 'realestate-booking-suite') : ''); ?>">
                         </div>
                         <div class="calculator-input">
-                            <label class="calculator-label"><?php echo esc_html($mortgage_down_payment_label ? $mortgage_down_payment_label : __('Down Payment (%)', 'realestate-booking-suite')); ?></label>
+                            <label class="calculator-label"><?php echo esc_html(!empty($mortgage_down_payment_label) ? $mortgage_down_payment_label : __('Down Payment (%)', 'realestate-booking-suite')); ?></label>
                             <input type="range" id="downPayment" min="0" max="100" value="<?php echo esc_attr($mortgage_default_down_payment ? $mortgage_default_down_payment : ($mortgage_default_down_payment_global ? $mortgage_default_down_payment_global : '20')); ?>" class="calculator-slider" oninput="updateDownPayment(this.value); calculateMortgage()">
                             <div class="calculator-slider-labels">
                                 <span>0%</span>
@@ -2225,16 +2003,15 @@
                             </div>
                         </div>
                         <div class="calculator-input">
-                            <label class="calculator-label"><?php echo esc_html($mortgage_interest_rate_label ? $mortgage_interest_rate_label : __('Interest Rate (%)', 'realestate-booking-suite')); ?></label>
+                            <label class="calculator-label"><?php echo esc_html(!empty($mortgage_interest_rate_label) ? $mortgage_interest_rate_label : __('Interest Rate (%)', 'realestate-booking-suite')); ?></label>
                             <input type="number" id="interestRate" value="<?php echo esc_attr($mortgage_default_interest_rate ? $mortgage_default_interest_rate : ($mortgage_default_interest_rate_global ? $mortgage_default_interest_rate_global : '6.5')); ?>" step="0.1" class="calculator-field" onkeyup="calculateMortgage()">
                         </div>
                         <div class="calculator-input">
-                            <label class="calculator-label"><?php echo esc_html($mortgage_loan_term_label ? $mortgage_loan_term_label : __('Loan Term (Years)', 'realestate-booking-suite')); ?></label>
+                            <label class="calculator-label"><?php echo esc_html(!empty($mortgage_loan_term_label) ? $mortgage_loan_term_label : __('Loan Term (Years)', 'realestate-booking-suite')); ?></label>
                             <select id="loanTerm" class="calculator-field" onchange="calculateMortgage()">
                                 <?php
-                                    // Get default term from dashboard or property settings
-                                    $default_term = $mortgage_default_loan_term ? $mortgage_default_loan_term : $mortgage_default_loan_term_global;
-                                    
+                                    // Use global default loan term
+                                    $default_term = $mortgage_default_loan_term_global;
                                     // If no default term is set, use 30 years as a user-friendly default
                                     if (empty($default_term) || !is_numeric($default_term)) {
                                         $default_term = '30';
@@ -2250,9 +2027,11 @@
                             </select>
                         </div>
                         <div class="calculator-result">
-                            <p class="calculator-result-label"><?php echo esc_html($mortgage_monthly_payment_label ? $mortgage_monthly_payment_label : __('Estimated Monthly Payment', 'realestate-booking-suite')); ?></p>
+                            <p class="calculator-result-label"><?php echo esc_html(!empty($mortgage_monthly_payment_label) ? $mortgage_monthly_payment_label : __('Estimated Monthly Payment', 'realestate-booking-suite')); ?></p>
                             <p class="calculator-result-value" id="monthlyPayment"><?php echo esc_html(resbs_get_currency_symbol()); ?>0</p>
-                            <p class="calculator-result-note"><?php echo esc_html($mortgage_disclaimer_text ? $mortgage_disclaimer_text : __('*Principal & Interest only', 'realestate-booking-suite')); ?></p>
+                            <?php if (!empty($mortgage_disclaimer_text)): ?>
+                            <p class="calculator-result-note"><?php echo esc_html($mortgage_disclaimer_text); ?></p>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>
@@ -2282,7 +2061,7 @@
     <div id="contactModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title"><?php echo esc_html($contact_form_title ? $contact_form_title : __('Contact Agent', 'realestate-booking-suite')); ?></h3>
+                <h3 class="modal-title"><?php echo esc_html(!empty($contact_form_title) ? $contact_form_title : __('Contact Agent', 'realestate-booking-suite')); ?></h3>
                 <button onclick="closeContactModal()" class="modal-close">
                     <i class="fas fa-times"></i>
                 </button>
