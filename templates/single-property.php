@@ -109,6 +109,7 @@
         // FINAL GUARANTEE - MUST BE STRING
         $features = is_string($features) ? $features : '';
         $amenities = is_string($amenities) ? $amenities : '';
+        // Get property details - ensure we get the values correctly
         $parking           = get_post_meta($post->ID, '_property_parking', true);
         $heating           = get_post_meta($post->ID, '_property_heating', true);
         $cooling           = get_post_meta($post->ID, '_property_cooling', true);
@@ -116,6 +117,15 @@
         $roof              = get_post_meta($post->ID, '_property_roof', true);
         $exterior_material = get_post_meta($post->ID, '_property_exterior_material', true);
         $floor_covering    = get_post_meta($post->ID, '_property_floor_covering', true);
+        
+        // Ensure values are strings and trimmed (handle any edge cases)
+        $parking = is_string($parking) ? trim($parking) : (is_numeric($parking) ? (string)$parking : '');
+        $heating = is_string($heating) ? trim($heating) : (is_numeric($heating) ? (string)$heating : '');
+        $cooling = is_string($cooling) ? trim($cooling) : (is_numeric($cooling) ? (string)$cooling : '');
+        $basement = is_string($basement) ? trim($basement) : (is_numeric($basement) ? (string)$basement : '');
+        $roof = is_string($roof) ? trim($roof) : (is_numeric($roof) ? (string)$roof : '');
+        $exterior_material = is_string($exterior_material) ? trim($exterior_material) : (is_numeric($exterior_material) ? (string)$exterior_material : '');
+        $floor_covering = is_string($floor_covering) ? trim($floor_covering) : (is_numeric($floor_covering) ? (string)$floor_covering : '');
 
         // Nearby features
         $nearby_schools     = get_post_meta($post->ID, '_property_nearby_schools', true);
@@ -846,25 +856,44 @@
                             <?php endif; ?>
                             
                             <!-- Property Features Section -->
+                            <?php
+                            // Check if any property details exist
+                            $has_property_details = !empty($parking) || !empty($heating) || !empty($cooling) || 
+                                                   !empty($basement) || !empty($roof) || !empty($exterior_material) || 
+                                                   !empty($floor_covering);
+                            ?>
+                            <?php if ($has_property_details): ?>
                             <div class="property-features-section mb-8">
                                 <h4 class="text-lg font-semibold mb-4"><?php echo esc_html__('Property Details', 'realestate-booking-suite'); ?></h4>
                                 <div class="property-features-grid">
                                     <?php 
-                                    // Debug: Check if values exist (remove after testing)
-                                    // Uncomment to debug: var_dump($parking, $heating, $cooling, $basement, $roof, $exterior_material, $floor_covering);
-                                    
-                                    // Helper function to get display labels
+                                    // Helper function to get display labels - improved to handle free text
                                     function resbs_get_parking_label($value) {
+                                        if (empty($value)) return '';
+                                        $value_lower = strtolower(trim($value));
                                         $labels = array(
                                             'garage' => __('Garage', 'realestate-booking-suite'),
                                             'driveway' => __('Driveway', 'realestate-booking-suite'),
                                             'street' => __('Street Parking', 'realestate-booking-suite'),
                                             'none' => __('No Parking', 'realestate-booking-suite')
                                         );
-                                        return isset($labels[$value]) ? $labels[$value] : ucfirst($value);
+                                        // Check for exact match first
+                                        if (isset($labels[$value_lower])) {
+                                            return $labels[$value_lower];
+                                        }
+                                        // Check for partial matches
+                                        foreach ($labels as $key => $label) {
+                                            if (strpos($value_lower, $key) !== false) {
+                                                return $label;
+                                            }
+                                        }
+                                        // Return original value if no match
+                                        return trim($value);
                                     }
                                     
                                     function resbs_get_heating_label($value) {
+                                        if (empty($value)) return '';
+                                        $value_lower = strtolower(trim($value));
                                         $labels = array(
                                             'central' => __('Central Heating', 'realestate-booking-suite'),
                                             'gas' => __('Gas Heating', 'realestate-booking-suite'),
@@ -872,38 +901,98 @@
                                             'wood' => __('Wood Heating', 'realestate-booking-suite'),
                                             'none' => __('No Heating', 'realestate-booking-suite')
                                         );
-                                        return isset($labels[$value]) ? $labels[$value] : ucfirst($value);
+                                        // Check for exact match first
+                                        if (isset($labels[$value_lower])) {
+                                            return $labels[$value_lower];
+                                        }
+                                        // Check for partial matches
+                                        foreach ($labels as $key => $label) {
+                                            if (strpos($value_lower, $key) !== false) {
+                                                return $label;
+                                            }
+                                        }
+                                        // Return original value if no match
+                                        return trim($value);
                                     }
                                     
                                     function resbs_get_cooling_label($value) {
+                                        if (empty($value)) return '';
+                                        $value_lower = strtolower(trim($value));
                                         $labels = array(
                                             'central' => __('Central Air', 'realestate-booking-suite'),
                                             'window' => __('Window Units', 'realestate-booking-suite'),
                                             'none' => __('No Cooling', 'realestate-booking-suite')
                                         );
-                                        return isset($labels[$value]) ? $labels[$value] : ucfirst($value);
+                                        // Check for exact match first
+                                        if (isset($labels[$value_lower])) {
+                                            return $labels[$value_lower];
+                                        }
+                                        // Check for partial matches
+                                        foreach ($labels as $key => $label) {
+                                            if (strpos($value_lower, $key) !== false) {
+                                                return $label;
+                                            }
+                                        }
+                                        // Return original value if no match
+                                        return trim($value);
                                     }
                                     
                                     function resbs_get_basement_label($value) {
+                                        if (empty($value)) return '';
+                                        $value_lower = strtolower(trim($value));
                                         $labels = array(
                                             'finished' => __('Finished Basement', 'realestate-booking-suite'),
                                             'unfinished' => __('Unfinished Basement', 'realestate-booking-suite'),
                                             'crawl' => __('Crawl Space', 'realestate-booking-suite'),
                                             'none' => __('No Basement', 'realestate-booking-suite')
                                         );
-                                        return isset($labels[$value]) ? $labels[$value] : ucfirst($value);
+                                        // Check for exact match first
+                                        if (isset($labels[$value_lower])) {
+                                            return $labels[$value_lower];
+                                        }
+                                        // Check for partial matches
+                                        foreach ($labels as $key => $label) {
+                                            if (strpos($value_lower, $key) !== false) {
+                                                return $label;
+                                            }
+                                        }
+                                        // Return original value if no match
+                                        return trim($value);
                                     }
                                     
                                     function resbs_get_roof_label($value) {
+                                        if (empty($value)) return '';
+                                        $value_lower = strtolower(trim($value));
                                         $labels = array(
                                             'asphalt' => __('Asphalt Shingles', 'realestate-booking-suite'),
                                             'metal' => __('Metal Roof', 'realestate-booking-suite'),
                                             'tile' => __('Tile Roof', 'realestate-booking-suite'),
                                             'slate' => __('Slate Roof', 'realestate-booking-suite'),
-                                            'wood' => __('Wood Shingles', 'realestate-booking-suite')
+                                            'wood' => __('Wood Shingles', 'realestate-booking-suite'),
+                                            'shingle' => __('Shingle', 'realestate-booking-suite')
                                         );
-                                        return isset($labels[$value]) ? $labels[$value] : ucfirst($value);
+                                        // Check for exact match first
+                                        if (isset($labels[$value_lower])) {
+                                            return $labels[$value_lower];
+                                        }
+                                        // Check for partial matches
+                                        foreach ($labels as $key => $label) {
+                                            if (strpos($value_lower, $key) !== false) {
+                                                return $label;
+                                            }
+                                        }
+                                        // Return original value if no match
+                                        return trim($value);
                                     }
+                                    
+                                    // Ensure values are strings and trimmed
+                                    $parking = !empty($parking) ? trim((string)$parking) : '';
+                                    $heating = !empty($heating) ? trim((string)$heating) : '';
+                                    $cooling = !empty($cooling) ? trim((string)$cooling) : '';
+                                    $basement = !empty($basement) ? trim((string)$basement) : '';
+                                    $roof = !empty($roof) ? trim((string)$roof) : '';
+                                    $exterior_material = !empty($exterior_material) ? trim((string)$exterior_material) : '';
+                                    $floor_covering = !empty($floor_covering) ? trim((string)$floor_covering) : '';
                                     ?>
                                     <?php if (!empty($parking)): ?>
                                     <div class="feature-detail-item">
@@ -972,7 +1061,7 @@
                                         </div>
                                         <div class="feature-detail-content">
                                             <span class="feature-detail-label"><?php echo esc_html__('Exterior Material', 'realestate-booking-suite'); ?></span>
-                                            <span class="feature-detail-value"><?php echo esc_html(ucfirst($exterior_material)); ?></span>
+                                            <span class="feature-detail-value"><?php echo esc_html(trim($exterior_material)); ?></span>
                                         </div>
                                     </div>
                                     <?php endif; ?>
@@ -984,12 +1073,13 @@
                                         </div>
                                         <div class="feature-detail-content">
                                             <span class="feature-detail-label"><?php echo esc_html__('Floor Covering', 'realestate-booking-suite'); ?></span>
-                                            <span class="feature-detail-value"><?php echo esc_html(ucfirst($floor_covering)); ?></span>
+                                            <span class="feature-detail-value"><?php echo esc_html(trim($floor_covering)); ?></span>
                                         </div>
                                     </div>
                                     <?php endif; ?>
                                 </div>
                             </div>
+                            <?php endif; ?>
                             
                             <!-- Custom Fields Section -->
                             <?php

@@ -454,6 +454,29 @@ class RESBS_Shortcode_AJAX {
             'property_agent_response_time' => RESBS_Security::sanitize_text($_POST['property_agent_response_time'] ?? '')
         );
 
+        // Check if editing existing property
+        $edit_id = isset($_POST['edit_id']) ? intval($_POST['edit_id']) : 0;
+        $is_editing = false;
+        
+        if ($edit_id > 0) {
+            $existing_property = get_post($edit_id);
+            if ($existing_property && $existing_property->post_type === 'property') {
+                // Verify ownership
+                if ($existing_property->post_author == get_current_user_id() || current_user_can('edit_post', $edit_id)) {
+                    $is_editing = true;
+                    $property_id = $edit_id;
+                } else {
+                    wp_send_json_error(array(
+                        'message' => esc_html__('You do not have permission to edit this property.', 'realestate-booking-suite')
+                    ));
+                }
+            } else {
+                wp_send_json_error(array(
+                    'message' => esc_html__('Property not found.', 'realestate-booking-suite')
+                ));
+            }
+        }
+
         // Validate required fields
         if (empty($sanitized_data['property_title'])) {
             wp_send_json_error(array(
@@ -479,16 +502,32 @@ class RESBS_Shortcode_AJAX {
             ));
         }
 
-        // Create property post
+        // Create or update property post
         $post_data = array(
             'post_title' => $sanitized_data['property_title'],
             'post_content' => $sanitized_data['property_description'],
-            'post_status' => 'pending', // Require admin approval
             'post_type' => 'property',
             'post_author' => get_current_user_id()
         );
-
-        $property_id = wp_insert_post($post_data);
+        
+        if ($is_editing) {
+            // Update existing property - preserve status unless user has publish_posts capability
+            $post_data['ID'] = $property_id;
+            $existing_status = get_post_status($property_id);
+            // Only allow status change if user has permission
+            if (current_user_can('publish_posts')) {
+                // Admin/editor can change status
+                $post_data['post_status'] = isset($_POST['post_status']) ? sanitize_text_field($_POST['post_status']) : $existing_status;
+            } else {
+                // Regular user - keep existing status or set to pending
+                $post_data['post_status'] = in_array($existing_status, array('publish', 'pending', 'draft')) ? $existing_status : 'pending';
+            }
+            $property_id = wp_update_post($post_data);
+        } else {
+            // Create new property
+            $post_data['post_status'] = 'pending'; // Require admin approval
+            $property_id = wp_insert_post($post_data);
+        }
 
         if (is_wp_error($property_id)) {
             wp_send_json_error(array(
@@ -597,26 +636,24 @@ class RESBS_Shortcode_AJAX {
                 update_post_meta($property_id, '_property_amenities', $amenities_string);
             }
         }
-        if ($sanitized_data['property_parking']) {
-            update_post_meta($property_id, '_property_parking', $sanitized_data['property_parking']);
-        }
-        if ($sanitized_data['property_heating']) {
-            update_post_meta($property_id, '_property_heating', $sanitized_data['property_heating']);
-        }
-        if ($sanitized_data['property_cooling']) {
-            update_post_meta($property_id, '_property_cooling', $sanitized_data['property_cooling']);
-        }
-        if ($sanitized_data['property_basement']) {
-            update_post_meta($property_id, '_property_basement', $sanitized_data['property_basement']);
-        }
-        if ($sanitized_data['property_roof']) {
-            update_post_meta($property_id, '_property_roof', $sanitized_data['property_roof']);
-        }
-        if ($sanitized_data['property_exterior_material']) {
-            update_post_meta($property_id, '_property_exterior_material', $sanitized_data['property_exterior_material']);
-        }
-        if ($sanitized_data['property_floor_covering']) {
-            update_post_meta($property_id, '_property_floor_covering', $sanitized_data['property_floor_covering']);
+        // Save property details - save all values (trimmed) to ensure they're stored correctly
+        // Get values directly from $_POST to ensure we capture the data correctly
+        $property_details = array(
+            'property_parking' => '_property_parking',
+            'property_heating' => '_property_heating',
+            'property_cooling' => '_property_cooling',
+            'property_basement' => '_property_basement',
+            'property_roof' => '_property_roof',
+            'property_exterior_material' => '_property_exterior_material',
+            'property_floor_covering' => '_property_floor_covering'
+        );
+        
+        foreach ($property_details as $field_key => $meta_key) {
+            // Get value from sanitized_data first, fallback to $_POST, then default to empty
+            $raw_value = isset($sanitized_data[$field_key]) ? $sanitized_data[$field_key] : (isset($_POST[$field_key]) ? $_POST[$field_key] : '');
+            $value = trim((string)$raw_value);
+            // Save the value (even if empty string) to ensure it's stored
+            update_post_meta($property_id, $meta_key, $value);
         }
         
         // Nearby features
@@ -776,10 +813,18 @@ class RESBS_Shortcode_AJAX {
             $view_properties_link = '<br><a href="' . esc_url($profile_url) . '" style="color: #0073aa; text-decoration: underline; margin-top: 10px; display: inline-block;">' . esc_html__('View My Properties', 'realestate-booking-suite') . '</a>';
         }
         
+        // Set appropriate success message
+        if ($is_editing) {
+            $success_message = esc_html__('Property updated successfully!', 'realestate-booking-suite');
+        } else {
+            $success_message = esc_html__('Property submitted successfully. It will be reviewed before being published.', 'realestate-booking-suite');
+        }
+        
         wp_send_json_success(array(
-            'message' => esc_html__('Property submitted successfully. It will be reviewed before being published.', 'realestate-booking-suite') . wp_kses_post($view_properties_link),
+            'message' => $success_message . wp_kses_post($view_properties_link),
             'property_id' => intval($property_id),
-            'profile_url' => esc_url($profile_url)
+            'profile_url' => esc_url($profile_url),
+            'is_editing' => $is_editing
         ));
     }
 
