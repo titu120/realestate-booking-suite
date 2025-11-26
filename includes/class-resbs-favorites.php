@@ -591,7 +591,7 @@ class RESBS_Favorites_Manager {
                     <?php endif; ?>
                 </div>
 
-                <div class="property-grid">
+                <div class="property-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;">
                 <?php while ($properties_query->have_posts()): $properties_query->the_post(); ?>
                     <?php $this->render_favorite_property_card(get_the_ID(), $show_image, $show_price, $show_details, $show_actions); ?>
                 <?php endwhile; ?>

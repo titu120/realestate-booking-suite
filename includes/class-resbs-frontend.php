@@ -1287,68 +1287,127 @@ class RESBS_Frontend {
      * Render booking item
      */
     private function render_booking_item($booking) {
-        $property = get_post($booking['property_id']);
-        $order = wc_get_order($booking['order_id']);
+        $is_woocommerce = isset($booking['is_woocommerce']) && $booking['is_woocommerce'];
+        $property = $booking['property_id'] ? get_post($booking['property_id']) : null;
+        $order = $is_woocommerce && isset($booking['order_id']) ? wc_get_order($booking['order_id']) : null;
+        
+        // Get booking details for property_booking post type
+        $first_name = '';
+        $last_name = '';
+        $preferred_date = $booking['preferred_date'] ?? '';
+        $preferred_time = $booking['preferred_time'] ?? '';
+        $message = $booking['message'] ?? '';
+        
+        if (!$is_woocommerce && $booking['id']) {
+            $first_name = get_post_meta($booking['id'], '_booking_first_name', true);
+            $last_name = get_post_meta($booking['id'], '_booking_last_name', true);
+            if (empty($preferred_date)) {
+                $preferred_date = get_post_meta($booking['id'], '_booking_preferred_date', true);
+            }
+            if (empty($preferred_time)) {
+                $preferred_time = get_post_meta($booking['id'], '_booking_preferred_time', true);
+            }
+        }
+        
         ?>
         <div class="resbs-booking-item" data-booking-id="<?php echo esc_attr($booking['id']); ?>">
             <div class="resbs-booking-property">
                 <h4 class="resbs-booking-title">
-                    <a href="<?php echo esc_url(get_permalink($booking['property_id'])); ?>">
-                        <?php echo esc_html($property ? $property->post_title : esc_html__('Property not found', 'realestate-booking-suite')); ?>
-                    </a>
+                    <?php if ($property): ?>
+                        <a href="<?php echo esc_url(get_permalink($booking['property_id'])); ?>">
+                            <?php echo esc_html($property->post_title); ?>
+                        </a>
+                    <?php elseif ($is_woocommerce && $order): ?>
+                        <a href="<?php echo esc_url($order->get_view_order_url()); ?>">
+                            <?php echo esc_html(sprintf(__('Order #%s', 'realestate-booking-suite'), $order->get_id())); ?>
+                        </a>
+                    <?php else: ?>
+                        <?php echo esc_html__('Property not found', 'realestate-booking-suite'); ?>
+                    <?php endif; ?>
                 </h4>
                 <div class="resbs-booking-dates">
-                    <span class="resbs-checkin">
-                        <strong><?php esc_html_e('Check-in:', 'realestate-booking-suite'); ?></strong>
-                        <?php echo esc_html(date('M j, Y', strtotime($booking['checkin_date']))); ?>
-                    </span>
-                    <span class="resbs-checkout">
-                        <strong><?php esc_html_e('Check-out:', 'realestate-booking-suite'); ?></strong>
-                        <?php echo esc_html(date('M j, Y', strtotime($booking['checkout_date']))); ?>
-                    </span>
+                    <?php if ($is_woocommerce && isset($booking['checkin_date']) && isset($booking['checkout_date'])): ?>
+                        <span class="resbs-checkin">
+                            <strong><?php esc_html_e('Check-in:', 'realestate-booking-suite'); ?></strong>
+                            <?php echo esc_html(date('M j, Y', strtotime($booking['checkin_date']))); ?>
+                        </span>
+                        <span class="resbs-checkout">
+                            <strong><?php esc_html_e('Check-out:', 'realestate-booking-suite'); ?></strong>
+                            <?php echo esc_html(date('M j, Y', strtotime($booking['checkout_date']))); ?>
+                        </span>
+                    <?php elseif ($preferred_date || $preferred_time): ?>
+                        <?php if ($preferred_date): ?>
+                            <span class="resbs-preferred-date">
+                                <strong><?php esc_html_e('Preferred Date:', 'realestate-booking-suite'); ?></strong>
+                                <?php echo esc_html($preferred_date); ?>
+                            </span>
+                        <?php endif; ?>
+                        <?php if ($preferred_time): ?>
+                            <span class="resbs-preferred-time">
+                                <strong><?php esc_html_e('Preferred Time:', 'realestate-booking-suite'); ?></strong>
+                                <?php echo esc_html($preferred_time); ?>
+                            </span>
+                        <?php endif; ?>
+                    <?php else: ?>
+                        <span class="resbs-booking-date">
+                            <strong><?php esc_html_e('Booking Date:', 'realestate-booking-suite'); ?></strong>
+                            <?php echo esc_html(date('M j, Y', strtotime($booking['date']))); ?>
+                        </span>
+                    <?php endif; ?>
                 </div>
             </div>
             
             <div class="resbs-booking-details">
-                <div class="resbs-booking-meta">
-                    <span class="resbs-booking-guests">
-                        <span class="dashicons dashicons-groups"></span>
-                        <?php echo esc_html($booking['guests']); ?> <?php esc_html_e('guests', 'realestate-booking-suite'); ?>
-                    </span>
-                    <span class="resbs-booking-nights">
-                        <span class="dashicons dashicons-calendar-alt"></span>
-                        <?php echo esc_html($booking['nights']); ?> <?php esc_html_e('nights', 'realestate-booking-suite'); ?>
-                    </span>
-                </div>
+                <?php if ($is_woocommerce && isset($booking['guests']) && isset($booking['nights'])): ?>
+                    <div class="resbs-booking-meta">
+                        <span class="resbs-booking-guests">
+                            <span class="dashicons dashicons-groups"></span>
+                            <?php echo esc_html($booking['guests']); ?> <?php esc_html_e('guests', 'realestate-booking-suite'); ?>
+                        </span>
+                        <span class="resbs-booking-nights">
+                            <span class="dashicons dashicons-calendar-alt"></span>
+                            <?php echo esc_html($booking['nights']); ?> <?php esc_html_e('nights', 'realestate-booking-suite'); ?>
+                        </span>
+                    </div>
+                <?php endif; ?>
                 
                 <div class="resbs-booking-status resbs-status-<?php echo esc_attr($booking['status']); ?>">
                     <?php echo esc_html(ucfirst($booking['status'])); ?>
                 </div>
                 
-                <div class="resbs-booking-total">
-                    <?php echo $order ? wp_kses_post($order->get_formatted_order_total()) : esc_html(resbs_format_price(0)); ?>
-                </div>
+                <?php if ($is_woocommerce && $order): ?>
+                    <div class="resbs-booking-total">
+                        <?php echo wp_kses_post($order->get_formatted_order_total()); ?>
+                    </div>
+                <?php endif; ?>
             </div>
             
             <div class="resbs-booking-actions">
-                <?php if ($booking['status'] === 'confirmed'): ?>
+                <?php if ($booking['status'] === 'confirmed' || $booking['status'] === 'pending'): ?>
                     <button type="button" class="resbs-cancel-booking-btn" data-booking-id="<?php echo esc_attr($booking['id']); ?>">
                         <span class="dashicons dashicons-no-alt"></span>
                         <?php esc_html_e('Cancel', 'realestate-booking-suite'); ?>
                     </button>
                 <?php endif; ?>
                 
-                <?php if ($booking['status'] === 'completed'): ?>
+                <?php if ($booking['status'] === 'completed' && $is_woocommerce): ?>
                     <button type="button" class="resbs-refund-booking-btn" data-booking-id="<?php echo esc_attr($booking['id']); ?>">
                         <span class="dashicons dashicons-money-alt"></span>
                         <?php esc_html_e('Request Refund', 'realestate-booking-suite'); ?>
                     </button>
                 <?php endif; ?>
                 
-                <a href="<?php echo $order ? esc_url($order->get_view_order_url()) : esc_url('#'); ?>" class="resbs-view-order-btn">
-                    <span class="dashicons dashicons-visibility"></span>
-                    <?php esc_html_e('View Order', 'realestate-booking-suite'); ?>
-                </a>
+                <?php if ($is_woocommerce && $order): ?>
+                    <a href="<?php echo esc_url($order->get_view_order_url()); ?>" class="resbs-view-order-btn">
+                        <span class="dashicons dashicons-visibility"></span>
+                        <?php esc_html_e('View Order', 'realestate-booking-suite'); ?>
+                    </a>
+                <?php elseif ($property): ?>
+                    <a href="<?php echo esc_url(get_permalink($booking['property_id'])); ?>" class="resbs-view-property-btn">
+                        <span class="dashicons dashicons-visibility"></span>
+                        <?php esc_html_e('View Property', 'realestate-booking-suite'); ?>
+                    </a>
+                <?php endif; ?>
             </div>
         </div>
         <?php
@@ -1395,17 +1454,121 @@ class RESBS_Frontend {
      * Get user bookings
      */
     private function get_user_bookings($user_id, $per_page = 10, $paged = 1) {
-        // This would integrate with WooCommerce orders
-        // For now, return empty array
-        return array();
+        $user = get_userdata($user_id);
+        if (!$user) {
+            return array();
+        }
+        
+        $user_email = $user->user_email;
+        
+        // Get bookings from property_booking post type by matching email
+        $bookings_query = new WP_Query(array(
+            'post_type' => 'property_booking',
+            'post_status' => 'publish',
+            'posts_per_page' => $per_page,
+            'paged' => $paged,
+            'orderby' => 'date',
+            'order' => 'DESC',
+            'meta_query' => array(
+                array(
+                    'key' => '_booking_email',
+                    'value' => $user_email,
+                    'compare' => '='
+                )
+            )
+        ));
+        
+        $bookings = array();
+        if ($bookings_query->have_posts()) {
+            while ($bookings_query->have_posts()) {
+                $bookings_query->the_post();
+                $booking_id = get_the_ID();
+                $property_id = get_post_meta($booking_id, '_booking_property_id', true);
+                $status = get_post_meta($booking_id, '_booking_status', true);
+                $preferred_date = get_post_meta($booking_id, '_booking_preferred_date', true);
+                $preferred_time = get_post_meta($booking_id, '_booking_preferred_time', true);
+                
+                $bookings[] = array(
+                    'id' => $booking_id,
+                    'property_id' => $property_id,
+                    'status' => $status ? $status : 'pending',
+                    'date' => get_the_date('Y-m-d', $booking_id),
+                    'preferred_date' => $preferred_date,
+                    'preferred_time' => $preferred_time,
+                    'message' => get_the_content()
+                );
+            }
+            wp_reset_postdata();
+        }
+        
+        // Also check WooCommerce orders if WooCommerce is active
+        if (class_exists('WooCommerce')) {
+            $customer_orders = wc_get_orders(array(
+                'customer_id' => $user_id,
+                'limit' => $per_page,
+                'offset' => ($paged - 1) * $per_page,
+                'orderby' => 'date',
+                'order' => 'DESC'
+            ));
+            
+            foreach ($customer_orders as $order) {
+                $bookings[] = array(
+                    'id' => $order->get_id(),
+                    'order_id' => $order->get_id(),
+                    'property_id' => 0,
+                    'status' => $order->get_status(),
+                    'date' => $order->get_date_created()->date('Y-m-d'),
+                    'preferred_date' => '',
+                    'preferred_time' => '',
+                    'message' => '',
+                    'is_woocommerce' => true
+                );
+            }
+        }
+        
+        return $bookings;
     }
     
     /**
      * Get user bookings count
      */
     private function get_user_bookings_count($user_id) {
-        // This would integrate with WooCommerce orders
-        return 0;
+        $user = get_userdata($user_id);
+        if (!$user) {
+            return 0;
+        }
+        
+        $user_email = $user->user_email;
+        $count = 0;
+        
+        // Count bookings from property_booking post type
+        $bookings_query = new WP_Query(array(
+            'post_type' => 'property_booking',
+            'post_status' => 'publish',
+            'posts_per_page' => -1,
+            'fields' => 'ids',
+            'meta_query' => array(
+                array(
+                    'key' => '_booking_email',
+                    'value' => $user_email,
+                    'compare' => '='
+                )
+            )
+        ));
+        
+        $count = $bookings_query->found_posts;
+        
+        // Also count WooCommerce orders if WooCommerce is active
+        if (class_exists('WooCommerce')) {
+            $customer_orders = wc_get_orders(array(
+                'customer_id' => $user_id,
+                'limit' => -1,
+                'return' => 'ids'
+            ));
+            $count += count($customer_orders);
+        }
+        
+        return $count;
     }
     
     /**
@@ -1432,16 +1595,76 @@ class RESBS_Frontend {
      * Get active bookings count
      */
     private function get_active_bookings_count($user_id) {
-        // This would integrate with WooCommerce orders
-        return 0;
+        $user = get_userdata($user_id);
+        if (!$user) {
+            return 0;
+        }
+        
+        $user_email = $user->user_email;
+        $count = 0;
+        
+        // Count active bookings (pending or confirmed)
+        $bookings_query = new WP_Query(array(
+            'post_type' => 'property_booking',
+            'post_status' => 'publish',
+            'posts_per_page' => -1,
+            'fields' => 'ids',
+            'meta_query' => array(
+                'relation' => 'AND',
+                array(
+                    'key' => '_booking_email',
+                    'value' => $user_email,
+                    'compare' => '='
+                ),
+                array(
+                    'key' => '_booking_status',
+                    'value' => array('pending', 'confirmed'),
+                    'compare' => 'IN'
+                )
+            )
+        ));
+        
+        $count = $bookings_query->found_posts;
+        
+        return $count;
     }
     
     /**
      * Get completed bookings count
      */
     private function get_completed_bookings_count($user_id) {
-        // This would integrate with WooCommerce orders
-        return 0;
+        $user = get_userdata($user_id);
+        if (!$user) {
+            return 0;
+        }
+        
+        $user_email = $user->user_email;
+        $count = 0;
+        
+        // Count completed bookings
+        $bookings_query = new WP_Query(array(
+            'post_type' => 'property_booking',
+            'post_status' => 'publish',
+            'posts_per_page' => -1,
+            'fields' => 'ids',
+            'meta_query' => array(
+                'relation' => 'AND',
+                array(
+                    'key' => '_booking_email',
+                    'value' => $user_email,
+                    'compare' => '='
+                ),
+                array(
+                    'key' => '_booking_status',
+                    'value' => 'completed',
+                    'compare' => '='
+                )
+            )
+        ));
+        
+        $count = $bookings_query->found_posts;
+        
+        return $count;
     }
     
     /**

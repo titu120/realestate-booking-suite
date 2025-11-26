@@ -1748,6 +1748,7 @@
 /* Profile Form */
 .resbs-profile-form {
     max-width: 600px;
+    margin: 0 auto;
 }
 
 .resbs-form-row {
@@ -1781,6 +1782,7 @@
 
 .resbs-form-actions {
     margin-top: 30px;
+    text-align: center;
 }
 
 .resbs-save-profile-btn {
@@ -1793,6 +1795,7 @@
     font-weight: 600;
     cursor: pointer;
     transition: background 0.3s ease;
+    display: inline-block;
 }
 
 .resbs-save-profile-btn:hover {

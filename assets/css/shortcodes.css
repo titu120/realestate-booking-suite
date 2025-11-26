@@ -284,6 +284,8 @@
 
 .resbs-dashboard-section {
     width: 100%;
+    max-width: 100%;
+    width: 100%;
 }
 
 .resbs-dashboard-section h4 {
@@ -293,6 +295,16 @@
     font-weight: 700;
     padding-bottom: 10px;
     border-bottom: 2px solid #f0f0f0;
+}
+
+/* Center profile section content */
+#profile .resbs-dashboard-section h4,
+#profile .resbs-dashboard-section .resbs-profile-subtitle,
+.resbs-tab-panel#profile .resbs-dashboard-section h4,
+.resbs-tab-panel#profile .resbs-dashboard-section .resbs-profile-subtitle,
+.resbs-tab-panel#profile h4,
+.resbs-tab-panel#profile .resbs-profile-subtitle {
+    text-align: center;
 }
 
 .resbs-profile-subtitle {
@@ -549,9 +561,38 @@
 
 .resbs-favorites-list,
 .resbs-bookings-list {
+    width: 100%;
+    max-width: 100%;
+}
+
+.resbs-favorites-list .resbs-favorites-grid,
+.resbs-favorites-list > .resbs-favorites-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 20px;
+    width: 100%;
+}
+
+/* Responsive grid for favorites */
+@media (min-width: 768px) {
+    .resbs-favorites-list .resbs-favorites-grid,
+    .resbs-favorites-list > .resbs-favorites-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .resbs-favorites-list .resbs-favorites-grid,
+    .resbs-favorites-list > .resbs-favorites-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (min-width: 1400px) {
+    .resbs-favorites-list .resbs-favorites-grid,
+    .resbs-favorites-list > .resbs-favorites-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
 }
 
 .resbs-favorites-empty,
@@ -749,6 +790,7 @@
 /* Profile Form */
 .resbs-profile-form {
     max-width: 600px;
+    margin: 0 auto;
 }
 
 .resbs-profile-form .resbs-form-row {
@@ -794,6 +836,8 @@
     font-weight: 600;
     cursor: pointer;
     transition: background-color 0.3s ease;
+    display: block;
+    margin: 20px auto 0;
 }
 
 .resbs-update-profile-btn:hover {
@@ -1051,6 +1095,11 @@
     border-top: 1px solid #e5e7eb;
 }
 
+/* Center form actions in profile section */
+.resbs-profile-form .resbs-form-actions {
+    justify-content: center;
+}
+
 .resbs-submit-btn,
 .resbs-reset-btn {
     padding: 16px 32px;
@@ -1144,6 +1193,67 @@
 
 .resbs-favorites-grid {
     padding: 20px;
+}
+
+/* Favorites section now uses archive design - ensure proper styling */
+.resbs-dashboard-section .rbs-archive {
+    width: 100%;
+}
+
+.resbs-dashboard-section .rbs-archive .property-grid {
+    width: 100%;
+    grid-template-columns: repeat(3, 1fr);
+}
+
+/* Ensure 3 columns for dashboard sections on all screen sizes */
+@media (min-width: 1024px) {
+    .resbs-dashboard-section .rbs-archive .property-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (min-width: 1200px) {
+    .resbs-dashboard-section .rbs-archive .property-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (min-width: 1400px) {
+    .resbs-dashboard-section .rbs-archive .property-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* Ensure property cards in favorites section have proper click handling */
+.resbs-dashboard-section .rbs-archive .property-card {
+    position: relative;
+}
+
+.resbs-dashboard-section .rbs-archive .property-card .gradient-overlay {
+    pointer-events: none;
+}
+
+.resbs-dashboard-section .rbs-archive .property-card .property-info-overlay {
+    pointer-events: none;
+    z-index: 2;
+}
+
+.resbs-dashboard-section .rbs-archive .property-card .property-image {
+    cursor: pointer;
+}
+
+.resbs-dashboard-section .rbs-archive .property-card .view-details-btn {
+    position: relative;
+    z-index: 10;
+    pointer-events: auto;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.resbs-dashboard-section .rbs-archive .property-card .favorite-btn {
+    position: relative;
+    z-index: 20;
+    pointer-events: auto;
 }
 
 .resbs-favorites-empty {

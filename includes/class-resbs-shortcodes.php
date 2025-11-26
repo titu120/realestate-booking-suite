@@ -2103,7 +2103,22 @@ Best regards,
      * Render property card for user dashboard - using archive page design EXACTLY
      */
     private function render_property_card_for_user($property) {
+        // Ensure we have a valid property object
+        if (!is_object($property) || !isset($property->ID)) {
+            return;
+        }
+        
         $property_id = $property->ID;
+        
+        // Get property title - ensure it's not empty
+        $property_title = !empty($property->post_title) ? $property->post_title : __('Property #' . $property_id, 'realestate-booking-suite');
+        
+        // Get property permalink - ensure it's valid
+        $property_permalink = get_permalink($property_id);
+        if (!$property_permalink || $property_permalink === get_permalink()) {
+            // If permalink is invalid or same as current page, construct it manually
+            $property_permalink = home_url('/property/' . $property_id . '/');
+        }
         
         // Get featured image - same as archive
         $featured_image = get_the_post_thumbnail_url($property_id, 'medium');
@@ -2204,7 +2219,7 @@ Best regards,
         <div class="property-card" data-property-id="<?php echo esc_attr($property_id); ?>">
             <div class="property-image">
                 <?php if ($featured_image): ?>
-                    <img src="<?php echo esc_url($featured_image); ?>" alt="<?php echo esc_attr($property->post_title); ?>">
+                    <img src="<?php echo esc_url($featured_image); ?>" alt="<?php echo esc_attr($property_title); ?>">
                 <?php else: ?>
                     <div class="no-image-placeholder" style="background: #f3f4f6; display: flex; align-items: center; justify-content: center; min-height: 250px;">
                         <i class="fas fa-home" style="font-size: 48px; color: #9ca3af;"></i>
@@ -2216,13 +2231,13 @@ Best regards,
                 <?php if (resbs_is_wishlist_enabled()): 
                     $is_favorited = resbs_is_property_favorited($property_id);
                 ?>
-                <button class="favorite-btn resbs-favorite-btn <?php echo esc_attr($is_favorited ? 'favorited' : ''); ?>" data-property-id="<?php echo esc_attr($property_id); ?>">
+                <button class="favorite-btn resbs-favorite-btn <?php echo esc_attr($is_favorited ? 'favorited' : ''); ?>" data-property-id="<?php echo esc_attr($property_id); ?>" type="button">
                     <i class="<?php echo esc_attr($is_favorited ? 'fas' : 'far'); ?> fa-heart"></i>
                 </button>
                 <?php endif; ?>
                 
                 <div class="property-info-overlay">
-                    <h3 class="property-title"><?php echo esc_html($property->post_title); ?></h3>
+                    <h3 class="property-title"><?php echo esc_html($property_title); ?></h3>
                     <?php if (resbs_should_show_listing_address() && $location): ?>
                         <p class="property-location"><?php echo esc_html($location); ?></p>
                     <?php endif; ?>
@@ -2267,12 +2282,12 @@ Best regards,
                     <div style="display: flex; gap: 8px; align-items: center;">
                         <?php if ($status === 'pending' && current_user_can('publish_posts')): ?>
                             <?php wp_nonce_field('resbs_publish_property', 'resbs_publish_property_nonce', false); ?>
-                            <button class="publish-property-btn" data-property-id="<?php echo esc_attr($property_id); ?>" data-nonce="<?php echo esc_attr(wp_create_nonce('resbs_publish_property')); ?>" style="background: #10b981; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.3s;">
+                            <button class="publish-property-btn" data-property-id="<?php echo esc_attr($property_id); ?>" data-nonce="<?php echo esc_attr(wp_create_nonce('resbs_publish_property')); ?>" style="background: #10b981; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.3s;" type="button">
                                 <i class="fas fa-check"></i> Publish
                             </button>
                         <?php endif; ?>
-                        <a href="<?php echo esc_url(get_permalink($property_id)); ?>" class="view-details-btn">
-                            View Details <i class="fas fa-arrow-right"></i>
+                        <a href="<?php echo esc_url($property_permalink); ?>" class="view-details-btn" target="_blank">
+                            <?php echo esc_html__('View Details', 'realestate-booking-suite'); ?> <i class="fas fa-arrow-right"></i>
                         </a>
                     </div>
                 </div>
@@ -2325,25 +2340,16 @@ Best regards,
                 ));
 
                 if (!empty($properties)) {
-                    // Set default attributes for property cards if not provided
-                    $default_atts = array(
-                        'layout' => 'grid',
-                        'show_price' => true,
-                        'show_meta' => true,
-                        'show_excerpt' => false,
-                        'show_badges' => true,
-                        'show_favorite_button' => false,
-                        'show_book_button' => true
-                    );
-                    $card_atts = wp_parse_args($atts, $default_atts);
-                    
-                    echo '<div class="resbs-favorites-grid">';
+                    // Use archive page design - wrap in rbs-archive container
+                    echo '<div class="rbs-archive">';
+                    echo '<div id="propertyGrid" class="property-grid">';
                     foreach ($properties as $property) {
-                        setup_postdata($property);
-                        $this->render_property_card($card_atts);
+                        // Use render_property_card_for_user which properly handles the property object
+                        $this->render_property_card_for_user($property);
                     }
                     wp_reset_postdata();
-                    echo '</div>';
+                    echo '</div>'; // Close property-grid
+                    echo '</div>'; // Close rbs-archive
                 } else {
                     echo '<div class="resbs-favorites-empty">';
                     echo '<p>' . esc_html__('No favorite properties found.', 'realestate-booking-suite') . '</p>';
@@ -2367,10 +2373,69 @@ Best regards,
      * @param int $user_id User ID
      */
     private function render_user_bookings($user_id) {
-        // Check if WooCommerce bookings exist
-        $bookings = array();
+        $user = get_userdata($user_id);
+        if (!$user) {
+            echo '<div class="resbs-bookings-placeholder">';
+            echo '<p>' . esc_html__('No bookings found. Your booking history will appear here.', 'realestate-booking-suite') . '</p>';
+            echo '</div>';
+            return;
+        }
         
-        // Try to get bookings from WooCommerce orders
+        $user_email = $user->user_email;
+        $has_bookings = false;
+        
+        // Get bookings from property_booking post type
+        $bookings_query = new WP_Query(array(
+            'post_type' => 'property_booking',
+            'post_status' => 'publish',
+            'posts_per_page' => 20,
+            'orderby' => 'date',
+            'order' => 'DESC',
+            'meta_query' => array(
+                array(
+                    'key' => '_booking_email',
+                    'value' => $user_email,
+                    'compare' => '='
+                )
+            )
+        ));
+        
+        if ($bookings_query->have_posts()) {
+            echo '<div class="resbs-bookings-list">';
+            while ($bookings_query->have_posts()) {
+                $bookings_query->the_post();
+                $booking_id = get_the_ID();
+                $property_id = get_post_meta($booking_id, '_booking_property_id', true);
+                $status = get_post_meta($booking_id, '_booking_status', true);
+                $preferred_date = get_post_meta($booking_id, '_booking_preferred_date', true);
+                $preferred_time = get_post_meta($booking_id, '_booking_preferred_time', true);
+                $property = $property_id ? get_post($property_id) : null;
+                
+                echo '<div class="resbs-booking-item">';
+                echo '<div class="resbs-booking-header">';
+                if ($property) {
+                    echo '<h5><a href="' . esc_url(get_permalink($property_id)) . '">' . esc_html($property->post_title) . '</a></h5>';
+                } else {
+                    echo '<h5>' . esc_html__('Property Booking', 'realestate-booking-suite') . '</h5>';
+                }
+                echo '<span class="resbs-booking-status status-' . esc_attr($status ? $status : 'pending') . '">' . esc_html(ucfirst($status ? $status : 'pending')) . '</span>';
+                echo '</div>';
+                echo '<p class="resbs-booking-date">' . esc_html__('Booking Date:', 'realestate-booking-suite') . ' ' . esc_html(get_the_date(get_option('date_format'), $booking_id)) . '</p>';
+                if ($preferred_date) {
+                    echo '<p class="resbs-booking-preferred-date">' . esc_html__('Preferred Date:', 'realestate-booking-suite') . ' ' . esc_html($preferred_date);
+                    if ($preferred_time) {
+                        echo ' ' . esc_html__('at', 'realestate-booking-suite') . ' ' . esc_html($preferred_time);
+                    }
+                    echo '</p>';
+                }
+                echo '</div>';
+                $has_bookings = true;
+            }
+            wp_reset_postdata();
+            echo '</div>';
+        }
+        
+        // Also check WooCommerce orders if WooCommerce is active
         if (class_exists('WooCommerce')) {
             $customer_orders = wc_get_orders(array(
                 'customer_id' => $user_id,
@@ -2380,7 +2445,9 @@ Best regards,
             ));
             
             if (!empty($customer_orders)) {
-                echo '<div class="resbs-bookings-list">';
+                if (!$has_bookings) {
+                    echo '<div class="resbs-bookings-list">';
+                }
                 foreach ($customer_orders as $order) {
                     $order_id = $order->get_id();
                     $order_date = $order->get_date_created()->date_i18n(get_option('date_format'));
@@ -2395,16 +2462,20 @@ Best regards,
                     echo '<p class="resbs-booking-date">' . esc_html__('Date:', 'realestate-booking-suite') . ' ' . esc_html($order_date) . '</p>';
                     echo '<p class="resbs-booking-total">' . esc_html__('Total:', 'realestate-booking-suite') . ' ' . wp_kses_post($order_total) . '</p>';
                     echo '</div>';
+                    $has_bookings = true;
                 }
-                echo '</div>';
-                return;
+                if (!$has_bookings) {
+                    echo '</div>';
+                }
             }
         }
         
         // No bookings found
-        echo '<div class="resbs-bookings-placeholder">';
-        echo '<p>' . esc_html__('No bookings found. Your booking history will appear here.', 'realestate-booking-suite') . '</p>';
-        echo '</div>';
+        if (!$has_bookings) {
+            echo '<div class="resbs-bookings-placeholder">';
+            echo '<p>' . esc_html__('No bookings found. Your booking history will appear here.', 'realestate-booking-suite') . '</p>';
+            echo '</div>';
+        }
     }
 
     /**
