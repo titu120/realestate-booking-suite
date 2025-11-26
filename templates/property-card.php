@@ -19,14 +19,30 @@ if (!defined('ABSPATH')) {
 }
 
 $property_id = get_the_ID();
+
+// Validate and sanitize property ID
+if (!$property_id || !is_numeric($property_id)) {
+    return;
+}
+$property_id = absint($property_id);
+
+// Sanitize and retrieve meta values
 $price = get_post_meta($property_id, 'resbs_property_price', true);
+$price = $price !== '' ? sanitize_text_field($price) : '';
 $status = get_post_meta($property_id, 'resbs_property_status', true);
+$status = $status !== '' ? sanitize_text_field($status) : '';
 $type = get_post_meta($property_id, 'resbs_property_type', true);
+$type = $type !== '' ? sanitize_text_field($type) : '';
 $bedrooms = get_post_meta($property_id, 'resbs_property_bedrooms', true);
+$bedrooms = $bedrooms !== '' ? absint($bedrooms) : '';
 $bathrooms = get_post_meta($property_id, 'resbs_property_bathrooms', true);
+$bathrooms = $bathrooms !== '' ? absint($bathrooms) : '';
 $area = get_post_meta($property_id, 'resbs_property_area', true);
+$area = $area !== '' ? sanitize_text_field($area) : '';
 $address = get_post_meta($property_id, 'resbs_property_address', true);
+$address = $address !== '' ? sanitize_text_field($address) : '';
 $featured = get_post_meta($property_id, 'resbs_property_featured', true);
+$featured = $featured !== '' ? sanitize_text_field($featured) : '';
 $gallery = get_post_meta($property_id, 'resbs_property_gallery', true);
 $layout = RESBS_Archive_Handler::get_archive_layout();
 
@@ -42,9 +58,15 @@ if ($price) {
 // Get featured image
 $featured_image = get_the_post_thumbnail_url($property_id, 'medium');
 if (!$featured_image && $gallery) {
-    $gallery_array = is_array($gallery) ? $gallery : explode(',', $gallery);
-    if (!empty($gallery_array[0])) {
-        $featured_image = wp_get_attachment_image_url($gallery_array[0], 'medium');
+    if (is_array($gallery)) {
+        $gallery_array = array_map('absint', $gallery);
+    } else {
+        $gallery_string = sanitize_text_field($gallery);
+        $gallery_array = array_filter(array_map('absint', explode(',', $gallery_string)));
+    }
+    if (!empty($gallery_array) && isset($gallery_array[0]) && $gallery_array[0] > 0) {
+        $first_image_id = absint($gallery_array[0]);
+        $featured_image = wp_get_attachment_image_url($first_image_id, 'medium');
     }
 }
 
@@ -77,7 +99,7 @@ if ($featured) {
     <!-- Property Image -->
     <div class="resbs-property-image">
         <?php if ($featured_image) : ?>
-            <img src="<?php echo esc_url($featured_image); ?>" alt="<?php echo esc_attr(get_the_title()); ?>" loading="lazy">
+            <img src="<?php echo esc_url($featured_image); ?>" alt="<?php echo esc_attr(get_the_title($property_id)); ?>" loading="lazy">
         <?php else : ?>
             <div class="resbs-no-image">
                 <i class="fas fa-home"></i>
@@ -107,9 +129,13 @@ if ($featured) {
         
         <!-- Property Header -->
         <div class="resbs-property-header">
-            <<?php echo esc_attr(resbs_get_title_heading_tag()); ?> class="resbs-property-title">
-                <a href="<?php the_permalink(); ?>"><?php echo esc_html(get_the_title()); ?></a>
-            </<?php echo esc_attr(resbs_get_title_heading_tag()); ?>>
+            <?php 
+            // Get heading tag (function already validates against whitelist)
+            $heading_tag = resbs_get_title_heading_tag();
+            ?>
+            <<?php echo esc_attr($heading_tag); ?> class="resbs-property-title">
+                <a href="<?php echo esc_url(get_permalink($property_id)); ?>"><?php echo esc_html(get_the_title($property_id)); ?></a>
+            </<?php echo esc_attr($heading_tag); ?>>
             
             <?php 
             // Show address only if setting allows (dynamically from Listings settings)
@@ -135,21 +161,21 @@ if ($featured) {
             <?php if ($bedrooms) : ?>
                 <div class="resbs-property-detail">
                     <i class="fas fa-bed"></i>
-                    <span><?php echo esc_html($bedrooms); ?> <?php echo esc_html($bedrooms > 1 ? __('beds', 'realestate-booking-suite') : __('bed', 'realestate-booking-suite')); ?></span>
+                    <span><?php echo esc_html($bedrooms); ?> <?php echo $bedrooms > 1 ? esc_html__('beds', 'realestate-booking-suite') : esc_html__('bed', 'realestate-booking-suite'); ?></span>
                 </div>
             <?php endif; ?>
             
             <?php if ($bathrooms) : ?>
                 <div class="resbs-property-detail">
                     <i class="fas fa-bath"></i>
-                    <span><?php echo esc_html($bathrooms); ?> <?php echo esc_html($bathrooms > 1 ? __('baths', 'realestate-booking-suite') : __('bath', 'realestate-booking-suite')); ?></span>
+                    <span><?php echo esc_html($bathrooms); ?> <?php echo $bathrooms > 1 ? esc_html__('baths', 'realestate-booking-suite') : esc_html__('bath', 'realestate-booking-suite'); ?></span>
                 </div>
             <?php endif; ?>
             
             <?php if ($area) : ?>
                 <div class="resbs-property-detail">
                     <i class="fas fa-ruler-combined"></i>
-                    <span><?php echo esc_html(resbs_format_area($area)); ?></span>
+                    <span><?php echo resbs_format_area($area); ?></span>
                 </div>
             <?php endif; ?>
         </div>
@@ -163,7 +189,7 @@ if ($featured) {
         
         <!-- Property Actions -->
         <div class="resbs-property-actions">
-            <a href="<?php the_permalink(); ?>" class="resbs-view-details-btn">
+            <a href="<?php echo esc_url(get_permalink($property_id)); ?>" class="resbs-view-details-btn">
                 <span><?php echo esc_html__('View Details', 'realestate-booking-suite'); ?></span>
                 <i class="fas fa-arrow-right"></i>
             </a>
@@ -188,8 +214,13 @@ if ($featured) {
                         $feature_count = 0;
                         foreach ($features as $feature) {
                             if ($feature_count >= 3) break;
-                            echo '<span class="resbs-feature-tag">' . esc_html($feature) . '</span>';
-                            $feature_count++;
+                            if (is_string($feature) || is_numeric($feature)) {
+                                $sanitized_feature = sanitize_text_field($feature);
+                                if (!empty($sanitized_feature)) {
+                                    echo '<span class="resbs-feature-tag">' . esc_html($sanitized_feature) . '</span>';
+                                    $feature_count++;
+                                }
+                            }
                         }
                     }
                     ?>

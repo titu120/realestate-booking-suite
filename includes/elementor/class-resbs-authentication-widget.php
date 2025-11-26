@@ -221,7 +221,6 @@ class RESBS_Authentication_Widget extends \Elementor\Widget_Base {
         $widget_id_raw = absint($this->get_id());
         $widget_id = 'resbs-authentication-' . sanitize_html_class((string) $widget_id_raw);
         $is_logged_in = is_user_logged_in();
-        $current_user = wp_get_current_user();
         $login_url = wp_login_url(get_permalink());
         $logout_url = wp_logout_url(get_permalink());
         $register_url = wp_registration_url();

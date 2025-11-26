@@ -47,7 +47,7 @@ class RESBS_Shortcode_AJAX {
         }
         
         // Check if this is a property submission or upload request
-        $action = isset($_POST['action']) ? $_POST['action'] : (isset($_REQUEST['action']) ? $_REQUEST['action'] : '');
+        $action = isset($_POST['action']) ? sanitize_text_field($_POST['action']) : (isset($_REQUEST['action']) ? sanitize_text_field($_REQUEST['action']) : '');
         if (!in_array($action, array('resbs_submit_property', 'resbs_upload_image', 'resbs_upload_property_media'))) {
             return $allcaps;
         }
@@ -73,7 +73,10 @@ class RESBS_Shortcode_AJAX {
 
         // Sanitize form data
         $form_data = array();
-        parse_str($_POST['form_data'], $form_data);
+        $form_data_raw = isset($_POST['form_data']) ? wp_unslash($_POST['form_data']) : '';
+        if (is_string($form_data_raw)) {
+            parse_str($form_data_raw, $form_data);
+        }
         
         $sanitized_data = array(
             'property_type' => RESBS_Security::sanitize_text($form_data['property_type'] ?? ''),
@@ -179,7 +182,10 @@ class RESBS_Shortcode_AJAX {
 
         // Sanitize form data
         $form_data = array();
-        parse_str($_POST['form_data'], $form_data);
+        $form_data_raw = isset($_POST['form_data']) ? wp_unslash($_POST['form_data']) : '';
+        if (is_string($form_data_raw)) {
+            parse_str($form_data_raw, $form_data);
+        }
         
         $sanitized_data = array(
             'keyword' => RESBS_Security::sanitize_text($form_data['keyword'] ?? ''),
@@ -326,7 +332,10 @@ class RESBS_Shortcode_AJAX {
 
         // Sanitize form data
         $form_data = array();
-        parse_str($_POST['form_data'], $form_data);
+        $form_data_raw = isset($_POST['form_data']) ? wp_unslash($_POST['form_data']) : '';
+        if (is_string($form_data_raw)) {
+            parse_str($form_data_raw, $form_data);
+        }
         
         $sanitized_data = array(
             'first_name' => RESBS_Security::sanitize_text($form_data['first_name'] ?? ''),
@@ -649,8 +658,8 @@ class RESBS_Shortcode_AJAX {
         );
         
         foreach ($property_details as $field_key => $meta_key) {
-            // Get value from sanitized_data first, fallback to $_POST, then default to empty
-            $raw_value = isset($sanitized_data[$field_key]) ? $sanitized_data[$field_key] : (isset($_POST[$field_key]) ? $_POST[$field_key] : '');
+            // Get value from sanitized_data first, fallback to sanitized $_POST, then default to empty
+            $raw_value = isset($sanitized_data[$field_key]) ? $sanitized_data[$field_key] : (isset($_POST[$field_key]) ? RESBS_Security::sanitize_text($_POST[$field_key]) : '');
             $value = trim((string)$raw_value);
             // Save the value (even if empty string) to ensure it's stored
             update_post_meta($property_id, $meta_key, $value);

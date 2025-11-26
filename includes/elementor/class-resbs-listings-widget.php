@@ -742,14 +742,18 @@ class RESBS_Listings_Widget extends \Elementor\Widget_Base {
                     $longitude = get_post_meta($prop_id, '_property_longitude', true);
                     
                     if ($latitude && $longitude) {
+                        $price_meta = get_post_meta($prop_id, '_property_price', true);
+                        $bedrooms_meta = get_post_meta($prop_id, '_property_bedrooms', true);
+                        $bathrooms_meta = get_post_meta($prop_id, '_property_bathrooms', true);
+                        
                         $map_properties[] = array(
-                            'id' => $prop_id,
+                            'id' => absint($prop_id),
                             'title' => esc_html(get_the_title()),
                             'lat' => floatval($latitude),
                             'lng' => floatval($longitude),
-                            'price' => get_post_meta($prop_id, '_property_price', true),
-                            'bedrooms' => get_post_meta($prop_id, '_property_bedrooms', true),
-                            'bathrooms' => get_post_meta($prop_id, '_property_bathrooms', true),
+                            'price' => is_numeric($price_meta) ? floatval($price_meta) : '',
+                            'bedrooms' => !empty($bedrooms_meta) ? absint($bedrooms_meta) : '',
+                            'bathrooms' => !empty($bathrooms_meta) ? absint($bathrooms_meta) : '',
                             'permalink' => esc_url(get_permalink($prop_id)),
                             'image' => esc_url(get_the_post_thumbnail_url($prop_id, 'thumbnail')),
                         );
@@ -766,7 +770,7 @@ class RESBS_Listings_Widget extends \Elementor\Widget_Base {
                         <div class="resbs-map-wrapper">
                             <div id="resbs-map-canvas-<?php echo esc_attr($widget_id); ?>" class="resbs-map-canvas"></div>
                         </div>
-                        <script type="application/json" class="resbs-map-data"><?php echo esc_attr(wp_json_encode($map_properties)); ?></script>
+                        <script type="application/json" class="resbs-map-data"><?php echo wp_json_encode($map_properties, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?></script>
                     </div>
                 </div>
                 

@@ -2366,17 +2366,33 @@ class RESBS_Frontend {
             // AJAX submission - parse serialized form data
             // Note: parse_str expects URL-encoded string, not sanitized text
             // We'll sanitize after parsing
-            $form_data_raw = isset($_POST['form_data']) ? $_POST['form_data'] : '';
-            parse_str($form_data_raw, $form_data);
-            // Sanitize parsed data - handle arrays properly
-            if (is_array($form_data)) {
-                array_walk_recursive($form_data, function(&$value) {
-                    $value = sanitize_text_field($value);
-                });
+            $form_data_raw = isset($_POST['form_data']) && is_string($_POST['form_data']) ? $_POST['form_data'] : '';
+            if (!empty($form_data_raw)) {
+                parse_str($form_data_raw, $form_data);
+                // Sanitize parsed data - handle arrays properly
+                if (is_array($form_data)) {
+                    array_walk_recursive($form_data, function(&$value) {
+                        if (is_string($value)) {
+                            $value = sanitize_text_field($value);
+                        }
+                    });
+                }
+            } else {
+                $form_data = array();
             }
         } else {
-            // Direct POST submission - use $_POST directly
-            $form_data = $_POST;
+            // Direct POST submission - sanitize $_POST data
+            // Note: Nonces are already verified above, so we can safely sanitize here
+            $form_data = array();
+            foreach ($_POST as $key => $value) {
+                $sanitized_key = sanitize_key($key);
+                if (is_array($value)) {
+                    $form_data[$sanitized_key] = array_map('sanitize_text_field', $value);
+                } else {
+                    // Use sanitize_text_field for most fields, but preserve structure
+                    $form_data[$sanitized_key] = sanitize_text_field($value);
+                }
+            }
         }
         
         // SECURITY: Sanitize all user input
@@ -2647,10 +2663,12 @@ class RESBS_Frontend {
                 }
                 echo '<div class="resbs-property-meta">';
                 if ($bedrooms) {
-                    echo '<span class="resbs-meta-item"><span class="dashicons dashicons-bed-alt"></span>' . esc_html($bedrooms) . ' beds</span>';
+                    $bedrooms_text = $bedrooms == 1 ? esc_html__('bed', 'realestate-booking-suite') : esc_html__('beds', 'realestate-booking-suite');
+                    echo '<span class="resbs-meta-item"><span class="dashicons dashicons-bed-alt"></span>' . esc_html($bedrooms) . ' ' . $bedrooms_text . '</span>';
                 }
                 if ($bathrooms) {
-                    echo '<span class="resbs-meta-item"><span class="dashicons dashicons-bath"></span>' . esc_html($bathrooms) . ' baths</span>';
+                    $bathrooms_text = $bathrooms == 1 ? esc_html__('bath', 'realestate-booking-suite') : esc_html__('baths', 'realestate-booking-suite');
+                    echo '<span class="resbs-meta-item"><span class="dashicons dashicons-bath"></span>' . esc_html($bathrooms) . ' ' . $bathrooms_text . '</span>';
                 }
                 if ($area_value) {
                     echo '<span class="resbs-meta-item"><span class="dashicons dashicons-admin-home"></span>' . esc_html(resbs_format_area($area_value)) . '</span>';

@@ -454,39 +454,41 @@ class RESBS_Contact_Settings {
             );
         }
         
-        // Verify nonce and check permissions using combined security helper
+        // Sanitize and verify nonce and check permissions using combined security helper
+        $nonce = isset($_POST['resbs_contact_settings_nonce']) ? sanitize_text_field(wp_unslash($_POST['resbs_contact_settings_nonce'])) : '';
         RESBS_Security::verify_nonce_and_capability(
-            $_POST['resbs_contact_settings_nonce'],
+            $nonce,
             'resbs_contact_settings_nonce',
             'manage_options'
         );
 
         // Sanitize and save settings using security helper
         // Use null coalescing operator to safely handle missing POST values
+        // WordPress slashes $_POST data, so we need to unslash before sanitizing
         // Validate email before saving
-        $contact_email = RESBS_Security::sanitize_email($_POST['resbs_contact_email'] ?? '');
+        $contact_email = RESBS_Security::sanitize_email(isset($_POST['resbs_contact_email']) ? wp_unslash($_POST['resbs_contact_email']) : '');
         if (!empty($contact_email) && !is_email($contact_email)) {
             $contact_email = ''; // Clear invalid email
         }
         
         $settings = array(
-            'resbs_contact_phone' => RESBS_Security::sanitize_text($_POST['resbs_contact_phone'] ?? ''),
+            'resbs_contact_phone' => RESBS_Security::sanitize_text(isset($_POST['resbs_contact_phone']) ? wp_unslash($_POST['resbs_contact_phone']) : ''),
             'resbs_contact_email' => $contact_email,
-            'resbs_contact_address' => RESBS_Security::sanitize_textarea($_POST['resbs_contact_address'] ?? ''),
-            'resbs_contact_website' => $this->sanitize_url_setting($_POST['resbs_contact_website'] ?? ''),
-            'resbs_contact_whatsapp' => RESBS_Security::sanitize_text($_POST['resbs_contact_whatsapp'] ?? ''),
-            'resbs_contact_telegram' => RESBS_Security::sanitize_text($_POST['resbs_contact_telegram'] ?? ''),
-            'resbs_business_name' => RESBS_Security::sanitize_text($_POST['resbs_business_name'] ?? ''),
-            'resbs_business_hours' => RESBS_Security::sanitize_textarea($_POST['resbs_business_hours'] ?? ''),
-            'resbs_business_description' => RESBS_Security::sanitize_textarea($_POST['resbs_business_description'] ?? ''),
-            'resbs_social_facebook' => $this->sanitize_url_setting($_POST['resbs_social_facebook'] ?? ''),
-            'resbs_social_twitter' => $this->sanitize_url_setting($_POST['resbs_social_twitter'] ?? ''),
-            'resbs_social_instagram' => $this->sanitize_url_setting($_POST['resbs_social_instagram'] ?? ''),
-            'resbs_social_linkedin' => $this->sanitize_url_setting($_POST['resbs_social_linkedin'] ?? ''),
-            'resbs_social_youtube' => $this->sanitize_url_setting($_POST['resbs_social_youtube'] ?? ''),
-            'resbs_show_contact_widget' => $this->sanitize_bool_setting($_POST['resbs_show_contact_widget'] ?? false),
-            'resbs_contact_widget_title' => RESBS_Security::sanitize_text($_POST['resbs_contact_widget_title'] ?? ''),
-            'resbs_contact_widget_style' => $this->sanitize_widget_style($_POST['resbs_contact_widget_style'] ?? 'default')
+            'resbs_contact_address' => RESBS_Security::sanitize_textarea(isset($_POST['resbs_contact_address']) ? wp_unslash($_POST['resbs_contact_address']) : ''),
+            'resbs_contact_website' => $this->sanitize_url_setting(isset($_POST['resbs_contact_website']) ? wp_unslash($_POST['resbs_contact_website']) : ''),
+            'resbs_contact_whatsapp' => RESBS_Security::sanitize_text(isset($_POST['resbs_contact_whatsapp']) ? wp_unslash($_POST['resbs_contact_whatsapp']) : ''),
+            'resbs_contact_telegram' => RESBS_Security::sanitize_text(isset($_POST['resbs_contact_telegram']) ? wp_unslash($_POST['resbs_contact_telegram']) : ''),
+            'resbs_business_name' => RESBS_Security::sanitize_text(isset($_POST['resbs_business_name']) ? wp_unslash($_POST['resbs_business_name']) : ''),
+            'resbs_business_hours' => RESBS_Security::sanitize_textarea(isset($_POST['resbs_business_hours']) ? wp_unslash($_POST['resbs_business_hours']) : ''),
+            'resbs_business_description' => RESBS_Security::sanitize_textarea(isset($_POST['resbs_business_description']) ? wp_unslash($_POST['resbs_business_description']) : ''),
+            'resbs_social_facebook' => $this->sanitize_url_setting(isset($_POST['resbs_social_facebook']) ? wp_unslash($_POST['resbs_social_facebook']) : ''),
+            'resbs_social_twitter' => $this->sanitize_url_setting(isset($_POST['resbs_social_twitter']) ? wp_unslash($_POST['resbs_social_twitter']) : ''),
+            'resbs_social_instagram' => $this->sanitize_url_setting(isset($_POST['resbs_social_instagram']) ? wp_unslash($_POST['resbs_social_instagram']) : ''),
+            'resbs_social_linkedin' => $this->sanitize_url_setting(isset($_POST['resbs_social_linkedin']) ? wp_unslash($_POST['resbs_social_linkedin']) : ''),
+            'resbs_social_youtube' => $this->sanitize_url_setting(isset($_POST['resbs_social_youtube']) ? wp_unslash($_POST['resbs_social_youtube']) : ''),
+            'resbs_show_contact_widget' => $this->sanitize_bool_setting(isset($_POST['resbs_show_contact_widget']) ? wp_unslash($_POST['resbs_show_contact_widget']) : false),
+            'resbs_contact_widget_title' => RESBS_Security::sanitize_text(isset($_POST['resbs_contact_widget_title']) ? wp_unslash($_POST['resbs_contact_widget_title']) : ''),
+            'resbs_contact_widget_style' => $this->sanitize_widget_style(isset($_POST['resbs_contact_widget_style']) ? wp_unslash($_POST['resbs_contact_widget_style']) : 'default')
         );
 
         foreach ($settings as $key => $value) {

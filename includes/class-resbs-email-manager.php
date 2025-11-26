@@ -734,7 +734,11 @@ class RESBS_Email_Manager {
         // Escape from name for email header (remove any potentially dangerous characters)
         // Remove newlines and carriage returns to prevent header injection
         $from_name = sanitize_text_field($from_name);
-        $from_name = str_replace(array("\r", "\n"), '', $from_name);
+        $from_name = str_replace(array("\r", "\n", "\t"), '', $from_name);
+        // Quote from name if it contains special characters to prevent header injection
+        if (preg_match('/[<>@,;:"]/', $from_name)) {
+            $from_name = '"' . str_replace('"', '\\"', $from_name) . '"';
+        }
 
         // Set headers - use proper escaping for email headers
         $headers = array(
@@ -753,7 +757,6 @@ class RESBS_Email_Manager {
         $subject_safe = wp_strip_all_tags($subject);
         $subject_safe = str_replace(array("\r", "\n"), '', $subject_safe);
         $sent = wp_mail($to, $subject_safe, $message, $headers);
-
 
         return $sent;
     }
@@ -1022,7 +1025,7 @@ The {site_name} Team', 'realestate-booking-suite')
      */
     public function ajax_send_test_email() {
         // Verify nonce and check permissions using combined security helper
-        $nonce = isset($_POST['nonce']) ? $_POST['nonce'] : '';
+        $nonce = isset($_POST['nonce']) ? sanitize_text_field($_POST['nonce']) : '';
         RESBS_Security::verify_ajax_nonce_and_capability($nonce, 'resbs_email_admin_nonce', 'manage_options');
 
         // Check if test_email is provided
@@ -1061,7 +1064,7 @@ The {site_name} Team', 'realestate-booking-suite')
      */
     public function ajax_preview_email_template() {
         // Verify nonce and check permissions using combined security helper
-        $nonce = isset($_POST['nonce']) ? $_POST['nonce'] : '';
+        $nonce = isset($_POST['nonce']) ? sanitize_text_field($_POST['nonce']) : '';
         RESBS_Security::verify_ajax_nonce_and_capability($nonce, 'resbs_email_admin_nonce', 'manage_options');
 
         // Check if required parameters are provided

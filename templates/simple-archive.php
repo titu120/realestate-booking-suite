@@ -8,7 +8,9 @@
 
 // IMPORTANT: Check for reset BEFORE any output (including get_header())
 // If reset parameter is present, redirect to clean URL and set all values to defaults
-if (isset($_GET['reset']) && sanitize_text_field($_GET['reset']) !== '') {
+if (isset($_GET['reset']) && !empty($_GET['reset'])) {
+    // Sanitize reset parameter for security
+    $reset_param = sanitize_text_field($_GET['reset']);
     // Verify nonce for security (optional but recommended for state-changing operations)
     // For public archive pages, we'll use a simple validation
     // Get the archive page URL without any query parameters
@@ -680,13 +682,13 @@ $property_statuses = get_terms(array(
                                         <?php if ($bedrooms): ?>
                                 <div class="property-feature">
                                     <i class="fas fa-bed"></i>
-                                                <span><?php echo esc_html($bedrooms); ?> <?php echo esc_html($bedrooms != 1 ? __('beds', 'realestate-booking-suite') : __('bed', 'realestate-booking-suite')); ?></span>
+                                                <span><?php echo esc_html($bedrooms); ?> <?php echo esc_html($bedrooms != 1 ? esc_html__('beds', 'realestate-booking-suite') : esc_html__('bed', 'realestate-booking-suite')); ?></span>
                                 </div>
                                         <?php endif; ?>
                                         <?php if ($bathrooms): ?>
                                 <div class="property-feature">
                                     <i class="fas fa-bath"></i>
-                                                <span><?php echo esc_html($bathrooms); ?> <?php echo esc_html($bathrooms != 1 ? __('baths', 'realestate-booking-suite') : __('bath', 'realestate-booking-suite')); ?></span>
+                                                <span><?php echo esc_html($bathrooms); ?> <?php echo esc_html($bathrooms != 1 ? esc_html__('baths', 'realestate-booking-suite') : esc_html__('bath', 'realestate-booking-suite')); ?></span>
                                 </div>
                                         <?php endif; ?>
                                         <?php if ($area_sqft): ?>
@@ -779,12 +781,6 @@ $property_statuses = get_terms(array(
             $properties_data = array();
             $properties_without_coords = array();
             
-            if (!$properties_query->have_posts()) {
-                // No posts found
-            } else {
-                // Posts found
-            }
-            
             while ($properties_query->have_posts()): $properties_query->the_post();
                 $property_id = get_the_ID();
                 $property_title = get_the_title();
@@ -853,7 +849,7 @@ $property_statuses = get_terms(array(
                 $location_terms = get_the_terms($property_id, 'property_location');
                 $location_name = '';
                 if ($location_terms && !is_wp_error($location_terms) && !empty($location_terms)) {
-                    $location_name = $location_terms[0]->name;
+                    $location_name = sanitize_text_field($location_terms[0]->name);
                 }
                 
                 // Build address string for geocoding
@@ -864,16 +860,16 @@ $property_statuses = get_terms(array(
                     // Use location taxonomy as primary - it's usually the most accurate (e.g., "Uttara Dhaka", "Jashore")
                     $address_string = $location_name . ', Bangladesh';
                 } else {
-                    // Fallback to address fields
-                    if ($address) $address_string .= $address;
-                    if ($city) $address_string .= ($address_string ? ', ' : '') . $city;
-                    if ($state) $address_string .= ($address_string ? ', ' : '') . $state;
-                    if ($zip) $address_string .= ($address_string ? ' ' : '') . $zip;
-                    if ($country) $address_string .= ($address_string ? ', ' : '') . $country;
+                    // Fallback to address fields - sanitize before concatenation
+                    if ($address) $address_string .= sanitize_text_field($address);
+                    if ($city) $address_string .= ($address_string ? ', ' : '') . sanitize_text_field($city);
+                    if ($state) $address_string .= ($address_string ? ', ' : '') . sanitize_text_field($state);
+                    if ($zip) $address_string .= ($address_string ? ' ' : '') . sanitize_text_field($zip);
+                    if ($country) $address_string .= ($address_string ? ', ' : '') . sanitize_text_field($country);
                     
                     // If still empty, try city alone
                     if (empty($address_string) && $city) {
-                        $address_string = $city . ', Bangladesh';
+                        $address_string = sanitize_text_field($city) . ', Bangladesh';
                     }
                     
                     // If still empty, try property title (might contain location info)
@@ -897,13 +893,21 @@ $property_statuses = get_terms(array(
                 // If no address string was built, try to use property title as fallback
                 if (empty($address_string) && !empty($property_title)) {
                     // Use property title + Bangladesh as last resort
-                    $address_string = $property_title . ', Bangladesh';
+                    $address_string = sanitize_text_field($property_title) . ', Bangladesh';
+                }
+                
+                // Format price using plugin function for consistency
+                $formatted_price_string = '';
+                if ($price) {
+                    $formatted_price_string = resbs_format_price($price);
+                } else {
+                    $formatted_price_string = __('Price on request', 'realestate-booking-suite');
                 }
                 
                 $property_data = array(
                     'id' => absint($property_id),
                     'title' => sanitize_text_field($property_title),
-                    'price' => $price ? '$' . number_format(absint($price)) : 'Price on request',
+                    'price' => sanitize_text_field($formatted_price_string),
                     'bedrooms' => $bedrooms ? absint($bedrooms) : '',
                     'bathrooms' => $bathrooms ? floatval($bathrooms) : '',
                     'area_sqft' => $area_sqft ? absint($area_sqft) : '',
@@ -956,7 +960,7 @@ $property_statuses = get_terms(array(
                 'use strict';
                 
                 // Get properties data from PHP
-                var propertiesData = <?php echo json_encode($properties_data); ?>;
+                var propertiesData = <?php echo wp_json_encode($properties_data, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
                 
                 if (propertiesData.length === 0) {
                     return;
@@ -992,8 +996,8 @@ $property_statuses = get_terms(array(
                     enumerable: true
                 });
                 
-                window.resbs_archive.use_openstreetmap = <?php echo $use_openstreetmap ? 'true' : 'false'; ?>;
-                window.resbs_archive.map_settings = <?php echo json_encode($map_settings); ?>;
+                window.resbs_archive.use_openstreetmap = <?php echo wp_json_encode((bool) $use_openstreetmap); ?>;
+                window.resbs_archive.map_settings = <?php echo wp_json_encode($map_settings, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
                 window.resbs_archive.map_center_lat = <?php echo floatval($map_center_lat); ?>;
                 window.resbs_archive.map_center_lng = <?php echo floatval($map_center_lng); ?>;
                 window.resbs_archive.map_zoom = <?php echo intval($map_zoom); ?>;
@@ -1028,8 +1032,8 @@ $property_statuses = get_terms(array(
                     'type' => 'list',
                     'end_size' => 2,
                     'mid_size' => 1,
-                    'prev_text' => '<i class="fas fa-chevron-left"></i> ' . __('Previous', 'realestate-booking-suite'),
-                    'next_text' => __('Next', 'realestate-booking-suite') . ' <i class="fas fa-chevron-right"></i>',
+                    'prev_text' => '<i class="fas fa-chevron-left"></i> ' . esc_html__('Previous', 'realestate-booking-suite'),
+                    'next_text' => esc_html__('Next', 'realestate-booking-suite') . ' <i class="fas fa-chevron-right"></i>',
                 ));
                 ?>
                 </div>

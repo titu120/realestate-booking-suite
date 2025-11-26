@@ -96,7 +96,22 @@ class RESBS_Search {
             'results_per_page' => 12,
             'view_type' => 'grid', // grid, list, map
             'show_map' => 'true'
-        ), $atts);
+        ), $atts, 'resbs_search');
+        
+        // Sanitize shortcode attributes
+        $atts['show_filters'] = sanitize_text_field($atts['show_filters']);
+        $atts['results_per_page'] = absint($atts['results_per_page']);
+        $atts['view_type'] = sanitize_text_field($atts['view_type']);
+        $atts['show_map'] = sanitize_text_field($atts['show_map']);
+        
+        // Validate view_type
+        $allowed_view_types = array('grid', 'list', 'map');
+        if (!in_array($atts['view_type'], $allowed_view_types, true)) {
+            $atts['view_type'] = 'grid';
+        }
+        
+        // Limit results_per_page to prevent abuse
+        $atts['results_per_page'] = min(max($atts['results_per_page'], 1), 100);
         
         ob_start();
         ?>
@@ -296,10 +311,13 @@ class RESBS_Search {
         }
         
         // Verify nonce - check if nonce exists first
-        $nonce = isset($_POST['resbs_search_nonce']) ? $_POST['resbs_search_nonce'] : '';
-        if (empty($nonce)) {
+        $nonce = '';
+        if (isset($_POST['resbs_search_nonce']) && is_string($_POST['resbs_search_nonce'])) {
+            $nonce = sanitize_text_field($_POST['resbs_search_nonce']);
+        }
+        if (empty($nonce) && isset($_POST['nonce']) && is_string($_POST['nonce'])) {
             // Also check for 'nonce' field name (common alternative)
-            $nonce = isset($_POST['nonce']) ? $_POST['nonce'] : '';
+            $nonce = sanitize_text_field($_POST['nonce']);
         }
         
         // Use security helper class for consistent nonce verification
@@ -487,34 +505,58 @@ class RESBS_Search {
                 $title = get_the_title();
                 $excerpt = get_the_excerpt();
                 $permalink = get_permalink();
-                $price = get_post_meta($post_id, '_property_price', true);
-                $bedrooms = get_post_meta($post_id, '_property_bedrooms', true);
-                $bathrooms = get_post_meta($post_id, '_property_bathrooms', true);
+                $price_raw = get_post_meta($post_id, '_property_price', true);
+                $property_bedrooms = get_post_meta($post_id, '_property_bedrooms', true);
+                $property_bathrooms = get_post_meta($post_id, '_property_bathrooms', true);
                 // Try multiple possible area meta keys
-                $area = get_post_meta($post_id, '_property_size', true);
-                if (empty($area)) {
-                    $area = get_post_meta($post_id, '_property_area_sqft', true);
+                $area_raw = get_post_meta($post_id, '_property_size', true);
+                if (empty($area_raw)) {
+                    $area_raw = get_post_meta($post_id, '_property_area_sqft', true);
                 }
-                $latitude = get_post_meta($post_id, '_property_latitude', true);
-                $longitude = get_post_meta($post_id, '_property_longitude', true);
-                $amenities = get_post_meta($post_id, '_property_amenities', true);
+                $latitude_raw = get_post_meta($post_id, '_property_latitude', true);
+                $longitude_raw = get_post_meta($post_id, '_property_longitude', true);
+                $amenities_raw = get_post_meta($post_id, '_property_amenities', true);
                 $thumbnail = get_the_post_thumbnail_url($post_id, 'medium');
                 $location_terms = wp_get_post_terms($post_id, 'property_location', array('fields' => 'names'));
                 $property_type_terms = wp_get_post_terms($post_id, 'property_type', array('fields' => 'names'));
                 $date = get_the_date('c');
                 
                 // Sanitize location and property type arrays
-                $location = array();
+                $location_names = array();
                 if (!empty($location_terms) && !is_wp_error($location_terms)) {
                     foreach ($location_terms as $term) {
-                        $location[] = sanitize_text_field($term);
+                        $location_names[] = sanitize_text_field($term);
                     }
                 }
                 
-                $property_type = array();
+                $property_type_names = array();
                 if (!empty($property_type_terms) && !is_wp_error($property_type_terms)) {
                     foreach ($property_type_terms as $term) {
-                        $property_type[] = sanitize_text_field($term);
+                        $property_type_names[] = sanitize_text_field($term);
+                    }
+                }
+                
+                // Sanitize numeric values properly
+                $price = RESBS_Security::sanitize_float($price_raw);
+                $property_bedrooms = absint($property_bedrooms);
+                $property_bathrooms = absint($property_bathrooms);
+                $area = absint($area_raw);
+                $latitude = RESBS_Security::sanitize_float($latitude_raw);
+                $longitude = RESBS_Security::sanitize_float($longitude_raw);
+                
+                // Handle amenities - could be array, serialized string, or plain string
+                $amenities_sanitized = '';
+                if (!empty($amenities_raw)) {
+                    if (is_array($amenities_raw)) {
+                        $amenities_sanitized = array_map('sanitize_text_field', $amenities_raw);
+                    } elseif (is_string($amenities_raw)) {
+                        // Try to unserialize if it's a serialized string
+                        $unserialized = maybe_unserialize($amenities_raw);
+                        if (is_array($unserialized)) {
+                            $amenities_sanitized = array_map('sanitize_text_field', $unserialized);
+                        } else {
+                            $amenities_sanitized = sanitize_text_field($amenities_raw);
+                        }
                     }
                 }
                 
@@ -523,16 +565,16 @@ class RESBS_Search {
                     'title' => sanitize_text_field($title),
                     'excerpt' => wp_kses_post($excerpt),
                     'permalink' => esc_url_raw($permalink),
-                    'price' => sanitize_text_field($price),
-                    'bedrooms' => sanitize_text_field($bedrooms),
-                    'bathrooms' => sanitize_text_field($bathrooms),
-                    'area' => sanitize_text_field($area),
-                    'latitude' => sanitize_text_field($latitude),
-                    'longitude' => sanitize_text_field($longitude),
-                    'amenities' => sanitize_text_field($amenities),
+                    'price' => $price,
+                    'bedrooms' => $property_bedrooms,
+                    'bathrooms' => $property_bathrooms,
+                    'area' => $area,
+                    'latitude' => $latitude,
+                    'longitude' => $longitude,
+                    'amenities' => $amenities_sanitized,
                     'thumbnail' => esc_url_raw($thumbnail),
-                    'location' => $location,
-                    'property_type' => $property_type,
+                    'location' => $location_names,
+                    'property_type' => $property_type_names,
                     'date' => sanitize_text_field($date)
                 );
             }

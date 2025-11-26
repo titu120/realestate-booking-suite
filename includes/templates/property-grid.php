@@ -217,13 +217,25 @@ class RESBS_Property_Grid {
      * Render individual property card
      */
     private function render_property_card($post_id, $show_badges, $show_price, $show_meta, $show_excerpt, $image_size) {
-        $price = get_post_meta($post_id, '_property_price', true);
-        $bedrooms = get_post_meta($post_id, '_property_bedrooms', true);
-        $bathrooms = get_post_meta($post_id, '_property_bathrooms', true);
+        $price_raw = get_post_meta($post_id, '_property_price', true);
+        $price = !empty($price_raw) && is_numeric($price_raw) ? floatval($price_raw) : '';
+        
+        $bedrooms_raw = get_post_meta($post_id, '_property_bedrooms', true);
+        $bedrooms = !empty($bedrooms_raw) && is_numeric($bedrooms_raw) ? absint($bedrooms_raw) : '';
+        
+        $bathrooms_raw = get_post_meta($post_id, '_property_bathrooms', true);
+        $bathrooms = !empty($bathrooms_raw) && is_numeric($bathrooms_raw) ? floatval($bathrooms_raw) : '';
         // Try multiple possible area meta keys
-        $area = get_post_meta($post_id, '_property_size', true) ?: get_post_meta($post_id, '_property_area_sqft', true);
-        $featured = get_post_meta($post_id, '_property_featured', true);
-        $video_url = get_post_meta($post_id, '_property_video_url', true);
+        $area_raw = get_post_meta($post_id, '_property_size', true);
+        if (empty($area_raw)) {
+            $area_raw = get_post_meta($post_id, '_property_area_sqft', true);
+        }
+        $area = !empty($area_raw) && is_numeric($area_raw) ? floatval($area_raw) : '';
+        $featured_raw = get_post_meta($post_id, '_property_featured', true);
+        $featured = !empty($featured_raw) ? sanitize_text_field($featured_raw) : '';
+        
+        $video_url_raw = get_post_meta($post_id, '_property_video_url', true);
+        $video_url = !empty($video_url_raw) ? esc_url_raw($video_url_raw) : '';
         
         // Get taxonomy terms and sanitize
         $property_status_raw = wp_get_post_terms($post_id, 'property_status', array('fields' => 'names'));
@@ -256,6 +268,10 @@ class RESBS_Property_Grid {
         $permalink = get_permalink($post_id);
         $title = get_the_title($post_id);
         $excerpt = get_the_excerpt($post_id);
+        
+        // Sanitize title and excerpt
+        $title = sanitize_text_field($title);
+        $excerpt = sanitize_textarea_field($excerpt);
         
         // Check if property is new (less than 30 days old)
         $is_new = (strtotime(get_the_date('c', $post_id)) > strtotime('-30 days'));
@@ -304,9 +320,12 @@ class RESBS_Property_Grid {
             </div>
             
             <div class="resbs-property-content">
-                <<?php echo esc_attr(resbs_get_title_heading_tag()); ?> class="resbs-property-title">
+                <?php
+                $heading_tag = resbs_get_title_heading_tag();
+                echo '<' . esc_attr($heading_tag) . ' class="resbs-property-title">';
+                ?>
                     <a href="<?php echo esc_url($permalink); ?>"><?php echo esc_html($title); ?></a>
-                </<?php echo esc_attr(resbs_get_title_heading_tag()); ?>>
+                <?php echo '</' . esc_attr($heading_tag) . '>'; ?>
                 
                 <?php if (!empty($location)): ?>
                     <div class="resbs-property-location">
@@ -329,14 +348,22 @@ class RESBS_Property_Grid {
                         <?php if ($bedrooms && is_numeric($bedrooms)): ?>
                             <span class="resbs-meta-item">
                                 <span class="dashicons dashicons-bed"></span>
-                                <?php echo esc_html(absint($bedrooms)); ?> <?php echo esc_html($bedrooms == 1 ? esc_html__('Bed', 'realestate-booking-suite') : esc_html__('Beds', 'realestate-booking-suite')); ?>
+                                <?php 
+                                echo esc_html(absint($bedrooms));
+                                echo ' ';
+                                echo esc_html($bedrooms == 1 ? __('Bed', 'realestate-booking-suite') : __('Beds', 'realestate-booking-suite'));
+                                ?>
                             </span>
                         <?php endif; ?>
                         
                         <?php if ($bathrooms && is_numeric($bathrooms)): ?>
                             <span class="resbs-meta-item">
                                 <span class="dashicons dashicons-shower"></span>
-                                <?php echo esc_html(floatval($bathrooms)); ?> <?php echo esc_html($bathrooms == 1 ? esc_html__('Bath', 'realestate-booking-suite') : esc_html__('Baths', 'realestate-booking-suite')); ?>
+                                <?php 
+                                echo esc_html(floatval($bathrooms));
+                                echo ' ';
+                                echo esc_html($bathrooms == 1 ? __('Bath', 'realestate-booking-suite') : __('Baths', 'realestate-booking-suite'));
+                                ?>
                             </span>
                         <?php endif; ?>
                         
@@ -379,10 +406,10 @@ class RESBS_Property_Grid {
         $page = isset($_POST['page']) ? intval($_POST['page']) : 1;
         $limit = isset($_POST['limit']) ? intval($_POST['limit']) : 12;
         $columns = isset($_POST['columns']) ? intval($_POST['columns']) : 3;
-        $show_badges = isset($_POST['show_badges']) && $_POST['show_badges'] === 'true';
-        $show_price = isset($_POST['show_price']) && $_POST['show_price'] === 'true';
-        $show_meta = isset($_POST['show_meta']) && $_POST['show_meta'] === 'true';
-        $show_excerpt = isset($_POST['show_excerpt']) && $_POST['show_excerpt'] === 'true';
+        $show_badges = isset($_POST['show_badges']) && sanitize_text_field($_POST['show_badges']) === 'true';
+        $show_price = isset($_POST['show_price']) && sanitize_text_field($_POST['show_price']) === 'true';
+        $show_meta = isset($_POST['show_meta']) && sanitize_text_field($_POST['show_meta']) === 'true';
+        $show_excerpt = isset($_POST['show_excerpt']) && sanitize_text_field($_POST['show_excerpt']) === 'true';
         
         // Validate image_size
         $image_size = isset($_POST['image_size']) ? sanitize_text_field($_POST['image_size']) : 'medium';

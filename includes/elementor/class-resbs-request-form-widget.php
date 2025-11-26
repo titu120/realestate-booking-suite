@@ -263,7 +263,7 @@ class RESBS_Request_Form_Widget extends \Elementor\Widget_Base {
                 // JavaScript will intercept the form and send AJAX with resbs_elementor_nonce
                 wp_nonce_field('resbs_request_form', 'resbs_request_nonce'); 
                 ?>
-                <input type="hidden" name="action" value="resbs_elementor_submit_request">
+                <input type="hidden" name="action" value="<?php echo esc_attr('resbs_elementor_submit_request'); ?>">
                 <?php if ($current_property_id): ?>
                     <input type="hidden" name="property_id" value="<?php echo esc_attr(absint($current_property_id)); ?>">
                 <?php endif; ?>
@@ -348,8 +348,6 @@ class RESBS_Request_Form_Widget extends \Elementor\Widget_Base {
             );
         }
         // Styles are now enqueued via wp_enqueue_style
-        ?>
-        <?php
     }
 
     /**

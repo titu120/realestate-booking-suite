@@ -401,10 +401,9 @@ class RESBS_Search_Alerts_Manager {
         global $wpdb;
         
         $table_name = $wpdb->prefix . 'resbs_search_alerts';
-        // Use proper identifier placeholder %i for table name
+        // Table name is safe - constructed from $wpdb->prefix
         return $wpdb->get_row($wpdb->prepare(
-            "SELECT * FROM %i WHERE id = %d",
-            $table_name,
+            "SELECT * FROM `{$table_name}` WHERE id = %d",
             $alert_id
         ));
     }
@@ -416,10 +415,9 @@ class RESBS_Search_Alerts_Manager {
         global $wpdb;
         
         $table_name = $wpdb->prefix . 'resbs_search_alerts';
-        // Use proper identifier placeholder %i for table name
+        // Table name is safe - constructed from $wpdb->prefix
         return $wpdb->get_results($wpdb->prepare(
-            "SELECT * FROM %i WHERE email = %s AND status = 'active' ORDER BY created_at DESC",
-            $table_name,
+            "SELECT * FROM `{$table_name}` WHERE email = %s AND status = 'active' ORDER BY created_at DESC",
             $email
         ));
     }
@@ -431,20 +429,24 @@ class RESBS_Search_Alerts_Manager {
         global $wpdb;
         
         $table_name = $wpdb->prefix . 'resbs_search_alerts';
-        // Escape table name for consistency (table name is safe - constructed from $wpdb->prefix)
-        $table_name_escaped = esc_sql($table_name);
+        // Table name is safe - constructed from $wpdb->prefix
         
-        // Get alerts that need to be sent
-        $alerts = $wpdb->get_results($wpdb->prepare(
-            "SELECT * FROM `{$table_name_escaped}` 
+        // Get all active alerts
+        $alerts = $wpdb->get_results(
+            "SELECT * FROM `{$table_name}` 
              WHERE status = 'active' 
-             AND (last_sent IS NULL OR last_sent < %s)
-             ORDER BY created_at ASC",
-            $this->get_next_send_time()
-        ));
+             ORDER BY created_at ASC"
+        );
         
         foreach ($alerts as $alert) {
-            $this->process_search_alert($alert);
+            // Check if this alert needs to be sent based on its frequency
+            $frequency = !empty($alert->frequency) ? sanitize_text_field($alert->frequency) : 'daily';
+            $next_send_time = $this->get_next_send_time($frequency);
+            
+            // Only process if last_sent is NULL or older than the required time
+            if (empty($alert->last_sent) || $alert->last_sent < $next_send_time) {
+                $this->process_search_alert($alert);
+            }
         }
     }
 

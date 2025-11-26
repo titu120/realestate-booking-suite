@@ -443,7 +443,7 @@ class RESBS_Settings {
                                         </div>
                                         <div class="resbs-property-info">
                                             <h4><a href="<?php echo esc_url(get_edit_post_link($property->ID)); ?>"><?php echo esc_html($property->post_title); ?></a></h4>
-                                            <p class="resbs-property-date"><?php echo esc_html(human_time_diff(strtotime($property->post_date), current_time('timestamp')) . ' ' . esc_html__('ago', 'realestate-booking-suite')); ?></p>
+                                            <p class="resbs-property-date"><?php echo esc_html(human_time_diff(strtotime($property->post_date), current_time('timestamp'))); ?> <?php esc_html_e('ago', 'realestate-booking-suite'); ?></p>
                                         </div>
                                         <div class="resbs-property-status">
                                             <span class="resbs-status-badge resbs-status-published"><?php esc_html_e('Published', 'realestate-booking-suite'); ?></span>
@@ -935,15 +935,18 @@ class RESBS_Settings {
                 wp_die(esc_html__('You do not have sufficient permissions to perform this action.', 'realestate-booking-suite'));
             }
             
-            if (isset($_POST['resbs_quick_actions'])) {
+            if (isset($_POST['resbs_quick_actions']) && is_array($_POST['resbs_quick_actions'])) {
                 $actions = array();
                 foreach ($_POST['resbs_quick_actions'] as $index => $action) {
+                    if (!is_array($action)) {
+                        continue;
+                    }
                     if (!empty($action['title'])) {
                         $actions[] = array(
-                            'title' => sanitize_text_field($action['title']),
-                            'icon' => sanitize_text_field($action['icon']),
-                            'action' => sanitize_text_field($action['action']),
-                            'style' => sanitize_text_field($action['style']),
+                            'title' => sanitize_text_field($action['title'] ?? ''),
+                            'icon' => sanitize_text_field($action['icon'] ?? ''),
+                            'action' => sanitize_text_field($action['action'] ?? ''),
+                            'style' => sanitize_text_field($action['style'] ?? ''),
                             'enabled' => isset($action['enabled']) ? 1 : 0
                         );
                     }
@@ -954,6 +957,9 @@ class RESBS_Settings {
         }
         
         $quick_actions = get_option('resbs_quick_actions', array());
+        if (!is_array($quick_actions)) {
+            $quick_actions = array();
+        }
         if (empty($quick_actions)) {
             $quick_actions = array(
                 array(
@@ -985,33 +991,34 @@ class RESBS_Settings {
                     
                     <div id="quick-actions-container">
                         <?php foreach ($quick_actions as $index => $action): ?>
+                        <?php if (!is_array($action)) { continue; } ?>
                         <div class="quick-action-item" data-index="<?php echo esc_attr($index); ?>">
                             <div class="resbs-form-group">
                                 <label><?php esc_html_e('Action Title', 'realestate-booking-suite'); ?></label>
-                                <input type="text" name="resbs_quick_actions[<?php echo esc_attr($index); ?>][title]" value="<?php echo esc_attr($action['title']); ?>" placeholder="e.g., Send Message" />
+                                <input type="text" name="resbs_quick_actions[<?php echo esc_attr($index); ?>][title]" value="<?php echo esc_attr($action['title'] ?? ''); ?>" placeholder="e.g., Send Message" />
                             </div>
                             
                             <div class="resbs-form-group">
                                 <label><?php esc_html_e('Icon Class', 'realestate-booking-suite'); ?></label>
-                                <input type="text" name="resbs_quick_actions[<?php echo esc_attr($index); ?>][icon]" value="<?php echo esc_attr($action['icon']); ?>" placeholder="e.g., fas fa-envelope" />
+                                <input type="text" name="resbs_quick_actions[<?php echo esc_attr($index); ?>][icon]" value="<?php echo esc_attr($action['icon'] ?? ''); ?>" placeholder="e.g., fas fa-envelope" />
                                 <p class="description"><?php esc_html_e('FontAwesome icon class (e.g., fas fa-envelope, fas fa-share-alt)', 'realestate-booking-suite'); ?></p>
                             </div>
                             
                             <div class="resbs-form-group">
                                 <label><?php esc_html_e('JavaScript Action', 'realestate-booking-suite'); ?></label>
-                                <input type="text" name="resbs_quick_actions[<?php echo esc_attr($index); ?>][action]" value="<?php echo esc_attr($action['action']); ?>" placeholder="e.g., openContactModal()" />
+                                <input type="text" name="resbs_quick_actions[<?php echo esc_attr($index); ?>][action]" value="<?php echo esc_attr($action['action'] ?? ''); ?>" placeholder="e.g., openContactModal()" />
                                 <p class="description"><?php esc_html_e('JavaScript function to call when clicked', 'realestate-booking-suite'); ?></p>
                             </div>
                             
                             <div class="resbs-form-group">
                                 <label><?php esc_html_e('Button Style Classes', 'realestate-booking-suite'); ?></label>
-                                <input type="text" name="resbs_quick_actions[<?php echo esc_attr($index); ?>][style]" value="<?php echo esc_attr($action['style']); ?>" placeholder="e.g., bg-gray-700 text-white hover:bg-gray-800" />
+                                <input type="text" name="resbs_quick_actions[<?php echo esc_attr($index); ?>][style]" value="<?php echo esc_attr($action['style'] ?? ''); ?>" placeholder="e.g., bg-gray-700 text-white hover:bg-gray-800" />
                                 <p class="description"><?php esc_html_e('Tailwind CSS classes for button styling', 'realestate-booking-suite'); ?></p>
                             </div>
                             
                             <div class="resbs-form-group">
                                 <label>
-                                    <input type="checkbox" name="resbs_quick_actions[<?php echo esc_attr($index); ?>][enabled]" value="1" <?php checked($action['enabled'], 1); ?> />
+                                    <input type="checkbox" name="resbs_quick_actions[<?php echo esc_attr($index); ?>][enabled]" value="1" <?php checked(isset($action['enabled']) ? $action['enabled'] : 0, 1); ?> />
                                     <?php esc_html_e('Enable this action', 'realestate-booking-suite'); ?>
                                 </label>
                             </div>

@@ -67,7 +67,8 @@ class RESBS_Demo_Importer {
     public function process_demo_import() {
         if (isset($_POST['resbs_import_demo'])) {
             // Verify nonce
-            if (!isset($_POST['resbs_demo_import_nonce']) || !wp_verify_nonce($_POST['resbs_demo_import_nonce'], 'resbs_demo_import_nonce')) {
+            $nonce = isset($_POST['resbs_demo_import_nonce']) ? sanitize_text_field(wp_unslash($_POST['resbs_demo_import_nonce'])) : '';
+            if (empty($nonce) || !wp_verify_nonce($nonce, 'resbs_demo_import_nonce')) {
                 wp_die(esc_html__('Security check failed.', 'realestate-booking-suite'));
             }
             
@@ -96,14 +97,17 @@ class RESBS_Demo_Importer {
         $statuses = array('For Sale', 'For Rent', 'Sold', 'New Construction');
         $status_ids = array();
         foreach ($statuses as $status) {
-            if (!term_exists($status, 'property_status')) {
-                $term = wp_insert_term($status, 'property_status');
-                if (!is_wp_error($term)) {
-                    $status_ids[$status] = $term['term_id'];
+            $sanitized_status = sanitize_text_field($status);
+            if (!term_exists($sanitized_status, 'property_status')) {
+                $term = wp_insert_term($sanitized_status, 'property_status');
+                if (!is_wp_error($term) && isset($term['term_id'])) {
+                    $status_ids[$status] = absint($term['term_id']);
                 }
             } else {
-                $term = get_term_by('name', $status, 'property_status');
-                $status_ids[$status] = $term->term_id;
+                $term = get_term_by('name', $sanitized_status, 'property_status');
+                if ($term && !is_wp_error($term) && isset($term->term_id)) {
+                    $status_ids[$status] = absint($term->term_id);
+                }
             }
         }
 
@@ -111,14 +115,17 @@ class RESBS_Demo_Importer {
         $types = array('Apartment', 'Villa', 'Office', 'Condo', 'Townhouse');
         $type_ids = array();
         foreach ($types as $type) {
-            if (!term_exists($type, 'property_type')) {
-                $term = wp_insert_term($type, 'property_type');
-                if (!is_wp_error($term)) {
-                    $type_ids[$type] = $term['term_id'];
+            $sanitized_type = sanitize_text_field($type);
+            if (!term_exists($sanitized_type, 'property_type')) {
+                $term = wp_insert_term($sanitized_type, 'property_type');
+                if (!is_wp_error($term) && isset($term['term_id'])) {
+                    $type_ids[$type] = absint($term['term_id']);
                 }
             } else {
-                $term = get_term_by('name', $type, 'property_type');
-                $type_ids[$type] = $term->term_id;
+                $term = get_term_by('name', $sanitized_type, 'property_type');
+                if ($term && !is_wp_error($term) && isset($term->term_id)) {
+                    $type_ids[$type] = absint($term->term_id);
+                }
             }
         }
 
@@ -126,14 +133,17 @@ class RESBS_Demo_Importer {
         $locations = array('New York', 'Los Angeles', 'London', 'Paris', 'Dubai');
         $location_ids = array();
         foreach ($locations as $location) {
-            if (!term_exists($location, 'property_location')) {
-                $term = wp_insert_term($location, 'property_location');
-                if (!is_wp_error($term)) {
-                    $location_ids[$location] = $term['term_id'];
+            $sanitized_location = sanitize_text_field($location);
+            if (!term_exists($sanitized_location, 'property_location')) {
+                $term = wp_insert_term($sanitized_location, 'property_location');
+                if (!is_wp_error($term) && isset($term['term_id'])) {
+                    $location_ids[$location] = absint($term['term_id']);
                 }
             } else {
-                $term = get_term_by('name', $location, 'property_location');
-                $location_ids[$location] = $term->term_id;
+                $term = get_term_by('name', $sanitized_location, 'property_location');
+                if ($term && !is_wp_error($term) && isset($term->term_id)) {
+                    $location_ids[$location] = absint($term->term_id);
+                }
             }
         }
 
@@ -214,40 +224,62 @@ class RESBS_Demo_Importer {
         );
 
         foreach ($properties as $prop) {
+            // Sanitize property data
+            $title = isset($prop['title']) ? sanitize_text_field($prop['title']) : '';
+            $desc = isset($prop['desc']) ? wp_kses_post($prop['desc']) : '';
+            $price = isset($prop['price']) ? sanitize_text_field($prop['price']) : '';
+            $bed = isset($prop['bed']) ? absint($prop['bed']) : 0;
+            $bath = isset($prop['bath']) ? absint($prop['bath']) : 0;
+            $sqft = isset($prop['sqft']) ? absint($prop['sqft']) : 0;
+            $features = isset($prop['features']) ? sanitize_text_field($prop['features']) : '';
+            
+            if (empty($title)) {
+                continue;
+            }
+            
             $post_data = array(
-                'post_title'    => $prop['title'],
-                'post_content'  => $prop['desc'],
+                'post_title'    => $title,
+                'post_content'  => $desc,
                 'post_status'   => 'publish',
                 'post_type'     => 'property',
-                'post_author'   => get_current_user_id()
+                'post_author'   => absint(get_current_user_id())
             );
             
-            $post_id = wp_insert_post($post_data);
+            $post_id = wp_insert_post($post_data, true);
             
             if ($post_id && !is_wp_error($post_id)) {
-                // Set Meta
-                update_post_meta($post_id, '_property_price', $prop['price']);
-                update_post_meta($post_id, '_property_bedrooms', $prop['bed']);
-                update_post_meta($post_id, '_property_bathrooms', $prop['bath']);
-                update_post_meta($post_id, '_property_area_sqft', $prop['sqft']);
+                $post_id = absint($post_id);
+                
+                // Set Meta - sanitize all values
+                update_post_meta($post_id, '_property_price', $price);
+                update_post_meta($post_id, '_property_bedrooms', $bed);
+                update_post_meta($post_id, '_property_bathrooms', $bath);
+                update_post_meta($post_id, '_property_area_sqft', $sqft);
                 update_post_meta($post_id, '_property_featured', '1');
-                update_post_meta($post_id, '_property_features', $prop['features']);
+                update_post_meta($post_id, '_property_features', $features);
                 
-                // Set Agent Meta
-                update_post_meta($post_id, '_property_agent_name', $prop['agent']['name']);
-                update_post_meta($post_id, '_property_agent_email', $prop['agent']['email']);
-                update_post_meta($post_id, '_property_agent_phone', $prop['agent']['phone']);
-                update_post_meta($post_id, '_property_agent_title', $prop['agent']['title']);
+                // Set Agent Meta - sanitize all values
+                if (isset($prop['agent']) && is_array($prop['agent'])) {
+                    $agent_name = isset($prop['agent']['name']) ? sanitize_text_field($prop['agent']['name']) : '';
+                    $agent_email = isset($prop['agent']['email']) ? sanitize_email($prop['agent']['email']) : '';
+                    $agent_phone = isset($prop['agent']['phone']) ? sanitize_text_field($prop['agent']['phone']) : '';
+                    $agent_title = isset($prop['agent']['title']) ? sanitize_text_field($prop['agent']['title']) : '';
+                    
+                    update_post_meta($post_id, '_property_agent_name', $agent_name);
+                    update_post_meta($post_id, '_property_agent_email', $agent_email);
+                    update_post_meta($post_id, '_property_agent_phone', $agent_phone);
+                    update_post_meta($post_id, '_property_agent_title', $agent_title);
+                }
                 
-                // Set Terms
-                if (isset($type_ids[$prop['type']])) {
-                    wp_set_post_terms($post_id, array($type_ids[$prop['type']]), 'property_type');
+                // Set Terms - validate term IDs exist before setting
+                if (isset($prop['type']) && isset($type_ids[$prop['type']]) && $type_ids[$prop['type']] > 0) {
+                    wp_set_post_terms($post_id, array(absint($type_ids[$prop['type']])), 'property_type');
                 }
-                if (isset($status_ids[$prop['status']])) {
-                    wp_set_post_terms($post_id, array($status_ids[$prop['status']]), 'property_status');
+                if (isset($prop['status']) && isset($status_ids[$prop['status']]) && $status_ids[$prop['status']] > 0) {
+                    wp_set_post_terms($post_id, array(absint($status_ids[$prop['status']])), 'property_status');
                 }
-                if (isset($location_ids[$prop['location']])) {
-                    wp_set_post_terms($post_id, array($location_ids[$prop['location']]), 'property_location');
+                if (isset($prop['location']) && isset($location_ids[$prop['location']]) && $location_ids[$prop['location']] > 0) {
+                    wp_set_post_terms($post_id, array(absint($location_ids[$prop['location']])), 'property_location');
                 }
             }
         }

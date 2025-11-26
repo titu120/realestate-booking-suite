@@ -142,9 +142,12 @@ class RESBS_Email_Handler {
         // Sanitize agent name for header to prevent header injection
         $agent_name_safe = sanitize_text_field($agent_name);
         $agent_name_safe = str_replace(array("\r", "\n"), '', $agent_name_safe);
+        // Use admin email as fallback if agent email is not available
+        $from_email = !empty($agent_email) ? sanitize_email($agent_email) : $admin_email;
+        $from_name = !empty($agent_name_safe) ? $agent_name_safe : $site_name;
         $customer_headers = array(
             'Content-Type: text/html; charset=UTF-8',
-            'From: ' . $agent_name_safe . ' <' . sanitize_email($agent_email) . '>'
+            'From: ' . $from_name . ' <' . $from_email . '>'
         );
         
         $customer_email_sent = wp_mail($email, $customer_subject, $customer_content, $customer_headers);
@@ -153,7 +156,7 @@ class RESBS_Email_Handler {
         if ($is_localhost) {
             // On localhost, always return success
             wp_send_json_success(array(
-                'message' => 'Thank you! Your message has been received. (Localhost mode - emails logged to error log)',
+                'message' => esc_html__('Thank you! Your message has been received. (Localhost mode - emails logged to error log)', 'realestate-booking-suite'),
                 'agent_contacted' => true,
                 'admin_notified' => true,
                 'confirmation_sent' => true,
@@ -161,7 +164,7 @@ class RESBS_Email_Handler {
             ));
         } elseif ($agent_email_sent || $admin_email_sent) {
             wp_send_json_success(array(
-                'message' => 'Thank you! Your message has been sent successfully.',
+                'message' => esc_html__('Thank you! Your message has been sent successfully.', 'realestate-booking-suite'),
                 'agent_contacted' => $agent_email_sent,
                 'admin_notified' => $admin_email_sent,
                 'confirmation_sent' => $customer_email_sent
@@ -277,7 +280,7 @@ class RESBS_Email_Handler {
         $admin_email_sent = wp_mail($admin_email, $subject, $email_content, $headers);
         
         // Send confirmation email to customer
-        $customer_subject_raw = 'Tour booking confirmed - ' . sanitize_text_field($site_name);
+        $customer_subject_raw = 'Tour booking confirmed - ' . $site_name;
         $customer_subject = wp_strip_all_tags($customer_subject_raw);
         $customer_subject = str_replace(array("\r", "\n"), '', $customer_subject);
         $customer_content = "
@@ -297,9 +300,12 @@ class RESBS_Email_Handler {
         // Sanitize agent name for header to prevent header injection
         $agent_name_safe = sanitize_text_field($agent_name);
         $agent_name_safe = str_replace(array("\r", "\n"), '', $agent_name_safe);
+        // Use admin email as fallback if agent email is not available
+        $from_email = !empty($agent_email) ? sanitize_email($agent_email) : $admin_email;
+        $from_name = !empty($agent_name_safe) ? $agent_name_safe : $site_name;
         $customer_headers = array(
             'Content-Type: text/html; charset=UTF-8',
-            'From: ' . $agent_name_safe . ' <' . sanitize_email($agent_email) . '>'
+            'From: ' . $from_name . ' <' . $from_email . '>'
         );
         
         $customer_email_sent = wp_mail($email, $customer_subject, $customer_content, $customer_headers);
@@ -307,7 +313,7 @@ class RESBS_Email_Handler {
         // Return response
         if ($agent_email_sent || $admin_email_sent) {
             wp_send_json_success(array(
-                'message' => 'Thank you! Your tour booking has been confirmed.',
+                'message' => esc_html__('Thank you! Your tour booking has been confirmed.', 'realestate-booking-suite'),
                 'agent_contacted' => $agent_email_sent,
                 'admin_notified' => $admin_email_sent,
                 'confirmation_sent' => $customer_email_sent

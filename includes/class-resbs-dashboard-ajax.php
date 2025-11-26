@@ -31,7 +31,7 @@ class RESBS_Dashboard_AJAX {
      */
     public function get_dashboard_stats() {
         // Verify nonce and check capability using security helper
-        $nonce = isset($_POST['nonce']) ? $_POST['nonce'] : '';
+        $nonce = isset($_POST['nonce']) ? sanitize_text_field(wp_unslash($_POST['nonce'])) : '';
         RESBS_Security::verify_ajax_nonce_and_capability($nonce, 'resbs_dashboard_nonce', 'manage_options');
         
         $stats = array();
@@ -74,11 +74,11 @@ class RESBS_Dashboard_AJAX {
      */
     public function get_property_chart_data() {
         // Verify nonce and check capability using security helper
-        $nonce = isset($_POST['nonce']) ? $_POST['nonce'] : '';
+        $nonce = isset($_POST['nonce']) ? sanitize_text_field(wp_unslash($_POST['nonce'])) : '';
         RESBS_Security::verify_ajax_nonce_and_capability($nonce, 'resbs_dashboard_nonce', 'manage_options');
         
         // Sanitize input using security helper
-        $period = isset($_POST['period']) ? RESBS_Security::sanitize_text($_POST['period']) : '6months';
+        $period = isset($_POST['period']) ? RESBS_Security::sanitize_text(wp_unslash($_POST['period'])) : '6months';
         
         // Validate period value to prevent invalid input
         $allowed_periods = array('7days', '30days', '6months', '1year');
@@ -116,7 +116,7 @@ class RESBS_Dashboard_AJAX {
      */
     public function get_recent_activities() {
         // Verify nonce and check capability using security helper
-        $nonce = isset($_POST['nonce']) ? $_POST['nonce'] : '';
+        $nonce = isset($_POST['nonce']) ? sanitize_text_field(wp_unslash($_POST['nonce'])) : '';
         RESBS_Security::verify_ajax_nonce_and_capability($nonce, 'resbs_dashboard_nonce', 'manage_options');
         
         $activities = array();
@@ -171,7 +171,7 @@ class RESBS_Dashboard_AJAX {
      */
     public function export_property_data() {
         // Verify nonce and check capability using security helper
-        $nonce = isset($_POST['nonce']) ? $_POST['nonce'] : '';
+        $nonce = isset($_POST['nonce']) ? sanitize_text_field(wp_unslash($_POST['nonce'])) : '';
         RESBS_Security::verify_ajax_nonce_and_capability($nonce, 'resbs_dashboard_nonce', 'manage_options');
         
         // Rate limiting check for export operations (prevent abuse)
@@ -182,7 +182,7 @@ class RESBS_Dashboard_AJAX {
         }
         
         // Sanitize and validate format using security helper
-        $format = isset($_POST['format']) ? RESBS_Security::sanitize_text($_POST['format']) : 'csv';
+        $format = isset($_POST['format']) ? RESBS_Security::sanitize_text(wp_unslash($_POST['format'])) : 'csv';
         
         // Validate format to prevent invalid input
         $allowed_formats = array('csv', 'json');

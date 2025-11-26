@@ -80,7 +80,7 @@ class RESBS_Metabox_AJAX {
         }
         
         $post_id = isset($_POST['post_id']) ? intval($_POST['post_id']) : 0;
-        $form_data = isset($_POST['form_data']) ? sanitize_text_field($_POST['form_data']) : '';
+        $form_data = isset($_POST['form_data']) ? wp_unslash(sanitize_textarea_field($_POST['form_data'])) : '';
         
         if (!$post_id || get_post_type($post_id) !== 'property') {
             wp_send_json_error(array(
@@ -95,16 +95,14 @@ class RESBS_Metabox_AJAX {
             ));
         }
         
-        // Parse form data
-        parse_str($form_data, $data);
+        // Parse form data safely
+        $data = array();
+        if (!empty($form_data)) {
+            parse_str($form_data, $data);
+        }
         
-        // Sanitize parsed data
-        $data = array_map(function($value) {
-            if (is_array($value)) {
-                return array_map('sanitize_text_field', $value);
-            }
-            return sanitize_text_field($value);
-        }, $data);
+        // Sanitize parsed data recursively
+        $data = $this->sanitize_array_recursive($data);
         
         // Save basic post data
         if (isset($data['post_title'])) {
@@ -179,10 +177,12 @@ class RESBS_Metabox_AJAX {
         // Sanitize input data while preserving structure for validation
         $data = array();
         foreach ($_POST as $key => $value) {
+            // Sanitize the key as well
+            $sanitized_key = sanitize_key($key);
             if (is_array($value)) {
-                $data[$key] = array_map('sanitize_text_field', $value);
+                $data[$sanitized_key] = $this->sanitize_array_recursive($value);
             } else {
-                $data[$key] = sanitize_text_field($value);
+                $data[$sanitized_key] = sanitize_text_field($value);
             }
         }
         
@@ -303,7 +303,13 @@ class RESBS_Metabox_AJAX {
         foreach ($meta_fields as $key => $values) {
             if (strpos($key, '_property_') === 0) {
                 foreach ($values as $value) {
-                    add_post_meta($new_post_id, $key, maybe_unserialize($value));
+                    // Safely unserialize if needed, otherwise use value as-is
+                    $meta_value = maybe_unserialize($value);
+                    // Re-serialize if it's an array to maintain data structure
+                    if (is_array($meta_value)) {
+                        $meta_value = maybe_serialize($meta_value);
+                    }
+                    add_post_meta($new_post_id, $key, $meta_value);
                 }
             }
         }
@@ -369,7 +375,7 @@ class RESBS_Metabox_AJAX {
             'state' => isset($meta['_property_state'][0]) ? esc_html($meta['_property_state'][0]) : '',
             'zip' => isset($meta['_property_zip'][0]) ? esc_html($meta['_property_zip'][0]) : '',
             'featured_image' => esc_url(get_the_post_thumbnail_url($post_id, 'medium')),
-            'gallery' => isset($meta['_property_gallery'][0]) ? maybe_unserialize($meta['_property_gallery'][0]) : array(),
+            'gallery' => isset($meta['_property_gallery'][0]) ? $this->safe_unserialize($meta['_property_gallery'][0]) : array(),
             'features' => isset($meta['_property_features'][0]) ? wp_kses_post($meta['_property_features'][0]) : '',
             'amenities' => isset($meta['_property_amenities'][0]) ? wp_kses_post($meta['_property_amenities'][0]) : '',
             'property_type' => isset($meta['_property_type'][0]) ? esc_html($meta['_property_type'][0]) : '',
@@ -380,19 +386,67 @@ class RESBS_Metabox_AJAX {
         );
         
         // Get gallery images
-        if (!empty($preview_data['gallery'])) {
+        if (!empty($preview_data['gallery']) && is_array($preview_data['gallery'])) {
             $gallery_images = array();
             foreach ($preview_data['gallery'] as $image_id) {
-                $gallery_images[] = array(
-                    'id' => absint($image_id),
-                    'url' => esc_url(wp_get_attachment_image_url($image_id, 'medium')),
-                    'thumbnail' => esc_url(wp_get_attachment_image_url($image_id, 'thumbnail')),
-                    'full' => esc_url(wp_get_attachment_image_url($image_id, 'full'))
-                );
+                $image_id = absint($image_id);
+                if ($image_id > 0) {
+                    $gallery_images[] = array(
+                        'id' => $image_id,
+                        'url' => esc_url(wp_get_attachment_image_url($image_id, 'medium')),
+                        'thumbnail' => esc_url(wp_get_attachment_image_url($image_id, 'thumbnail')),
+                        'full' => esc_url(wp_get_attachment_image_url($image_id, 'full'))
+                    );
+                }
             }
             $preview_data['gallery_images'] = $gallery_images;
+        } else {
+            $preview_data['gallery_images'] = array();
         }
         
         wp_send_json_success($preview_data);
+    }
+
+    /**
+     * Recursively sanitize array data
+     * 
+     * @param array|string $data Data to sanitize
+     * @return array|string Sanitized data
+     */
+    private function sanitize_array_recursive($data) {
+        if (is_array($data)) {
+            return array_map(array($this, 'sanitize_array_recursive'), $data);
+        }
+        return sanitize_text_field($data);
+    }
+
+    /**
+     * Safely unserialize data with validation
+     * 
+     * @param mixed $data Data to unserialize
+     * @return array Unserialized array or empty array on failure
+     */
+    private function safe_unserialize($data) {
+        if (empty($data)) {
+            return array();
+        }
+        
+        $unserialized = maybe_unserialize($data);
+        
+        // Ensure we return an array
+        if (!is_array($unserialized)) {
+            return array();
+        }
+        
+        // Validate array contains only numeric values (for image IDs)
+        $validated = array();
+        foreach ($unserialized as $value) {
+            $int_value = absint($value);
+            if ($int_value > 0) {
+                $validated[] = $int_value;
+            }
+        }
+        
+        return $validated;
     }
 }

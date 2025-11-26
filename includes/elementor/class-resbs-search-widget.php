@@ -518,7 +518,8 @@ class RESBS_Search_Widget extends \Elementor\Widget_Base {
                                         <option value=""><?php esc_html_e('No max', 'realestate-booking-suite'); ?></option>
                                         <?php
                                         foreach ($price_steps as $price) {
-                                            echo '<option value="' . esc_attr($price) . '">$' . esc_html(number_format($price)) . '</option>';
+                                            $formatted_price = number_format($price);
+                                            echo '<option value="' . esc_attr($price) . '">' . $currency_symbol_escaped . esc_html($formatted_price) . '</option>';
                                         }
                                         ?>
                                     </select>

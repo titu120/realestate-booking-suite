@@ -957,7 +957,10 @@ class RESBS_Property_Carousel_Widget extends \Elementor\Widget_Base {
         $columns_mobile = isset($settings['columns_mobile']) ? intval($settings['columns_mobile']) : 1;
         $show_price = $settings['show_price'] === 'yes';
         $show_meta = $settings['show_meta'] === 'yes';
-        $show_badges = $settings['show_badges'] === 'yes';
+        $show_excerpt = isset($settings['show_excerpt']) && $settings['show_excerpt'] === 'yes';
+        $show_badges = isset($settings['show_badges']) && $settings['show_badges'] === 'yes';
+        $show_favorite_button = isset($settings['show_favorite_button']) && $settings['show_favorite_button'] === 'yes';
+        $show_book_button = isset($settings['show_book_button']) && $settings['show_book_button'] === 'yes';
         
         // Validate orderby and order against whitelist
         $orderby_raw = sanitize_text_field($settings['orderby']);
@@ -1015,15 +1018,17 @@ class RESBS_Property_Carousel_Widget extends \Elementor\Widget_Base {
                      data-columns-mobile="<?php echo esc_attr($columns_mobile); ?>">
                     <?php foreach ($properties as $property): ?>
                     <?php 
-                        $property_price = get_post_meta($property->ID, '_property_price', true);
-                        $property_bedrooms = get_post_meta($property->ID, '_property_bedrooms', true);
-                        $property_bathrooms = get_post_meta($property->ID, '_property_bathrooms', true);
+                        // Sanitize all post meta values
+                        $property_price_raw = get_post_meta($property->ID, '_property_price', true);
+                        $property_price = is_numeric($property_price_raw) ? floatval($property_price_raw) : '';
+                        $property_bedrooms = absint(get_post_meta($property->ID, '_property_bedrooms', true));
+                        $property_bathrooms = absint(get_post_meta($property->ID, '_property_bathrooms', true));
                         // Get area using helper function that handles unit conversion
                         $property_area = resbs_get_property_area($property->ID, '_property_area_sqft');
-                        $property_city = get_post_meta($property->ID, '_property_city', true);
-                        $property_state = get_post_meta($property->ID, '_property_state', true);
-                        $property_featured_image = get_the_post_thumbnail_url($property->ID, 'medium');
-                        $property_status_meta = get_post_meta($property->ID, '_property_status', true);
+                        $property_city = sanitize_text_field(get_post_meta($property->ID, '_property_city', true));
+                        $property_state = sanitize_text_field(get_post_meta($property->ID, '_property_state', true));
+                        $property_featured_image = esc_url_raw(get_the_post_thumbnail_url($property->ID, 'medium'));
+                        $property_status_meta = sanitize_text_field(get_post_meta($property->ID, '_property_status', true));
                         
                         // Format price using currency settings
                         $formatted_price = '';
@@ -1033,19 +1038,27 @@ class RESBS_Property_Carousel_Widget extends \Elementor\Widget_Base {
                             $formatted_price_num = number_format(floatval($property_price), 2);
                             $currency_symbol_escaped = esc_html($currency_symbol);
                             
+                            // Ensure formatted price number is safe (number_format returns safe numeric string)
+                            $formatted_price_num_safe = esc_html($formatted_price_num);
+                            
                             if ($currency_position === 'before') {
-                                $formatted_price = $currency_symbol_escaped . $formatted_price_num;
+                                $formatted_price = $currency_symbol_escaped . $formatted_price_num_safe;
                             } else {
-                                $formatted_price = $formatted_price_num . $currency_symbol_escaped;
+                                $formatted_price = $formatted_price_num_safe . $currency_symbol_escaped;
                             }
                         } else {
                             $formatted_price = esc_html__('Price on request', 'realestate-booking-suite');
                         }
                         
-                        // Sanitize and format location
-                        $property_city_sanitized = sanitize_text_field($property_city);
-                        $property_state_sanitized = sanitize_text_field($property_state);
-                        $location = trim($property_city_sanitized . ', ' . $property_state_sanitized, ', ');
+                        // Format location (already sanitized above)
+                        $location_parts = array();
+                        if (!empty($property_city)) {
+                            $location_parts[] = $property_city;
+                        }
+                        if (!empty($property_state)) {
+                            $location_parts[] = $property_state;
+                        }
+                        $location = !empty($location_parts) ? implode(', ', $location_parts) : '';
                         ?>
                         
                         <div class="property-card">
@@ -1061,7 +1074,7 @@ class RESBS_Property_Carousel_Widget extends \Elementor\Widget_Base {
                 <?php endif; ?>
                 
                                 <?php if ($show_badges && $property_status_meta): ?>
-                                    <span class="property-badge"><?php echo esc_html(sanitize_text_field($property_status_meta)); ?></span>
+                                    <span class="property-badge"><?php echo esc_html($property_status_meta); ?></span>
                 <?php endif; ?>
             </div>
                             <div class="property-info">
@@ -1088,12 +1101,43 @@ class RESBS_Property_Carousel_Widget extends \Elementor\Widget_Base {
                                             <span><i class="fas fa-bath mr-1"></i><?php echo esc_html($property_bathrooms); ?> Bath<?php echo esc_html($property_bathrooms != 1 ? 's' : ''); ?></span>
                                         <?php endif; ?>
                                         <?php if ($property_area): ?>
-                                            <span><i class="fas fa-ruler-combined mr-1"></i><?php echo esc_html(resbs_format_area($property_area)); ?></span>
+                                            <span><i class="fas fa-ruler-combined mr-1"></i><?php echo resbs_format_area($property_area); ?></span>
                                         <?php endif; ?>
-            </div>
+                                    </div>
                                 <?php endif; ?>
-            </div>
-        </div>
+                                
+                                <?php if ($show_excerpt && !empty($property->post_excerpt)): ?>
+                                    <div class="property-card-excerpt">
+                                        <?php echo esc_html(wp_trim_words($property->post_excerpt, 20, '...')); ?>
+                                    </div>
+                                <?php endif; ?>
+                                
+                                <div class="property-card-actions">
+                                    <?php if ($show_favorite_button): ?>
+                                        <?php
+                                        $favorite_nonce = wp_create_nonce('resbs_elementor_nonce');
+                                        $is_favorite = is_user_logged_in() ? resbs_is_property_favorited($property->ID) : false;
+                                        $favorite_class = $is_favorite ? 'active favorited' : '';
+                                        ?>
+                                        <button type="button" 
+                                                class="resbs-favorite-btn <?php echo esc_attr($favorite_class); ?>" 
+                                                data-property-id="<?php echo esc_attr(absint($property->ID)); ?>"
+                                                data-nonce="<?php echo esc_attr($favorite_nonce); ?>"
+                                                aria-label="<?php esc_attr_e('Toggle favorite', 'realestate-booking-suite'); ?>">
+                                            <i class="<?php echo esc_attr($is_favorite ? 'fas' : 'far'); ?> fa-heart"></i>
+                                        </button>
+                                    <?php endif; ?>
+                                    
+                                    <?php if ($show_book_button): ?>
+                                        <a href="<?php echo esc_url(get_permalink($property->ID)); ?>" 
+                                           class="resbs-book-btn"
+                                           aria-label="<?php esc_attr_e('Book property', 'realestate-booking-suite'); ?>">
+                                            <?php esc_html_e('Book Now', 'realestate-booking-suite'); ?>
+                                        </a>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </div>
                     <?php endforeach; ?>
                 </div>
             <?php else: ?>
@@ -1116,31 +1160,53 @@ class RESBS_Property_Carousel_Widget extends \Elementor\Widget_Base {
         }
         
         // Add dynamic inline styles for this widget instance
-        // Escape all values for CSS
-        $widget_id_css = esc_attr($widget_id);
+        // Sanitize all values for CSS context
+        // Widget ID is already sanitized via absint() and contains only alphanumeric and hyphens
+        $widget_id_safe = preg_replace('/[^a-zA-Z0-9_-]/', '', $widget_id);
         $columns_css = absint($columns);
         $columns_tablet_css = absint($columns_tablet);
         $columns_mobile_css = absint($columns_mobile);
-        $grid_gap_css = esc_attr($grid_gap);
         
-        $dynamic_css = "
-        #{$widget_id_css} .similar-properties-grid {
-            gap: {$grid_gap_css} !important;
-            grid-template-columns: repeat({$columns_css}, 1fr) !important;
+        // Sanitize grid gap - ensure only valid CSS units and numbers
+        $grid_gap_safe = '';
+        if (preg_match('/^[\d.]+(px|rem|em|%)$/', $grid_gap)) {
+            // Additional sanitization: strip any potentially dangerous characters
+            $grid_gap_safe = preg_replace('/[^0-9a-z.%]/i', '', $grid_gap);
+            // Validate again after sanitization
+            if (!preg_match('/^[\d.]+(px|rem|em|%)$/', $grid_gap_safe)) {
+                $grid_gap_safe = '1.5rem';
+            }
+        } else {
+            // Fallback to safe default
+            $grid_gap_safe = '1.5rem';
+        }
+        
+        // Build CSS with proper escaping - all values are already sanitized
+        $dynamic_css = sprintf(
+            "#%s .similar-properties-grid {
+            gap: %s !important;
+            grid-template-columns: repeat(%d, 1fr) !important;
         }
         
         @media (max-width: 1024px) {
-            #{$widget_id_css} .similar-properties-grid {
-                grid-template-columns: repeat({$columns_tablet_css}, 1fr) !important;
+            #%s .similar-properties-grid {
+                grid-template-columns: repeat(%d, 1fr) !important;
             }
         }
         
         @media (max-width: 768px) {
-            #{$widget_id_css} .similar-properties-grid {
-                grid-template-columns: repeat({$columns_mobile_css}, 1fr) !important;
+            #%s .similar-properties-grid {
+                grid-template-columns: repeat(%d, 1fr) !important;
             }
-        }
-        ";
+        }",
+            esc_attr($widget_id_safe),
+            esc_attr($grid_gap_safe),
+            absint($columns_css),
+            esc_attr($widget_id_safe),
+            absint($columns_tablet_css),
+            esc_attr($widget_id_safe),
+            absint($columns_mobile_css)
+        );
         
         wp_add_inline_style('resbs-elementor-property-carousel', $dynamic_css);
         ?>

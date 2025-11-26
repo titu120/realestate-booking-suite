@@ -149,8 +149,12 @@ class RESBS_Archive_Handler {
     private function build_meta_query($source = 'GET') {
         $meta_query = array();
         
-        // Determine which superglobal to use
-        $input = ($source === 'POST') ? $_POST : $_GET;
+        // Determine which superglobal to use and sanitize
+        if ($source === 'POST') {
+            $input = isset($_POST) ? wp_unslash($_POST) : array();
+        } else {
+            $input = isset($_GET) ? wp_unslash($_GET) : array();
+        }
         
         // Price range filter - sanitize and validate (prices are floats)
         if (isset($input['min_price']) && !empty($input['min_price'])) {
@@ -369,8 +373,8 @@ class RESBS_Archive_Handler {
         RESBS_Security::ajax_security_check('resbs_archive_nonce', '', false);
         
         // Sanitize and validate input parameters
-        $posts_per_page = isset($_POST['per_page']) ? RESBS_Security::sanitize_int($_POST['per_page'], 12) : 12;
-        $paged = isset($_POST['page']) ? RESBS_Security::sanitize_int($_POST['page'], 1) : 1;
+        $posts_per_page = isset($_POST['per_page']) ? RESBS_Security::sanitize_int(wp_unslash($_POST['per_page']), 12) : 12;
+        $paged = isset($_POST['page']) ? RESBS_Security::sanitize_int(wp_unslash($_POST['page']), 1) : 1;
         
         // Ensure reasonable limits
         $posts_per_page = min(max($posts_per_page, 1), 100); // Between 1 and 100
@@ -391,7 +395,7 @@ class RESBS_Archive_Handler {
         }
         
         // Apply sorting - sanitize sort parameter
-        $sort = isset($_POST['sort']) ? sanitize_text_field($_POST['sort']) : 'date';
+        $sort = isset($_POST['sort']) ? sanitize_text_field(wp_unslash($_POST['sort'])) : 'date';
         // Whitelist allowed sort values
         $allowed_sorts = array('price_low', 'price_high', 'newest', 'oldest', 'title', 'date');
         if (!in_array($sort, $allowed_sorts, true)) {
@@ -494,11 +498,21 @@ class RESBS_Archive_Handler {
                         $bedrooms = get_post_meta(get_the_ID(), '_property_bedrooms', true);
                         $bathrooms = get_post_meta(get_the_ID(), '_property_bathrooms', true);
                         // Try multiple possible area meta keys
-                        $area = get_post_meta(get_the_ID(), '_property_size', true) ?: get_post_meta(get_the_ID(), '_property_area_sqft', true);
+                        $area_size = get_post_meta(get_the_ID(), '_property_size', true);
+                        $area_sqft = get_post_meta(get_the_ID(), '_property_area_sqft', true);
+                        $area = !empty($area_size) ? $area_size : (!empty($area_sqft) ? $area_sqft : '');
                         
-                        if ($bedrooms) echo '<span>' . esc_html($bedrooms) . ' beds</span>';
-                        if ($bathrooms) echo '<span>' . esc_html($bathrooms) . ' baths</span>';
-                        if ($area) echo '<span>' . esc_html($area) . ' sq ft</span>';
+                        if (!empty($bedrooms)) {
+                            $bedrooms_text = $bedrooms == 1 ? esc_html__('bed', 'realestate-booking-suite') : esc_html__('beds', 'realestate-booking-suite');
+                            echo '<span>' . esc_html($bedrooms) . ' ' . $bedrooms_text . '</span>';
+                        }
+                        if (!empty($bathrooms)) {
+                            $bathrooms_text = $bathrooms == 1 ? esc_html__('bath', 'realestate-booking-suite') : esc_html__('baths', 'realestate-booking-suite');
+                            echo '<span>' . esc_html($bathrooms) . ' ' . $bathrooms_text . '</span>';
+                        }
+                        if (!empty($area)) {
+                            echo '<span>' . esc_html($area) . ' ' . esc_html__('sq ft', 'realestate-booking-suite') . '</span>';
+                        }
                         ?>
                     </div>
                 </div>

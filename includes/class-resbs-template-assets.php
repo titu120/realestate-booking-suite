@@ -31,7 +31,7 @@ class RESBS_Template_Assets {
         
         // Enqueue Font Awesome (required for icons)
         wp_enqueue_style(
-            'font-awesome',
+            'resbs-font-awesome',
             'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
             array(),
             '6.4.0'
@@ -39,7 +39,7 @@ class RESBS_Template_Assets {
         
         // Enqueue Leaflet CSS (required for maps)
         wp_enqueue_style(
-            'leaflet',
+            'resbs-leaflet',
             'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
             array(),
             '1.9.4'
@@ -49,7 +49,7 @@ class RESBS_Template_Assets {
         wp_enqueue_style(
             'resbs-single-property',
             RESBS_URL . 'assets/css/single-property.css',
-            array('font-awesome', 'leaflet'),
+            array('resbs-font-awesome', 'resbs-leaflet'),
             '1.0.0'
         );
         
@@ -66,7 +66,7 @@ class RESBS_Template_Assets {
         
         // Enqueue Leaflet JS (required for maps)
         wp_enqueue_script(
-            'leaflet',
+            'resbs-leaflet',
             'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
             array(),
             '1.9.4',
@@ -77,7 +77,7 @@ class RESBS_Template_Assets {
         wp_enqueue_script(
             'resbs-single-property-template',
             RESBS_URL . 'assets/js/single-property-template.js',
-            array('jquery', 'leaflet'),
+            array('jquery', 'resbs-leaflet'),
             '1.0.0',
             true
         );
@@ -105,11 +105,11 @@ class RESBS_Template_Assets {
                         if (is_numeric($image_item)) {
                             $image_url = wp_get_attachment_image_url($image_item, 'full');
                             if ($image_url) {
-                                $all_images[] = $image_url;
+                                $all_images[] = esc_url($image_url);
                             }
                         } elseif (is_string($image_item) && filter_var($image_item, FILTER_VALIDATE_URL)) {
-                            // It's already a URL
-                            $all_images[] = $image_item;
+                            // It's already a URL - escape it for security
+                            $all_images[] = esc_url($image_item);
                         }
                     }
                 } elseif (is_string($gallery_images)) {
@@ -120,10 +120,11 @@ class RESBS_Template_Assets {
                         if (is_numeric($image_item)) {
                             $image_url = wp_get_attachment_image_url($image_item, 'full');
                             if ($image_url) {
-                                $all_images[] = $image_url;
+                                $all_images[] = esc_url($image_url);
                             }
                         } elseif (filter_var($image_item, FILTER_VALIDATE_URL)) {
-                            $all_images[] = $image_item;
+                            // Escape URL for security
+                            $all_images[] = esc_url($image_item);
                         }
                     }
                 }
@@ -176,19 +177,30 @@ class RESBS_Template_Assets {
         $main_color = resbs_get_main_color();
         $secondary_color = resbs_get_secondary_color();
         
+        // Sanitize colors before use
+        $main_color = $this->sanitize_hex_color($main_color);
+        $secondary_color = $this->sanitize_hex_color($secondary_color);
+        
         // Helper function to darken color
         $main_color_dark = $this->darken_color($main_color, 10);
         $secondary_color_dark = $this->darken_color($secondary_color, 10);
         $main_color_light = $this->hex_to_rgba($main_color, 0.1);
         
+        // Escape CSS values
+        $main_color_escaped = esc_attr($main_color);
+        $main_color_dark_escaped = esc_attr($main_color_dark);
+        $main_color_light_escaped = esc_attr($main_color_light);
+        $secondary_color_escaped = esc_attr($secondary_color);
+        $secondary_color_dark_escaped = esc_attr($secondary_color_dark);
+        
         $dynamic_css = "
         :root {
-            --rebs-primary-color: {$main_color} !important;
-            --rebs-primary-dark: {$main_color_dark} !important;
-            --rebs-primary-light: {$main_color_light} !important;
-            --rebs-secondary-color: {$secondary_color} !important;
-            --resbs-main-color: {$main_color} !important;
-            --resbs-secondary-color: {$secondary_color} !important;
+            --rebs-primary-color: {$main_color_escaped} !important;
+            --rebs-primary-dark: {$main_color_dark_escaped} !important;
+            --rebs-primary-light: {$main_color_light_escaped} !important;
+            --rebs-secondary-color: {$secondary_color_escaped} !important;
+            --resbs-main-color: {$main_color_escaped} !important;
+            --resbs-secondary-color: {$secondary_color_escaped} !important;
         }
         
         .single-property .btn-primary,
@@ -197,8 +209,8 @@ class RESBS_Template_Assets {
         .single-property .agent-action-primary,
         .single-property .agent-action.agent-action-primary,
         .single-property a.agent-action-primary {
-            background-color: {$main_color} !important;
-            border-color: {$main_color} !important;
+            background-color: {$main_color_escaped} !important;
+            border-color: {$main_color_escaped} !important;
             color: white !important;
         }
         
@@ -208,48 +220,48 @@ class RESBS_Template_Assets {
         .single-property .agent-action-primary:hover,
         .single-property .agent-action.agent-action-primary:hover,
         .single-property a.agent-action-primary:hover {
-            background-color: {$main_color_dark} !important;
-            border-color: {$main_color_dark} !important;
+            background-color: {$main_color_dark_escaped} !important;
+            border-color: {$main_color_dark_escaped} !important;
         }
         
         .single-property .agent-action-secondary,
         .single-property .agent-action.agent-action-secondary,
         .single-property button.agent-action-secondary {
-            background-color: {$secondary_color} !important;
-            border-color: {$secondary_color} !important;
+            background-color: {$secondary_color_escaped} !important;
+            border-color: {$secondary_color_escaped} !important;
             color: white !important;
         }
         
         .single-property .agent-action-secondary:hover,
         .single-property .agent-action.agent-action-secondary:hover,
         .single-property button.agent-action-secondary:hover {
-            background-color: {$secondary_color_dark} !important;
-            border-color: {$secondary_color_dark} !important;
+            background-color: {$secondary_color_dark_escaped} !important;
+            border-color: {$secondary_color_dark_escaped} !important;
         }
         
         .single-property a[style*=\"background: #007cba\"],
         .single-property a[style*=\"background:#007cba\"] {
-            background: {$main_color} !important;
+            background: {$main_color_escaped} !important;
         }
         
         .single-property button[type=\"submit\"].bg-white.hover\\:bg-green-700,
         .single-property button[type=\"submit\"][class*=\"bg-white\"] {
-            background-color: {$main_color} !important;
+            background-color: {$main_color_escaped} !important;
         }
         
         .single-property button[type=\"submit\"][class*=\"bg-white\"]:hover {
-            background-color: {$main_color_dark} !important;
+            background-color: {$main_color_dark_escaped} !important;
         }
         
         .single-property .focus\\:ring-green-500:focus,
         .single-property [class*=\"focus:ring-green\"]:focus {
-            --tw-ring-color: {$main_color} !important;
-            border-color: {$main_color} !important;
+            --tw-ring-color: {$main_color_escaped} !important;
+            border-color: {$main_color_escaped} !important;
         }
         
         .single-property .focus\\:border-green-500:focus,
         .single-property [class*=\"focus:border-green\"]:focus {
-            border-color: {$main_color} !important;
+            border-color: {$main_color_escaped} !important;
         }
         
         /* Phone field layout - ensure one line */
@@ -337,9 +349,9 @@ class RESBS_Template_Assets {
         // Enqueue Leaflet CSS and JS if using OpenStreetMap
         if ($use_openstreetmap) {
             // Enqueue Leaflet CSS
-            if (!wp_style_is('leaflet', 'enqueued')) {
+            if (!wp_style_is('resbs-leaflet', 'enqueued')) {
                 wp_enqueue_style(
-                    'leaflet',
+                    'resbs-leaflet',
                     'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
                     array(),
                     '1.9.4'
@@ -347,9 +359,9 @@ class RESBS_Template_Assets {
             }
             
             // Enqueue Leaflet JS
-            if (!wp_script_is('leaflet', 'enqueued')) {
+            if (!wp_script_is('resbs-leaflet', 'enqueued')) {
                 wp_enqueue_script(
-                    'leaflet',
+                    'resbs-leaflet',
                     'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
                     array(),
                     '1.9.4',
@@ -361,7 +373,7 @@ class RESBS_Template_Assets {
         // Enqueue archive JS - Make sure Leaflet loads first if using OpenStreetMap
         $dependencies = array('jquery');
         if ($use_openstreetmap) {
-            $dependencies[] = 'leaflet';
+            $dependencies[] = 'resbs-leaflet';
         }
         
         wp_enqueue_script(
@@ -390,12 +402,12 @@ class RESBS_Template_Assets {
             true
         );
         
-        // Prepare default data
-        $properties_data = isset($archive_data['properties_data']) ? $archive_data['properties_data'] : array();
-        $map_settings = isset($archive_data['map_settings']) ? $archive_data['map_settings'] : resbs_get_map_settings('archive');
-        $map_center_lat = isset($archive_data['map_center_lat']) ? $archive_data['map_center_lat'] : 23.8103;
-        $map_center_lng = isset($archive_data['map_center_lng']) ? $archive_data['map_center_lng'] : 90.4125;
-        $map_zoom = isset($archive_data['map_zoom']) ? $archive_data['map_zoom'] : resbs_get_default_zoom_level();
+        // Prepare default data - sanitize all values
+        $properties_data = isset($archive_data['properties_data']) && is_array($archive_data['properties_data']) ? $archive_data['properties_data'] : array();
+        $map_settings = isset($archive_data['map_settings']) && is_array($archive_data['map_settings']) ? $archive_data['map_settings'] : resbs_get_map_settings('archive');
+        $map_center_lat = isset($archive_data['map_center_lat']) ? floatval($archive_data['map_center_lat']) : 23.8103;
+        $map_center_lng = isset($archive_data['map_center_lng']) ? floatval($archive_data['map_center_lng']) : 90.4125;
+        $map_zoom = isset($archive_data['map_zoom']) ? absint($archive_data['map_zoom']) : absint(resbs_get_default_zoom_level());
         
         // Localize script with all necessary data
         wp_localize_script('resbs-simple-archive', 'resbs_archive', array(
@@ -422,94 +434,122 @@ class RESBS_Template_Assets {
         $main_color = resbs_get_main_color();
         $secondary_color = resbs_get_secondary_color();
         
+        // Sanitize colors before use
+        $main_color = $this->sanitize_hex_color($main_color);
+        $secondary_color = $this->sanitize_hex_color($secondary_color);
+        
         $main_color_dark = $this->darken_color($main_color, 10);
         $main_color_rgba = $this->hex_to_rgba($main_color, 0.3);
         
+        // Escape CSS values
+        $main_color_escaped = esc_attr($main_color);
+        $main_color_dark_escaped = esc_attr($main_color_dark);
+        $main_color_rgba_escaped = esc_attr($main_color_rgba);
+        
         $dynamic_css = "
         .view-btn:hover {
-            border-color: {$main_color};
-            color: {$main_color};
+            border-color: {$main_color_escaped};
+            color: {$main_color_escaped};
             background: #f0fdf4;
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px {$main_color_rgba};
+            box-shadow: 0 4px 12px {$main_color_rgba_escaped};
         }
         
         .view-btn.active {
-            background: {$main_color};
-            border-color: {$main_color};
+            background: {$main_color_escaped};
+            border-color: {$main_color_escaped};
             color: white;
-            box-shadow: 0 4px 12px {$main_color_rgba};
+            box-shadow: 0 4px 12px {$main_color_rgba_escaped};
         }
         
         .view-btn.active:hover {
-            background: {$main_color_dark};
-            border-color: {$main_color_dark};
+            background: {$main_color_dark_escaped};
+            border-color: {$main_color_dark_escaped};
             color: white;
         }
         
         .sort-select:hover,
         .sort-select:focus {
-            border-color: {$main_color};
+            border-color: {$main_color_escaped};
             z-index: 102;
         }
         
         .layout-btn:hover,
         .filter-toggle:hover {
-            border-color: {$main_color};
-            color: {$main_color};
+            border-color: {$main_color_escaped};
+            color: {$main_color_escaped};
             background: #f0fdf4;
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px {$main_color_rgba};
+            box-shadow: 0 4px 12px {$main_color_rgba_escaped};
         }
         
         .layout-btn.active,
         .filter-toggle.active {
-            background: {$main_color};
-            border-color: {$main_color};
+            background: {$main_color_escaped};
+            border-color: {$main_color_escaped};
             color: white;
-            box-shadow: 0 4px 12px {$main_color_rgba};
+            box-shadow: 0 4px 12px {$main_color_rgba_escaped};
         }
         
         .layout-btn.active:hover,
         .filter-toggle.active:hover {
-            background: {$main_color_dark};
-            border-color: {$main_color_dark};
+            background: {$main_color_dark_escaped};
+            border-color: {$main_color_dark_escaped};
             color: white;
         }
         
         .apply-filter-btn {
-            background-color: {$main_color} !important;
+            background-color: {$main_color_escaped} !important;
             color: white !important;
             font-weight: 600;
         }
         
         .apply-filter-btn:hover {
-            background-color: {$main_color_dark};
+            background-color: {$main_color_dark_escaped};
             color: white;
         }
         
         .view-details-btn {
-            background: {$main_color};
+            background: {$main_color_escaped};
             color: white;
         }
         
         .view-details-btn:hover {
-            background: {$main_color_dark};
+            background: {$main_color_dark_escaped};
         }
         
         .search-btn {
-            background: {$main_color};
+            background: {$main_color_escaped};
             color: white;
         }
         
         .search-btn:hover {
-            background: {$main_color_dark};
+            background: {$main_color_dark_escaped};
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px {$main_color_rgba};
+            box-shadow: 0 4px 12px {$main_color_rgba_escaped};
         }
         ";
         
         wp_add_inline_style('resbs-simple-archive-layout', $dynamic_css);
+    }
+    
+    /**
+     * Helper: Sanitize hex color
+     * 
+     * @param string $color Hex color code (e.g., '#0073aa' or '0073aa')
+     * @return string Sanitized hex color code with # prefix
+     */
+    private function sanitize_hex_color($color) {
+        // Remove # if present
+        $color = ltrim($color, '#');
+        
+        // Validate and sanitize - only allow hex characters
+        if (!preg_match('/^[a-fA-F0-9]{6}$/', $color)) {
+            // Fallback to safe default color if invalid
+            $color = '0073aa';
+        }
+        
+        return '#' . strtolower($color);
     }
     
     /**

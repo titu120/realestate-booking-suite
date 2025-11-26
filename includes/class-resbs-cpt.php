@@ -207,28 +207,6 @@ class RESBS_CPT {
     }
     
     /**
-     * Include custom template for single property and archive
-     */
-    public function property_template_include($template) {
-        global $post;
-        
-        // Security: Sanitize REQUEST_URI input
-        // SIMPLE CHECK: If URL contains /property/ and has a slug, it's a single property
-        // Note: sanitize_text_field() is more appropriate for REQUEST_URI (path string) than esc_url_raw()
-        $request_uri = isset($_SERVER['REQUEST_URI']) ? sanitize_text_field($_SERVER['REQUEST_URI']) : '';
-        
-        // Check if it's a single property page (URL like /property/some-slug/)
-        // Note: Single property template is handled by resbs_single_property_template_loader in main plugin file
-        // This handler is disabled to avoid conflicts
-        
-        // Check if it's property archive (URL like /property/)
-        // Note: Archive template is handled by RESBS_Simple_Archive and RESBS_Archive_Handler classes
-        // This handler is disabled to avoid conflicts
-        
-        return $template;
-    }
-    
-    /**
      * Flush rewrite rules if needed
      */
     public function flush_rewrite_rules_if_needed() {

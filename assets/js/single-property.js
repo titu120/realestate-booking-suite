@@ -459,8 +459,6 @@ function shareMedia() {
 
 // Simple booking form submission
 window.submitBookingForm = function(e) {
-    console.log('submitBookingForm function called', e);
-    
     // Stop form from submitting normally
     if (e && e.preventDefault) {
         e.preventDefault();
@@ -471,17 +469,12 @@ window.submitBookingForm = function(e) {
     const form = e ? e.target : document.getElementById('directBookingForm');
     
     if (!form || form.tagName !== 'FORM') {
-        console.error('Form not found or invalid', form);
         alert('Error: Form not found');
         return false;
     }
     
-    console.log('Form found:', form.id);
-    
     // Check if AJAX data is available
     if (typeof resbs_ajax === 'undefined') {
-        console.error('resbs_ajax is not defined - using fallback');
-        
         // Get property ID from form
         const propertyIdField = form.querySelector('input[name="property_id"]');
         const propertyId = propertyIdField ? propertyIdField.value : 0;
@@ -490,8 +483,6 @@ window.submitBookingForm = function(e) {
         // Get the current site URL and append the path
         const siteUrl = window.location.origin;
         const ajaxUrl = siteUrl + '/wp-admin/admin-ajax.php';
-        
-        console.log('Created fallback resbs_ajax with URL:', ajaxUrl);
         
         // Create a minimal resbs_ajax object
         window.resbs_ajax = {
@@ -575,20 +566,17 @@ window.submitBookingForm = function(e) {
     }
     
     // Submit form via AJAX
-    console.log('Submitting booking form to:', resbs_ajax.ajax_url);
     fetch(resbs_ajax.ajax_url, {
         method: 'POST',
         body: formData
     })
     .then(response => {
-        console.log('Response status:', response.status);
         if (!response.ok) {
             throw new Error('Network response was not ok: ' + response.status);
         }
         return response.json();
     })
     .then(data => {
-        console.log('Response data:', data);
         if (data.success) {
             // Show success message
             alert(data.data.message || 'Thank you for your booking request! Your booking has been submitted successfully.');
@@ -780,24 +768,20 @@ document.addEventListener('DOMContentLoaded', function() {
     // Add event listener for booking form
     const bookingForm = document.getElementById('directBookingForm');
     if (bookingForm) {
-        console.log('Booking form found, adding event listener');
         bookingForm.addEventListener('submit', function(e) {
-            console.log('Form submit event triggered');
             e.preventDefault();
             e.stopPropagation();
             
             if (typeof window.submitBookingForm === 'function') {
-                console.log('Calling submitBookingForm function');
                 window.submitBookingForm(e);
             } else {
-                console.error('submitBookingForm function not found');
                 alert('Error: Form handler not loaded. Please refresh the page.');
             }
             
             return false;
         });
     } else {
-        console.error('Booking form not found! Form ID: directBookingForm');
+        // Booking form not found - will be handled by form submission
     }
 });
 

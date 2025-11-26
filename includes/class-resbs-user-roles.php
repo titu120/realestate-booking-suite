@@ -65,10 +65,8 @@ class RESBS_User_Roles {
         }
 
         // Determine the best role based on available plugins
+        // Note: get_best_role_for_user() already returns sanitized role
         $role = $this->get_best_role_for_user();
-        
-        // Sanitize role name before assignment
-        $role = sanitize_key($role);
 
         // Validate role exists before assigning
         if (!get_role($role)) {

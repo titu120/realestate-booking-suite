@@ -123,14 +123,15 @@ class RESBS_Booking_Manager {
         }
 
         // Sanitize and validate data
-        $first_name = isset($_POST['first_name']) ? sanitize_text_field($_POST['first_name']) : '';
-        $last_name = isset($_POST['last_name']) ? sanitize_text_field($_POST['last_name']) : '';
-        $email = isset($_POST['email']) ? sanitize_email($_POST['email']) : '';
-        $phone = isset($_POST['phone']) ? sanitize_text_field($_POST['phone']) : '';
-        $preferred_date = isset($_POST['preferred_date']) ? sanitize_text_field($_POST['preferred_date']) : '';
-        $preferred_time = isset($_POST['preferred_time']) ? sanitize_text_field($_POST['preferred_time']) : '';
-        $message = isset($_POST['message']) ? sanitize_textarea_field($_POST['message']) : '';
-        $property_id = isset($_POST['property_id']) ? intval($_POST['property_id']) : 0;
+        // WordPress adds slashes to $_POST data, so we need to unslash before sanitizing
+        $first_name = isset($_POST['first_name']) ? sanitize_text_field(wp_unslash($_POST['first_name'])) : '';
+        $last_name = isset($_POST['last_name']) ? sanitize_text_field(wp_unslash($_POST['last_name'])) : '';
+        $email = isset($_POST['email']) ? sanitize_email(wp_unslash($_POST['email'])) : '';
+        $phone = isset($_POST['phone']) ? sanitize_text_field(wp_unslash($_POST['phone'])) : '';
+        $preferred_date = isset($_POST['preferred_date']) ? sanitize_text_field(wp_unslash($_POST['preferred_date'])) : '';
+        $preferred_time = isset($_POST['preferred_time']) ? sanitize_text_field(wp_unslash($_POST['preferred_time'])) : '';
+        $message = isset($_POST['message']) ? sanitize_textarea_field(wp_unslash($_POST['message'])) : '';
+        $property_id = isset($_POST['property_id']) ? intval(wp_unslash($_POST['property_id'])) : 0;
 
         // Validate required fields (name and email are required, phone is optional)
         if (empty($first_name) || empty($last_name) || empty($email)) {
@@ -151,7 +152,7 @@ class RESBS_Booking_Manager {
         }
 
         // Create booking post
-        $property_title = get_the_title($property_id);
+        $property_title = sanitize_text_field(get_the_title($property_id));
         $booking_data = array(
             'post_title' => 'Booking for ' . $first_name . ' ' . $last_name . ' - ' . $property_title,
             'post_content' => $message,
@@ -371,7 +372,7 @@ class RESBS_Booking_Manager {
                         </td>
                         <td>
                             <?php if (!empty($email) && is_email($email)): ?>
-                                <a href="mailto:<?php echo esc_attr(sanitize_email($email)); ?>"><?php echo esc_html($email); ?></a><br>
+                                <a href="mailto:<?php echo esc_attr($email); ?>"><?php echo esc_html($email); ?></a><br>
                             <?php else: ?>
                                 <?php echo esc_html($email); ?><br>
                             <?php endif; ?>
@@ -417,8 +418,8 @@ class RESBS_Booking_Manager {
             return;
         }
 
-        $booking_id = isset($_POST['booking_id']) ? intval($_POST['booking_id']) : 0;
-        $status = isset($_POST['status']) ? sanitize_text_field($_POST['status']) : '';
+        $booking_id = isset($_POST['booking_id']) ? intval(wp_unslash($_POST['booking_id'])) : 0;
+        $status = isset($_POST['status']) ? sanitize_text_field(wp_unslash($_POST['status'])) : '';
 
         // Validate booking exists
         if (!get_post($booking_id) || get_post_type($booking_id) !== 'property_booking') {
@@ -455,7 +456,7 @@ class RESBS_Booking_Manager {
             return;
         }
 
-        $booking_id = isset($_POST['booking_id']) ? intval($_POST['booking_id']) : 0;
+        $booking_id = isset($_POST['booking_id']) ? intval(wp_unslash($_POST['booking_id'])) : 0;
 
         // Validate booking exists
         if (!get_post($booking_id) || get_post_type($booking_id) !== 'property_booking') {

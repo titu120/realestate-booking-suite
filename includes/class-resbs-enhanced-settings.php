@@ -336,7 +336,9 @@ class RESBS_Enhanced_Settings {
         ';
         
         // Output CSS directly (safe - controlled content, no user input)
+        // CSS is hardcoded and contains no user input, so it's safe to output directly
         echo '<style id="resbs-enhanced-settings-critical">' . "\n";
+        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped - Hardcoded CSS, no user input
         echo $critical_css;
         echo '</style>' . "\n";
     }
@@ -2624,35 +2626,51 @@ class RESBS_Enhanced_Settings {
                     // Handle array values properly
                     if (is_array($value)) {
                         if (count($value) === 1) {
-                            $property_data[$key] = $value[0];
+                            // Sanitize single value
+                            $property_data[$key] = is_string($value[0]) ? sanitize_text_field($value[0]) : $value[0];
                         } else {
+                            // Sanitize array values before encoding
+                            $sanitized_array = array_map(function($item) {
+                                return is_string($item) ? sanitize_text_field($item) : $item;
+                            }, $value);
                             // Convert array to JSON string for export
-                            $property_data[$key] = json_encode($value);
+                            $property_data[$key] = wp_json_encode($sanitized_array);
                         }
                     } else {
-                        $property_data[$key] = $value;
+                        // Sanitize string values
+                        $property_data[$key] = is_string($value) ? sanitize_text_field($value) : $value;
                     }
                     
                     // Handle serialized data (like gallery)
                     if (is_string($property_data[$key]) && is_serialized($property_data[$key])) {
                         $unserialized = maybe_unserialize($property_data[$key]);
                         if (is_array($unserialized)) {
-                            $property_data[$key] = json_encode($unserialized);
+                            // Sanitize unserialized array
+                            $sanitized_unserialized = array_map(function($item) {
+                                return is_string($item) ? sanitize_text_field($item) : $item;
+                            }, $unserialized);
+                            $property_data[$key] = wp_json_encode($sanitized_unserialized);
                         }
                     }
                 }
             }
             
-            // Add taxonomies
+            // Add taxonomies - sanitize term names
             $types = wp_get_post_terms($property->ID, 'property_type', array('fields' => 'names'));
             $statuses = wp_get_post_terms($property->ID, 'property_status', array('fields' => 'names'));
             $locations = wp_get_post_terms($property->ID, 'property_location', array('fields' => 'names'));
             $tags = wp_get_post_terms($property->ID, 'property_tag', array('fields' => 'names'));
             
-            $property_data['property_types'] = !is_wp_error($types) ? implode(', ', $types) : '';
-            $property_data['property_statuses'] = !is_wp_error($statuses) ? implode(', ', $statuses) : '';
-            $property_data['property_locations'] = !is_wp_error($locations) ? implode(', ', $locations) : '';
-            $property_data['property_tags'] = !is_wp_error($tags) ? implode(', ', $tags) : '';
+            $property_data['property_types'] = !is_wp_error($types) ? implode(', ', array_map('sanitize_text_field', $types)) : '';
+            $property_data['property_statuses'] = !is_wp_error($statuses) ? implode(', ', array_map('sanitize_text_field', $statuses)) : '';
+            $property_data['property_locations'] = !is_wp_error($locations) ? implode(', ', array_map('sanitize_text_field', $locations)) : '';
+            $property_data['property_tags'] = !is_wp_error($tags) ? implode(', ', array_map('sanitize_text_field', $tags)) : '';
+            
+            // Sanitize post data
+            $property_data['title'] = sanitize_text_field($property_data['title']);
+            $property_data['content'] = wp_kses_post($property_data['content']);
+            $property_data['excerpt'] = sanitize_text_field($property_data['excerpt']);
+            $property_data['status'] = sanitize_text_field($property_data['status']);
             
             $export_data[] = $property_data;
         }
@@ -2673,7 +2691,8 @@ class RESBS_Enhanced_Settings {
             header('Expires: 0');
             header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
             
-            echo json_encode($export_data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+            // Use wp_json_encode for proper encoding and escaping
+            echo wp_json_encode($export_data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
             exit;
         } else {
             // Output CSV directly with download headers

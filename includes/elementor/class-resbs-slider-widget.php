@@ -759,7 +759,7 @@ class RESBS_Slider_Widget extends \Elementor\Widget_Base {
             
             <div class="resbs-property-content">
                 <?php if ($location && isset($location->name)): ?>
-                    <div class="resbs-property-location"><?php echo esc_html(sanitize_text_field($location->name)); ?></div>
+                    <div class="resbs-property-location"><?php echo esc_html($location->name); ?></div>
                 <?php endif; ?>
                 
                 <h3 class="resbs-property-title">
@@ -808,9 +808,9 @@ class RESBS_Slider_Widget extends \Elementor\Widget_Base {
                 
                 <?php if ($property_type && isset($property_type->name)): ?>
                     <div class="resbs-property-type">
-                        <?php echo esc_html(sanitize_text_field($property_type->name)); ?>
+                        <?php echo esc_html($property_type->name); ?>
                         <?php if ($property_status && isset($property_status->name)): ?>
-                            • <?php echo esc_html(sanitize_text_field($property_status->name)); ?>
+                            • <?php echo esc_html($property_status->name); ?>
                         <?php endif; ?>
                     </div>
                 <?php endif; ?>

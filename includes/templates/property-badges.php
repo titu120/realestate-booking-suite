@@ -186,6 +186,22 @@ function resbs_badge_shortcode($atts) {
         $badge_size = isset($badge['size']) ? sanitize_key($badge['size']) : 'medium';
         $badge_position = isset($badge['position']) ? sanitize_key($badge['position']) : 'top-left';
         $badge_style = isset($badge['style']) ? $badge['style'] : '';
+        // Sanitize inline CSS style attribute to prevent XSS
+        if (!empty($badge_style)) {
+            // Use safecss_filter_attr if available (from Custom CSS plugin or similar)
+            if (function_exists('safecss_filter_attr')) {
+                $badge_style = safecss_filter_attr($badge_style);
+            } else {
+                // Basic CSS sanitization - remove dangerous patterns
+                $badge_style = preg_replace('/javascript\s*:/i', '', $badge_style);
+                $badge_style = preg_replace('/expression\s*\(/i', '', $badge_style);
+                $badge_style = preg_replace('/on\w+\s*=/i', '', $badge_style);
+                $badge_style = preg_replace('/<script/i', '', $badge_style);
+                $badge_style = preg_replace('/<\/script>/i', '', $badge_style);
+                $badge_style = sanitize_text_field($badge_style);
+            }
+            $badge_style = esc_attr($badge_style);
+        }
         $badge_text = sanitize_text_field($badge['text']);
         
         $classes = array(
@@ -197,7 +213,8 @@ function resbs_badge_shortcode($atts) {
         
         $class_string = implode(' ', $classes);
         
-        echo '<span class="' . esc_attr($class_string) . '" style="' . esc_attr($badge_style) . '">';
+        $style_attr = !empty($badge_style) ? ' style="' . $badge_style . '"' : '';
+        echo '<span class="' . esc_attr($class_string) . '"' . $style_attr . '>';
         echo esc_html($badge_text);
         echo '</span>';
     }
@@ -241,7 +258,7 @@ class RESBS_Badge_Widget extends WP_Widget {
         $instance = wp_parse_args((array) $instance, $defaults);
         
         $title = sanitize_text_field($instance['title']);
-        $property_id = intval($instance['property_id']);
+        $property_id = absint($instance['property_id']);
         $badge_type = sanitize_text_field($instance['badge_type']);
         $context = sanitize_text_field($instance['context']);
         ?>

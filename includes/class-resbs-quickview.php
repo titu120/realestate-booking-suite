@@ -72,8 +72,8 @@ class RESBS_QuickView_Manager {
      * AJAX handler for getting quick view content
      */
     public function ajax_get_quickview() {
-        // Check if nonce exists
-        if (!isset($_POST['nonce'])) {
+        // Check if nonce exists and is string
+        if (!isset($_POST['nonce']) || !is_string($_POST['nonce'])) {
             wp_send_json_error(array(
                 'message' => esc_html__('Security check failed. Nonce is missing.', 'realestate-booking-suite')
             ));
@@ -97,7 +97,7 @@ class RESBS_QuickView_Manager {
         }
 
         // Sanitize property ID as integer first (don't filter by status yet)
-        $property_id = RESBS_Security::sanitize_int($_POST['property_id']);
+        $property_id = RESBS_Security::sanitize_int($_POST['property_id'] ?? 0);
         
         if (!$property_id || $property_id <= 0) {
             wp_send_json_error(array(
@@ -176,24 +176,24 @@ class RESBS_QuickView_Manager {
         
         $data = array(
             'id' => $property_id,
-            'title' => get_the_title($property_id),
-            'permalink' => get_permalink($property_id),
-            'excerpt' => get_the_excerpt($property_id),
-            'content' => get_the_content($property_id),
-            'featured_image' => get_the_post_thumbnail_url($property_id, 'large'),
+            'title' => sanitize_text_field(get_the_title($property_id)),
+            'permalink' => esc_url_raw(get_permalink($property_id)),
+            'excerpt' => wp_kses_post(get_the_excerpt($property_id)),
+            'content' => wp_kses_post($property->post_content),
+            'featured_image' => esc_url_raw(get_the_post_thumbnail_url($property_id, 'large') ?: ''),
             'gallery' => array(),
-            'price' => get_post_meta($property_id, '_property_price', true),
-            'bedrooms' => get_post_meta($property_id, '_property_bedrooms', true),
-            'bathrooms' => get_post_meta($property_id, '_property_bathrooms', true),
+            'price' => sanitize_text_field(get_post_meta($property_id, '_property_price', true)),
+            'bedrooms' => absint(get_post_meta($property_id, '_property_bedrooms', true)),
+            'bathrooms' => absint(get_post_meta($property_id, '_property_bathrooms', true)),
             // Try multiple possible area meta keys
-            'area' => get_post_meta($property_id, '_property_size', true) ?: get_post_meta($property_id, '_property_area_sqft', true),
-            'latitude' => get_post_meta($property_id, '_property_latitude', true),
-            'longitude' => get_post_meta($property_id, '_property_longitude', true),
-            'amenities' => get_post_meta($property_id, '_property_amenities', true),
-            'video_url' => get_post_meta($property_id, '_property_video_url', true),
-            'featured' => get_post_meta($property_id, '_property_featured', true),
-            'new' => get_post_meta($property_id, '_property_new', true),
-            'sold' => get_post_meta($property_id, '_property_sold', true),
+            'area' => absint(get_post_meta($property_id, '_property_size', true) ?: get_post_meta($property_id, '_property_area_sqft', true)),
+            'latitude' => sanitize_text_field(get_post_meta($property_id, '_property_latitude', true)),
+            'longitude' => sanitize_text_field(get_post_meta($property_id, '_property_longitude', true)),
+            'amenities' => sanitize_text_field(get_post_meta($property_id, '_property_amenities', true)),
+            'video_url' => esc_url_raw(get_post_meta($property_id, '_property_video_url', true)),
+            'featured' => (bool) get_post_meta($property_id, '_property_featured', true),
+            'new' => (bool) get_post_meta($property_id, '_property_new', true),
+            'sold' => (bool) get_post_meta($property_id, '_property_sold', true),
             // Get taxonomy terms and sanitize
             'property_type' => $this->sanitize_terms(wp_get_post_terms($property_id, 'property_type', array('fields' => 'names'))),
             'property_status' => $this->sanitize_terms(wp_get_post_terms($property_id, 'property_status', array('fields' => 'names'))),
@@ -207,13 +207,22 @@ class RESBS_QuickView_Manager {
             if (is_array($gallery_meta)) {
                 $gallery_ids = array_map('absint', $gallery_meta);
             } else {
-                // Comma-separated string
+                // Comma-separated string - sanitize first
+                $gallery_meta = sanitize_text_field($gallery_meta);
                 $gallery_ids = array_map('absint', explode(',', $gallery_meta));
             }
+            
+            // Remove duplicates and invalid IDs
+            $gallery_ids = array_unique(array_filter($gallery_ids));
             
             foreach ($gallery_ids as $image_id) {
                 $image_id = absint($image_id);
                 if (!$image_id) {
+                    continue;
+                }
+                
+                // Verify attachment exists
+                if (!wp_attachment_is_image($image_id)) {
                     continue;
                 }
                 
@@ -224,8 +233,8 @@ class RESBS_QuickView_Manager {
                     $data['gallery'][] = array(
                         'id' => $image_id,
                         'url' => esc_url_raw($image_url),
-                        'thumb' => esc_url_raw($image_thumb),
-                        'alt' => sanitize_text_field($alt_text)
+                        'thumb' => esc_url_raw($image_thumb ?: $image_url),
+                        'alt' => sanitize_text_field($alt_text ?: '')
                     );
                 }
             }
@@ -264,7 +273,7 @@ class RESBS_QuickView_Manager {
                                      class="resbs-quickview-image">
                             <?php elseif (!empty($data['gallery'])): ?>
                                 <img src="<?php echo esc_url($data['gallery'][0]['url']); ?>" 
-                                     alt="<?php echo esc_attr($data['gallery'][0]['alt'] ?: $data['title']); ?>"
+                                     alt="<?php echo esc_attr(!empty($data['gallery'][0]['alt']) ? $data['gallery'][0]['alt'] : $data['title']); ?>"
                                      class="resbs-quickview-image">
                             <?php endif; ?>
                             
@@ -279,7 +288,7 @@ class RESBS_QuickView_Manager {
                                 <?php foreach (array_slice($data['gallery'], 0, 4) as $index => $image): ?>
                                     <div class="resbs-quickview-thumb <?php echo esc_attr($index === 0 ? 'active' : ''); ?>">
                                         <img src="<?php echo esc_url($image['thumb']); ?>" 
-                                             alt="<?php echo esc_attr($image['alt'] ?: $data['title']); ?>"
+                                             alt="<?php echo esc_attr(!empty($image['alt']) ? $image['alt'] : $data['title']); ?>"
                                              data-full="<?php echo esc_url($image['url']); ?>">
                                     </div>
                                 <?php endforeach; ?>
@@ -316,26 +325,26 @@ class RESBS_QuickView_Manager {
 
                     <!-- Meta Info -->
                     <div class="resbs-quickview-meta">
-                        <?php if ($data['bedrooms']): ?>
+                        <?php if (!empty($data['bedrooms'])): ?>
                             <div class="resbs-meta-item">
                                 <span class="dashicons dashicons-bed"></span>
-                                <span class="resbs-meta-value"><?php echo esc_html($data['bedrooms']); ?></span>
+                                <span class="resbs-meta-value"><?php echo esc_html(absint($data['bedrooms'])); ?></span>
                                 <span class="resbs-meta-label"><?php esc_html_e('Bedrooms', 'realestate-booking-suite'); ?></span>
                             </div>
                         <?php endif; ?>
 
-                        <?php if ($data['bathrooms']): ?>
+                        <?php if (!empty($data['bathrooms'])): ?>
                             <div class="resbs-meta-item">
                                 <span class="dashicons dashicons-bath"></span>
-                                <span class="resbs-meta-value"><?php echo esc_html($data['bathrooms']); ?></span>
+                                <span class="resbs-meta-value"><?php echo esc_html(absint($data['bathrooms'])); ?></span>
                                 <span class="resbs-meta-label"><?php esc_html_e('Bathrooms', 'realestate-booking-suite'); ?></span>
                             </div>
                         <?php endif; ?>
 
-                        <?php if ($data['area']): ?>
+                        <?php if (!empty($data['area'])): ?>
                             <div class="resbs-meta-item">
                                 <span class="dashicons dashicons-fullscreen-alt"></span>
-                                <span class="resbs-meta-value"><?php echo esc_html(number_format($data['area'])); ?></span>
+                                <span class="resbs-meta-value"><?php echo esc_html(number_format(absint($data['area']))); ?></span>
                                 <span class="resbs-meta-label"><?php esc_html_e('sq ft', 'realestate-booking-suite'); ?></span>
                             </div>
                         <?php endif; ?>
@@ -378,11 +387,14 @@ class RESBS_QuickView_Manager {
                             <h4><?php esc_html_e('Key Amenities', 'realestate-booking-suite'); ?></h4>
                             <div class="resbs-amenities-preview">
                                 <?php
-                                $amenities_list = explode(',', $data['amenities']);
+                                $amenities_raw = sanitize_text_field($data['amenities']);
+                                $amenities_list = !empty($amenities_raw) ? explode(',', $amenities_raw) : array();
+                                $amenities_list = array_map('trim', $amenities_list);
+                                $amenities_list = array_filter($amenities_list);
                                 $amenities_preview = array_slice($amenities_list, 0, 3);
                                 foreach ($amenities_preview as $amenity):
-                                    $amenity = trim($amenity);
-                                    if ($amenity):
+                                    $amenity = sanitize_text_field(trim($amenity));
+                                    if (!empty($amenity)):
                                 ?>
                                     <span class="resbs-amenity-tag"><?php echo esc_html($amenity); ?></span>
                                 <?php
@@ -391,19 +403,19 @@ class RESBS_QuickView_Manager {
                                 
                                 if (count($amenities_list) > 3):
                                 ?>
-                                    <span class="resbs-amenity-more">+<?php echo esc_html(count($amenities_list) - 3); ?> <?php esc_html_e('more', 'realestate-booking-suite'); ?></span>
+                                    <span class="resbs-amenity-more">+<?php echo esc_html(absint(count($amenities_list) - 3)); ?> <?php esc_html_e('more', 'realestate-booking-suite'); ?></span>
                                 <?php endif; ?>
                             </div>
                         </div>
                     <?php endif; ?>
 
                     <!-- Map Preview -->
-                    <?php if ($data['latitude'] && $data['longitude']): ?>
+                    <?php if (!empty($data['latitude']) && !empty($data['longitude'])): ?>
                         <div class="resbs-quickview-map">
                             <h4><?php esc_html_e('Location', 'realestate-booking-suite'); ?></h4>
                             <div class="resbs-map-preview" 
-                                 data-lat="<?php echo esc_attr($data['latitude']); ?>" 
-                                 data-lng="<?php echo esc_attr($data['longitude']); ?>">
+                                 data-lat="<?php echo esc_attr(sanitize_text_field($data['latitude'])); ?>" 
+                                 data-lng="<?php echo esc_attr(sanitize_text_field($data['longitude'])); ?>">
                                 <div class="resbs-map-placeholder">
                                     <span class="dashicons dashicons-location"></span>
                                     <?php esc_html_e('View on Map', 'realestate-booking-suite'); ?>
@@ -505,12 +517,15 @@ class RESBS_QuickView_Manager {
         $currency_symbol = sanitize_text_field(get_option('resbs_currency_symbol', '$'));
         $currency_position = sanitize_text_field(get_option('resbs_currency_position', 'before'));
         
-        // Ensure price is numeric
-        $price = is_numeric($price) ? floatval($price) : 0;
-        $formatted_price = number_format($price);
+        // Ensure price is numeric and sanitized
+        $price = is_numeric($price) ? abs(floatval($price)) : 0;
+        $formatted_price = number_format($price, 2);
         
-        // Escape currency symbol and position for output
+        // Escape currency symbol for output
         $currency_symbol = esc_html($currency_symbol);
+        
+        // Validate currency position
+        $currency_position = in_array($currency_position, array('before', 'after'), true) ? $currency_position : 'before';
         
         if ($currency_position === 'before') {
             return $currency_symbol . $formatted_price;

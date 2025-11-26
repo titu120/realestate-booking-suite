@@ -836,15 +836,19 @@ class RESBS_Property_Grid_Widget extends \Elementor\Widget_Base {
     private function render_property_card($settings) {
         $property_id = get_the_ID();
         $property_price = get_post_meta($property_id, '_property_price', true);
-        $property_bedrooms = get_post_meta($property_id, '_property_bedrooms', true);
-        $property_bathrooms = get_post_meta($property_id, '_property_bathrooms', true);
+        $property_bedrooms = absint(get_post_meta($property_id, '_property_bedrooms', true));
+        $property_bathrooms = absint(get_post_meta($property_id, '_property_bathrooms', true));
         // Get area using helper function that handles unit conversion
         $property_area_value = resbs_get_property_area($property_id, '_property_area_sqft');
         // Fallback to _property_size if area not found
         if (empty($property_area_value)) {
             $property_size = get_post_meta($property_id, '_property_size', true);
             if (!empty($property_size)) {
-                $property_area_value = resbs_get_area_unit() === 'sqm' ? resbs_convert_area($property_size, 'sqft', 'sqm') : floatval($property_size);
+                // Sanitize property size before conversion
+                $property_size = floatval($property_size);
+                if ($property_size > 0) {
+                    $property_area_value = resbs_get_area_unit() === 'sqm' ? resbs_convert_area($property_size, 'sqft', 'sqm') : $property_size;
+                }
             }
         }
         $property_featured = get_post_meta($property_id, '_property_featured', true);
@@ -925,14 +929,14 @@ class RESBS_Property_Grid_Widget extends \Elementor\Widget_Base {
 
                 <?php if ($show_meta): ?>
                     <div class="resbs-property-meta">
-                        <?php if (!empty($property_bedrooms)): ?>
+                        <?php if ($property_bedrooms > 0): ?>
                             <div class="resbs-property-meta-item">
                                 <span class="dashicons dashicons-bed-alt"></span>
                                 <span><?php echo esc_html($property_bedrooms); ?> <?php esc_html_e('Bedrooms', 'realestate-booking-suite'); ?></span>
                             </div>
                         <?php endif; ?>
 
-                        <?php if (!empty($property_bathrooms)): ?>
+                        <?php if ($property_bathrooms > 0): ?>
                             <div class="resbs-property-meta-item">
                                 <span class="dashicons dashicons-bath"></span>
                                 <span><?php echo esc_html($property_bathrooms); ?> <?php esc_html_e('Bathrooms', 'realestate-booking-suite'); ?></span>

@@ -1512,10 +1512,13 @@ Best regards,
                     <form class="resbs-auth-form resbs-login-form" method="post" action="<?php echo esc_url($login_url); ?>">
                         <?php
                         // Show any login errors
-                        if (isset($_GET['login']) && $_GET['login'] === 'failed') {
-                            echo '<div class="resbs-login-error">';
-                            echo '<p>' . esc_html__('Invalid username or password.', 'realestate-booking-suite') . '</p>';
-                            echo '</div>';
+                        if (isset($_GET['login'])) {
+                            $login_status = sanitize_text_field($_GET['login']);
+                            if ($login_status === 'failed') {
+                                echo '<div class="resbs-login-error">';
+                                echo '<p>' . esc_html__('Invalid username or password.', 'realestate-booking-suite') . '</p>';
+                                echo '</div>';
+                            }
                         }
                         ?>
                         
@@ -1722,7 +1725,7 @@ Best regards,
                         <input type="text" 
                                name="user_login" 
                                id="user_login_<?php echo esc_attr($shortcode_id); ?>" 
-                               value="<?php echo isset($_POST['user_login']) ? esc_attr($_POST['user_login']) : ''; ?>"
+                               value="<?php echo isset($_POST['user_login']) ? esc_attr(sanitize_user($_POST['user_login'])) : ''; ?>"
                                required
                                autocomplete="username">
                     </div>
@@ -1734,7 +1737,7 @@ Best regards,
                         <input type="email" 
                                name="user_email" 
                                id="user_email_<?php echo esc_attr($shortcode_id); ?>" 
-                               value="<?php echo isset($_POST['user_email']) ? esc_attr($_POST['user_email']) : ''; ?>"
+                               value="<?php echo isset($_POST['user_email']) ? esc_attr(sanitize_email($_POST['user_email'])) : ''; ?>"
                                required
                                autocomplete="email">
                     </div>
@@ -2111,7 +2114,7 @@ Best regards,
         $property_id = $property->ID;
         
         // Get property title - ensure it's not empty
-        $property_title = !empty($property->post_title) ? $property->post_title : __('Property #' . $property_id, 'realestate-booking-suite');
+        $property_title = !empty($property->post_title) ? $property->post_title : sprintf(esc_html__('Property #%s', 'realestate-booking-suite'), $property_id);
         
         // Get property permalink - ensure it's valid
         $property_permalink = get_permalink($property_id);
@@ -2181,11 +2184,11 @@ Best regards,
         if (empty($property_status_name)) {
             $status = $property->post_status;
             $status_labels = array(
-                'publish' => __('Published', 'realestate-booking-suite'),
-                'pending' => __('Pending Review', 'realestate-booking-suite'),
-                'draft' => __('Draft', 'realestate-booking-suite')
+                'publish' => esc_html__('Published', 'realestate-booking-suite'),
+                'pending' => esc_html__('Pending Review', 'realestate-booking-suite'),
+                'draft' => esc_html__('Draft', 'realestate-booking-suite')
             );
-            $property_status_name = isset($status_labels[$status]) ? $status_labels[$status] : ucfirst($status);
+            $property_status_name = isset($status_labels[$status]) ? $status_labels[$status] : esc_html(ucfirst($status));
         }
         
         // Format price with dynamic currency
@@ -2201,19 +2204,19 @@ Best regards,
         
         if ($status === 'pending') {
             $badge_class = 'badge-new';
-            $badge_text = 'Pending Review';
+            $badge_text = esc_html__('Pending Review', 'realestate-booking-suite');
         } elseif ($status === 'draft') {
             $badge_class = 'badge-standard';
-            $badge_text = 'Draft';
+            $badge_text = esc_html__('Draft', 'realestate-booking-suite');
         } elseif ($days_old < 7) {
             $badge_class = 'badge-new';
-            $badge_text = 'Just listed';
+            $badge_text = esc_html__('Just listed', 'realestate-booking-suite');
         } elseif ($days_old < 30) {
             $badge_class = 'badge-featured';
-            $badge_text = 'Featured';
+            $badge_text = esc_html__('Featured', 'realestate-booking-suite');
         } else {
             $badge_class = 'badge-standard';
-            $badge_text = 'Available';
+            $badge_text = esc_html__('Available', 'realestate-booking-suite');
         }
         ?>
         <div class="property-card" data-property-id="<?php echo esc_attr($property_id); ?>">
@@ -2256,14 +2259,14 @@ Best regards,
                     <?php if ($bedrooms): ?>
                         <div class="property-feature">
                             <i class="fas fa-bed"></i>
-                            <span><?php echo esc_html($bedrooms); ?> beds</span>
+                            <span><?php echo esc_html($bedrooms); ?> <?php echo $bedrooms == 1 ? esc_html__('bed', 'realestate-booking-suite') : esc_html__('beds', 'realestate-booking-suite'); ?></span>
                         </div>
                     <?php endif; ?>
                     
                     <?php if ($bathrooms): ?>
                         <div class="property-feature">
                             <i class="fas fa-bath"></i>
-                            <span><?php echo esc_html($bathrooms); ?> baths</span>
+                            <span><?php echo esc_html($bathrooms); ?> <?php echo $bathrooms == 1 ? esc_html__('bath', 'realestate-booking-suite') : esc_html__('baths', 'realestate-booking-suite'); ?></span>
                         </div>
                     <?php endif; ?>
                     
@@ -2283,7 +2286,7 @@ Best regards,
                         <?php if ($status === 'pending' && current_user_can('publish_posts')): ?>
                             <?php wp_nonce_field('resbs_publish_property', 'resbs_publish_property_nonce', false); ?>
                             <button class="publish-property-btn" data-property-id="<?php echo esc_attr($property_id); ?>" data-nonce="<?php echo esc_attr(wp_create_nonce('resbs_publish_property')); ?>" style="background: #10b981; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.3s;" type="button">
-                                <i class="fas fa-check"></i> Publish
+                                <i class="fas fa-check"></i> <?php echo esc_html__('Publish', 'realestate-booking-suite'); ?>
                             </button>
                         <?php endif; ?>
                         <a href="<?php echo esc_url($property_permalink); ?>" class="view-details-btn" target="_blank">

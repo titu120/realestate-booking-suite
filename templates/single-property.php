@@ -1149,7 +1149,7 @@
                                         <button onclick="downloadFloorPlan()" class="btn btn-primary">
                                             <i class="fas fa-download mr-2"></i><?php echo esc_html__('Download Floor Plan', 'realestate-booking-suite'); ?>
                                         </button>
-                                        <button onclick="requestCustomPlan()" class="btn" style="background-color: <?php echo esc_attr($secondary_color); ?>; color: white;">
+                                        <button onclick="requestCustomPlan()" class="btn" style="background-color: <?php echo esc_attr(resbs_get_secondary_color()); ?>; color: white;">
                                             <i class="fas fa-envelope mr-2"></i><?php echo esc_html__('Request Custom Plan', 'realestate-booking-suite'); ?>
                                         </button>
                                     </div>
@@ -1222,6 +1222,8 @@
                             <?php 
                             // Show map if enabled in settings and either map iframe OR coordinates exist
                             $has_map_data = ($map_iframe || (!empty($latitude) && !empty($longitude)));
+                            // Initialize map_id with default value
+                            $map_id = 'resbs-property-map-' . $post->ID;
                             
                             if ($has_map_data && resbs_should_show_map_single_listing()): 
                                 // Use coordinates if available and no iframe (Leaflet doesn't need API key)
@@ -1258,8 +1260,7 @@
                                     ?>
                                     <?php elseif ($use_coordinates): ?>
                                         <?php
-                                        // Generate unique map ID
-                                        $map_id = 'resbs-property-map-' . $post->ID;
+                                        // Use the map ID already defined above
                                         $lat_val = floatval($latitude);
                                         $lng_val = floatval($longitude);
                                         ?>
@@ -1268,8 +1269,8 @@
                                         <script type="text/javascript">
                                         (function() {
                                             var mapId = '<?php echo esc_js($map_id); ?>';
-                                            var lat = <?php echo $lat_val; ?>;
-                                            var lng = <?php echo $lng_val; ?>;
+                                            var lat = <?php echo wp_json_encode($lat_val); ?>;
+                                            var lng = <?php echo wp_json_encode($lng_val); ?>;
                                             var mapInstance = null;
                                             var mapInitialized = false;
                                             
@@ -1354,7 +1355,7 @@
                                                     }, 1000);
                                                     
                                                 } catch(e) {
-                                                    console.error('Leaflet map error:', e);
+                                                    // Map initialization error - silently retry
                                                     mapInitialized = false;
                                                     setTimeout(initLeafletMap, 200);
                                                 }
@@ -1398,7 +1399,7 @@
                                 padding-bottom: 0 !important;
                                 margin: 0 !important;
                             }
-                            #<?php echo esc_attr($map_id ?? 'resbs-property-map'); ?>,
+                            #<?php echo esc_attr($map_id); ?>,
                             .map-container > div,
                             div[id^="resbs-property-map-"] {
                                 margin-bottom: 0 !important;
@@ -1864,7 +1865,7 @@
                                         </div>
                                         
                                         <div class="pt-4">
-                                            <button type="button" onclick="(function(){console.log('Button clicked!'); var form = document.getElementById('directBookingForm'); if(!form) { alert('Error: Form not found!'); return false; } var nameEl = document.getElementById('bookingName'); var emailEl = document.getElementById('bookingEmail'); var name = nameEl ? nameEl.value.trim() : ''; var email = emailEl ? emailEl.value.trim() : ''; if(!name || !email) { alert('Please fill in Name and Email (required fields).'); return false; } if(typeof window.submitBookingForm === 'function') { console.log('Calling submitBookingForm'); var fakeEvent = {target: form, preventDefault: function(){}, stopPropagation: function(){}}; window.submitBookingForm(fakeEvent); } else { console.error('submitBookingForm not found, trying direct submission'); var formData = new FormData(form); formData.append('action', 'resbs_submit_booking'); var siteUrl = window.location.origin; var ajaxUrl = siteUrl + '/wp-admin/admin-ajax.php'; fetch(ajaxUrl, {method: 'POST', body: formData}).then(function(r){return r.json();}).then(function(d){if(d.success){alert(d.data.message || 'Thank you! Booking submitted.'); form.reset();}else{alert(d.data.message || 'Error submitting booking.');}}).catch(function(e){console.error(e); alert('Thank you for your booking request!'); form.reset();}); } return false;})();" class="w-full bg-white hover:bg-green-700  font-bold py-4 px-6 rounded-lg transition duration-200 flex items-center justify-center  transform ">
+                                            <button type="submit" id="resbs-booking-submit-btn" class="w-full bg-white hover:bg-green-700  font-bold py-4 px-6 rounded-lg transition duration-200 flex items-center justify-center  transform ">
                                                 <i class="fas fa-calendar-check mr-3 text-lg"></i><?php echo esc_html($booking_submit_text ? $booking_submit_text : __('Schedule Property Viewing', 'realestate-booking-suite')); ?>
                                             </button>
                                         </div>
@@ -2024,7 +2025,7 @@
                         <?php if ($agent_photo): ?>
                             <img src="<?php echo esc_url($agent_photo); ?>" alt="<?php echo esc_attr($agent_name); ?>" class="agent-avatar">
                         <?php else: ?>
-                            <div class="agent-avatar" style="background-color: <?php echo esc_attr($main_color); ?>; color: white; display: flex; align-items: center; justify-content: center; font-size: 2rem;">
+                            <div class="agent-avatar" style="background-color: <?php echo esc_attr(resbs_get_main_color()); ?>; color: white; display: flex; align-items: center; justify-content: center; font-size: 2rem;">
                                 <i class="fas fa-user"></i>
                             </div>
                         <?php endif; ?>
@@ -2189,7 +2190,7 @@
     <script type="text/javascript">
         // Ensure gallery images are available to JavaScript
         (function() {
-            var templateGalleryImages = <?php echo json_encode($gallery_urls); ?>;
+            var templateGalleryImages = <?php echo wp_json_encode($gallery_urls); ?>;
             if (templateGalleryImages && templateGalleryImages.length > 0) {
                 // Set on window object for global access
                 window.galleryImagesFromTemplate = templateGalleryImages;

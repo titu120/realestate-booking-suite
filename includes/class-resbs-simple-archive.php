@@ -53,8 +53,13 @@ class RESBS_Simple_Archive {
             is_tax('property_category') ||
             is_tax('properties_category')) {
             
-            $simple_template = RESBS_PATH . 'templates/simple-archive.php';
-            if (file_exists($simple_template)) {
+            // Sanitize and validate the template path
+            $template_file = 'templates/simple-archive.php';
+            $simple_template = trailingslashit(RESBS_PATH) . $template_file;
+            
+            // Ensure the file exists and is within the plugin directory (security check)
+            if (file_exists($simple_template) && 
+                strpos(realpath($simple_template), realpath(RESBS_PATH)) === 0) {
                 return $simple_template;
             }
         }

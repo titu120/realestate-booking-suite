@@ -35,10 +35,16 @@ class RESBS_Dynamic_Archive_AJAX {
     public function enqueue_scripts() {
         wp_enqueue_script('jquery');
         
-        wp_localize_script('resbs-dynamic-archive', 'resbs_ajax', array(
-            'ajax_url' => esc_url(admin_url('admin-ajax.php')),
-            'nonce' => esc_js(wp_create_nonce('resbs_search_nonce')),
-        ));
+        // Only localize script if it's enqueued
+        // Note: The script handle should match the enqueued script
+        // If the script is enqueued elsewhere, use that handle
+        $script_handle = 'resbs-dynamic-archive';
+        if (wp_script_is($script_handle, 'enqueued') || wp_script_is($script_handle, 'registered')) {
+            wp_localize_script($script_handle, 'resbs_ajax', array(
+                'ajax_url' => esc_url(admin_url('admin-ajax.php')),
+                'nonce' => esc_js(wp_create_nonce('resbs_search_nonce')),
+            ));
+        }
     }
     
     /**
@@ -51,9 +57,9 @@ class RESBS_Dynamic_Archive_AJAX {
      */
     public function search_properties() {
         // Get nonce from POST (check both common field names)
-        $nonce = isset($_POST['nonce']) ? $_POST['nonce'] : '';
+        $nonce = isset($_POST['nonce']) ? sanitize_text_field(wp_unslash($_POST['nonce'])) : '';
         if (empty($nonce)) {
-            $nonce = isset($_POST['_wpnonce']) ? $_POST['_wpnonce'] : '';
+            $nonce = isset($_POST['_wpnonce']) ? sanitize_text_field(wp_unslash($_POST['_wpnonce'])) : '';
         }
         
         // Verify nonce using security helper class
@@ -66,36 +72,38 @@ class RESBS_Dynamic_Archive_AJAX {
         // Note: No capability check needed - this is a public search (nopriv action)
         // Only published properties are returned (see post_status => 'publish' in query args)
         
-        // Get search parameters
-        $search_query = isset($_POST['search']) ? sanitize_text_field($_POST['search']) : '';
+        // Get search parameters - sanitize all POST inputs
+        $search_query = isset($_POST['search']) ? sanitize_text_field(wp_unslash($_POST['search'])) : '';
         // Prices should use floatval since they can be decimals
         $min_price = isset($_POST['min_price']) && is_numeric($_POST['min_price']) ? floatval($_POST['min_price']) : '';
         $max_price = isset($_POST['max_price']) && is_numeric($_POST['max_price']) ? floatval($_POST['max_price']) : '';
         // Sanitize taxonomy terms (use sanitize_title for slugs)
-        $property_type = isset($_POST['property_type']) ? sanitize_title($_POST['property_type']) : '';
+        $property_type = isset($_POST['property_type']) ? sanitize_title(wp_unslash($_POST['property_type'])) : '';
         $bedrooms = isset($_POST['bedrooms']) && is_numeric($_POST['bedrooms']) ? absint($_POST['bedrooms']) : '';
         // Bathrooms can be decimals (e.g., 2.5)
         $bathrooms = isset($_POST['bathrooms']) && is_numeric($_POST['bathrooms']) ? floatval($_POST['bathrooms']) : '';
         $min_sqft = isset($_POST['min_sqft']) && is_numeric($_POST['min_sqft']) ? absint($_POST['min_sqft']) : '';
         $max_sqft = isset($_POST['max_sqft']) && is_numeric($_POST['max_sqft']) ? absint($_POST['max_sqft']) : '';
         // Validate year_built is numeric
-        $year_built = isset($_POST['year_built']) ? sanitize_text_field($_POST['year_built']) : '';
+        $year_built = isset($_POST['year_built']) ? sanitize_text_field(wp_unslash($_POST['year_built'])) : '';
         if (!empty($year_built)) {
             $year_built = str_replace('+', '', $year_built);
-            if (!is_numeric($year_built)) {
+            if (is_numeric($year_built)) {
+                $year_built = absint($year_built);
+            } else {
                 $year_built = ''; // Clear invalid value
             }
         }
-        $property_status = isset($_POST['property_status']) ? sanitize_title($_POST['property_status']) : '';
+        $property_status = isset($_POST['property_status']) ? sanitize_title(wp_unslash($_POST['property_status'])) : '';
         
         // Validate and sanitize sort_by parameter (whitelist approach)
         $allowed_sort_options = array('date', 'price_low', 'price_high', 'newest');
-        $sort_by = isset($_POST['sort_by']) ? sanitize_text_field($_POST['sort_by']) : 'date';
+        $sort_by = isset($_POST['sort_by']) ? sanitize_text_field(wp_unslash($_POST['sort_by'])) : 'date';
         if (!in_array($sort_by, $allowed_sort_options, true)) {
             $sort_by = 'date'; // Default to safe value if invalid
         }
         
-        $paged = isset($_POST['paged']) ? intval($_POST['paged']) : 1;
+        $paged = isset($_POST['paged']) ? absint($_POST['paged']) : 1;
         // Ensure paged is positive
         if ($paged < 1) {
             $paged = 1;
@@ -305,10 +313,10 @@ class RESBS_Dynamic_Archive_AJAX {
                 }
                 $featured_image = esc_url($featured_image);
                 
-                // Format price
+                // Format price - validate numeric before formatting
                 $formatted_price = '';
-                if ($price) {
-                    $formatted_price = '$' . number_format($price);
+                if (!empty($price) && is_numeric($price)) {
+                    $formatted_price = '$' . number_format(floatval($price), 0, '.', ',');
                 }
                 
                 // Format location (each part is already escaped, but escape the final string for consistency)
@@ -336,16 +344,16 @@ class RESBS_Dynamic_Archive_AJAX {
                     $badge_text = 'Available';
                 }
                 
-                // Add property data
+                // Add property data - ensure all values are properly sanitized
                 $response['properties'][] = array(
                     'id' => absint(get_the_ID()),
                     'title' => esc_html(get_the_title()),
                     'permalink' => esc_url(get_permalink()),
                     'featured_image' => esc_url($featured_image),
                     'price' => esc_html($formatted_price),
-                    'bedrooms' => absint($bedrooms),
-                    'bathrooms' => absint($bathrooms),
-                    'area_sqft' => absint($area_sqft),
+                    'bedrooms' => !empty($bedrooms) && is_numeric($bedrooms) ? absint($bedrooms) : 0,
+                    'bathrooms' => !empty($bathrooms) && is_numeric($bathrooms) ? floatval($bathrooms) : 0,
+                    'area_sqft' => !empty($area_sqft) && is_numeric($area_sqft) ? absint($area_sqft) : 0,
                     'location' => esc_html($location),
                     'property_type' => esc_html($property_type_name),
                     'property_status' => esc_html($property_status_name),
@@ -353,12 +361,12 @@ class RESBS_Dynamic_Archive_AJAX {
                     'badge_text' => esc_html($badge_text)
                 );
                 
-                // Add map marker data
-                if ($latitude && $longitude) {
+                // Add map marker data - validate coordinates are numeric
+                if (!empty($latitude) && !empty($longitude) && is_numeric($latitude) && is_numeric($longitude)) {
                     $response['map_markers'][] = array(
                         'id' => absint(get_the_ID()),
-                        'latitude' => esc_attr($latitude),
-                        'longitude' => esc_attr($longitude),
+                        'latitude' => esc_attr(floatval($latitude)),
+                        'longitude' => esc_attr(floatval($longitude)),
                         'title' => esc_html(get_the_title()),
                         'price' => esc_html($formatted_price),
                         'badge_class' => esc_attr($badge_class)

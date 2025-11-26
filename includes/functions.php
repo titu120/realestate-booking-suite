@@ -189,7 +189,25 @@ function resbs_get_secondary_color() {
  * @return float Converted area value
  */
 function resbs_convert_area($area, $from_unit, $to_unit) {
-    if ($from_unit === $to_unit || empty($area)) {
+    // Security: Validate and sanitize units
+    $valid_units = array('sqft', 'sqm');
+    $from_unit = sanitize_text_field($from_unit);
+    $to_unit = sanitize_text_field($to_unit);
+    
+    // Default to sqft if invalid unit provided
+    if (!in_array($from_unit, $valid_units, true)) {
+        $from_unit = 'sqft';
+    }
+    if (!in_array($to_unit, $valid_units, true)) {
+        $to_unit = 'sqft';
+    }
+    
+    // Validate area value
+    if (empty($area) || !is_numeric($area)) {
+        return 0.0;
+    }
+    
+    if ($from_unit === $to_unit) {
         return floatval($area);
     }
     
@@ -215,6 +233,18 @@ function resbs_convert_area($area, $from_unit, $to_unit) {
  * @return float|string Area value (assumed to be stored in sqft), or empty string if not found
  */
 function resbs_get_property_area($property_id, $meta_key = '_resbs_area') {
+    // Security: Validate and sanitize property ID
+    $property_id = absint($property_id);
+    if (!$property_id || !get_post($property_id)) {
+        return '';
+    }
+    
+    // Security: Sanitize meta key to prevent injection
+    $meta_key = sanitize_key($meta_key);
+    if (empty($meta_key)) {
+        $meta_key = '_resbs_area';
+    }
+    
     // Try multiple possible meta keys
     $area = get_post_meta($property_id, $meta_key, true);
     if (empty($area)) {
@@ -227,7 +257,7 @@ function resbs_get_property_area($property_id, $meta_key = '_resbs_area') {
         $area = get_post_meta($property_id, '_resbs_area', true);
     }
     
-    if (empty($area)) {
+    if (empty($area) || !is_numeric($area)) {
         return '';
     }
     
@@ -243,12 +273,23 @@ function resbs_get_property_area($property_id, $meta_key = '_resbs_area') {
  * @return string Formatted area with unit
  */
 function resbs_format_area($area, $unit = null, $stored_unit = 'sqft') {
-    if (empty($area)) {
+    if (empty($area) || !is_numeric($area)) {
         return '';
     }
     
     if ($unit === null) {
         $unit = resbs_get_area_unit();
+    }
+    
+    // Security: Validate units
+    $valid_units = array('sqft', 'sqm');
+    $unit = sanitize_text_field($unit);
+    $stored_unit = sanitize_text_field($stored_unit);
+    if (!in_array($unit, $valid_units, true)) {
+        $unit = 'sqft';
+    }
+    if (!in_array($stored_unit, $valid_units, true)) {
+        $stored_unit = 'sqft';
     }
     
     // Convert if needed
@@ -266,12 +307,23 @@ function resbs_format_area($area, $unit = null, $stored_unit = 'sqft') {
  * @return string Formatted lot size with unit
  */
 function resbs_format_lot_size($lot_size, $unit = null, $stored_unit = 'sqft') {
-    if (empty($lot_size)) {
+    if (empty($lot_size) || !is_numeric($lot_size)) {
         return '';
     }
     
     if ($unit === null) {
         $unit = resbs_get_lot_size_unit();
+    }
+    
+    // Security: Validate units
+    $valid_units = array('sqft', 'sqm');
+    $unit = sanitize_text_field($unit);
+    $stored_unit = sanitize_text_field($stored_unit);
+    if (!in_array($unit, $valid_units, true)) {
+        $unit = 'sqft';
+    }
+    if (!in_array($stored_unit, $valid_units, true)) {
+        $stored_unit = 'sqft';
     }
     
     // Convert if needed
@@ -291,7 +343,19 @@ function resbs_format_date($date, $format = null) {
     if ($format === null) {
         $format = resbs_get_date_format();
     }
-    $timestamp = is_numeric($date) ? $date : strtotime($date);
+    
+    // Security: Sanitize format string to prevent injection
+    $format = sanitize_text_field($format);
+    if (empty($format)) {
+        $format = 'm/d/Y';
+    }
+    
+    // Validate timestamp
+    $timestamp = is_numeric($date) ? intval($date) : strtotime($date);
+    if ($timestamp === false) {
+        return '';
+    }
+    
     return esc_html(date($format, $timestamp));
 }
 
@@ -306,7 +370,19 @@ function resbs_format_time($time, $format = null) {
         $time_format = resbs_get_time_format();
         $format = ($time_format === '24h') ? 'H:i' : 'g:i A';
     }
-    $timestamp = is_numeric($time) ? $time : strtotime($time);
+    
+    // Security: Sanitize format string to prevent injection
+    $format = sanitize_text_field($format);
+    if (empty($format)) {
+        $format = 'g:i A';
+    }
+    
+    // Validate timestamp
+    $timestamp = is_numeric($time) ? intval($time) : strtotime($time);
+    if ($timestamp === false) {
+        return '';
+    }
+    
     return esc_html(date($format, $timestamp));
 }
 
@@ -395,6 +471,13 @@ function resbs_get_single_marker_color() {
  * @return array Map settings array
  */
 function resbs_get_map_settings($context = 'archive') {
+    // Security: Validate and sanitize context parameter
+    $valid_contexts = array('archive', 'single');
+    $context = sanitize_text_field($context);
+    if (!in_array($context, $valid_contexts, true)) {
+        $context = 'archive';
+    }
+    
     $settings = array(
         'defaultZoom' => resbs_get_default_zoom_level(),
         'singlePropertyZoom' => resbs_get_single_property_zoom_level(),
@@ -634,6 +717,12 @@ function resbs_get_wishlist_page_id() {
  * @return bool True if property is favorited
  */
 function resbs_is_property_favorited($property_id) {
+    // Security: Validate property ID
+    $property_id = absint($property_id);
+    if (!$property_id || !get_post($property_id)) {
+        return false;
+    }
+    
     if (!isset($GLOBALS['resbs_favorites_manager'])) {
         return false;
     }
@@ -818,7 +907,8 @@ function resbs_get_property_tags($post_id = null, $before = '', $sep = ', ', $af
         $post_id = get_the_ID();
     }
     
-    // Security: Verify post exists and is valid
+    // Security: Validate and sanitize post ID
+    $post_id = absint($post_id);
     if (!$post_id || !get_post($post_id)) {
         return '';
     }
@@ -833,6 +923,11 @@ function resbs_get_property_tags($post_id = null, $before = '', $sep = ', ', $af
     $clickable = resbs_is_clickable_tags_enabled();
     
     foreach ($tags as $tag) {
+        // Security: Verify tag object is valid
+        if (!is_object($tag) || !isset($tag->name)) {
+            continue;
+        }
+        
         if ($clickable) {
             $term_link = get_term_link($tag);
             if (!is_wp_error($term_link)) {
@@ -845,8 +940,14 @@ function resbs_get_property_tags($post_id = null, $before = '', $sep = ', ', $af
         }
     }
     
-    // Sanitize before and after, escape separator, and ensure final output is safe
-    $output = wp_kses_post($before) . implode(esc_html($sep), $tag_links) . wp_kses_post($after);
+    // Security: Escape separator and sanitize before/after, then build output
+    $escaped_sep = esc_html($sep);
+    $sanitized_before = wp_kses_post($before);
+    $sanitized_after = wp_kses_post($after);
+    
+    // Build output - tag_links already contain properly escaped HTML
+    $output = $sanitized_before . implode($escaped_sep, $tag_links) . $sanitized_after;
+    
     // Final sanitization to ensure concatenated output is safe
     return wp_kses_post($output);
 }
@@ -857,6 +958,12 @@ function resbs_get_property_tags($post_id = null, $before = '', $sep = ', ', $af
  */
 function resbs_auto_generate_tags($post_id) {
     if (!resbs_is_auto_tags_enabled()) {
+        return;
+    }
+    
+    // Security: Validate and sanitize post ID
+    $post_id = absint($post_id);
+    if (!$post_id) {
         return;
     }
     
@@ -879,31 +986,42 @@ function resbs_auto_generate_tags($post_id) {
     
     // Don't auto-tag if tags already exist
     $existing_tags = wp_get_post_terms($post_id, 'property_tag', array('fields' => 'ids'));
+    if (is_wp_error($existing_tags)) {
+        return;
+    }
     if (!empty($existing_tags)) {
         return;
     }
     
     $tags = array();
     
-    // Get property data
+    // Get property data - sanitize meta keys to prevent injection
     $status = get_post_meta($post_id, 'resbs_property_status', true);
     $property_type = get_post_meta($post_id, 'resbs_property_type', true);
     $location = get_post_meta($post_id, 'resbs_property_location', true);
     
     // Add status as tag
-    if ($status) {
+    if ($status && is_string($status)) {
         $status_label = ucwords(str_replace('-', ' ', sanitize_text_field($status)));
-        $tags[] = $status_label;
+        if (!empty($status_label)) {
+            $tags[] = $status_label;
+        }
     }
     
     // Add property type as tag
-    if ($property_type) {
-        $tags[] = ucwords(str_replace('-', ' ', sanitize_text_field($property_type)));
+    if ($property_type && is_string($property_type)) {
+        $property_type_label = ucwords(str_replace('-', ' ', sanitize_text_field($property_type)));
+        if (!empty($property_type_label)) {
+            $tags[] = $property_type_label;
+        }
     }
     
     // Add location city as tag if available
-    if ($location && is_array($location) && isset($location['city'])) {
-        $tags[] = sanitize_text_field($location['city']);
+    if ($location && is_array($location) && isset($location['city']) && is_string($location['city'])) {
+        $city = sanitize_text_field($location['city']);
+        if (!empty($city)) {
+            $tags[] = $city;
+        }
     }
     
     // Create/assign tags
@@ -922,7 +1040,8 @@ function resbs_generate_meta_description($post_id = null) {
         $post_id = get_the_ID();
     }
     
-    // Security: Verify post exists and is valid
+    // Security: Validate and sanitize post ID
+    $post_id = absint($post_id);
     if (!$post_id || !get_post($post_id)) {
         return '';
     }
@@ -941,32 +1060,36 @@ function resbs_generate_meta_description($post_id = null) {
     // Build description
     $parts = array();
     
-    if ($title) {
+    if ($title && is_string($title)) {
         $parts[] = esc_html($title);
     }
     
-    if ($price) {
-        $parts[] = '$' . esc_html(number_format(floatval($price)));
+    if ($price && is_numeric($price)) {
+        $parts[] = '$' . esc_html(number_format(floatval($price), 0, '.', ','));
     }
     
-    if ($bedrooms && $bathrooms) {
-        $parts[] = esc_html($bedrooms) . ' bed, ' . esc_html($bathrooms) . ' bath';
+    if ($bedrooms && $bathrooms && is_numeric($bedrooms) && is_numeric($bathrooms)) {
+        $parts[] = esc_html(intval($bedrooms)) . ' bed, ' . esc_html(intval($bathrooms)) . ' bath';
     }
     
     if ($location && is_array($location)) {
         $location_parts = array();
-        if (!empty($location['city'])) {
+        if (!empty($location['city']) && is_string($location['city'])) {
             $location_parts[] = esc_html($location['city']);
         }
-        if (!empty($location['state'])) {
+        if (!empty($location['state']) && is_string($location['state'])) {
             $location_parts[] = esc_html($location['state']);
         }
-        if (!empty($location['country'])) {
+        if (!empty($location['country']) && is_string($location['country'])) {
             $location_parts[] = esc_html($location['country']);
         }
         if (!empty($location_parts)) {
             $parts[] = implode(', ', $location_parts);
         }
+    }
+    
+    if (empty($parts)) {
+        return '';
     }
     
     $description = implode(' - ', $parts);

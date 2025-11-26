@@ -893,10 +893,13 @@ class RESBS_Property_Grid_Widget extends WP_Widget {
      * Format price
      */
     private function format_price($price) {
+        // Ensure price is numeric
+        $price = is_numeric($price) ? floatval($price) : 0;
+        
         $currency_symbol = sanitize_text_field(get_option('resbs_currency_symbol', '$'));
         $currency_position = sanitize_text_field(get_option('resbs_currency_position', 'before'));
         
-        $formatted_price = number_format($price);
+        $formatted_price = number_format($price, 0, '.', ',');
         
         if ($currency_position === 'before') {
             return $currency_symbol . $formatted_price;
@@ -917,12 +920,13 @@ class RESBS_Property_Grid_Widget extends WP_Widget {
         }
 
         // Verify nonce - check both widget nonce and filter form nonce for compatibility
-        $nonce = $_POST['nonce'];
+        $nonce = isset($_POST['nonce']) ? sanitize_text_field($_POST['nonce']) : '';
         $nonce_verified = wp_verify_nonce($nonce, 'resbs_widget_nonce');
         
         // Also check for filter form nonce if sent separately
         if (!$nonce_verified && isset($_POST['resbs_filter_nonce'])) {
-            $nonce_verified = wp_verify_nonce($_POST['resbs_filter_nonce'], 'resbs_widget_nonce');
+            $filter_nonce = sanitize_text_field($_POST['resbs_filter_nonce']);
+            $nonce_verified = wp_verify_nonce($filter_nonce, 'resbs_widget_nonce');
         }
         
         if (!$nonce_verified) {
@@ -943,13 +947,13 @@ class RESBS_Property_Grid_Widget extends WP_Widget {
         $settings = isset($_POST['settings']) ? RESBS_Security::sanitize_array($_POST['settings'], 'RESBS_Security::sanitize_text') : array();
         $filters = isset($_POST['filters']) ? RESBS_Security::sanitize_array($_POST['filters'], 'RESBS_Security::sanitize_text') : array();
 
-        // Build query args
+        // Build query args with safe defaults
         $query_args = array(
             'post_type' => 'property',
             'post_status' => 'publish',
-            'posts_per_page' => intval($settings['posts_per_page']),
-            'orderby' => sanitize_text_field($settings['orderby']),
-            'order' => sanitize_text_field($settings['order']),
+            'posts_per_page' => isset($settings['posts_per_page']) ? intval($settings['posts_per_page']) : 6,
+            'orderby' => isset($settings['orderby']) ? sanitize_text_field($settings['orderby']) : 'date',
+            'order' => isset($settings['order']) ? sanitize_text_field($settings['order']) : 'DESC',
         );
 
         // Add meta query for featured properties
@@ -1026,8 +1030,21 @@ class RESBS_Property_Grid_Widget extends WP_Widget {
             
             if (!empty($price_query)) {
                 if (isset($query_args['meta_query'])) {
-                    $query_args['meta_query']['relation'] = 'AND';
-                    $query_args['meta_query'][] = $price_query;
+                    // Merge existing meta_query with price_query
+                    $existing_meta_query = $query_args['meta_query'];
+                    $query_args['meta_query'] = array(
+                        'relation' => 'AND'
+                    );
+                    // Add existing meta query conditions
+                    foreach ($existing_meta_query as $key => $value) {
+                        if ($key !== 'relation') {
+                            $query_args['meta_query'][] = $value;
+                        }
+                    }
+                    // Add price query conditions
+                    foreach ($price_query as $price_condition) {
+                        $query_args['meta_query'][] = $price_condition;
+                    }
                 } else {
                     $query_args['meta_query'] = $price_query;
                 }
@@ -1039,9 +1056,10 @@ class RESBS_Property_Grid_Widget extends WP_Widget {
         ob_start();
         
         if ($properties->have_posts()) {
+            $layout = isset($settings['layout']) ? sanitize_text_field($settings['layout']) : 'grid';
             while ($properties->have_posts()) {
                 $properties->the_post();
-                $this->render_property_card($settings);
+                $this->render_property_card($settings, $layout);
             }
             wp_reset_postdata();
         } else {
@@ -1067,8 +1085,7 @@ class RESBS_Property_Grid_Widget extends WP_Widget {
         
         // Only process if this handler's nonce matches
         // If not, let other handlers (Favorites Manager) process it
-        // Note: nonce should not be sanitized before verification
-        $nonce = $_POST['nonce'];
+        $nonce = isset($_POST['nonce']) ? sanitize_text_field($_POST['nonce']) : '';
         if (!wp_verify_nonce($nonce, 'resbs_widget_nonce')) {
             // Not our nonce - let other handlers process it
             return;

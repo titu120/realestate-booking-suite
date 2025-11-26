@@ -153,10 +153,10 @@ class RESBS_Elementor_Widgets {
      */
     public function enqueue_elementor_styles() {
         // Ensure Font Awesome is loaded for Elementor widgets
-        if (!wp_style_is('font-awesome', 'enqueued') && !wp_style_is('font-awesome', 'registered')) {
+        if (!wp_style_is('resbs-font-awesome', 'enqueued') && !wp_style_is('resbs-font-awesome', 'registered')) {
             wp_enqueue_style(
-                'font-awesome',
-                'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
+                'resbs-font-awesome',
+                esc_url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'),
                 array(),
                 '6.4.0',
                 'all'
@@ -167,7 +167,7 @@ class RESBS_Elementor_Widgets {
         wp_enqueue_style(
             'resbs-elementor',
             RESBS_URL . 'assets/css/elementor.css',
-            array('elementor-frontend', 'elementor-frontend-css', 'font-awesome'),
+            array('elementor-frontend', 'elementor-frontend-css', 'resbs-font-awesome'),
             '2.0.0',
             'all'
         );
@@ -176,7 +176,7 @@ class RESBS_Elementor_Widgets {
         wp_enqueue_style(
             'resbs-elementor-search-widget',
             RESBS_URL . 'assets/css/elementor-search-widget.css',
-            array('resbs-elementor', 'elementor-frontend', 'font-awesome'),
+            array('resbs-elementor', 'elementor-frontend', 'resbs-font-awesome'),
             '1.0.0',
             'all'
         );
@@ -741,6 +741,7 @@ class RESBS_Elementor_Widgets {
         
         $critical_css = $this->get_critical_css();
         // SECURITY: Escape CSS output to prevent XSS attacks
+        // Note: CSS is generated internally and doesn't contain user input, but we escape for defense-in-depth
         echo '<style id="resbs-elementor-critical">' . esc_textarea($critical_css) . '</style>' . "\n";
     }
     
@@ -756,15 +757,15 @@ class RESBS_Elementor_Widgets {
     public function enqueue_elementor_scripts() {
         // Enqueue Swiper.js for carousel functionality
         wp_enqueue_style(
-            'swiper',
-            'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css',
+            'resbs-swiper',
+            esc_url('https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css'),
             array(),
             '11.0.0'
         );
         
         wp_enqueue_script(
-            'swiper',
-            'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js',
+            'resbs-swiper',
+            esc_url('https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js'),
             array(),
             '11.0.0',
             true
@@ -773,7 +774,7 @@ class RESBS_Elementor_Widgets {
         wp_enqueue_script(
             'resbs-elementor',
             RESBS_URL . 'assets/js/elementor.js',
-            array('jquery', 'elementor-frontend', 'swiper'),
+            array('jquery', 'elementor-frontend', 'resbs-swiper'),
             '1.2.0',
             true
         );

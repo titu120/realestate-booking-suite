@@ -214,6 +214,13 @@ class RESBS_Favorites_Manager {
             ));
         }
 
+        // Check if property_id exists
+        if (!isset($_POST['property_id']) || empty($_POST['property_id'])) {
+            wp_send_json_error(array(
+                'message' => esc_html__('Property ID is required.', 'realestate-booking-suite')
+            ));
+        }
+
         // Sanitize and validate property ID
         $property_id = RESBS_Security::sanitize_property_id($_POST['property_id']);
         
@@ -327,7 +334,9 @@ class RESBS_Favorites_Manager {
         }
         
         // Verify nonce using security helper (do NOT sanitize before verification)
-        RESBS_Security::verify_ajax_nonce($_POST['nonce'], 'resbs_favorites_nonce');
+        // Note: $_POST['nonce'] is safe here because we've already checked isset and empty above
+        $nonce = $_POST['nonce'];
+        RESBS_Security::verify_ajax_nonce($nonce, 'resbs_favorites_nonce');
         
         // Rate limiting check
         if (!RESBS_Security::check_rate_limit('get_favorites', 20, 300)) {
@@ -396,7 +405,9 @@ class RESBS_Favorites_Manager {
         }
         
         // Verify nonce using security helper (do NOT sanitize before verification)
-        RESBS_Security::verify_ajax_nonce($_POST['nonce'], 'resbs_favorites_nonce');
+        // Note: $_POST['nonce'] is safe here because we've already checked isset and empty above
+        $nonce = $_POST['nonce'];
+        RESBS_Security::verify_ajax_nonce($nonce, 'resbs_favorites_nonce');
         
         // Rate limiting check
         if (!RESBS_Security::check_rate_limit('clear_favorites', 5, 300)) {
@@ -512,16 +523,30 @@ class RESBS_Favorites_Manager {
         ), $atts);
 
         $layout = sanitize_text_field($atts['layout']);
+        // Validate layout value
+        $allowed_layouts = array('grid', 'list', 'carousel');
+        if (!in_array($layout, $allowed_layouts, true)) {
+            $layout = 'grid';
+        }
+        
         $columns = intval($atts['columns']);
+        // Validate columns value (1-6)
+        if ($columns < 1 || $columns > 6) {
+            $columns = 3;
+        }
+        
         $show_image = $atts['show_image'] !== 'false';
         $show_price = $atts['show_price'] !== 'false';
         $show_details = $atts['show_details'] !== 'false';
         $show_actions = $atts['show_actions'] !== 'false';
         $show_clear_button = $atts['show_clear_button'] !== 'false';
         $posts_per_page = intval($atts['posts_per_page']);
-        $orderby = sanitize_text_field($atts['orderby']);
-        $order = sanitize_text_field($atts['order']);
+        // Validate posts_per_page (1-100)
+        if ($posts_per_page < 1 || $posts_per_page > 100) {
+            $posts_per_page = 12;
+        }
         
+        $orderby = sanitize_text_field($atts['orderby']);
         // Validate orderby value
         $allowed_orderby = array('date', 'title', 'menu_order', 'rand', 'price', 'featured');
         if (!in_array($orderby, $allowed_orderby, true)) {
@@ -529,6 +554,7 @@ class RESBS_Favorites_Manager {
         }
         
         // Validate order value
+        $order = sanitize_text_field($atts['order']);
         $order = strtoupper($order);
         if ($order !== 'ASC' && $order !== 'DESC') {
             $order = 'DESC';
@@ -571,7 +597,7 @@ class RESBS_Favorites_Manager {
         wp_enqueue_style('resbs-style', RESBS_URL . 'assets/css/style.css', array('resbs-archive', 'resbs-rbs-archive'), '1.0.0');
         
         // Enqueue Font Awesome (needed for icons)
-        wp_enqueue_style('font-awesome', esc_url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'), array(), '6.4.0');
+        wp_enqueue_style('resbs-font-awesome', esc_url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'), array(), '6.4.0');
         
         ob_start();
         ?>
@@ -625,14 +651,20 @@ class RESBS_Favorites_Manager {
      */
     private function render_favorite_property_card($property_id, $show_image, $show_price, $show_details, $show_actions) {
         // Get property meta data (same as archive page)
+        // Sanitize all retrieved meta data
         $price = get_post_meta($property_id, '_property_price', true);
         $bedrooms = get_post_meta($property_id, '_property_bedrooms', true);
         $bathrooms = get_post_meta($property_id, '_property_bathrooms', true);
         $area_sqft = get_post_meta($property_id, '_property_area_sqft', true);
-        $address = get_post_meta($property_id, '_property_address', true);
-        $city = get_post_meta($property_id, '_property_city', true);
-        $state = get_post_meta($property_id, '_property_state', true);
-        $zip = get_post_meta($property_id, '_property_zip', true);
+        $address = sanitize_text_field(get_post_meta($property_id, '_property_address', true));
+        $city = sanitize_text_field(get_post_meta($property_id, '_property_city', true));
+        $state = sanitize_text_field(get_post_meta($property_id, '_property_state', true));
+        $zip = sanitize_text_field(get_post_meta($property_id, '_property_zip', true));
+        
+        // Sanitize numeric values
+        $bedrooms = is_numeric($bedrooms) ? floatval($bedrooms) : '';
+        $bathrooms = is_numeric($bathrooms) ? floatval($bathrooms) : '';
+        $area_sqft = is_numeric($area_sqft) ? floatval($area_sqft) : '';
         
         // Get property type and status
         $property_types = get_the_terms($property_id, 'property_type');
@@ -719,13 +751,13 @@ class RESBS_Favorites_Manager {
                     <?php if ($bedrooms): ?>
                         <div class="property-feature">
                             <i class="fas fa-bed"></i>
-                            <span><?php echo esc_html($bedrooms); ?> beds</span>
+                            <span><?php echo esc_html($bedrooms); ?> <?php echo $bedrooms == 1 ? esc_html__('bed', 'realestate-booking-suite') : esc_html__('beds', 'realestate-booking-suite'); ?></span>
                         </div>
                     <?php endif; ?>
                     <?php if ($bathrooms): ?>
                         <div class="property-feature">
                             <i class="fas fa-bath"></i>
-                            <span><?php echo esc_html($bathrooms); ?> baths</span>
+                            <span><?php echo esc_html($bathrooms); ?> <?php echo $bathrooms == 1 ? esc_html__('bath', 'realestate-booking-suite') : esc_html__('baths', 'realestate-booking-suite'); ?></span>
                         </div>
                     <?php endif; ?>
                     <?php if ($area_sqft): ?>

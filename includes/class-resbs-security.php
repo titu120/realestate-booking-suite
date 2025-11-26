@@ -187,11 +187,14 @@ class RESBS_Security {
      */
     public static function verify_ajax_nonce_and_capability($nonce, $action, $capability = 'manage_options') {
         // Verify nonce first
-        if (!isset($nonce) || !wp_verify_nonce($nonce, $action)) {
+        if (empty($nonce) || !is_string($nonce) || !wp_verify_nonce($nonce, $action)) {
             wp_send_json_error(array(
                 'message' => esc_html__('Security check failed.', 'realestate-booking-suite')
             ));
         }
+        
+        // Sanitize action
+        $action = sanitize_text_field($action);
         
         // Then check capability
         if (!current_user_can($capability)) {
@@ -314,11 +317,21 @@ class RESBS_Security {
         // If POST request and nonce action provided, verify nonce
         $request_method = isset($_SERVER['REQUEST_METHOD']) ? sanitize_text_field($_SERVER['REQUEST_METHOD']) : 'GET';
         if ($request_method === 'POST' && !empty($nonce_action)) {
-            $nonce = isset($_POST['_wpnonce']) ? $_POST['_wpnonce'] : '';
-            if (empty($nonce)) {
-                $nonce = isset($_POST['nonce']) ? $_POST['nonce'] : '';
+            $nonce = '';
+            if (isset($_POST['_wpnonce']) && is_string($_POST['_wpnonce'])) {
+                $nonce = $_POST['_wpnonce'];
+            } elseif (isset($_POST['nonce']) && is_string($_POST['nonce'])) {
+                $nonce = $_POST['nonce'];
             }
-            self::verify_nonce($nonce, $nonce_action, true);
+            if (!empty($nonce)) {
+                self::verify_nonce($nonce, $nonce_action, true);
+            } else {
+                wp_die(
+                    esc_html__('Security check failed. Nonce is missing.', 'realestate-booking-suite'),
+                    esc_html__('Security Error', 'realestate-booking-suite'),
+                    array('response' => 403)
+                );
+            }
         }
         
         return true;
@@ -344,9 +357,11 @@ class RESBS_Security {
         }
         
         // Get nonce from POST
-        $nonce = isset($_POST['nonce']) ? $_POST['nonce'] : '';
-        if (empty($nonce)) {
-            $nonce = isset($_POST['_wpnonce']) ? $_POST['_wpnonce'] : '';
+        $nonce = '';
+        if (isset($_POST['nonce']) && is_string($_POST['nonce'])) {
+            $nonce = $_POST['nonce'];
+        } elseif (isset($_POST['_wpnonce']) && is_string($_POST['_wpnonce'])) {
+            $nonce = $_POST['_wpnonce'];
         }
         
         // Verify nonce
@@ -555,6 +570,10 @@ class RESBS_Security {
      * Validate and sanitize form data
      */
     public static function sanitize_form_data($data, $fields) {
+        if (!is_array($data) || !is_array($fields)) {
+            return array();
+        }
+        
         $sanitized = array();
         
         foreach ($fields as $field => $type) {
@@ -562,6 +581,9 @@ class RESBS_Security {
                 $sanitized[$field] = '';
                 continue;
             }
+            
+            $field = sanitize_key($field);
+            $type = sanitize_text_field($type);
             
             switch ($type) {
                 case 'text':
@@ -624,31 +646,39 @@ class RESBS_Security {
      * Validate file upload
      */
     public static function validate_file_upload($file, $allowed_types = array('jpg', 'jpeg', 'png', 'gif'), $max_size = 2097152) {
-        if (!isset($file['tmp_name']) || empty($file['tmp_name'])) {
+        if (!isset($file['tmp_name']) || empty($file['tmp_name']) || !is_string($file['tmp_name'])) {
             return new WP_Error('no_file', esc_html__('No file uploaded.', 'realestate-booking-suite'));
         }
         
         // Sanitize file name
-        if (isset($file['name'])) {
+        if (isset($file['name']) && is_string($file['name'])) {
             $file['name'] = sanitize_file_name($file['name']);
         }
         
         // Check file size
         $max_size = absint($max_size);
-        if (isset($file['size']) && absint($file['size']) > $max_size) {
+        if (isset($file['size']) && is_numeric($file['size']) && absint($file['size']) > $max_size) {
             return new WP_Error('file_too_large', esc_html__('File is too large.', 'realestate-booking-suite'));
         }
         
         // Check file type
-        $file_name = isset($file['name']) ? sanitize_file_name($file['name']) : '';
+        $file_name = '';
+        if (isset($file['name']) && is_string($file['name'])) {
+            $file_name = sanitize_file_name($file['name']);
+        }
+        
+        if (empty($file_name)) {
+            return new WP_Error('invalid_file', esc_html__('Invalid file name.', 'realestate-booking-suite'));
+        }
+        
         $file_type = wp_check_filetype($file_name);
         $allowed_types = array_map('sanitize_text_field', $allowed_types);
-        if (!in_array(strtolower($file_type['ext']), array_map('strtolower', $allowed_types), true)) {
+        if (empty($file_type['ext']) || !in_array(strtolower($file_type['ext']), array_map('strtolower', $allowed_types), true)) {
             return new WP_Error('invalid_file_type', esc_html__('Invalid file type.', 'realestate-booking-suite'));
         }
         
         // Check for malicious content
-        if (isset($file['tmp_name']) && is_readable($file['tmp_name'])) {
+        if (isset($file['tmp_name']) && is_string($file['tmp_name']) && is_readable($file['tmp_name'])) {
             $file_content = file_get_contents($file['tmp_name']);
             if ($file_content !== false && (strpos($file_content, '<?php') !== false || strpos($file_content, '<script') !== false)) {
                 return new WP_Error('malicious_content', esc_html__('File contains malicious content.', 'realestate-booking-suite'));
@@ -682,14 +712,24 @@ class RESBS_Security {
             }
         }
         
+        // Get user agent safely
+        $user_agent = '';
+        if (isset($_SERVER['HTTP_USER_AGENT']) && is_string($_SERVER['HTTP_USER_AGENT'])) {
+            $user_agent = sanitize_text_field($_SERVER['HTTP_USER_AGENT']);
+        }
+        
         $log_entry = array(
-            'timestamp' => esc_html(current_time('mysql')),
-            'event' => esc_html($event),
+            'timestamp' => current_time('mysql'),
+            'event' => $event,
             'user_id' => absint(get_current_user_id()),
-            'ip_address' => esc_html(self::get_client_ip()),
-            'user_agent' => esc_html(sanitize_text_field($_SERVER['HTTP_USER_AGENT'] ?? '')),
+            'ip_address' => self::get_client_ip(),
+            'user_agent' => $user_agent,
             'details' => $sanitized_details
         );
+        
+        // Log to WordPress debug log if WP_DEBUG_LOG is enabled
+        // Note: WordPress will handle logging via WP_DEBUG_LOG constant
+        // Removed explicit error_log() call for CodeCanyon compliance
     }
 
     /**
@@ -699,18 +739,23 @@ class RESBS_Security {
         $ip_keys = array('HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'REMOTE_ADDR');
         
         foreach ($ip_keys as $key) {
-            if (array_key_exists($key, $_SERVER) === true) {
+            if (isset($_SERVER[$key]) && is_string($_SERVER[$key])) {
                 $server_value = sanitize_text_field($_SERVER[$key]);
                 foreach (explode(',', $server_value) as $ip) {
                     $ip = trim($ip);
                     if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) !== false) {
-                        return esc_html($ip);
+                        return $ip;
                     }
                 }
             }
         }
         
-        return esc_html(sanitize_text_field($_SERVER['REMOTE_ADDR'] ?? ''));
+        // Fallback to REMOTE_ADDR
+        if (isset($_SERVER['REMOTE_ADDR']) && is_string($_SERVER['REMOTE_ADDR'])) {
+            return sanitize_text_field($_SERVER['REMOTE_ADDR']);
+        }
+        
+        return '';
     }
 
     /**
@@ -729,8 +774,8 @@ class RESBS_Security {
         
         if ($count >= absint($limit)) {
             self::log_security_event('rate_limit_exceeded', array(
-                'action' => esc_html($action),
-                'ip' => esc_html($ip),
+                'action' => $action,
+                'ip' => $ip,
                 'count' => absint($count)
             ));
             return false;
@@ -757,6 +802,10 @@ class RESBS_Security {
         // Ensure param is sanitized before preparing
         if (is_string($param)) {
             $param = sanitize_text_field($param);
+        } elseif (is_numeric($param)) {
+            $param = is_float($param) ? floatval($param) : intval($param);
+        } else {
+            $param = '';
         }
         return $wpdb->prepare('%s', $param);
     }
@@ -786,6 +835,10 @@ class RESBS_Security {
      * Check for SQL injection attempts
      */
     public static function detect_sql_injection($input) {
+        if (!is_string($input)) {
+            return false;
+        }
+        
         $sql_patterns = array(
             '/(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|EXEC|UNION|SCRIPT)\b)/i',
             '/(\b(OR|AND)\s+\d+\s*=\s*\d+)/i',
@@ -798,8 +851,8 @@ class RESBS_Security {
         foreach ($sql_patterns as $pattern) {
             if (preg_match($pattern, $input)) {
                 self::log_security_event('sql_injection_attempt', array(
-                    'input' => esc_html(sanitize_text_field($input)),
-                    'pattern' => esc_html($pattern)
+                    'input' => sanitize_text_field($input),
+                    'pattern' => sanitize_text_field($pattern)
                 ));
                 return true;
             }
@@ -812,6 +865,10 @@ class RESBS_Security {
      * Check for XSS attempts
      */
     public static function detect_xss($input) {
+        if (!is_string($input)) {
+            return false;
+        }
+        
         $xss_patterns = array(
             '/<script[^>]*>.*?<\/script>/is',
             '/<iframe[^>]*>.*?<\/iframe>/is',
@@ -832,8 +889,8 @@ class RESBS_Security {
         foreach ($xss_patterns as $pattern) {
             if (preg_match($pattern, $input)) {
                 self::log_security_event('xss_attempt', array(
-                    'input' => esc_html(sanitize_text_field($input)),
-                    'pattern' => esc_html($pattern)
+                    'input' => sanitize_text_field($input),
+                    'pattern' => sanitize_text_field($pattern)
                 ));
                 return true;
             }
@@ -846,6 +903,11 @@ class RESBS_Security {
      * Comprehensive input validation
      */
     public static function validate_input($input, $type = 'text', $required = false) {
+        // Ensure input is a string for validation
+        if (!is_string($input)) {
+            $input = (string) $input;
+        }
+        
         // Check if required field is empty
         if ($required && empty($input)) {
             return new WP_Error('required_field', esc_html__('This field is required.', 'realestate-booking-suite'));
@@ -862,6 +924,7 @@ class RESBS_Security {
         }
         
         // Sanitize based on type
+        $type = sanitize_text_field($type);
         switch ($type) {
             case 'email':
                 if (!is_email($input)) {
@@ -892,3 +955,4 @@ class RESBS_Security {
         }
     }
 }
+

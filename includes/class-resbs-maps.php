@@ -141,7 +141,7 @@ class RESBS_Maps_Manager {
             
             // Enqueue Google Maps API
             wp_enqueue_script(
-                'google-maps-api',
+                'resbs-google-maps-api',
                 'https://maps.googleapis.com/maps/api/js?key=' . esc_attr($api_key) . '&libraries=places,geometry',
                 array(),
                 null,
@@ -160,7 +160,7 @@ class RESBS_Maps_Manager {
             wp_enqueue_script(
                 'resbs-maps',
                 RESBS_URL . 'assets/js/maps.js',
-                array('jquery', 'google-maps-api'),
+                array('jquery', 'resbs-google-maps-api'),
                 '1.0.0',
                 true
             );
@@ -446,7 +446,7 @@ class RESBS_Maps_Manager {
      */
     private function save_map_settings() {
         // Check nonce using security helper
-        $nonce = isset($_POST['resbs_map_settings_nonce']) ? $_POST['resbs_map_settings_nonce'] : '';
+        $nonce = isset($_POST['resbs_map_settings_nonce']) && is_string($_POST['resbs_map_settings_nonce']) ? $_POST['resbs_map_settings_nonce'] : '';
         RESBS_Security::verify_nonce($nonce, 'resbs_map_settings_nonce');
 
         // Check permissions using security helper
@@ -479,7 +479,7 @@ class RESBS_Maps_Manager {
      */
     public function ajax_get_map_properties() {
         // Verify nonce using security helper (checks if nonce exists)
-        $nonce = isset($_POST['nonce']) ? $_POST['nonce'] : '';
+        $nonce = isset($_POST['nonce']) && is_string($_POST['nonce']) ? $_POST['nonce'] : '';
         RESBS_Security::verify_ajax_nonce($nonce, 'resbs_maps_nonce');
         
         // Rate limiting check
@@ -647,7 +647,7 @@ class RESBS_Maps_Manager {
      */
     public function ajax_search_map_area() {
         // Verify nonce using security helper (checks if nonce exists)
-        $nonce = isset($_POST['nonce']) ? $_POST['nonce'] : '';
+        $nonce = isset($_POST['nonce']) && is_string($_POST['nonce']) ? $_POST['nonce'] : '';
         RESBS_Security::verify_ajax_nonce($nonce, 'resbs_maps_nonce');
         
         // Rate limiting check
@@ -678,7 +678,8 @@ class RESBS_Maps_Manager {
         $api_key_sanitized = sanitize_text_field($api_key);
         $url = 'https://maps.googleapis.com/maps/api/geocode/json?address=' . urlencode($search_query) . '&key=' . urlencode($api_key_sanitized);
         
-        $response = wp_remote_get(esc_url_raw($url));
+        // Use wp_remote_get directly - URL components are already sanitized and urlencoded
+        $response = wp_remote_get($url, array('timeout' => 15, 'sslverify' => true));
         
         if (is_wp_error($response)) {
             wp_send_json_error(array(

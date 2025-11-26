@@ -642,17 +642,17 @@ class RESBS_Property_Metabox {
                                     <div class="resbs-form-row">
                                         <div class="resbs-form-group">
                                             <label for="property_nearby_schools"><?php esc_html_e('Nearby Schools', 'realestate-booking-suite'); ?></label>
-                                            <textarea id="property_nearby_schools" name="property_nearby_schools" class="resbs-stunning-input" rows="3" placeholder="<?php esc_attr_e('e.g., Dhaka University, North South University, American International School'); ?>"><?php echo esc_textarea($nearby_schools); ?></textarea>
+                                            <textarea id="property_nearby_schools" name="property_nearby_schools" class="resbs-stunning-input" rows="3" placeholder="<?php esc_attr_e('e.g., Dhaka University, North South University, American International School', 'realestate-booking-suite'); ?>"><?php echo esc_textarea($nearby_schools); ?></textarea>
                                         </div>
                                         
                                         <div class="resbs-form-group">
                                             <label for="property_nearby_shopping"><?php esc_html_e('Nearby Shopping', 'realestate-booking-suite'); ?></label>
-                                            <textarea id="property_nearby_shopping" name="property_nearby_shopping" class="resbs-stunning-input" rows="3" placeholder="<?php esc_attr_e('e.g., Bashundhara City, Jamuna Future Park, New Market'); ?>"><?php echo esc_textarea($nearby_shopping); ?></textarea>
+                                            <textarea id="property_nearby_shopping" name="property_nearby_shopping" class="resbs-stunning-input" rows="3" placeholder="<?php esc_attr_e('e.g., Bashundhara City, Jamuna Future Park, New Market', 'realestate-booking-suite'); ?>"><?php echo esc_textarea($nearby_shopping); ?></textarea>
                                         </div>
                                         
                                         <div class="resbs-form-group">
                                             <label for="property_nearby_restaurants"><?php esc_html_e('Nearby Restaurants', 'realestate-booking-suite'); ?></label>
-                                            <textarea id="property_nearby_restaurants" name="property_nearby_restaurants" class="resbs-stunning-input" rows="3" placeholder="<?php esc_attr_e('e.g., Pizza Hut, KFC, Local Bangladeshi restaurants'); ?>"><?php echo esc_textarea($nearby_restaurants); ?></textarea>
+                                            <textarea id="property_nearby_restaurants" name="property_nearby_restaurants" class="resbs-stunning-input" rows="3" placeholder="<?php esc_attr_e('e.g., Pizza Hut, KFC, Local Bangladeshi restaurants', 'realestate-booking-suite'); ?>"><?php echo esc_textarea($nearby_restaurants); ?></textarea>
                                         </div>
                                     </div>
                                 </div>
@@ -1573,8 +1573,8 @@ class RESBS_Property_Metabox {
                                 <div style="border: 2px dashed #28a745; padding: 25px; margin: 15px 0; background: linear-gradient(135deg, #f0fff4 0%, #e6f7e6 100%); border-radius: 12px; transition: all 0.3s ease;">
                                     <div style="text-align: center;">
                                         <div style="font-size: 48px; margin-bottom: 15px;">🏠</div>
-                                        <h3 style="color: #28a745; margin: 0 0 10px 0; font-size: 20px;">Upload Floor Plans</h3>
-                                        <p style="color: #555; margin: 0 0 20px 0; font-size: 16px;">Select floor plan images to help buyers visualize the layout</p>
+                                        <h3 style="color: #28a745; margin: 0 0 10px 0; font-size: 20px;"><?php esc_html_e('Upload Floor Plans', 'realestate-booking-suite'); ?></h3>
+                                        <p style="color: #555; margin: 0 0 20px 0; font-size: 16px;"><?php esc_html_e('Select floor plan images to help buyers visualize the layout', 'realestate-booking-suite'); ?></p>
                                         
                                         <div style="position: relative; display: inline-block; width: 100%; max-width: 400px;">
                                             <input type="file" name="floor_plans_upload[]" multiple accept="image/*" style="
@@ -1591,9 +1591,9 @@ class RESBS_Property_Metabox {
                                     </div>
                                         
                                         <div style="margin-top: 15px; color: #666; font-size: 14px;">
-                                            <p style="margin: 5px 0;">✅ Supported: JPG, PNG, GIF</p>
-                                            <p style="margin: 5px 0;">📏 Maximum: 10MB per file</p>
-                                            <p style="margin: 5px 0;">💾 Save page to upload files</p>
+                                            <p style="margin: 5px 0;"><?php esc_html_e('✅ Supported: JPG, PNG, GIF', 'realestate-booking-suite'); ?></p>
+                                            <p style="margin: 5px 0;"><?php esc_html_e('📏 Maximum: 10MB per file', 'realestate-booking-suite'); ?></p>
+                                            <p style="margin: 5px 0;"><?php esc_html_e('💾 Save page to upload files', 'realestate-booking-suite'); ?></p>
                                         </div>
                                     </div>
                                 </div>
@@ -2557,12 +2557,12 @@ class RESBS_Property_Metabox {
 
         // Handle media uploads with better error handling
         if (isset($_POST['property_gallery'])) {
-            // SECURITY FIX: Validate array input before processing
+            // SECURITY FIX: Validate and sanitize array input before processing
             $gallery_input = $_POST['property_gallery'];
             
             // Ensure it's an array before processing
             if (is_array($gallery_input)) {
-                // Validate all elements are numeric
+                // Validate all elements are numeric and sanitize
                 $gallery = array_filter($gallery_input, 'is_numeric');
                 $gallery = array_map('absint', $gallery);
                 $gallery = array_filter($gallery); // Remove zero values
@@ -2577,12 +2577,12 @@ class RESBS_Property_Metabox {
         }
 
         if (isset($_POST['property_floor_plans'])) {
-            // SECURITY FIX: Validate array input before processing
+            // SECURITY FIX: Validate and sanitize array input before processing
             $floor_plans_input = $_POST['property_floor_plans'];
             
             // Ensure it's an array before processing
             if (is_array($floor_plans_input)) {
-                // Validate all elements are numeric
+                // Validate all elements are numeric and sanitize
                 $floor_plans = array_filter($floor_plans_input, 'is_numeric');
                 $floor_plans = array_map('absint', $floor_plans);
                 $floor_plans = array_filter($floor_plans); // Remove zero values

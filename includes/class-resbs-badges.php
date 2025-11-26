@@ -42,6 +42,15 @@ class RESBS_Badge_Manager {
             'default_text_color' => '#ffffff',
             'meta_key' => '_property_sold',
             'meta_value' => 'yes'
+        ),
+        'pending' => array(
+            'label' => 'Pending',
+            'default_text' => 'Pending',
+            'default_color' => '#ffc107',
+            'default_bg_color' => '#ffc107',
+            'default_text_color' => '#000000',
+            'meta_key' => '_property_pending',
+            'meta_value' => 'yes'
         )
     );
 
@@ -180,8 +189,7 @@ class RESBS_Badge_Manager {
         $post_id = absint($post_id);
         
         // Check nonce
-        if (!isset($_POST['resbs_property_badges_nonce']) || 
-            !isset($_POST['resbs_property_badges_nonce']) || !wp_verify_nonce($_POST['resbs_property_badges_nonce'], 'resbs_property_badges_nonce')) {
+        if (!isset($_POST['resbs_property_badges_nonce']) || !wp_verify_nonce($_POST['resbs_property_badges_nonce'], 'resbs_property_badges_nonce')) {
             return;
         }
 
@@ -205,7 +213,7 @@ class RESBS_Badge_Manager {
             $meta_key = sanitize_key($config['meta_key']);
             $meta_value = sanitize_text_field($config['meta_value']);
             
-            if (isset($_POST[$meta_key]) && sanitize_text_field($_POST[$meta_key]) === $meta_value) {
+            if (isset($_POST[$meta_key]) && sanitize_text_field(wp_unslash($_POST[$meta_key])) === $meta_value) {
                 update_post_meta($post_id, $meta_key, $meta_value);
             } else {
                 delete_post_meta($post_id, $meta_key);
@@ -411,9 +419,6 @@ class RESBS_Badge_Manager {
         
         // CRITICAL: Do NOT sanitize nonce before verification
         // Verify nonce and check capability (combined security check)
-        if (!isset($_POST['resbs_badge_settings_nonce'])) {
-            wp_die(esc_html__('Security check failed.', 'realestate-booking-suite'));
-        }
         RESBS_Security::verify_nonce_and_capability(
             $_POST['resbs_badge_settings_nonce'],
             'resbs_badge_settings_nonce',
@@ -426,7 +431,7 @@ class RESBS_Badge_Manager {
             
             foreach ($fields as $field) {
                 $option_name = 'resbs_badge_' . $type . '_' . $field;
-                $value = isset($_POST[$option_name]) ? $_POST[$option_name] : '';
+                $value = isset($_POST[$option_name]) ? wp_unslash($_POST[$option_name]) : '';
                 
                 // Sanitize based on field type using security helper
                 switch ($field) {
@@ -558,7 +563,9 @@ class RESBS_Badge_Manager {
         }
         $text = get_option('resbs_badge_' . $type . '_text', $this->badge_types[$type]['default_text']);
         $text = sanitize_text_field($text);
-        return apply_filters('resbs_badge_text_' . $type, $text);
+        // Apply filter and sanitize output to ensure security
+        $text = apply_filters('resbs_badge_text_' . $type, $text);
+        return sanitize_text_field($text);
     }
 
     /**
@@ -573,10 +580,11 @@ class RESBS_Badge_Manager {
         $text_color = $this->sanitize_hex_color_setting($text_color);
         $border_radius = absint($border_radius);
         
-        // Escape CSS values for output
-        $style = 'background-color: ' . esc_attr($bg_color) . '; ';
-        $style .= 'color: ' . esc_attr($text_color) . '; ';
-        $style .= 'border-radius: ' . esc_attr($border_radius) . 'px;';
+        // Build CSS style string with sanitized values
+        // Values are already sanitized, so safe to concatenate
+        $style = 'background-color: ' . $bg_color . '; ';
+        $style .= 'color: ' . $text_color . '; ';
+        $style .= 'border-radius: ' . $border_radius . 'px;';
         
         return $style;
     }
@@ -618,14 +626,14 @@ class RESBS_Badge_Manager {
                 $size = 'medium';
             }
             
-            // Escape CSS class name and values
+            // Build CSS with sanitized values
             // Note: Values are already sanitized (sanitize_hex_color, absint, sanitize_key)
-            // esc_attr() provides additional security layer for CSS output
+            // CSS values are safe as they've been validated
             $css .= '.resbs-badge-' . esc_attr($type) . ' { ';
             $css .= 'background-color: ' . esc_attr($bg_color) . '; ';
             $css .= 'color: ' . esc_attr($text_color) . '; ';
-            $css .= 'border-radius: ' . esc_attr($border_radius) . 'px; ';
-            $css .= esc_attr($size_styles[$size]);
+            $css .= 'border-radius: ' . absint($border_radius) . 'px; ';
+            $css .= $size_styles[$size];
             $css .= ' }' . "\n";
         }
         

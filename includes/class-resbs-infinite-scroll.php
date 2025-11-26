@@ -85,7 +85,7 @@ class RESBS_Infinite_Scroll_Manager {
      */
     public function ajax_load_more_properties() {
         // Verify nonce using security helper (checks if nonce exists)
-        $nonce = isset($_POST['nonce']) ? $_POST['nonce'] : '';
+        $nonce = isset($_POST['nonce']) && is_string($_POST['nonce']) ? $_POST['nonce'] : '';
         RESBS_Security::verify_ajax_nonce($nonce, 'resbs_infinite_scroll_nonce');
         
         // Rate limiting check
@@ -98,16 +98,16 @@ class RESBS_Infinite_Scroll_Manager {
         // Get and sanitize parameters using security helper
         $page = RESBS_Security::sanitize_int(isset($_POST['page']) ? $_POST['page'] : 1, 1);
         $posts_per_page = RESBS_Security::sanitize_int(isset($_POST['posts_per_page']) ? $_POST['posts_per_page'] : 12, 12);
-        $widget_id = RESBS_Security::sanitize_text(isset($_POST['widget_id']) ? $_POST['widget_id'] : '');
+        $widget_id = RESBS_Security::sanitize_text(isset($_POST['widget_id']) && is_string($_POST['widget_id']) ? $_POST['widget_id'] : '');
         $filters = array(
-            'property_type' => RESBS_Security::sanitize_text($_POST['property_type'] ?? ''),
-            'property_status' => RESBS_Security::sanitize_text($_POST['property_status'] ?? ''),
-            'location' => RESBS_Security::sanitize_text($_POST['location'] ?? ''),
-            'price_min' => RESBS_Security::sanitize_int($_POST['price_min'] ?? 0),
-            'price_max' => RESBS_Security::sanitize_int($_POST['price_max'] ?? 0),
-            'bedrooms' => RESBS_Security::sanitize_int($_POST['bedrooms'] ?? 0),
-            'bathrooms' => RESBS_Security::sanitize_int($_POST['bathrooms'] ?? 0),
-            'featured_only' => RESBS_Security::sanitize_bool($_POST['featured_only'] ?? false)
+            'property_type' => RESBS_Security::sanitize_text(isset($_POST['property_type']) && is_string($_POST['property_type']) ? $_POST['property_type'] : ''),
+            'property_status' => RESBS_Security::sanitize_text(isset($_POST['property_status']) && is_string($_POST['property_status']) ? $_POST['property_status'] : ''),
+            'location' => RESBS_Security::sanitize_text(isset($_POST['location']) && is_string($_POST['location']) ? $_POST['location'] : ''),
+            'price_min' => RESBS_Security::sanitize_int(isset($_POST['price_min']) ? $_POST['price_min'] : 0),
+            'price_max' => RESBS_Security::sanitize_int(isset($_POST['price_max']) ? $_POST['price_max'] : 0),
+            'bedrooms' => RESBS_Security::sanitize_int(isset($_POST['bedrooms']) ? $_POST['bedrooms'] : 0),
+            'bathrooms' => RESBS_Security::sanitize_int(isset($_POST['bathrooms']) ? $_POST['bathrooms'] : 0),
+            'featured_only' => RESBS_Security::sanitize_bool(isset($_POST['featured_only']) ? $_POST['featured_only'] : false)
         );
 
         // Validate widget_id exists and is not empty
@@ -123,10 +123,13 @@ class RESBS_Infinite_Scroll_Manager {
         
         if ($widget_settings && is_array($widget_settings)) {
             foreach ($widget_settings as $key => $setting) {
-                if (is_array($setting) && isset($setting['_multiwidget']) && $setting['_multiwidget']) {
+                if (!is_array($setting)) {
                     continue;
                 }
-                if (is_array($setting) && isset($setting['widget_id']) && $setting['widget_id'] === $widget_id) {
+                if (isset($setting['_multiwidget']) && $setting['_multiwidget']) {
+                    continue;
+                }
+                if (isset($setting['widget_id']) && is_string($setting['widget_id']) && $setting['widget_id'] === $widget_id) {
                     $instance = $setting;
                     break;
                 }
@@ -174,8 +177,8 @@ class RESBS_Infinite_Scroll_Manager {
      */
     private function build_property_query($instance, $filters, $page, $posts_per_page) {
         // Validate and sanitize instance parameters
-        $orderby = isset($instance['orderby']) ? sanitize_text_field($instance['orderby']) : 'date';
-        $order = isset($instance['order']) ? sanitize_text_field($instance['order']) : 'DESC';
+        $orderby = isset($instance['orderby']) && is_string($instance['orderby']) ? sanitize_text_field($instance['orderby']) : 'date';
+        $order = isset($instance['order']) && is_string($instance['order']) ? sanitize_text_field($instance['order']) : 'DESC';
         
         // Validate orderby value to prevent injection
         $allowed_orderby = array('date', 'title', 'menu_order', 'rand', 'price', 'featured');
@@ -274,7 +277,7 @@ class RESBS_Infinite_Scroll_Manager {
         // Add taxonomy query with validation
         $tax_query = array();
         
-        if (!empty($filters['property_type'])) {
+        if (!empty($filters['property_type']) && is_string($filters['property_type'])) {
             // Validate taxonomy term exists
             $term = get_term_by('slug', $filters['property_type'], 'property_type');
             if ($term && !is_wp_error($term)) {
@@ -286,7 +289,7 @@ class RESBS_Infinite_Scroll_Manager {
             }
         }
 
-        if (!empty($filters['property_status'])) {
+        if (!empty($filters['property_status']) && is_string($filters['property_status'])) {
             // Validate taxonomy term exists
             $term = get_term_by('slug', $filters['property_status'], 'property_status');
             if ($term && !is_wp_error($term)) {
@@ -298,7 +301,7 @@ class RESBS_Infinite_Scroll_Manager {
             }
         }
 
-        if (!empty($filters['location'])) {
+        if (!empty($filters['location']) && is_string($filters['location'])) {
             // Validate taxonomy term exists
             $term = get_term_by('slug', $filters['location'], 'property_location');
             if ($term && !is_wp_error($term)) {
@@ -331,12 +334,12 @@ class RESBS_Infinite_Scroll_Manager {
         $property_type = get_the_terms($property_id, 'property_type');
         $property_location = get_the_terms($property_id, 'property_location');
 
-        $show_price = (bool) $instance['show_price'];
-        $show_meta = (bool) $instance['show_meta'];
-        $show_excerpt = (bool) $instance['show_excerpt'];
-        $show_badges = (bool) $instance['show_badges'];
-        $show_favorite_button = (bool) $instance['show_favorite_button'];
-        $show_book_button = (bool) $instance['show_book_button'];
+        $show_price = isset($instance['show_price']) ? (bool) $instance['show_price'] : false;
+        $show_meta = isset($instance['show_meta']) ? (bool) $instance['show_meta'] : false;
+        $show_excerpt = isset($instance['show_excerpt']) ? (bool) $instance['show_excerpt'] : false;
+        $show_badges = isset($instance['show_badges']) ? (bool) $instance['show_badges'] : false;
+        $show_favorite_button = isset($instance['show_favorite_button']) ? (bool) $instance['show_favorite_button'] : false;
+        $show_book_button = isset($instance['show_book_button']) ? (bool) $instance['show_book_button'] : false;
         ?>
 
         <div class="resbs-property-card resbs-infinite-scroll-item">
@@ -372,7 +375,7 @@ class RESBS_Infinite_Scroll_Manager {
                     </a>
                 </h3>
 
-                <?php if ($property_location && !is_wp_error($property_location) && !empty($property_location)): ?>
+                <?php if ($property_location && !is_wp_error($property_location) && !empty($property_location) && isset($property_location[0]) && isset($property_location[0]->name)): ?>
                     <div class="resbs-property-location">
                         <span class="dashicons dashicons-location"></span>
                         <?php echo esc_html($property_location[0]->name); ?>
@@ -516,9 +519,13 @@ class RESBS_Infinite_Scroll_Manager {
                                         'taxonomy' => 'property_type',
                                         'hide_empty' => false,
                                     ));
-                                    foreach ($property_types as $type) {
-                                        $selected = selected($property_type, $type->slug, false);
-                                        echo '<option value="' . esc_attr($type->slug) . '"' . $selected . '>' . esc_html($type->name) . '</option>';
+                                    if (is_array($property_types) && !is_wp_error($property_types)) {
+                                        foreach ($property_types as $type) {
+                                            if (isset($type->slug) && isset($type->name)) {
+                                                $selected = selected($property_type, $type->slug, false);
+                                                echo '<option value="' . esc_attr($type->slug) . '"' . $selected . '>' . esc_html($type->name) . '</option>';
+                                            }
+                                        }
                                     }
                                     ?>
                                 </select>
@@ -535,9 +542,13 @@ class RESBS_Infinite_Scroll_Manager {
                                         'taxonomy' => 'property_status',
                                         'hide_empty' => false,
                                     ));
-                                    foreach ($property_statuses as $status) {
-                                        $selected = selected($property_status, $status->slug, false);
-                                        echo '<option value="' . esc_attr($status->slug) . '"' . $selected . '>' . esc_html($status->name) . '</option>';
+                                    if (is_array($property_statuses) && !is_wp_error($property_statuses)) {
+                                        foreach ($property_statuses as $status) {
+                                            if (isset($status->slug) && isset($status->name)) {
+                                                $selected = selected($property_status, $status->slug, false);
+                                                echo '<option value="' . esc_attr($status->slug) . '"' . $selected . '>' . esc_html($status->name) . '</option>';
+                                            }
+                                        }
                                     }
                                     ?>
                                 </select>
@@ -589,7 +600,7 @@ class RESBS_Infinite_Scroll_Manager {
                      'featured_only' => (bool) $featured_only,
                      'infinite_scroll' => (bool) $infinite_scroll,
                      'show_pagination' => (bool) $show_pagination
-                 ))); ?>">
+                 ), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT)); ?>">
                 <!-- Properties will be loaded here -->
             </div>
 
@@ -694,20 +705,20 @@ class RESBS_Infinite_Scroll_Widget extends WP_Widget {
         
         $instance = wp_parse_args((array) $instance, $defaults);
         
-        $title = sanitize_text_field($instance['title']);
-        $posts_per_page = intval($instance['posts_per_page']);
-        $columns = intval($instance['columns']);
-        $show_filters = (bool) $instance['show_filters'];
-        $show_price = (bool) $instance['show_price'];
-        $show_meta = (bool) $instance['show_meta'];
-        $show_excerpt = (bool) $instance['show_excerpt'];
-        $show_badges = (bool) $instance['show_badges'];
-        $show_favorite_button = (bool) $instance['show_favorite_button'];
-        $show_book_button = (bool) $instance['show_book_button'];
-        $orderby = sanitize_text_field($instance['orderby']);
-        $order = sanitize_text_field($instance['order']);
-        $enable_infinite_scroll = (bool) $instance['enable_infinite_scroll'];
-        $show_pagination = (bool) $instance['show_pagination'];
+        $title = isset($instance['title']) && is_string($instance['title']) ? sanitize_text_field($instance['title']) : '';
+        $posts_per_page = isset($instance['posts_per_page']) ? absint($instance['posts_per_page']) : 12;
+        $columns = isset($instance['columns']) ? absint($instance['columns']) : 3;
+        $show_filters = isset($instance['show_filters']) ? (bool) $instance['show_filters'] : true;
+        $show_price = isset($instance['show_price']) ? (bool) $instance['show_price'] : true;
+        $show_meta = isset($instance['show_meta']) ? (bool) $instance['show_meta'] : true;
+        $show_excerpt = isset($instance['show_excerpt']) ? (bool) $instance['show_excerpt'] : true;
+        $show_badges = isset($instance['show_badges']) ? (bool) $instance['show_badges'] : true;
+        $show_favorite_button = isset($instance['show_favorite_button']) ? (bool) $instance['show_favorite_button'] : true;
+        $show_book_button = isset($instance['show_book_button']) ? (bool) $instance['show_book_button'] : true;
+        $orderby = isset($instance['orderby']) && is_string($instance['orderby']) ? sanitize_text_field($instance['orderby']) : 'date';
+        $order = isset($instance['order']) && is_string($instance['order']) ? sanitize_text_field($instance['order']) : 'DESC';
+        $enable_infinite_scroll = isset($instance['enable_infinite_scroll']) ? (bool) $instance['enable_infinite_scroll'] : true;
+        $show_pagination = isset($instance['show_pagination']) ? (bool) $instance['show_pagination'] : true;
         ?>
         
         <p>
@@ -877,20 +888,20 @@ class RESBS_Infinite_Scroll_Widget extends WP_Widget {
      * Display widget
      */
     public function widget($args, $instance) {
-        $title = apply_filters('widget_title', sanitize_text_field($instance['title']));
-        $posts_per_page = intval($instance['posts_per_page']);
-        $columns = intval($instance['columns']);
-        $show_filters = (bool) $instance['show_filters'];
-        $show_price = (bool) $instance['show_price'];
-        $show_meta = (bool) $instance['show_meta'];
-        $show_excerpt = (bool) $instance['show_excerpt'];
-        $show_badges = (bool) $instance['show_badges'];
-        $show_favorite_button = (bool) $instance['show_favorite_button'];
-        $show_book_button = (bool) $instance['show_book_button'];
-        $orderby = sanitize_text_field($instance['orderby']);
-        $order = sanitize_text_field($instance['order']);
-        $enable_infinite_scroll = (bool) $instance['enable_infinite_scroll'];
-        $show_pagination = (bool) $instance['show_pagination'];
+        $title = isset($instance['title']) && is_string($instance['title']) ? apply_filters('widget_title', sanitize_text_field($instance['title'])) : '';
+        $posts_per_page = isset($instance['posts_per_page']) ? absint($instance['posts_per_page']) : 12;
+        $columns = isset($instance['columns']) ? absint($instance['columns']) : 3;
+        $show_filters = isset($instance['show_filters']) ? (bool) $instance['show_filters'] : true;
+        $show_price = isset($instance['show_price']) ? (bool) $instance['show_price'] : true;
+        $show_meta = isset($instance['show_meta']) ? (bool) $instance['show_meta'] : true;
+        $show_excerpt = isset($instance['show_excerpt']) ? (bool) $instance['show_excerpt'] : true;
+        $show_badges = isset($instance['show_badges']) ? (bool) $instance['show_badges'] : true;
+        $show_favorite_button = isset($instance['show_favorite_button']) ? (bool) $instance['show_favorite_button'] : true;
+        $show_book_button = isset($instance['show_book_button']) ? (bool) $instance['show_book_button'] : true;
+        $orderby = isset($instance['orderby']) && is_string($instance['orderby']) ? sanitize_text_field($instance['orderby']) : 'date';
+        $order = isset($instance['order']) && is_string($instance['order']) ? sanitize_text_field($instance['order']) : 'DESC';
+        $enable_infinite_scroll = isset($instance['enable_infinite_scroll']) ? (bool) $instance['enable_infinite_scroll'] : true;
+        $show_pagination = isset($instance['show_pagination']) ? (bool) $instance['show_pagination'] : true;
         
         echo wp_kses_post($args['before_widget']);
         
@@ -898,8 +909,30 @@ class RESBS_Infinite_Scroll_Widget extends WP_Widget {
             echo wp_kses_post($args['before_title']) . esc_html($title) . wp_kses_post($args['after_title']);
         }
         
-        // Display properties using shortcode
-        echo do_shortcode('[resbs_infinite_properties posts_per_page="' . esc_attr($posts_per_page) . '" columns="' . esc_attr($columns) . '" show_filters="' . ($show_filters ? 'true' : 'false') . '" show_price="' . ($show_price ? 'true' : 'false') . '" show_meta="' . ($show_meta ? 'true' : 'false') . '" show_excerpt="' . ($show_excerpt ? 'true' : 'false') . '" show_badges="' . ($show_badges ? 'true' : 'false') . '" show_favorite_button="' . ($show_favorite_button ? 'true' : 'false') . '" show_book_button="' . ($show_book_button ? 'true' : 'false') . '" orderby="' . esc_attr($orderby) . '" order="' . esc_attr($order) . '" infinite_scroll="' . ($enable_infinite_scroll ? 'true' : 'false') . '" show_pagination="' . ($show_pagination ? 'true' : 'false') . '"]');
+        // Display properties using shortcode - all values are properly escaped
+        $shortcode_atts = array(
+            'posts_per_page' => absint($posts_per_page),
+            'columns' => absint($columns),
+            'show_filters' => $show_filters ? 'true' : 'false',
+            'show_price' => $show_price ? 'true' : 'false',
+            'show_meta' => $show_meta ? 'true' : 'false',
+            'show_excerpt' => $show_excerpt ? 'true' : 'false',
+            'show_badges' => $show_badges ? 'true' : 'false',
+            'show_favorite_button' => $show_favorite_button ? 'true' : 'false',
+            'show_book_button' => $show_book_button ? 'true' : 'false',
+            'orderby' => sanitize_text_field($orderby),
+            'order' => sanitize_text_field($order),
+            'infinite_scroll' => $enable_infinite_scroll ? 'true' : 'false',
+            'show_pagination' => $show_pagination ? 'true' : 'false'
+        );
+        
+        $shortcode_string = '[resbs_infinite_properties';
+        foreach ($shortcode_atts as $key => $value) {
+            $shortcode_string .= ' ' . esc_attr($key) . '="' . esc_attr($value) . '"';
+        }
+        $shortcode_string .= ']';
+        
+        echo do_shortcode($shortcode_string);
         
         echo wp_kses_post($args['after_widget']);
     }

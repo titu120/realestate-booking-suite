@@ -259,8 +259,8 @@ class RESBS_WooCommerce {
             if ($cart_item_key) {
                 wp_send_json_success(array(
                     'message' => esc_html__('Property added to cart successfully!', 'realestate-booking-suite'),
-                    'cart_url' => wc_get_cart_url(),
-                    'checkout_url' => wc_get_checkout_url()
+                    'cart_url' => esc_url(wc_get_cart_url()),
+                    'checkout_url' => esc_url(wc_get_checkout_url())
                 ));
             } else {
                 wp_send_json_error(esc_html__('Failed to add property to cart.', 'realestate-booking-suite'));
@@ -433,15 +433,21 @@ class RESBS_WooCommerce {
                 
                 if ($booking_data) {
                     // Validate booking dates
-                    $checkin_date = $booking_data['checkin_date'];
-                    $checkout_date = $booking_data['checkout_date'];
+                    $checkin_date = isset($booking_data['checkin_date']) ? sanitize_text_field($booking_data['checkin_date']) : '';
+                    $checkout_date = isset($booking_data['checkout_date']) ? sanitize_text_field($booking_data['checkout_date']) : '';
+                    $property_id = isset($booking_data['property_id']) ? intval($booking_data['property_id']) : 0;
+                    
+                    if (empty($checkin_date) || empty($checkout_date)) {
+                        wc_add_notice(esc_html__('Invalid booking dates.', 'realestate-booking-suite'), 'error');
+                        continue;
+                    }
                     
                     if (strtotime($checkout_date) <= strtotime($checkin_date)) {
                         wc_add_notice(esc_html__('Check-out date must be after check-in date.', 'realestate-booking-suite'), 'error');
                     }
                     
                     // Check availability (you can add more complex availability logic here)
-                    if (!$this->is_property_available($booking_data['property_id'], $checkin_date, $checkout_date)) {
+                    if ($property_id && !$this->is_property_available($property_id, $checkin_date, $checkout_date)) {
                         wc_add_notice(esc_html__('Property is not available for the selected dates.', 'realestate-booking-suite'), 'error');
                     }
                 }
@@ -581,24 +587,16 @@ class RESBS_WooCommerce {
         }
         
         // Only allow status updates by authorized users (order owner or admin)
+        // This method is called via WooCommerce hooks, so it's a system action
+        // Additional permission checks are handled by the hook system
         $current_user_id = get_current_user_id();
         $order_user_id = $order->get_user_id();
         
         // Allow if user owns the order, is admin, or this is called via WooCommerce hook (system action)
         if ($current_user_id && $order_user_id != $current_user_id && !current_user_can('manage_options')) {
-            // If called directly (not via hook), verify permissions
-            $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 3);
-            $is_hook_call = false;
-            foreach ($backtrace as $trace) {
-                if (isset($trace['function']) && in_array($trace['function'], array('do_action', 'apply_filters'))) {
-                    $is_hook_call = true;
-                    break;
-                }
-            }
-            
-            if (!$is_hook_call) {
-                return;
-            }
+            // This is a protected method only called via hooks, so we trust the hook system
+            // If called directly, it would require proper permissions
+            return;
         }
         
         $bookings = get_posts(array(
@@ -643,6 +641,17 @@ class RESBS_WooCommerce {
             $existing_checkin = get_post_meta($booking->ID, 'checkin_date', true);
             $existing_checkout = get_post_meta($booking->ID, 'checkout_date', true);
             
+            // Sanitize dates for comparison
+            $existing_checkin = sanitize_text_field($existing_checkin);
+            $existing_checkout = sanitize_text_field($existing_checkout);
+            $checkin_date = sanitize_text_field($checkin_date);
+            $checkout_date = sanitize_text_field($checkout_date);
+            
+            // Validate dates before comparison
+            if (empty($existing_checkin) || empty($existing_checkout) || empty($checkin_date) || empty($checkout_date)) {
+                continue;
+            }
+            
             // Check for date conflicts
             if (($checkin_date < $existing_checkout) && ($checkout_date > $existing_checkin)) {
                 return false;
@@ -657,8 +666,16 @@ class RESBS_WooCommerce {
      */
     private function send_booking_confirmation($order_id) {
         $order = wc_get_order($order_id);
-        $user_email = $order->get_billing_email();
+        if (!$order) {
+            return;
+        }
         
+        $user_email = $order->get_billing_email();
+        if (empty($user_email) || !is_email($user_email)) {
+            return;
+        }
+        
+        $user_email = sanitize_email($user_email);
         $subject = esc_html__('Booking Confirmation', 'realestate-booking-suite');
         $message = esc_html__('Your property booking has been confirmed. Order ID:', 'realestate-booking-suite') . ' ' . esc_html($order_id);
         
@@ -740,15 +757,15 @@ class RESBS_WooCommerce {
             <div class="resbs-bookings-list">
                 <?php foreach ($bookings as $booking): ?>
                     <?php
-                    $property_id = get_post_meta($booking->ID, 'property_id', true);
-                    $checkin_date = get_post_meta($booking->ID, 'checkin_date', true);
-                    $checkout_date = get_post_meta($booking->ID, 'checkout_date', true);
-                    $guests = get_post_meta($booking->ID, 'guests', true);
-                    $status = get_post_meta($booking->ID, 'status', true);
-                    $total_price = get_post_meta($booking->ID, 'total_price', true);
-                    $order_id = get_post_meta($booking->ID, 'order_id', true);
+                    $property_id = absint(get_post_meta($booking->ID, 'property_id', true));
+                    $checkin_date = sanitize_text_field(get_post_meta($booking->ID, 'checkin_date', true));
+                    $checkout_date = sanitize_text_field(get_post_meta($booking->ID, 'checkout_date', true));
+                    $guests = absint(get_post_meta($booking->ID, 'guests', true));
+                    $status = sanitize_text_field(get_post_meta($booking->ID, 'status', true));
+                    $total_price = floatval(get_post_meta($booking->ID, 'total_price', true));
+                    $order_id = absint(get_post_meta($booking->ID, 'order_id', true));
                     
-                    $property = get_post($property_id);
+                    $property = $property_id ? get_post($property_id) : null;
                     ?>
                     <div class="resbs-booking-item">
                         <div class="resbs-booking-property">
@@ -756,8 +773,14 @@ class RESBS_WooCommerce {
                             <p><?php echo esc_html__('Order ID:', 'realestate-booking-suite'); ?> #<?php echo esc_html($order_id); ?></p>
                         </div>
                         <div class="resbs-booking-dates">
-                            <p><strong><?php esc_html_e('Check-in:', 'realestate-booking-suite'); ?></strong> <?php echo esc_html(date_i18n('M j, Y', strtotime($checkin_date))); ?></p>
-                            <p><strong><?php esc_html_e('Check-out:', 'realestate-booking-suite'); ?></strong> <?php echo esc_html(date_i18n('M j, Y', strtotime($checkout_date))); ?></p>
+                            <p><strong><?php esc_html_e('Check-in:', 'realestate-booking-suite'); ?></strong> <?php 
+                                $checkin_timestamp = strtotime($checkin_date);
+                                echo $checkin_timestamp ? esc_html(date_i18n('M j, Y', $checkin_timestamp)) : esc_html($checkin_date);
+                            ?></p>
+                            <p><strong><?php esc_html_e('Check-out:', 'realestate-booking-suite'); ?></strong> <?php 
+                                $checkout_timestamp = strtotime($checkout_date);
+                                echo $checkout_timestamp ? esc_html(date_i18n('M j, Y', $checkout_timestamp)) : esc_html($checkout_date);
+                            ?></p>
                             <p><strong><?php esc_html_e('Guests:', 'realestate-booking-suite'); ?></strong> <?php echo esc_html($guests); ?></p>
                         </div>
                         <div class="resbs-booking-status">

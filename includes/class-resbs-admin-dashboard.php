@@ -195,11 +195,19 @@ class RESBS_Admin_Dashboard {
                 <div class="resbs-property-list">
                     <?php foreach ($recent_properties as $property): ?>
                         <?php
-                        $price = get_post_meta($property->ID, '_property_price', true);
-                        $bedrooms = get_post_meta($property->ID, '_property_bedrooms', true);
-                        $bathrooms = get_post_meta($property->ID, '_property_bathrooms', true);
+                        // Sanitize all post meta values for security
+                        $price_raw = get_post_meta($property->ID, '_property_price', true);
+                        $price = is_numeric($price_raw) ? floatval($price_raw) : '';
+                        $bedrooms_raw = get_post_meta($property->ID, '_property_bedrooms', true);
+                        $bedrooms = $bedrooms_raw ? absint($bedrooms_raw) : '';
+                        $bathrooms_raw = get_post_meta($property->ID, '_property_bathrooms', true);
+                        $bathrooms = $bathrooms_raw ? sanitize_text_field($bathrooms_raw) : '';
                         // Try multiple possible area meta keys
-                        $area = get_post_meta($property->ID, '_property_size', true) ?: get_post_meta($property->ID, '_property_area_sqft', true);
+                        $area_raw = get_post_meta($property->ID, '_property_size', true);
+                        if (empty($area_raw)) {
+                            $area_raw = get_post_meta($property->ID, '_property_area_sqft', true);
+                        }
+                        $area = $area_raw ? sanitize_text_field($area_raw) : '';
                         $featured_image = get_the_post_thumbnail_url($property->ID, 'thumbnail');
                         ?>
                         <div class="resbs-property-item">
@@ -219,23 +227,24 @@ class RESBS_Admin_Dashboard {
                                     </a>
                                 </h4>
                                 <div class="resbs-property-meta">
-                                    <?php if ($price && is_numeric($price)): ?>
+                                    <?php if (!empty($price) && is_numeric($price)): ?>
                                         <span class="resbs-price"><?php echo esc_html($this->format_currency($price)); ?></span>
                                     <?php endif; ?>
-                                    <?php if ($bedrooms): ?>
+                                    <?php if (!empty($bedrooms)): ?>
                                         <span class="resbs-bedrooms"><?php echo esc_html($bedrooms); ?> <?php esc_html_e('bed', 'realestate-booking-suite'); ?></span>
                                     <?php endif; ?>
-                                    <?php if ($bathrooms): ?>
+                                    <?php if (!empty($bathrooms)): ?>
                                         <span class="resbs-bathrooms"><?php echo esc_html($bathrooms); ?> <?php esc_html_e('bath', 'realestate-booking-suite'); ?></span>
                                     <?php endif; ?>
-                                    <?php if ($area): ?>
+                                    <?php if (!empty($area)): ?>
                                         <span class="resbs-area"><?php echo esc_html($area); ?> <?php esc_html_e('sq ft', 'realestate-booking-suite'); ?></span>
                                     <?php endif; ?>
                                 </div>
                                 <div class="resbs-property-status">
                                     <?php 
-                                    $post_status = sanitize_text_field($property->post_status);
-                                    $post_status_display = ucfirst($post_status);
+                                    // Sanitize post status for security
+                                    $post_status = sanitize_key($property->post_status);
+                                    $post_status_display = ucfirst(sanitize_text_field($property->post_status));
                                     ?>
                                     <span class="resbs-status resbs-status-<?php echo esc_attr($post_status); ?>">
                                         <?php echo esc_html($post_status_display); ?>
@@ -338,7 +347,8 @@ class RESBS_Admin_Dashboard {
                         <span class="resbs-info-value"><?php 
                             global $wpdb;
                             if (isset($wpdb) && is_object($wpdb) && method_exists($wpdb, 'db_version')) {
-                                echo esc_html($wpdb->db_version());
+                                $db_version = $wpdb->db_version();
+                                echo esc_html($db_version ? $db_version : __('Unknown', 'realestate-booking-suite'));
                             } else {
                                 esc_html_e('Unknown', 'realestate-booking-suite');
                             }
@@ -374,21 +384,31 @@ class RESBS_Admin_Dashboard {
 
     /**
      * Format currency
+     * 
+     * Security: Validates and sanitizes all inputs before formatting
      */
     private function format_currency($amount) {
         // Validate and sanitize amount to ensure it's numeric
         if (!is_numeric($amount)) {
             $amount = 0;
         }
-        $amount = floatval($amount);
+        $amount = abs(floatval($amount));
         $formatted_price = number_format($amount, 2);
         
         // Get currency symbol and position from options (consistent with other files)
-        $currency_symbol = sanitize_text_field(get_option('resbs_currency_symbol', '$'));
-        $currency_position = sanitize_text_field(get_option('resbs_currency_position', 'before'));
+        $currency_symbol_raw = get_option('resbs_currency_symbol', '$');
+        $currency_symbol = sanitize_text_field($currency_symbol_raw);
+        $currency_position_raw = get_option('resbs_currency_position', 'before');
+        $currency_position = sanitize_key($currency_position_raw);
         
         // Escape currency symbol for output
         $currency_symbol = esc_html($currency_symbol);
+        
+        // Format based on position - validate position value
+        $allowed_positions = array('before', 'before_space', 'after', 'after_space');
+        if (!in_array($currency_position, $allowed_positions, true)) {
+            $currency_position = 'before';
+        }
         
         // Format based on position
         if ($currency_position === 'before') {

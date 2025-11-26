@@ -100,13 +100,14 @@ class RESBS_Admin_Contact_Messages {
         
         // Get contact messages
         // Table name is safe - constructed from $wpdb->prefix (no user input)
-        // Using proper identifier placeholder %i for table names
-        $contact_messages = $wpdb->get_results($wpdb->prepare("
+        // WordPress doesn't support table name placeholders in prepare(), so we use table names directly
+        // Both $table_name and $wpdb->posts are safe (constructed from constants, not user input)
+        $contact_messages = $wpdb->get_results("
             SELECT cm.*, p.post_title as property_title 
-            FROM %i cm 
-            LEFT JOIN %i p ON cm.property_id = p.ID 
+            FROM `{$table_name}` cm 
+            LEFT JOIN `{$wpdb->posts}` p ON cm.property_id = p.ID 
             ORDER BY cm.created_at DESC
-        ", $table_name, $wpdb->posts));
+        ");
         
         // Create a global nonce for AJAX operations
         $ajax_nonce = wp_create_nonce('resbs_contact_message_admin_action');
@@ -165,7 +166,8 @@ class RESBS_Admin_Contact_Messages {
                                 <td>
                                     <div style="max-width: 300px; word-wrap: break-word;">
                                         <?php 
-                                        $message_preview = sanitize_text_field($message->message);
+                                        // Use sanitize_textarea_field to preserve line breaks in messages
+                                        $message_preview = sanitize_textarea_field($message->message);
                                         echo esc_html(wp_trim_words($message_preview, 20)); 
                                         ?>
                                         <?php if (strlen($message_preview) > 100): ?>
@@ -192,11 +194,11 @@ class RESBS_Admin_Contact_Messages {
                                     </span>
                                 </td>
                                 <td>
-                                    <?php echo esc_html(date('M j, Y g:i A', strtotime($message->created_at))); ?>
+                                    <?php echo esc_html(date_i18n(get_option('date_format') . ' ' . get_option('time_format'), strtotime($message->created_at))); ?>
                                 </td>
                                 <td>
                                     <div class="row-actions">
-                                        <select onchange="updateStatus(<?php echo esc_js($message->id); ?>, this.value, '<?php echo esc_js(wp_create_nonce('resbs_contact_message_action_' . $message->id)); ?>')">
+                                        <select onchange="updateStatus(<?php echo esc_attr($message->id); ?>, this.value, '<?php echo esc_attr(wp_create_nonce('resbs_contact_message_action_' . $message->id)); ?>')">
                                             <option value=""><?php echo esc_html__('Change Status', 'realestate-booking-suite'); ?></option>
                                             <option value="unread" <?php selected($message->status, 'unread'); ?>><?php echo esc_html__('Unread', 'realestate-booking-suite'); ?></option>
                                             <option value="read" <?php selected($message->status, 'read'); ?>><?php echo esc_html__('Read', 'realestate-booking-suite'); ?></option>
@@ -207,9 +209,9 @@ class RESBS_Admin_Contact_Messages {
                                         <?php 
                                         // Sanitize email and subject for mailto link
                                         $email = sanitize_email($message->email);
-                                        $subject_raw = sprintf(esc_html__('Re: Contact Message #%d', 'realestate-booking-suite'), absint($message->id));
-                                        // Sanitize subject to prevent email header injection
-                                        $subject = wp_strip_all_tags($subject_raw);
+                                        // Get translated subject text and sanitize to prevent email header injection
+                                        $subject_text = sprintf(__('Re: Contact Message #%d', 'realestate-booking-suite'), absint($message->id));
+                                        $subject = wp_strip_all_tags($subject_text);
                                         $subject = str_replace(array("\r", "\n"), '', $subject);
                                         $subject = urlencode($subject);
                                         ?>

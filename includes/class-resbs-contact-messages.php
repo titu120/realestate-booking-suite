@@ -80,19 +80,19 @@ class RESBS_Contact_Messages {
      */
     public function handle_contact_message_submission() {
         // Verify nonce - check both possible nonce field names for compatibility
-        // CRITICAL: Do NOT sanitize nonce before verification
-        $nonce = isset($_POST['nonce']) ? $_POST['nonce'] : (isset($_POST['resbs_contact_form_nonce']) ? $_POST['resbs_contact_form_nonce'] : '');
+        // CRITICAL: Do NOT sanitize nonce before verification, but unslash it
+        $nonce = isset($_POST['nonce']) ? wp_unslash($_POST['nonce']) : (isset($_POST['resbs_contact_form_nonce']) ? wp_unslash($_POST['resbs_contact_form_nonce']) : '');
         if (!wp_verify_nonce($nonce, 'resbs_contact_form')) {
             wp_send_json_error(array('message' => esc_html__('Security check failed. Please refresh the page and try again.', 'realestate-booking-suite')));
             return;
         }
         
-        // Sanitize input data
-        $property_id = isset($_POST['property_id']) ? intval($_POST['property_id']) : 0;
-        $name = isset($_POST['contact_name']) ? sanitize_text_field($_POST['contact_name']) : '';
-        $email = isset($_POST['contact_email']) ? sanitize_email($_POST['contact_email']) : '';
-        $phone = isset($_POST['contact_phone']) ? sanitize_text_field($_POST['contact_phone']) : '';
-        $message = isset($_POST['contact_message']) ? sanitize_textarea_field($_POST['contact_message']) : '';
+        // Sanitize input data - WordPress adds slashes, so unslash before sanitizing
+        $property_id = isset($_POST['property_id']) ? intval(wp_unslash($_POST['property_id'])) : 0;
+        $name = isset($_POST['contact_name']) ? sanitize_text_field(wp_unslash($_POST['contact_name'])) : '';
+        $email = isset($_POST['contact_email']) ? sanitize_email(wp_unslash($_POST['contact_email'])) : '';
+        $phone = isset($_POST['contact_phone']) ? sanitize_text_field(wp_unslash($_POST['contact_phone'])) : '';
+        $message = isset($_POST['contact_message']) ? sanitize_textarea_field(wp_unslash($_POST['contact_message'])) : '';
         
         // Validate property ID
         if (empty($property_id) || $property_id <= 0) {
@@ -189,7 +189,7 @@ class RESBS_Contact_Messages {
             // Sanitize email subject to prevent header injection
             $agent_subject_raw = sprintf(__('New Contact Message for %s', 'realestate-booking-suite'), $property_title_escaped);
             $agent_subject = wp_strip_all_tags($agent_subject_raw);
-            $agent_subject = str_replace(array("\r", "\n"), '', $agent_subject);
+            $agent_subject = str_replace(array("\r", "\n", "\0"), '', $agent_subject);
             
             $agent_message = sprintf(
                 __("New contact message received:\n\n", 'realestate-booking-suite') .
@@ -211,24 +211,27 @@ class RESBS_Contact_Messages {
                 $contact_message_id_escaped
             );
             
-            // Sanitize agent name for email headers to prevent header injection
-            $agent_name_for_headers = sanitize_text_field($agent_name_escaped);
-            $agent_name_for_headers = str_replace(array("\r", "\n"), '', $agent_name_for_headers);
-            
-            // Email headers
-            $agent_headers = array(
-                'Content-Type: text/plain; charset=UTF-8',
-                'From: ' . $agent_name_for_headers . ' <' . sanitize_email($agent_email) . '>'
-            );
-            
-            wp_mail(sanitize_email($agent_email), $agent_subject, $agent_message, $agent_headers);
+        // Sanitize agent name for email headers to prevent header injection
+        $agent_name_for_headers = sanitize_text_field($agent_name_escaped);
+        $agent_name_for_headers = str_replace(array("\r", "\n", "\0"), '', $agent_name_for_headers);
+        
+        // Sanitize email for headers
+        $agent_email_sanitized = sanitize_email($agent_email);
+        
+        // Email headers
+        $agent_headers = array(
+            'Content-Type: text/plain; charset=UTF-8',
+            'From: ' . $agent_name_for_headers . ' <' . $agent_email_sanitized . '>'
+        );
+        
+        wp_mail($agent_email_sanitized, $agent_subject, $agent_message, $agent_headers);
         }
         
         // Email to customer
         // Sanitize email subject to prevent header injection
         $customer_subject_raw = sprintf(__('Message Confirmation - %s', 'realestate-booking-suite'), $property_title_escaped);
         $customer_subject = wp_strip_all_tags($customer_subject_raw);
-        $customer_subject = str_replace(array("\r", "\n"), '', $customer_subject);
+        $customer_subject = str_replace(array("\r", "\n", "\0"), '', $customer_subject);
         $customer_message = sprintf(
             __("Thank you for your message!\n\n", 'realestate-booking-suite') .
             __("Property: %s\n", 'realestate-booking-suite') .
@@ -246,7 +249,7 @@ class RESBS_Contact_Messages {
         
         // Sanitize agent name for email headers to prevent header injection
         $agent_name_for_headers = sanitize_text_field($agent_name_escaped);
-        $agent_name_for_headers = str_replace(array("\r", "\n"), '', $agent_name_for_headers);
+        $agent_name_for_headers = str_replace(array("\r", "\n", "\0"), '', $agent_name_for_headers);
         
         // Use agent email if available, otherwise use admin email
         $from_email = !empty($agent_email) && is_email($agent_email) ? sanitize_email($agent_email) : sanitize_email(get_option('admin_email'));
@@ -296,9 +299,8 @@ class RESBS_Contact_Messages {
             $where_clause = 'WHERE ' . implode(' AND ', $where_conditions);
         }
         
-        // Escape table name for consistency (table name is safe - constructed from $wpdb->prefix)
-        $table_name_escaped = esc_sql($this->table_name);
-        $sql = "SELECT * FROM `{$table_name_escaped}` {$where_clause} ORDER BY created_at DESC";
+        // Table name is safe - constructed from $wpdb->prefix, use backticks for safety
+        $sql = "SELECT * FROM `{$this->table_name}` {$where_clause} ORDER BY created_at DESC";
         
         if (!empty($where_values)) {
             $sql = $wpdb->prepare($sql, $where_values);

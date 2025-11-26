@@ -540,13 +540,13 @@
     /* Responsive grid columns */
     @media (min-width: 1024px) {
         .rbs-archive .property-grid {
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(4, 1fr);
         }
     }
     
     @media (min-width: 1400px) {
         .rbs-archive .property-grid {
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(4, 1fr);
         }
     }
     
@@ -1112,7 +1112,7 @@
         }
         
         .rbs-archive .property-grid {
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(4, 1fr);
         }
         
         .rbs-archive .listings-container.map-visible .property-grid:not(.list-view) {
@@ -1148,7 +1148,7 @@
 
     @media (min-width: 1200px) {
         .rbs-archive .property-grid {
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(4, 1fr);
         }
         
         .rbs-archive .listings-container.map-visible .property-grid:not(.list-view) {
