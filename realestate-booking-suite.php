@@ -538,9 +538,19 @@ add_filter('get_the_author', 'resbs_remove_author_output');
  */
 function resbs_remove_entry_header() {
     if (is_singular('property') && is_main_query()) {
-        // Simple CSS - only hide what we need (like Estatik does)
-        echo '<style>
-            /* Hide ONLY featured image, date, and author - NOT title */
+        // Simple CSS - hide theme title, featured image, date, and author
+        // We have our own title in the content template
+        ?>
+        <style>
+            /* Hide .has-global-padding ONLY in article/main content, NOT header/footer */
+            body.single-property main > article > .has-global-padding:first-child {
+                display: none !important;
+            }
+            /* Hide theme title block - we have our own in content template */
+            body.single-property .wp-block-post-title,
+            body.single-property .entry-title,
+            body.single-property .entry-header,
+            /* Hide featured image, date, and author - COMPLETE removal */
             body.single-property .wp-block-post-featured-image,
             body.single-property .wp-block-post-date,
             body.single-property .wp-block-post-author,
@@ -551,13 +561,52 @@ function resbs_remove_entry_header() {
             body.single-property .wp-block-post-author__content,
             body.single-property .wp-block-post-author__avatar {
                 display: none !important;
+                visibility: hidden !important;
+                height: 0 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                overflow: hidden !important;
+            }
+            /* Hide the title group container - CodeCanyon ready */
+            body.single-property main > article > .wp-block-group.has-global-padding.is-layout-constrained:first-child:has(.wp-block-post-title),
+            body.single-property main > article > .wp-block-group.has-global-padding.is-layout-constrained:first-child:has(.wp-block-post-author),
+            body.single-property main > article > .wp-block-group.has-global-padding.is-layout-constrained:first-child:not(:has(.wp-block-post-content)) {
+                display: none !important;
+                visibility: hidden !important;
+                height: 0 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                overflow: hidden !important;
+            }
+            /* Hide empty author groups completely */
+            body.single-property .wp-block-group:has(.wp-block-post-author):not(:has(.wp-block-post-content)),
+            body.single-property .wp-block-group:has(.wp-block-post-author):not(:has(.single-property)) {
+                display: none !important;
+                visibility: hidden !important;
+                height: 0 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                overflow: hidden !important;
+            }
+            /* Hide the title group container - CodeCanyon ready */
+            /* This hides: wp-block-group.has-global-padding.is-layout-constrained containing title */
+            body.single-property main > article > .wp-block-group.has-global-padding.is-layout-constrained:first-child:has(.wp-block-post-title):not(:has(.wp-block-post-content)),
+            body.single-property main > article > .wp-block-group.has-global-padding.is-layout-constrained:first-child:has(.wp-block-post-author):not(:has(.wp-block-post-content)),
+            body.single-property main > article > .wp-block-group.has-global-padding.is-layout-constrained:first-child:not(:has(.wp-block-post-content)) {
+                display: none !important;
+                visibility: hidden !important;
+                height: 0 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                overflow: hidden !important;
             }
             /* Remove top spacing from article */
             body.single-property main > article {
                 margin-top: 0 !important;
                 padding-top: 0 !important;
             }
-            /* Remove top spacing from first group if it only has meta */
+            /* Remove top spacing from first group if it only has meta/title */
+            body.single-property main > article > .wp-block-group:first-child:has(.wp-block-post-title):not(:has(.wp-block-post-content)),
             body.single-property main > article > .wp-block-group:first-child:has(.wp-block-post-author):not(:has(.wp-block-post-content)),
             body.single-property main > article > .wp-block-group:first-child:has(.wp-block-post-date):not(:has(.wp-block-post-content)),
             body.single-property main > article > .wp-block-group:first-child:has(.wp-block-post-featured-image):not(:has(.wp-block-post-content)) {
@@ -572,35 +621,52 @@ function resbs_remove_entry_header() {
                 margin-top: 0 !important;
                 padding-top: 0 !important;
             }
-        </style>';
-        
-        // JavaScript to remove empty groups (fallback)
-        echo '<script>
+        </style>
+        <script>
         (function() {
             if (document.body.classList.contains("single-property")) {
+                // Hide all author blocks
+                var authorBlocks = document.querySelectorAll(".wp-block-post-author, .wp-block-post-author__byline, .wp-block-post-author__content");
+                authorBlocks.forEach(function(block) {
+                    block.style.display = "none";
+                    block.style.visibility = "hidden";
+                    block.style.height = "0";
+                    block.style.margin = "0";
+                    block.style.padding = "0";
+                });
+                
+                // Hide title group container - CodeCanyon ready approach
+                // Target: .wp-block-group.has-global-padding.is-layout-constrained containing title
                 var article = document.querySelector("main > article");
                 if (article) {
-                    var firstGroup = article.querySelector(":scope > .wp-block-group:first-child");
+                    // Find first group with has-global-padding.is-layout-constrained
+                    var firstGroup = article.querySelector(":scope > .wp-block-group.has-global-padding.is-layout-constrained:first-child");
                     if (firstGroup) {
-                        // Only hide if it has author/date/featured-image but NO content
                         var hasContent = firstGroup.querySelector(".wp-block-post-content, .entry-content, .single-property");
+                        var hasTitle = firstGroup.querySelector(".wp-block-post-title, .entry-title");
                         var hasAuthor = firstGroup.querySelector(".wp-block-post-author");
-                        var hasDate = firstGroup.querySelector(".wp-block-post-date");
-                        var hasFeatured = firstGroup.querySelector(".wp-block-post-featured-image");
+                        var textContent = firstGroup.textContent.trim();
+                        var hasByText = textContent.includes("— by") || textContent === "by";
                         
-                        if (!hasContent && (hasAuthor || hasDate || hasFeatured)) {
+                        // Hide if it contains title/author but NO actual content (our custom content)
+                        if (!hasContent && (hasTitle || hasAuthor || hasByText)) {
                             firstGroup.style.display = "none";
+                            firstGroup.style.visibility = "hidden";
                             firstGroup.style.height = "0";
                             firstGroup.style.margin = "0";
                             firstGroup.style.padding = "0";
+                            firstGroup.style.overflow = "hidden";
                         }
                     }
+                    
+                    // Remove top spacing from article
                     article.style.paddingTop = "0";
                     article.style.marginTop = "0";
                 }
             }
         })();
-        </script>';
+        </script>
+        <?php
     }
 }
 add_action('wp_head', 'resbs_remove_entry_header', 999);

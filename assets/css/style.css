@@ -3192,3 +3192,10 @@ a:focus{
     outline: none !important;
     box-shadow: none !important;
 }
+
+
+
+
+.single-property main .wp-block-group.has-global-padding.is-layout-constrained.wp-block-group-is-layout-constrained {
+    display: none;
+}
