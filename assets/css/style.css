@@ -3196,6 +3196,9 @@ a:focus{
 
 
 
-.single-property main .wp-block-group.has-global-padding.is-layout-constrained.wp-block-group-is-layout-constrained {
-    display: none;
+
+/* Only hide on single property pages, NOT archive pages */
+/* Scoped to body.single-property to ensure it doesn't affect archive pages */
+body.single-property main > .wp-block-group.has-global-padding.is-layout-constrained.wp-block-group-is-layout-constrained:first-child {
+    display: none !important;
 }

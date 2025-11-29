@@ -537,12 +537,16 @@ add_filter('get_the_author', 'resbs_remove_author_output');
  * Following Estatik's approach: Only hide featured image, date, and author - NOT the title
  */
 function resbs_remove_entry_header() {
-    if (is_singular('property') && is_main_query()) {
+    // Apply to both single property pages AND archive pages
+    $is_property_page = is_singular('property') || is_post_type_archive('property') || is_tax('property_type') || is_tax('property_status') || is_tax('property_location');
+    
+    if ($is_property_page) {
         // Simple CSS - hide theme title, featured image, date, and author
         // We have our own title in the content template
         ?>
         <style>
             /* Hide .has-global-padding ONLY in article/main content, NOT header/footer */
+            /* DO NOT touch header/footer - let theme handle it completely */
             body.single-property main > article > .has-global-padding:first-child {
                 display: none !important;
             }
@@ -669,7 +673,10 @@ function resbs_remove_entry_header() {
         <?php
     }
 }
-add_action('wp_head', 'resbs_remove_entry_header', 999);
+// Load in wp_footer with high priority to ensure it loads AFTER all theme CSS
+// This way our resets can properly override any plugin CSS interference
+// Also load on archive pages to ensure footer styles match
+add_action('wp_footer', 'resbs_remove_entry_header', 999);
 
 // Enqueue assets
 function resbs_enqueue_assets() {
@@ -757,6 +764,52 @@ function resbs_enqueue_assets() {
     
 }
 add_action('wp_enqueue_scripts', 'resbs_enqueue_assets', 5);
+
+/**
+ * Ensure theme global styles are loaded on ALL property pages (single and archive)
+ * This ensures header/footer CSS matches between single and archive pages
+ */
+function resbs_ensure_global_styles_on_all_property_pages() {
+    // On both single property pages AND archive pages
+    if (is_singular('property') || is_post_type_archive('property') || is_tax('property_type') || is_tax('property_status') || is_tax('property_location')) {
+        // Ensure WordPress global styles are loaded (for block themes)
+        if (function_exists('wp_enqueue_global_styles')) {
+            wp_enqueue_global_styles();
+        }
+        // Ensure block library styles are loaded
+        if (!wp_style_is('wp-block-library', 'enqueued')) {
+            wp_enqueue_style('wp-block-library');
+        }
+        // Ensure global styles are loaded
+        if (!wp_style_is('global-styles', 'enqueued')) {
+            wp_enqueue_style('global-styles');
+        }
+    }
+}
+add_action('wp_enqueue_scripts', 'resbs_ensure_global_styles_on_all_property_pages', 1);
+
+/**
+ * Ensure footer blocks render on archive pages to generate CSS
+ * WordPress block themes generate CSS dynamically when blocks render
+ * This ensures footer CSS (like flex-direction: column, align-items: center) is generated on archive pages
+ */
+function resbs_ensure_footer_blocks_render_on_archive() {
+    // Only on property archive pages (not single pages - they handle it automatically)
+    if (resbs_is_block_theme() && (is_post_type_archive('property') || is_tax('property_type') || is_tax('property_status') || is_tax('property_location'))) {
+        // Render footer block early to trigger CSS generation
+        // This ensures the same CSS classes and styles are generated as on single pages
+        if (function_exists('block_footer_area')) {
+            // Capture output to generate CSS, but don't output it yet
+            ob_start();
+            block_footer_area();
+            $footer_output = ob_get_clean();
+            // The CSS is now generated and will be included in wp_head
+        }
+    }
+}
+add_action('wp', 'resbs_ensure_footer_blocks_render_on_archive', 5);
+
+/* REMOVED: Early block rendering was causing issues - let WordPress handle it naturally */
 add_action('admin_enqueue_scripts', 'resbs_enqueue_assets', 5);
 
 // Fallback: Add Font Awesome directly to head if not already loaded
