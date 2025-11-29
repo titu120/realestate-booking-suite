@@ -388,11 +388,13 @@ function resbs_is_block_theme() {
 }
 
 /**
- * Safely get header - avoids deprecation warnings in block themes
+ * Get header - works for both classic and block themes
+ * For block themes: Uses block_header_area() to render header template part
+ * For classic themes: Uses standard get_header()
  */
 function resbs_get_header() {
     if (resbs_is_block_theme()) {
-        // For block themes, output basic HTML structure without calling get_header()
+        // For block themes, output HTML structure and render header template part
         ?><!DOCTYPE html>
 <html <?php language_attributes(); ?>>
 <head>
@@ -404,6 +406,10 @@ function resbs_get_header() {
 <?php wp_body_open(); ?>
 <div id="page" class="site">
 <?php
+        // Render the block theme's header template part
+        if (function_exists('block_header_area')) {
+            block_header_area();
+        }
     } else {
         // For classic themes, use standard get_header()
         get_header();
@@ -411,11 +417,16 @@ function resbs_get_header() {
 }
 
 /**
- * Safely get footer - avoids deprecation warnings in block themes
+ * Get footer - works for both classic and block themes
+ * For block themes: Uses block_footer_area() to render footer template part
+ * For classic themes: Uses standard get_footer()
  */
 function resbs_get_footer() {
     if (resbs_is_block_theme()) {
-        // For block themes, output closing HTML structure without calling get_footer()
+        // Render the block theme's footer template part
+        if (function_exists('block_footer_area')) {
+            block_footer_area();
+        }
         ?>
 </div><!-- #page -->
 <?php wp_footer(); ?>
@@ -428,11 +439,21 @@ function resbs_get_footer() {
     }
 }
 
-// SINGLE PROPERTY TEMPLATE LOADER - HIGH PRIORITY
-// Works with both classic and block themes
-// WordPress provides fallback support for get_header()/get_footer() in block themes
+// SINGLE PROPERTY TEMPLATE LOADER - Following Estatik's approach
+// For block themes: DON'T override template - use the_content filter instead
+// For classic themes: Use custom template with header/footer
 function resbs_single_property_template_loader($template) {
     if (is_singular('property')) {
+        // For block themes: Let WordPress use theme's template system
+        // Header/footer are handled automatically by WordPress
+        // We inject content via the_content filter (like Estatik does)
+        if (resbs_is_block_theme()) {
+            // Don't override template - let WordPress handle it
+            // Content will be injected via the_content filter
+            return $template;
+        }
+        
+        // For classic themes: Use custom template
         $single_template = RESBS_PATH . 'templates/single-property.php';
         if (file_exists($single_template)) {
             return $single_template;
@@ -441,6 +462,148 @@ function resbs_single_property_template_loader($template) {
     return $template;
 }
 add_filter('template_include', 'resbs_single_property_template_loader', 5);
+
+/**
+ * Filter the_content for single property pages (Estatik's approach)
+ * This injects our custom content into the theme's normal template
+ * Works for both classic and block themes
+ */
+function resbs_filter_single_property_content($content) {
+    // Only apply for single property posts
+    if (!is_singular('property') || !is_main_query() || !in_the_loop()) {
+        return $content;
+    }
+    
+    // Check if we're already processing (avoid nested calls)
+    static $processing = false;
+    if ($processing) {
+        return $content;
+    }
+    
+    $processing = true;
+    
+    // Remove the filter to avoid nested calls
+    remove_filter('the_content', 'resbs_filter_single_property_content');
+    
+    // Load our content template
+    $content_template = RESBS_PATH . 'templates/content-single-property.php';
+    if (file_exists($content_template)) {
+        ob_start();
+        include $content_template;
+        $content = ob_get_clean();
+    }
+    
+    // Re-add the filter for other posts
+    add_filter('the_content', 'resbs_filter_single_property_content');
+    
+    $processing = false;
+    
+    return $content;
+}
+add_filter('the_content', 'resbs_filter_single_property_content');
+
+/**
+ * Remove featured image from single property pages (Estatik's approach)
+ * Prevents theme from displaying the featured image automatically
+ */
+function resbs_remove_featured_image($html, $post_id, $post_thumbnail_id, $size, $attr) {
+    if (is_singular('property') && is_main_query()) {
+        return '';
+    }
+    return $html;
+}
+add_filter('post_thumbnail_html', 'resbs_remove_featured_image', 10, 5);
+
+/**
+ * REMOVED: Don't remove post title - let theme display it
+ * Following Estatik's approach: Only remove featured image, not title
+ * The property name should be visible in the theme's title
+ */
+
+/**
+ * Remove author output from single property pages
+ */
+function resbs_remove_author_output($output) {
+    if (is_singular('property') && is_main_query()) {
+        return '';
+    }
+    return $output;
+}
+add_filter('the_author', 'resbs_remove_author_output');
+add_filter('get_the_author', 'resbs_remove_author_output');
+
+/**
+ * Remove entry header (title, meta) for single property pages
+ * Following Estatik's approach: Only hide featured image, date, and author - NOT the title
+ */
+function resbs_remove_entry_header() {
+    if (is_singular('property') && is_main_query()) {
+        // Simple CSS - only hide what we need (like Estatik does)
+        echo '<style>
+            /* Hide ONLY featured image, date, and author - NOT title */
+            body.single-property .wp-block-post-featured-image,
+            body.single-property .wp-block-post-date,
+            body.single-property .wp-block-post-author,
+            body.single-property .post-thumbnail,
+            body.single-property .wp-block-post-author-name,
+            body.single-property .wp-block-post-author__name,
+            body.single-property .wp-block-post-author__byline,
+            body.single-property .wp-block-post-author__content,
+            body.single-property .wp-block-post-author__avatar {
+                display: none !important;
+            }
+            /* Remove top spacing from article */
+            body.single-property main > article {
+                margin-top: 0 !important;
+                padding-top: 0 !important;
+            }
+            /* Remove top spacing from first group if it only has meta */
+            body.single-property main > article > .wp-block-group:first-child:has(.wp-block-post-author):not(:has(.wp-block-post-content)),
+            body.single-property main > article > .wp-block-group:first-child:has(.wp-block-post-date):not(:has(.wp-block-post-content)),
+            body.single-property main > article > .wp-block-group:first-child:has(.wp-block-post-featured-image):not(:has(.wp-block-post-content)) {
+                display: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                height: 0 !important;
+            }
+            /* Remove top padding from first content group */
+            body.single-property main > article > .wp-block-group:first-child:has(.wp-block-post-content),
+            body.single-property main > article > .wp-block-post-content:first-child {
+                margin-top: 0 !important;
+                padding-top: 0 !important;
+            }
+        </style>';
+        
+        // JavaScript to remove empty groups (fallback)
+        echo '<script>
+        (function() {
+            if (document.body.classList.contains("single-property")) {
+                var article = document.querySelector("main > article");
+                if (article) {
+                    var firstGroup = article.querySelector(":scope > .wp-block-group:first-child");
+                    if (firstGroup) {
+                        // Only hide if it has author/date/featured-image but NO content
+                        var hasContent = firstGroup.querySelector(".wp-block-post-content, .entry-content, .single-property");
+                        var hasAuthor = firstGroup.querySelector(".wp-block-post-author");
+                        var hasDate = firstGroup.querySelector(".wp-block-post-date");
+                        var hasFeatured = firstGroup.querySelector(".wp-block-post-featured-image");
+                        
+                        if (!hasContent && (hasAuthor || hasDate || hasFeatured)) {
+                            firstGroup.style.display = "none";
+                            firstGroup.style.height = "0";
+                            firstGroup.style.margin = "0";
+                            firstGroup.style.padding = "0";
+                        }
+                    }
+                    article.style.paddingTop = "0";
+                    article.style.marginTop = "0";
+                }
+            }
+        })();
+        </script>';
+    }
+}
+add_action('wp_head', 'resbs_remove_entry_header', 999);
 
 // Enqueue assets
 function resbs_enqueue_assets() {
