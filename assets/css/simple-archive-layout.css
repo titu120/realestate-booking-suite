@@ -82,15 +82,17 @@
     margin: 0;
 }
 
-/* Additional spacing improvements */
-.container {
+/* Additional spacing improvements - Scoped to prevent conflicts */
+.rbs-archive .container,
+.resbs-archive-wrapper .container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 20px !important; /* Ensure padding is always applied */
 }
 
 /* Ensure main-content container maintains padding */
-.container.main-content {
+.rbs-archive .container.main-content,
+.resbs-archive-wrapper .container.main-content {
     padding-left: 20px !important;
     padding-right: 20px !important;
 }
@@ -111,10 +113,11 @@
 }
 
 /* Ensure proper footer spacing */
-body {
+/* Removed to prevent conflicts with theme body styles */
+/* body {
     margin: 0;
     padding: 0;
-}
+} */
 
 /* Map Visibility Controls */
 .map-section {

@@ -37,6 +37,14 @@ class RESBS_Template_Assets {
             '6.4.0'
         );
         
+        // Enqueue Google Fonts (Inter) - scoped to plugin only
+        wp_enqueue_style(
+            'resbs-google-fonts',
+            'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap',
+            array(),
+            '1.0.0'
+        );
+        
         // Enqueue Leaflet CSS (required for maps)
         wp_enqueue_style(
             'resbs-leaflet',
@@ -49,7 +57,7 @@ class RESBS_Template_Assets {
         wp_enqueue_style(
             'resbs-single-property',
             RESBS_URL . 'assets/css/single-property.css',
-            array('resbs-font-awesome', 'resbs-leaflet'),
+            array('resbs-font-awesome', 'resbs-leaflet', 'resbs-google-fonts'),
             '1.0.0'
         );
         
@@ -194,7 +202,8 @@ class RESBS_Template_Assets {
         $secondary_color_dark_escaped = esc_attr($secondary_color_dark);
         
         $dynamic_css = "
-        :root {
+        /* Scoped to .single-property to prevent conflicts with theme */
+        .single-property {
             --rebs-primary-color: {$main_color_escaped} !important;
             --rebs-primary-dark: {$main_color_dark_escaped} !important;
             --rebs-primary-light: {$main_color_light_escaped} !important;

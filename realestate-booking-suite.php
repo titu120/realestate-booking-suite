@@ -388,13 +388,11 @@ function resbs_is_block_theme() {
 }
 
 /**
- * Get header - works for both classic and block themes
- * For block themes: Uses block_header_area() to render header template part
- * For classic themes: Uses standard get_header()
+ * Safely get header - avoids deprecation warnings in block themes
  */
 function resbs_get_header() {
     if (resbs_is_block_theme()) {
-        // For block themes, output HTML structure and render header template part
+        // For block themes, output HTML structure and use block theme functions
         ?><!DOCTYPE html>
 <html <?php language_attributes(); ?>>
 <head>
@@ -406,9 +404,11 @@ function resbs_get_header() {
 <?php wp_body_open(); ?>
 <div id="page" class="site">
 <?php
-        // Render the block theme's header template part
+        // Render block theme header
         if (function_exists('block_header_area')) {
             block_header_area();
+        } elseif (function_exists('block_template_part')) {
+            block_template_part('header');
         }
     } else {
         // For classic themes, use standard get_header()
@@ -417,16 +417,17 @@ function resbs_get_header() {
 }
 
 /**
- * Get footer - works for both classic and block themes
- * For block themes: Uses block_footer_area() to render footer template part
- * For classic themes: Uses standard get_footer()
+ * Safely get footer - avoids deprecation warnings in block themes
  */
 function resbs_get_footer() {
     if (resbs_is_block_theme()) {
-        // Render the block theme's footer template part
+        // Render block theme footer
         if (function_exists('block_footer_area')) {
             block_footer_area();
+        } elseif (function_exists('block_template_part')) {
+            block_template_part('footer');
         }
+        // Close HTML structure
         ?>
 </div><!-- #page -->
 <?php wp_footer(); ?>
@@ -439,21 +440,11 @@ function resbs_get_footer() {
     }
 }
 
-// SINGLE PROPERTY TEMPLATE LOADER - Following Estatik's approach
-// For block themes: DON'T override template - use the_content filter instead
-// For classic themes: Use custom template with header/footer
+// SINGLE PROPERTY TEMPLATE LOADER - HIGH PRIORITY
+// Works with both classic and block themes
+// WordPress provides fallback support for get_header()/get_footer() in block themes
 function resbs_single_property_template_loader($template) {
     if (is_singular('property')) {
-        // For block themes: Let WordPress use theme's template system
-        // Header/footer are handled automatically by WordPress
-        // We inject content via the_content filter (like Estatik does)
-        if (resbs_is_block_theme()) {
-            // Don't override template - let WordPress handle it
-            // Content will be injected via the_content filter
-            return $template;
-        }
-        
-        // For classic themes: Use custom template
         $single_template = RESBS_PATH . 'templates/single-property.php';
         if (file_exists($single_template)) {
             return $single_template;
@@ -463,240 +454,38 @@ function resbs_single_property_template_loader($template) {
 }
 add_filter('template_include', 'resbs_single_property_template_loader', 5);
 
-/**
- * Filter the_content for single property pages (Estatik's approach)
- * This injects our custom content into the theme's normal template
- * Works for both classic and block themes
- */
-function resbs_filter_single_property_content($content) {
-    // Only apply for single property posts
-    if (!is_singular('property') || !is_main_query() || !in_the_loop()) {
-        return $content;
-    }
-    
-    // Check if we're already processing (avoid nested calls)
-    static $processing = false;
-    if ($processing) {
-        return $content;
-    }
-    
-    $processing = true;
-    
-    // Remove the filter to avoid nested calls
-    remove_filter('the_content', 'resbs_filter_single_property_content');
-    
-    // Load our content template
-    $content_template = RESBS_PATH . 'templates/content-single-property.php';
-    if (file_exists($content_template)) {
-        ob_start();
-        include $content_template;
-        $content = ob_get_clean();
-    }
-    
-    // Re-add the filter for other posts
-    add_filter('the_content', 'resbs_filter_single_property_content');
-    
-    $processing = false;
-    
-    return $content;
-}
-add_filter('the_content', 'resbs_filter_single_property_content');
-
-/**
- * Remove featured image from single property pages (Estatik's approach)
- * Prevents theme from displaying the featured image automatically
- */
-function resbs_remove_featured_image($html, $post_id, $post_thumbnail_id, $size, $attr) {
-    if (is_singular('property') && is_main_query()) {
-        return '';
-    }
-    return $html;
-}
-add_filter('post_thumbnail_html', 'resbs_remove_featured_image', 10, 5);
-
-/**
- * REMOVED: Don't remove post title - let theme display it
- * Following Estatik's approach: Only remove featured image, not title
- * The property name should be visible in the theme's title
- */
-
-/**
- * Remove author output from single property pages
- */
-function resbs_remove_author_output($output) {
-    if (is_singular('property') && is_main_query()) {
-        return '';
-    }
-    return $output;
-}
-add_filter('the_author', 'resbs_remove_author_output');
-add_filter('get_the_author', 'resbs_remove_author_output');
-
-/**
- * Remove entry header (title, meta) for single property pages
- * Following Estatik's approach: Only hide featured image, date, and author - NOT the title
- */
-function resbs_remove_entry_header() {
-    // Apply to both single property pages AND archive pages
-    $is_property_page = is_singular('property') || is_post_type_archive('property') || is_tax('property_type') || is_tax('property_status') || is_tax('property_location');
-    
-    if ($is_property_page) {
-        // Simple CSS - hide theme title, featured image, date, and author
-        // We have our own title in the content template
-        ?>
-        <style>
-            /* Hide .has-global-padding ONLY in article/main content, NOT header/footer */
-            /* DO NOT touch header/footer - let theme handle it completely */
-            body.single-property main > article > .has-global-padding:first-child {
-                display: none !important;
-            }
-            /* Hide theme title block - we have our own in content template */
-            body.single-property .wp-block-post-title,
-            body.single-property .entry-title,
-            body.single-property .entry-header,
-            /* Hide featured image, date, and author - COMPLETE removal */
-            body.single-property .wp-block-post-featured-image,
-            body.single-property .wp-block-post-date,
-            body.single-property .wp-block-post-author,
-            body.single-property .post-thumbnail,
-            body.single-property .wp-block-post-author-name,
-            body.single-property .wp-block-post-author__name,
-            body.single-property .wp-block-post-author__byline,
-            body.single-property .wp-block-post-author__content,
-            body.single-property .wp-block-post-author__avatar {
-                display: none !important;
-                visibility: hidden !important;
-                height: 0 !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                overflow: hidden !important;
-            }
-            /* Hide the title group container - CodeCanyon ready */
-            body.single-property main > article > .wp-block-group.has-global-padding.is-layout-constrained:first-child:has(.wp-block-post-title),
-            body.single-property main > article > .wp-block-group.has-global-padding.is-layout-constrained:first-child:has(.wp-block-post-author),
-            body.single-property main > article > .wp-block-group.has-global-padding.is-layout-constrained:first-child:not(:has(.wp-block-post-content)) {
-                display: none !important;
-                visibility: hidden !important;
-                height: 0 !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                overflow: hidden !important;
-            }
-            /* Hide empty author groups completely */
-            body.single-property .wp-block-group:has(.wp-block-post-author):not(:has(.wp-block-post-content)),
-            body.single-property .wp-block-group:has(.wp-block-post-author):not(:has(.single-property)) {
-                display: none !important;
-                visibility: hidden !important;
-                height: 0 !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                overflow: hidden !important;
-            }
-            /* Hide the title group container - CodeCanyon ready */
-            /* This hides: wp-block-group.has-global-padding.is-layout-constrained containing title */
-            body.single-property main > article > .wp-block-group.has-global-padding.is-layout-constrained:first-child:has(.wp-block-post-title):not(:has(.wp-block-post-content)),
-            body.single-property main > article > .wp-block-group.has-global-padding.is-layout-constrained:first-child:has(.wp-block-post-author):not(:has(.wp-block-post-content)),
-            body.single-property main > article > .wp-block-group.has-global-padding.is-layout-constrained:first-child:not(:has(.wp-block-post-content)) {
-                display: none !important;
-                visibility: hidden !important;
-                height: 0 !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                overflow: hidden !important;
-            }
-            /* Remove top spacing from article */
-            body.single-property main > article {
-                margin-top: 0 !important;
-                padding-top: 0 !important;
-            }
-            /* Remove top spacing from first group if it only has meta/title */
-            body.single-property main > article > .wp-block-group:first-child:has(.wp-block-post-title):not(:has(.wp-block-post-content)),
-            body.single-property main > article > .wp-block-group:first-child:has(.wp-block-post-author):not(:has(.wp-block-post-content)),
-            body.single-property main > article > .wp-block-group:first-child:has(.wp-block-post-date):not(:has(.wp-block-post-content)),
-            body.single-property main > article > .wp-block-group:first-child:has(.wp-block-post-featured-image):not(:has(.wp-block-post-content)) {
-                display: none !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                height: 0 !important;
-            }
-            /* Remove top padding from first content group */
-            body.single-property main > article > .wp-block-group:first-child:has(.wp-block-post-content),
-            body.single-property main > article > .wp-block-post-content:first-child {
-                margin-top: 0 !important;
-                padding-top: 0 !important;
-            }
-        </style>
-        <script>
-        (function() {
-            if (document.body.classList.contains("single-property")) {
-                // Hide all author blocks
-                var authorBlocks = document.querySelectorAll(".wp-block-post-author, .wp-block-post-author__byline, .wp-block-post-author__content");
-                authorBlocks.forEach(function(block) {
-                    block.style.display = "none";
-                    block.style.visibility = "hidden";
-                    block.style.height = "0";
-                    block.style.margin = "0";
-                    block.style.padding = "0";
-                });
-                
-                // Hide title group container - CodeCanyon ready approach
-                // Target: .wp-block-group.has-global-padding.is-layout-constrained containing title
-                var article = document.querySelector("main > article");
-                if (article) {
-                    // Find first group with has-global-padding.is-layout-constrained
-                    var firstGroup = article.querySelector(":scope > .wp-block-group.has-global-padding.is-layout-constrained:first-child");
-                    if (firstGroup) {
-                        var hasContent = firstGroup.querySelector(".wp-block-post-content, .entry-content, .single-property");
-                        var hasTitle = firstGroup.querySelector(".wp-block-post-title, .entry-title");
-                        var hasAuthor = firstGroup.querySelector(".wp-block-post-author");
-                        var textContent = firstGroup.textContent.trim();
-                        var hasByText = textContent.includes("— by") || textContent === "by";
-                        
-                        // Hide if it contains title/author but NO actual content (our custom content)
-                        if (!hasContent && (hasTitle || hasAuthor || hasByText)) {
-                            firstGroup.style.display = "none";
-                            firstGroup.style.visibility = "hidden";
-                            firstGroup.style.height = "0";
-                            firstGroup.style.margin = "0";
-                            firstGroup.style.padding = "0";
-                            firstGroup.style.overflow = "hidden";
-                        }
-                    }
-                    
-                    // Remove top spacing from article
-                    article.style.paddingTop = "0";
-                    article.style.marginTop = "0";
-                }
-            }
-        })();
-        </script>
-        <?php
-    }
-}
-// Load in wp_footer with high priority to ensure it loads AFTER all theme CSS
-// This way our resets can properly override any plugin CSS interference
-// Also load on archive pages to ensure footer styles match
-add_action('wp_footer', 'resbs_remove_entry_header', 999);
-
 // Enqueue assets
 function resbs_enqueue_assets() {
-    // Enqueue Font Awesome 6.4.0 CDN for icons - load early with high priority
-    wp_enqueue_style(
-        'font-awesome',
-        'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
-        array(),
-        '6.4.0',
-        'all'
-    );
+    // Only load plugin CSS on property-related pages to prevent conflicts with theme
+    $post = get_post();
+    $has_shortcode = $post && has_shortcode($post->post_content ?? '', 'resbs_');
     
-    // Enqueue CSS
-    wp_enqueue_style(
-        'resbs-style',
-        RESBS_URL . 'assets/css/style.css',
-        array('font-awesome'),
-        '1.0.0'
-    );
+    $is_property_page = is_singular('property') || 
+                        is_post_type_archive('property') || 
+                        is_tax('property_type') || 
+                        is_tax('property_status') || 
+                        is_tax('property_location') || 
+                        is_tax('property_tag') ||
+                        $has_shortcode;
     
+    // Enqueue Font Awesome only on property pages
+    if ($is_property_page) {
+        wp_enqueue_style(
+            'font-awesome',
+            'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
+            array(),
+            '6.4.0',
+            'all'
+        );
+        
+        // Enqueue CSS only on property pages
+        wp_enqueue_style(
+            'resbs-style',
+            RESBS_URL . 'assets/css/style.css',
+            array('font-awesome'),
+            '1.0.0'
+        );
+        
         // Enqueue Contact Widget CSS
         wp_enqueue_style(
             'resbs-contact-widget',
@@ -713,14 +502,15 @@ function resbs_enqueue_assets() {
             '1.0.0'
         );
         
-        // Enqueue Single Property Responsive CSS
-        wp_enqueue_style(
-            'resbs-single-property-responsive',
-            RESBS_URL . 'assets/css/single-property-responsive.css',
-            array(),
-            '1.0.0'
-        );
-        
+        // Enqueue Single Property Responsive CSS only on single property pages
+        if (is_singular('property')) {
+            wp_enqueue_style(
+                'resbs-single-property-responsive',
+                RESBS_URL . 'assets/css/single-property-responsive.css',
+                array(),
+                '1.0.0'
+            );
+        }
         
         // Enqueue Shortcodes CSS
         wp_enqueue_style(
@@ -729,6 +519,7 @@ function resbs_enqueue_assets() {
             array(),
             '1.0.0'
         );
+    }
         
         // Enqueue Modern Dashboard CSS (Admin Only)
         if (is_admin()) {
@@ -740,12 +531,15 @@ function resbs_enqueue_assets() {
             );
         }
         
-        wp_enqueue_style(
-            'resbs-archive',
-            RESBS_URL . 'assets/css/rbs-archive.css',
-            array(),
-            '1.0.0'
-        );
+        // Only load archive CSS on property archive pages, not on all pages
+        if (is_post_type_archive('property') || is_tax('property_type') || is_tax('property_status') || is_tax('property_location') || is_tax('property_tag')) {
+            wp_enqueue_style(
+                'resbs-archive',
+                RESBS_URL . 'assets/css/rbs-archive.css',
+                array(),
+                '1.0.0'
+            );
+        }
         
         // Re-enable Dynamic Archive JS but with modifications
         // Only load on frontend, NOT in admin (to avoid interfering with property edit page)
@@ -764,52 +558,6 @@ function resbs_enqueue_assets() {
     
 }
 add_action('wp_enqueue_scripts', 'resbs_enqueue_assets', 5);
-
-/**
- * Ensure theme global styles are loaded on ALL property pages (single and archive)
- * This ensures header/footer CSS matches between single and archive pages
- */
-function resbs_ensure_global_styles_on_all_property_pages() {
-    // On both single property pages AND archive pages
-    if (is_singular('property') || is_post_type_archive('property') || is_tax('property_type') || is_tax('property_status') || is_tax('property_location')) {
-        // Ensure WordPress global styles are loaded (for block themes)
-        if (function_exists('wp_enqueue_global_styles')) {
-            wp_enqueue_global_styles();
-        }
-        // Ensure block library styles are loaded
-        if (!wp_style_is('wp-block-library', 'enqueued')) {
-            wp_enqueue_style('wp-block-library');
-        }
-        // Ensure global styles are loaded
-        if (!wp_style_is('global-styles', 'enqueued')) {
-            wp_enqueue_style('global-styles');
-        }
-    }
-}
-add_action('wp_enqueue_scripts', 'resbs_ensure_global_styles_on_all_property_pages', 1);
-
-/**
- * Ensure footer blocks render on archive pages to generate CSS
- * WordPress block themes generate CSS dynamically when blocks render
- * This ensures footer CSS (like flex-direction: column, align-items: center) is generated on archive pages
- */
-function resbs_ensure_footer_blocks_render_on_archive() {
-    // Only on property archive pages (not single pages - they handle it automatically)
-    if (resbs_is_block_theme() && (is_post_type_archive('property') || is_tax('property_type') || is_tax('property_status') || is_tax('property_location'))) {
-        // Render footer block early to trigger CSS generation
-        // This ensures the same CSS classes and styles are generated as on single pages
-        if (function_exists('block_footer_area')) {
-            // Capture output to generate CSS, but don't output it yet
-            ob_start();
-            block_footer_area();
-            $footer_output = ob_get_clean();
-            // The CSS is now generated and will be included in wp_head
-        }
-    }
-}
-add_action('wp', 'resbs_ensure_footer_blocks_render_on_archive', 5);
-
-/* REMOVED: Early block rendering was causing issues - let WordPress handle it naturally */
 add_action('admin_enqueue_scripts', 'resbs_enqueue_assets', 5);
 
 // Fallback: Add Font Awesome directly to head if not already loaded

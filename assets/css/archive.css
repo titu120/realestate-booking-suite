@@ -12,7 +12,8 @@
     min-height: 100vh;
 }
 
-.container {
+/* Scoped container to prevent conflicts with theme */
+.resbs-archive-wrapper .container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 15px;

@@ -3152,9 +3152,10 @@
 .resbs-property-image img {
     height: 100% !important;
 }
-label {
+/* Removed global label rule to prevent conflicts with theme */
+/* label {
     white-space: nowrap !important;
-}
+} */
 
 
 
@@ -3187,18 +3188,9 @@ p.property-date i {
 p.property-location {
     margin: 0;
 }
-a:focus{
+/* Removed global a:focus rule to prevent conflicts with theme */
+/* a:focus{
     border: none !important;
     outline: none !important;
     box-shadow: none !important;
-}
-
-
-
-
-
-/* Only hide on single property pages, NOT archive pages */
-/* Scoped to body.single-property to ensure it doesn't affect archive pages */
-body.single-property main > .wp-block-group.has-global-padding.is-layout-constrained.wp-block-group-is-layout-constrained:first-child {
-    display: none !important;
-}
+} */
