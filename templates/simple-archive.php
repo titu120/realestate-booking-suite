@@ -168,12 +168,6 @@ if (!empty($property_status)) {
 
 // Property type filter will be handled by database query below
 
-// Add sorting (dynamically from Listings settings)
-// Get default sort if not specified
-if (empty($sort_by) || $sort_by === 'date') {
-    $sort_by = resbs_get_default_sort_option();
-}
-
 // Add sorting
 switch ($sort_by) {
     case 'price_low':
@@ -487,7 +481,7 @@ $property_statuses = get_terms(array(
             <div class="right-controls">
                 <div class="sort-controls">
                     <span class="sort-label"><?php echo esc_html__('Sort by:', 'realestate-booking-suite'); ?></span>
-                    <select class="sort-select" name="sort_by" onchange="this.form.submit()">
+                    <select class="sort-select" name="sort_by" onchange="submitSortForm(this)">
                         <option value="newest" <?php selected($sort_by, 'newest'); ?><?php selected($sort_by, 'date'); ?>><?php echo esc_html__('Newest', 'realestate-booking-suite'); ?></option>
                         <option value="price_low" <?php selected($sort_by, 'price_low'); ?>><?php echo esc_html__('Price: Low to High', 'realestate-booking-suite'); ?></option>
                         <option value="price_high" <?php selected($sort_by, 'price_high'); ?>><?php echo esc_html__('Price: High to Low', 'realestate-booking-suite'); ?></option>
@@ -1103,6 +1097,28 @@ function clearMoreFilters() {
     if (propertyStatusSelect) propertyStatusSelect.value = '';
     
     if (searchForm) {
+        searchForm.submit();
+    }
+}
+
+// Submit sort form function
+function submitSortForm(selectElement) {
+    const searchForm = document.getElementById('searchForm');
+    if (searchForm && selectElement) {
+        // Get the sort value
+        const sortValue = selectElement.value;
+        
+        // Create a hidden input for sort_by if it doesn't exist, or update existing one
+        let sortInput = searchForm.querySelector('input[name="sort_by"]');
+        if (!sortInput) {
+            sortInput = document.createElement('input');
+            sortInput.type = 'hidden';
+            sortInput.name = 'sort_by';
+            searchForm.appendChild(sortInput);
+        }
+        sortInput.value = sortValue;
+        
+        // Submit the form
         searchForm.submit();
     }
 }
