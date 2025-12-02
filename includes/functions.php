@@ -42,12 +42,6 @@ new RESBS_Search();
 // Load Property Grid template
 require_once RESBS_PATH . 'includes/templates/property-grid.php';
 
-// Load WooCommerce Integration
-require_once RESBS_PATH . 'includes/class-resbs-woocommerce.php';
-
-// Initialize WooCommerce Integration
-new RESBS_WooCommerce();
-
 // Load Elementor Integration
 // File is always loaded; widgets will be initialized via elementor/loaded hook inside the file
 require_once RESBS_PATH . 'includes/class-resbs-elementor.php';

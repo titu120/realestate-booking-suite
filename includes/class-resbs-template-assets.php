@@ -54,11 +54,12 @@ class RESBS_Template_Assets {
         );
         
         // Enqueue single property CSS
+        // Load with HIGHEST priority - after all theme styles
         wp_enqueue_style(
             'resbs-single-property',
             RESBS_URL . 'assets/css/single-property.css',
-            array('resbs-font-awesome', 'resbs-leaflet', 'resbs-google-fonts'),
-            '1.0.0'
+            array('resbs-font-awesome', 'resbs-leaflet', 'resbs-google-fonts'), // Dependencies
+            '2.0.0' // Version bump for maximum priority
         );
         
         // Enqueue amenities CSS
@@ -329,6 +330,44 @@ class RESBS_Template_Assets {
         ";
         
         wp_add_inline_style('resbs-single-property', $dynamic_css);
+        
+        // Add CRITICAL container width override with MAXIMUM priority via wp_head
+        add_action('wp_head', function() {
+            echo '<style id="resbs-single-property-container-override">
+            /* MAXIMUM PRIORITY CONTAINER WIDTH - OVERRIDE ALL THEME STYLES */
+            body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .main-single-container,
+            body.singular.post-type-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .main-single-container,
+            body.page .single-property.resbs-single-property-wrapper#resbs-single-property-page .main-single-container,
+            body .single-property.resbs-single-property-wrapper#resbs-single-property-page .main-single-container,
+            .single-property.resbs-single-property-wrapper#resbs-single-property-page .main-single-container,
+            #resbs-single-property-page .main-single-container,
+            .single-property .main-single-container,
+            body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .main-single-container.container,
+            body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .main-single-container.main-content,
+            .single-property.resbs-single-property-wrapper#resbs-single-property-page .main-single-container.container,
+            .single-property.resbs-single-property-wrapper#resbs-single-property-page .main-single-container.main-content {
+                width: 100% !important;
+                max-width: 1536px !important;
+                min-width: 0 !important;
+                margin: 0 auto !important;
+                margin-left: auto !important;
+                margin-right: auto !important;
+                padding: 4rem 1rem !important;
+                padding-top: 4rem !important;
+                padding-bottom: 4rem !important;
+                padding-left: 1rem !important;
+                padding-right: 1rem !important;
+                box-sizing: border-box !important;
+                position: relative !important;
+                display: block !important;
+            }
+            body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page {
+                position: relative !important;
+                isolation: isolate !important;
+                contain: layout style paint !important;
+            }
+            </style>' . "\n";
+        }, 99999);
     }
     
     /**

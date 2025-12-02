@@ -48,43 +48,73 @@ footer h1, footer h2, footer h3, footer h4, footer h5, footer h6,
     color: inherit !important;
 }
 
+/* ========================================
+   ULTRA-SPECIFIC SINGLE PROPERTY CSS
+   MAXIMUM SPECIFICITY - NO THEME CONFLICTS
+   ALL PROPERTIES USE !important
+   VERY LONG PREFIX SELECTORS
+   ======================================== */
+
 /* Base Container Reset - Scoped CSS variables to prevent conflicts with theme */
-.single-property {
+/* FALLBACK SELECTORS FOR COMPATIBILITY */
+.single-property,
+.single-property.resbs-single-property-wrapper,
+#resbs-single-property-page,
+.single-property.resbs-single-property-wrapper#resbs-single-property-page,
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page,
+body.singular.post-type-property .single-property.resbs-single-property-wrapper#resbs-single-property-page,
+body.page .single-property.resbs-single-property-wrapper#resbs-single-property-page,
+body .single-property.resbs-single-property-wrapper#resbs-single-property-page {
     /* CSS Variables - scoped to .single-property only */
-    --rebs-primary-color: #10b981;
-    --rebs-primary-dark: #059669;
-    --rebs-primary-light: #d1fae5;
-    --rebs-secondary-color: #1f2937;
-    --rebs-light-gray: #f9fafb;
-    --rebs-medium-gray: #e5e7eb;
-    --rebs-dark-gray: #6b7280;
-    --rebs-text-dark: #1f2937;
-    --rebs-text-light: #6b7280;
-    --rebs-white: #ffffff;
-    --rebs-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-    --rebs-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    --rebs-radius: 0.5rem;
-    --rebs-radius-lg: 0.75rem;
+    --rebs-primary-color: #10b981 !important;
+    --rebs-primary-dark: #059669 !important;
+    --rebs-primary-light: #d1fae5 !important;
+    --rebs-secondary-color: #1f2937 !important;
+    --rebs-light-gray: #f9fafb !important;
+    --rebs-medium-gray: #e5e7eb !important;
+    --rebs-dark-gray: #6b7280 !important;
+    --rebs-text-dark: #1f2937 !important;
+    --rebs-text-light: #6b7280 !important;
+    --rebs-white: #ffffff !important;
+    --rebs-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06) !important;
+    --rebs-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+    --rebs-radius: 0.5rem !important;
+    --rebs-radius-lg: 0.75rem !important;
     
     /* Base styles */
-    display: block;
-    width: 100%;
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Inter', sans-serif;
-    background: #f9fafb;
-    font-size: 16px;
-    line-height: 1.6;
-    color: #333;
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+    font-family: 'Inter', sans-serif !important;
+    background: #f9fafb !important;
+    font-size: 16px !important;
+    line-height: 1.6 !important;
+    color: #333 !important;
+    position: relative !important;
+    z-index: 1 !important;
+    isolation: isolate !important;
+    contain: layout style paint !important;
+}
+
+/* DO NOT AFFECT THEME HEADER/FOOTER */
+body.single.single-property header,
+body.single.single-property footer,
+body.singular.post-type-property header,
+body.singular.post-type-property footer {
+    /* Let theme handle header/footer - no restrictions */
+    position: relative !important;
+    z-index: auto !important;
 }
 
 /* Removed to prevent conflicts with theme styles */
 /* .single-property p {
-    display: block;
-    font-family: 'Inter', sans-serif;
-    line-height: 1.6;
-    padding: 0;
+    display: block !important;
+    font-family: 'Inter', sans-serif !important;
+    line-height: 1.6 !important;
+    padding: 0 !important;
 } */
 
 /* Ensure Font Awesome icons display properly */
@@ -112,14 +142,70 @@ footer h1, footer h2, footer h3, footer h4, footer h5, footer h6,
     font-weight: 400 !important;
 }
 
-/* Layout - Simple Background */
-.single-property .main-single-container {
-    max-width: 1536px !important;
-    margin: 0 auto !important;
-    padding: 0 1rem !important;
-    min-height: 100vh !important;
+/* ========================================
+   CONTAINER - MAXIMUM WIDTH CONTROL
+   FALLBACK SELECTORS FOR COMPATIBILITY
+   ======================================== */
+.single-property .main-single-container,
+.single-property.resbs-single-property-wrapper .main-single-container,
+#resbs-single-property-page .main-single-container,
+.single-property.resbs-single-property-wrapper#resbs-single-property-page .main-single-container,
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .main-single-container,
+body.singular.post-type-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .main-single-container,
+body.page .single-property.resbs-single-property-wrapper#resbs-single-property-page .main-single-container,
+body .single-property.resbs-single-property-wrapper#resbs-single-property-page .main-single-container {
     width: 100% !important;
+    max-width: 1536px !important;
+    min-width: 0 !important;
+    margin: 0 auto !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    padding: 4rem 1rem !important;
+    padding-top: 4rem !important;
+    padding-bottom: 4rem !important;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    min-height: 100vh !important;
     display: block !important;
+    box-sizing: border-box !important;
+    position: relative !important;
+    overflow: visible !important;
+}
+
+/* ========================================
+   FORCE CONTAINER WIDTH - PREVENT THEME OVERRIDES
+   Additional rules to ensure theme width settings cannot override
+   ======================================== */
+.single-property .main-single-container[class*="container"],
+.single-property.resbs-single-property-wrapper .main-single-container[class*="container"],
+#resbs-single-property-page .main-single-container[class*="container"],
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .main-single-container[class*="container"],
+body.singular.post-type-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .main-single-container[class*="container"],
+body.page .single-property.resbs-single-property-wrapper#resbs-single-property-page .main-single-container[class*="container"],
+body .single-property.resbs-single-property-wrapper#resbs-single-property-page .main-single-container[class*="container"],
+.single-property .main-single-container[style*="width"],
+.single-property.resbs-single-property-wrapper .main-single-container[style*="width"],
+#resbs-single-property-page .main-single-container[style*="width"],
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .main-single-container[style*="width"],
+body .single-property.resbs-single-property-wrapper#resbs-single-property-page .main-single-container[style*="width"] {
+    width: 100% !important;
+    max-width: 1536px !important;
+    min-width: 0 !important;
+}
+
+/* Prevent theme from setting different container widths */
+.single-property.resbs-single-property-wrapper#resbs-single-property-page .main-single-container,
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .main-single-container,
+body.singular.post-type-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .main-single-container,
+body.page .single-property.resbs-single-property-wrapper#resbs-single-property-page .main-single-container,
+body .single-property.resbs-single-property-wrapper#resbs-single-property-page .main-single-container {
+    width: 100% !important;
+    max-width: 1536px !important;
+    min-width: 0 !important;
 }
 
 .single-property .grid {
@@ -382,70 +468,304 @@ footer h1, footer h2, footer h3, footer h4, footer h5, footer h6,
 /* Continue with rest of your styles... (tabs, details, amenities, etc.) */
 /* I'll add a few more critical sections */
 
-.single-property .tabs {
+/* ============================================================================
+   TABS STYLING - COMPLETE FIX WITH LONG PREFIXES AND FALLBACKS
+   ============================================================================ */
+
+/* Tabs Container */
+.single-property .tabs,
+#resbs-single-property-page .tabs,
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .tabs,
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .tabs.no-print,
+body .single-property.resbs-single-property-wrapper#resbs-single-property-page .tabs {
     background: #ffffff !important;
     border-radius: 8px !important;
     border: 1px solid #e5e7eb !important;
+    margin: 0 0 2rem 0 !important;
+    margin-top: 0 !important;
     margin-bottom: 2rem !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
     overflow: hidden !important;
     display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    position: relative !important;
+    clear: both !important;
 }
 
-.single-property .tabs-header {
+/* Tabs Header */
+.single-property .tabs-header,
+#resbs-single-property-page .tabs-header,
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .tabs-header,
+body .single-property.resbs-single-property-wrapper#resbs-single-property-page .tabs-header,
+.single-property .tabs .tabs-header,
+#resbs-single-property-page .tabs .tabs-header {
     display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: stretch !important;
+    align-content: stretch !important;
+    justify-content: flex-start !important;
     overflow-x: auto !important;
+    overflow-y: hidden !important;
     background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    border-top: none !important;
+    border-left: none !important;
+    border-right: none !important;
     border-bottom: 1px solid #e5e7eb !important;
+    border-bottom-width: 1px !important;
+    border-bottom-style: solid !important;
+    border-bottom-color: #e5e7eb !important;
     padding: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    margin: 0 !important;
+    margin-top: 0 !important;
     margin-bottom: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    position: relative !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: thin !important;
+    gap: 0 !important;
+    row-gap: 0 !important;
+    column-gap: 0 !important;
+    list-style: none !important;
 }
 
-.single-property .tab-button {
+/* Tab Button Base Styles */
+.single-property .tab-button,
+#resbs-single-property-page .tab-button,
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .tab-button,
+body .single-property.resbs-single-property-wrapper#resbs-single-property-page .tab-button,
+.single-property .tabs-header .tab-button,
+#resbs-single-property-page .tabs-header .tab-button,
+.single-property .tabs .tab-button,
+#resbs-single-property-page .tabs .tab-button {
     background: transparent !important;
+    background-color: transparent !important;
     border: none !important;
+    border-top: none !important;
+    border-left: none !important;
+    border-right: none !important;
+    border-bottom: 2px solid transparent !important;
     padding: 1rem 1.5rem !important;
+    padding-top: 1rem !important;
+    padding-bottom: 1rem !important;
+    padding-left: 1.5rem !important;
+    padding-right: 1.5rem !important;
     cursor: pointer !important;
     font-weight: 600 !important;
+    font-size: 16px !important;
+    line-height: 1.5 !important;
     color: #4b5563 !important;
-    transition: color 0.2s ease !important;
-    border-bottom: 2px solid transparent !important;
+    transition: color 0.2s ease, border-bottom-color 0.2s ease !important;
     white-space: nowrap !important;
     position: relative !important;
-    font-size: 16px !important;
     text-transform: none !important;
     letter-spacing: 0 !important;
+    margin: 0 !important;
     margin-right: 0 !important;
+    margin-left: 0 !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
     display: inline-block !important;
+    flex-shrink: 0 !important;
+    flex-grow: 0 !important;
+    box-sizing: border-box !important;
+    outline: none !important;
+    text-decoration: none !important;
+    font-family: inherit !important;
+    vertical-align: top !important;
+    text-align: center !important;
+    min-width: auto !important;
+    max-width: none !important;
+    width: auto !important;
+    height: auto !important;
 }
 
-.single-property .tab-button:hover {
+/* Tab Button Hover */
+.single-property .tab-button:hover,
+#resbs-single-property-page .tab-button:hover,
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .tab-button:hover,
+body .single-property.resbs-single-property-wrapper#resbs-single-property-page .tab-button:hover,
+.single-property .tabs-header .tab-button:hover {
     color: #10b981 !important;
     background: transparent !important;
+    background-color: transparent !important;
     transform: none !important;
+    border-bottom-color: transparent !important;
+    box-shadow: none !important;
 }
 
-.single-property .tab-button.active {
+/* Tab Button Active */
+.single-property .tab-button.active,
+#resbs-single-property-page .tab-button.active,
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .tab-button.active,
+body .single-property.resbs-single-property-wrapper#resbs-single-property-page .tab-button.active,
+.single-property .tabs-header .tab-button.active,
+.single-property .tab-button[data-tab].active {
     color: #10b981 !important;
     border-bottom-color: #10b981 !important;
+    border-bottom: 2px solid #10b981 !important;
     background: transparent !important;
+    background-color: transparent !important;
     box-shadow: none !important;
     font-weight: 600 !important;
+    position: relative !important;
 }
 
-.single-property .tabs-content {
+/* Tabs Content Container */
+.single-property .tabs-content,
+#resbs-single-property-page .tabs-content,
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .tabs-content,
+body .single-property.resbs-single-property-wrapper#resbs-single-property-page .tabs-content {
     padding: 2rem !important;
+    padding-top: 2rem !important;
+    padding-bottom: 2rem !important;
+    padding-left: 2rem !important;
+    padding-right: 2rem !important;
     background: transparent !important;
+    background-color: transparent !important;
     border-radius: 0 !important;
     border: none !important;
+    border-top: none !important;
+    border-bottom: none !important;
+    border-left: none !important;
+    border-right: none !important;
     display: block !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
 }
 
-.single-property .tab-content {
+/* Tab Content (Individual Tab Panels) */
+.single-property .tab-content,
+#resbs-single-property-page .tab-content,
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .tab-content,
+body .single-property.resbs-single-property-wrapper#resbs-single-property-page .tab-content,
+.single-property .tabs-content .tab-content {
     display: none !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
-.single-property .tab-content.active {
+/* Tab Content Active */
+.single-property .tab-content.active,
+#resbs-single-property-page .tab-content.active,
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .tab-content.active,
+body .single-property.resbs-single-property-wrapper#resbs-single-property-page .tab-content.active,
+.single-property .tabs-content .tab-content.active,
+.single-property #overview-tab.active,
+.single-property #pricing-tab.active,
+.single-property #specifications-tab.active,
+.single-property #location-tab.active,
+.single-property #features-tab.active,
+.single-property #media-tab.active,
+.single-property #agent-tab.active,
+.single-property #booking-tab.active {
     display: block !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* Tab Scrollbar Styling */
+.single-property .tabs-header::-webkit-scrollbar,
+#resbs-single-property-page .tabs-header::-webkit-scrollbar {
+    height: 4px !important;
+    width: 4px !important;
+}
+
+.single-property .tabs-header::-webkit-scrollbar-track,
+#resbs-single-property-page .tabs-header::-webkit-scrollbar-track {
+    background: #f1f5f9 !important;
+    border-radius: 2px !important;
+}
+
+.single-property .tabs-header::-webkit-scrollbar-thumb,
+#resbs-single-property-page .tabs-header::-webkit-scrollbar-thumb {
+    background: #cbd5e1 !important;
+    border-radius: 2px !important;
+}
+
+.single-property .tabs-header::-webkit-scrollbar-thumb:hover,
+#resbs-single-property-page .tabs-header::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8 !important;
+}
+
+/* ============================================================================
+   RESPONSIVE TAB STYLES
+   ============================================================================ */
+
+/* Tablet and Below */
+@media (max-width: 768px) {
+    .single-property .tabs,
+    #resbs-single-property-page .tabs,
+    body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .tabs,
+    body .single-property.resbs-single-property-wrapper#resbs-single-property-page .tabs {
+        border-radius: 6px !important;
+        margin-bottom: 1.5rem !important;
+    }
+
+    .single-property .tab-button,
+    #resbs-single-property-page .tab-button,
+    body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .tab-button,
+    body .single-property.resbs-single-property-wrapper#resbs-single-property-page .tab-button {
+        padding: 0.875rem 1.25rem !important;
+        font-size: 15px !important;
+    }
+
+    .single-property .tabs-content,
+    #resbs-single-property-page .tabs-content,
+    body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .tabs-content,
+    body .single-property.resbs-single-property-wrapper#resbs-single-property-page .tabs-content {
+        padding: 1.5rem !important;
+    }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+    .single-property .tabs,
+    #resbs-single-property-page .tabs,
+    body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .tabs,
+    body .single-property.resbs-single-property-wrapper#resbs-single-property-page .tabs {
+        border-radius: 4px !important;
+        margin-bottom: 1rem !important;
+    }
+
+    .single-property .tabs-header,
+    #resbs-single-property-page .tabs-header,
+    body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .tabs-header,
+    body .single-property.resbs-single-property-wrapper#resbs-single-property-page .tabs-header {
+        border-bottom-width: 1px !important;
+    }
+
+    .single-property .tab-button,
+    #resbs-single-property-page .tab-button,
+    body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .tab-button,
+    body .single-property.resbs-single-property-wrapper#resbs-single-property-page .tab-button {
+        padding: 0.75rem 1rem !important;
+        font-size: 14px !important;
+        min-width: auto !important;
+    }
+
+    .single-property .tabs-content,
+    #resbs-single-property-page .tabs-content,
+    body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .tabs-content,
+    body .single-property.resbs-single-property-wrapper#resbs-single-property-page .tabs-content {
+        padding: 1rem !important;
+    }
 }
 
 .single-property .section-title {
@@ -1533,99 +1853,128 @@ footer h1, footer h2, footer h3, footer h4, footer h5, footer h6,
 }
 
 /* Property Features Section */
-.single-property .property-features-section {
-
-    border-radius: 8px;
-    margin-bottom: 2rem;
+.single-property .property-features-section,
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .property-features-section,
+body .single-property.resbs-single-property-wrapper#resbs-single-property-page .property-features-section {
+    border-radius: 8px !important;
+    margin-bottom: 2rem !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    position: relative !important;
 }
 
 /* Pure CSS Grid for Property Features */
-.single-property .property-features-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0.75rem;
-    width: 100%;
+.single-property .property-features-grid,
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .property-features-grid,
+body .single-property.resbs-single-property-wrapper#resbs-single-property-page .property-features-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 0.75rem !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    position: relative !important;
 }
 
-.single-property .property-features-grid .feature-detail-item {
-    width: 100%;
-    max-width: none;
-    flex: 1;
+.single-property .property-features-grid .feature-detail-item,
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .property-features-grid .feature-detail-item,
+body .single-property.resbs-single-property-wrapper#resbs-single-property-page .property-features-grid .feature-detail-item {
+    width: 100% !important;
+    max-width: none !important;
+    flex: 1 !important;
+    box-sizing: border-box !important;
 }
 
 /* Mobile: 1 column */
 @media (max-width: 767px) {
-    .single-property .property-features-grid {
-        grid-template-columns: 1fr;
+    .single-property .property-features-grid,
+    body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .property-features-grid,
+    body .single-property.resbs-single-property-wrapper#resbs-single-property-page .property-features-grid {
+        grid-template-columns: 1fr !important;
     }
 }
 
 /* Tablet: 2 columns */
 @media (min-width: 768px) and (max-width: 1023px) {
-    .single-property .property-features-grid {
-        grid-template-columns: repeat(2, 1fr);
+    .single-property .property-features-grid,
+    body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .property-features-grid,
+    body .single-property.resbs-single-property-wrapper#resbs-single-property-page .property-features-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
     }
 }
 
 /* Desktop: 3 columns */
 @media (min-width: 1024px) {
-    .single-property .property-features-grid {
-        grid-template-columns: repeat(3, 1fr);
+    .single-property .property-features-grid,
+    body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .property-features-grid,
+    body .single-property.resbs-single-property-wrapper#resbs-single-property-page .property-features-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
     }
 }
 
-.single-property .feature-detail-item {
-    display: flex;
-    align-items: center;
-    padding: 0.75rem;
-    background: #f9fafb;
-    border-radius: 6px;
-    transition: all 0.2s ease;
-    width: 100%;
-    min-height: 60px;
-    padding:1.4rem
-
+.single-property .feature-detail-item,
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .feature-detail-item,
+body .single-property.resbs-single-property-wrapper#resbs-single-property-page .feature-detail-item {
+    display: flex !important;
+    align-items: center !important;
+    padding: 1.4rem !important;
+    background: #f9fafb !important;
+    border-radius: 6px !important;
+    transition: all 0.2s ease !important;
+    width: 100% !important;
+    min-height: 60px !important;
+    box-sizing: border-box !important;
+    position: relative !important;
 }
 
-
-
-.single-property .feature-detail-icon {
-    width: 32px;
-    height: 32px;
-    background: var(--rebs-primary-color);
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 0.75rem;
-    flex-shrink: 0;
+.single-property .feature-detail-icon,
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .feature-detail-icon,
+body .single-property.resbs-single-property-wrapper#resbs-single-property-page .feature-detail-icon {
+    width: 32px !important;
+    height: 32px !important;
+    background: var(--rebs-primary-color) !important;
+    border-radius: 6px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin-right: 0.75rem !important;
+    flex-shrink: 0 !important;
+    box-sizing: border-box !important;
 }
 
-.single-property .feature-detail-icon i {
-    color: white;
-    font-size: 1rem;
+.single-property .feature-detail-icon i,
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .feature-detail-icon i,
+body .single-property.resbs-single-property-wrapper#resbs-single-property-page .feature-detail-icon i {
+    color: white !important;
+    font-size: 1rem !important;
 }
 
-.single-property .feature-detail-content {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
+.single-property .feature-detail-content,
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .feature-detail-content,
+body .single-property.resbs-single-property-wrapper#resbs-single-property-page .feature-detail-content {
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 1 !important;
+    box-sizing: border-box !important;
 }
 
-.single-property .feature-detail-label {
-    font-size: 0.75rem;
-    color: #6b7280;
-    font-weight: 500;
-    margin-bottom: 0.125rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+.single-property .feature-detail-label,
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .feature-detail-label,
+body .single-property.resbs-single-property-wrapper#resbs-single-property-page .feature-detail-label {
+    font-size: 0.75rem !important;
+    color: #6b7280 !important;
+    font-weight: 500 !important;
+    margin-bottom: 0.125rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
 }
 
-.single-property .feature-detail-value {
-    font-size: 0.875rem;
-    color: #1f2937;
-    font-weight: 600;
-    text-transform: capitalize;
+.single-property .feature-detail-value,
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .feature-detail-value,
+body .single-property.resbs-single-property-wrapper#resbs-single-property-page .feature-detail-value {
+    font-size: 0.875rem !important;
+    color: #1f2937 !important;
+    font-weight: 600 !important;
+    text-transform: capitalize !important;
 }
 
 /* Image Viewer */
@@ -1764,8 +2113,10 @@ footer h1, footer h2, footer h3, footer h4, footer h5, footer h6,
     margin-bottom: 0.5rem !important;
 }
 
-.specifications-grid p {
-    margin-top: 10px;
+.specifications-grid p,
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .specifications-grid p,
+body .single-property.resbs-single-property-wrapper#resbs-single-property-page .specifications-grid p {
+    margin-top: 10px !important;
 }
 
 .single-property .specifications-grid > div p {
@@ -2671,10 +3022,10 @@ footer h1, footer h2, footer h3, footer h4, footer h5, footer h6,
 
 @keyframes rebs-pulse {
     0%, 100% {
-        opacity: 1;
+        opacity: 1 !important;
     }
     50% {
-        opacity: .8;
+        opacity: .8 !important;
     }
 }
 
@@ -2684,10 +3035,10 @@ footer h1, footer h2, footer h3, footer h4, footer h5, footer h6,
 
 @keyframes rebs-skeleton-loading {
     0% {
-        background-color: hsl(200, 20%, 80%);
+        background-color: hsl(200, 20%, 80%) !important;
     }
     100% {
-        background-color: hsl(200, 20%, 95%);
+        background-color: hsl(200, 20%, 95%) !important;
     }
 }
 
@@ -2822,6 +3173,206 @@ footer h1, footer h2, footer h3, footer h4, footer h5, footer h6,
     height: 100% !important;
 }
 
-/* ============================================================================
+/* ========================================
+   FINAL ULTRA-SPECIFIC OVERRIDE SECTION
+   MAXIMUM SPECIFICITY FOR ALL CRITICAL PROPERTIES
+   THIS OVERRIDES ALL PREVIOUS SELECTORS
+   ======================================== */
+
+/* Container - Maximum Width Control */
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .main-single-container,
+body.singular.post-type-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .main-single-container,
+body.page .single-property.resbs-single-property-wrapper#resbs-single-property-page .main-single-container,
+body .single-property.resbs-single-property-wrapper#resbs-single-property-page .main-single-container {
+    width: 100% !important;
+    max-width: 1536px !important;
+    min-width: 0 !important;
+    margin: 0 auto !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    padding: 4rem 1rem !important;
+    padding-top: 4rem !important;
+    padding-bottom: 4rem !important;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    box-sizing: border-box !important;
+    position: relative !important;
+    display: block !important;
+    overflow: visible !important;
+}
+
+/* Force ALL child elements to use maximum specificity - Override ALL previous .single-property selectors */
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page *,
+body.singular.post-type-property .single-property.resbs-single-property-wrapper#resbs-single-property-page *,
+body.page .single-property.resbs-single-property-wrapper#resbs-single-property-page * {
+    box-sizing: border-box !important;
+}
+
+/* Override ALL .single-property selectors with maximum specificity - FALLBACK FIRST */
+.single-property .grid,
+.single-property .gallery,
+.single-property .card,
+.single-property .property-header,
+.single-property .property-title,
+.single-property .property-price,
+.single-property .action-btn,
+.single-property button,
+.single-property .button,
+.single-property a.button,
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .grid,
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .gallery,
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .card,
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .property-header,
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .property-title,
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .property-price,
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .action-btn,
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page button,
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .button,
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page a.button {
+    /* Force box-sizing - DO NOT use inherit */
+    box-sizing: border-box !important;
+}
+
+/* Prevent theme from affecting our single property page - FALLBACK FIRST */
+.single-property,
+.single-property.resbs-single-property-wrapper,
+#resbs-single-property-page,
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page,
+body.singular.post-type-property .single-property.resbs-single-property-wrapper#resbs-single-property-page,
+body.page .single-property.resbs-single-property-wrapper#resbs-single-property-page {
+    isolation: isolate !important;
+    contain: layout style paint !important;
+    position: relative !important;
+    z-index: 1 !important;
+}
+
+/* ========================================
+   FINAL FALLBACK - ENSURE ALL STYLES WORK
+   Simple selectors that work regardless of body classes
+   ======================================== */
+.single-property .main-single-container,
+#resbs-single-property-page .main-single-container,
+.single-property.resbs-single-property-wrapper .main-single-container {
+    width: 100% !important;
+    max-width: 1536px !important;
+    min-width: 0 !important;
+    margin: 0 auto !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    padding: 4rem 1rem !important;
+    padding-top: 4rem !important;
+    padding-bottom: 4rem !important;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+    box-sizing: border-box !important;
+    position: relative !important;
+    display: block !important;
+}
+
+/* CRITICAL: Override ALL button styles with maximum specificity */
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page button,
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .button,
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page input[type="button"],
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page input[type="submit"],
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page a.button,
+body.singular.post-type-property .single-property.resbs-single-property-wrapper#resbs-single-property-page button,
+body.singular.post-type-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .button {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    background: transparent !important;
+    font-family: inherit !important;
+    font-size: inherit !important;
+    line-height: inherit !important;
+    text-transform: none !important;
+    letter-spacing: normal !important;
+    text-decoration: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    cursor: pointer !important;
+    display: inline-block !important;
+    transition: all 0.3s ease !important;
+}
+
+/* ========================================
+   COMPREHENSIVE OVERRIDE - ALL SELECTORS
+   This ensures ALL .single-property selectors use maximum specificity
+   ======================================== */
+
+/* Override ALL previous .single-property selectors with maximum specificity - FALLBACK FIRST */
+.single-property .grid,
+.single-property .grid-cols-1,
+.single-property .grid-cols-2,
+.single-property .grid-cols-3,
+.single-property .grid-cols-4,
+.single-property .gallery,
+.single-property .gallery-item,
+.single-property .gallery-main,
+.single-property .card,
+.single-property .property-header,
+.single-property .property-title,
+.single-property .property-price,
+.single-property .property-location,
+.single-property .property-actions,
+.single-property .action-btn,
+.single-property .key-features-grid,
+.single-property .feature-item,
+.single-property .tabs,
+.single-property .tab-content,
+.single-property .badge,
+.single-property .property-badges,
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .grid,
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .grid-cols-1,
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .grid-cols-2,
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .grid-cols-3,
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .grid-cols-4,
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .gallery,
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .gallery-item,
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .gallery-main,
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .card,
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .property-header,
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .property-title,
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .property-price,
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .property-location,
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .property-actions,
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .action-btn,
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .key-features-grid,
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .feature-item,
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .tabs,
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .tab-content,
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .badge,
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .property-badges {
+    /* Force all to use box-sizing - DO NOT use inherit */
+    box-sizing: border-box !important;
+}
+
+/* Force ALL width and container properties */
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page [class*="container"],
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page [class*="width"],
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page [class*="max-width"],
+.single-property.resbs-single-property-wrapper#resbs-single-property-page [class*="container"],
+#resbs-single-property-page [class*="container"] {
+    box-sizing: border-box !important;
+}
+
+/* Force container width specifically */
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .main-single-container[class*="container"],
+.single-property.resbs-single-property-wrapper#resbs-single-property-page .main-single-container[class*="container"],
+#resbs-single-property-page .main-single-container[class*="container"],
+body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .main-single-container,
+.single-property.resbs-single-property-wrapper#resbs-single-property-page .main-single-container {
+    width: 100% !important;
+    max-width: 1536px !important;
+    min-width: 0 !important;
+}
+
+/* ============================================================================ 
    END OF COMPLETE ISOLATION CSS
    ==================================================

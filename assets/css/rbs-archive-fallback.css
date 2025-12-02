@@ -1,0 +1,191 @@
+/* ========================================
+   FALLBACK CSS - SIMPLE SELECTORS
+   This ensures styles work even without body classes
+   ======================================== */
+
+/* Base Archive Container */
+.rbs-archive,
+.rbs-archive.resbs-archive-wrapper,
+#resbs-property-archive {
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    position: relative !important;
+}
+
+.rbs-archive *,
+.rbs-archive *::before,
+.rbs-archive *::after {
+    box-sizing: border-box !important;
+}
+
+/* Container */
+.rbs-archive .container,
+#resbs-property-archive .container {
+    width: 100% !important;
+    max-width: 1540px !important;
+    margin: 0 auto !important;
+    padding: 0 16px !important;
+    box-sizing: border-box !important;
+}
+
+/* Search Bar */
+.rbs-archive .search-bar {
+    background-color: white !important;
+    border-bottom: 1px solid #e5e7eb !important;
+    padding: 24px 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+}
+
+.rbs-archive .search-container {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 16px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+}
+
+.rbs-archive .search-input {
+    width: 100% !important;
+    padding: 14px 48px !important;
+    border: 1px solid #d1d5db !important;
+    border-radius: 12px !important;
+    font-size: 16px !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+}
+
+.rbs-archive .search-btn {
+    padding: 12px 20px !important;
+    background-color: #0f766e !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 12px !important;
+    font-weight: 500 !important;
+    cursor: pointer !important;
+    margin: 0 !important;
+    display: inline-block !important;
+    text-decoration: none !important;
+    font-size: 16px !important;
+}
+
+.rbs-archive .search-btn:hover {
+    background-color: #0d5c54 !important;
+    color: white !important;
+}
+
+/* Property Grid */
+.rbs-archive .property-grid,
+#resbs-property-archive .property-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+    gap: 24px !important;
+    margin: 0 !important;
+    padding: 24px 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+@media (min-width: 1024px) {
+    .rbs-archive .property-grid,
+    #resbs-property-archive .property-grid {
+        grid-template-columns: repeat(4, 1fr) !important;
+    }
+}
+
+/* Listings Container */
+.rbs-archive .listings-container,
+#resbs-property-archive .listings-container {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 24px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* Property Card */
+.rbs-archive .property-card,
+#resbs-property-archive .property-card {
+    background-color: white !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.rbs-archive .property-image {
+    position: relative !important;
+    width: 100% !important;
+    height: 250px !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.rbs-archive .property-image img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.rbs-archive .property-details {
+    padding: 20px !important;
+    margin: 0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.rbs-archive .property-price {
+    font-size: 24px !important;
+    font-weight: 700 !important;
+    color: #0f766e !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.rbs-archive .view-details-btn {
+    background-color: #0f766e !important;
+    color: white !important;
+    padding: 10px 20px !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    font-size: 14px !important;
+    cursor: pointer !important;
+    border: none !important;
+    margin: 0 !important;
+    display: inline-block !important;
+    text-decoration: none !important;
+}
+
+.rbs-archive .view-details-btn:hover {
+    background-color: #0d645d !important;
+    color: white !important;
+}
+
+/* Buttons Reset */
+.rbs-archive button,
+.rbs-archive .button {
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    background: transparent !important;
+    font-family: inherit !important;
+    font-size: inherit !important;
+    cursor: pointer !important;
+    box-shadow: none !important;
+}
+

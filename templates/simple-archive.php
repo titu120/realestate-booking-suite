@@ -266,7 +266,15 @@ if (!empty($property_type_filter)) {
     );
 }
 
-$properties_query = new WP_Query($args);
+// Use main query if available and it's a property archive, otherwise use custom query
+global $wp_query;
+if (is_post_type_archive('property') && $wp_query->is_main_query() && $wp_query->have_posts()) {
+    // Use the main query that WordPress set up
+    $properties_query = $wp_query;
+} else {
+    // Fallback to custom query
+    $properties_query = new WP_Query($args);
+}
 
 // Get ONLY existing property types - no creating new ones
 $property_types = get_terms(array(
@@ -281,11 +289,11 @@ $property_statuses = get_terms(array(
 ));
 ?>
 
-<div class="rbs-archive">
+<div class="rbs-archive resbs-archive-wrapper" id="resbs-property-archive">
 
     <!-- Advanced Search Bar -->
     <div class="search-bar">
-        <div class="container">
+        <div class="container" style="width: 100% !important; max-width: 1540px !important; min-width: 0 !important; margin: 0 auto !important; margin-left: auto !important; margin-right: auto !important; padding: 4rem 16px !important; padding-top: 4rem !important; padding-bottom: 4rem !important; padding-left: 16px !important; padding-right: 16px !important; box-sizing: border-box !important; position: relative !important; display: block !important;">
             <form method="GET" class="search-container" id="searchForm">
                 <!-- Search Input -->
                 <div class="search-input-container">
@@ -508,7 +516,7 @@ $property_statuses = get_terms(array(
     </div>
 
     <!-- Main Content -->
-    <div class="container main-content">
+    <div class="container main-content" style="width: 100% !important; max-width: 1540px !important; min-width: 0 !important; margin: 0 auto !important; margin-left: auto !important; margin-right: auto !important; padding: 4rem 16px !important; padding-top: 4rem !important; padding-bottom: 4rem !important; padding-left: 16px !important; padding-right: 16px !important; box-sizing: border-box !important; position: relative !important; display: block !important;">
         <!-- Control Bar -->
         <div class="control-bar">
             <!-- Left Side -->
@@ -568,14 +576,7 @@ $property_statuses = get_terms(array(
                 </div>
                 <?php endif; ?>
 
-                <div class="layout-toggle">
-                    <button onclick="showGridLayout()" class="layout-btn" id="gridBtn">
-                        <i class="fas fa-th-large"></i>
-                    </button>
-                    <button class="filter-toggle" onclick="showMap()" id="mapToggleBtn">
-                        <i class="fas fa-map-marked-alt"></i>
-                    </button>
-                </div>
+
             </div>
         </div>
 

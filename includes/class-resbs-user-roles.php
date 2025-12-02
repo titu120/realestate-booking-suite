@@ -83,16 +83,7 @@ class RESBS_User_Roles {
      * @return string Role name (sanitized)
      */
     private function get_best_role_for_user() {
-        // Check if WooCommerce is active and Customer role exists
-        if (class_exists('WooCommerce')) {
-            // Verify Customer role exists
-            $customer_role = get_role('customer');
-            if ($customer_role) {
-                return sanitize_key('customer');
-            }
-        }
-
-        // Fallback to Subscriber (WordPress core role - always safe)
+        // Use Subscriber role (WordPress core role - always safe)
         return sanitize_key('subscriber');
     }
 
@@ -118,12 +109,6 @@ class RESBS_User_Roles {
      * @return string Recommended role name (sanitized)
      */
     public static function get_recommended_role() {
-        if (class_exists('WooCommerce')) {
-            $customer_role = get_role('customer');
-            if ($customer_role) {
-                return sanitize_key('customer');
-            }
-        }
         return sanitize_key('subscriber');
     }
 }

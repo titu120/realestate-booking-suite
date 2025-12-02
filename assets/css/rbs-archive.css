@@ -1,1042 +1,1059 @@
+/* ========================================
+   REALESTATE BOOKING SUITE ARCHIVE CSS
+   MAXIMUM SPECIFICITY - NO THEME CONFLICTS
+   ALL PROPERTIES USE !important
+   VERY LONG PREFIX SELECTORS
+   ======================================== */
 
+/* ========================================
+   ULTRA-SPECIFIC RESET - PREVENT ALL THEME CONFLICTS
+   FALLBACK SELECTORS FOR COMPATIBILITY
+   ======================================== */
+/* Fallback selectors - work even without body classes */
+.rbs-archive,
+.rbs-archive.resbs-archive-wrapper,
+#resbs-property-archive,
+.rbs-archive.resbs-archive-wrapper#resbs-property-archive,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive,
+body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive,
+body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive,
+body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive,
+body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive {
+    box-sizing: border-box !important;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    position: relative !important;
+    z-index: 1 !important;
+}
 
-    .rbs-archive .container {
-        width: 100%;
-        max-width: 1540px;
-        margin: 0 auto;
-        padding: 0 16px;
-    }
+/* DO NOT AFFECT THEME HEADER/FOOTER */
+body.archive.post-type-archive-property header,
+body.archive.post-type-archive-property footer,
+body.archive.tax-property_type header,
+body.archive.tax-property_type footer,
+body.archive.tax-property_status header,
+body.archive.tax-property_status footer,
+body.archive.tax-property_location header,
+body.archive.tax-property_location footer {
+    /* Let theme handle header/footer - no restrictions */
+    position: relative !important;
+    z-index: auto !important;
+}
 
-    /* Header Styles - Removed to prevent conflicts with theme header */
-    /* .rbs-archive header {
-        background-color: white;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        position: sticky;
-        top: 0;
-        z-index: 50;
-        border-bottom: 1px solid #f3f4f6;
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-    } */
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive *,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive *::before,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive *::after {
+    box-sizing: border-box !important;
+}
 
-    /* ALL HEADER/NAVIGATION CSS REMOVED - Let theme handle it completely */
-    /* Removed all .rbs-archive .header-*, .rbs-archive .logo-*, .rbs-archive .nav-*, .rbs-archive .mobile-menu-* rules */
+/* ========================================
+   CONTAINER - MAXIMUM WIDTH CONTROL
+   FALLBACK SELECTORS FOR COMPATIBILITY
+   ======================================== */
+.rbs-archive .container,
+.rbs-archive.resbs-archive-wrapper .container,
+#resbs-property-archive .container,
+.rbs-archive.resbs-archive-wrapper#resbs-property-archive .container,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container,
+body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container,
+body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container,
+body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container,
+body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container {
+    width: 100% !important;
+    max-width: 1540px !important;
+    min-width: 0 !important;
+    margin: 0 auto !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    padding: 4rem 16px !important;
+    padding-top: 4rem !important;
+    padding-bottom: 4rem !important;
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    box-sizing: border-box !important;
+    position: relative !important;
+    display: block !important;
+    overflow: visible !important;
+}
 
-    .rbs-archive .mobile-menu-title {
-        font-size: 24px;
-        font-weight: 700;
-    }
+/* ========================================
+   FORCE CONTAINER WIDTH - PREVENT THEME OVERRIDES
+   Additional rules to ensure theme width settings cannot override
+   ======================================== */
+.rbs-archive .container[class*="container"],
+.rbs-archive.resbs-archive-wrapper .container[class*="container"],
+#resbs-property-archive .container[class*="container"],
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container[class*="container"],
+body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container[class*="container"],
+body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container[class*="container"],
+body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container[class*="container"],
+body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container[class*="container"],
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container[class*="container"],
+.rbs-archive .container[style*="width"],
+.rbs-archive.resbs-archive-wrapper .container[style*="width"],
+#resbs-property-archive .container[style*="width"],
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container[style*="width"],
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container[style*="width"] {
+    width: 100% !important;
+    max-width: 1540px !important;
+    min-width: 0 !important;
+}
 
-    .rbs-archive .mobile-menu-close {
-        font-size: 24px;
-        cursor: pointer;
-    }
+/* Prevent theme from setting different container widths */
+.rbs-archive.resbs-archive-wrapper#resbs-property-archive .container,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container,
+body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container,
+body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container,
+body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container,
+body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container {
+    width: 100% !important;
+    max-width: 1540px !important;
+    min-width: 0 !important;
+}
 
-    .rbs-archive .mobile-nav {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-    }
+/* ========================================
+   BUTTON RESET - PREVENT ALL THEME BUTTON STYLES
+   ======================================== */
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive button,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .button,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive input[type="button"],
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive input[type="submit"],
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive a.button,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive button,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .button {
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    background: none !important;
+    font-family: inherit !important;
+    font-size: inherit !important;
+    line-height: inherit !important;
+    text-decoration: none !important;
+    cursor: pointer !important;
+    display: inline-block !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    transition: all 0.3s ease !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    text-transform: none !important;
+    letter-spacing: normal !important;
+}
 
-    .rbs-archive .mobile-nav-link {
-        font-size: 18px;
-        font-weight: 500;
-        color: #374151;
-    }
+/* ========================================
+   SEARCH BAR SECTION
+   FALLBACK SELECTORS FIRST
+   ======================================== */
+.rbs-archive .search-bar,
+#resbs-property-archive .search-bar,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .search-bar,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .search-bar {
+    background-color: white !important;
+    border-bottom: 1px solid #e5e7eb !important;
+    padding: 24px 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
 
-    .rbs-archive .mobile-nav-link:hover {
-        color: #0f766e;
-    }
+.rbs-archive .search-container,
+#resbs-property-archive .search-container,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .search-container,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .search-container {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 16px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+}
 
-    .rbs-archive .mobile-menu-btn {
-        width: 100%;
-        margin-top: 16px;
-        padding: 12px 24px;
-        border-radius: 8px;
-        font-weight: 500;
-        cursor: pointer;
-    }
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .search-input-container,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .search-input-container {
+    flex: 1 !important;
+    position: relative !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+}
 
-    /* Search Bar */
-    .rbs-archive .search-bar {
-        background-color: white;
-        border-bottom: 1px solid #e5e7eb;
-        padding: 24px 0;
-    }
+.rbs-archive .search-input,
+#resbs-property-archive .search-input,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .search-input,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .search-input {
+    width: 100% !important;
+    padding: 14px 48px !important;
+    border: 1px solid #d1d5db !important;
+    border-radius: 12px !important;
+    font-size: 16px !important;
+    transition: all 0.3s !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    font-family: inherit !important;
+    line-height: 1.5 !important;
+}
 
-    .rbs-archive .search-container {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-    }
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .search-input:focus,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .search-input:focus {
+    outline: none !important;
+    border-color: #0f766e !important;
+    box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.1) !important;
+}
 
-    .rbs-archive .search-input-container {
-        flex: 1;
-        position: relative;
-    }
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .search-icon,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .search-icon {
+    position: absolute !important;
+    left: 16px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    color: #9ca3af !important;
+    pointer-events: none !important;
+}
 
-    .rbs-archive .search-input {
-        width: 100%;
-        padding: 14px 48px;
-        border: 1px solid #d1d5db;
-        border-radius: 12px;
-        font-size: 16px;
-        transition: all 0.3s;
-    }
+/* ========================================
+   SEARCH BUTTON - ULTRA SPECIFIC
+   FALLBACK SELECTORS FIRST
+   ======================================== */
+.rbs-archive .search-btn,
+#resbs-property-archive .search-btn,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .search-btn,
+body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .search-btn,
+body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .search-btn,
+body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .search-btn,
+body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .search-btn,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .search-btn {
+    padding: 12px 20px !important;
+    background-color: #0f766e !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 12px !important;
+    font-weight: 500 !important;
+    cursor: pointer !important;
+    transition: all 0.3s !important;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+    margin: 0 !important;
+    display: inline-block !important;
+    text-decoration: none !important;
+    font-family: inherit !important;
+    font-size: 16px !important;
+    line-height: 1.5 !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+}
 
-    .rbs-archive .search-input:focus {
-        outline: none;
-        border-color: #0f766e;
-        box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.1);
-    }
+.rbs-archive .search-btn:hover,
+#resbs-property-archive .search-btn:hover,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .search-btn:hover,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .search-btn:hover {
+    background-color: #0d5c54 !important;
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1) !important;
+    color: white !important;
+}
 
-    .rbs-archive .search-icon {
-        position: absolute;
-        left: 16px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #9ca3af;
-    }
+/* ========================================
+   FILTER BUTTONS
+   ======================================== */
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .filter-buttons,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .filter-buttons {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 12px !important;
+    position: static !important;
+    align-items: flex-start !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
 
-    .rbs-archive .filter-buttons {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 12px;
-        position: static;
-        align-items: flex-start;
-    }
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .filter-chip,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .filter-chip {
+    padding: 12px 20px !important;
+    background-color: #f3f4f6 !important;
+    color: #374151 !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 8px !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    cursor: pointer !important;
+    transition: all 0.3s !important;
+    margin: 0 !important;
+    display: inline-block !important;
+    text-decoration: none !important;
+    font-family: inherit !important;
+    line-height: 1.5 !important;
+}
 
-    .rbs-archive .filter-chip {
-        padding: 12px 20px;
-        background-color: white;
-        border: 1px solid #d1d5db;
-        border-radius: 12px;
-        font-weight: 500;
-        color: #374151;
-        transition: all 0.3s;
-        cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        width: auto;
-        flex-shrink: 0;
-        white-space: nowrap;
-        min-width: auto;
-        max-width: none;
-    }
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .filter-chip:hover,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .filter-chip:hover {
+    background-color: #e5e7eb !important;
+    border-color: #0f766e !important;
+    color: #0f766e !important;
+}
 
-    .rbs-archive .filter-chip:hover {
-        border-color: #0f766e;
-        color: #0f766e;
+/* ========================================
+   DROPDOWNS
+   ======================================== */
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .dropdowns-container,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .dropdowns-container {
+    position: relative !important;
+    margin-top: 16px !important;
+    min-height: 0 !important;
+    width: 100% !important;
+}
 
-    }
-
-    .rbs-archive .search-btn {
-        padding: 12px 20px;
-        background-color: #0f766e;
-        color: white;
-        border: none;
-        border-radius: 12px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.3s;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-
-    .rbs-archive .search-btn:hover {
-        background-color: #0d5c54;
-        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
-    }
-
-    /* Dropdowns */
-    .rbs-archive .dropdowns-container {
-        position: relative;
-        margin-top: 16px;
-        min-height: 0;
-    }
-
-    .rbs-archive .dropdown-content {
-        display: none;
-        position: absolute;
-        top: 0;
-        left: 0;
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .dropdown-content,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .dropdown-content {
+    display: none !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
         z-index: 10000 !important;
         background-color: white !important;
-        border: 1px solid #e5e7eb;
-        border-radius: 12px;
-        padding: 24px;
-        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
-        animation: slideDown 0.3s ease;
-        min-width: 300px;
-        max-width: 500px;
-        width: auto;
-    }
-    
-    .rbs-archive .dropdown-content.active {
+    border: 1px solid #e5e7eb !important;
+    border-radius: 12px !important;
+    padding: 24px !important;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2) !important;
+    animation: slideDown 0.3s ease !important;
+    min-width: 300px !important;
+    max-width: 500px !important;
+    width: auto !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+}
+
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .dropdown-content.active,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .dropdown-content.active {
         display: block !important;
         visibility: visible !important;
     }
 
-    @keyframes rbs-archive-slideDown {
+@keyframes slideDown {
         from {
-            opacity: 0;
-            transform: translateY(-10px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+        opacity: 0 !important;
+        transform: translateY(-10px) !important;
+    }
+    to {
+        opacity: 1 !important;
+        transform: translateY(0) !important;
+    }
+}
+
+/* ========================================
+   MAIN CONTENT AREA
+   ======================================== */
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .main-content,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .main-content {
+    padding: 24px 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .control-bar,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .control-bar {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    margin-bottom: 24px !important;
+    padding: 0 !important;
+    width: 100% !important;
+    flex-wrap: wrap !important;
+    gap: 16px !important;
+}
+
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .view-controls,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .view-controls {
+    display: flex !important;
+    gap: 8px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .view-btn,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .view-btn {
+    padding: 8px 16px !important;
+    border: 1px solid #d1d5db !important;
+    border-radius: 8px !important;
+    background-color: white !important;
+    color: #374151 !important;
+    cursor: pointer !important;
+    transition: all 0.3s !important;
+    margin: 0 !important;
+    display: inline-block !important;
+    text-decoration: none !important;
+    font-family: inherit !important;
+    font-size: 14px !important;
+    line-height: 1.5 !important;
+}
+
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .view-btn:hover,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .view-btn:hover {
+    background-color: #f9fafb !important;
+    border-color: #0f766e !important;
+    color: #0f766e !important;
+}
+
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .view-btn.active,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .view-btn.active {
+    background-color: #0f766e !important;
+    border-color: #0f766e !important;
+    color: white !important;
+}
+
+/* Font Awesome Icons - Ensure Icons Display */
+.rbs-archive .view-btn i,
+#resbs-property-archive .view-btn i,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .view-btn i,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .view-btn i,
+.view-btn i {
+    display: inline-block !important;
+    font-family: "Font Awesome 6 Free" !important;
+    font-weight: 900 !important;
+    font-style: normal !important;
+    font-variant: normal !important;
+    text-rendering: auto !important;
+    line-height: 1 !important;
+    margin-right: 8px !important;
+    width: auto !important;
+    height: auto !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Specific icon classes */
+.rbs-archive .view-btn .fa-list,
+#resbs-property-archive .view-btn .fa-list,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .view-btn .fa-list,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .view-btn .fa-list,
+.view-btn .fa-list {
+    display: inline-block !important;
+    font-family: "Font Awesome 6 Free" !important;
+    font-weight: 900 !important;
+}
+
+.rbs-archive .view-btn .fa-map-marked-alt,
+#resbs-property-archive .view-btn .fa-map-marked-alt,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .view-btn .fa-map-marked-alt,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .view-btn .fa-map-marked-alt,
+.view-btn .fa-map-marked-alt {
+    display: inline-block !important;
+    font-family: "Font Awesome 6 Free" !important;
+    font-weight: 900 !important;
+}
+
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .results-count,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .results-count {
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    color: #374151 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .sort-controls,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .sort-controls {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .sort-select,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .sort-select {
+    padding: 8px 12px !important;
+    border: 1px solid #d1d5db !important;
+    border-radius: 8px !important;
+    font-size: 14px !important;
+    background-color: white !important;
+    color: #374151 !important;
+    cursor: pointer !important;
+    margin: 0 !important;
+    font-family: inherit !important;
+    line-height: 1.5 !important;
+}
+
+/* ========================================
+   PROPERTY LISTINGS CONTAINER - CRITICAL WIDTH CONTROL
+   ======================================== */
+.rbs-archive .listings-container,
+#resbs-property-archive .listings-container,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container,
+body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container,
+body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container,
+body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container,
+body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 24px !important;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.rbs-archive .listings-container.map-visible,
+#resbs-property-archive .listings-container.map-visible,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: flex-start !important;
+    gap: 24px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    min-height: 100vh !important;
+    position: relative !important;
+    box-sizing: border-box !important;
+}
+
+/* Properties List - Left Side */
+.rbs-archive .listings-container.map-visible .properties-list,
+#resbs-property-archive .listings-container.map-visible .properties-list,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible .properties-list,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible .properties-list {
+    flex: 1 !important;
+    min-width: 0 !important;
+    padding-right: 10px !important;
+    overflow-y: auto !important;
+    max-height: 100vh !important;
+    align-self: flex-start !important;
+}
+
+/* Map Section - Right Side */
+.rbs-archive .listings-container.map-visible .map-section,
+#resbs-property-archive .listings-container.map-visible .map-section,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible .map-section,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible .map-section {
+    flex: 1 !important;
+    display: block !important;
+    position: sticky !important;
+    top: 0 !important;
+    align-self: flex-start !important;
+    height: 100vh !important;
+    max-height: 100vh !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+}
+
+/* FORCE 2 COLUMNS IN MAP VIEW - MAXIMUM PRIORITY */
+.rbs-archive .listings-container.map-visible .property-grid,
+#resbs-property-archive .listings-container.map-visible .property-grid,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible .property-grid,
+body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible .property-grid,
+body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible .property-grid,
+body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible .property-grid,
+body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible .property-grid,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible .property-grid,
+.listings-container.map-visible .property-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    display: grid !important;
+    gap: 24px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.rbs-archive .listings-container.map-hidden,
+#resbs-property-archive .listings-container.map-hidden,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-hidden,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-hidden {
+    min-height: auto !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+}
+
+/* ========================================
+   PROPERTY GRID - CRITICAL WIDTH CONTROL
+   FALLBACK SELECTORS FIRST
+   ======================================== */
+.rbs-archive .property-grid,
+#resbs-property-archive .property-grid,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-grid,
+body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-grid,
+body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-grid,
+body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-grid,
+body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-grid,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+    gap: 24px !important;
+    transition: all 0.3s ease !important;
+    margin: 0 !important;
+    padding: 24px 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
     }
 
-    .rbs-archive .dropdown-grid {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 16px;
-    }
-
-    .rbs-archive .dropdown-label {
-        display: block;
-        font-size: 14px;
-        font-weight: 500;
-        color: #374151;
-        margin-bottom: 8px;
-    }
-
-    .rbs-archive .dropdown-input {
-        width: 100%;
-        padding: 10px 16px;
-        border: 1px solid #d1d5db;
-        border-radius: 8px;
-        font-size: 14px;
-    }
-
-    .rbs-archive .dropdown-input:focus {
-        outline: none;
-        border-color: #0f766e;
-        box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.1);
-    }
-
-    .rbs-archive .checkbox-grid {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 16px;
-    }
-
-    .rbs-archive .checkbox-item {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        cursor: pointer;
-        transition: color 0.3s;
-    }
-
-    .rbs-archive .checkbox-item:hover {
-        color: #0f766e;
-    }
-
-    .rbs-archive .checkbox-item input {
-        width: 16px;
-        height: 16px;
-        accent-color: #0f766e;
-    }
-
-    .rbs-archive .filter-options {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-    }
-
-    .rbs-archive .filter-option {
-        padding: 10px 24px;
-        border: 2px solid #d1d5db;
-        border-radius: 8px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.3s;
-    }
-
-    .rbs-archive .filter-option:hover {
-        background-color: #0f766e;
-        color: white;
-        border-color: #0f766e;
-    }
-
-    /* Main Content */
-    .rbs-archive .main-content {
-        padding: 24px 0;
-    }
-
-    .rbs-archive .control-bar {
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        align-items: flex-start;
-        gap: 16px;
-        margin-bottom: 24px;
-    }
-
-    .rbs-archive .view-controls {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-    }
-
-    .rbs-archive .view-btn {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        color: #6b7280;
-        transition: color 0.3s;
-        cursor: pointer;
-        border: unset;
-    }
-    .rbs-archive .view-btn:hover {
-        background-color: unset;
-    }
-
-    .rbs-archive .view-btn.active {
-        color: white;
-        font-weight: 500;
-        background-color: #0f766e;
-        padding: 8px 16px;
-        border-radius: 8px;
-    }
-
-    .rbs-archive .view-btn i {
-        font-size: 20px;
-    }
-
-    .rbs-archive .view-divider {
-        color: #d1d5db;
-    }
-
-    .rbs-archive .results-count {
-        padding: 8px 16px;
-        background-color: #ecfdf5;
-        color: #0f766e;
-        border-radius: 8px;
-        font-weight: 500;
-    }
-
-    .rbs-archive .sort-controls {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-
-    .rbs-archive .sort-label {
-        color: #6b7280;
-        font-weight: 500;
-        white-space: nowrap;
-    }
-
-    .rbs-archive .sort-select {
-        padding: 8px 16px;
-        border: 1px solid #d1d5db;
-        border-radius: 8px;
-        font-weight: 500;
-    }
-
-    .rbs-archive .sort-select:focus {
-        outline: none;
-        border-color: #0f766e;
-        box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.1);
-    }
-
-    .rbs-archive .layout-toggle {
-        display: flex;
-        border-radius: 8px;
-        padding: 4px;
-    }
-
-    .rbs-archive .layout-btn {
-        padding: 8px 16px;
-        border-radius: 6px;
-        cursor: pointer;
-        transition: all 0.3s;
-    }
-
-    .rbs-archive .layout-btn.active {
-        background-color: #0f766e;
-        color: white;
-    }
-
-    .rbs-archive .filter-toggle {
-        padding: 8px;
-        border: 1px solid #d1d5db;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: all 0.3s;
-        background-color: white;
-    }
-
-    .rbs-archive .filter-toggle:hover {
-        background-color: #f9fafb;
-        border-color: #0f766e;
-        color: #0f766e;
-    }
-
-    .rbs-archive .filter-toggle.active {
-        background-color: #0f766e;
-        border-color: #0f766e;
-        color: white;
-    }
-
-    .rbs-archive .filter-toggle i {
-        transition: all 0.3s;
-    }
-
-    /* Property Listings */
-    .rbs-archive .listings-container {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 24px;
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    /* Listings Container when map is visible */
-    .rbs-archive .listings-container.map-visible {
-        grid-template-columns: 1fr 1fr;
-        gap: 24px;
-    }
-
-    /* Remove unnecessary spacing when map is hidden */
-    .rbs-archive .listings-container.map-hidden {
-        min-height: auto;
-        height: auto;
-    }
-
-    /* Property Grid responsive adjustments */
-    .rbs-archive .property-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 24px;
-        transition: all 0.3s ease;
-    }
-
-    /* Responsive grid columns */
-    @media (min-width: 1024px) {
-        .rbs-archive .property-grid {
-            grid-template-columns: repeat(4, 1fr);
-        }
+/* Responsive grid columns - Fallback selectors first */
+@media (min-width: 1024px) {
+    .rbs-archive .property-grid,
+    #resbs-property-archive .property-grid,
+    body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-grid,
+    body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-grid,
+    body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-grid,
+    body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-grid,
+    body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-grid,
+    body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-grid {
+        grid-template-columns: repeat(4, 1fr) !important;
     }
     
-    @media (min-width: 1400px) {
-        .rbs-archive .property-grid {
-            grid-template-columns: repeat(4, 1fr);
-        }
+    /* FORCE 2 COLUMNS IN MAP VIEW - OVERRIDE 4 COLUMNS */
+    .rbs-archive .listings-container.map-visible .property-grid,
+    #resbs-property-archive .listings-container.map-visible .property-grid,
+    body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible .property-grid,
+    body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible .property-grid,
+    body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible .property-grid,
+    body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible .property-grid,
+    body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible .property-grid,
+    body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible .property-grid,
+    .listings-container.map-visible .property-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+}
+
+@media (min-width: 1400px) {
+    .rbs-archive .property-grid,
+    #resbs-property-archive .property-grid,
+    body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-grid,
+    body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-grid,
+    body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-grid,
+    body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-grid,
+    body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-grid,
+    body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-grid {
+        grid-template-columns: repeat(4, 1fr) !important;
     }
     
-    @media (max-width: 768px) {
-        .rbs-archive .property-grid {
-            grid-template-columns: repeat(2, 1fr);
-            gap: 16px;
-        }
+    /* FORCE 2 COLUMNS IN MAP VIEW - OVERRIDE 4 COLUMNS */
+    .rbs-archive .listings-container.map-visible .property-grid,
+    #resbs-property-archive .listings-container.map-visible .property-grid,
+    body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible .property-grid,
+    body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible .property-grid,
+    body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible .property-grid,
+    body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible .property-grid,
+    body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible .property-grid,
+    body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible .property-grid,
+    .listings-container.map-visible .property-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+}
+
+@media (max-width: 479px) {
+    .rbs-archive .property-grid,
+    #resbs-property-archive .property-grid,
+    body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-grid,
+    body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-grid {
+        grid-template-columns: 1fr !important;
     }
     
-    @media (max-width: 480px) {
-        .rbs-archive .property-grid {
-            grid-template-columns: 1fr;
-            gap: 16px;
-        }
+    /* Map view - 1 column on mobile */
+    .rbs-archive .listings-container.map-visible .property-grid,
+    #resbs-property-archive .listings-container.map-visible .property-grid,
+    body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible .property-grid,
+    body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible .property-grid,
+    .listings-container.map-visible .property-grid {
+        grid-template-columns: 1fr !important;
     }
-
-    .rbs-archive .properties-list {
-        overflow-y: visible;
-        max-height: none;
+    
+    /* Map view layout - stack on mobile */
+    .rbs-archive .listings-container.map-visible,
+    #resbs-property-archive .listings-container.map-visible,
+    body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible,
+    body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible {
+        flex-direction: column !important;
     }
-
-    /* No scrolling - let content flow naturally */
-    .rbs-archive .listings-container .properties-list {
-        overflow-y: visible;
-        max-height: none;
+    
+    .rbs-archive .listings-container.map-visible .map-section,
+    #resbs-property-archive .listings-container.map-visible .map-section,
+    body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible .map-section,
+    body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible .map-section {
+        position: relative !important;
+        height: 400px !important;
+        max-height: 400px !important;
     }
+}
 
-
-
-    .rbs-archive .property-card {
-        background-color: white;
-        overflow: hidden;
-        border: 1px solid #e5e7eb;
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+/* Tablet - 2 columns in map view */
+@media (min-width: 480px) and (max-width: 1023px) {
+    .rbs-archive .listings-container.map-visible .property-grid,
+    #resbs-property-archive .listings-container.map-visible .property-grid,
+    body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible .property-grid,
+    body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible .property-grid,
+    body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible .property-grid,
+    body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible .property-grid,
+    body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible .property-grid,
+    body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible .property-grid,
+    .listings-container.map-visible .property-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
     }
+}
 
+/* ========================================
+   PROPERTY CARD
+   FALLBACK SELECTORS FIRST
+   ======================================== */
+.rbs-archive .property-card,
+#resbs-property-archive .property-card,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-card,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-card {
+    background-color: white !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+    transition: all 0.3s !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    display: block !important;
+}
 
-    .rbs-archive .property-card.highlighted {
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-card:hover,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-card:hover {
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
+    transform: translateY(-4px) !important;
+}
 
-        border-color: #0f766e;
-    }
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-image,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-image {
+    position: relative !important;
+    width: 100% !important;
+    height: 250px !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
 
-    .rbs-archive .property-image {
-        position: relative;
-        overflow: hidden;
-        height: 224px;
-    }
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-image img,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-image img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
 
-    .rbs-archive .property-image img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-    }
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-card:hover .property-image img,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-card:hover .property-image img {
+    transform: scale(1.05) !important;
+    transition: transform 0.3s !important;
+}
 
-    .rbs-archive .property-card:hover .property-image img {
-        transform: scale(1.1);
-    }
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-details,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-details {
+    padding: 20px !important;
+    margin: 0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
 
-    .rbs-archive .gradient-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.7) 100%);
-    }
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-price-container,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-price-container {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    margin-bottom: 16px !important;
+    padding: 0 !important;
+    width: 100% !important;
+}
 
-    .rbs-archive .property-badge {
-        position: absolute;
-        top: 16px;
-        left: 16px;
-        padding: 6px 16px;
-        color: white;
-        border-radius: 9999px;
-        font-size: 14px;
-        font-weight: 600;
-        animation: rbs-archive-pulse 2s infinite;
-    }
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-price,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-price {
+    font-size: 24px !important;
+    font-weight: 700 !important;
+    color: #0f766e !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
 
-    @keyframes rbs-archive-pulse {
-        0%, 100% {
-            opacity: 1;
-        }
-        50% {
-            opacity: 0.8;
-        }
-    }
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-status,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-status {
+    padding: 4px 12px !important;
+    border-radius: 6px !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    background-color: #f3f4f6 !important;
+    color: #6b7280 !important;
+    margin: 0 !important;
+    display: inline-block !important;
+}
 
-    .rbs-archive .badge-featured {
-        background-color: #f97316;
-    }
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-features,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-features {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    font-size: 14px !important;
+    color: #6b7280 !important;
+    margin-bottom: 16px !important;
+    padding: 0 !important;
+    width: 100% !important;
+}
 
-    .rbs-archive .badge-new {
-        background-color: #10b981;
-    }
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-feature,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-feature {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
 
-    .rbs-archive .badge-standard {
-        background-color: #3b82f6;
-    }
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-footer,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-footer {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding-top: 16px !important;
+    border-top: 1px solid #f3f4f6 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
 
-    .rbs-archive .property-image .favorite-btn {
-        color: unset !important;
-    }
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-type,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-type {
+    font-size: 14px !important;
+    color: #6b7280 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
 
-    .rbs-archive .favorite-btn {
-        position: absolute;
-        top: 16px;
-        right: 16px;
-        width: 40px;
-        height: 40px;
-        min-width: 40px;
-        min-height: 40px;
-        max-width: 40px;
-        max-height: 40px;
-        padding: 0;
-        background-color: white;
-        border-radius: 50% !important;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: all 0.3s;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+/* ========================================
+   VIEW DETAILS BUTTON - ULTRA SPECIFIC
+   FALLBACK SELECTORS FIRST
+   ======================================== */
+.rbs-archive .view-details-btn,
+#resbs-property-archive .view-details-btn,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .view-details-btn,
+body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .view-details-btn,
+body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .view-details-btn,
+body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .view-details-btn,
+body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .view-details-btn,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .view-details-btn {
+    background-color: #0f766e !important;
+    color: white !important;
+    padding: 10px 20px !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    font-size: 14px !important;
+    cursor: pointer !important;
+    transition: all 0.3s !important;
         border: none !important;
-        outline: none;
-    }
+    margin: 0 !important;
+    display: inline-block !important;
+    text-decoration: none !important;
+    box-shadow: none !important;
+    font-family: inherit !important;
+    line-height: 1.5 !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+}
 
-    .rbs-archive .favorite-btn:hover {
-        background-color: #0f766e;
+.rbs-archive .view-details-btn:hover,
+#resbs-property-archive .view-details-btn:hover,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .view-details-btn:hover,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .view-details-btn:hover {
+    background-color: #0d645d !important;
         color: white !important;
-        border-radius: 50% !important;
-    }
-    
-    .rbs-archive .favorite-btn i {
-        font-size: 16px;
-        line-height: 1;
-    }
+    transform: translateY(-1px) !important;
+}
 
-    .rbs-archive .property-info-overlay {
-        position: absolute;
-        bottom: 16px;
-        left: 16px;
-        right: 16px;
-    }
+/* ========================================
+   MAP SECTION
+   ======================================== */
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .map-section,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .map-section {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 500px !important;
+    position: relative !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+}
 
-    .rbs-archive .property-title {
-        color: white !important;
-        font-weight: 700;
-        font-size: 20px;
-        margin-bottom: 4px;
-    }
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .map-section.map-hidden,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .map-section.map-hidden {
+    display: none !important;
+}
 
-    .rbs-archive .property-location {
-        color: rgba(255, 255, 255, 0.9) !important;
-        font-size: 14px;
-    }
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .map-section.map-visible,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .map-section.map-visible {
+    display: block !important;
+    flex: 1 !important;
+    position: sticky !important;
+    top: 0 !important;
+    align-self: flex-start !important;
+    height: 100vh !important;
+    max-height: 100vh !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+}
 
-    .rbs-archive .property-details {
-        padding: 20px;
-    }
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .map-container,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .map-container,
+.rbs-archive .listings-container.map-visible .map-section .map-container,
+#resbs-property-archive .listings-container.map-visible .map-section .map-container {
+    width: 100% !important;
+    height: 100vh !important;
+    max-height: 100vh !important;
+    min-height: 100vh !important;
+    position: relative !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+    display: block !important;
+}
 
-    .rbs-archive .property-price-container {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 16px;
-    }
-
-    .rbs-archive .property-price {
-        font-size: 24px;
-        font-weight: 700;
-        color: #0f766e;
-    }
-
-    .rbs-archive .property-status {
-        font-size: 14px;
-        color: #6b7280;
-        background-color: #f3f4f6;
-        padding: 4px 12px;
-        border-radius: 9999px;
-        white-space: nowrap;
-    }
-
-    .rbs-archive .property-features {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        font-size: 14px;
-        color: #6b7280;
-        margin-bottom: 16px;
-    }
-
-    .filter-buttons button:focus{
-        background-color: unset !important;
-        color:unset !important
-    }
-
-    .filter-buttons button:hover{
-        background-color: unset !important;
-        color:unset !important
-    }
-    .dropdown-content button.apply-filter-btn {
-        color: #fff;
-    }
-    .dropdown-content button.apply-filter-btn:focus {
-        color: #fff;
-    }
-    .dropdown-content button.apply-filter-btn:hover {
-        color: #fff;
-    }
-    .dropdown-content button.clear-filter-btn {
-        color: #fff;
-    }
-    .dropdown-content button.clear-filter-btn:focus {
-        color: #fff;
-    }
-    .dropdown-content button.clear-filter-btn:hover {
-        color: #fff;
-    }
-
-    .rbs-archive .property-feature {
-        display: flex;
-        align-items: center;
-        gap: 4px;
-    }
-
-    .rbs-archive  button{
-        border: unset;
-        color: #0f766e;
-    }
-    .rbs-archive  button:focus{
-        color: #0f766e;
-    }
-    .rbs-archive  button:hover{
-        color: #0f766e;
-    }
-
-    .rbs-archive .property-footer {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding-top: 16px;
-        border-top: 1px solid #f3f4f6;
-    }
-
-    .rbs-archive .property-type {
-        font-size: 14px;
-        color: #6b7280;
-    }
-
-    .rbs-archive .view-details-btn {
-        color: #fff;
-        font-weight: 500;
-        cursor: pointer;
-        transition: color 0.3s;
-        border: unset;
-        padding: 5px 12px;
-        border-radius: 6px;
-    }
-
-
-    /* Map Section */
-    .rbs-archive .map-section {
-        position: relative;
-        border-radius: 16px;
-        overflow: hidden;
-        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
-        height: 500px;
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        opacity: 0;
-        transform: translateX(100%);
-        width: 0;
-        margin: 0;
-        padding: 0;
-        overflow: hidden;
-    }
-
-    /* Map Hidden State */
-    .rbs-archive .map-section.map-hidden {
-        opacity: 0;
-        transform: translateX(100%);
-        width: 0;
-        height: 0;
-        margin: 0;
-        padding: 0;
-        overflow: hidden;
-        display: none;
-    }
-
-    /* Map Visible State */
-    .rbs-archive .map-section.map-visible {
-        opacity: 1;
-        transform: translateX(0);
-        width: auto;
-        height: 500px;
-        margin: 0;
-        padding: 0;
-        overflow: visible;
-        display: block;
-    }
-
-    .rbs-archive .map-container {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        position: relative;
-        overflow: hidden;
-        width: 100%;
-        height: 100%;
-    }
-
-    .rbs-archive .map-bg {
-        background-image: 
-            radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-            radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-            radial-gradient(circle at 40% 20%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
-        width: 100%;
-        height: 100%;
-        position: relative;
-    }
-
-    .rbs-archive .map-controls {
-        position: absolute;
-        top: 16px;
-        right: 16px;
-        z-index: 20;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-    }
-
-    .rbs-archive .map-control {
-        width: 40px;
-        height: 40px;
-        background-color: white;
-        border-radius: 8px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: background-color 0.3s;
-    }
-
-    .rbs-archive .map-control:hover {
-        background-color: #f9fafb;
-    }
-
-    .rbs-archive .map-legend {
-        position: absolute;
-        bottom: 16px;
-        left: 16px;
-        background-color: white;
-        border-radius: 12px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        padding: 16px;
-        z-index: 20;
-    }
-
-    .rbs-archive .legend-title {
-        font-weight: 600;
-        color: #111827;
-        margin-bottom: 12px;
-    }
-
-    .rbs-archive .legend-items {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-    }
-
-    .rbs-archive .legend-item {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-
-    .rbs-archive .legend-color {
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-    }
-
-    .rbs-archive .legend-label {
-        font-size: 14px;
-        color: #6b7280;
-    }
-
-    .rbs-archive .map-markers {
-        width: 100%;
-        height: 100%;
-        position: relative;
-    }
-
-    .rbs-archive .map-marker {
-        position: absolute;
-        transform: translate(-50%, -100%);
-        cursor: pointer;
-        transition: all 0.3s ease;
-        z-index: 10;
-    }
-
-    .rbs-archive .map-marker:hover {
-        z-index: 20;
-        transform: translate(-50%, -100%) scale(1.15);
-    }
-
-    .rbs-archive .map-marker.active {
-        z-index: 30;
-        transform: translate(-50%, -100%) scale(1.2);
-    }
-
-    .rbs-archive .marker-icon {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-weight: 700;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        border: 4px solid white;
-    }
-
-    .rbs-archive .marker-tooltip {
-        position: absolute;
-        bottom: 100%;
-        left: 50%;
-        transform: translateX(-50%) translateY(-10px);
-        background: white;
-        padding: 12px 16px;
-        border-radius: 8px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-        white-space: nowrap;
-        opacity: 0;
-        pointer-events: none;
-        transition: all 0.3s ease;
-        margin-bottom: 10px;
-    }
-
-    .rbs-archive .map-marker:hover .marker-tooltip {
-        opacity: 1;
-        transform: translateX(-50%) translateY(0);
-    }
-
-    .rbs-archive .tooltip-title {
-        font-size: 12px;
-        font-weight: 600;
-        color: #111827;
-    }
-
-    .rbs-archive .tooltip-price {
-        font-size: 12px;
-        color: #0f766e;
-        font-weight: 700;
-    }
-
-    /* Footer - Removed to prevent conflicts with theme footer */
-    /* .rbs-archive footer {
-        background-color: #111827;
-        color: white;
-        margin-top: 64px;
-    } */
-
-    /* ALL FOOTER CSS REMOVED - Let theme handle it completely */
-    /* Removed all .rbs-archive .footer-* rules */
-
-    .rbs-archive .social-link {
-        color: #9ca3af;
-        transition: color 0.3s;
-    }
-
-    .rbs-archive .social-link:hover {
-        color: #5eead4;
-    }
-
-    /* Utility Classes */
-    .rbs-archive .hidden {
-        display: none;
-    }
-
-    .rbs-archive .flex {
-        display: flex;
-    }
-
-    .rbs-archive .items-center {
-        align-items: center;
-    }
-
-    .rbs-archive .justify-between {
-        justify-content: space-between;
-    }
-
-    .rbs-archive .text-center {
-        text-align: center;
-    }
-
-    .rbs-archive .w-full {
-        width: 100%;
-    }
-
-    .rbs-archive .h-full {
-        height: 100%;
-    }
-
-    .rbs-archive .ring-4 {
-        box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.5);
-    }
-
-    .rbs-archive .ring-teal-500 {
-        box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.5);
-    }
-
-    /* Responsive Styles */
-    @media (max-width: 479px) {
-        .rbs-archive .property-grid {
-            grid-template-columns: 1fr;
-        }
-    }
-
-
+/* ========================================
+   RESPONSIVE CONTAINER PADDING AND WIDTH
+   ======================================== */
     @media (min-width: 768px) {
-        .rbs-archive .container {
-            padding: 0 24px;
-        }
-        
-        .rbs-archive .desktop-nav {
-            display: flex;
-        }
-        
-        .rbs-archive .mobile-menu-btn {
-            display: none;
-        }
-        
-        .rbs-archive .search-container {
-            flex-direction: row;
-        }
-        
-        .rbs-archive .control-bar {
-            flex-direction: row;
-            align-items: center;
-        }
-        
-        .rbs-archive .property-grid {
-            grid-template-columns: repeat(4, 1fr);
-        }
-        
-        .rbs-archive .listings-container.map-visible .property-grid:not(.list-view) {
-            grid-template-columns: repeat(2, 1fr);
-        }
-        
-        .rbs-archive .listings-container.map-visible {
-            grid-template-columns: 1fr 1fr;
-        }
-        
-        .rbs-archive .dropdown-grid {
-            grid-template-columns: 1fr;
-        }
-        
-        .rbs-archive .checkbox-grid {
-            grid-template-columns: 1fr;
-        }
-        
-        .rbs-archive .footer-content {
-            flex-direction: row;
-        }
-        
-        .rbs-archive .footer-copyright {
-            margin-bottom: 0;
+    body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container,
+    body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container,
+    .rbs-archive .container,
+    #resbs-property-archive .container {
+        width: 100% !important;
+        max-width: 1540px !important;
+        min-width: 0 !important;
+        padding: 4rem 24px !important;
+        padding-top: 4rem !important;
+        padding-bottom: 4rem !important;
+        padding-left: 24px !important;
+        padding-right: 24px !important;
         }
     }
 
     @media (min-width: 1024px) {
-        .rbs-archive .container {
-            padding: 0 24px;
-        }
+    body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container,
+    body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container,
+    .rbs-archive .container,
+    #resbs-property-archive .container {
+        width: 100% !important;
+        max-width: 1540px !important;
+        min-width: 0 !important;
+        padding: 4rem 32px !important;
+        padding-top: 4rem !important;
+        padding-bottom: 4rem !important;
+        padding-left: 32px !important;
+        padding-right: 32px !important;
     }
+}
 
-    @media (min-width: 1200px) {
+/* ========================================
+   FINAL OVERRIDE - FORCE ALL STYLES
+   ======================================== */
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive *,
+body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive *,
+body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive *,
+body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive *,
+body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive * {
+    /* Ensure no theme spacing interferes */
+    box-sizing: border-box !important;
+}
+
+/* Prevent theme from affecting our archive */
+.rbs-archive,
+.rbs-archive.resbs-archive-wrapper,
+#resbs-property-archive,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive,
+body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive,
+body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive,
+body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive {
+    isolation: isolate !important;
+    contain: layout style paint !important;
+}
+
+/* ========================================
+   FINAL FALLBACK - ENSURE ALL STYLES WORK
+   Simple selectors that work regardless of body classes
+   ======================================== */
+.rbs-archive .property-card,
+.rbs-archive .property-image,
+.rbs-archive .property-details,
+.rbs-archive .property-price,
+.rbs-archive .property-features,
+.rbs-archive .property-footer,
+.rbs-archive button,
+.rbs-archive .button,
+.rbs-archive .search-btn,
+    .rbs-archive .view-details-btn {
+    /* Force box-sizing */
+    box-sizing: border-box !important;
+}
+
+/* Ensure grid works */
         .rbs-archive .property-grid {
-            grid-template-columns: repeat(4, 1fr);
-        }
-        
-        .rbs-archive .listings-container.map-visible .property-grid:not(.list-view) {
-            grid-template-columns: repeat(2, 1fr);
-        }
-    }
+    display: grid !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
 
-    /* Page Transition */
-    .rbs-archive .page-transition {
-        animation: rbs-archive-fadeIn 0.5s ease;
-    }
+/* Ensure container works - FINAL FALLBACK */
+.rbs-archive .container,
+#resbs-property-archive .container,
+.rbs-archive.resbs-archive-wrapper .container {
+    width: 100% !important;
+    max-width: 1540px !important;
+    min-width: 0 !important;
+    margin: 0 auto !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    padding: 4rem 16px !important;
+    padding-top: 4rem !important;
+    padding-bottom: 4rem !important;
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+    box-sizing: border-box !important;
+    position: relative !important;
+    display: block !important;
+}
 
-    @keyframes rbs-archive-fadeIn {
-        from { 
-            opacity: 0; 
-            transform: translateY(20px); 
-        }
-        to { 
-            opacity: 1; 
-            transform: translateY(0); 
-        }
-    }
+/* ========================================
+   FINAL COMPREHENSIVE WIDTH OVERRIDE
+   Catch any remaining theme width overrides
+   ======================================== */
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive [class*="container"],
+body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive [class*="container"],
+body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive [class*="container"],
+body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive [class*="container"],
+body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive [class*="container"],
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive [class*="container"],
+.rbs-archive.resbs-archive-wrapper#resbs-property-archive [class*="container"],
+#resbs-property-archive [class*="container"] {
+    box-sizing: border-box !important;
+}
 
-    /* Skeleton Loading */
-    .rbs-archive .skeleton {
-        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-        background-size: 200% 100%;
-        animation: rbs-archive-loading 1.5s infinite;
-    }
-
-    @keyframes rbs-archive-loading {
-        0% { background-position: 200% 0; }
-        100% { background-position: -200% 0; }
+/* Force container width specifically */
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container[class*="container"],
+.rbs-archive.resbs-archive-wrapper#resbs-property-archive .container[class*="container"],
+#resbs-property-archive .container[class*="container"],
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container,
+.rbs-archive.resbs-archive-wrapper#resbs-property-archive .container {
+    width: 100% !important;
+    max-width: 1540px !important;
+    min-width: 0 !important;
     }

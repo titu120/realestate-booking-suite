@@ -112,7 +112,7 @@ class RESBS_Shortcodes {
                     wp_set_current_user($user_id);
                     wp_set_auth_cookie($user_id);
                     
-                    // Redirect to home page - keep default WordPress/WooCommerce My Account design unchanged
+                    // Redirect to home page
                     $redirect_url = home_url('/');
                     wp_safe_redirect($redirect_url);
                     exit;
@@ -2436,41 +2436,6 @@ Best regards,
             }
             wp_reset_postdata();
             echo '</div>';
-        }
-        
-        // Also check WooCommerce orders if WooCommerce is active
-        if (class_exists('WooCommerce')) {
-            $customer_orders = wc_get_orders(array(
-                'customer_id' => $user_id,
-                'limit' => 20,
-                'orderby' => 'date',
-                'order' => 'DESC'
-            ));
-            
-            if (!empty($customer_orders)) {
-                if (!$has_bookings) {
-                    echo '<div class="resbs-bookings-list">';
-                }
-                foreach ($customer_orders as $order) {
-                    $order_id = $order->get_id();
-                    $order_date = $order->get_date_created()->date_i18n(get_option('date_format'));
-                    $order_total = $order->get_formatted_order_total();
-                    $order_status = $order->get_status();
-                    
-                    echo '<div class="resbs-booking-item">';
-                    echo '<div class="resbs-booking-header">';
-                    echo '<h5><a href="' . esc_url($order->get_view_order_url()) . '">' . sprintf(esc_html__('Order #%s', 'realestate-booking-suite'), esc_html($order_id)) . '</a></h5>';
-                    echo '<span class="resbs-booking-status status-' . esc_attr($order_status) . '">' . esc_html(ucfirst($order_status)) . '</span>';
-                    echo '</div>';
-                    echo '<p class="resbs-booking-date">' . esc_html__('Date:', 'realestate-booking-suite') . ' ' . esc_html($order_date) . '</p>';
-                    echo '<p class="resbs-booking-total">' . esc_html__('Total:', 'realestate-booking-suite') . ' ' . wp_kses_post($order_total) . '</p>';
-                    echo '</div>';
-                    $has_bookings = true;
-                }
-                if (!$has_bookings) {
-                    echo '</div>';
-                }
-            }
         }
         
         // No bookings found

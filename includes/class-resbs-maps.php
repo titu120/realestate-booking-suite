@@ -167,10 +167,7 @@ class RESBS_Maps_Manager {
 
             // Get currency information for JavaScript
             $currency_symbol = resbs_get_currency_symbol();
-            $currency_code = 'USD'; // Default
-            if (class_exists('WooCommerce')) {
-                $currency_code = get_woocommerce_currency();
-            }
+            $currency_code = get_option('resbs_currency_code', 'USD'); // Default to USD
             
             // Localize script
             wp_localize_script('resbs-maps', 'resbs_maps_ajax', array(

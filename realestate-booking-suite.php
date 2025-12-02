@@ -1,7 +1,7 @@
 <?php 
 /**
  * Plugin Name: RealEstate Booking Suite
- * Description: Professional real estate booking plugin that allows users and agents to submit properties, manage bookings, integrate with WooCommerce for payments, and display properties in responsive layouts. Plugin includes Elementor and Appearance widgets, advanced AJAX search, map integration, property details page, frontend dashboard, favorites, and booking history. Fully multilingual-ready.
+ * Description: Professional real estate booking plugin that allows users and agents to submit properties, manage bookings, and display properties in responsive layouts. Plugin includes Elementor and Appearance widgets, advanced AJAX search, map integration, property details page, frontend dashboard, favorites, and booking history. Fully multilingual-ready.
  * Author: Softivus
  * Author URI: https://softivus.com
  * Version: 1.0.0
@@ -218,6 +218,26 @@ function resbs_create_default_property_statuses() {
  * Plugin activation hook
  */
 function resbs_plugin_activation() {
+    // Define path constant if not already defined
+    if (!defined('RESBS_PATH')) {
+        define('RESBS_PATH', plugin_dir_path(__FILE__));
+    }
+    
+    // Load the CPT class file first
+    if (!class_exists('RESBS_CPT')) {
+        $cpt_file = RESBS_PATH . 'includes/class-resbs-cpt.php';
+        if (file_exists($cpt_file)) {
+            require_once $cpt_file;
+        }
+    }
+    
+    // Register post types first
+    if (class_exists('RESBS_CPT')) {
+        $cpt = new RESBS_CPT();
+        $cpt->register_property_cpt();
+        $cpt->register_property_taxonomies();
+    }
+    
     // Flush rewrite rules
     flush_rewrite_rules();
     
@@ -232,6 +252,9 @@ function resbs_plugin_activation() {
     
     // Create submit property page
     resbs_create_submit_property_page();
+    
+    // Set flag to ensure rewrite rules are flushed on next init
+    delete_option('resbs_flush_rewrite_rules');
 }
 register_activation_hook(__FILE__, 'resbs_plugin_activation');
 
@@ -504,12 +527,17 @@ function resbs_enqueue_assets() {
         
         // Enqueue Single Property Responsive CSS only on single property pages
         if (is_singular('property')) {
+            // Load with HIGHEST priority - after all theme styles
             wp_enqueue_style(
                 'resbs-single-property-responsive',
                 RESBS_URL . 'assets/css/single-property-responsive.css',
-                array(),
-                '1.0.0'
+                array(), // No dependencies
+                '2.0.0' // Version bump
             );
+            // Force load after all other styles with maximum priority
+            add_action('wp_head', function() {
+                echo '<style id="resbs-single-property-override">body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page { position: relative !important; isolation: isolate !important; }</style>' . "\n";
+            }, 99999);
         }
         
         // Enqueue Shortcodes CSS
@@ -533,12 +561,64 @@ function resbs_enqueue_assets() {
         
         // Only load archive CSS on property archive pages, not on all pages
         if (is_post_type_archive('property') || is_tax('property_type') || is_tax('property_status') || is_tax('property_location') || is_tax('property_tag')) {
+            // Load fallback CSS first (simple selectors)
+            wp_enqueue_style(
+                'resbs-archive-fallback',
+                RESBS_URL . 'assets/css/rbs-archive-fallback.css',
+                array(), // No dependencies
+                '2.0.0'
+            );
+            // Load with HIGHEST priority - after all theme styles
             wp_enqueue_style(
                 'resbs-archive',
                 RESBS_URL . 'assets/css/rbs-archive.css',
-                array(),
-                '1.0.0'
+                array('resbs-archive-fallback'), // Load after fallback
+                '2.0.0' // Version bump
             );
+            // Force load after all other styles with maximum priority - CRITICAL CONTAINER WIDTH OVERRIDE
+            add_action('wp_head', function() {
+                echo '<style id="resbs-archive-override">
+                /* MAXIMUM PRIORITY CONTAINER WIDTH - OVERRIDE ALL THEME STYLES */
+                body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container,
+                body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container,
+                body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container,
+                body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container,
+                body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container,
+                body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container,
+                .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container,
+                #resbs-property-archive .container,
+                .rbs-archive .container,
+                body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container.main-content,
+                body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container.main-content,
+                body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container.main-content,
+                body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container.main-content,
+                body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container.main-content,
+                body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container.main-content,
+                .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container.main-content,
+                #resbs-property-archive .container.main-content,
+                .rbs-archive .container.main-content {
+                    width: 100% !important;
+                    max-width: 1540px !important;
+                    min-width: 0 !important;
+                    margin: 0 auto !important;
+                    margin-left: auto !important;
+                    margin-right: auto !important;
+                    padding: 4rem 16px !important;
+                    padding-top: 4rem !important;
+                    padding-bottom: 4rem !important;
+                    padding-left: 16px !important;
+                    padding-right: 16px !important;
+                    box-sizing: border-box !important;
+                    position: relative !important;
+                    display: block !important;
+                }
+                body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive {
+                    position: relative !important;
+                    isolation: isolate !important;
+                    contain: layout style paint !important;
+                }
+                </style>' . "\n";
+            }, 99999);
         }
         
         // Re-enable Dynamic Archive JS but with modifications
@@ -918,16 +998,11 @@ function resbs_fix_property_arrays() {
 add_action('admin_init', 'resbs_fix_property_arrays');
 
 /**
- * Get WooCommerce currency symbol (or default to $ if WooCommerce not available)
+ * Get currency symbol
  * @return string Currency symbol
  */
 function resbs_get_currency_symbol() {
-    // Check if WooCommerce is active
-    if (class_exists('WooCommerce')) {
-        return get_woocommerce_currency_symbol();
-    }
-    
-    // Fallback: Check if there's a currency setting in WordPress options
+    // Get currency setting from WordPress options
     $currency = sanitize_text_field(get_option('resbs_currency_symbol', '$'));
     return $currency;
 }
@@ -946,25 +1021,20 @@ function resbs_format_price($price, $decimals = 0) {
     $currency_symbol = resbs_get_currency_symbol();
     $formatted_number = number_format(floatval($price), $decimals, '.', ',');
     
-    // Check if WooCommerce is active to get currency position
-    if (class_exists('WooCommerce')) {
-        $currency_position = get_option('woocommerce_currency_pos', 'left');
-        
-        switch ($currency_position) {
-            case 'left':
-                return $currency_symbol . $formatted_number;
-            case 'right':
-                return $formatted_number . $currency_symbol;
-            case 'left_space':
-                return $currency_symbol . ' ' . $formatted_number;
-            case 'right_space':
-                return $formatted_number . ' ' . $currency_symbol;
-            default:
-                return $currency_symbol . $formatted_number;
-        }
-    }
+    // Get currency position from plugin settings
+    $currency_position = get_option('resbs_currency_position', 'left');
     
-    // Default: currency symbol on the left
-    return $currency_symbol . $formatted_number;
+    switch ($currency_position) {
+        case 'left':
+            return $currency_symbol . $formatted_number;
+        case 'right':
+            return $formatted_number . $currency_symbol;
+        case 'left_space':
+            return $currency_symbol . ' ' . $formatted_number;
+        case 'right_space':
+            return $formatted_number . ' ' . $currency_symbol;
+        default:
+            return $currency_symbol . $formatted_number;
+    }
 }
 

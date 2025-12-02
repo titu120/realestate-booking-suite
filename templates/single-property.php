@@ -397,12 +397,12 @@
         ?>
 <!-- Single Property Template - Styles and scripts are now enqueued via wp_enqueue_style/wp_enqueue_script -->
 
-<div class="single-property">
+<div class="single-property resbs-single-property-wrapper" id="resbs-single-property-page">
 
 
 
 
-    <div class="main-single-container container main-content ">
+    <div class="main-single-container container main-content " style="width: 100% !important; max-width: 1536px !important; min-width: 0 !important; margin: 0 auto !important; margin-left: auto !important; margin-right: auto !important; padding: 4rem 1rem !important; padding-top: 4rem !important; padding-bottom: 4rem !important; padding-left: 1rem !important; padding-right: 1rem !important; box-sizing: border-box !important; position: relative !important; display: block !important;">
         <div class="grid grid-cols-1 lg-grid-cols-3">
             <!-- Main Content -->
             <div class="lg-col-span-2 test-class" > 

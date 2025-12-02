@@ -210,14 +210,18 @@ class RESBS_CPT {
      * Flush rewrite rules if needed
      */
     public function flush_rewrite_rules_if_needed() {
-        // Security: Only allow administrators to flush rewrite rules
-        if (!current_user_can('manage_options')) {
-            return;
-        }
-        
         $option_name = 'resbs_flush_rewrite_rules';
-        if (get_option($option_name) !== '1') {
-            flush_rewrite_rules();
+        $needs_flush = get_option($option_name) !== '1';
+        
+        // Always flush on admin pages for administrators (helps with live site issues)
+        if (is_admin() && current_user_can('manage_options')) {
+            if ($needs_flush) {
+                flush_rewrite_rules(false);
+                update_option($option_name, '1');
+            }
+        } elseif ($needs_flush) {
+            // Flush on frontend too if needed (one-time)
+            flush_rewrite_rules(false);
             update_option($option_name, '1');
         }
     }

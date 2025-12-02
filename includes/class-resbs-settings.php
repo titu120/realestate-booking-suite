@@ -502,7 +502,7 @@ class RESBS_Settings {
                 <div class="resbs-info-card">
                     <div class="resbs-info-header">
                         <h2><?php esc_html_e('About RealEstate Booking Suite', 'realestate-booking-suite'); ?></h2>
-                        <p><?php esc_html_e('A comprehensive WordPress plugin for managing real estate properties with advanced booking functionality, WooCommerce integration, and Elementor support.', 'realestate-booking-suite'); ?></p>
+                        <p><?php esc_html_e('A comprehensive WordPress plugin for managing real estate properties with advanced booking functionality and Elementor support.', 'realestate-booking-suite'); ?></p>
                     </div>
                     <div class="resbs-features-grid">
                         <div class="resbs-feature">
@@ -511,9 +511,9 @@ class RESBS_Settings {
                             <p><?php esc_html_e('Custom post types for comprehensive property management', 'realestate-booking-suite'); ?></p>
                         </div>
                         <div class="resbs-feature">
-                            <span class="dashicons dashicons-cart"></span>
-                            <h3><?php esc_html_e('WooCommerce Integration', 'realestate-booking-suite'); ?></h3>
-                            <p><?php esc_html_e('Seamless booking and payment processing', 'realestate-booking-suite'); ?></p>
+                            <span class="dashicons dashicons-calendar-alt"></span>
+                            <h3><?php esc_html_e('Booking Management', 'realestate-booking-suite'); ?></h3>
+                            <p><?php esc_html_e('Comprehensive booking and reservation system', 'realestate-booking-suite'); ?></p>
                         </div>
                         <div class="resbs-feature">
                             <span class="dashicons dashicons-layout"></span>
