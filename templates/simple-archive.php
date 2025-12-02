@@ -37,20 +37,21 @@ resbs_get_header();
 
 // SIMPLE WORKING FILTER APPROACH
 
-$search_query = !isset($_GET['search']) ? '' : sanitize_text_field($_GET['search']);
-$min_price = !isset($_GET['min_price']) ? '' : intval($_GET['min_price']);
-$max_price = !isset($_GET['max_price']) ? '' : intval($_GET['max_price']);
-$property_type_filter = !isset($_GET['property_type']) ? '' : sanitize_text_field($_GET['property_type']);
-$min_bedrooms = !isset($_GET['min_bedrooms']) ? '' : intval($_GET['min_bedrooms']);
-$max_bedrooms = !isset($_GET['max_bedrooms']) ? '' : intval($_GET['max_bedrooms']);
-$min_bathrooms = !isset($_GET['min_bathrooms']) ? '' : floatval($_GET['min_bathrooms']);
-$max_bathrooms = !isset($_GET['max_bathrooms']) ? '' : floatval($_GET['max_bathrooms']);
-$min_sqft = !isset($_GET['min_sqft']) ? '' : intval($_GET['min_sqft']);
-$max_sqft = !isset($_GET['max_sqft']) ? '' : intval($_GET['max_sqft']);
-$year_built = !isset($_GET['year_built']) ? '' : sanitize_text_field($_GET['year_built']);
-$property_status = !isset($_GET['property_status']) ? '' : sanitize_text_field($_GET['property_status']);
-$sort_by = !isset($_GET['sort_by']) ? 'newest' : sanitize_text_field($_GET['sort_by']);
-$paged = (get_query_var('paged')) ? get_query_var('paged') : 1;
+// Sanitize all user input from $_GET
+$search_query = isset($_GET['search']) ? sanitize_text_field($_GET['search']) : '';
+$min_price = isset($_GET['min_price']) ? absint($_GET['min_price']) : '';
+$max_price = isset($_GET['max_price']) ? absint($_GET['max_price']) : '';
+$property_type_filter = isset($_GET['property_type']) ? sanitize_text_field($_GET['property_type']) : '';
+$min_bedrooms = isset($_GET['min_bedrooms']) ? absint($_GET['min_bedrooms']) : '';
+$max_bedrooms = isset($_GET['max_bedrooms']) ? absint($_GET['max_bedrooms']) : '';
+$min_bathrooms = isset($_GET['min_bathrooms']) ? absint($_GET['min_bathrooms']) : '';
+$max_bathrooms = isset($_GET['max_bathrooms']) ? absint($_GET['max_bathrooms']) : '';
+$min_sqft = isset($_GET['min_sqft']) ? absint($_GET['min_sqft']) : '';
+$max_sqft = isset($_GET['max_sqft']) ? absint($_GET['max_sqft']) : '';
+$year_built = isset($_GET['year_built']) ? sanitize_text_field($_GET['year_built']) : '';
+$property_status = isset($_GET['property_status']) ? sanitize_text_field($_GET['property_status']) : '';
+$sort_by = isset($_GET['sort_by']) ? sanitize_text_field($_GET['sort_by']) : 'date';
+$paged = (get_query_var('paged')) ? absint(get_query_var('paged')) : 1;
 
 // Build WP_Query arguments
 // Get properties per page from Listings settings (dynamically applied)
@@ -131,26 +132,7 @@ if (!empty($min_bathrooms) || !empty($max_bathrooms)) {
     $args['meta_query'][] = $bathrooms_query;
 }
 
-// Add square feet filter (min and max)
-if (!empty($min_sqft) || !empty($max_sqft)) {
-    $sqft_query = array(
-        'key' => '_property_area_sqft',
-        'type' => 'NUMERIC',
-    );
-    
-    if (!empty($min_sqft) && !empty($max_sqft)) {
-        $sqft_query['value'] = array($min_sqft, $max_sqft);
-        $sqft_query['compare'] = 'BETWEEN';
-    } elseif (!empty($min_sqft)) {
-        $sqft_query['value'] = $min_sqft;
-        $sqft_query['compare'] = '>=';
-    } elseif (!empty($max_sqft)) {
-        $sqft_query['value'] = $max_sqft;
-        $sqft_query['compare'] = '<=';
-    }
-    
-    $args['meta_query'][] = $sqft_query;
-}
+// Property type filter will be handled by database query below
 
 // Add year built filter
 if (!empty($year_built)) {
@@ -173,11 +155,13 @@ if (!empty($year_built)) {
 
 // Add property status filter
 if (!empty($property_status)) {
+    // Sanitize property status term slug
+    $property_status_slug = sanitize_text_field($property_status);
     $args['tax_query'] = array(
         array(
             'taxonomy' => 'property_status',
             'field' => 'slug',
-            'terms' => $property_status,
+            'terms' => $property_status_slug,
         )
     );
 }
@@ -190,60 +174,23 @@ if (empty($sort_by) || $sort_by === 'date') {
     $sort_by = resbs_get_default_sort_option();
 }
 
-// Only apply sorting if enabled in settings
-if (resbs_is_sorting_enabled()) {
-    switch ($sort_by) {
-        case 'lowest_price':
-        case 'price_low':
-            $args['meta_key'] = '_property_price';
-            $args['orderby'] = 'meta_value_num';
-            $args['order'] = 'ASC';
-            break;
-        case 'highest_price':
-        case 'price_high':
-            $args['meta_key'] = '_property_price';
-            $args['orderby'] = 'meta_value_num';
-            $args['order'] = 'DESC';
-            break;
-        case 'largest_sqft':
-            $args['meta_key'] = '_property_area_sqft';
-            $args['orderby'] = 'meta_value_num';
-            $args['order'] = 'DESC';
-            break;
-        case 'lowest_sqft':
-            $args['meta_key'] = '_property_area_sqft';
-            $args['orderby'] = 'meta_value_num';
-            $args['order'] = 'ASC';
-            break;
-        case 'bedrooms':
-            $args['meta_key'] = '_property_bedrooms';
-            $args['orderby'] = 'meta_value_num';
-            $args['order'] = 'DESC';
-            break;
-        case 'bathrooms':
-            $args['meta_key'] = '_property_bathrooms';
-            $args['orderby'] = 'meta_value_num';
-            $args['order'] = 'DESC';
-            break;
-        case 'featured':
-            $args['meta_key'] = '_property_featured';
-            $args['orderby'] = 'meta_value';
-            $args['order'] = 'DESC';
-            break;
-        case 'oldest':
-            $args['orderby'] = 'date';
-            $args['order'] = 'ASC';
-            break;
-        case 'newest':
-        default:
-            $args['orderby'] = 'date';
-            $args['order'] = 'DESC';
-            break;
-    }
-} else {
-    // Default sorting when disabled
-    $args['orderby'] = 'date';
-    $args['order'] = 'DESC';
+// Add sorting
+switch ($sort_by) {
+    case 'price_low':
+        $args['meta_key'] = '_property_price';
+        $args['orderby'] = 'meta_value_num';
+        $args['order'] = 'ASC';
+        break;
+    case 'price_high':
+        $args['meta_key'] = '_property_price';
+        $args['orderby'] = 'meta_value_num';
+        $args['order'] = 'DESC';
+        break;
+    case 'newest':
+    default:
+        $args['orderby'] = 'date';
+        $args['order'] = 'DESC';
+        break;
 }
 
 // Set meta_query relation
@@ -251,26 +198,24 @@ if (count($args['meta_query']) > 1) {
     $args['meta_query']['relation'] = 'AND';
 }
 
+// Execute the query
+// Clear any potential caching issues
+wp_cache_flush();
+
 // SIMPLE PROPERTY TYPE FILTER
 if (!empty($property_type_filter)) {
+    // Sanitize property type term slug
+    $property_type_slug = sanitize_text_field($property_type_filter);
     $args['tax_query'] = array(
         array(
             'taxonomy' => 'property_type',
             'field' => 'slug',
-            'terms' => $property_type_filter,
+            'terms' => $property_type_slug,
         )
     );
 }
 
-// Use main query if available and it's a property archive, otherwise use custom query
-global $wp_query;
-if (is_post_type_archive('property') && $wp_query->is_main_query() && $wp_query->have_posts()) {
-    // Use the main query that WordPress set up
-    $properties_query = $wp_query;
-} else {
-    // Fallback to custom query
-    $properties_query = new WP_Query($args);
-}
+$properties_query = new WP_Query($args);
 
 // Get ONLY existing property types - no creating new ones
 $property_types = get_terms(array(
@@ -290,6 +235,13 @@ $property_statuses = get_terms(array(
     <!-- Advanced Search Bar -->
     <div class="search-bar">
         <div class="container" style="width: 100% !important; max-width: 1540px !important; min-width: 0 !important; margin: 0 auto !important; margin-left: auto !important; margin-right: auto !important; padding: 4rem 16px !important; padding-top: 1rem !important; padding-bottom: 1rem !important; padding-left: 16px !important; padding-right: 16px !important; box-sizing: border-box !important; position: relative !important; display: block !important;">
+            <?php 
+            // Get the archive page URL for form action
+            $archive_url = get_post_type_archive_link('property');
+            if (!$archive_url) {
+                $archive_url = home_url('/');
+            }
+            ?>
             <form method="GET" class="search-container" id="searchForm">
                 <!-- Search Input -->
                 <div class="search-input-container">
@@ -356,11 +308,11 @@ $property_statuses = get_terms(array(
                     <div class="dropdown-grid">
                         <div>
                             <label class="dropdown-label"><?php echo esc_html__('Min Price', 'realestate-booking-suite'); ?></label>
-                            <input type="number" placeholder="<?php echo esc_attr(sprintf(__('%s Min Price', 'realestate-booking-suite'), resbs_get_currency_symbol())); ?>" class="dropdown-input" name="min_price" value="<?php echo esc_attr($min_price); ?>">
+                            <input type="number" placeholder="<?php echo esc_attr(sprintf(__('%s Min Price', 'realestate-booking-suite'), resbs_get_currency_symbol())); ?>" class="dropdown-input" name="min_price" value="<?php echo !empty($min_price) ? esc_attr($min_price) : ''; ?>">
                         </div>
                         <div>
                             <label class="dropdown-label"><?php echo esc_html__('Max Price', 'realestate-booking-suite'); ?></label>
-                            <input type="number" placeholder="<?php echo esc_attr(sprintf(__('%s Max Price', 'realestate-booking-suite'), resbs_get_currency_symbol())); ?>" class="dropdown-input" name="max_price" value="<?php echo esc_attr($max_price); ?>">
+                            <input type="number" placeholder="<?php echo esc_attr(sprintf(__('%s Max Price', 'realestate-booking-suite'), resbs_get_currency_symbol())); ?>" class="dropdown-input" name="max_price" value="<?php echo !empty($max_price) ? esc_attr($max_price) : ''; ?>">
                         </div>
                     </div>
                     <div class="filter-actions">
@@ -422,11 +374,11 @@ $property_statuses = get_terms(array(
                     <div class="dropdown-grid">
                         <div>
                             <label class="dropdown-label"><?php echo esc_html__('Min Bedrooms', 'realestate-booking-suite'); ?></label>
-                            <input type="number" placeholder="<?php echo esc_attr__('Min Bedrooms', 'realestate-booking-suite'); ?>" class="dropdown-input" name="min_bedrooms" value="<?php echo esc_attr($min_bedrooms); ?>" min="0">
+                            <input type="number" placeholder="<?php echo esc_attr__('Min Bedrooms', 'realestate-booking-suite'); ?>" class="dropdown-input" name="min_bedrooms" value="<?php echo !empty($min_bedrooms) ? esc_attr($min_bedrooms) : ''; ?>" min="0">
                         </div>
                         <div>
                             <label class="dropdown-label"><?php echo esc_html__('Max Bedrooms', 'realestate-booking-suite'); ?></label>
-                            <input type="number" placeholder="<?php echo esc_attr__('Max Bedrooms', 'realestate-booking-suite'); ?>" class="dropdown-input" name="max_bedrooms" value="<?php echo esc_attr($max_bedrooms); ?>" min="0">
+                            <input type="number" placeholder="<?php echo esc_attr__('Max Bedrooms', 'realestate-booking-suite'); ?>" class="dropdown-input" name="max_bedrooms" value="<?php echo !empty($max_bedrooms) ? esc_attr($max_bedrooms) : ''; ?>" min="0">
                         </div>
                     </div>
                     <div class="filter-actions">
@@ -444,11 +396,11 @@ $property_statuses = get_terms(array(
                     <div class="dropdown-grid">
                         <div>
                             <label class="dropdown-label"><?php echo esc_html__('Min Bathrooms', 'realestate-booking-suite'); ?></label>
-                            <input type="number" placeholder="<?php echo esc_attr__('Min Bathrooms', 'realestate-booking-suite'); ?>" class="dropdown-input" name="min_bathrooms" value="<?php echo esc_attr($min_bathrooms); ?>" min="0" step="0.5">
+                            <input type="number" placeholder="<?php echo esc_attr__('Min Bathrooms', 'realestate-booking-suite'); ?>" class="dropdown-input" name="min_bathrooms" value="<?php echo !empty($min_bathrooms) ? esc_attr($min_bathrooms) : ''; ?>" min="0" step="0.5">
                         </div>
                         <div>
                             <label class="dropdown-label"><?php echo esc_html__('Max Bathrooms', 'realestate-booking-suite'); ?></label>
-                            <input type="number" placeholder="<?php echo esc_attr__('Max Bathrooms', 'realestate-booking-suite'); ?>" class="dropdown-input" name="max_bathrooms" value="<?php echo esc_attr($max_bathrooms); ?>" min="0" step="0.5">
+                            <input type="number" placeholder="<?php echo esc_attr__('Max Bathrooms', 'realestate-booking-suite'); ?>" class="dropdown-input" name="max_bathrooms" value="<?php echo !empty($max_bathrooms) ? esc_attr($max_bathrooms) : ''; ?>" min="0" step="0.5">
                         </div>
                     </div>
                     <div class="filter-actions">
@@ -468,8 +420,8 @@ $property_statuses = get_terms(array(
                         <div>
                             <label class="dropdown-label"><?php echo esc_html__('Square Feet', 'realestate-booking-suite'); ?></label>
                             <div class="flex" style="gap: 8px;">
-                                <input type="number" placeholder="<?php echo esc_attr__('Min', 'realestate-booking-suite'); ?>" class="dropdown-input" name="min_sqft" value="<?php echo esc_attr($min_sqft); ?>">
-                                <input type="number" placeholder="<?php echo esc_attr__('Max', 'realestate-booking-suite'); ?>" class="dropdown-input" name="max_sqft" value="<?php echo esc_attr($max_sqft); ?>">
+                                <input type="number" placeholder="<?php echo esc_attr__('Min', 'realestate-booking-suite'); ?>" class="dropdown-input" name="min_sqft" value="<?php echo !empty($min_sqft) ? esc_attr($min_sqft) : ''; ?>">
+                                <input type="number" placeholder="<?php echo esc_attr__('Max', 'realestate-booking-suite'); ?>" class="dropdown-input" name="max_sqft" value="<?php echo !empty($max_sqft) ? esc_attr($max_sqft) : ''; ?>">
                             </div>
                         </div>
                         <div>
@@ -533,44 +485,14 @@ $property_statuses = get_terms(array(
 
             <!-- Right Side -->
             <div class="right-controls">
-                <?php 
-                // Show sort controls only if sorting is enabled (dynamically from Listings settings)
-                if (resbs_is_sorting_enabled()) : 
-                    $enabled_sort_options = resbs_get_sort_options();
-                ?>
                 <div class="sort-controls">
                     <span class="sort-label"><?php echo esc_html__('Sort by:', 'realestate-booking-suite'); ?></span>
-                    <select class="sort-select" name="sort_by" id="sortSelect" onchange="handleSortChange(this.value)">
-                        <?php if (in_array('newest', $enabled_sort_options)) : ?>
-                            <option value="newest" <?php selected($sort_by, 'newest'); ?>><?php echo esc_html__('Newest', 'realestate-booking-suite'); ?></option>
-                        <?php endif; ?>
-                        <?php if (in_array('oldest', $enabled_sort_options)) : ?>
-                            <option value="oldest" <?php selected($sort_by, 'oldest'); ?>><?php echo esc_html__('Oldest', 'realestate-booking-suite'); ?></option>
-                        <?php endif; ?>
-                        <?php if (in_array('lowest_price', $enabled_sort_options)) : ?>
-                            <option value="lowest_price" <?php selected($sort_by, 'lowest_price'); ?>><?php echo esc_html__('Price: Low to High', 'realestate-booking-suite'); ?></option>
-                        <?php endif; ?>
-                        <?php if (in_array('highest_price', $enabled_sort_options)) : ?>
-                            <option value="highest_price" <?php selected($sort_by, 'highest_price'); ?>><?php echo esc_html__('Price: High to Low', 'realestate-booking-suite'); ?></option>
-                        <?php endif; ?>
-                        <?php if (in_array('largest_sqft', $enabled_sort_options)) : ?>
-                            <option value="largest_sqft" <?php selected($sort_by, 'largest_sqft'); ?>><?php echo esc_html__('Largest sq ft', 'realestate-booking-suite'); ?></option>
-                        <?php endif; ?>
-                        <?php if (in_array('lowest_sqft', $enabled_sort_options)) : ?>
-                            <option value="lowest_sqft" <?php selected($sort_by, 'lowest_sqft'); ?>><?php echo esc_html__('Lowest sq ft', 'realestate-booking-suite'); ?></option>
-                        <?php endif; ?>
-                        <?php if (in_array('bedrooms', $enabled_sort_options)) : ?>
-                            <option value="bedrooms" <?php selected($sort_by, 'bedrooms'); ?>><?php echo esc_html__('Bedrooms', 'realestate-booking-suite'); ?></option>
-                        <?php endif; ?>
-                        <?php if (in_array('bathrooms', $enabled_sort_options)) : ?>
-                            <option value="bathrooms" <?php selected($sort_by, 'bathrooms'); ?>><?php echo esc_html__('Bathrooms', 'realestate-booking-suite'); ?></option>
-                        <?php endif; ?>
-                        <?php if (in_array('featured', $enabled_sort_options)) : ?>
-                            <option value="featured" <?php selected($sort_by, 'featured'); ?>><?php echo esc_html__('Featured', 'realestate-booking-suite'); ?></option>
-                        <?php endif; ?>
+                    <select class="sort-select" name="sort_by" onchange="this.form.submit()">
+                        <option value="newest" <?php selected($sort_by, 'newest'); ?><?php selected($sort_by, 'date'); ?>><?php echo esc_html__('Newest', 'realestate-booking-suite'); ?></option>
+                        <option value="price_low" <?php selected($sort_by, 'price_low'); ?>><?php echo esc_html__('Price: Low to High', 'realestate-booking-suite'); ?></option>
+                        <option value="price_high" <?php selected($sort_by, 'price_high'); ?>><?php echo esc_html__('Price: High to Low', 'realestate-booking-suite'); ?></option>
                     </select>
                 </div>
-                <?php endif; ?>
 
 
             </div>
@@ -1059,6 +981,173 @@ $property_statuses = get_terms(array(
 <?php elseif (!empty($google_maps_api_key)): ?>
 <!-- Google Maps initialization is now handled in assets/js/simple-archive.js -->
 <?php endif; ?>
+
+<script>
+// Clean form before submission - remove empty/zero values
+(function() {
+    'use strict';
+    const searchForm = document.getElementById('searchForm');
+    if (searchForm) {
+        searchForm.addEventListener('submit', function(e) {
+            // Remove empty/zero number inputs before submission
+            const numberInputs = this.querySelectorAll('input[type="number"]');
+            numberInputs.forEach(function(input) {
+                const value = input.value.trim();
+                // If empty or zero, remove the name attribute so it won't be submitted
+                if (value === '' || value === '0' || value === null || value === undefined) {
+                    input.removeAttribute('name');
+                }
+            });
+            
+            // Remove empty hidden inputs
+            const hiddenInputs = this.querySelectorAll('input[type="hidden"]');
+            hiddenInputs.forEach(function(input) {
+                const value = input.value.trim();
+                if (value === '' || value === '0' || value === null || value === undefined) {
+                    input.removeAttribute('name');
+                }
+            });
+            
+            // Remove empty select values
+            const selects = this.querySelectorAll('select');
+            selects.forEach(function(select) {
+                const value = select.value.trim();
+                if (value === '' || value === null || value === undefined) {
+                    select.removeAttribute('name');
+                }
+            });
+            
+            // Remove empty text inputs (except search)
+            const textInputs = this.querySelectorAll('input[type="text"]:not([name="search"])');
+            textInputs.forEach(function(input) {
+                const value = input.value.trim();
+                if (value === '' || value === null || value === undefined) {
+                    input.removeAttribute('name');
+                }
+            });
+        });
+    }
+})();
+
+// Submit form function
+function submitForm() {
+    const searchForm = document.getElementById('searchForm');
+    if (searchForm) {
+        searchForm.submit();
+    }
+}
+
+// Clear price filter function
+function clearPriceFilter() {
+    const minPriceInput = document.querySelector('input[name="min_price"]');
+    const maxPriceInput = document.querySelector('input[name="max_price"]');
+    const searchForm = document.getElementById('searchForm');
+    
+    if (minPriceInput) minPriceInput.value = '';
+    if (maxPriceInput) maxPriceInput.value = '';
+    if (searchForm) {
+        searchForm.submit();
+    }
+}
+
+// Clear type filter function
+function clearTypeFilter() {
+    // Select the "Any Type" radio button
+    const anyTypeRadio = document.querySelector('input[name="property_type"][value=""]');
+    if (anyTypeRadio) {
+        anyTypeRadio.checked = true;
+        const searchForm = document.getElementById('searchForm');
+        if (searchForm) {
+            searchForm.submit();
+        }
+    }
+}
+
+// Clear bedrooms filter function
+function clearBedroomsFilter() {
+    const minBedroomsInput = document.querySelector('input[name="min_bedrooms"]');
+    const maxBedroomsInput = document.querySelector('input[name="max_bedrooms"]');
+    const searchForm = document.getElementById('searchForm');
+    
+    if (minBedroomsInput) minBedroomsInput.value = '';
+    if (maxBedroomsInput) maxBedroomsInput.value = '';
+    if (searchForm) {
+        searchForm.submit();
+    }
+}
+
+// Clear bathrooms filter function
+function clearBathroomsFilter() {
+    const minBathroomsInput = document.querySelector('input[name="min_bathrooms"]');
+    const maxBathroomsInput = document.querySelector('input[name="max_bathrooms"]');
+    const searchForm = document.getElementById('searchForm');
+    
+    if (minBathroomsInput) minBathroomsInput.value = '';
+    if (maxBathroomsInput) maxBathroomsInput.value = '';
+    if (searchForm) {
+        searchForm.submit();
+    }
+}
+
+// Clear more filters function
+function clearMoreFilters() {
+    const minSqftInput = document.querySelector('input[name="min_sqft"]');
+    const maxSqftInput = document.querySelector('input[name="max_sqft"]');
+    const yearBuiltSelect = document.querySelector('select[name="year_built"]');
+    const propertyStatusSelect = document.querySelector('select[name="property_status"]');
+    const searchForm = document.getElementById('searchForm');
+    
+    if (minSqftInput) minSqftInput.value = '';
+    if (maxSqftInput) maxSqftInput.value = '';
+    if (yearBuiltSelect) yearBuiltSelect.value = '';
+    if (propertyStatusSelect) propertyStatusSelect.value = '';
+    
+    if (searchForm) {
+        searchForm.submit();
+    }
+}
+
+// Auto-submit search on input (with debounce)
+(function() {
+    'use strict';
+    let searchTimeout = null;
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('searchInput');
+        const searchForm = document.getElementById('searchForm');
+        
+        if (searchInput && searchForm) {
+            // Auto-submit when user types in search input
+            searchInput.addEventListener('input', function() {
+                // Clear previous timeout
+                if (searchTimeout) {
+                    clearTimeout(searchTimeout);
+                }
+                
+                // Set new timeout to submit after user stops typing (500ms delay)
+                searchTimeout = setTimeout(function() {
+                    if (searchForm) {
+                        searchForm.submit();
+                    }
+                }, 500);
+            });
+            
+            // Also submit on Enter key (immediate)
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    // Clear timeout since we're submitting immediately
+                    if (searchTimeout) {
+                        clearTimeout(searchTimeout);
+                    }
+                    if (searchForm) {
+                        searchForm.submit();
+                    }
+                }
+            });
+        }
+    });
+})();
+</script>
 
 <?php
 wp_reset_postdata();

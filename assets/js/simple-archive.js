@@ -17,7 +17,10 @@
     const favoritesNonce = resbsData.favorites_nonce || '';
     const translations = resbsData.translations || {};
 
-     // Simple dropdown toggle functionality
+    // SIMPLE FORM SUBMISSION - Let form submit naturally without interference
+    // No JavaScript needed - form uses standard GET submission
+
+    // Simple dropdown toggle functionality
  window.toggleDropdown = function(dropdownId, event) {
      if (event) {
          event.stopPropagation();
@@ -152,79 +155,89 @@
         }
     });
 
+    // Form submission is handled naturally by browser - no JavaScript needed
+
     // Clear price filter function
     window.clearPriceFilter = function() {
-        const minPriceInput = document.querySelector('input[name="min_price"]');
-        const maxPriceInput = document.querySelector('input[name="max_price"]');
-        const searchForm = document.getElementById('searchForm');
-        
-        if (minPriceInput) minPriceInput.value = '';
-        if (maxPriceInput) maxPriceInput.value = '';
-        if (searchForm) searchForm.submit();
+        document.querySelector('input[name="min_price"]').value = '';
+        document.querySelector('input[name="max_price"]').value = '';
+        document.getElementById('searchForm').submit();
     };
 
     // Clear type filter function
     window.clearTypeFilter = function() {
-        const anyTypeRadio = document.querySelector('input[name="property_type"][value=""]');
-        const searchForm = document.getElementById('searchForm');
-        
-        if (anyTypeRadio) anyTypeRadio.checked = true;
-        if (searchForm) searchForm.submit();
+        // Select the "Any Type" radio button
+        document.querySelector('input[name="property_type"][value=""]').checked = true;
+        document.getElementById('searchForm').submit();
     };
 
     // Clear bedrooms filter function
     window.clearBedroomsFilter = function() {
-        const minBedroomsInput = document.querySelector('input[name="min_bedrooms"]');
-        const maxBedroomsInput = document.querySelector('input[name="max_bedrooms"]');
-        const searchForm = document.getElementById('searchForm');
-        
-        if (minBedroomsInput) minBedroomsInput.value = '';
-        if (maxBedroomsInput) maxBedroomsInput.value = '';
-        if (searchForm) searchForm.submit();
+        document.querySelector('input[name="min_bedrooms"]').value = '';
+        document.querySelector('input[name="max_bedrooms"]').value = '';
+        document.getElementById('searchForm').submit();
     };
 
     // Clear bathrooms filter function
     window.clearBathroomsFilter = function() {
-        const minBathroomsInput = document.querySelector('input[name="min_bathrooms"]');
-        const maxBathroomsInput = document.querySelector('input[name="max_bathrooms"]');
-        const searchForm = document.getElementById('searchForm');
-        
-        if (minBathroomsInput) minBathroomsInput.value = '';
-        if (maxBathroomsInput) maxBathroomsInput.value = '';
-        if (searchForm) searchForm.submit();
+        document.querySelector('input[name="min_bathrooms"]').value = '';
+        document.querySelector('input[name="max_bathrooms"]').value = '';
+        document.getElementById('searchForm').submit();
     };
 
     // Clear more filters function
     window.clearMoreFilters = function() {
-        const minSqftInput = document.querySelector('input[name="min_sqft"]');
-        const maxSqftInput = document.querySelector('input[name="max_sqft"]');
-        const yearBuiltSelect = document.querySelector('select[name="year_built"]');
-        const propertyStatusSelect = document.querySelector('select[name="property_status"]');
-        const searchForm = document.getElementById('searchForm');
-        
-        if (minSqftInput) minSqftInput.value = '';
-        if (maxSqftInput) maxSqftInput.value = '';
-        if (yearBuiltSelect) yearBuiltSelect.value = '';
-        if (propertyStatusSelect) propertyStatusSelect.value = '';
-        if (searchForm) searchForm.submit();
+        document.querySelector('input[name="min_sqft"]').value = '';
+        document.querySelector('input[name="max_sqft"]').value = '';
+        document.querySelector('select[name="year_built"]').value = '';
+        document.querySelector('select[name="property_status"]').value = '';
+        document.getElementById('searchForm').submit();
     };
 
     // Handle sort change dynamically
     window.handleSortChange = function(sortValue) {
-        // Get current URL parameters
-        const urlParams = new URLSearchParams(window.location.search);
+        // Get the search form
+        const searchForm = document.getElementById('searchForm');
         
-        // Update sort_by parameter
-        urlParams.set('sort_by', sortValue);
-        
-        // Remove paged parameter to go back to page 1
-        urlParams.delete('paged');
-        
-        // Build new URL with updated parameters
-        const newUrl = window.location.pathname + '?' + urlParams.toString();
-        
-        // Navigate to new URL
-        window.location.href = newUrl;
+        if (searchForm) {
+            // Get all current form values to preserve filters
+            const formData = new FormData(searchForm);
+            const urlParams = new URLSearchParams();
+            
+            // Add all form fields to preserve filters
+            for (const [key, value] of formData.entries()) {
+                // Skip sort_by (we'll set it below) and empty values
+                if (key !== 'sort_by' && value) {
+                    urlParams.append(key, value);
+                }
+            }
+            
+            // Add/update sort_by parameter
+            if (sortValue) {
+                urlParams.set('sort_by', sortValue);
+            }
+            
+            // Remove paged parameter to go back to page 1
+            urlParams.delete('paged');
+            
+            // Build new URL with all parameters
+            const archiveUrl = searchForm.action || window.location.pathname;
+            // Clean the archive URL (remove existing query string if any)
+            const cleanUrl = archiveUrl.split('?')[0];
+            const newUrl = cleanUrl + '?' + urlParams.toString();
+            
+            // Navigate to new URL
+            window.location.href = newUrl;
+        } else {
+            // Fallback: use current URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            if (sortValue) {
+                urlParams.set('sort_by', sortValue);
+            }
+            urlParams.delete('paged');
+            const newUrl = window.location.pathname + '?' + urlParams.toString();
+            window.location.href = newUrl;
+        }
     };
 
     // Show Map View - Always show map when clicked

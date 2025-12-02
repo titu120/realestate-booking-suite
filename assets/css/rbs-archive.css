@@ -458,6 +458,55 @@ body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .checkbox-item in
     accent-color: #0f766e !important;
 }
 
+/* Filter Options (for bedrooms/bathrooms dropdowns) */
+.rbs-archive .filter-options,
+#resbs-property-archive .filter-options,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .filter-options,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .filter-options {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.rbs-archive .filter-option,
+#resbs-property-archive .filter-option,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .filter-option,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .filter-option {
+    padding: 10px 24px !important;
+    border: 2px solid #d1d5db !important;
+    border-radius: 8px !important;
+    font-weight: 500 !important;
+    cursor: pointer !important;
+    transition: all 0.3s !important;
+    background-color: white !important;
+    color: #374151 !important;
+    text-align: center !important;
+    font-size: 14px !important;
+    white-space: nowrap !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.rbs-archive .filter-option:hover,
+#resbs-property-archive .filter-option:hover,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .filter-option:hover,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .filter-option:hover {
+    background-color: #0f766e !important;
+    color: white !important;
+    border-color: #0f766e !important;
+}
+
+.rbs-archive .filter-option.active,
+#resbs-property-archive .filter-option.active,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .filter-option.active,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .filter-option.active {
+    background-color: #0f766e !important;
+    color: white !important;
+    border-color: #0f766e !important;
+}
+
 body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .checkbox-item span,
 body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .checkbox-item span {
     font-size: 14px !important;
@@ -928,6 +977,21 @@ body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-card:ho
     transition: transform 0.3s !important;
 }
 
+/* Gradient Overlay */
+.rbs-archive .gradient-overlay,
+#resbs-property-archive .gradient-overlay,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .gradient-overlay,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .gradient-overlay {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.7) 100%) !important;
+    z-index: 1 !important;
+    pointer-events: none !important;
+}
+
 body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-details,
 body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-details {
     padding: 20px !important;
@@ -953,6 +1017,41 @@ body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-price {
     color: #0f766e !important;
     margin: 0 !important;
     padding: 0 !important;
+}
+
+/* Property Info Overlay - Title and Location */
+.rbs-archive .property-info-overlay,
+#resbs-property-archive .property-info-overlay,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-info-overlay,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-info-overlay {
+    position: absolute !important;
+    bottom: 16px !important;
+    left: 16px !important;
+    right: 16px !important;
+    z-index: 2 !important;
+    pointer-events: none !important;
+}
+
+.rbs-archive .property-info-overlay .property-title,
+#resbs-property-archive .property-info-overlay .property-title,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-info-overlay .property-title,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-info-overlay .property-title {
+    color: white !important;
+    font-weight: 700 !important;
+    font-size: 20px !important;
+    margin-bottom: 4px !important;
+    display: block !important;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+}
+
+.rbs-archive .property-info-overlay .property-location,
+#resbs-property-archive .property-info-overlay .property-location,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-info-overlay .property-location,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-info-overlay .property-location {
+    color: rgba(255, 255, 255, 0.9) !important;
+    font-size: 14px !important;
+    display: block !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
 }
 
 body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-status,
