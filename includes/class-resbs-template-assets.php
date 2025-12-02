@@ -379,6 +379,16 @@ class RESBS_Template_Assets {
             return;
         }
         
+        // Enqueue Font Awesome (required for icons)
+        if (!wp_style_is('resbs-font-awesome', 'enqueued') && !wp_style_is('resbs-font-awesome', 'registered')) {
+            wp_enqueue_style(
+                'resbs-font-awesome',
+                'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
+                array(),
+                '6.4.0'
+            );
+        }
+        
         // Enqueue archive layout CSS
         wp_enqueue_style(
             'resbs-simple-archive-layout',

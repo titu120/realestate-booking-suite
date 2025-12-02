@@ -607,7 +607,18 @@ window.highlightProperty = function(propertyId) {
         // Create toast element
         const toast = document.createElement('div');
         toast.className = 'resbs-toast-notification resbs-toast-' + (type || 'success');
-        toast.innerHTML = '<span class="resbs-toast-message">' + message + '</span><button class="resbs-toast-close">&times;</button>';
+        // Sanitize message to prevent XSS
+        const messageText = document.createTextNode(message);
+        const messageSpan = document.createElement('span');
+        messageSpan.className = 'resbs-toast-message';
+        messageSpan.appendChild(messageText);
+        
+        const closeBtn = document.createElement('button');
+        closeBtn.className = 'resbs-toast-close';
+        closeBtn.innerHTML = '&times;';
+        
+        toast.appendChild(messageSpan);
+        toast.appendChild(closeBtn);
         
         // Add to body
         document.body.appendChild(toast);
@@ -623,13 +634,10 @@ window.highlightProperty = function(propertyId) {
         }, 3000);
         
         // Close button click
-        const closeBtn = toast.querySelector('.resbs-toast-close');
-        if (closeBtn) {
-            closeBtn.addEventListener('click', () => {
-                clearTimeout(autoHide);
-                hideToast(toast);
-            });
-        }
+        closeBtn.addEventListener('click', () => {
+            clearTimeout(autoHide);
+            hideToast(toast);
+        });
     }
 
     function hideToast(toast) {
@@ -968,7 +976,11 @@ window.highlightProperty = function(propertyId) {
                         const noPropsDiv = document.createElement('div');
                         noPropsDiv.className = 'resbs-map-no-properties';
                         noPropsDiv.style.cssText = 'position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); z-index: 1000; text-align: center;';
-                        noPropsDiv.innerHTML = '<p style="margin: 0; color: #666;">No properties with location data found.</p>';
+                        const noPropsText = document.createTextNode('No properties with location data found.');
+                        const noPropsP = document.createElement('p');
+                        noPropsP.style.cssText = 'margin: 0; color: #666;';
+                        noPropsP.appendChild(noPropsText);
+                        noPropsDiv.appendChild(noPropsP);
                         mapContainer.appendChild(noPropsDiv);
                     }
                     return;
@@ -1345,11 +1357,22 @@ window.highlightProperty = function(propertyId) {
             const errorDiv = document.createElement('div');
             errorDiv.className = 'resbs-map-error';
             errorDiv.style.cssText = 'position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); z-index: 1000; max-width: 450px; text-align: center; border: 2px solid #ef4444;';
-            errorDiv.innerHTML = `
-                <div style="color: #ef4444; font-size: 48px; margin-bottom: 15px;">⚠️</div>
-                <h3 style="color: #1f2937; margin: 0 0 10px 0; font-size: 18px; font-weight: 600;">Map Error</h3>
-                <p style="color: #6b7280; margin: 0 0 20px 0; font-size: 14px; line-height: 1.5;">${message}</p>
-            `;
+            // Create error elements safely to prevent XSS
+            const warningDiv = document.createElement('div');
+            warningDiv.style.cssText = 'color: #ef4444; font-size: 48px; margin-bottom: 15px;';
+            warningDiv.textContent = '⚠️';
+            
+            const errorTitle = document.createElement('h3');
+            errorTitle.style.cssText = 'color: #1f2937; margin: 0 0 10px 0; font-size: 18px; font-weight: 600;';
+            errorTitle.textContent = 'Map Error';
+            
+            const errorMessage = document.createElement('p');
+            errorMessage.style.cssText = 'color: #6b7280; margin: 0 0 20px 0; font-size: 14px; line-height: 1.5;';
+            errorMessage.textContent = message;
+            
+            errorDiv.appendChild(warningDiv);
+            errorDiv.appendChild(errorTitle);
+            errorDiv.appendChild(errorMessage);
             
             mapContainer.style.position = 'relative';
             mapContainer.appendChild(errorDiv);

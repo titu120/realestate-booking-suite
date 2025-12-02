@@ -188,8 +188,33 @@ class RESBS_Archive_Handler {
         // Note: Property type is a taxonomy, not a meta field, so this filter should use tax_query instead
         // Keeping for backward compatibility but should be migrated to tax_query
         
-        // Bedrooms filter - sanitize and validate
-        if (isset($input['bedrooms']) && !empty($input['bedrooms'])) {
+        // Bedrooms filter - support both min/max and single value for backward compatibility
+        if (isset($input['min_bedrooms']) && !empty($input['min_bedrooms'])) {
+            $min_bedrooms = is_numeric($input['min_bedrooms']) ? absint($input['min_bedrooms']) : 0;
+            if ($min_bedrooms > 0) {
+                $meta_query[] = array(
+                    'key' => '_property_bedrooms',
+                    'value' => $min_bedrooms,
+                    'compare' => '>=',
+                    'type' => 'NUMERIC'
+                );
+            }
+        }
+        
+        if (isset($input['max_bedrooms']) && !empty($input['max_bedrooms'])) {
+            $max_bedrooms = is_numeric($input['max_bedrooms']) ? absint($input['max_bedrooms']) : 0;
+            if ($max_bedrooms > 0) {
+                $meta_query[] = array(
+                    'key' => '_property_bedrooms',
+                    'value' => $max_bedrooms,
+                    'compare' => '<=',
+                    'type' => 'NUMERIC'
+                );
+            }
+        }
+        
+        // Backward compatibility: support single 'bedrooms' parameter
+        if (!isset($input['min_bedrooms']) && !isset($input['max_bedrooms']) && isset($input['bedrooms']) && !empty($input['bedrooms'])) {
             $bedrooms = is_numeric($input['bedrooms']) ? absint($input['bedrooms']) : 0;
             if ($bedrooms > 0) {
                 $meta_query[] = array(
@@ -201,8 +226,33 @@ class RESBS_Archive_Handler {
             }
         }
         
-        // Bathrooms filter - sanitize and validate (can be decimals like 2.5)
-        if (isset($input['bathrooms']) && !empty($input['bathrooms'])) {
+        // Bathrooms filter - support both min/max and single value for backward compatibility
+        if (isset($input['min_bathrooms']) && !empty($input['min_bathrooms'])) {
+            $min_bathrooms = is_numeric($input['min_bathrooms']) ? floatval($input['min_bathrooms']) : 0;
+            if ($min_bathrooms > 0) {
+                $meta_query[] = array(
+                    'key' => '_property_bathrooms',
+                    'value' => $min_bathrooms,
+                    'compare' => '>=',
+                    'type' => 'NUMERIC'
+                );
+            }
+        }
+        
+        if (isset($input['max_bathrooms']) && !empty($input['max_bathrooms'])) {
+            $max_bathrooms = is_numeric($input['max_bathrooms']) ? floatval($input['max_bathrooms']) : 0;
+            if ($max_bathrooms > 0) {
+                $meta_query[] = array(
+                    'key' => '_property_bathrooms',
+                    'value' => $max_bathrooms,
+                    'compare' => '<=',
+                    'type' => 'NUMERIC'
+                );
+            }
+        }
+        
+        // Backward compatibility: support single 'bathrooms' parameter
+        if (!isset($input['min_bathrooms']) && !isset($input['max_bathrooms']) && isset($input['bathrooms']) && !empty($input['bathrooms'])) {
             $bathrooms = is_numeric($input['bathrooms']) ? floatval($input['bathrooms']) : 0;
             if ($bathrooms > 0) {
                 $meta_query[] = array(

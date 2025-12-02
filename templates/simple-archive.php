@@ -27,11 +27,7 @@ if (isset($_GET['reset']) && !empty($_GET['reset'])) {
 // Now safe to output headers and content
 // Use resbs_get_header() to ensure compatibility with both block and classic themes
 resbs_get_header();
-?>
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer">
-
-<?php
 // Note: AJAX functionality disabled for now to prevent errors
 // wp_enqueue_script('resbs-dynamic-archive');
 
@@ -154,19 +150,39 @@ if (!empty($year_built)) {
 }
 
 // Add property status filter
+$tax_queries = array();
 if (!empty($property_status)) {
     // Sanitize property status term slug
     $property_status_slug = sanitize_text_field($property_status);
-    $args['tax_query'] = array(
-        array(
-            'taxonomy' => 'property_status',
-            'field' => 'slug',
-            'terms' => $property_status_slug,
-        )
+    $tax_queries[] = array(
+        'taxonomy' => 'property_status',
+        'field' => 'slug',
+        'terms' => $property_status_slug,
     );
 }
 
-// Property type filter will be handled by database query below
+// Add property type filter
+if (!empty($property_type_filter)) {
+    // Sanitize property type term slug
+    $property_type_slug = sanitize_text_field($property_type_filter);
+    $tax_queries[] = array(
+        'taxonomy' => 'property_type',
+        'field' => 'slug',
+        'terms' => $property_type_slug,
+    );
+}
+
+// Add tax_query if we have any taxonomy filters
+if (!empty($tax_queries)) {
+    if (count($tax_queries) > 1) {
+        $args['tax_query'] = array(
+            'relation' => 'AND',
+        );
+        $args['tax_query'] = array_merge($args['tax_query'], $tax_queries);
+    } else {
+        $args['tax_query'] = $tax_queries;
+    }
+}
 
 // Add sorting
 switch ($sort_by) {
@@ -190,23 +206,6 @@ switch ($sort_by) {
 // Set meta_query relation
 if (count($args['meta_query']) > 1) {
     $args['meta_query']['relation'] = 'AND';
-}
-
-// Execute the query
-// Clear any potential caching issues
-wp_cache_flush();
-
-// SIMPLE PROPERTY TYPE FILTER
-if (!empty($property_type_filter)) {
-    // Sanitize property type term slug
-    $property_type_slug = sanitize_text_field($property_type_filter);
-    $args['tax_query'] = array(
-        array(
-            'taxonomy' => 'property_type',
-            'field' => 'slug',
-            'terms' => $property_type_slug,
-        )
-    );
 }
 
 $properties_query = new WP_Query($args);
@@ -850,7 +849,7 @@ $property_statuses = get_terms(array(
                 // Add ALL properties to the array - NO EXCEPTIONS
                 $properties_data[] = $property_data;
             endwhile;
-            wp_reset_postdata();
+            // Note: wp_reset_postdata() will be called at the end of the template
             
             // Pass data to JavaScript via filter (for wp_localize_script) - for backwards compatibility
             add_filter('resbs_archive_js_data', function($data) use ($use_openstreetmap, $properties_data, $map_settings, $map_center_lat, $map_center_lng, $map_zoom) {
@@ -977,6 +976,41 @@ $property_statuses = get_terms(array(
 <?php endif; ?>
 
 <script>
+// Helper function to build and submit clean URL
+function buildAndSubmitCleanUrl(additionalParams) {
+    const searchForm = document.getElementById('searchForm');
+    if (!searchForm) return;
+    
+    // Build clean URL with only non-empty parameters
+    const urlParams = new URLSearchParams();
+    const formData = new FormData(searchForm);
+    
+    // Add all non-empty form values
+    for (const [key, value] of formData.entries()) {
+        const trimmedValue = String(value).trim();
+        // Only add if value is not empty and not '0' (unless it's a valid filter value)
+        if (trimmedValue !== '' && trimmedValue !== '0' && trimmedValue !== null && trimmedValue !== undefined) {
+            urlParams.set(key, trimmedValue);
+        }
+    }
+    
+    // Add any additional parameters (for sort, etc.)
+    if (additionalParams) {
+        for (const [key, value] of Object.entries(additionalParams)) {
+            if (value && value !== '' && value !== '0') {
+                urlParams.set(key, value);
+            }
+        }
+    }
+    
+    // Build the clean URL - use current pathname to preserve the archive URL
+    const currentPath = window.location.pathname;
+    const cleanUrl = currentPath + (urlParams.toString() ? '?' + urlParams.toString() : '');
+    
+    // Redirect to clean URL
+    window.location.href = cleanUrl;
+}
+
 // Clean form before submission - build clean URL with only non-empty parameters
 (function() {
     'use strict';
@@ -985,49 +1019,27 @@ $property_statuses = get_terms(array(
         searchForm.addEventListener('submit', function(e) {
             // Prevent default submission
             e.preventDefault();
-            
-            // Build clean URL with only non-empty parameters
-            const urlParams = new URLSearchParams();
-            const formData = new FormData(this);
-            
-            // Add all non-empty form values
-            for (const [key, value] of formData.entries()) {
-                const trimmedValue = String(value).trim();
-                // Only add if value is not empty and not '0' (unless it's a valid filter value)
-                if (trimmedValue !== '' && trimmedValue !== '0' && trimmedValue !== null && trimmedValue !== undefined) {
-                    urlParams.set(key, trimmedValue);
-                }
-            }
-            
-            // Build the clean URL - use current pathname to preserve the archive URL
-            const currentPath = window.location.pathname;
-            const cleanUrl = currentPath + (urlParams.toString() ? '?' + urlParams.toString() : '');
-            
-            // Redirect to clean URL
-            window.location.href = cleanUrl;
+            // Use the helper function
+            buildAndSubmitCleanUrl();
         });
     }
 })();
 
 // Submit form function
 function submitForm() {
-    const searchForm = document.getElementById('searchForm');
-    if (searchForm) {
-        searchForm.submit();
-    }
+    buildAndSubmitCleanUrl();
 }
 
 // Clear price filter function
 function clearPriceFilter() {
     const minPriceInput = document.querySelector('input[name="min_price"]');
     const maxPriceInput = document.querySelector('input[name="max_price"]');
-    const searchForm = document.getElementById('searchForm');
     
     if (minPriceInput) minPriceInput.value = '';
     if (maxPriceInput) maxPriceInput.value = '';
-    if (searchForm) {
-        searchForm.submit();
-    }
+    
+    // Submit with clean URL
+    buildAndSubmitCleanUrl();
 }
 
 // Clear type filter function
@@ -1036,37 +1048,33 @@ function clearTypeFilter() {
     const anyTypeRadio = document.querySelector('input[name="property_type"][value=""]');
     if (anyTypeRadio) {
         anyTypeRadio.checked = true;
-        const searchForm = document.getElementById('searchForm');
-        if (searchForm) {
-            searchForm.submit();
-        }
     }
+    // Submit with clean URL
+    buildAndSubmitCleanUrl();
 }
 
 // Clear bedrooms filter function
 function clearBedroomsFilter() {
     const minBedroomsInput = document.querySelector('input[name="min_bedrooms"]');
     const maxBedroomsInput = document.querySelector('input[name="max_bedrooms"]');
-    const searchForm = document.getElementById('searchForm');
     
     if (minBedroomsInput) minBedroomsInput.value = '';
     if (maxBedroomsInput) maxBedroomsInput.value = '';
-    if (searchForm) {
-        searchForm.submit();
-    }
+    
+    // Submit with clean URL
+    buildAndSubmitCleanUrl();
 }
 
 // Clear bathrooms filter function
 function clearBathroomsFilter() {
     const minBathroomsInput = document.querySelector('input[name="min_bathrooms"]');
     const maxBathroomsInput = document.querySelector('input[name="max_bathrooms"]');
-    const searchForm = document.getElementById('searchForm');
     
     if (minBathroomsInput) minBathroomsInput.value = '';
     if (maxBathroomsInput) maxBathroomsInput.value = '';
-    if (searchForm) {
-        searchForm.submit();
-    }
+    
+    // Submit with clean URL
+    buildAndSubmitCleanUrl();
 }
 
 // Clear more filters function
@@ -1075,51 +1083,26 @@ function clearMoreFilters() {
     const maxSqftInput = document.querySelector('input[name="max_sqft"]');
     const yearBuiltSelect = document.querySelector('select[name="year_built"]');
     const propertyStatusSelect = document.querySelector('select[name="property_status"]');
-    const searchForm = document.getElementById('searchForm');
     
     if (minSqftInput) minSqftInput.value = '';
     if (maxSqftInput) maxSqftInput.value = '';
     if (yearBuiltSelect) yearBuiltSelect.value = '';
     if (propertyStatusSelect) propertyStatusSelect.value = '';
     
-    if (searchForm) {
-        searchForm.submit();
-    }
+    // Submit with clean URL
+    buildAndSubmitCleanUrl();
 }
 
 // Submit sort form function
 function submitSortForm(selectElement) {
-    const searchForm = document.getElementById('searchForm');
-    if (searchForm && selectElement) {
+    if (selectElement) {
         // Get the sort value
         const sortValue = selectElement.value;
         
-        // Build clean URL with only non-empty parameters
-        const urlParams = new URLSearchParams();
-        
-        // Get all form inputs and only add non-empty values
-        const formData = new FormData(searchForm);
-        
-        // Add all non-empty form values
-        for (const [key, value] of formData.entries()) {
-            const trimmedValue = String(value).trim();
-            // Only add if value is not empty and not '0' (unless it's a valid filter value)
-            if (trimmedValue !== '' && trimmedValue !== '0' && trimmedValue !== null && trimmedValue !== undefined) {
-                urlParams.set(key, trimmedValue);
-            }
-        }
-        
-        // Add sort_by value (override if it exists in form)
-        if (sortValue && sortValue !== '' && sortValue !== 'date') {
-            urlParams.set('sort_by', sortValue);
-        }
-        
-        // Build the clean URL - use current pathname to preserve the archive URL
-        const currentPath = window.location.pathname;
-        const cleanUrl = currentPath + (urlParams.toString() ? '?' + urlParams.toString() : '');
-        
-        // Redirect to clean URL
-        window.location.href = cleanUrl;
+        // Submit with clean URL, including sort_by
+        buildAndSubmitCleanUrl({
+            'sort_by': (sortValue && sortValue !== '' && sortValue !== 'date') ? sortValue : null
+        });
     }
 }
 
@@ -1130,9 +1113,8 @@ function submitSortForm(selectElement) {
     
     document.addEventListener('DOMContentLoaded', function() {
         const searchInput = document.getElementById('searchInput');
-        const searchForm = document.getElementById('searchForm');
         
-        if (searchInput && searchForm) {
+        if (searchInput) {
             // Auto-submit when user types in search input
             searchInput.addEventListener('input', function() {
                 // Clear previous timeout
@@ -1142,9 +1124,7 @@ function submitSortForm(selectElement) {
                 
                 // Set new timeout to submit after user stops typing (500ms delay)
                 searchTimeout = setTimeout(function() {
-                    if (searchForm) {
-                        searchForm.submit();
-                    }
+                    buildAndSubmitCleanUrl();
                 }, 500);
             });
             
@@ -1155,9 +1135,7 @@ function submitSortForm(selectElement) {
                     if (searchTimeout) {
                         clearTimeout(searchTimeout);
                     }
-                    if (searchForm) {
-                        searchForm.submit();
-                    }
+                    buildAndSubmitCleanUrl();
                 }
             });
         }

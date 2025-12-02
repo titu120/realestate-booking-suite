@@ -3064,10 +3064,6 @@ body .single-property.resbs-single-property-wrapper#resbs-single-property-page .
     border: none !important;
 }
 
-/* Test Class */
-.test-class {
-    grid-column: 1 / 3 !important;
-}
 
 /* Removed all element-level overrides to prevent conflicts with theme styles */
 /* .single-property table {

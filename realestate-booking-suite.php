@@ -54,13 +54,21 @@ function resbs_create_wishlist_page() {
     }
     
     // Create the page
+    // Use current user ID or first admin user as fallback
+    $current_user_id = get_current_user_id();
+    if (!$current_user_id) {
+        // Get first admin user as fallback
+        $admin_users = get_users(array('role' => 'administrator', 'number' => 1));
+        $current_user_id = !empty($admin_users) ? $admin_users[0]->ID : 1;
+    }
+    
     $page_data = array(
         'post_title'    => __('My Saved Properties', 'realestate-booking-suite'),
         'post_content'  => '[resbs_favorites]',
         'post_status'   => 'publish',
         'post_type'     => 'page',
         'post_name'     => $page_slug,
-        'post_author'   => 1,
+        'post_author'   => absint($current_user_id),
         'comment_status' => 'closed',
         'ping_status'   => 'closed'
     );
@@ -107,13 +115,21 @@ function resbs_create_profile_page() {
     $page_title = sanitize_text_field($page_title);
     
     // Create the page
+    // Use current user ID or first admin user as fallback
+    $current_user_id = get_current_user_id();
+    if (!$current_user_id) {
+        // Get first admin user as fallback
+        $admin_users = get_users(array('role' => 'administrator', 'number' => 1));
+        $current_user_id = !empty($admin_users) ? $admin_users[0]->ID : 1;
+    }
+    
     $page_data = array(
         'post_title'    => $page_title,
         'post_content'  => '[resbs_dashboard show_profile="yes"]',
         'post_status'   => 'publish',
         'post_type'     => 'page',
         'post_name'     => $page_slug,
-        'post_author'   => 1,
+        'post_author'   => absint($current_user_id),
         'comment_status' => 'closed',
         'ping_status'   => 'closed'
     );
@@ -156,13 +172,21 @@ function resbs_create_submit_property_page() {
     }
     
     // Create the page
+    // Use current user ID or first admin user as fallback
+    $current_user_id = get_current_user_id();
+    if (!$current_user_id) {
+        // Get first admin user as fallback
+        $admin_users = get_users(array('role' => 'administrator', 'number' => 1));
+        $current_user_id = !empty($admin_users) ? $admin_users[0]->ID : 1;
+    }
+    
     $page_data = array(
         'post_title'    => __('Submit Property', 'realestate-booking-suite'),
         'post_content'  => '[resbs_submit_property]',
         'post_status'   => 'publish',
         'post_type'     => 'page',
         'post_name'     => $page_slug,
-        'post_author'   => 1,
+        'post_author'   => absint($current_user_id),
         'comment_status' => 'closed',
         'ping_status'   => 'closed'
     );
@@ -449,43 +473,7 @@ function resbs_plugin_uninstall() {
 }
 register_uninstall_hook(__FILE__, 'resbs_plugin_uninstall');
 
-// Manual flush rewrite rules function (for debugging)
-function resbs_manual_flush_rewrite_rules() {
-    // Only allow admins
-    if (!current_user_can('manage_options')) {
-        return;
-    }
-    
-    // Check if parameter is set
-    if (!isset($_GET['resbs_flush'])) {
-        return;
-    }
-    
-    $flush_param = sanitize_text_field($_GET['resbs_flush']);
-    if ($flush_param !== '1') {
-        return;
-    }
-    
-    // Verify nonce for security
-    $nonce = isset($_GET['_wpnonce']) ? sanitize_text_field(wp_unslash($_GET['_wpnonce'])) : '';
-    if (empty($nonce) || !wp_verify_nonce($nonce, 'resbs_flush_rewrite_rules')) {
-        wp_die(
-            esc_html__('Security check failed. Please try again.', 'realestate-booking-suite'),
-            esc_html__('Security Check Failed', 'realestate-booking-suite'),
-            array('response' => 403)
-        );
-    }
-    
-    flush_rewrite_rules();
-    
-    // Use admin notice instead of direct echo
-    add_action('admin_notices', function() {
-        echo '<div class="notice notice-success is-dismissible"><p>';
-        echo esc_html__('Rewrite rules flushed successfully!', 'realestate-booking-suite');
-        echo '</p></div>';
-    });
-}
-add_action('init', 'resbs_manual_flush_rewrite_rules');
+// Removed debug function: resbs_manual_flush_rewrite_rules() - not needed for production
 
 /**
  * Check if current theme is a block theme
@@ -754,6 +742,16 @@ function resbs_add_fontawesome_fallback() {
 }
 add_action('wp_head', 'resbs_add_fontawesome_fallback', 1);
 
+// Load plugin textdomain for translations
+function resbs_load_textdomain() {
+    load_plugin_textdomain(
+        'realestate-booking-suite',
+        false,
+        dirname(plugin_basename(__FILE__)) . '/languages'
+    );
+}
+add_action('plugins_loaded', 'resbs_load_textdomain');
+
 // Load main functionality
 // Load main functions file
 $functions_file = RESBS_PATH . 'includes/functions.php';
@@ -896,10 +894,10 @@ add_action('user_register', 'resbs_auto_verify_admin_created_users', 10, 1);
 add_action('edit_user_profile_update', 'resbs_auto_verify_admin_created_users', 10, 1);
 
 /**
- * Quick fix: Verify all existing users created from admin panel
- * Access via: ?resbs_verify_all_users=1&_wpnonce=xxx (admin only)
- * Or verify specific user: ?resbs_verify_user=username&_wpnonce=xxx (admin only)
+ * Removed debug function: resbs_verify_all_admin_users() - not needed for production
+ * This function was used for debugging user verification issues.
  */
+/*
 function resbs_verify_all_admin_users() {
     // Only allow admins
     if (!current_user_can('manage_options')) {
@@ -1001,11 +999,13 @@ function resbs_verify_all_admin_users() {
     }
 }
 add_action('admin_init', 'resbs_verify_all_admin_users');
+*/
 
 /**
- * Quick fix: Create default property status terms
- * Access via: ?resbs_create_status_terms=1&_wpnonce=xxx (admin only)
+ * Removed debug function: resbs_create_status_terms_on_demand() - not needed for production
+ * This function was used for debugging property status term creation.
  */
+/*
 function resbs_create_status_terms_on_demand() {
     // Only allow admins
     if (!current_user_can('manage_options')) {
@@ -1044,11 +1044,13 @@ function resbs_create_status_terms_on_demand() {
     });
 }
 add_action('admin_init', 'resbs_create_status_terms_on_demand');
+*/
 
 /**
- * Fix existing properties: Convert array features/amenities to strings
- * Access via: ?resbs_fix_property_arrays=1&_wpnonce=xxx (admin only)
+ * Removed debug function: resbs_fix_property_arrays() - not needed for production
+ * This function was used for debugging property data format issues.
  */
+/*
 function resbs_fix_property_arrays() {
     // Only allow admins
     if (!current_user_can('manage_options')) {
@@ -1127,6 +1129,7 @@ function resbs_fix_property_arrays() {
     });
 }
 add_action('admin_init', 'resbs_fix_property_arrays');
+*/
 
 /**
  * Get currency symbol
