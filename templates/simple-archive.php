@@ -977,48 +977,34 @@ $property_statuses = get_terms(array(
 <?php endif; ?>
 
 <script>
-// Clean form before submission - remove empty/zero values
+// Clean form before submission - build clean URL with only non-empty parameters
 (function() {
     'use strict';
     const searchForm = document.getElementById('searchForm');
     if (searchForm) {
         searchForm.addEventListener('submit', function(e) {
-            // Remove empty/zero number inputs before submission
-            const numberInputs = this.querySelectorAll('input[type="number"]');
-            numberInputs.forEach(function(input) {
-                const value = input.value.trim();
-                // If empty or zero, remove the name attribute so it won't be submitted
-                if (value === '' || value === '0' || value === null || value === undefined) {
-                    input.removeAttribute('name');
-                }
-            });
+            // Prevent default submission
+            e.preventDefault();
             
-            // Remove empty hidden inputs
-            const hiddenInputs = this.querySelectorAll('input[type="hidden"]');
-            hiddenInputs.forEach(function(input) {
-                const value = input.value.trim();
-                if (value === '' || value === '0' || value === null || value === undefined) {
-                    input.removeAttribute('name');
-                }
-            });
+            // Build clean URL with only non-empty parameters
+            const urlParams = new URLSearchParams();
+            const formData = new FormData(this);
             
-            // Remove empty select values
-            const selects = this.querySelectorAll('select');
-            selects.forEach(function(select) {
-                const value = select.value.trim();
-                if (value === '' || value === null || value === undefined) {
-                    select.removeAttribute('name');
+            // Add all non-empty form values
+            for (const [key, value] of formData.entries()) {
+                const trimmedValue = String(value).trim();
+                // Only add if value is not empty and not '0' (unless it's a valid filter value)
+                if (trimmedValue !== '' && trimmedValue !== '0' && trimmedValue !== null && trimmedValue !== undefined) {
+                    urlParams.set(key, trimmedValue);
                 }
-            });
+            }
             
-            // Remove empty text inputs (except search)
-            const textInputs = this.querySelectorAll('input[type="text"]:not([name="search"])');
-            textInputs.forEach(function(input) {
-                const value = input.value.trim();
-                if (value === '' || value === null || value === undefined) {
-                    input.removeAttribute('name');
-                }
-            });
+            // Build the clean URL - use current pathname to preserve the archive URL
+            const currentPath = window.location.pathname;
+            const cleanUrl = currentPath + (urlParams.toString() ? '?' + urlParams.toString() : '');
+            
+            // Redirect to clean URL
+            window.location.href = cleanUrl;
         });
     }
 })();
@@ -1108,18 +1094,32 @@ function submitSortForm(selectElement) {
         // Get the sort value
         const sortValue = selectElement.value;
         
-        // Create a hidden input for sort_by if it doesn't exist, or update existing one
-        let sortInput = searchForm.querySelector('input[name="sort_by"]');
-        if (!sortInput) {
-            sortInput = document.createElement('input');
-            sortInput.type = 'hidden';
-            sortInput.name = 'sort_by';
-            searchForm.appendChild(sortInput);
-        }
-        sortInput.value = sortValue;
+        // Build clean URL with only non-empty parameters
+        const urlParams = new URLSearchParams();
         
-        // Submit the form
-        searchForm.submit();
+        // Get all form inputs and only add non-empty values
+        const formData = new FormData(searchForm);
+        
+        // Add all non-empty form values
+        for (const [key, value] of formData.entries()) {
+            const trimmedValue = String(value).trim();
+            // Only add if value is not empty and not '0' (unless it's a valid filter value)
+            if (trimmedValue !== '' && trimmedValue !== '0' && trimmedValue !== null && trimmedValue !== undefined) {
+                urlParams.set(key, trimmedValue);
+            }
+        }
+        
+        // Add sort_by value (override if it exists in form)
+        if (sortValue && sortValue !== '' && sortValue !== 'date') {
+            urlParams.set('sort_by', sortValue);
+        }
+        
+        // Build the clean URL - use current pathname to preserve the archive URL
+        const currentPath = window.location.pathname;
+        const cleanUrl = currentPath + (urlParams.toString() ? '?' + urlParams.toString() : '');
+        
+        // Redirect to clean URL
+        window.location.href = cleanUrl;
     }
 }
 
