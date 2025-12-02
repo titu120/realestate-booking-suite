@@ -41,11 +41,23 @@ class RESBS_Email_Handler {
             return;
         }
         
-        // Check if we're on localhost
-        $http_host = isset($_SERVER['HTTP_HOST']) ? sanitize_text_field($_SERVER['HTTP_HOST']) : '';
-        $is_localhost = (strpos($http_host, 'localhost') !== false || 
-                        strpos($http_host, '127.0.0.1') !== false ||
-                        strpos($http_host, 'testthree') !== false);
+        // Check if we're in a development environment
+        // Use WordPress environment type detection (WP 5.5+)
+        $is_dev_environment = false;
+        if (function_exists('wp_get_environment_type')) {
+            $env_type = wp_get_environment_type();
+            $is_dev_environment = in_array($env_type, array('development', 'local', 'staging'), true);
+        } else {
+            // Fallback for older WordPress versions
+            $http_host = isset($_SERVER['HTTP_HOST']) ? sanitize_text_field($_SERVER['HTTP_HOST']) : '';
+            $is_dev_environment = (
+                strpos($http_host, 'localhost') !== false || 
+                strpos($http_host, '127.0.0.1') !== false ||
+                strpos($http_host, '.local') !== false ||
+                strpos($http_host, '.dev') !== false ||
+                (defined('WP_DEBUG') && WP_DEBUG && defined('WP_DEBUG_LOG') && WP_DEBUG_LOG)
+            );
+        }
         
         // Get and sanitize form data
         $name = sanitize_text_field($_POST['contact_name']);
@@ -153,14 +165,14 @@ class RESBS_Email_Handler {
         $customer_email_sent = wp_mail($email, $customer_subject, $customer_content, $customer_headers);
         
         // Return response
-        if ($is_localhost) {
-            // On localhost, always return success
+        if ($is_dev_environment) {
+            // In development environment, always return success (emails may not send)
             wp_send_json_success(array(
-                'message' => esc_html__('Thank you! Your message has been received. (Localhost mode - emails logged to error log)', 'realestate-booking-suite'),
+                'message' => esc_html__('Thank you! Your message has been received. (Development mode - emails may be logged to error log)', 'realestate-booking-suite'),
                 'agent_contacted' => true,
                 'admin_notified' => true,
                 'confirmation_sent' => true,
-                'localhost' => true
+                'dev_mode' => true
             ));
         } elseif ($agent_email_sent || $admin_email_sent) {
             wp_send_json_success(array(

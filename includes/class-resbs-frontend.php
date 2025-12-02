@@ -1678,7 +1678,7 @@ class RESBS_Frontend {
         
         $request_id = wp_insert_post($refund_request);
         
-        if ($request_id) {
+        if ($request_id && !is_wp_error($request_id)) {
             update_post_meta($request_id, '_booking_id', $booking_id);
             update_post_meta($request_id, '_refund_status', 'pending');
             update_post_meta($request_id, '_refund_reason', sanitize_textarea_field($_POST['reason'] ?? ''));

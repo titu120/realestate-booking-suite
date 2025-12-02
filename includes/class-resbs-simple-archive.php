@@ -53,6 +53,7 @@ class RESBS_Simple_Archive {
             is_tax('property_category') ||
             is_tax('properties_category')) {
             
+            // For classic themes AND block themes: Use custom template
             // Sanitize and validate the template path
             $template_file = 'templates/simple-archive.php';
             $simple_template = trailingslashit(RESBS_PATH) . $template_file;

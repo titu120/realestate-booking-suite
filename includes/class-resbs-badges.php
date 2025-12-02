@@ -654,9 +654,10 @@ class RESBS_Badge_Manager {
                 }
                 
                 // Write file with proper permissions
-                if (file_put_contents($css_file, $css)) {
+                $write_result = file_put_contents($css_file, $css);
+                if ($write_result !== false) {
                     // Set safe file permissions (644)
-                    chmod($css_file, 0644);
+                    @chmod($css_file, 0644);
                     update_option('resbs_badges_css_version', time());
                 }
             }

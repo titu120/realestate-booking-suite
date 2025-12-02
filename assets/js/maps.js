@@ -752,7 +752,7 @@
                 }
             },
             error: function() {
-                console.error('Failed to toggle favorite');
+                // Failed to toggle favorite
             }
         });
     });

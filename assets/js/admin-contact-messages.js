@@ -54,7 +54,7 @@
                         const message = JSON.parse(messageJson);
                         showFullMessage(messageId, message);
                     } catch (e) {
-                        console.error('Error parsing message JSON:', e);
+                        // Error parsing message JSON
                     }
                 }
             });

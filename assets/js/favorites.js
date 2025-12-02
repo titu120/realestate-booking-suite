@@ -256,7 +256,7 @@
                 }
             },
             error: function() {
-                console.error('Failed to update favorites count');
+                // Failed to update favorites count
             }
         });
     }

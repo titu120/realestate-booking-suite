@@ -563,7 +563,7 @@ jQuery(document).ready(function($) {
                 }
             });
         } catch (e) {
-            console.error('Swiper initialization error:', e);
+            // Swiper initialization error
         }
     }
     

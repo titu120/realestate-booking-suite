@@ -2685,27 +2685,36 @@ class RESBS_Enhanced_Settings {
         
         if ($format === 'json') {
             // Output JSON directly with download headers
-            header('Content-Type: application/json; charset=utf-8');
-            header('Content-Disposition: attachment; filename="' . esc_attr($filename) . '"');
-            header('Pragma: no-cache');
-            header('Expires: 0');
-            header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+            // Check if headers already sent
+            if (!headers_sent()) {
+                header('Content-Type: application/json; charset=utf-8');
+                header('Content-Disposition: attachment; filename="' . esc_attr($filename) . '"');
+                header('Pragma: no-cache');
+                header('Expires: 0');
+                header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+            }
             
             // Use wp_json_encode for proper encoding and escaping
             echo wp_json_encode($export_data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
             exit;
         } else {
             // Output CSV directly with download headers
-            header('Content-Type: text/csv; charset=utf-8');
-            header('Content-Disposition: attachment; filename="' . esc_attr($filename) . '"');
-            header('Pragma: no-cache');
-            header('Expires: 0');
-            header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+            // Check if headers already sent
+            if (!headers_sent()) {
+                header('Content-Type: text/csv; charset=utf-8');
+                header('Content-Disposition: attachment; filename="' . esc_attr($filename) . '"');
+                header('Pragma: no-cache');
+                header('Expires: 0');
+                header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+            }
             
             // Output UTF-8 BOM for Excel compatibility
             echo "\xEF\xBB\xBF";
             
             $output = fopen('php://output', 'w');
+            if ($output === false) {
+                wp_die(esc_html__('Failed to open output stream for CSV export.', 'realestate-booking-suite'));
+            }
             
             // Write headers
             if (!empty($export_data)) {
@@ -2717,7 +2726,9 @@ class RESBS_Enhanced_Settings {
                 fputcsv($output, $row);
             }
             
-            fclose($output);
+            if ($output !== false) {
+                fclose($output);
+            }
             exit;
         }
     }

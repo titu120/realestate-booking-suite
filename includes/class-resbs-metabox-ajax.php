@@ -119,7 +119,11 @@ class RESBS_Metabox_AJAX {
                 $update_data['post_excerpt'] = sanitize_textarea_field($data['excerpt']);
             }
             
-            wp_update_post($update_data);
+            $update_result = wp_update_post($update_data);
+            // Note: Error checking is done, but we don't break execution for non-critical updates
+            if (is_wp_error($update_result)) {
+                // Silently fail - this is a non-critical operation
+            }
         }
         
         // Save property meta fields

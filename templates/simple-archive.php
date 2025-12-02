@@ -25,12 +25,8 @@ if (isset($_GET['reset']) && !empty($_GET['reset'])) {
 }
 
 // Now safe to output headers and content
-// Use helper function to safely get header (avoids deprecation warnings in block themes)
-if (function_exists('resbs_get_header')) {
-    resbs_get_header();
-} else {
-    get_header();
-}
+// Use resbs_get_header() to ensure compatibility with both block and classic themes
+resbs_get_header();
 ?>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer">
@@ -1067,10 +1063,6 @@ $property_statuses = get_terms(array(
 <?php
 wp_reset_postdata();
 
-// Use helper function to safely get footer (avoids deprecation warnings in block themes)
-if (function_exists('resbs_get_footer')) {
-    resbs_get_footer();
-} else {
-    get_footer();
-}
+// Use resbs_get_footer() to ensure compatibility with both block and classic themes
+resbs_get_footer();
 ?>

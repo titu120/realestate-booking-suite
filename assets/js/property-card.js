@@ -17,7 +17,6 @@
             var $icon = $btn.find('i');
             
             if (!propertyId || !resbs_archive || !resbs_archive.nonce) {
-                console.error('Missing required data for favorite toggle');
                 return;
             }
             
@@ -47,16 +46,12 @@
                         // Revert visual state on error
                         $icon.toggleClass('far fas');
                         $btn.toggleClass('favorited');
-                        if (response.data && response.data.message) {
-                            console.error(response.data.message);
-                        }
                     }
                 },
                 error: function(xhr, status, error) {
                     // Revert visual state on error
                     $icon.toggleClass('far fas');
                     $btn.toggleClass('favorited');
-                    console.error('Error toggling favorite:', error);
                 }
             });
         });
@@ -67,7 +62,6 @@
             var propertyId = $(this).data('property-id');
             
             if (!propertyId) {
-                console.error('Property ID not found');
                 return;
             }
             
@@ -80,7 +74,6 @@
             var propertyId = $(this).data('property-id');
             
             if (!propertyId) {
-                console.error('Property ID not found');
                 return;
             }
             

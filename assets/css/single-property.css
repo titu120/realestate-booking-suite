@@ -22,6 +22,50 @@ body:not(.single-property) [class*="is-content-justification"],
 .site:not(.single-property) .wp-block-group.is-layout-flex,
 .site:not(.single-property) [class*="is-content-justification"] {
     /* Force preserve theme's flexbox layout - override any plugin interference */
+    /* display: flex !important; */
+    /* justify-content: space-between !important; */
+    /* align-items: center !important; */
+    /* flex-wrap: wrap !important; */
+    /* gap: 1.2rem !important; */
+}
+
+/* FIX: Apply flex rules ONLY to the single property content, NOT the header/footer */
+.single-property .is-layout-flex,
+.single-property .wp-block-group.is-layout-flex,
+.single-property .wp-block-columns,
+.single-property [class*="is-content-justification"] {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+    gap: 1.2rem !important;
+}
+
+/* CRITICAL: Preserve header padding on single-property pages */
+/* This rule ensures theme header padding is never affected by plugin CSS */
+/* Exclude header from any plugin CSS resets */
+body.single-property header:not(.single-property):not(.resbs-single-property-wrapper):not([id*="resbs"]):not([class*="resbs"]),
+body.single-property .site-header:not(.single-property):not(.resbs-single-property-wrapper):not([id*="resbs"]):not([class*="resbs"]),
+body.single-property .wp-site-blocks > header:not(.single-property):not(.resbs-single-property-wrapper):not([id*="resbs"]):not([class*="resbs"]),
+body.single-property .wp-block-template-part[data-area="header"]:not(.single-property):not(.resbs-single-property-wrapper):not([id*="resbs"]):not([class*="resbs"]),
+body.single-property #masthead:not(.single-property):not(.resbs-single-property-wrapper):not([id*="resbs"]):not([class*="resbs"]),
+body.single-property .header:not(.single-property):not(.resbs-single-property-wrapper):not([id*="resbs"]):not([class*="resbs"]),
+#page.single-property header:not(.single-property):not(.resbs-single-property-wrapper):not([id*="resbs"]):not([class*="resbs"]),
+#page.single-property .site-header:not(.single-property):not(.resbs-single-property-wrapper):not([id*="resbs"]):not([class*="resbs"]),
+#page.single-property .wp-site-blocks > header:not(.single-property):not(.resbs-single-property-wrapper):not([id*="resbs"]):not([class*="resbs"]),
+.site.single-property header:not(.single-property):not(.resbs-single-property-wrapper):not([id*="resbs"]):not([class*="resbs"]),
+.site.single-property .site-header:not(.single-property):not(.resbs-single-property-wrapper):not([id*="resbs"]):not([class*="resbs"]) {
+    /* Preserve original header padding - do not override */
+    /* padding-top: unset !important; */
+    /* padding-bottom: unset !important; */
+    /* padding-left: unset !important; */
+    /* padding-right: unset !important; */
+    /* padding: unset !important; */
+}
+
+/* FORCE HEADER LAYOUT - Ensure consistency across Single and Archive pages */
+.wp-site-blocks > header .is-layout-flex,
+.wp-site-blocks > header .wp-block-group.is-layout-flex {
     display: flex !important;
     justify-content: space-between !important;
     align-items: center !important;

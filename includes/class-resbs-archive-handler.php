@@ -23,7 +23,10 @@ class RESBS_Archive_Handler {
         add_action('wp_enqueue_scripts', array($this, 'enqueue_archive_assets'));
         add_filter('template_include', array($this, 'custom_archive_template'), 99);
         add_action('wp_head', array($this, 'add_archive_meta'));
+        // For block themes: Filter the_content to show our archive content
+        add_filter('the_content', array($this, 'archive_content_filter'), 10);
     }
+
     
     /**
      * Initialize archive handler
@@ -252,8 +255,10 @@ class RESBS_Archive_Handler {
      * Custom archive template
      */
     public function custom_archive_template($template) {
+        // Use template_include for archive (like Estatik does)
+        // The template uses get_header()/get_footer() which WordPress handles automatically
         if (is_post_type_archive('property') || is_tax('property_type') || is_tax('property_status') || is_tax('property_location')) {
-            // Use simple archive template
+            // For classic themes AND block themes: Use custom template
             $simple_template = RESBS_PATH . 'templates/simple-archive.php';
             if (file_exists($simple_template)) {
                 return $simple_template;
@@ -262,6 +267,7 @@ class RESBS_Archive_Handler {
         
         return $template;
     }
+
     
     /**
      * Add archive meta tags
@@ -272,6 +278,13 @@ class RESBS_Archive_Handler {
             echo '<meta name="keywords" content="' . esc_attr(get_option('resbs_archive_meta_keywords', 'real estate, properties, homes, apartments, condos')) . '">';
         }
     }
+    
+    /**
+     * Filter the_content for property archives in block themes
+     * This allows block themes to handle header/footer while we inject our content
+     */
+    // REMOVED: archive_content_filter - using template_include instead
+
     
     /**
      * Get archive layout

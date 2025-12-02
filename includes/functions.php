@@ -11,107 +11,184 @@ if (!defined('ABSPATH')) {
 }
 
 // Load Custom Post Type class
-require_once RESBS_PATH . 'includes/class-resbs-cpt.php';
-new RESBS_CPT();
+$cpt_file = RESBS_PATH . 'includes/class-resbs-cpt.php';
+if (file_exists($cpt_file)) {
+    require_once $cpt_file;
+    new RESBS_CPT();
+}
 
 // Load Professional Property Metabox class
-require_once RESBS_PATH . 'includes/class-resbs-property-metabox.php';
-new RESBS_Property_Metabox();
+$metabox_file = RESBS_PATH . 'includes/class-resbs-property-metabox.php';
+if (file_exists($metabox_file)) {
+    require_once $metabox_file;
+    new RESBS_Property_Metabox();
+}
 
 // Load Property Metabox AJAX handlers
-require_once RESBS_PATH . 'includes/class-resbs-metabox-ajax.php';
-new RESBS_Metabox_AJAX();
-
+$metabox_ajax_file = RESBS_PATH . 'includes/class-resbs-metabox-ajax.php';
+if (file_exists($metabox_ajax_file)) {
+    require_once $metabox_ajax_file;
+    new RESBS_Metabox_AJAX();
+}
 
 // Load Admin Dashboard class
-require_once RESBS_PATH . 'includes/class-resbs-admin-dashboard.php';
-new RESBS_Admin_Dashboard();
+$admin_dashboard_file = RESBS_PATH . 'includes/class-resbs-admin-dashboard.php';
+if (file_exists($admin_dashboard_file)) {
+    require_once $admin_dashboard_file;
+    new RESBS_Admin_Dashboard();
+}
 
 // Load Dashboard AJAX handlers
-require_once RESBS_PATH . 'includes/class-resbs-dashboard-ajax.php';
-new RESBS_Dashboard_AJAX();
+$dashboard_ajax_file = RESBS_PATH . 'includes/class-resbs-dashboard-ajax.php';
+if (file_exists($dashboard_ajax_file)) {
+    require_once $dashboard_ajax_file;
+    new RESBS_Dashboard_AJAX();
+}
 
 // Load Frontend class
-require_once RESBS_PATH . 'includes/class-resbs-frontend.php';
-new RESBS_Frontend();
+$frontend_file = RESBS_PATH . 'includes/class-resbs-frontend.php';
+if (file_exists($frontend_file)) {
+    require_once $frontend_file;
+    new RESBS_Frontend();
+}
 
 // Load Search class
-require_once RESBS_PATH . 'includes/class-resbs-search.php';
-new RESBS_Search();
+$search_file = RESBS_PATH . 'includes/class-resbs-search.php';
+if (file_exists($search_file)) {
+    require_once $search_file;
+    new RESBS_Search();
+}
 
 // Load Property Grid template
-require_once RESBS_PATH . 'includes/templates/property-grid.php';
+$property_grid_file = RESBS_PATH . 'includes/templates/property-grid.php';
+if (file_exists($property_grid_file)) {
+    require_once $property_grid_file;
+}
 
 // Load Elementor Integration
 // File is always loaded; widgets will be initialized via elementor/loaded hook inside the file
-require_once RESBS_PATH . 'includes/class-resbs-elementor.php';
+$elementor_file = RESBS_PATH . 'includes/class-resbs-elementor.php';
+if (file_exists($elementor_file)) {
+    require_once $elementor_file;
+}
 
 // Load WordPress Widgets
-require_once RESBS_PATH . 'includes/class-resbs-widgets.php';
-// Widgets are registered via resbs_register_widgets() function
+$widgets_file = RESBS_PATH . 'includes/class-resbs-widgets.php';
+if (file_exists($widgets_file)) {
+    require_once $widgets_file;
+    // Widgets are registered via resbs_register_widgets() function
+}
 
 // Load Badge Manager
-require_once RESBS_PATH . 'includes/class-resbs-badges.php';
-new RESBS_Badge_Manager();
+$badges_file = RESBS_PATH . 'includes/class-resbs-badges.php';
+if (file_exists($badges_file)) {
+    require_once $badges_file;
+    new RESBS_Badge_Manager();
+}
 
 // Load Badge Templates
-require_once RESBS_PATH . 'includes/templates/property-badges.php';
+$badge_templates_file = RESBS_PATH . 'includes/templates/property-badges.php';
+if (file_exists($badge_templates_file)) {
+    require_once $badge_templates_file;
+}
 
 // Load Maps Manager
-require_once RESBS_PATH . 'includes/class-resbs-maps.php';
-new RESBS_Maps_Manager();
+$maps_file = RESBS_PATH . 'includes/class-resbs-maps.php';
+if (file_exists($maps_file)) {
+    require_once $maps_file;
+    new RESBS_Maps_Manager();
+}
 
 // Load Favorites Manager
-require_once RESBS_PATH . 'includes/class-resbs-favorites.php';
-$GLOBALS['resbs_favorites_manager'] = new RESBS_Favorites_Manager();
+$favorites_file = RESBS_PATH . 'includes/class-resbs-favorites.php';
+if (file_exists($favorites_file)) {
+    require_once $favorites_file;
+    $GLOBALS['resbs_favorites_manager'] = new RESBS_Favorites_Manager();
+}
 
 // Load Contact Settings
-require_once RESBS_PATH . 'includes/class-resbs-contact-settings.php';
-new RESBS_Contact_Settings();
+$contact_settings_file = RESBS_PATH . 'includes/class-resbs-contact-settings.php';
+if (file_exists($contact_settings_file)) {
+    require_once $contact_settings_file;
+    new RESBS_Contact_Settings();
+}
 
 // Load Contact Widget
-require_once RESBS_PATH . 'includes/class-resbs-contact-widget.php';
-// Contact widget is registered via add_action('widgets_init') in the file
+$contact_widget_file = RESBS_PATH . 'includes/class-resbs-contact-widget.php';
+if (file_exists($contact_widget_file)) {
+    require_once $contact_widget_file;
+    // Contact widget is registered via add_action('widgets_init') in the file
+}
 
 // Load Infinite Scroll Manager
-require_once RESBS_PATH . 'includes/class-resbs-infinite-scroll.php';
-new RESBS_Infinite_Scroll_Manager();
+$infinite_scroll_file = RESBS_PATH . 'includes/class-resbs-infinite-scroll.php';
+if (file_exists($infinite_scroll_file)) {
+    require_once $infinite_scroll_file;
+    new RESBS_Infinite_Scroll_Manager();
+}
 
 // Load Security Helper
-require_once RESBS_PATH . 'includes/class-resbs-security.php';
-// Security class has static methods, no instantiation needed
+$security_file = RESBS_PATH . 'includes/class-resbs-security.php';
+if (file_exists($security_file)) {
+    require_once $security_file;
+    // Security class has static methods, no instantiation needed
+}
 
 // Load Email Manager
-require_once RESBS_PATH . 'includes/class-resbs-email-manager.php';
-new RESBS_Email_Manager();
+$email_manager_file = RESBS_PATH . 'includes/class-resbs-email-manager.php';
+if (file_exists($email_manager_file)) {
+    require_once $email_manager_file;
+    new RESBS_Email_Manager();
+}
 
 // Load Search Alerts Manager
-require_once RESBS_PATH . 'includes/class-resbs-search-alerts.php';
-new RESBS_Search_Alerts_Manager();
+$search_alerts_file = RESBS_PATH . 'includes/class-resbs-search-alerts.php';
+if (file_exists($search_alerts_file)) {
+    require_once $search_alerts_file;
+    new RESBS_Search_Alerts_Manager();
+}
 
 // Load Template Assets Handler (handles enqueuing for templates)
-require_once RESBS_PATH . 'includes/class-resbs-template-assets.php';
-new RESBS_Template_Assets();
+$template_assets_file = RESBS_PATH . 'includes/class-resbs-template-assets.php';
+if (file_exists($template_assets_file)) {
+    require_once $template_assets_file;
+    new RESBS_Template_Assets();
+}
 
 // Load Booking Manager
-require_once RESBS_PATH . 'includes/class-resbs-booking-manager.php';
-new RESBS_Booking_Manager();
+$booking_manager_file = RESBS_PATH . 'includes/class-resbs-booking-manager.php';
+if (file_exists($booking_manager_file)) {
+    require_once $booking_manager_file;
+    new RESBS_Booking_Manager();
+}
 
 // Load Quick View Manager
-require_once RESBS_PATH . 'includes/class-resbs-quickview.php';
-new RESBS_QuickView_Manager();
+$quickview_file = RESBS_PATH . 'includes/class-resbs-quickview.php';
+if (file_exists($quickview_file)) {
+    require_once $quickview_file;
+    new RESBS_QuickView_Manager();
+}
 
 // Load Shortcodes Manager
-require_once RESBS_PATH . 'includes/class-resbs-shortcodes.php';
-new RESBS_Shortcodes();
+$shortcodes_file = RESBS_PATH . 'includes/class-resbs-shortcodes.php';
+if (file_exists($shortcodes_file)) {
+    require_once $shortcodes_file;
+    new RESBS_Shortcodes();
+}
 
 // Load Shortcode AJAX Handlers
-require_once RESBS_PATH . 'includes/class-resbs-shortcode-ajax.php';
-new RESBS_Shortcode_AJAX();
+$shortcode_ajax_file = RESBS_PATH . 'includes/class-resbs-shortcode-ajax.php';
+if (file_exists($shortcode_ajax_file)) {
+    require_once $shortcode_ajax_file;
+    new RESBS_Shortcode_AJAX();
+}
 
 // Load Dynamic Archive AJAX Handlers
-require_once RESBS_PATH . 'includes/class-resbs-dynamic-archive-ajax.php';
-new RESBS_Dynamic_Archive_AJAX();
+$dynamic_archive_file = RESBS_PATH . 'includes/class-resbs-dynamic-archive-ajax.php';
+if (file_exists($dynamic_archive_file)) {
+    require_once $dynamic_archive_file;
+    new RESBS_Dynamic_Archive_AJAX();
+}
 
 /**
  * Helper Functions for General Settings

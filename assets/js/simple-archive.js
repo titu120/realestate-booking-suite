@@ -866,7 +866,6 @@ window.highlightProperty = function(propertyId) {
             function proceedWithMapInit() {
                 const mapContainer = document.getElementById('googleMap');
                 if (!mapContainer) {
-                    console.error('Map container not found!');
                     return;
                 }
                 
@@ -1066,11 +1065,6 @@ window.highlightProperty = function(propertyId) {
                     
                     // Only show "no properties" message if we truly have NO properties data at all
                     if ((!propsData || propsData.length === 0) && propertiesWithCoords.length === 0 && propertiesNeedingGeocode.length === 0) {
-                        console.error('❌ No properties data found at all!');
-                        console.error('  - propsData:', propsData);
-                        console.error('  - Properties with coords:', propertiesWithCoords.length);
-                        console.error('  - Properties needing geocoding:', propertiesNeedingGeocode.length);
-                        
                         if (mapContainer) {
                             const noPropsDiv = document.createElement('div');
                             noPropsDiv.className = 'resbs-map-no-properties';
@@ -1079,10 +1073,7 @@ window.highlightProperty = function(propertyId) {
                             mapContainer.appendChild(noPropsDiv);
                         }
                     } else if (propertiesWithCoords.length === 0 && propertiesNeedingGeocode.length === 0 && propsData && propsData.length > 0) {
-                        // Properties exist but have no location data - don't show error, just log warning
-                        console.warn('⚠️ Properties exist (' + propsData.length + ') but have no location data.');
-                        console.warn('  - Properties need: city, address, location taxonomy, or lat/lng coordinates');
-                        console.warn('  - Sample property:', propsData[0]);
+                        // Properties exist but have no location data
                     }
                     
                     window.mapInitialized = true;
@@ -1106,7 +1097,6 @@ window.highlightProperty = function(propertyId) {
         // Add Leaflet markers
         function addLeafletMarkers(propertiesArray) {
             if (!window.map || !propertiesArray || propertiesArray.length === 0) {
-                console.warn('Cannot add markers - map:', window.map, 'properties:', propertiesArray);
                 return;
             }
             
@@ -1213,7 +1203,6 @@ window.highlightProperty = function(propertyId) {
         // Geocode properties using Nominatim
         function geocodePropertiesNominatim(propertiesArray) {
             if (!propertiesArray || propertiesArray.length === 0 || !window.map) {
-                console.warn('geocodePropertiesNominatim: Cannot geocode - no properties or no map');
                 return;
             }
             
@@ -1269,17 +1258,12 @@ window.highlightProperty = function(propertyId) {
                                 });
                                 window.map.fitBounds(bounds, {padding: [50, 50]});
                             }
-                        } else {
-                            console.warn('Failed to create marker after geocoding:', property.title);
                         }
-                    } else {
-                        console.warn('Geocoding failed - no results for:', property.full_address);
                     }
                     geocodeIndex++;
                     setTimeout(geocodeNext, geocodeDelay);
                 })
                 .catch(error => {
-                    console.error('Geocoding error for:', property.full_address, error);
                     geocodeIndex++;
                     setTimeout(geocodeNext, geocodeDelay);
                 });

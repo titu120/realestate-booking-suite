@@ -429,12 +429,20 @@ class RESBS_Dashboard_AJAX {
      * Export CSV
      */
     private function export_csv($properties) {
+        // Check if headers already sent
+        if (headers_sent()) {
+            wp_die(esc_html__('Headers already sent. Cannot export CSV.', 'realestate-booking-suite'));
+        }
+        
         $filename = 'properties-export-' . date('Y-m-d-H-i-s') . '.csv';
         
         header('Content-Type: text/csv');
         header('Content-Disposition: attachment; filename="' . esc_attr($filename) . '"');
         
         $output = fopen('php://output', 'w');
+        if ($output === false) {
+            wp_die(esc_html__('Failed to open output stream for CSV export.', 'realestate-booking-suite'));
+        }
         
         // CSV headers
         fputcsv($output, array(
@@ -485,7 +493,9 @@ class RESBS_Dashboard_AJAX {
             ));
         }
         
-        fclose($output);
+        if ($output !== false) {
+            fclose($output);
+        }
         exit;
     }
 
@@ -493,6 +503,11 @@ class RESBS_Dashboard_AJAX {
      * Export JSON
      */
     private function export_json($properties) {
+        // Check if headers already sent
+        if (headers_sent()) {
+            wp_die(esc_html__('Headers already sent. Cannot export JSON.', 'realestate-booking-suite'));
+        }
+        
         $filename = 'properties-export-' . date('Y-m-d-H-i-s') . '.json';
         
         header('Content-Type: application/json');

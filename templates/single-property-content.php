@@ -1,30 +1,8 @@
-<?php
-    /**
-     * Single Property Template - Dynamic Version
-     * Block Theme Compatible
-     *
-     * @package RealEstate_Booking_Suite
-     */
-
-    // Prevent direct access
-    if (! defined('ABSPATH')) {
-        exit;
-    }
-
-    // Define plugin URL if not already defined
-    if (! defined('RESBS_URL')) {
-        define('RESBS_URL', plugin_dir_url(dirname(__FILE__)) . '/');
-    }
-
-    // Use helper function to avoid deprecation warning in block themes
-    resbs_get_header();
-?>
-
-<?php if (have_posts()) : ?>
-    <?php while (have_posts()) : the_post(); ?>
-        <?php
-        // Get the current post (now available after the_post())
-        global $post;
+﻿<?php
+// Note: We're already in the loop when this is called via the_content filter
+// So we don't need have_posts() or while loop
+global $post;
+// Get the current post (now available after the_post())
         
         // Get all property data
         $price          = get_post_meta($post->ID, '_property_price', true);
@@ -1498,7 +1476,7 @@
                                         <?php for ($star = 5; $star >= 1; $star--): ?>
                                             <?php $percentage = $total_reviews > 0 ? ($rating_counts[$star] / $total_reviews) * 100 : 0; ?>
                                             <div class="rating-bar">
-                                                <span class="rating-label"><?php echo esc_html($star); ?>★</span>
+                                                <span class="rating-label"><?php echo esc_html($star); ?>â˜…</span>
                                                 <div class="rating-bar-track">
                                                     <div class="rating-bar-fill" style="width: <?php echo esc_attr($percentage); ?>%"></div>
                                                 </div>
@@ -2206,16 +2184,9 @@
     
     <!-- Amenities and phone code styles are now enqueued via wp_enqueue_style -->
 
-    <?php endwhile; ?>
-<?php else : ?>
-    <div class="container" style="padding: 20px;">
-        <h1><?php echo esc_html__('Property Not Found', 'realestate-booking-suite'); ?></h1>
-        <p><?php echo esc_html__('Sorry, the property you\'re looking for doesn\'t exist or has been removed.', 'realestate-booking-suite'); ?></p>
-        <a href="<?php echo esc_url(home_url('/property/')); ?>" style="background: <?php echo esc_attr(resbs_get_main_color()); ?>; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;"><?php echo esc_html__('Back to Properties', 'realestate-booking-suite'); ?></a>
-    </div>
-<?php endif; ?>
-
 <?php
-// Use helper function to avoid deprecation warning in block themes
-resbs_get_footer();
+// Note: We're already in the loop, so no endwhile/endif needed
+// This template is used via the_content filter for block themes
+// WordPress/theme handles header/footer, we just provide content
 ?>
+

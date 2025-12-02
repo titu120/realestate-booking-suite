@@ -41,7 +41,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const propertyId = favoriteBtn.getAttribute('data-property-id');
         if (!propertyId) {
-            console.error('Property ID not found');
             return;
         }
         
@@ -69,7 +68,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (typeof resbs_favorites !== 'undefined' && resbs_favorites.nonce) {
             formData.append('nonce', resbs_favorites.nonce);
         } else {
-            console.error('Nonce not available');
             return;
         }
         
@@ -141,8 +139,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         })
         .catch(error => {
-            console.error('Favorite button error:', error);
-            
             // Revert visual state on error
             if (isFavorited) {
                 favoriteBtn.classList.add('favorited');

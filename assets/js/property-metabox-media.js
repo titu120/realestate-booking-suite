@@ -176,7 +176,6 @@
         var gallery = document.getElementById(galleryId);
         
         if (!gallery) {
-            console.error('Gallery not found:', galleryId);
             return;
         }
         

@@ -112,11 +112,10 @@ jQuery(document).ready(function($) {
                 loadLeaflet().then(function() {
                     initializeListingsMap(mapContainer, properties, widgetId);
                 }).catch(function(error) {
-                    console.error('Failed to load Leaflet.js:', error);
                     mapContainer.innerHTML = '<div style="padding: 2rem; text-align: center; color: #6b7280;"><p>Map library failed to load. Please refresh the page.</p></div>';
                 });
             } catch (e) {
-                console.error('Error parsing map data:', e);
+                // Error parsing map data
             }
         }
         

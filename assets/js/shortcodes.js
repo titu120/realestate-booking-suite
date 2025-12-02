@@ -148,7 +148,6 @@
                 if (typeof resbsShortcodes !== 'undefined' && resbsShortcodes.publish_nonce) {
                     nonce = resbsShortcodes.publish_nonce;
                 } else {
-                    console.error('Nonce not found for publish action');
                     $btn.prop('disabled', false);
                     $btn.html(originalHtml);
                     return;
@@ -191,7 +190,6 @@
                         }
                     },
                     error: function(xhr, status, error) {
-                        console.error('Error:', error);
                         if (typeof showToastNotification === 'function') {
                             showToastNotification('An error occurred. Please try again.', 'error');
                         } else {
@@ -215,7 +213,6 @@
                 var tabId = $btn.data('tab');
                 
                 if (!tabId) {
-                    console.error('Tab ID not found');
                     return;
                 }
                 
@@ -229,8 +226,6 @@
                 
                 if ($targetPanel.length) {
                     $targetPanel.addClass('active');
-                } else {
-                    console.error('Tab panel not found:', tabId);
                 }
             });
         },
@@ -415,7 +410,6 @@
                         errorMessage = xhr.responseJSON.data.message;
                     }
                     RESBS_Shortcodes.showMessage($widget, errorMessage, 'error');
-                    console.error('Submit property error:', status, error, xhr);
                 }
             });
         },

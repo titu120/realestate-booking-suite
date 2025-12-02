@@ -96,7 +96,6 @@ window.openImageViewer = function(index) {
                 galleryImages = Array.from(galleryImgs).map(img => img.src);
                 window.galleryImages = galleryImages;
             } else {
-                console.error('No gallery images found');
                 return;
             }
         }
@@ -112,7 +111,6 @@ window.openImageViewer = function(index) {
     const imageViewer = document.getElementById('imageViewer');
     
     if (!viewerImage || !imageViewer) {
-        console.error('Image viewer elements not found');
         return;
     }
     

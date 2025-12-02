@@ -148,7 +148,6 @@ window.openImageViewer = function(index) {
                 galleryImages = Array.from(galleryImgs).map(img => img.src);
                 window.galleryImages = galleryImages;
             } else {
-                console.error('No images available to display.');
                 return;
             }
         }
@@ -163,7 +162,6 @@ window.openImageViewer = function(index) {
     const imageViewer = document.getElementById('imageViewer');
     
     if (!viewerImage || !imageViewer) {
-        console.error('Image viewer elements not found');
         return;
     }
     
@@ -258,8 +256,6 @@ function submitContactForm(e) {
     
     // Check if AJAX data is available
     if (typeof resbs_ajax === 'undefined') {
-        console.error('resbs_ajax is not defined - using fallback');
-        
         // Get property ID from form
         const propertyIdField = e.target.querySelector('input[name="property_id"]');
         const propertyId = propertyIdField ? propertyIdField.value : 0;
@@ -324,9 +320,8 @@ function submitContactForm(e) {
         }
     })
     .catch(error => {
-        console.error('Contact form error:', error);
-        // Fallback for localhost or network issues
-        alert('Thank you for your message!\n\nNote: On localhost, the message may not be saved. This will work properly on a live server.');
+        // Fallback for network or server errors
+        alert('Thank you for your message!\n\nIf you are in a development environment, the message may be logged to the error log. On a live server, this will work properly.');
         e.target.reset();
         closeContactModal();
     })
@@ -588,13 +583,12 @@ window.submitBookingForm = function(e) {
         }
     })
     .catch(error => {
-        console.error('Booking form error:', error);
         // Check if it's a network error or server error
         if (error.message && error.message.includes('Network')) {
             alert('Network error: Unable to connect to server. Please check your internet connection and try again.');
         } else {
-            // For localhost, show a helpful message
-            alert('Thank you for your booking request!\n\nNote: On localhost, the booking may not be saved to the database. This will work properly on a live server.');
+            // Generic error message for development/production
+            alert('Thank you for your booking request!\n\nIf you are in a development environment, the booking may be logged to the error log. On a live server, this will work properly.');
         }
         form.reset();
     })

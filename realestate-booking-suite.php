@@ -280,6 +280,11 @@ register_deactivation_hook(__FILE__, 'resbs_plugin_deactivation');
  * Note: Created pages are preserved to avoid accidental deletion of user content
  */
 function resbs_plugin_uninstall() {
+    // Security check - only run if uninstalling via WordPress
+    if (!defined('WP_UNINSTALL_PLUGIN')) {
+        return;
+    }
+    
     global $wpdb;
     
     // Only run if user has proper permissions
@@ -289,6 +294,34 @@ function resbs_plugin_uninstall() {
     
     // Clear scheduled cron jobs
     wp_clear_scheduled_hook('resbs_send_search_alerts');
+    
+    // Delete all custom post type posts (property and property_booking)
+    $post_types = array('property', 'property_booking');
+    foreach ($post_types as $post_type) {
+        $posts = get_posts(array(
+            'post_type' => $post_type,
+            'posts_per_page' => -1,
+            'post_status' => 'any',
+            'fields' => 'ids'
+        ));
+        
+        foreach ($posts as $post_id) {
+            wp_delete_post($post_id, true); // Force delete (bypass trash)
+        }
+    }
+    
+    // Delete created pages
+    $page_ids = array(
+        get_option('resbs_wishlist_page_id'),
+        get_option('resbs_profile_page_id'),
+        get_option('resbs_submit_property_page_id')
+    );
+    
+    foreach ($page_ids as $page_id) {
+        if ($page_id) {
+            wp_delete_post($page_id, true); // Force delete
+        }
+    }
     
     // Remove custom database tables
     // Table name is safe - constructed from $wpdb->prefix (no user input)
@@ -325,7 +358,7 @@ function resbs_plugin_uninstall() {
         )
     );
     
-    // Remove post meta
+    // Remove post meta (for any remaining orphaned meta)
     // Using LIKE with wildcard - safe as it's a literal string pattern
     $like_pattern1 = $wpdb->esc_like('_property_') . '%';
     $like_pattern2 = $wpdb->esc_like('_resbs_') . '%';
@@ -336,7 +369,6 @@ function resbs_plugin_uninstall() {
             $like_pattern2
         )
     );
-    
     
     // Remove taxonomies and terms
     $taxonomies = array('property_type', 'property_status', 'property_location', 'property_tag');
@@ -351,10 +383,69 @@ function resbs_plugin_uninstall() {
                 wp_delete_term($term->term_id, $taxonomy);
             }
         }
+        
+        // Delete term meta for this taxonomy
+        if (!empty($wpdb->termmeta)) {
+            $wpdb->query(
+                $wpdb->prepare(
+                    "DELETE tm FROM {$wpdb->termmeta} tm 
+                    INNER JOIN {$wpdb->term_taxonomy} tt ON tm.term_id = tt.term_id 
+                    WHERE tt.taxonomy = %s",
+                    $taxonomy
+                )
+            );
+        }
     }
+    
+    // Delete orphaned term relationships
+    $wpdb->query(
+        "DELETE tr FROM {$wpdb->term_relationships} tr 
+        LEFT JOIN {$wpdb->posts} posts ON posts.ID = tr.object_id 
+        WHERE posts.ID IS NULL"
+    );
+    
+    // Delete orphaned terms (terms without taxonomies)
+    $wpdb->query(
+        "DELETE t FROM {$wpdb->terms} t 
+        LEFT JOIN {$wpdb->term_taxonomy} tt ON t.term_id = tt.term_id 
+        WHERE tt.term_id IS NULL"
+    );
+    
+    // Delete orphaned term meta
+    if (!empty($wpdb->termmeta)) {
+        $wpdb->query(
+            "DELETE tm FROM {$wpdb->termmeta} tm 
+            LEFT JOIN {$wpdb->term_taxonomy} tt ON tm.term_id = tt.term_id 
+            WHERE tt.term_id IS NULL"
+        );
+    }
+    
+    // Delete orphaned post meta (meta without posts)
+    $wpdb->query(
+        "DELETE pm FROM {$wpdb->postmeta} pm 
+        LEFT JOIN {$wpdb->posts} posts ON posts.ID = pm.post_id 
+        WHERE posts.ID IS NULL"
+    );
+    
+    // Delete orphaned comments (comments for deleted posts)
+    $wpdb->query(
+        "DELETE c FROM {$wpdb->comments} c 
+        LEFT JOIN {$wpdb->posts} posts ON posts.ID = c.comment_post_ID 
+        WHERE posts.ID IS NULL AND c.comment_post_ID > 0"
+    );
+    
+    // Delete orphaned comment meta
+    $wpdb->query(
+        "DELETE cm FROM {$wpdb->commentmeta} cm 
+        LEFT JOIN {$wpdb->comments} c ON cm.comment_id = c.comment_ID 
+        WHERE c.comment_ID IS NULL"
+    );
     
     // Flush rewrite rules
     flush_rewrite_rules();
+    
+    // Clear any cached data
+    wp_cache_flush();
 }
 register_uninstall_hook(__FILE__, 'resbs_plugin_uninstall');
 
@@ -411,28 +502,32 @@ function resbs_is_block_theme() {
 }
 
 /**
- * Safely get header - avoids deprecation warnings in block themes
+ * Get header - provides full HTML structure for block themes when using template_include
  */
 function resbs_get_header() {
+    global $resbs_html_started;
+    
     if (resbs_is_block_theme()) {
-        // For block themes, output HTML structure and use block theme functions
-        ?><!DOCTYPE html>
+        // When using template_include, we bypass WordPress template system
+        // So we MUST provide full HTML structure for block themes
+        if (!isset($resbs_html_started) || !$resbs_html_started) {
+            $resbs_html_started = true;
+            ?><!DOCTYPE html>
 <html <?php language_attributes(); ?>>
 <head>
-    <meta charset="<?php echo esc_attr(get_bloginfo('charset')); ?>">
+    <meta charset="<?php bloginfo('charset'); ?>">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="profile" href="https://gmpg.org/xfn/11">
     <?php wp_head(); ?>
 </head>
 <body <?php body_class(); ?>>
 <?php wp_body_open(); ?>
-<div id="page" class="site">
+<div class="wp-site-blocks">
 <?php
-        // Render block theme header
-        if (function_exists('block_header_area')) {
-            block_header_area();
-        } elseif (function_exists('block_template_part')) {
-            block_template_part('header');
         }
+        // Render block theme header
+        // Use do_blocks to render the standard header template part
+        echo do_blocks( '<!-- wp:template-part {"slug":"header","tagName":"header"} /-->' );
     } else {
         // For classic themes, use standard get_header()
         get_header();
@@ -440,34 +535,41 @@ function resbs_get_header() {
 }
 
 /**
- * Safely get footer - avoids deprecation warnings in block themes
+ * Get footer - closes HTML structure for block themes when using template_include
  */
 function resbs_get_footer() {
+    global $resbs_html_started;
+    
     if (resbs_is_block_theme()) {
         // Render block theme footer
-        if (function_exists('block_footer_area')) {
-            block_footer_area();
-        } elseif (function_exists('block_template_part')) {
-            block_template_part('footer');
-        }
-        // Close HTML structure
-        ?>
-</div><!-- #page -->
-<?php wp_footer(); ?>
+        // Use do_blocks to render the standard footer template part
+        echo do_blocks( '<!-- wp:template-part {"slug":"footer","tagName":"footer"} /-->' );
+        
+        // Close HTML structure for block themes
+        if (isset($resbs_html_started) && $resbs_html_started) {
+            ?>
+</div><!-- .wp-site-blocks -->
+<?php
+            if (!did_action('wp_footer')) {
+                wp_footer();
+            }
+            ?>
 </body>
 </html>
 <?php
+        }
     } else {
         // For classic themes, use standard get_footer()
         get_footer();
     }
 }
 
-// SINGLE PROPERTY TEMPLATE LOADER - HIGH PRIORITY
-// Works with both classic and block themes
-// WordPress provides fallback support for get_header()/get_footer() in block themes
+// SINGLE PROPERTY TEMPLATE LOADER
+// For block themes: Use the_content filter (like Estatik) - NO template_include
+// For classic themes: Use template_include with custom template
 function resbs_single_property_template_loader($template) {
     if (is_singular('property')) {
+        // For classic themes AND block themes (now that get_header is fixed): Use custom template
         $single_template = RESBS_PATH . 'templates/single-property.php';
         if (file_exists($single_template)) {
             return $single_template;
@@ -476,6 +578,8 @@ function resbs_single_property_template_loader($template) {
     return $template;
 }
 add_filter('template_include', 'resbs_single_property_template_loader', 5);
+
+// REMOVED: resbs_single_property_content_filter - using template_include instead
 
 // Enqueue assets
 function resbs_enqueue_assets() {
@@ -651,30 +755,57 @@ function resbs_add_fontawesome_fallback() {
 add_action('wp_head', 'resbs_add_fontawesome_fallback', 1);
 
 // Load main functionality
-require_once RESBS_PATH . 'includes/functions.php';
+// Load main functions file
+$functions_file = RESBS_PATH . 'includes/functions.php';
+if (file_exists($functions_file)) {
+    require_once $functions_file;
+} else {
+    wp_die(esc_html__('RealEstate Booking Suite: Required file missing. Please reinstall the plugin.', 'realestate-booking-suite'));
+}
 
 // Load contact messages functionality
-require_once RESBS_PATH . 'includes/class-resbs-contact-messages.php';
+$contact_messages_file = RESBS_PATH . 'includes/class-resbs-contact-messages.php';
+if (file_exists($contact_messages_file)) {
+    require_once $contact_messages_file;
+}
 
 // Load admin contact messages functionality
-require_once RESBS_PATH . 'includes/class-resbs-admin-contact-messages.php';
+$admin_contact_file = RESBS_PATH . 'includes/class-resbs-admin-contact-messages.php';
+if (file_exists($admin_contact_file)) {
+    require_once $admin_contact_file;
+}
 
 // Load email handler functionality
-require_once RESBS_PATH . 'includes/class-resbs-email-handler.php';
+$email_handler_file = RESBS_PATH . 'includes/class-resbs-email-handler.php';
+if (file_exists($email_handler_file)) {
+    require_once $email_handler_file;
+}
 
 // Load enhanced settings functionality (NEW ESTATIK-STYLE)
-require_once RESBS_PATH . 'includes/class-resbs-enhanced-settings.php';
-new RESBS_Enhanced_Settings();
+$enhanced_settings_file = RESBS_PATH . 'includes/class-resbs-enhanced-settings.php';
+if (file_exists($enhanced_settings_file)) {
+    require_once $enhanced_settings_file;
+    new RESBS_Enhanced_Settings();
+}
 
 // Load Demo Importer
-require_once RESBS_PATH . 'includes/class-resbs-demo-importer.php';
-new RESBS_Demo_Importer();
+$demo_importer_file = RESBS_PATH . 'includes/class-resbs-demo-importer.php';
+if (file_exists($demo_importer_file)) {
+    require_once $demo_importer_file;
+    new RESBS_Demo_Importer();
+}
 
 // Load simple archive handler
-require_once RESBS_PATH . 'includes/class-resbs-simple-archive.php';
+$simple_archive_file = RESBS_PATH . 'includes/class-resbs-simple-archive.php';
+if (file_exists($simple_archive_file)) {
+    require_once $simple_archive_file;
+}
 
 // Load user role management (safe role assignment)
-require_once RESBS_PATH . 'includes/class-resbs-user-roles.php';
+$user_roles_file = RESBS_PATH . 'includes/class-resbs-user-roles.php';
+if (file_exists($user_roles_file)) {
+    require_once $user_roles_file;
+}
 
 // Prevent unverified users from logging in (if email verification is enabled)
 // This hook catches ALL authentication attempts (wp_signon, wp_authenticate, etc.)
