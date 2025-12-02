@@ -7,22 +7,7 @@
 
 /* CRITICAL: Ensure WordPress block theme flexbox classes are NEVER affected */
 /* This rule has maximum specificity to override any plugin CSS that might leak */
-body:not(.archive) .is-layout-flex,
-body:not(.archive) .wp-block-group.is-layout-flex,
-body:not(.archive) [class*="is-content-justification"],
-#page:not(.archive) .is-layout-flex,
-#page:not(.archive) .wp-block-group.is-layout-flex,
-#page:not(.archive) [class*="is-content-justification"],
-.site:not(.archive) .is-layout-flex,
-.site:not(.archive) .wp-block-group.is-layout-flex,
-.site:not(.archive) [class*="is-content-justification"] {
-    /* Force preserve theme's flexbox layout - override any plugin interference */
-    /* display: flex !important; */
-    /* justify-content: space-between !important; */
-    /* align-items: center !important; */
-    /* flex-wrap: wrap !important; */
-    /* gap: 1.2rem !important; */
-}
+
 
 /* FIX: Apply flex rules ONLY to the archive content, NOT the header/footer */
 .rbs-archive .is-layout-flex,
@@ -39,24 +24,7 @@ body:not(.archive) [class*="is-content-justification"],
 /* CRITICAL: Preserve header padding on archive pages */
 /* This rule ensures theme header padding is never affected by plugin CSS */
 /* Exclude header from any plugin CSS resets */
-body.archive header:not(.rbs-archive):not(.resbs-archive-wrapper):not([id*="resbs"]):not([class*="rbs"]),
-body.archive .site-header:not(.rbs-archive):not(.resbs-archive-wrapper):not([id*="resbs"]):not([class*="rbs"]),
-body.archive .wp-site-blocks > header:not(.rbs-archive):not(.resbs-archive-wrapper):not([id*="resbs"]):not([class*="rbs"]),
-body.archive .wp-block-template-part[data-area="header"]:not(.rbs-archive):not(.resbs-archive-wrapper):not([id*="resbs"]):not([class*="rbs"]),
-body.archive #masthead:not(.rbs-archive):not(.resbs-archive-wrapper):not([id*="resbs"]):not([class*="rbs"]),
-body.archive .header:not(.rbs-archive):not(.resbs-archive-wrapper):not([id*="resbs"]):not([class*="rbs"]),
-#page.archive header:not(.rbs-archive):not(.resbs-archive-wrapper):not([id*="resbs"]):not([class*="rbs"]),
-#page.archive .site-header:not(.rbs-archive):not(.resbs-archive-wrapper):not([id*="resbs"]):not([class*="rbs"]),
-#page.archive .wp-site-blocks > header:not(.rbs-archive):not(.resbs-archive-wrapper):not([id*="resbs"]):not([class*="rbs"]),
-.site.archive header:not(.rbs-archive):not(.resbs-archive-wrapper):not([id*="resbs"]):not([class*="rbs"]),
-.site.archive .site-header:not(.rbs-archive):not(.resbs-archive-wrapper):not([id*="resbs"]):not([class*="rbs"]) {
-    /* Preserve original header padding - do not override */
-    /* padding-top: unset !important; */
-    /* padding-bottom: unset !important; */
-    /* padding-left: unset !important; */
-    /* padding-right: unset !important; */
-    /* padding: unset !important; */
-}
+
 
 /* FORCE HEADER LAYOUT - Ensure consistency across Single and Archive pages */
 .wp-site-blocks > header .is-layout-flex,
