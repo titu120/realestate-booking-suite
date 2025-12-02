@@ -65,36 +65,60 @@
              });
          }
          
-         if (button) {
-             const buttonRect = button.getBoundingClientRect();
-             const container = document.querySelector('.dropdowns-container');
-             
-             if (container) {
-                 const containerRect = container.getBoundingClientRect();
-                 
-                 // Calculate position relative to dropdowns-container
-                 const relativeLeft = buttonRect.left - containerRect.left;
-                 const relativeTop = buttonRect.bottom - containerRect.top + 12;
-                 
-                 dropdown.style.position = 'absolute';
-                 dropdown.style.top = relativeTop + 'px';
-                 dropdown.style.left = relativeLeft + 'px';
-                 dropdown.style.right = 'auto';
-                 dropdown.style.display = 'block';
-                 dropdown.classList.add('active');
-             } else {
-                 // Fallback: use fixed positioning
-                 dropdown.style.position = 'fixed';
-                 dropdown.style.top = (buttonRect.bottom + 12) + 'px';
-                 dropdown.style.left = buttonRect.left + 'px';
-                 dropdown.style.display = 'block';
-                 dropdown.classList.add('active');
-             }
-         } else {
-             // No button found, just show dropdown at default position
-             dropdown.style.display = 'block';
-             dropdown.classList.add('active');
-         }
+        if (button) {
+            const buttonRect = button.getBoundingClientRect();
+            const container = document.querySelector('.dropdowns-container');
+            const dropdownWidth = 400; // Approximate dropdown width
+            const viewportWidth = window.innerWidth;
+            
+            if (container) {
+                const containerRect = container.getBoundingClientRect();
+                
+                // Calculate position relative to dropdowns-container
+                let relativeLeft = buttonRect.left - containerRect.left;
+                const relativeTop = buttonRect.bottom - containerRect.top + 8;
+                
+                // Check if dropdown would go off-screen on the right
+                const dropdownRight = relativeLeft + dropdownWidth;
+                if (dropdownRight > containerRect.width) {
+                    // Align to the right edge of the button instead
+                    relativeLeft = buttonRect.right - containerRect.left - dropdownWidth;
+                    // If still off-screen on the left, align to container left
+                    if (relativeLeft < 0) {
+                        relativeLeft = 0;
+                    }
+                }
+                
+                dropdown.style.position = 'absolute';
+                dropdown.style.top = relativeTop + 'px';
+                dropdown.style.left = relativeLeft + 'px';
+                dropdown.style.right = 'auto';
+                dropdown.style.display = 'block';
+                dropdown.classList.add('active');
+            } else {
+                // Fallback: use fixed positioning
+                let fixedLeft = buttonRect.left;
+                const fixedTop = buttonRect.bottom + 8;
+                
+                // Check if dropdown would go off-screen
+                if (fixedLeft + dropdownWidth > viewportWidth) {
+                    fixedLeft = viewportWidth - dropdownWidth - 16; // 16px margin
+                    if (fixedLeft < 16) {
+                        fixedLeft = 16;
+                    }
+                }
+                
+                dropdown.style.position = 'fixed';
+                dropdown.style.top = fixedTop + 'px';
+                dropdown.style.left = fixedLeft + 'px';
+                dropdown.style.display = 'block';
+                dropdown.classList.add('active');
+            }
+        } else {
+            // No button found, just show dropdown at default position
+            dropdown.style.display = 'block';
+            dropdown.classList.add('active');
+        }
      }
  };
 
