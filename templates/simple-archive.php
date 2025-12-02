@@ -293,7 +293,7 @@ $property_statuses = get_terms(array(
 
     <!-- Advanced Search Bar -->
     <div class="search-bar">
-        <div class="container" style="width: 100% !important; max-width: 1540px !important; min-width: 0 !important; margin: 0 auto !important; margin-left: auto !important; margin-right: auto !important; padding: 4rem 16px !important; padding-top: 4rem !important; padding-bottom: 4rem !important; padding-left: 16px !important; padding-right: 16px !important; box-sizing: border-box !important; position: relative !important; display: block !important;">
+        <div class="container" style="width: 100% !important; max-width: 1540px !important; min-width: 0 !important; margin: 0 auto !important; margin-left: auto !important; margin-right: auto !important; padding: 4rem 16px !important; padding-top: 1rem !important; padding-bottom: 1rem !important; padding-left: 16px !important; padding-right: 16px !important; box-sizing: border-box !important; position: relative !important; display: block !important;">
             <form method="GET" class="search-container" id="searchForm">
                 <!-- Search Input -->
                 <div class="search-input-container">
@@ -516,9 +516,9 @@ $property_statuses = get_terms(array(
     </div>
 
     <!-- Main Content -->
-    <div class="container main-content" style="width: 100% !important; max-width: 1540px !important; min-width: 0 !important; margin: 0 auto !important; margin-left: auto !important; margin-right: auto !important; padding: 4rem 16px !important; padding-top: 4rem !important; padding-bottom: 4rem !important; padding-left: 16px !important; padding-right: 16px !important; box-sizing: border-box !important; position: relative !important; display: block !important;">
+    <div class="container main-content" style="width: 100% !important; max-width: 1540px !important; min-width: 0 !important; margin: 0 auto !important; margin-left: auto !important; margin-right: auto !important; padding: 4rem 16px !important; padding-top: 1rem !important; padding-bottom: 4rem !important; padding-left: 16px !important; padding-right: 16px !important; box-sizing: border-box !important; position: relative !important; display: block !important;">
         <!-- Control Bar -->
-        <div class="control-bar">
+        <div class="control-bar" style="padding-bottom: 1rem !important;">
             <!-- Left Side -->
             <div class="view-controls">
                 <button onclick="showListView()" class="view-btn active">

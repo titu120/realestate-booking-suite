@@ -1,14 +1,69 @@
-/* Custom Single Property CSS - COMPLETELY ISOLATED FROM THEME */
+/* ========================================
+   REALESTATE BOOKING SUITE SINGLE PROPERTY CSS
+   COMPLETE THEME ISOLATION - NO THEME CAN AFFECT THIS
+   ALL PROPERTIES USE !important
+   NESTED CSS WITH STRONG PREFIXES
+   ======================================== */
 
 /* Note: Google Fonts import moved to be loaded only when needed via PHP */
 /* @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap'); */
 
 /* ============================================================================
-   COMPLETE THEME CSS ISOLATION - NUCLEAR OPTION
+   AGGRESSIVE CSS RESET - PREVENT ALL THEME INTERFERENCE
+   This ensures NO theme CSS can affect plugin styles
    ============================================================================ */
-
-/* ALL HEADER/FOOTER RELATED CSS REMOVED - Let theme handle it completely */
-/* Plugin CSS is scoped to .single-property only - will not affect header/footer */
+.resbs-single-property-wrapper,
+.single-property.resbs-single-property-wrapper,
+#resbs-single-property-page,
+.resbs-single-property-wrapper#resbs-single-property-page {
+    /* Complete isolation from theme - override ALL theme styles */
+    box-sizing: border-box !important;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+    font-size: 16px !important;
+    line-height: 1.6 !important;
+    color: #333 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    position: relative !important;
+    z-index: 1 !important;
+    isolation: isolate !important;
+    contain: layout style paint !important;
+    display: block !important;
+    background: #f9fafb !important;
+    
+    /* Reset all child elements to prevent theme interference */
+    & *,
+    & *::before,
+    & *::after {
+        box-sizing: border-box !important;
+        /* Prevent theme CSS variables from affecting plugin */
+        font-family: inherit !important;
+        font-size: inherit !important;
+        line-height: inherit !important;
+        color: inherit !important;
+        /* Reset theme spacing that might leak in */
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    
+    /* Override common theme classes that might affect plugin */
+    & [class*="wp-block"],
+    & [class*="theme-"],
+    & [class*="entry-"],
+    & [class*="post-"],
+    & [class*="page-"] {
+        all: revert !important;
+        box-sizing: border-box !important;
+        font-family: inherit !important;
+        font-size: inherit !important;
+        line-height: inherit !important;
+        color: inherit !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+}
 
 /* CRITICAL: Ensure WordPress block theme flexbox classes are NEVER affected */
 /* This rule has maximum specificity to override any plugin CSS that might leak */
@@ -27,25 +82,6 @@ body:not(.single-property) [class*="is-content-justification"],
     align-items: center !important;
     flex-wrap: wrap !important;
     gap: 1.2rem !important;
-}
-
-/* CRITICAL: Protect theme's footer and heading styles from plugin CSS interference */
-/* Ensure footer headings maintain theme's font-weight and other properties */
-footer h1, footer h2, footer h3, footer h4, footer h5, footer h6,
-#page > footer h1, #page > footer h2, #page > footer h3, #page > footer h4, #page > footer h5, #page > footer h6,
-.site-footer h1, .site-footer h2, .site-footer h3, .site-footer h4, .site-footer h5, .site-footer h6,
-.wp-block-template-part[data-area="footer"] h1,
-.wp-block-template-part[data-area="footer"] h2,
-.wp-block-template-part[data-area="footer"] h3,
-.wp-block-template-part[data-area="footer"] h4,
-.wp-block-template-part[data-area="footer"] h5,
-.wp-block-template-part[data-area="footer"] h6 {
-    /* Let theme handle all footer heading styles - plugin should never override */
-    font-weight: inherit !important;
-    letter-spacing: inherit !important;
-    line-height: inherit !important;
-    font-size: inherit !important;
-    color: inherit !important;
 }
 
 /* ========================================
@@ -99,15 +135,6 @@ body .single-property.resbs-single-property-wrapper#resbs-single-property-page {
     contain: layout style paint !important;
 }
 
-/* DO NOT AFFECT THEME HEADER/FOOTER */
-body.single.single-property header,
-body.single.single-property footer,
-body.singular.post-type-property header,
-body.singular.post-type-property footer {
-    /* Let theme handle header/footer - no restrictions */
-    position: relative !important;
-    z-index: auto !important;
-}
 
 /* Removed to prevent conflicts with theme styles */
 /* .single-property p {
@@ -2989,32 +3016,6 @@ body .single-property.resbs-single-property-wrapper#resbs-single-property-page .
     box-shadow: var(--rebs-shadow-lg) !important;
 }
 
-/* Header & Navigation - if you have them */
-/* Removed to prevent conflicts with theme header */
-/* .single-property header {
-    background-color: var(--rebs-white) !important;
-    box-shadow: var(--rebs-shadow) !important;
-    position: sticky !important;
-    top: 0 !important;
-    z-index: 50 !important;
-    display: block !important;
-} */
-
-/* ALL HEADER/NAVIGATION CSS REMOVED - Let theme handle it completely */
-/* Removed all .single-property .header-*, .single-property .nav-*, .single-property .logo-*, .single-property .btn-*, .single-property .mobile-* rules */
-
-/* Footer - if you have it */
-/* Removed to prevent conflicts with theme footer */
-/* .single-property footer {
-    background-color: var(--rebs-secondary-color) !important;
-    color: var(--rebs-white) !important;
-    margin-top: 4rem !important;
-    display: block !important;
-} */
-
-/* ALL FOOTER CSS REMOVED - Let theme handle it completely */
-/* Removed all .single-property .footer-* rules */
-
 /* Animations */
 .single-property .badge {
     animation: rebs-pulse 2s infinite !important;
@@ -3371,6 +3372,44 @@ body.single.single-property .single-property.resbs-single-property-wrapper#resbs
     width: 100% !important;
     max-width: 1536px !important;
     min-width: 0 !important;
+}
+
+/* ========================================
+   FINAL OVERRIDE - MAXIMUM SPECIFICITY
+   Prevent ANY theme CSS from overriding plugin styles
+   ======================================== */
+body .resbs-single-property-wrapper,
+body .single-property.resbs-single-property-wrapper,
+body #resbs-single-property-page,
+body .resbs-single-property-wrapper#resbs-single-property-page,
+html body .resbs-single-property-wrapper,
+html body .single-property.resbs-single-property-wrapper,
+html body #resbs-single-property-page {
+    /* Force plugin styles - override ALL theme styles */
+    isolation: isolate !important;
+    contain: layout style paint !important;
+    position: relative !important;
+    z-index: 1 !important;
+    
+    /* Ensure all children are isolated */
+    & * {
+        box-sizing: border-box !important;
+    }
+    
+    /* Override any theme CSS that might leak in */
+    & [class*="theme"],
+    & [class*="wp-"],
+    & [class*="entry"],
+    & [class*="post"] {
+        all: revert !important;
+        box-sizing: border-box !important;
+        font-family: inherit !important;
+        font-size: inherit !important;
+        line-height: inherit !important;
+        color: inherit !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
 }
 
 /* ============================================================================ 
