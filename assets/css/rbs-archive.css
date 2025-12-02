@@ -30,6 +30,10 @@ body .rbs-archive.resbs-archive-wrapper#resbs-property-archive {
     z-index: 1 !important;
 }
 
+/* ========================================
+   COMPLETE THEME HEADER/FOOTER PROTECTION
+   Ensure header and footer are NEVER affected by archive CSS
+   ======================================== */
 /* DO NOT AFFECT THEME HEADER/FOOTER */
 body.archive.post-type-archive-property header,
 body.archive.post-type-archive-property footer,
@@ -38,10 +42,116 @@ body.archive.tax-property_type footer,
 body.archive.tax-property_status header,
 body.archive.tax-property_status footer,
 body.archive.tax-property_location header,
-body.archive.tax-property_location footer {
-    /* Let theme handle header/footer - no restrictions */
+body.archive.tax-property_location footer,
+body.archive header,
+body.archive footer,
+header,
+footer,
+#page > header,
+#page > footer,
+.site-header,
+.site-footer,
+.wp-block-template-part[data-area="header"],
+.wp-block-template-part[data-area="footer"] {
+    /* Let theme handle header/footer completely - reset all plugin CSS */
     position: relative !important;
     z-index: auto !important;
+    width: auto !important;
+    max-width: none !important;
+    min-width: auto !important;
+    margin: inherit !important;
+    padding: inherit !important;
+    box-sizing: border-box !important;
+    font-family: inherit !important;
+    font-size: inherit !important;
+    line-height: inherit !important;
+    color: inherit !important;
+    background: inherit !important;
+    border: none !important;
+    box-shadow: none !important;
+    display: inherit !important;
+    flex-direction: inherit !important;
+    align-items: inherit !important;
+    justify-content: inherit !important;
+    isolation: auto !important;
+    contain: none !important;
+}
+
+/* Protect header/footer children from archive CSS */
+body.archive.post-type-archive-property header *,
+body.archive.post-type-archive-property footer *,
+body.archive.tax-property_type header *,
+body.archive.tax-property_type footer *,
+body.archive.tax-property_status header *,
+body.archive.tax-property_status footer *,
+body.archive.tax-property_location header *,
+body.archive.tax-property_location footer *,
+body.archive header *,
+body.archive footer *,
+header *:not(.rbs-archive):not(.resbs-archive-wrapper),
+footer *:not(.rbs-archive):not(.resbs-archive-wrapper),
+#page > header *:not(.rbs-archive):not(.resbs-archive-wrapper),
+#page > footer *:not(.rbs-archive):not(.resbs-archive-wrapper),
+.site-header *:not(.rbs-archive):not(.resbs-archive-wrapper),
+.site-footer *:not(.rbs-archive):not(.resbs-archive-wrapper),
+.wp-block-template-part[data-area="header"] *:not(.rbs-archive):not(.resbs-archive-wrapper),
+.wp-block-template-part[data-area="footer"] *:not(.rbs-archive):not(.resbs-archive-wrapper) {
+    /* Let theme handle all header/footer children - no plugin CSS interference */
+    box-sizing: border-box !important;
+    font-family: inherit !important;
+    font-size: inherit !important;
+    line-height: inherit !important;
+    color: inherit !important;
+    margin: inherit !important;
+    padding: inherit !important;
+    width: auto !important;
+    max-width: none !important;
+    min-width: auto !important;
+}
+
+/* CRITICAL: Ensure WordPress block theme flexbox classes in header/footer are NEVER affected */
+body.archive:not(.rbs-archive) .is-layout-flex,
+body.archive:not(.rbs-archive) .wp-block-group.is-layout-flex,
+body.archive:not(.rbs-archive) [class*="is-content-justification"],
+header .is-layout-flex,
+header .wp-block-group.is-layout-flex,
+header [class*="is-content-justification"],
+footer .is-layout-flex,
+footer .wp-block-group.is-layout-flex,
+footer [class*="is-content-justification"],
+#page > header .is-layout-flex,
+#page > header .wp-block-group.is-layout-flex,
+#page > header [class*="is-content-justification"],
+#page > footer .is-layout-flex,
+#page > footer .wp-block-group.is-layout-flex,
+#page > footer [class*="is-content-justification"] {
+    /* Force preserve theme's flexbox layout in header/footer - override any plugin interference */
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+    gap: 1.2rem !important;
+}
+
+/* CRITICAL: Protect theme's footer and heading styles from plugin CSS interference */
+footer h1, footer h2, footer h3, footer h4, footer h5, footer h6,
+#page > footer h1, #page > footer h2, #page > footer h3, #page > footer h4, #page > footer h5, #page > footer h6,
+.site-footer h1, .site-footer h2, .site-footer h3, .site-footer h4, .site-footer h5, .site-footer h6,
+.wp-block-template-part[data-area="footer"] h1,
+.wp-block-template-part[data-area="footer"] h2,
+.wp-block-template-part[data-area="footer"] h3,
+.wp-block-template-part[data-area="footer"] h4,
+.wp-block-template-part[data-area="footer"] h5,
+.wp-block-template-part[data-area="footer"] h6,
+body.archive footer h1, body.archive footer h2, body.archive footer h3, body.archive footer h4, body.archive footer h5, body.archive footer h6 {
+    /* Let theme handle all footer heading styles - plugin should never override */
+    font-weight: inherit !important;
+    letter-spacing: inherit !important;
+    line-height: inherit !important;
+    font-size: inherit !important;
+    color: inherit !important;
+    margin: inherit !important;
+    padding: inherit !important;
 }
 
 body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive *,
