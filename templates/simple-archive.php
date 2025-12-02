@@ -518,7 +518,7 @@ $property_statuses = get_terms(array(
     <!-- Main Content -->
     <div class="container main-content" style="width: 100% !important; max-width: 1540px !important; min-width: 0 !important; margin: 0 auto !important; margin-left: auto !important; margin-right: auto !important; padding: 4rem 16px !important; padding-top: 1rem !important; padding-bottom: 4rem !important; padding-left: 16px !important; padding-right: 16px !important; box-sizing: border-box !important; position: relative !important; display: block !important;">
         <!-- Control Bar -->
-        <div class="control-bar" style="padding-bottom: 1rem !important;">
+        <div class="control-bar">
             <!-- Left Side -->
             <div class="view-controls">
                 <button onclick="showListView()" class="view-btn active">

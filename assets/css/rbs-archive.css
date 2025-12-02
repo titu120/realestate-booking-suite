@@ -1,15 +1,44 @@
 /* ========================================
    REALESTATE BOOKING SUITE ARCHIVE CSS
-   NESTED CSS WITH STRONG PREFIXES
+   MAXIMUM SPECIFICITY - NO THEME CONFLICTS
    ALL PROPERTIES USE !important
-   SCOPED TO .resbs-archive-wrapper ONLY
+   VERY LONG PREFIX SELECTORS
    ======================================== */
 
-/* Main Archive Wrapper - All styles nested inside */
-.resbs-archive-wrapper,
+/* CRITICAL: Ensure WordPress block theme flexbox classes are NEVER affected */
+/* This rule has maximum specificity to override any plugin CSS that might leak */
+body:not(.archive) .is-layout-flex,
+body:not(.archive) .wp-block-group.is-layout-flex,
+body:not(.archive) [class*="is-content-justification"],
+#page:not(.archive) .is-layout-flex,
+#page:not(.archive) .wp-block-group.is-layout-flex,
+#page:not(.archive) [class*="is-content-justification"],
+.site:not(.archive) .is-layout-flex,
+.site:not(.archive) .wp-block-group.is-layout-flex,
+.site:not(.archive) [class*="is-content-justification"] {
+    /* Force preserve theme's flexbox layout - override any plugin interference */
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+    gap: 1.2rem !important;
+}
+
+/* ========================================
+   ULTRA-SPECIFIC RESET - PREVENT ALL THEME CONFLICTS
+   FALLBACK SELECTORS FOR COMPATIBILITY
+   ======================================== */
+/* Fallback selectors - work even without body classes */
+.rbs-archive,
 .rbs-archive.resbs-archive-wrapper,
 #resbs-property-archive,
-.resbs-archive-wrapper#resbs-property-archive {
+.rbs-archive.resbs-archive-wrapper#resbs-property-archive,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive,
+body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive,
+body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive,
+body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive,
+body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive {
     box-sizing: border-box !important;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
     margin: 0 !important;
@@ -18,627 +47,309 @@
     max-width: 100% !important;
     position: relative !important;
     z-index: 1 !important;
-    isolation: isolate !important;
-    contain: layout style paint !important;
-    
-    /* All child elements */
-    & *,
-    & *::before,
-    & *::after {
-        box-sizing: border-box !important;
-    }
-    
-    /* Container */
-    & .container {
-        width: 100% !important;
-        max-width: 1540px !important;
-        min-width: 0 !important;
-        margin: 0 auto !important;
-        margin-left: auto !important;
-        margin-right: auto !important;
-        margin-top: 0 !important;
-        margin-bottom: 0 !important;
-        padding: 0 16px !important;
-        padding-top: 0 !important;
-        padding-bottom: 0 !important;
-        padding-left: 16px !important;
-        padding-right: 16px !important;
-        box-sizing: border-box !important;
-        position: relative !important;
-        display: block !important;
-        overflow: visible !important;
-        
-        &[class*="container"] {
-            width: 100% !important;
-            max-width: 1540px !important;
-            min-width: 0 !important;
-        }
-    }
-    
-    /* Container inside search-bar - remove all padding (override inline styles) */
-    & .search-bar .container,
-    & .search-bar .container[style*="padding"] {
-        padding: 0 16px !important;
-        padding-top: 0 !important;
-        padding-bottom: 0 !important;
-        padding-left: 16px !important;
-        padding-right: 16px !important;
-        margin: 0 auto !important;
-        margin-top: 0 !important;
-        margin-bottom: 0 !important;
-    }
-    
-    /* Container inside main-content - remove all padding (override inline styles) */
-    & .main-content .container,
-    & .main-content .container[style*="padding"] {
-        padding: 0 16px !important;
-        padding-top: 0 !important;
-        padding-bottom: 0 !important;
-        padding-left: 16px !important;
-        padding-right: 16px !important;
-        margin: 0 auto !important;
-        margin-top: 0 !important;
-        margin-bottom: 0 !important;
-    }
-    
-    /* Search Bar */
-    & .search-bar {
-        background-color: white !important;
-        border-bottom: 1px solid #e5e7eb !important;
-        padding: 0 !important;
-        padding-top: 0 !important;
-        padding-bottom: 0 !important;
-        margin: 0 !important;
-        margin-top: 0 !important;
-        margin-bottom: 0 !important;
-        width: 100% !important;
-        box-sizing: border-box !important;
-    }
-    
-    & .search-container {
-        display: flex !important;
-        flex-direction: column !important;
-        gap: 16px !important;
-        margin: 0 !important;
-        margin-top: 0 !important;
-        margin-bottom: 0 !important;
-        padding: 0 !important;
-        padding-top: 0 !important;
-        padding-bottom: 0 !important;
-        width: 100% !important;
-    }
-    
-    & .search-input-container {
-        flex: 1 !important;
-        position: relative !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        width: 100% !important;
-    }
-    
-    & .search-input {
-        width: 100% !important;
-        padding: 14px 48px !important;
-        border: 1px solid #d1d5db !important;
-        border-radius: 12px !important;
-        font-size: 16px !important;
-        transition: all 0.3s !important;
-        margin: 0 !important;
-        box-sizing: border-box !important;
-        font-family: inherit !important;
-        line-height: 1.5 !important;
-        
-        &:focus {
-            outline: none !important;
-            border-color: #0f766e !important;
-            box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.1) !important;
-        }
-    }
-    
-    & .search-icon {
-        position: absolute !important;
-        left: 16px !important;
-        top: 50% !important;
-        transform: translateY(-50%) !important;
-        color: #9ca3af !important;
-        pointer-events: none !important;
-    }
-    
-    /* Search Button */
-    & .search-btn {
-        padding: 12px 20px !important;
-        background-color: #0f766e !important;
-        color: white !important;
-        border: none !important;
-        border-radius: 12px !important;
-        font-weight: 500 !important;
-        cursor: pointer !important;
-        transition: all 0.3s !important;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
-        margin: 0 !important;
-        display: inline-block !important;
-        text-decoration: none !important;
-        font-family: inherit !important;
-        font-size: 16px !important;
-        line-height: 1.5 !important;
-        appearance: none !important;
-        -webkit-appearance: none !important;
-        -moz-appearance: none !important;
-        
-        &:hover {
-            background-color: #0d5c54 !important;
-            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1) !important;
-            color: white !important;
-        }
-    }
-    
-    /* Filter Buttons */
-    & .filter-buttons {
-        display: flex !important;
-        flex-wrap: wrap !important;
-        gap: 12px !important;
-        position: static !important;
-        align-items: flex-start !important;
-        margin: 0 !important;
-        margin-top: 0 !important;
-        margin-bottom: 0 !important;
-        padding: 0 !important;
-        padding-top: 0 !important;
-        padding-bottom: 0 !important;
-    }
-    
-    & .filter-chip {
-        padding: 12px 20px !important;
-        background-color: #f3f4f6 !important;
-        color: #374151 !important;
-        border: 1px solid #e5e7eb !important;
-        border-radius: 8px !important;
-        font-size: 14px !important;
-        font-weight: 500 !important;
-        cursor: pointer !important;
-        transition: all 0.3s !important;
-        margin: 0 !important;
-        display: inline-block !important;
-        text-decoration: none !important;
-        font-family: inherit !important;
-        line-height: 1.5 !important;
-        
-        &:hover {
-            background-color: #e5e7eb !important;
-            border-color: #0f766e !important;
-            color: #0f766e !important;
-        }
-    }
-    
-    /* Dropdowns */
-    & .dropdowns-container {
-        position: relative !important;
-        margin-top: 0 !important;
-        margin-bottom: 0 !important;
-        min-height: 0 !important;
-        width: 100% !important;
-    }
-    
-    & .dropdown-content {
-        display: none !important;
-        position: absolute !important;
-        top: 0 !important;
-        left: 0 !important;
-        z-index: 10000 !important;
-        background-color: white !important;
-        border: 1px solid #e5e7eb !important;
-        border-radius: 12px !important;
-        padding: 24px !important;
-        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2) !important;
-        animation: resbs-slideDown 0.3s ease !important;
-        min-width: 300px !important;
-        max-width: 500px !important;
-        width: auto !important;
-        margin: 0 !important;
-        box-sizing: border-box !important;
-        
-        &.active {
-            display: block !important;
-            visibility: visible !important;
-        }
-    }
-    
-    /* Main Content */
-    & .main-content {
-        padding: 0 !important;
-        padding-top: 0 !important;
-        padding-bottom: 0 !important;
-        margin: 0 !important;
-        margin-top: 0 !important;
-        margin-bottom: 0 !important;
-        width: 100% !important;
-        box-sizing: border-box !important;
-    }
-    
-    & .control-bar {
-        display: flex !important;
-        align-items: center !important;
-        justify-content: space-between !important;
-        margin: 0 !important;
-        margin-top: 0 !important;
-        margin-bottom: 0 !important;
-        padding: 0 !important;
-        width: 100% !important;
-        flex-wrap: wrap !important;
-        gap: 16px !important;
-    }
-    
-    & .view-controls {
-        display: flex !important;
-        gap: 8px !important;
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-    
-    & .view-btn {
-        padding: 8px 16px !important;
-        border: 1px solid #d1d5db !important;
-        border-radius: 8px !important;
-        background-color: white !important;
-        color: #374151 !important;
-        cursor: pointer !important;
-        transition: all 0.3s !important;
-        margin: 0 !important;
-        display: inline-block !important;
-        text-decoration: none !important;
-        font-family: inherit !important;
-        font-size: 14px !important;
-        line-height: 1.5 !important;
-        
-        &:hover {
-            background-color: #f9fafb !important;
-            border-color: #0f766e !important;
-            color: #0f766e !important;
-        }
-        
-        &.active {
-            background-color: #0f766e !important;
-            border-color: #0f766e !important;
-            color: white !important;
-        }
-        
-        & i {
-            display: inline-block !important;
-            font-family: "Font Awesome 6 Free" !important;
-            font-weight: 900 !important;
-            font-style: normal !important;
-            font-variant: normal !important;
-            text-rendering: auto !important;
-            line-height: 1 !important;
-            margin-right: 8px !important;
-            width: auto !important;
-            height: auto !important;
-            visibility: visible !important;
-            opacity: 1 !important;
-        }
-    }
-    
-    & .results-count {
-        font-size: 16px !important;
-        font-weight: 600 !important;
-        color: #374151 !important;
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-    
-    & .sort-controls {
-        display: flex !important;
-        align-items: center !important;
-        gap: 8px !important;
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-    
-    & .sort-select {
-        padding: 8px 12px !important;
-        border: 1px solid #d1d5db !important;
-        border-radius: 8px !important;
-        font-size: 14px !important;
-        background-color: white !important;
-        color: #374151 !important;
-        cursor: pointer !important;
-        margin: 0 !important;
-        font-family: inherit !important;
-        line-height: 1.5 !important;
-    }
-    
-    /* Listings Container */
-    & .listings-container {
-        display: grid !important;
-        grid-template-columns: 1fr !important;
-        gap: 24px !important;
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        box-sizing: border-box !important;
-        
-        &.map-visible {
-            display: flex !important;
-            flex-direction: row !important;
-            align-items: flex-start !important;
-            gap: 24px !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            width: 100% !important;
-            min-height: 100vh !important;
-            position: relative !important;
-            box-sizing: border-box !important;
-            
-            & .properties-list {
-                flex: 1 !important;
-                min-width: 0 !important;
-                padding-right: 10px !important;
-                overflow-y: auto !important;
-                max-height: 100vh !important;
-                align-self: flex-start !important;
-            }
-            
-            & .map-section {
-                flex: 1 !important;
-                display: block !important;
-                position: sticky !important;
-                top: 0 !important;
-                align-self: flex-start !important;
-                height: 100vh !important;
-                max-height: 100vh !important;
-                min-width: 0 !important;
-                box-sizing: border-box !important;
-            }
-            
-            & .property-grid {
-                grid-template-columns: repeat(2, 1fr) !important;
-                display: grid !important;
-                gap: 24px !important;
-                width: 100% !important;
-                max-width: 100% !important;
-                box-sizing: border-box !important;
-            }
-        }
-        
-        &.map-hidden {
-            min-height: auto !important;
-            height: auto !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            width: 100% !important;
-        }
-    }
-    
-    /* Property Grid */
-    & .property-grid {
-        display: grid !important;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
-        gap: 24px !important;
-        transition: all 0.3s ease !important;
-        margin: 0 !important;
-        margin-top: 0 !important;
-        margin-bottom: 0 !important;
-        padding: 0 !important;
-        padding-top: 0 !important;
-        padding-bottom: 0 !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        box-sizing: border-box !important;
-    }
-    
-    /* Property Card */
-    & .property-card {
-        background-color: white !important;
-        border-radius: 12px !important;
-        overflow: hidden !important;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
-        transition: all 0.3s !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        width: 100% !important;
-        box-sizing: border-box !important;
-        display: block !important;
-        
-        &:hover {
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
-            transform: translateY(-4px) !important;
-            
-            & .property-image img {
-                transform: scale(1.05) !important;
-                transition: transform 0.3s !important;
-            }
-        }
-    }
-    
-    & .property-image {
-        position: relative !important;
-        width: 100% !important;
-        height: 250px !important;
-        overflow: hidden !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        
-        & img {
-            width: 100% !important;
-            height: 100% !important;
-            object-fit: cover !important;
-            display: block !important;
-            margin: 0 !important;
-            padding: 0 !important;
-        }
-    }
-    
-    & .property-details {
-        padding: 20px !important;
-        margin: 0 !important;
-        width: 100% !important;
-        box-sizing: border-box !important;
-    }
-    
-    & .property-price-container {
-        display: flex !important;
-        align-items: center !important;
-        justify-content: space-between !important;
-        margin-bottom: 16px !important;
-        padding: 0 !important;
-        width: 100% !important;
-    }
-    
-    & .property-price {
-        font-size: 24px !important;
-        font-weight: 700 !important;
-        color: #0f766e !important;
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-    
-    & .property-status {
-        padding: 4px 12px !important;
-        border-radius: 6px !important;
-        font-size: 12px !important;
-        font-weight: 600 !important;
-        background-color: #f3f4f6 !important;
-        color: #6b7280 !important;
-        margin: 0 !important;
-        display: inline-block !important;
-    }
-    
-    & .property-features {
-        display: flex !important;
-        align-items: center !important;
-        justify-content: space-between !important;
-        font-size: 14px !important;
-        color: #6b7280 !important;
-        margin-bottom: 16px !important;
-        padding: 0 !important;
-        width: 100% !important;
-    }
-    
-    & .property-feature {
-        display: flex !important;
-        align-items: center !important;
-        gap: 8px !important;
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-    
-    & .property-footer {
-        display: flex !important;
-        align-items: center !important;
-        justify-content: space-between !important;
-        padding-top: 16px !important;
-        border-top: 1px solid #f3f4f6 !important;
-        margin: 0 !important;
-        width: 100% !important;
-        box-sizing: border-box !important;
-    }
-    
-    & .property-type {
-        font-size: 14px !important;
-        color: #6b7280 !important;
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-    
-    /* View Details Button */
-    & .view-details-btn {
-        background-color: #0f766e !important;
-        color: white !important;
-        padding: 10px 20px !important;
-        border-radius: 8px !important;
-        font-weight: 600 !important;
-        font-size: 14px !important;
-        cursor: pointer !important;
-        transition: all 0.3s !important;
-        border: none !important;
-        margin: 0 !important;
-        display: inline-block !important;
-        text-decoration: none !important;
-        box-shadow: none !important;
-        font-family: inherit !important;
-        line-height: 1.5 !important;
-        appearance: none !important;
-        -webkit-appearance: none !important;
-        -moz-appearance: none !important;
-        
-        &:hover {
-            background-color: #0d645d !important;
-            color: white !important;
-            transform: translateY(-1px) !important;
-        }
-    }
-    
-    /* Map Section */
-    & .map-section {
-        width: 100% !important;
-        height: 100% !important;
-        min-height: 500px !important;
-        position: relative !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        box-sizing: border-box !important;
-        
-        &.map-hidden {
-            display: none !important;
-        }
-        
-        &.map-visible {
-            display: block !important;
-            flex: 1 !important;
-            position: sticky !important;
-            top: 0 !important;
-            align-self: flex-start !important;
-            height: 100vh !important;
-            max-height: 100vh !important;
-            min-width: 0 !important;
-            box-sizing: border-box !important;
-        }
-    }
-    
-    & .map-container {
-        width: 100% !important;
-        height: 100vh !important;
-        max-height: 100vh !important;
-        min-height: 100vh !important;
-        position: relative !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        box-sizing: border-box !important;
-        display: block !important;
-    }
-    
-    /* Buttons Reset */
-    & button,
-    & .button,
-    & input[type="button"],
-    & input[type="submit"],
-    & a.button {
-        margin: 0 !important;
-        padding: 0 !important;
-        border: none !important;
-        background: none !important;
-        font-family: inherit !important;
-        font-size: inherit !important;
-        line-height: inherit !important;
-        text-decoration: none !important;
-        cursor: pointer !important;
-        display: inline-block !important;
-        box-shadow: none !important;
-        border-radius: 0 !important;
-        transition: all 0.3s ease !important;
-        appearance: none !important;
-        -webkit-appearance: none !important;
-        -moz-appearance: none !important;
-        text-transform: none !important;
-        letter-spacing: normal !important;
-    }
 }
 
-/* Keyframe Animation */
-@keyframes resbs-slideDown {
-    from {
+/* ========================================
+   ARCHIVE CSS - NO HEADER/FOOTER RULES
+   All CSS is scoped to plugin wrapper only
+   ======================================== */
+
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive *,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive *::before,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive *::after {
+    box-sizing: border-box !important;
+}
+
+/* ========================================
+   CONTAINER - MAXIMUM WIDTH CONTROL
+   FALLBACK SELECTORS FOR COMPATIBILITY
+   ======================================== */
+.rbs-archive .container,
+.rbs-archive.resbs-archive-wrapper .container,
+#resbs-property-archive .container,
+.rbs-archive.resbs-archive-wrapper#resbs-property-archive .container,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container,
+body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container,
+body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container,
+body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container,
+body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container {
+    width: 100% !important;
+    max-width: 1540px !important;
+    min-width: 0 !important;
+    margin: 0 auto !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    padding: 4rem 16px !important;
+    padding-top: 4rem !important;
+    padding-bottom: 4rem !important;
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    box-sizing: border-box !important;
+    position: relative !important;
+    display: block !important;
+    overflow: visible !important;
+}
+
+/* ========================================
+   FORCE CONTAINER WIDTH - PREVENT THEME OVERRIDES
+   Additional rules to ensure theme width settings cannot override
+   ======================================== */
+.rbs-archive .container[class*="container"],
+.rbs-archive.resbs-archive-wrapper .container[class*="container"],
+#resbs-property-archive .container[class*="container"],
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container[class*="container"],
+body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container[class*="container"],
+body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container[class*="container"],
+body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container[class*="container"],
+body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container[class*="container"],
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container[class*="container"],
+.rbs-archive .container[style*="width"],
+.rbs-archive.resbs-archive-wrapper .container[style*="width"],
+#resbs-property-archive .container[style*="width"],
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container[style*="width"],
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container[style*="width"] {
+    width: 100% !important;
+    max-width: 1540px !important;
+    min-width: 0 !important;
+}
+
+/* Prevent theme from setting different container widths */
+.rbs-archive.resbs-archive-wrapper#resbs-property-archive .container,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container,
+body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container,
+body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container,
+body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container,
+body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container {
+    width: 100% !important;
+    max-width: 1540px !important;
+    min-width: 0 !important;
+}
+
+/* ========================================
+   BUTTON RESET - PREVENT ALL THEME BUTTON STYLES
+   ======================================== */
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive button,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .button,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive input[type="button"],
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive input[type="submit"],
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive a.button,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive button,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .button {
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    background: none !important;
+    font-family: inherit !important;
+    font-size: inherit !important;
+    line-height: inherit !important;
+    text-decoration: none !important;
+    cursor: pointer !important;
+    display: inline-block !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    transition: all 0.3s ease !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    text-transform: none !important;
+    letter-spacing: normal !important;
+}
+
+/* ========================================
+   SEARCH BAR SECTION
+   FALLBACK SELECTORS FIRST
+   ======================================== */
+.rbs-archive .search-bar,
+#resbs-property-archive .search-bar,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .search-bar,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .search-bar {
+    background-color: white !important;
+    border-bottom: 1px solid #e5e7eb !important;
+    padding: 24px 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.rbs-archive .search-container,
+#resbs-property-archive .search-container,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .search-container,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .search-container {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 16px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+}
+
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .search-input-container,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .search-input-container {
+    flex: 1 !important;
+    position: relative !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+}
+
+.rbs-archive .search-input,
+#resbs-property-archive .search-input,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .search-input,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .search-input {
+    width: 100% !important;
+    padding: 14px 48px !important;
+    border: 1px solid #d1d5db !important;
+    border-radius: 12px !important;
+    font-size: 16px !important;
+    transition: all 0.3s !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    font-family: inherit !important;
+    line-height: 1.5 !important;
+}
+
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .search-input:focus,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .search-input:focus {
+    outline: none !important;
+    border-color: #0f766e !important;
+    box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.1) !important;
+}
+
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .search-icon,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .search-icon {
+    position: absolute !important;
+    left: 16px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    color: #9ca3af !important;
+    pointer-events: none !important;
+}
+
+/* ========================================
+   SEARCH BUTTON - ULTRA SPECIFIC
+   FALLBACK SELECTORS FIRST
+   ======================================== */
+.rbs-archive .search-btn,
+#resbs-property-archive .search-btn,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .search-btn,
+body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .search-btn,
+body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .search-btn,
+body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .search-btn,
+body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .search-btn,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .search-btn {
+    padding: 12px 20px !important;
+    background-color: #0f766e !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 12px !important;
+    font-weight: 500 !important;
+    cursor: pointer !important;
+    transition: all 0.3s !important;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+    margin: 0 !important;
+    display: inline-block !important;
+    text-decoration: none !important;
+    font-family: inherit !important;
+    font-size: 16px !important;
+    line-height: 1.5 !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+}
+
+.rbs-archive .search-btn:hover,
+#resbs-property-archive .search-btn:hover,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .search-btn:hover,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .search-btn:hover {
+    background-color: #0d5c54 !important;
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1) !important;
+    color: white !important;
+}
+
+/* ========================================
+   FILTER BUTTONS
+   ======================================== */
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .filter-buttons,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .filter-buttons {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 12px !important;
+    position: static !important;
+    align-items: flex-start !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .filter-chip,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .filter-chip {
+    padding: 12px 20px !important;
+    background-color: #f3f4f6 !important;
+    color: #374151 !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 8px !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    cursor: pointer !important;
+    transition: all 0.3s !important;
+    margin: 0 !important;
+    display: inline-block !important;
+    text-decoration: none !important;
+    font-family: inherit !important;
+    line-height: 1.5 !important;
+}
+
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .filter-chip:hover,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .filter-chip:hover {
+    background-color: #e5e7eb !important;
+    border-color: #0f766e !important;
+    color: #0f766e !important;
+}
+
+/* ========================================
+   DROPDOWNS
+   ======================================== */
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .dropdowns-container,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .dropdowns-container {
+    position: relative !important;
+    margin-top: 16px !important;
+    min-height: 0 !important;
+    width: 100% !important;
+}
+
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .dropdown-content,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .dropdown-content {
+    display: none !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+        z-index: 10000 !important;
+        background-color: white !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 12px !important;
+    padding: 24px !important;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2) !important;
+    animation: slideDown 0.3s ease !important;
+    min-width: 300px !important;
+    max-width: 500px !important;
+    width: auto !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+}
+
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .dropdown-content.active,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .dropdown-content.active {
+        display: block !important;
+        visibility: visible !important;
+    }
+
+@keyframes slideDown {
+        from {
         opacity: 0 !important;
         transform: translateY(-10px) !important;
     }
@@ -648,139 +359,711 @@
     }
 }
 
-/* Responsive Styles */
-@media (min-width: 768px) {
-    .resbs-archive-wrapper .container {
-        padding: 0 24px !important;
-        padding-top: 0 !important;
-        padding-bottom: 0 !important;
-        padding-left: 24px !important;
-        padding-right: 24px !important;
-    }
-    
-    .resbs-archive-wrapper .search-bar .container {
-        padding: 0 24px !important;
-        padding-top: 0 !important;
-        padding-bottom: 0 !important;
-    }
-    
-    .resbs-archive-wrapper .main-content .container {
-        padding: 0 24px !important;
-        padding-top: 0 !important;
-        padding-bottom: 0 !important;
-    }
+/* ========================================
+   MAIN CONTENT AREA
+   ======================================== */
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .main-content,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .main-content {
+    padding: 24px 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
 }
 
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .control-bar,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .control-bar {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    margin-bottom: 24px !important;
+    padding: 0 !important;
+    width: 100% !important;
+    flex-wrap: wrap !important;
+    gap: 16px !important;
+}
+
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .view-controls,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .view-controls {
+    display: flex !important;
+    gap: 8px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .view-btn,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .view-btn {
+    padding: 8px 16px !important;
+    border: 1px solid #d1d5db !important;
+    border-radius: 8px !important;
+    background-color: white !important;
+    color: #374151 !important;
+    cursor: pointer !important;
+    transition: all 0.3s !important;
+    margin: 0 !important;
+    display: inline-block !important;
+    text-decoration: none !important;
+    font-family: inherit !important;
+    font-size: 14px !important;
+    line-height: 1.5 !important;
+}
+
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .view-btn:hover,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .view-btn:hover {
+    background-color: #f9fafb !important;
+    border-color: #0f766e !important;
+    color: #0f766e !important;
+}
+
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .view-btn.active,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .view-btn.active {
+    background-color: #0f766e !important;
+    border-color: #0f766e !important;
+    color: white !important;
+}
+
+/* Font Awesome Icons - Ensure Icons Display */
+.rbs-archive .view-btn i,
+#resbs-property-archive .view-btn i,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .view-btn i,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .view-btn i,
+.view-btn i {
+    display: inline-block !important;
+    font-family: "Font Awesome 6 Free" !important;
+    font-weight: 900 !important;
+    font-style: normal !important;
+    font-variant: normal !important;
+    text-rendering: auto !important;
+    line-height: 1 !important;
+    margin-right: 8px !important;
+    width: auto !important;
+    height: auto !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Specific icon classes */
+.rbs-archive .view-btn .fa-list,
+#resbs-property-archive .view-btn .fa-list,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .view-btn .fa-list,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .view-btn .fa-list,
+.view-btn .fa-list {
+    display: inline-block !important;
+    font-family: "Font Awesome 6 Free" !important;
+    font-weight: 900 !important;
+}
+
+.rbs-archive .view-btn .fa-map-marked-alt,
+#resbs-property-archive .view-btn .fa-map-marked-alt,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .view-btn .fa-map-marked-alt,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .view-btn .fa-map-marked-alt,
+.view-btn .fa-map-marked-alt {
+    display: inline-block !important;
+    font-family: "Font Awesome 6 Free" !important;
+    font-weight: 900 !important;
+}
+
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .results-count,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .results-count {
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    color: #374151 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .sort-controls,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .sort-controls {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .sort-select,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .sort-select {
+    padding: 8px 12px !important;
+    border: 1px solid #d1d5db !important;
+    border-radius: 8px !important;
+    font-size: 14px !important;
+    background-color: white !important;
+    color: #374151 !important;
+    cursor: pointer !important;
+    margin: 0 !important;
+    font-family: inherit !important;
+    line-height: 1.5 !important;
+}
+
+/* ========================================
+   PROPERTY LISTINGS CONTAINER - CRITICAL WIDTH CONTROL
+   ======================================== */
+.rbs-archive .listings-container,
+#resbs-property-archive .listings-container,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container,
+body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container,
+body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container,
+body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container,
+body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 24px !important;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.rbs-archive .listings-container.map-visible,
+#resbs-property-archive .listings-container.map-visible,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: flex-start !important;
+    gap: 24px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    min-height: 100vh !important;
+    position: relative !important;
+    box-sizing: border-box !important;
+}
+
+/* Properties List - Left Side */
+.rbs-archive .listings-container.map-visible .properties-list,
+#resbs-property-archive .listings-container.map-visible .properties-list,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible .properties-list,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible .properties-list {
+    flex: 1 !important;
+    min-width: 0 !important;
+    padding-right: 10px !important;
+    overflow-y: auto !important;
+    max-height: 100vh !important;
+    align-self: flex-start !important;
+}
+
+/* Map Section - Right Side */
+.rbs-archive .listings-container.map-visible .map-section,
+#resbs-property-archive .listings-container.map-visible .map-section,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible .map-section,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible .map-section {
+    flex: 1 !important;
+    display: block !important;
+    position: sticky !important;
+    top: 0 !important;
+    align-self: flex-start !important;
+    height: 100vh !important;
+    max-height: 100vh !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+}
+
+/* FORCE 2 COLUMNS IN MAP VIEW - MAXIMUM PRIORITY */
+.rbs-archive .listings-container.map-visible .property-grid,
+#resbs-property-archive .listings-container.map-visible .property-grid,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible .property-grid,
+body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible .property-grid,
+body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible .property-grid,
+body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible .property-grid,
+body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible .property-grid,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible .property-grid,
+.listings-container.map-visible .property-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    display: grid !important;
+    gap: 24px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.rbs-archive .listings-container.map-hidden,
+#resbs-property-archive .listings-container.map-hidden,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-hidden,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-hidden {
+    min-height: auto !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+}
+
+/* ========================================
+   PROPERTY GRID - CRITICAL WIDTH CONTROL
+   FALLBACK SELECTORS FIRST
+   ======================================== */
+.rbs-archive .property-grid,
+#resbs-property-archive .property-grid,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-grid,
+body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-grid,
+body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-grid,
+body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-grid,
+body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-grid,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+    gap: 24px !important;
+    transition: all 0.3s ease !important;
+    margin: 0 !important;
+    padding: 24px 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    }
+
+/* Responsive grid columns - Fallback selectors first */
 @media (min-width: 1024px) {
-    .resbs-archive-wrapper .container {
-        padding: 0 32px !important;
-        padding-top: 0 !important;
-        padding-bottom: 0 !important;
-        padding-left: 32px !important;
-        padding-right: 32px !important;
-    }
-    
-    .resbs-archive-wrapper .search-bar .container {
-        padding: 0 32px !important;
-        padding-top: 0 !important;
-        padding-bottom: 0 !important;
-    }
-    
-    .resbs-archive-wrapper .main-content .container {
-        padding: 0 32px !important;
-        padding-top: 0 !important;
-        padding-bottom: 0 !important;
-    }
-    
-    .resbs-archive-wrapper .property-grid {
+    .rbs-archive .property-grid,
+    #resbs-property-archive .property-grid,
+    body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-grid,
+    body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-grid,
+    body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-grid,
+    body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-grid,
+    body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-grid,
+    body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-grid {
         grid-template-columns: repeat(4, 1fr) !important;
     }
     
-    .resbs-archive-wrapper .listings-container.map-visible .property-grid {
+    /* FORCE 2 COLUMNS IN MAP VIEW - OVERRIDE 4 COLUMNS */
+    .rbs-archive .listings-container.map-visible .property-grid,
+    #resbs-property-archive .listings-container.map-visible .property-grid,
+    body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible .property-grid,
+    body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible .property-grid,
+    body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible .property-grid,
+    body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible .property-grid,
+    body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible .property-grid,
+    body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible .property-grid,
+    .listings-container.map-visible .property-grid {
         grid-template-columns: repeat(2, 1fr) !important;
     }
 }
 
 @media (min-width: 1400px) {
-    .resbs-archive-wrapper .property-grid {
+    .rbs-archive .property-grid,
+    #resbs-property-archive .property-grid,
+    body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-grid,
+    body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-grid,
+    body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-grid,
+    body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-grid,
+    body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-grid,
+    body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-grid {
         grid-template-columns: repeat(4, 1fr) !important;
     }
     
-    .resbs-archive-wrapper .listings-container.map-visible .property-grid {
+    /* FORCE 2 COLUMNS IN MAP VIEW - OVERRIDE 4 COLUMNS */
+    .rbs-archive .listings-container.map-visible .property-grid,
+    #resbs-property-archive .listings-container.map-visible .property-grid,
+    body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible .property-grid,
+    body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible .property-grid,
+    body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible .property-grid,
+    body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible .property-grid,
+    body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible .property-grid,
+    body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible .property-grid,
+    .listings-container.map-visible .property-grid {
         grid-template-columns: repeat(2, 1fr) !important;
     }
 }
 
 @media (max-width: 479px) {
-    .resbs-archive-wrapper .property-grid {
+    .rbs-archive .property-grid,
+    #resbs-property-archive .property-grid,
+    body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-grid,
+    body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-grid {
         grid-template-columns: 1fr !important;
     }
     
-    .resbs-archive-wrapper .listings-container.map-visible {
+    /* Map view - 1 column on mobile */
+    .rbs-archive .listings-container.map-visible .property-grid,
+    #resbs-property-archive .listings-container.map-visible .property-grid,
+    body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible .property-grid,
+    body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible .property-grid,
+    .listings-container.map-visible .property-grid {
+        grid-template-columns: 1fr !important;
+    }
+    
+    /* Map view layout - stack on mobile */
+    .rbs-archive .listings-container.map-visible,
+    #resbs-property-archive .listings-container.map-visible,
+    body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible,
+    body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible {
         flex-direction: column !important;
-        
-        & .property-grid {
-            grid-template-columns: 1fr !important;
-        }
-        
-        & .map-section {
-            position: relative !important;
-            height: 400px !important;
-            max-height: 400px !important;
-        }
+    }
+    
+    .rbs-archive .listings-container.map-visible .map-section,
+    #resbs-property-archive .listings-container.map-visible .map-section,
+    body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible .map-section,
+    body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible .map-section {
+        position: relative !important;
+        height: 400px !important;
+        max-height: 400px !important;
     }
 }
 
+/* Tablet - 2 columns in map view */
 @media (min-width: 480px) and (max-width: 1023px) {
-    .resbs-archive-wrapper .listings-container.map-visible .property-grid {
+    .rbs-archive .listings-container.map-visible .property-grid,
+    #resbs-property-archive .listings-container.map-visible .property-grid,
+    body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible .property-grid,
+    body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible .property-grid,
+    body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible .property-grid,
+    body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible .property-grid,
+    body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible .property-grid,
+    body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .listings-container.map-visible .property-grid,
+    .listings-container.map-visible .property-grid {
         grid-template-columns: repeat(2, 1fr) !important;
     }
 }
 
 /* ========================================
-   FINAL OVERRIDE - REMOVE ALL SPACING
-   Override inline styles and ensure zero spacing
+   PROPERTY CARD
+   FALLBACK SELECTORS FIRST
    ======================================== */
-.resbs-archive-wrapper .search-bar .container[style],
-.resbs-archive-wrapper .main-content .container[style],
-.resbs-archive-wrapper .container[style] {
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
-    margin-top: 0 !important;
-    margin-bottom: 0 !important;
+.rbs-archive .property-card,
+#resbs-property-archive .property-card,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-card,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-card {
+    background-color: white !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+    transition: all 0.3s !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    display: block !important;
 }
 
-.resbs-archive-wrapper .search-bar {
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
-    margin-top: 0 !important;
-    margin-bottom: 0 !important;
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-card:hover,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-card:hover {
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
+    transform: translateY(-4px) !important;
 }
 
-.resbs-archive-wrapper .main-content {
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
-    margin-top: 0 !important;
-    margin-bottom: 0 !important;
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-image,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-image {
+    position: relative !important;
+    width: 100% !important;
+    height: 250px !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
-.resbs-archive-wrapper .control-bar {
-    margin-top: 0 !important;
-    margin-bottom: 0 !important;
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-image img,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-image img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
-.resbs-archive-wrapper .property-grid {
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
-    margin-top: 0 !important;
-    margin-bottom: 0 !important;
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-card:hover .property-image img,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-card:hover .property-image img {
+    transform: scale(1.05) !important;
+    transition: transform 0.3s !important;
 }
 
-.resbs-archive-wrapper .dropdowns-container {
-    margin-top: 0 !important;
-    margin-bottom: 0 !important;
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-details,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-details {
+    padding: 20px !important;
+    margin: 0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
 }
+
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-price-container,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-price-container {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    margin-bottom: 16px !important;
+    padding: 0 !important;
+    width: 100% !important;
+}
+
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-price,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-price {
+    font-size: 24px !important;
+    font-weight: 700 !important;
+    color: #0f766e !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-status,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-status {
+    padding: 4px 12px !important;
+    border-radius: 6px !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    background-color: #f3f4f6 !important;
+    color: #6b7280 !important;
+    margin: 0 !important;
+    display: inline-block !important;
+}
+
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-features,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-features {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    font-size: 14px !important;
+    color: #6b7280 !important;
+    margin-bottom: 16px !important;
+    padding: 0 !important;
+    width: 100% !important;
+}
+
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-feature,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-feature {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-footer,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-footer {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding-top: 16px !important;
+    border-top: 1px solid #f3f4f6 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-type,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .property-type {
+    font-size: 14px !important;
+    color: #6b7280 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* ========================================
+   VIEW DETAILS BUTTON - ULTRA SPECIFIC
+   FALLBACK SELECTORS FIRST
+   ======================================== */
+.rbs-archive .view-details-btn,
+#resbs-property-archive .view-details-btn,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .view-details-btn,
+body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .view-details-btn,
+body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .view-details-btn,
+body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .view-details-btn,
+body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .view-details-btn,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .view-details-btn {
+    background-color: #0f766e !important;
+    color: white !important;
+    padding: 10px 20px !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    font-size: 14px !important;
+    cursor: pointer !important;
+    transition: all 0.3s !important;
+        border: none !important;
+    margin: 0 !important;
+    display: inline-block !important;
+    text-decoration: none !important;
+    box-shadow: none !important;
+    font-family: inherit !important;
+    line-height: 1.5 !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+}
+
+.rbs-archive .view-details-btn:hover,
+#resbs-property-archive .view-details-btn:hover,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .view-details-btn:hover,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .view-details-btn:hover {
+    background-color: #0d645d !important;
+        color: white !important;
+    transform: translateY(-1px) !important;
+}
+
+/* ========================================
+   MAP SECTION
+   ======================================== */
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .map-section,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .map-section {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 500px !important;
+    position: relative !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+}
+
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .map-section.map-hidden,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .map-section.map-hidden {
+    display: none !important;
+}
+
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .map-section.map-visible,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .map-section.map-visible {
+    display: block !important;
+    flex: 1 !important;
+    position: sticky !important;
+    top: 0 !important;
+    align-self: flex-start !important;
+    height: 100vh !important;
+    max-height: 100vh !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+}
+
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .map-container,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .map-container,
+.rbs-archive .listings-container.map-visible .map-section .map-container,
+#resbs-property-archive .listings-container.map-visible .map-section .map-container {
+    width: 100% !important;
+    height: 100vh !important;
+    max-height: 100vh !important;
+    min-height: 100vh !important;
+    position: relative !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+    display: block !important;
+}
+
+/* ========================================
+   RESPONSIVE CONTAINER PADDING AND WIDTH
+   ======================================== */
+    @media (min-width: 768px) {
+    body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container,
+    body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container,
+    .rbs-archive .container,
+    #resbs-property-archive .container {
+        width: 100% !important;
+        max-width: 1540px !important;
+        min-width: 0 !important;
+        padding: 4rem 24px !important;
+        padding-top: 4rem !important;
+        padding-bottom: 4rem !important;
+        padding-left: 24px !important;
+        padding-right: 24px !important;
+        }
+    }
+
+    @media (min-width: 1024px) {
+    body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container,
+    body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container,
+    .rbs-archive .container,
+    #resbs-property-archive .container {
+        width: 100% !important;
+        max-width: 1540px !important;
+        min-width: 0 !important;
+        padding: 4rem 32px !important;
+        padding-top: 4rem !important;
+        padding-bottom: 4rem !important;
+        padding-left: 32px !important;
+        padding-right: 32px !important;
+    }
+}
+
+/* ========================================
+   FINAL OVERRIDE - FORCE ALL STYLES
+   ======================================== */
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive *,
+body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive *,
+body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive *,
+body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive *,
+body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive * {
+    /* Ensure no theme spacing interferes */
+    box-sizing: border-box !important;
+}
+
+/* Prevent theme from affecting our archive */
+.rbs-archive,
+.rbs-archive.resbs-archive-wrapper,
+#resbs-property-archive,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive,
+body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive,
+body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive,
+body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive {
+    isolation: isolate !important;
+    contain: layout style paint !important;
+}
+
+/* ========================================
+   FINAL FALLBACK - ENSURE ALL STYLES WORK
+   Simple selectors that work regardless of body classes
+   ======================================== */
+.rbs-archive .property-card,
+.rbs-archive .property-image,
+.rbs-archive .property-details,
+.rbs-archive .property-price,
+.rbs-archive .property-features,
+.rbs-archive .property-footer,
+.rbs-archive button,
+.rbs-archive .button,
+.rbs-archive .search-btn,
+    .rbs-archive .view-details-btn {
+    /* Force box-sizing */
+    box-sizing: border-box !important;
+}
+
+/* Ensure grid works */
+        .rbs-archive .property-grid {
+    display: grid !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Ensure container works - FINAL FALLBACK */
+.rbs-archive .container,
+#resbs-property-archive .container,
+.rbs-archive.resbs-archive-wrapper .container {
+    width: 100% !important;
+    max-width: 1540px !important;
+    min-width: 0 !important;
+    margin: 0 auto !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    padding: 4rem 16px !important;
+    padding-top: 4rem !important;
+    padding-bottom: 4rem !important;
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+    box-sizing: border-box !important;
+    position: relative !important;
+    display: block !important;
+}
+
+/* ========================================
+   FINAL COMPREHENSIVE WIDTH OVERRIDE
+   Catch any remaining theme width overrides
+   ======================================== */
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive [class*="container"],
+body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive [class*="container"],
+body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive [class*="container"],
+body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive [class*="container"],
+body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive [class*="container"],
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive [class*="container"],
+.rbs-archive.resbs-archive-wrapper#resbs-property-archive [class*="container"],
+#resbs-property-archive [class*="container"] {
+    box-sizing: border-box !important;
+}
+
+/* Force container width specifically */
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container[class*="container"],
+.rbs-archive.resbs-archive-wrapper#resbs-property-archive .container[class*="container"],
+#resbs-property-archive .container[class*="container"],
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container,
+.rbs-archive.resbs-archive-wrapper#resbs-property-archive .container {
+    width: 100% !important;
+    max-width: 1540px !important;
+    min-width: 0 !important;
+    }

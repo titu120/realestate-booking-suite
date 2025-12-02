@@ -5,149 +5,358 @@
  * @package RealEstate_Booking_Suite
  */
 
-/* Archive Wrapper */
+/* ============================================================================
+   ARCHIVE CSS - NO HEADER/FOOTER RULES
+   All CSS is scoped to plugin wrapper only
+   ============================================================================ */
+
+/* ============================================================================
+   ARCHIVE WRAPPER - PROPERLY SCOPED WITH PREFIXES AND !important
+   ============================================================================ */
+/* Archive Wrapper - NESTED WITH PREFIXES */
+.rbs-archive.resbs-archive-wrapper#resbs-property-archive,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive,
+body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive,
+body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive,
+body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive,
+body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive,
 .resbs-archive-wrapper {
-    padding: 20px 0;
-    background-color: #f8f9fa;
-    min-height: 100vh;
+    padding: 20px 0 !important;
+    background-color: #f8f9fa !important;
+    min-height: 100vh !important;
+    box-sizing: border-box !important;
+    position: relative !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    isolation: isolate !important;
+    contain: layout style paint !important;
 }
 
-/* Scoped container to prevent conflicts with theme */
+/* Scoped container to prevent conflicts with theme - NESTED WITH PREFIXES */
+.rbs-archive.resbs-archive-wrapper#resbs-property-archive .container,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container,
+body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container,
+body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container,
+body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container,
+body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container,
 .resbs-archive-wrapper .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 15px;
+    max-width: 1200px !important;
+    margin: 0 auto !important;
+    padding: 0 15px !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+    position: relative !important;
 }
 
-/* Archive Header */
-.resbs-archive-header {
-    background: white;
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    margin-bottom: 30px;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    flex-wrap: wrap;
-    gap: 20px;
+/* Archive Header - NESTED WITH PREFIXES */
+.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-header,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-header,
+body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-header,
+body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-header,
+body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-header,
+body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-header,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-header,
+.resbs-archive-wrapper .resbs-archive-header {
+    background: white !important;
+    padding: 30px !important;
+    border-radius: 12px !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1) !important;
+    margin-bottom: 30px !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: flex-start !important;
+    flex-wrap: wrap !important;
+    gap: 20px !important;
+    box-sizing: border-box !important;
+    position: relative !important;
+    width: 100% !important;
 }
 
-.resbs-archive-title h1 {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: #2c3e50;
-    margin: 0 0 10px 0;
+.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-title h1,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-title h1,
+body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-title h1,
+body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-title h1,
+body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-title h1,
+body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-title h1,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-title h1,
+.resbs-archive-wrapper .resbs-archive-title h1 {
+    font-size: 2.5rem !important;
+    font-weight: 700 !important;
+    color: #2c3e50 !important;
+    margin: 0 0 10px 0 !important;
+    box-sizing: border-box !important;
 }
 
-.resbs-archive-description {
-    color: #6c757d;
-    font-size: 1.1rem;
-    margin: 0;
+.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-description,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-description,
+body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-description,
+body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-description,
+body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-description,
+body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-description,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-description,
+.resbs-archive-wrapper .resbs-archive-description {
+    color: #6c757d !important;
+    font-size: 1.1rem !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
 }
 
-/* Archive Controls */
-.resbs-archive-controls {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    flex-wrap: wrap;
+/* ============================================================================
+   CRITICAL: SCOPE ALL ARCHIVE CSS TO PLUGIN WRAPPER ONLY
+   This ensures NO CSS can leak out and affect theme header/footer
+   ============================================================================ */
+/* Force all archive CSS to be scoped - prevents any leakage */
+.rbs-archive.resbs-archive-wrapper#resbs-property-archive *,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive *,
+body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive *,
+body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive *,
+body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive *,
+body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive *,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive *,
+.resbs-archive-wrapper * {
+    box-sizing: border-box !important;
 }
 
-.resbs-view-toggle {
-    display: flex;
-    background: #f8f9fa;
-    border-radius: 8px;
-    padding: 4px;
+/* Archive Controls - NESTED WITH PREFIXES */
+.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-controls,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-controls,
+body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-controls,
+body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-controls,
+body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-controls,
+body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-controls,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-controls,
+.resbs-archive-wrapper .resbs-archive-controls {
+    display: flex !important;
+    align-items: center !important;
+    gap: 20px !important;
+    flex-wrap: wrap !important;
+    box-sizing: border-box !important;
+    position: relative !important;
 }
 
-.resbs-view-btn {
-    padding: 10px 16px;
-    border: none;
-    background: transparent;
-    color: #6c757d;
-    text-decoration: none;
-    border-radius: 6px;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-weight: 500;
+.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-view-toggle,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-view-toggle,
+body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-view-toggle,
+body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-view-toggle,
+body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-view-toggle,
+body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-view-toggle,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-view-toggle,
+.resbs-archive-wrapper .resbs-view-toggle {
+    display: flex !important;
+    background: #f8f9fa !important;
+    border-radius: 8px !important;
+    padding: 4px !important;
+    box-sizing: border-box !important;
 }
 
-.resbs-view-btn:hover,
-.resbs-view-btn.active {
-    background: #007bff;
-    color: white;
-    text-decoration: none;
+.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-view-btn,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-view-btn,
+body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-view-btn,
+body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-view-btn,
+body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-view-btn,
+body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-view-btn,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-view-btn,
+.resbs-archive-wrapper .resbs-view-btn {
+    padding: 10px 16px !important;
+    border: none !important;
+    background: transparent !important;
+    color: #6c757d !important;
+    text-decoration: none !important;
+    border-radius: 6px !important;
+    transition: all 0.3s ease !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    font-weight: 500 !important;
+    box-sizing: border-box !important;
+    cursor: pointer !important;
 }
 
-.resbs-sort-controls {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-view-btn:hover,
+.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-view-btn.active,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-view-btn:hover,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-view-btn.active,
+body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-view-btn:hover,
+body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-view-btn.active,
+body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-view-btn:hover,
+body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-view-btn.active,
+body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-view-btn:hover,
+body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-view-btn.active,
+body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-view-btn:hover,
+body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-view-btn.active,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-view-btn:hover,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-view-btn.active,
+.resbs-archive-wrapper .resbs-view-btn:hover,
+.resbs-archive-wrapper .resbs-view-btn.active {
+    background: #007bff !important;
+    color: white !important;
+    text-decoration: none !important;
 }
 
-.resbs-sort-controls label {
-    font-weight: 500;
-    color: #495057;
+.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-sort-controls,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-sort-controls,
+body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-sort-controls,
+body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-sort-controls,
+body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-sort-controls,
+body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-sort-controls,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-sort-controls,
+.resbs-archive-wrapper .resbs-sort-controls {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    box-sizing: border-box !important;
 }
 
-.resbs-sort-select {
-    padding: 8px 12px;
-    border: 1px solid #ced4da;
-    border-radius: 6px;
-    background: white;
-    font-size: 14px;
-    min-width: 150px;
+.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-sort-controls label,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-sort-controls label,
+body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-sort-controls label,
+body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-sort-controls label,
+body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-sort-controls label,
+body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-sort-controls label,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-sort-controls label,
+.resbs-archive-wrapper .resbs-sort-controls label {
+    font-weight: 500 !important;
+    color: #495057 !important;
+    box-sizing: border-box !important;
 }
 
-/* Archive Filters */
-.resbs-archive-filters {
-    background: white;
-    padding: 25px;
-    border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    margin-bottom: 30px;
+.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-sort-select,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-sort-select,
+body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-sort-select,
+body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-sort-select,
+body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-sort-select,
+body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-sort-select,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-sort-select,
+.resbs-archive-wrapper .resbs-sort-select {
+    padding: 8px 12px !important;
+    border: 1px solid #ced4da !important;
+    border-radius: 6px !important;
+    background: white !important;
+    font-size: 14px !important;
+    min-width: 150px !important;
+    box-sizing: border-box !important;
 }
 
-.resbs-filter-form {
-    width: 100%;
+/* Archive Filters - NESTED WITH PREFIXES */
+.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-filters,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-filters,
+body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-filters,
+body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-filters,
+body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-filters,
+body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-filters,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-filters,
+.resbs-archive-wrapper .resbs-archive-filters {
+    background: white !important;
+    padding: 25px !important;
+    border-radius: 12px !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1) !important;
+    margin-bottom: 30px !important;
+    box-sizing: border-box !important;
+    position: relative !important;
+    width: 100% !important;
 }
 
-.resbs-filter-row {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-    align-items: end;
+.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-form,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-form,
+body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-form,
+body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-form,
+body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-form,
+body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-form,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-form,
+.resbs-archive-wrapper .resbs-filter-form {
+    width: 100% !important;
+    box-sizing: border-box !important;
 }
 
-.resbs-filter-group {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-row,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-row,
+body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-row,
+body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-row,
+body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-row,
+body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-row,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-row,
+.resbs-archive-wrapper .resbs-filter-row {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) !important;
+    gap: 20px !important;
+    align-items: end !important;
+    box-sizing: border-box !important;
 }
 
-.resbs-filter-group label {
-    font-weight: 500;
-    color: #495057;
-    font-size: 14px;
+.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group,
+body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group,
+body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group,
+body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group,
+body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group,
+.resbs-archive-wrapper .resbs-filter-group {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    box-sizing: border-box !important;
 }
 
-.resbs-filter-group input,
-.resbs-filter-group select {
-    padding: 10px 12px;
-    border: 1px solid #ced4da;
-    border-radius: 6px;
-    font-size: 14px;
-    transition: border-color 0.3s ease;
+.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group label,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group label,
+body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group label,
+body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group label,
+body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group label,
+body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group label,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group label,
+.resbs-archive-wrapper .resbs-filter-group label {
+    font-weight: 500 !important;
+    color: #495057 !important;
+    font-size: 14px !important;
+    box-sizing: border-box !important;
 }
 
-.resbs-filter-group input:focus,
-.resbs-filter-group select:focus {
-    outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group input,
+.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group select,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group input,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group select,
+body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group input,
+body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group select,
+body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group input,
+body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group select,
+body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group input,
+body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group select,
+body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group input,
+body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group select,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group input,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group select,
+.resbs-archive-wrapper .resbs-filter-group input,
+.resbs-archive-wrapper .resbs-filter-group select {
+    padding: 10px 12px !important;
+    border: 1px solid #ced4da !important;
+    border-radius: 6px !important;
+    font-size: 14px !important;
+    transition: border-color 0.3s ease !important;
+    box-sizing: border-box !important;
+}
+
+.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group input:focus,
+.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group select:focus,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group input:focus,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group select:focus,
+body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group input:focus,
+body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group select:focus,
+body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group input:focus,
+body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group select:focus,
+body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group input:focus,
+body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group select:focus,
+body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group input:focus,
+body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group select:focus,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group input:focus,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group select:focus,
+.resbs-archive-wrapper .resbs-filter-group input:focus,
+.resbs-archive-wrapper .resbs-filter-group select:focus {
+    outline: none !important;
+    border-color: #007bff !important;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25) !important;
 }
 
 .resbs-price-range {
@@ -740,4 +949,65 @@
         width: 100%;
         justify-content: center;
     }
+}
+
+/* ============================================================================
+   FINAL ISOLATION RULE - PREVENTS ANY CSS FROM LEAKING TO THEME
+   This ensures ALL remaining CSS rules are scoped to plugin wrapper only
+   ============================================================================ */
+/* Force all remaining .resbs-* classes to be scoped within plugin wrapper */
+.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-content,
+.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-results-info,
+.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-results-count,
+.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-pagination-info,
+.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-property-grid,
+.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-property-card,
+.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-property-image,
+.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-property-content,
+.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-property-header,
+.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-property-title,
+.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-property-location,
+.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-property-price,
+.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-property-details,
+.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-property-detail,
+.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-property-type,
+.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-property-actions,
+.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-view-details-btn,
+.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-contact-agent-btn,
+.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-property-meta,
+.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-property-excerpt,
+.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-property-features,
+.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-feature-tag,
+.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-no-properties,
+.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-no-properties-content,
+.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-pagination-wrapper,
+.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-map-container,
+.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-property-map,
+.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-loading-overlay,
+.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-loading-spinner,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-content,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-results-info,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-property-grid,
+body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-property-card,
+body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-content,
+body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-property-grid,
+body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-property-card,
+body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-content,
+body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-property-grid,
+body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-property-card,
+body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-content,
+body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-property-grid,
+body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-property-card,
+body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-content,
+body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-property-grid,
+body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-property-card,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-content,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-property-grid,
+body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-property-card,
+.resbs-archive-wrapper .resbs-archive-content,
+.resbs-archive-wrapper .resbs-property-grid,
+.resbs-archive-wrapper .resbs-property-card {
+    box-sizing: border-box !important;
+    position: relative !important;
+    /* All other properties should be scoped with full prefixes above */
 }
