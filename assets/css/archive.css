@@ -13,7 +13,6 @@
 /* ============================================================================
    ARCHIVE WRAPPER - PROPERLY SCOPED WITH PREFIXES AND !important
    ============================================================================ */
-/* Archive Wrapper - NESTED WITH PREFIXES */
 .rbs-archive.resbs-archive-wrapper#resbs-property-archive,
 body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive,
 body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive,
@@ -32,982 +31,767 @@ body .rbs-archive.resbs-archive-wrapper#resbs-property-archive,
     margin: 0 !important;
     isolation: isolate !important;
     contain: layout style paint !important;
-}
-
-/* Scoped container to prevent conflicts with theme - NESTED WITH PREFIXES */
-.rbs-archive.resbs-archive-wrapper#resbs-property-archive .container,
-body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container,
-body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container,
-body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container,
-body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container,
-body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container,
-body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .container,
-.resbs-archive-wrapper .container {
-    max-width: 1200px !important;
-    margin: 0 auto !important;
-    padding: 0 15px !important;
-    box-sizing: border-box !important;
-    width: 100% !important;
-    position: relative !important;
-}
-
-/* Archive Header - NESTED WITH PREFIXES */
-.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-header,
-body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-header,
-body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-header,
-body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-header,
-body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-header,
-body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-header,
-body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-header,
-.resbs-archive-wrapper .resbs-archive-header {
-    background: white !important;
-    padding: 30px !important;
-    border-radius: 12px !important;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1) !important;
-    margin-bottom: 30px !important;
-    display: flex !important;
-    justify-content: space-between !important;
-    align-items: flex-start !important;
-    flex-wrap: wrap !important;
-    gap: 20px !important;
-    box-sizing: border-box !important;
-    position: relative !important;
-    width: 100% !important;
-}
-
-.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-title h1,
-body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-title h1,
-body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-title h1,
-body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-title h1,
-body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-title h1,
-body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-title h1,
-body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-title h1,
-.resbs-archive-wrapper .resbs-archive-title h1 {
-    font-size: 2.5rem !important;
-    font-weight: 700 !important;
-    color: #2c3e50 !important;
-    margin: 0 0 10px 0 !important;
-    box-sizing: border-box !important;
-}
-
-.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-description,
-body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-description,
-body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-description,
-body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-description,
-body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-description,
-body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-description,
-body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-description,
-.resbs-archive-wrapper .resbs-archive-description {
-    color: #6c757d !important;
-    font-size: 1.1rem !important;
-    margin: 0 !important;
-    box-sizing: border-box !important;
-}
-
-/* ============================================================================
-   CRITICAL: SCOPE ALL ARCHIVE CSS TO PLUGIN WRAPPER ONLY
-   This ensures NO CSS can leak out and affect theme header/footer
-   ============================================================================ */
-/* Force all archive CSS to be scoped - prevents any leakage */
-.rbs-archive.resbs-archive-wrapper#resbs-property-archive *,
-body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive *,
-body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive *,
-body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive *,
-body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive *,
-body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive *,
-body .rbs-archive.resbs-archive-wrapper#resbs-property-archive *,
-.resbs-archive-wrapper * {
-    box-sizing: border-box !important;
-}
-
-/* Archive Controls - NESTED WITH PREFIXES */
-.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-controls,
-body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-controls,
-body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-controls,
-body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-controls,
-body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-controls,
-body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-controls,
-body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-controls,
-.resbs-archive-wrapper .resbs-archive-controls {
-    display: flex !important;
-    align-items: center !important;
-    gap: 20px !important;
-    flex-wrap: wrap !important;
-    box-sizing: border-box !important;
-    position: relative !important;
-}
-
-.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-view-toggle,
-body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-view-toggle,
-body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-view-toggle,
-body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-view-toggle,
-body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-view-toggle,
-body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-view-toggle,
-body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-view-toggle,
-.resbs-archive-wrapper .resbs-view-toggle {
-    display: flex !important;
-    background: #f8f9fa !important;
-    border-radius: 8px !important;
-    padding: 4px !important;
-    box-sizing: border-box !important;
-}
-
-.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-view-btn,
-body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-view-btn,
-body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-view-btn,
-body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-view-btn,
-body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-view-btn,
-body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-view-btn,
-body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-view-btn,
-.resbs-archive-wrapper .resbs-view-btn {
-    padding: 10px 16px !important;
-    border: none !important;
-    background: transparent !important;
-    color: #6c757d !important;
-    text-decoration: none !important;
-    border-radius: 6px !important;
-    transition: all 0.3s ease !important;
-    display: flex !important;
-    align-items: center !important;
-    gap: 8px !important;
-    font-weight: 500 !important;
-    box-sizing: border-box !important;
-    cursor: pointer !important;
-}
-
-.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-view-btn:hover,
-.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-view-btn.active,
-body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-view-btn:hover,
-body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-view-btn.active,
-body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-view-btn:hover,
-body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-view-btn.active,
-body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-view-btn:hover,
-body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-view-btn.active,
-body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-view-btn:hover,
-body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-view-btn.active,
-body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-view-btn:hover,
-body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-view-btn.active,
-body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-view-btn:hover,
-body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-view-btn.active,
-.resbs-archive-wrapper .resbs-view-btn:hover,
-.resbs-archive-wrapper .resbs-view-btn.active {
-    background: #007bff !important;
-    color: white !important;
-    text-decoration: none !important;
-}
-
-.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-sort-controls,
-body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-sort-controls,
-body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-sort-controls,
-body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-sort-controls,
-body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-sort-controls,
-body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-sort-controls,
-body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-sort-controls,
-.resbs-archive-wrapper .resbs-sort-controls {
-    display: flex !important;
-    align-items: center !important;
-    gap: 10px !important;
-    box-sizing: border-box !important;
-}
-
-.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-sort-controls label,
-body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-sort-controls label,
-body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-sort-controls label,
-body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-sort-controls label,
-body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-sort-controls label,
-body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-sort-controls label,
-body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-sort-controls label,
-.resbs-archive-wrapper .resbs-sort-controls label {
-    font-weight: 500 !important;
-    color: #495057 !important;
-    box-sizing: border-box !important;
-}
-
-.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-sort-select,
-body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-sort-select,
-body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-sort-select,
-body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-sort-select,
-body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-sort-select,
-body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-sort-select,
-body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-sort-select,
-.resbs-archive-wrapper .resbs-sort-select {
-    padding: 8px 12px !important;
-    border: 1px solid #ced4da !important;
-    border-radius: 6px !important;
-    background: white !important;
-    font-size: 14px !important;
-    min-width: 150px !important;
-    box-sizing: border-box !important;
-}
-
-/* Archive Filters - NESTED WITH PREFIXES */
-.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-filters,
-body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-filters,
-body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-filters,
-body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-filters,
-body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-filters,
-body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-filters,
-body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-filters,
-.resbs-archive-wrapper .resbs-archive-filters {
-    background: white !important;
-    padding: 25px !important;
-    border-radius: 12px !important;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1) !important;
-    margin-bottom: 30px !important;
-    box-sizing: border-box !important;
-    position: relative !important;
-    width: 100% !important;
-}
-
-.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-form,
-body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-form,
-body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-form,
-body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-form,
-body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-form,
-body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-form,
-body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-form,
-.resbs-archive-wrapper .resbs-filter-form {
-    width: 100% !important;
-    box-sizing: border-box !important;
-}
-
-.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-row,
-body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-row,
-body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-row,
-body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-row,
-body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-row,
-body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-row,
-body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-row,
-.resbs-archive-wrapper .resbs-filter-row {
-    display: grid !important;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) !important;
-    gap: 20px !important;
-    align-items: end !important;
-    box-sizing: border-box !important;
-}
-
-.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group,
-body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group,
-body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group,
-body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group,
-body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group,
-body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group,
-body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group,
-.resbs-archive-wrapper .resbs-filter-group {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 8px !important;
-    box-sizing: border-box !important;
-}
-
-.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group label,
-body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group label,
-body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group label,
-body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group label,
-body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group label,
-body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group label,
-body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group label,
-.resbs-archive-wrapper .resbs-filter-group label {
-    font-weight: 500 !important;
-    color: #495057 !important;
-    font-size: 14px !important;
-    box-sizing: border-box !important;
-}
-
-.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group input,
-.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group select,
-body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group input,
-body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group select,
-body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group input,
-body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group select,
-body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group input,
-body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group select,
-body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group input,
-body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group select,
-body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group input,
-body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group select,
-body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group input,
-body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group select,
-.resbs-archive-wrapper .resbs-filter-group input,
-.resbs-archive-wrapper .resbs-filter-group select {
-    padding: 10px 12px !important;
-    border: 1px solid #ced4da !important;
-    border-radius: 6px !important;
-    font-size: 14px !important;
-    transition: border-color 0.3s ease !important;
-    box-sizing: border-box !important;
-}
-
-.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group input:focus,
-.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group select:focus,
-body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group input:focus,
-body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group select:focus,
-body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group input:focus,
-body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group select:focus,
-body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group input:focus,
-body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group select:focus,
-body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group input:focus,
-body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group select:focus,
-body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group input:focus,
-body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group select:focus,
-body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group input:focus,
-body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-filter-group select:focus,
-.resbs-archive-wrapper .resbs-filter-group input:focus,
-.resbs-archive-wrapper .resbs-filter-group select:focus {
-    outline: none !important;
-    border-color: #007bff !important;
-    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25) !important;
-}
-
-.resbs-price-range {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.resbs-price-range input {
-    flex: 1;
-}
-
-.resbs-range-separator {
-    color: #6c757d;
-    font-weight: 500;
-}
-
-.resbs-filter-actions {
-    display: flex;
-    gap: 10px;
-    align-items: end;
-}
-
-.resbs-filter-btn {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 6px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.resbs-btn-primary {
-    background: #007bff;
-    color: white;
-}
-
-.resbs-btn-primary:hover {
-    background: #0056b3;
-}
-
-.resbs-btn-secondary {
-    background: #6c757d;
-    color: white;
-}
-
-.resbs-btn-secondary:hover {
-    background: #545b62;
-}
-
-/* Archive Content */
-.resbs-archive-content {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-}
-
-/* Results Info */
-.resbs-results-info {
-    padding: 20px 25px;
-    border-bottom: 1px solid #e9ecef;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 10px;
-}
-
-.resbs-results-count {
-    font-weight: 600;
-    color: #495057;
-    font-size: 16px;
-    
-}
-
-.resbs-pagination-info {
-    color: #6c757d;
-    font-size: 14px;
-}
-
-/* Property Grid */
-.resbs-property-grid {
-    padding: 25px;
-    display: grid;
-    gap: 25px;
-}
-
-.resbs-layout-grid .resbs-property-grid {
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-}
-
-.resbs-layout-list .resbs-property-grid {
-    grid-template-columns: 1fr;
-}
-
-.resbs-layout-map .resbs-property-grid {
-    grid-template-columns: 1fr;
-}
-
-/* Property Card */
-.resbs-property-card {
-    background: white;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-    position: relative;
-}
-
-.resbs-property-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-}
-
-/* List Layout Specific */
-.resbs-layout-list .resbs-property-card {
-    display: flex;
-    height: 200px;
-}
-
-.resbs-layout-list .resbs-property-image {
-    width: 300px;
-    height: 200px;
-    flex-shrink: 0;
-}
-
-.resbs-layout-list .resbs-property-content {
-    flex: 1;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-}
-
-/* Property Image */
-.resbs-property-image {
-    position: relative;
-    height: 200px;
-    overflow: hidden;
-}
-
-.resbs-property-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.3s ease;
-}
-
-.resbs-property-card:hover .resbs-property-image img {
-    transform: scale(1.05);
-}
-
-.resbs-no-image {
-    width: 100%;
-    height: 100%;
-    background: #f8f9fa;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    color: #6c757d;
-    font-size: 14px;
-}
-
-.resbs-no-image i {
-    font-size: 2rem;
-    margin-bottom: 8px;
-}
-
-/* Property Badges */
-.resbs-property-badges {
-    position: absolute;
-    top: 15px;
-    left: 15px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    z-index: 2;
-}
-
-.resbs-featured-badge {
-    background: #ff6b35;
-    color: white;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-    text-transform: uppercase;
-}
-
-.resbs-status-badge {
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-    text-transform: uppercase;
-}
-
-.resbs-status-sale {
-    background: #28a745;
-    color: white;
-}
-
-.resbs-status-rent {
-    background: #007bff;
-    color: white;
-}
-
-.resbs-status-sold {
-    background: #6c757d;
-    color: white;
-}
-
-.resbs-status-rented {
-    background: #ffc107;
-    color: #212529;
-}
-
-/* Property Buttons */
-.resbs-favorite-btn,
-.resbs-quick-view-btn {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    width: 40px;
-    height: 40px;
-    min-width: 40px;
-    min-height: 40px;
-    max-width: 40px;
-    max-height: 40px;
-    padding: 0;
-    background: white;
-    border: none !important;
-    border-radius: 50% !important;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-    z-index: 2;
-    outline: none;
-}
-
-.resbs-quick-view-btn {
-    top: 65px;
-}
-
-.resbs-favorite-btn:hover,
-.resbs-quick-view-btn:hover {
-    background: #007bff;
-    color: white;
-    transform: scale(1.1);
-    border-radius: 50% !important;
-}
-
-.resbs-favorite-btn.favorited {
-    background: #dc3545;
-    color: white;
-    border-radius: 50% !important;
-}
-
-.resbs-favorite-btn i,
-.resbs-quick-view-btn i {
-    font-size: 16px;
-    line-height: 1;
-}
-
-/* Property Content */
-.resbs-property-content {
-    padding: 20px;
-}
-
-.resbs-property-header {
-    margin-bottom: 15px;
-}
-
-.resbs-property-title {
-    margin: 0 0 8px 0;
-    font-size: 1.25rem;
-    font-weight: 600;
-    line-height: 1.3;
-}
-
-.resbs-property-title a {
-    color: #2c3e50;
-    text-decoration: none;
-    transition: color 0.3s ease;
-}
-
-.resbs-property-title a:hover {
-    color: #007bff;
-}
-
-.resbs-property-location {
-    color: #6c757d;
-    font-size: 14px;
-    margin: 0;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
-.resbs-property-price {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #28a745;
-    margin-bottom: 15px;
-}
-
-/* Property Details */
-.resbs-property-details {
-    display: flex;
-    gap: 15px;
-    margin-bottom: 15px;
-    flex-wrap: wrap;
-}
-
-.resbs-property-detail {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    color: #6c757d;
-    font-size: 14px;
-}
-
-.resbs-property-detail i {
-    color: #007bff;
-}
-
-/* Property Type */
-.resbs-property-type {
-    margin-bottom: 15px;
-}
-
-.resbs-type-badge {
-    background: #e9ecef;
-    color: #495057;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 500;
-    text-transform: uppercase;
-}
-
-/* Property Actions */
-.resbs-property-actions {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-}
-
-.resbs-view-details-btn {
-    flex: 1;
-    background: #007bff;
-    color: white;
-    padding: 10px 15px;
-    border-radius: 6px;
-    text-decoration: none;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.resbs-view-details-btn:hover {
-    background: #0056b3;
-    color: white;
-    text-decoration: none;
-}
-
-.resbs-contact-agent-btn {
-    background: #28a745;
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 6px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
-.resbs-contact-agent-btn:hover {
-    background: #1e7e34;
-}
-
-/* Property Meta (List View) */
-.resbs-property-meta {
-    margin-top: 15px;
-    padding-top: 15px;
-    border-top: 1px solid #e9ecef;
-}
-
-.resbs-property-excerpt {
-    color: #6c757d;
-    font-size: 14px;
-    line-height: 1.5;
-    margin-bottom: 10px;
-}
-
-.resbs-property-features {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-}
-
-.resbs-feature-tag {
-    background: #f8f9fa;
-    color: #495057;
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-size: 12px;
-    font-weight: 500;
-}
-
-/* No Properties */
-.resbs-no-properties {
-    padding: 60px 20px;
-    text-align: center;
-}
-
-.resbs-no-properties-content i {
-    font-size: 4rem;
-    color: #6c757d;
-    margin-bottom: 20px;
-}
-
-.resbs-no-properties-content h3 {
-    font-size: 1.5rem;
-    color: #495057;
-    margin-bottom: 10px;
-}
-
-.resbs-no-properties-content p {
-    color: #6c757d;
-    margin-bottom: 20px;
-}
-
-/* Pagination */
-.resbs-pagination-wrapper {
-    padding: 25px;
-    border-top: 1px solid #e9ecef;
-    display: flex;
-    justify-content: center;
-}
-
-.resbs-pagination-wrapper .page-numbers {
-    display: flex;
-    gap: 5px;
-    align-items: center;
-}
-
-.resbs-pagination-wrapper .page-numbers a,
-.resbs-pagination-wrapper .page-numbers span {
-    padding: 8px 12px;
-    border: 1px solid #ced4da;
-    border-radius: 6px;
-    text-decoration: none;
-    color: #495057;
-    transition: all 0.3s ease;
-}
-
-.resbs-pagination-wrapper .page-numbers a:hover,
-.resbs-pagination-wrapper .page-numbers .current {
-    background: #007bff;
-    color: white;
-    border-color: #007bff;
-}
-
-/* Map Container */
-.resbs-map-container {
-    height: 500px;
-    border-radius: 12px;
-    overflow: hidden;
-    margin-top: 30px;
-}
-
-.resbs-property-map {
-    width: 100%;
-    height: 100%;
-    background: #f8f9fa;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #6c757d;
-    font-size: 18px;
-}
-
-/* Loading Overlay */
-.resbs-loading-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-}
-
-.resbs-loading-spinner {
-    background: white;
-    padding: 30px;
-    border-radius: 12px;
-    text-align: center;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-}
-
-.resbs-loading-spinner i {
-    font-size: 2rem;
-    color: #007bff;
-    margin-bottom: 15px;
-}
-
-.resbs-loading-spinner p {
-    margin: 0;
-    color: #495057;
-    font-weight: 500;
+
+    /* Force all archive CSS to be scoped - prevents any leakage */
+    & * {
+        box-sizing: border-box !important;
+    }
+
+    /* Scoped container to prevent conflicts with theme */
+    & .container {
+        max-width: 1200px !important;
+        margin: 0 auto !important;
+        padding: 0 15px !important;
+        box-sizing: border-box !important;
+        width: 100% !important;
+        position: relative !important;
+    }
+
+    /* Archive Header */
+    & .resbs-archive-header {
+        background: white !important;
+        padding: 30px !important;
+        border-radius: 12px !important;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1) !important;
+        margin-bottom: 30px !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: flex-start !important;
+        flex-wrap: wrap !important;
+        gap: 20px !important;
+        box-sizing: border-box !important;
+        position: relative !important;
+        width: 100% !important;
+    }
+
+    & .resbs-archive-title {
+        & h1 {
+            font-size: 2.5rem !important;
+            font-weight: 700 !important;
+            color: #2c3e50 !important;
+            margin: 0 0 10px 0 !important;
+            box-sizing: border-box !important;
+        }
+    }
+
+    & .resbs-archive-description {
+        color: #6c757d !important;
+        font-size: 1.1rem !important;
+        margin: 0 !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Archive Controls */
+    & .resbs-archive-controls {
+        display: flex !important;
+        align-items: center !important;
+        gap: 20px !important;
+        flex-wrap: wrap !important;
+        box-sizing: border-box !important;
+        position: relative !important;
+    }
+
+    & .resbs-view-toggle {
+        display: flex !important;
+        background: #f8f9fa !important;
+        border-radius: 8px !important;
+        padding: 4px !important;
+        box-sizing: border-box !important;
+    }
+
+    & .resbs-view-btn {
+        padding: 10px 16px !important;
+        border: none !important;
+        background: transparent !important;
+        color: #6c757d !important;
+        text-decoration: none !important;
+        border-radius: 6px !important;
+        transition: all 0.3s ease !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+        font-weight: 500 !important;
+        box-sizing: border-box !important;
+        cursor: pointer !important;
+
+        &:hover,
+        &.active {
+            background: #007bff !important;
+            color: white !important;
+            text-decoration: none !important;
+        }
+    }
+
+    & .resbs-sort-controls {
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+        box-sizing: border-box !important;
+
+        & label {
+            font-weight: 500 !important;
+            color: #495057 !important;
+            box-sizing: border-box !important;
+        }
+    }
+
+    & .resbs-sort-select {
+        padding: 8px 12px !important;
+        border: 1px solid #ced4da !important;
+        border-radius: 6px !important;
+        background: white !important;
+        font-size: 14px !important;
+        min-width: 150px !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Archive Filters */
+    & .resbs-archive-filters {
+        background: white !important;
+        padding: 25px !important;
+        border-radius: 12px !important;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1) !important;
+        margin-bottom: 30px !important;
+        box-sizing: border-box !important;
+        position: relative !important;
+        width: 100% !important;
+    }
+
+    & .resbs-filter-form {
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    & .resbs-filter-row {
+        display: grid !important;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) !important;
+        gap: 20px !important;
+        align-items: end !important;
+        box-sizing: border-box !important;
+    }
+
+    & .resbs-filter-group {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 8px !important;
+        box-sizing: border-box !important;
+
+        & label {
+            font-weight: 500 !important;
+            color: #495057 !important;
+            font-size: 14px !important;
+            box-sizing: border-box !important;
+        }
+
+        & input,
+        & select {
+            padding: 10px 12px !important;
+            border: 1px solid #ced4da !important;
+            border-radius: 6px !important;
+            font-size: 14px !important;
+            transition: border-color 0.3s ease !important;
+            box-sizing: border-box !important;
+
+            &:focus {
+                outline: none !important;
+                border-color: #007bff !important;
+                box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25) !important;
+            }
+        }
+    }
+
+    & .resbs-price-range {
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+
+        & input {
+            flex: 1 !important;
+        }
+    }
+
+    & .resbs-range-separator {
+        color: #6c757d !important;
+        font-weight: 500 !important;
+    }
+
+    & .resbs-filter-actions {
+        display: flex !important;
+        gap: 10px !important;
+        align-items: end !important;
+    }
+
+    & .resbs-filter-btn {
+        padding: 10px 20px !important;
+        border: none !important;
+        border-radius: 6px !important;
+        font-weight: 500 !important;
+        cursor: pointer !important;
+        transition: all 0.3s ease !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+    }
+
+    & .resbs-btn-primary {
+        background: #007bff !important;
+        color: white !important;
+
+        &:hover {
+            background: #0056b3 !important;
+        }
+    }
+
+    & .resbs-btn-secondary {
+        background: #6c757d !important;
+        color: white !important;
+
+        &:hover {
+            background: #545b62 !important;
+        }
+    }
+
+    /* Archive Content */
+    & .resbs-archive-content {
+        background: white !important;
+        border-radius: 12px !important;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1) !important;
+        overflow: hidden !important;
+    }
+
+    /* Results Info */
+    & .resbs-results-info {
+        padding: 20px 25px !important;
+        border-bottom: 1px solid #e9ecef !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        flex-wrap: wrap !important;
+        gap: 10px !important;
+    }
+
+    & .resbs-results-count {
+        font-weight: 600 !important;
+        color: #495057 !important;
+        font-size: 16px !important;
+    }
+
+    & .resbs-pagination-info {
+        color: #6c757d !important;
+        font-size: 14px !important;
+    }
+
+    /* Property Grid */
+    & .resbs-property-grid {
+        padding: 25px !important;
+        display: grid !important;
+        gap: 25px !important;
+    }
+
+    & .resbs-layout-grid .resbs-property-grid {
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)) !important;
+    }
+
+    & .resbs-layout-list .resbs-property-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    & .resbs-layout-map .resbs-property-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Property Card */
+    & .resbs-property-card {
+        background: white !important;
+        border-radius: 12px !important;
+        overflow: hidden !important;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+        transition: all 0.3s ease !important;
+        position: relative !important;
+
+        &:hover {
+            transform: translateY(-5px) !important;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+
+            & .resbs-property-image img {
+                transform: scale(1.05) !important;
+            }
+        }
+    }
+
+    /* List Layout Specific */
+    & .resbs-layout-list .resbs-property-card {
+        display: flex !important;
+        height: 200px !important;
+    }
+
+    & .resbs-layout-list .resbs-property-image {
+        width: 300px !important;
+        height: 200px !important;
+        flex-shrink: 0 !important;
+    }
+
+    & .resbs-layout-list .resbs-property-content {
+        flex: 1 !important;
+        padding: 20px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
+    }
+
+    /* Property Image */
+    & .resbs-property-image {
+        position: relative !important;
+        height: 200px !important;
+        overflow: hidden !important;
+
+        & img {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+            transition: transform 0.3s ease !important;
+        }
+    }
+
+    & .resbs-no-image {
+        width: 100% !important;
+        height: 100% !important;
+        background: #f8f9fa !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        color: #6c757d !important;
+        font-size: 14px !important;
+
+        & i {
+            font-size: 2rem !important;
+            margin-bottom: 8px !important;
+        }
+    }
+
+    /* Property Badges */
+    & .resbs-property-badges {
+        position: absolute !important;
+        top: 15px !important;
+        left: 15px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 8px !important;
+        z-index: 2 !important;
+    }
+
+    & .resbs-featured-badge {
+        background: #ff6b35 !important;
+        color: white !important;
+        padding: 4px 12px !important;
+        border-radius: 20px !important;
+        font-size: 12px !important;
+        font-weight: 600 !important;
+        text-transform: uppercase !important;
+    }
+
+    & .resbs-status-badge {
+        padding: 4px 12px !important;
+        border-radius: 20px !important;
+        font-size: 12px !important;
+        font-weight: 600 !important;
+        text-transform: uppercase !important;
+    }
+
+    & .resbs-status-sale {
+        background: #28a745 !important;
+        color: white !important;
+    }
+
+    & .resbs-status-rent {
+        background: #007bff !important;
+        color: white !important;
+    }
+
+    & .resbs-status-sold {
+        background: #6c757d !important;
+        color: white !important;
+    }
+
+    & .resbs-status-rented {
+        background: #ffc107 !important;
+        color: #212529 !important;
+    }
+
+    /* Property Buttons */
+    & .resbs-favorite-btn,
+    & .resbs-quick-view-btn {
+        position: absolute !important;
+        top: 15px !important;
+        right: 15px !important;
+        width: 40px !important;
+        height: 40px !important;
+        min-width: 40px !important;
+        min-height: 40px !important;
+        max-width: 40px !important;
+        max-height: 40px !important;
+        padding: 0 !important;
+        background: white !important;
+        border: none !important;
+        border-radius: 50% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        cursor: pointer !important;
+        transition: all 0.3s ease !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+        z-index: 2 !important;
+        outline: none !important;
+
+        &:hover {
+            background: #007bff !important;
+            color: white !important;
+            transform: scale(1.1) !important;
+            border-radius: 50% !important;
+        }
+
+        & i {
+            font-size: 16px !important;
+            line-height: 1 !important;
+        }
+    }
+
+    & .resbs-quick-view-btn {
+        top: 65px !important;
+    }
+
+    & .resbs-favorite-btn.favorited {
+        background: #dc3545 !important;
+        color: white !important;
+        border-radius: 50% !important;
+    }
+
+    /* Property Content */
+    & .resbs-property-content {
+        padding: 20px !important;
+    }
+
+    & .resbs-property-header {
+        margin-bottom: 15px !important;
+    }
+
+    & .resbs-property-title {
+        margin: 0 0 8px 0 !important;
+        font-size: 1.25rem !important;
+        font-weight: 600 !important;
+        line-height: 1.3 !important;
+
+        & a {
+            color: #2c3e50 !important;
+            text-decoration: none !important;
+            transition: color 0.3s ease !important;
+
+            &:hover {
+                color: #007bff !important;
+            }
+        }
+    }
+
+    & .resbs-property-location {
+        color: #6c757d !important;
+        font-size: 14px !important;
+        margin: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 5px !important;
+    }
+
+    & .resbs-property-price {
+        font-size: 1.5rem !important;
+        font-weight: 700 !important;
+        color: #28a745 !important;
+        margin-bottom: 15px !important;
+    }
+
+    /* Property Details */
+    & .resbs-property-details {
+        display: flex !important;
+        gap: 15px !important;
+        margin-bottom: 15px !important;
+        flex-wrap: wrap !important;
+    }
+
+    & .resbs-property-detail {
+        display: flex !important;
+        align-items: center !important;
+        gap: 5px !important;
+        color: #6c757d !important;
+        font-size: 14px !important;
+
+        & i {
+            color: #007bff !important;
+        }
+    }
+
+    /* Property Type */
+    & .resbs-property-type {
+        margin-bottom: 15px !important;
+    }
+
+    & .resbs-type-badge {
+        background: #e9ecef !important;
+        color: #495057 !important;
+        padding: 4px 12px !important;
+        border-radius: 20px !important;
+        font-size: 12px !important;
+        font-weight: 500 !important;
+        text-transform: uppercase !important;
+    }
+
+    /* Property Actions */
+    & .resbs-property-actions {
+        display: flex !important;
+        gap: 10px !important;
+        align-items: center !important;
+    }
+
+    & .resbs-view-details-btn {
+        flex: 1 !important;
+        background: #007bff !important;
+        color: white !important;
+        padding: 10px 15px !important;
+        border-radius: 6px !important;
+        text-decoration: none !important;
+        font-weight: 500 !important;
+        transition: all 0.3s ease !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+
+        &:hover {
+            background: #0056b3 !important;
+            color: white !important;
+            text-decoration: none !important;
+        }
+    }
+
+    & .resbs-contact-agent-btn {
+        background: #28a745 !important;
+        color: white !important;
+        border: none !important;
+        padding: 10px 15px !important;
+        border-radius: 6px !important;
+        font-weight: 500 !important;
+        cursor: pointer !important;
+        transition: all 0.3s ease !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 5px !important;
+
+        &:hover {
+            background: #1e7e34 !important;
+        }
+    }
+
+    /* Property Meta (List View) */
+    & .resbs-property-meta {
+        margin-top: 15px !important;
+        padding-top: 15px !important;
+        border-top: 1px solid #e9ecef !important;
+    }
+
+    & .resbs-property-excerpt {
+        color: #6c757d !important;
+        font-size: 14px !important;
+        line-height: 1.5 !important;
+        margin-bottom: 10px !important;
+    }
+
+    & .resbs-property-features {
+        display: flex !important;
+        gap: 8px !important;
+        flex-wrap: wrap !important;
+    }
+
+    & .resbs-feature-tag {
+        background: #f8f9fa !important;
+        color: #495057 !important;
+        padding: 4px 8px !important;
+        border-radius: 12px !important;
+        font-size: 12px !important;
+        font-weight: 500 !important;
+    }
+
+    /* No Properties */
+    & .resbs-no-properties {
+        padding: 60px 20px !important;
+        text-align: center !important;
+    }
+
+    & .resbs-no-properties-content {
+        & i {
+            font-size: 4rem !important;
+            color: #6c757d !important;
+            margin-bottom: 20px !important;
+        }
+
+        & h3 {
+            font-size: 1.5rem !important;
+            color: #495057 !important;
+            margin-bottom: 10px !important;
+        }
+
+        & p {
+            color: #6c757d !important;
+            margin-bottom: 20px !important;
+        }
+    }
+
+    /* Pagination */
+    & .resbs-pagination-wrapper {
+        padding: 25px !important;
+        border-top: 1px solid #e9ecef !important;
+        display: flex !important;
+        justify-content: center !important;
+
+        & .page-numbers {
+            display: flex !important;
+            gap: 5px !important;
+            align-items: center !important;
+
+            & a,
+            & span {
+                padding: 8px 12px !important;
+                border: 1px solid #ced4da !important;
+                border-radius: 6px !important;
+                text-decoration: none !important;
+                color: #495057 !important;
+                transition: all 0.3s ease !important;
+            }
+
+            & a:hover,
+            & .current {
+                background: #007bff !important;
+                color: white !important;
+                border-color: #007bff !important;
+            }
+        }
+    }
+
+    /* Map Container */
+    & .resbs-map-container {
+        height: 500px !important;
+        border-radius: 12px !important;
+        overflow: hidden !important;
+        margin-top: 30px !important;
+    }
+
+    & .resbs-property-map {
+        width: 100% !important;
+        height: 100% !important;
+        background: #f8f9fa !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        color: #6c757d !important;
+        font-size: 18px !important;
+    }
+
+    /* Loading Overlay */
+    & .resbs-loading-overlay {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        background: rgba(0, 0, 0, 0.5) !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        z-index: 9999 !important;
+    }
+
+    & .resbs-loading-spinner {
+        background: white !important;
+        padding: 30px !important;
+        border-radius: 12px !important;
+        text-align: center !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+
+        & i {
+            font-size: 2rem !important;
+            color: #007bff !important;
+            margin-bottom: 15px !important;
+        }
+
+        & p {
+            margin: 0 !important;
+            color: #495057 !important;
+            font-weight: 500 !important;
+        }
+    }
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
-    .resbs-archive-header {
-        flex-direction: column;
-        align-items: stretch;
-    }
-    
-    .resbs-archive-controls {
-        justify-content: space-between;
-    }
-    
-    .resbs-filter-row {
-        grid-template-columns: 1fr;
-    }
-    
-    .resbs-property-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .resbs-layout-list .resbs-property-card {
-        flex-direction: column;
-        height: auto;
-    }
-    
-    .resbs-layout-list .resbs-property-image {
-        width: 100%;
-        height: 200px;
-    }
-    
-    .resbs-property-actions {
-        flex-direction: column;
-    }
-    
-    .resbs-results-info {
-        flex-direction: column;
-        align-items: flex-start;
+    .resbs-archive-wrapper {
+        & .resbs-archive-header {
+            flex-direction: column !important;
+            align-items: stretch !important;
+        }
+
+        & .resbs-archive-controls {
+            justify-content: space-between !important;
+        }
+
+        & .resbs-filter-row {
+            grid-template-columns: 1fr !important;
+        }
+
+        & .resbs-property-grid {
+            grid-template-columns: 1fr !important;
+        }
+
+        & .resbs-layout-list .resbs-property-card {
+            flex-direction: column !important;
+            height: auto !important;
+        }
+
+        & .resbs-layout-list .resbs-property-image {
+            width: 100% !important;
+            height: 200px !important;
+        }
+
+        & .resbs-property-actions {
+            flex-direction: column !important;
+        }
+
+        & .resbs-results-info {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+        }
     }
 }
 
 @media (max-width: 480px) {
-    .resbs-archive-title h1 {
-        font-size: 2rem;
-    }
-    
-    .resbs-view-toggle {
-        width: 100%;
-        justify-content: space-between;
-    }
-    
-    .resbs-view-btn {
-        flex: 1;
-        justify-content: center;
-    }
-    
-    .resbs-filter-actions {
-        flex-direction: column;
-    }
-    
-    .resbs-filter-btn {
-        width: 100%;
-        justify-content: center;
-    }
-}
+    .resbs-archive-wrapper {
+        & .resbs-archive-title h1 {
+            font-size: 2rem !important;
+        }
 
-/* ============================================================================
-   FINAL ISOLATION RULE - PREVENTS ANY CSS FROM LEAKING TO THEME
-   This ensures ALL remaining CSS rules are scoped to plugin wrapper only
-   ============================================================================ */
-/* Force all remaining .resbs-* classes to be scoped within plugin wrapper */
-.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-content,
-.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-results-info,
-.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-results-count,
-.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-pagination-info,
-.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-property-grid,
-.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-property-card,
-.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-property-image,
-.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-property-content,
-.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-property-header,
-.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-property-title,
-.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-property-location,
-.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-property-price,
-.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-property-details,
-.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-property-detail,
-.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-property-type,
-.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-property-actions,
-.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-view-details-btn,
-.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-contact-agent-btn,
-.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-property-meta,
-.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-property-excerpt,
-.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-property-features,
-.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-feature-tag,
-.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-no-properties,
-.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-no-properties-content,
-.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-pagination-wrapper,
-.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-map-container,
-.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-property-map,
-.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-loading-overlay,
-.rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-loading-spinner,
-body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-content,
-body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-results-info,
-body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-property-grid,
-body.archive.post-type-archive-property .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-property-card,
-body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-content,
-body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-property-grid,
-body.archive.tax-property_type .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-property-card,
-body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-content,
-body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-property-grid,
-body.archive.tax-property_status .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-property-card,
-body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-content,
-body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-property-grid,
-body.archive.tax-property_location .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-property-card,
-body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-content,
-body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-property-grid,
-body.page .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-property-card,
-body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-archive-content,
-body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-property-grid,
-body .rbs-archive.resbs-archive-wrapper#resbs-property-archive .resbs-property-card,
-.resbs-archive-wrapper .resbs-archive-content,
-.resbs-archive-wrapper .resbs-property-grid,
-.resbs-archive-wrapper .resbs-property-card {
-    box-sizing: border-box !important;
-    position: relative !important;
-    /* All other properties should be scoped with full prefixes above */
+        & .resbs-view-toggle {
+            width: 100% !important;
+            justify-content: space-between !important;
+        }
+
+        & .resbs-view-btn {
+            flex: 1 !important;
+            justify-content: center !important;
+        }
+
+        & .resbs-filter-actions {
+            flex-direction: column !important;
+        }
+
+        & .resbs-filter-btn {
+            width: 100% !important;
+            justify-content: center !important;
+        }
+    }
 }
