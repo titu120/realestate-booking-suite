@@ -194,81 +194,104 @@
     gap: 20px;
 }
 
-/* Dashboard Widget */
-.resbs-dashboard-widget {
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    overflow: hidden;
-    margin: 30px 0;
-    max-width: 1320px;
-    margin-left: auto;
-    margin-right: auto;
+/* Dashboard Widget - Container Width 1536px */
+.resbs-dashboard-widget,
+body .resbs-dashboard-widget,
+body.page .resbs-dashboard-widget,
+body.single .resbs-dashboard-widget,
+body.archive .resbs-dashboard-widget,
+#content .resbs-dashboard-widget,
+.main-content .resbs-dashboard-widget,
+.container .resbs-dashboard-widget,
+.wp-block-group .resbs-dashboard-widget,
+.entry-content .resbs-dashboard-widget,
+.site-content .resbs-dashboard-widget,
+.content-area .resbs-dashboard-widget,
+.wrapper .resbs-dashboard-widget,
+div .resbs-dashboard-widget,
+* .resbs-dashboard-widget {
+    background: #fff !important;
+    border-radius: 12px !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
+    overflow: hidden !important;
+    margin: 30px auto !important;
+    max-width: 1536px !important;
+    width: 100% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+    position: relative !important;
 }
 
 .resbs-dashboard-widget .resbs-widget-title {
-    padding: 25px 30px;
-    margin: 0;
-    background: linear-gradient(135deg, #0073aa 0%, #005a87 100%);
-    color: #fff;
-    font-size: 1.75rem;
-    font-weight: 700;
-    border-bottom: none;
+    padding: 25px 30px !important;
+    margin: 0 !important;
+    background: linear-gradient(135deg, #0073aa 0%, #005a87 100%) !important;
+    color: #fff !important;
+    font-size: 1.75rem !important;
+    font-weight: 700 !important;
+    border-bottom: none !important;
 }
 
 .resbs-dashboard-tabs {
-    display: flex;
-    flex-direction: column;
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
 }
 
 .resbs-tab-nav {
-    display: flex;
-    background: #f8f9fa;
-    border-bottom: 2px solid #e0e0e0;
-    overflow-x: auto;
-    padding: 0;
-    margin: 0;
+    display: flex !important;
+    background: #f8f9fa !important;
+    border-bottom: 2px solid #e0e0e0 !important;
+    overflow-x: auto !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
 }
 
 .resbs-tab-btn {
-    padding: 18px 25px;
-    background: none;
-    border: none;
-    font-size: 15px;
-    font-weight: 600;
-    color: #666;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    white-space: nowrap;
-    border-bottom: 3px solid transparent;
-    position: relative;
-    margin: 0;
+    padding: 18px 25px !important;
+    background: none !important;
+    border: none !important;
+    font-size: 15px !important;
+    font-weight: 600 !important;
+    color: #666 !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    white-space: nowrap !important;
+    border-bottom: 3px solid transparent !important;
+    position: relative !important;
+    margin: 0 !important;
 }
 
 .resbs-tab-btn:hover {
-    color: #0073aa;
-    background: rgba(0, 115, 170, 0.05);
+    color: #0073aa !important;
+    background: rgba(0, 115, 170, 0.05) !important;
 }
 
 .resbs-tab-btn.active {
-    color: #0073aa;
-    background: #fff;
-    border-bottom-color: #0073aa;
+    color: #0073aa !important;
+    background: #fff !important;
+    border-bottom-color: #0073aa !important;
 }
 
 .resbs-tab-content {
-    padding: 30px;
-    min-height: 400px;
-    background: #fff;
+    padding: 30px !important;
+    min-height: 400px !important;
+    background: #fff !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
 }
 
 .resbs-tab-panel {
-    display: none;
-    animation: fadeIn 0.3s ease-in;
+    display: none !important;
+    animation: fadeIn 0.3s ease-in !important;
+    width: 100% !important;
 }
 
 .resbs-tab-panel.active {
-    display: block;
+    display: block !important;
 }
 
 @keyframes fadeIn {
@@ -283,393 +306,451 @@
 }
 
 .resbs-dashboard-section {
-    width: 100%;
-    max-width: 100%;
-    width: 100%;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
 }
 
 .resbs-dashboard-section h4 {
-    margin: 0 0 20px 0;
-    color: #333;
-    font-size: 1.3rem;
-    font-weight: 700;
-    padding-bottom: 10px;
-    border-bottom: 2px solid #f0f0f0;
+    margin: 0 0 20px 0 !important;
+    color: #333 !important;
+    font-size: 1.3rem !important;
+    font-weight: 700 !important;
+    padding-bottom: 10px !important;
+    border-bottom: 2px solid #f0f0f0 !important;
 }
 
 /* Center profile section content */
+.resbs-dashboard-widget #profile .resbs-dashboard-section h4,
+.resbs-dashboard-widget #profile .resbs-dashboard-section .resbs-profile-subtitle,
+.resbs-dashboard-widget .resbs-tab-panel#profile .resbs-dashboard-section h4,
+.resbs-dashboard-widget .resbs-tab-panel#profile .resbs-dashboard-section .resbs-profile-subtitle,
+.resbs-dashboard-widget .resbs-tab-panel#profile h4,
+.resbs-dashboard-widget .resbs-tab-panel#profile .resbs-profile-subtitle,
 #profile .resbs-dashboard-section h4,
 #profile .resbs-dashboard-section .resbs-profile-subtitle,
 .resbs-tab-panel#profile .resbs-dashboard-section h4,
 .resbs-tab-panel#profile .resbs-dashboard-section .resbs-profile-subtitle,
 .resbs-tab-panel#profile h4,
 .resbs-tab-panel#profile .resbs-profile-subtitle {
-    text-align: center;
+    text-align: center !important;
 }
 
+.resbs-dashboard-widget .resbs-profile-subtitle,
 .resbs-profile-subtitle {
-    color: #666;
-    font-size: 14px;
-    margin: -10px 0 20px 0;
-    font-style: italic;
+    color: #666 !important;
+    font-size: 14px !important;
+    margin: -10px 0 20px 0 !important;
+    font-style: italic !important;
 }
 
+.resbs-dashboard-widget .resbs-submit-property-action,
 .resbs-submit-property-action {
-    margin-bottom: 30px;
-    text-align: right;
+    margin-bottom: 30px !important;
+    text-align: right !important;
 }
 
+.resbs-dashboard-widget .resbs-submit-new-btn,
 .resbs-submit-new-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 14px 28px;
-    background: #0073aa;
-    color: #fff;
-    text-decoration: none;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 15px;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(0, 115, 170, 0.25);
-    border: none;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 14px 28px !important;
+    background: #0073aa !important;
+    color: #fff !important;
+    text-decoration: none !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    font-size: 15px !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 4px 12px rgba(0, 115, 170, 0.25) !important;
+    border: none !important;
 }
 
+.resbs-dashboard-widget .resbs-submit-new-btn:hover,
 .resbs-submit-new-btn:hover {
-    background: #005a87;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(0, 115, 170, 0.35);
-    color: #fff;
+    background: #005a87 !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 16px rgba(0, 115, 170, 0.35) !important;
+    color: #fff !important;
 }
 
+.resbs-dashboard-widget .resbs-submit-new-btn i,
 .resbs-submit-new-btn i {
-    font-size: 16px;
+    font-size: 16px !important;
 }
 
 .resbs-user-properties-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-    gap: 30px;
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)) !important;
+    gap: 30px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
 }
 
+.resbs-dashboard-widget .resbs-user-property-card,
 .resbs-user-property-card {
-    background: #fff;
-    border-radius: 16px;
-    overflow: hidden;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    border: 1px solid #e5e7eb;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
+    background: #fff !important;
+    border-radius: 16px !important;
+    overflow: hidden !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08) !important;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    border: 1px solid #e5e7eb !important;
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important;
 }
 
+.resbs-dashboard-widget .resbs-user-property-card:hover,
 .resbs-user-property-card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 12px 32px rgba(0, 115, 170, 0.18);
-    border-color: #0073aa;
+    transform: translateY(-6px) !important;
+    box-shadow: 0 12px 32px rgba(0, 115, 170, 0.18) !important;
+    border-color: #0073aa !important;
 }
 
+.resbs-dashboard-widget .resbs-property-card-image,
 .resbs-property-card-image {
-    position: relative;
-    width: 100%;
-    height: 220px;
-    overflow: hidden;
-    background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+    position: relative !important;
+    width: 100% !important;
+    height: 220px !important;
+    overflow: hidden !important;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%) !important;
 }
 
+.resbs-dashboard-widget .resbs-property-card-image img,
 .resbs-property-card-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
+.resbs-dashboard-widget .resbs-user-property-card:hover .resbs-property-card-image img,
 .resbs-user-property-card:hover .resbs-property-card-image img {
-    transform: scale(1.08);
+    transform: scale(1.08) !important;
 }
 
+.resbs-dashboard-widget .resbs-property-card-image a,
 .resbs-property-card-image a {
-    display: block;
-    width: 100%;
-    height: 100%;
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
 }
 
+.resbs-dashboard-widget .resbs-property-status-badge,
 .resbs-property-status-badge {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    padding: 8px 16px;
-    border-radius: 24px;
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    color: #fff;
-    letter-spacing: 0.8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-    backdrop-filter: blur(4px);
+    position: absolute !important;
+    top: 15px !important;
+    right: 15px !important;
+    padding: 8px 16px !important;
+    border-radius: 24px !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    color: #fff !important;
+    letter-spacing: 0.8px !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25) !important;
+    backdrop-filter: blur(4px) !important;
 }
 
+.resbs-dashboard-widget .resbs-property-card-content,
 .resbs-property-card-content {
-    padding: 24px;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
+    padding: 24px !important;
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
 }
 
+.resbs-dashboard-widget .resbs-property-card-title,
 .resbs-property-card-title {
-    margin: 0 0 16px 0;
-    font-size: 1.25rem;
-    font-weight: 700;
-    line-height: 1.5;
-    color: #1f2937;
+    margin: 0 0 16px 0 !important;
+    font-size: 1.25rem !important;
+    font-weight: 700 !important;
+    line-height: 1.5 !important;
+    color: #1f2937 !important;
 }
 
+.resbs-dashboard-widget .resbs-property-card-title a,
 .resbs-property-card-title a {
-    color: #1f2937;
-    text-decoration: none;
-    transition: color 0.3s ease;
+    color: #1f2937 !important;
+    text-decoration: none !important;
+    transition: color 0.3s ease !important;
 }
 
+.resbs-dashboard-widget .resbs-property-card-title a:hover,
 .resbs-property-card-title a:hover {
-    color: #0073aa;
+    color: #0073aa !important;
 }
 
+.resbs-dashboard-widget .resbs-property-card-price,
 .resbs-property-card-price {
-    font-size: 1.75rem;
-    font-weight: 800;
-    color: #0073aa;
-    margin-bottom: 12px;
-    letter-spacing: -0.5px;
+    font-size: 1.75rem !important;
+    font-weight: 800 !important;
+    color: #0073aa !important;
+    margin-bottom: 12px !important;
+    letter-spacing: -0.5px !important;
 }
 
+.resbs-dashboard-widget .resbs-property-card-location,
 .resbs-property-card-location {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: #6b7280;
-    font-size: 14px;
-    margin-bottom: 16px;
-    font-weight: 500;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    color: #6b7280 !important;
+    font-size: 14px !important;
+    margin-bottom: 16px !important;
+    font-weight: 500 !important;
 }
 
+.resbs-dashboard-widget .resbs-property-card-location i,
 .resbs-property-card-location i {
-    color: #0073aa;
-    font-size: 14px;
+    color: #0073aa !important;
+    font-size: 14px !important;
 }
 
+.resbs-dashboard-widget .resbs-property-card-meta,
 .resbs-property-card-meta {
-    margin-top: auto;
-    padding-top: 16px;
-    border-top: 1px solid #e5e7eb;
+    margin-top: auto !important;
+    padding-top: 16px !important;
+    border-top: 1px solid #e5e7eb !important;
 }
 
+.resbs-dashboard-widget .resbs-property-card-date,
 .resbs-property-card-date {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: #9ca3af;
-    font-size: 13px;
-    font-weight: 500;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    color: #9ca3af !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
 }
 
+.resbs-dashboard-widget .resbs-property-card-date i,
 .resbs-property-card-date i {
-    font-size: 12px;
-    color: #9ca3af;
+    font-size: 12px !important;
+    color: #9ca3af !important;
 }
 
+.resbs-dashboard-widget .resbs-property-card-actions,
 .resbs-property-card-actions {
-    display: flex;
-    gap: 12px;
-    margin-top: 18px;
-    padding-top: 18px;
-    border-top: 1px solid #e5e7eb;
+    display: flex !important;
+    gap: 12px !important;
+    margin-top: 18px !important;
+    padding-top: 18px !important;
+    border-top: 1px solid #e5e7eb !important;
 }
 
+.resbs-dashboard-widget .resbs-action-btn,
 .resbs-action-btn {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 12px 20px;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 600;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    border: 2px solid transparent;
+    flex: 1 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    padding: 12px 20px !important;
+    border-radius: 8px !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    text-decoration: none !important;
+    transition: all 0.3s ease !important;
+    border: 2px solid transparent !important;
 }
 
+.resbs-dashboard-widget .resbs-view-btn,
 .resbs-view-btn {
-    background: #f9fafb;
-    color: #374151;
-    border-color: #e5e7eb;
+    background: #f9fafb !important;
+    color: #374151 !important;
+    border-color: #e5e7eb !important;
 }
 
+.resbs-dashboard-widget .resbs-view-btn:hover,
 .resbs-view-btn:hover {
-    background: #0073aa;
-    color: #fff;
-    border-color: #0073aa;
-    transform: translateY(-1px);
+    background: #0073aa !important;
+    color: #fff !important;
+    border-color: #0073aa !important;
+    transform: translateY(-1px) !important;
 }
 
+.resbs-dashboard-widget .resbs-edit-btn,
 .resbs-edit-btn {
-    background: #0073aa;
-    color: #fff;
-    border-color: #0073aa;
+    background: #0073aa !important;
+    color: #fff !important;
+    border-color: #0073aa !important;
 }
 
+.resbs-dashboard-widget .resbs-edit-btn:hover,
 .resbs-edit-btn:hover {
-    background: #005a87;
-    color: #fff;
-    border-color: #005a87;
-    transform: translateY(-1px);
+    background: #005a87 !important;
+    color: #fff !important;
+    border-color: #005a87 !important;
+    transform: translateY(-1px) !important;
 }
 
+.resbs-dashboard-widget .resbs-action-btn i,
 .resbs-action-btn i {
-    font-size: 14px;
+    font-size: 14px !important;
 }
 
+.resbs-dashboard-widget .resbs-no-properties,
 .resbs-no-properties {
-    text-align: center;
-    padding: 60px 20px;
-    background: #f8f9fa;
-    border-radius: 12px;
-    border: 2px dashed #ddd;
+    text-align: center !important;
+    padding: 60px 20px !important;
+    background: #f8f9fa !important;
+    border-radius: 12px !important;
+    border: 2px dashed #ddd !important;
 }
 
+.resbs-dashboard-widget .resbs-empty-icon,
 .resbs-empty-icon {
-    font-size: 64px;
-    color: #ccc;
-    margin-bottom: 20px;
+    font-size: 64px !important;
+    color: #ccc !important;
+    margin-bottom: 20px !important;
 }
 
+.resbs-dashboard-widget .resbs-no-properties h4,
 .resbs-no-properties h4 {
-    margin: 0 0 10px 0;
-    color: #333;
-    font-size: 1.3rem;
-    font-weight: 700;
+    margin: 0 0 10px 0 !important;
+    color: #333 !important;
+    font-size: 1.3rem !important;
+    font-weight: 700 !important;
 }
 
+.resbs-dashboard-widget .resbs-no-properties p,
 .resbs-no-properties p {
-    margin: 0 0 25px 0;
-    color: #666;
-    font-size: 15px;
-    line-height: 1.6;
+    margin: 0 0 25px 0 !important;
+    color: #666 !important;
+    font-size: 15px !important;
+    line-height: 1.6 !important;
 }
 
 .resbs-favorites-list,
 .resbs-bookings-list {
-    width: 100%;
-    max-width: 100%;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
 }
 
-.resbs-favorites-list .resbs-favorites-grid,
-.resbs-favorites-list > .resbs-favorites-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
-    width: 100%;
+/* Favorites grid - but dashboard favorites use property-grid, not this */
+.resbs-favorites-list .resbs-favorites-grid:not(.rbs-archive .property-grid),
+.resbs-favorites-list > .resbs-favorites-grid:not(.rbs-archive .property-grid) {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)) !important;
+    gap: 20px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
 }
 
-/* Responsive grid for favorites */
+/* Responsive grid for favorites (non-dashboard) */
 @media (min-width: 768px) {
-    .resbs-favorites-list .resbs-favorites-grid,
-    .resbs-favorites-list > .resbs-favorites-grid {
-        grid-template-columns: repeat(2, 1fr);
+    .resbs-favorites-list .resbs-favorites-grid:not(.rbs-archive .property-grid),
+    .resbs-favorites-list > .resbs-favorites-grid:not(.rbs-archive .property-grid) {
+        grid-template-columns: repeat(2, 1fr) !important;
     }
 }
 
 @media (min-width: 1024px) {
-    .resbs-favorites-list .resbs-favorites-grid,
-    .resbs-favorites-list > .resbs-favorites-grid {
-        grid-template-columns: repeat(3, 1fr);
+    .resbs-favorites-list .resbs-favorites-grid:not(.rbs-archive .property-grid),
+    .resbs-favorites-list > .resbs-favorites-grid:not(.rbs-archive .property-grid) {
+        grid-template-columns: repeat(3, 1fr) !important;
     }
 }
 
 @media (min-width: 1400px) {
-    .resbs-favorites-list .resbs-favorites-grid,
-    .resbs-favorites-list > .resbs-favorites-grid {
-        grid-template-columns: repeat(4, 1fr);
+    .resbs-favorites-list .resbs-favorites-grid:not(.rbs-archive .property-grid),
+    .resbs-favorites-list > .resbs-favorites-grid:not(.rbs-archive .property-grid) {
+        grid-template-columns: repeat(4, 1fr) !important;
     }
 }
 
+.resbs-dashboard-widget .resbs-favorites-empty,
+.resbs-dashboard-widget .resbs-bookings-placeholder,
 .resbs-favorites-empty,
 .resbs-bookings-placeholder {
-    padding: 40px 20px;
-    text-align: center;
-    color: #999;
-    font-size: 16px;
-    background: #f8f9fa;
-    border-radius: 8px;
-    border: 2px dashed #ddd;
+    padding: 40px 20px !important;
+    text-align: center !important;
+    color: #999 !important;
+    font-size: 16px !important;
+    background: #f8f9fa !important;
+    border-radius: 8px !important;
+    border: 2px dashed #ddd !important;
 }
 
+.resbs-dashboard-widget .resbs-booking-item,
 .resbs-booking-item {
-    padding: 20px;
-    background: #fff;
-    border-radius: 8px;
-    border: 1px solid #e0e0e0;
-    margin-bottom: 15px;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    padding: 20px !important;
+    background: #fff !important;
+    border-radius: 8px !important;
+    border: 1px solid #e0e0e0 !important;
+    margin-bottom: 15px !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
 }
 
+.resbs-dashboard-widget .resbs-booking-item:hover,
 .resbs-booking-item:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 115, 170, 0.15);
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(0, 115, 170, 0.15) !important;
 }
 
+.resbs-dashboard-widget .resbs-booking-header,
 .resbs-booking-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-bottom: 10px !important;
 }
 
+.resbs-dashboard-widget .resbs-booking-header h5,
 .resbs-booking-header h5 {
-    margin: 0;
-    font-size: 1.1rem;
+    margin: 0 !important;
+    font-size: 1.1rem !important;
 }
 
+.resbs-dashboard-widget .resbs-booking-header h5 a,
 .resbs-booking-header h5 a {
-    color: #333;
-    text-decoration: none;
+    color: #333 !important;
+    text-decoration: none !important;
 }
 
+.resbs-dashboard-widget .resbs-booking-header h5 a:hover,
 .resbs-booking-header h5 a:hover {
-    color: #0073aa;
+    color: #0073aa !important;
 }
 
+.resbs-dashboard-widget .resbs-booking-status,
 .resbs-booking-status {
-    padding: 5px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-    text-transform: uppercase;
+    padding: 5px 12px !important;
+    border-radius: 20px !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
 }
 
+.resbs-dashboard-widget .resbs-booking-status.status-completed,
 .resbs-booking-status.status-completed {
-    background: #d4edda;
-    color: #155724;
+    background: #d4edda !important;
+    color: #155724 !important;
 }
 
+.resbs-dashboard-widget .resbs-booking-status.status-processing,
 .resbs-booking-status.status-processing {
-    background: #fff3cd;
-    color: #856404;
+    background: #fff3cd !important;
+    color: #856404 !important;
 }
 
+.resbs-dashboard-widget .resbs-booking-status.status-pending,
 .resbs-booking-status.status-pending {
-    background: #cce5ff;
-    color: #004085;
+    background: #cce5ff !important;
+    color: #004085 !important;
 }
 
+.resbs-dashboard-widget .resbs-booking-date,
+.resbs-dashboard-widget .resbs-booking-total,
 .resbs-booking-date,
 .resbs-booking-total {
-    margin: 5px 0;
-    color: #666;
-    font-size: 14px;
+    margin: 5px 0 !important;
+    color: #666 !important;
+    font-size: 14px !important;
 }
 
 .resbs-favorites-grid {
@@ -782,66 +863,76 @@
 }
 
 .resbs-properties-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 20px;
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)) !important;
+    gap: 20px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
 }
 
 /* Profile Form */
+.resbs-dashboard-widget .resbs-profile-form,
 .resbs-profile-form {
-    max-width: 600px;
-    margin: 0 auto;
+    max-width: 600px !important;
+    margin: 0 auto !important;
 }
 
+.resbs-dashboard-widget .resbs-profile-form .resbs-form-row,
 .resbs-profile-form .resbs-form-row {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 15px;
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) !important;
+    gap: 15px !important;
 }
 
+.resbs-dashboard-widget .resbs-profile-form .resbs-form-group,
 .resbs-profile-form .resbs-form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 5px !important;
 }
 
+.resbs-dashboard-widget .resbs-profile-form label,
 .resbs-profile-form label {
-    font-weight: 600;
-    color: #333;
-    font-size: 14px;
+    font-weight: 600 !important;
+    color: #333 !important;
+    font-size: 14px !important;
 }
 
+.resbs-dashboard-widget .resbs-profile-form input,
 .resbs-profile-form input {
-    padding: 10px 12px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 14px;
-    background: #fff;
-    transition: border-color 0.3s ease;
+    padding: 10px 12px !important;
+    border: 1px solid #ddd !important;
+    border-radius: 4px !important;
+    font-size: 14px !important;
+    background: #fff !important;
+    transition: border-color 0.3s ease !important;
 }
 
+.resbs-dashboard-widget .resbs-profile-form input:focus,
 .resbs-profile-form input:focus {
-    outline: none;
-    border-color: #0073aa;
-    box-shadow: 0 0 0 2px rgba(0, 115, 170, 0.1);
+    outline: none !important;
+    border-color: #0073aa !important;
+    box-shadow: 0 0 0 2px rgba(0, 115, 170, 0.1) !important;
 }
 
+.resbs-dashboard-widget .resbs-update-profile-btn,
 .resbs-update-profile-btn {
-    padding: 10px 20px;
-    background: #0073aa;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    display: block;
-    margin: 20px auto 0;
+    padding: 10px 20px !important;
+    background: #0073aa !important;
+    color: #fff !important;
+    border: none !important;
+    border-radius: 4px !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: background-color 0.3s ease !important;
+    display: block !important;
+    margin: 20px auto 0 !important;
 }
 
+.resbs-dashboard-widget .resbs-update-profile-btn:hover,
 .resbs-update-profile-btn:hover {
-    background: #005a87;
+    background: #005a87 !important;
 }
 
 /* Submit Property Widget */
@@ -1197,109 +1288,275 @@
 
 /* Favorites section now uses archive design - ensure proper styling */
 .resbs-dashboard-section .rbs-archive {
-    width: 100%;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
 }
 
-.resbs-dashboard-section .rbs-archive .property-grid {
-    width: 100%;
-    grid-template-columns: repeat(3, 1fr);
+/* Dashboard Property Grid - 3 Columns Only (NOT affecting other archives) */
+/* Multiple specific selectors to override all other styles - INCLUDING ID SELECTOR */
+/* Applies to both Properties and Favorites tabs in dashboard AND saved-properties page */
+#propertyGrid.property-grid,
+.resbs-dashboard-section .rbs-archive #propertyGrid.property-grid,
+.resbs-dashboard-section .rbs-archive .property-grid,
+.resbs-dashboard-section .rbs-archive .listings-container .property-grid,
+.resbs-dashboard-section .rbs-archive .listings-container .properties-list .property-grid,
+.resbs-dashboard-section .rbs-archive .listings-container #propertyGrid.property-grid,
+.resbs-dashboard-section .rbs-archive .properties-list .property-grid,
+.resbs-dashboard-section .rbs-archive .properties-list #propertyGrid.property-grid,
+.resbs-dashboard-section .resbs-favorites-list .rbs-archive #propertyGrid.property-grid,
+.resbs-dashboard-section .resbs-favorites-list .rbs-archive .property-grid,
+.resbs-dashboard-widget .resbs-dashboard-section .rbs-archive #propertyGrid.property-grid,
+.resbs-dashboard-widget .resbs-dashboard-section .rbs-archive .property-grid,
+.resbs-dashboard-widget .resbs-dashboard-section .rbs-archive .listings-container .property-grid,
+.resbs-dashboard-widget .resbs-dashboard-section .rbs-archive .listings-container .properties-list .property-grid,
+.resbs-dashboard-widget .resbs-dashboard-section .rbs-archive .listings-container #propertyGrid.property-grid,
+.resbs-dashboard-widget .resbs-dashboard-section .rbs-archive .properties-list .property-grid,
+.resbs-dashboard-widget .resbs-dashboard-section .rbs-archive .properties-list #propertyGrid.property-grid,
+.resbs-dashboard-widget .resbs-dashboard-section .resbs-favorites-list .rbs-archive #propertyGrid.property-grid,
+.resbs-dashboard-widget .resbs-dashboard-section .resbs-favorites-list .rbs-archive .property-grid,
+.resbs-tab-panel .resbs-dashboard-section .rbs-archive #propertyGrid.property-grid,
+.resbs-tab-panel .resbs-dashboard-section .rbs-archive .property-grid,
+.resbs-tab-panel .resbs-dashboard-section .rbs-archive .listings-container .property-grid,
+.resbs-tab-panel .resbs-dashboard-section .rbs-archive .listings-container .properties-list .property-grid,
+.resbs-tab-panel .resbs-dashboard-section .rbs-archive .listings-container #propertyGrid.property-grid,
+.resbs-tab-panel .resbs-dashboard-section .rbs-archive .properties-list .property-grid,
+.resbs-tab-panel .resbs-dashboard-section .rbs-archive .properties-list #propertyGrid.property-grid,
+.resbs-tab-panel .resbs-dashboard-section .resbs-favorites-list .rbs-archive #propertyGrid.property-grid,
+.resbs-tab-panel .resbs-dashboard-section .resbs-favorites-list .rbs-archive .property-grid,
+.resbs-tab-panel#favorites .resbs-dashboard-section .rbs-archive #propertyGrid.property-grid,
+.resbs-tab-panel#favorites .resbs-dashboard-section .rbs-archive .property-grid,
+.resbs-tab-panel#favorites .resbs-dashboard-section .resbs-favorites-list .rbs-archive #propertyGrid.property-grid,
+.resbs-tab-panel#favorites .resbs-dashboard-section .resbs-favorites-list .rbs-archive .property-grid,
+#properties .resbs-dashboard-section .rbs-archive #propertyGrid.property-grid,
+#properties .resbs-dashboard-section .rbs-archive .property-grid,
+#properties .resbs-dashboard-section .rbs-archive .listings-container .property-grid,
+#properties .resbs-dashboard-section .rbs-archive .listings-container .properties-list .property-grid,
+#properties .resbs-dashboard-section .rbs-archive .listings-container #propertyGrid.property-grid,
+#properties .resbs-dashboard-section .rbs-archive .properties-list .property-grid,
+#properties .resbs-dashboard-section .rbs-archive .properties-list #propertyGrid.property-grid,
+#favorites .resbs-dashboard-section .rbs-archive #propertyGrid.property-grid,
+#favorites .resbs-dashboard-section .rbs-archive .property-grid,
+#favorites .resbs-dashboard-section .resbs-favorites-list .rbs-archive #propertyGrid.property-grid,
+#favorites .resbs-dashboard-section .resbs-favorites-list .rbs-archive .property-grid,
+/* Saved Properties Page - 3 Columns ONLY - Override archive.css with maximum specificity */
+/* IMPORTANT: Only target saved-properties page (.resbs-favorites-container), NOT other archives */
+body.page .rbs-archive .resbs-favorites-container .property-grid,
+body .rbs-archive .resbs-favorites-container .property-grid,
+.rbs-archive .resbs-favorites-container .property-grid,
+.resbs-favorites-container .property-grid,
+body.page .rbs-archive .resbs-favorites-container .property-grid,
+body .rbs-archive .resbs-favorites-container .property-grid,
+.rbs-archive.resbs-favorites-container .property-grid,
+.resbs-favorites-container .rbs-archive .property-grid,
+.rbs-archive .resbs-favorites-container .property-grid.property-grid,
+body.page .rbs-archive .resbs-favorites-container .property-grid.property-grid,
+body .rbs-archive .resbs-favorites-container .property-grid.property-grid,
+/* More specific selectors for saved-properties page */
+.rbs-archive:has(.resbs-favorites-container) .property-grid,
+.rbs-archive .resbs-favorites-container .property-grid,
+body.page:has(.resbs-favorites-container) .rbs-archive .property-grid {
+    width: 100% !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 20px !important;
+    box-sizing: border-box !important;
+    display: grid !important;
+    max-width: 100% !important;
 }
 
-/* Ensure 3 columns for dashboard sections on all screen sizes */
+/* Ensure 3 columns for dashboard sections on all screen sizes - DASHBOARD ONLY */
+/* Applies to both Properties and Favorites tabs AND saved-properties page */
 @media (min-width: 1024px) {
-    .resbs-dashboard-section .rbs-archive .property-grid {
-        grid-template-columns: repeat(3, 1fr);
+    #propertyGrid.property-grid,
+    .resbs-dashboard-section .rbs-archive #propertyGrid.property-grid,
+    .resbs-dashboard-section .rbs-archive .property-grid,
+    .resbs-dashboard-section .rbs-archive .listings-container .property-grid,
+    .resbs-dashboard-section .rbs-archive .listings-container .properties-list .property-grid,
+    .resbs-dashboard-section .rbs-archive .listings-container #propertyGrid.property-grid,
+    .resbs-dashboard-section .rbs-archive .properties-list .property-grid,
+    .resbs-dashboard-section .rbs-archive .properties-list #propertyGrid.property-grid,
+    .resbs-dashboard-section .resbs-favorites-list .rbs-archive #propertyGrid.property-grid,
+    .resbs-dashboard-section .resbs-favorites-list .rbs-archive .property-grid,
+    .resbs-dashboard-widget .resbs-dashboard-section .rbs-archive #propertyGrid.property-grid,
+    .resbs-dashboard-widget .resbs-dashboard-section .rbs-archive .property-grid,
+    .resbs-dashboard-widget .resbs-dashboard-section .rbs-archive .listings-container .property-grid,
+    .resbs-dashboard-widget .resbs-dashboard-section .rbs-archive .listings-container .properties-list .property-grid,
+    .resbs-dashboard-widget .resbs-dashboard-section .rbs-archive .listings-container #propertyGrid.property-grid,
+    .resbs-dashboard-widget .resbs-dashboard-section .rbs-archive .properties-list .property-grid,
+    .resbs-dashboard-widget .resbs-dashboard-section .rbs-archive .properties-list #propertyGrid.property-grid,
+    .resbs-dashboard-widget .resbs-dashboard-section .resbs-favorites-list .rbs-archive #propertyGrid.property-grid,
+    .resbs-dashboard-widget .resbs-dashboard-section .resbs-favorites-list .rbs-archive .property-grid,
+    /* Saved Properties Page ONLY - NOT other archives */
+    body.page .rbs-archive .resbs-favorites-container .property-grid,
+    body .rbs-archive .resbs-favorites-container .property-grid,
+    .rbs-archive .resbs-favorites-container .property-grid,
+    .resbs-favorites-container .property-grid,
+    .rbs-archive:has(.resbs-favorites-container) .property-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
     }
 }
 
 @media (min-width: 1200px) {
-    .resbs-dashboard-section .rbs-archive .property-grid {
-        grid-template-columns: repeat(3, 1fr);
+    #propertyGrid.property-grid,
+    .resbs-dashboard-section .rbs-archive #propertyGrid.property-grid,
+    .resbs-dashboard-section .rbs-archive .property-grid,
+    .resbs-dashboard-section .rbs-archive .listings-container .property-grid,
+    .resbs-dashboard-section .rbs-archive .listings-container .properties-list .property-grid,
+    .resbs-dashboard-section .rbs-archive .listings-container #propertyGrid.property-grid,
+    .resbs-dashboard-section .rbs-archive .properties-list .property-grid,
+    .resbs-dashboard-section .rbs-archive .properties-list #propertyGrid.property-grid,
+    .resbs-dashboard-section .resbs-favorites-list .rbs-archive #propertyGrid.property-grid,
+    .resbs-dashboard-section .resbs-favorites-list .rbs-archive .property-grid,
+    .resbs-dashboard-widget .resbs-dashboard-section .rbs-archive #propertyGrid.property-grid,
+    .resbs-dashboard-widget .resbs-dashboard-section .rbs-archive .property-grid,
+    .resbs-dashboard-widget .resbs-dashboard-section .rbs-archive .listings-container .property-grid,
+    .resbs-dashboard-widget .resbs-dashboard-section .rbs-archive .listings-container .properties-list .property-grid,
+    .resbs-dashboard-widget .resbs-dashboard-section .rbs-archive .listings-container #propertyGrid.property-grid,
+    .resbs-dashboard-widget .resbs-dashboard-section .rbs-archive .properties-list .property-grid,
+    .resbs-dashboard-widget .resbs-dashboard-section .rbs-archive .properties-list #propertyGrid.property-grid,
+    .resbs-dashboard-widget .resbs-dashboard-section .resbs-favorites-list .rbs-archive #propertyGrid.property-grid,
+    .resbs-dashboard-widget .resbs-dashboard-section .resbs-favorites-list .rbs-archive .property-grid,
+    /* Saved Properties Page ONLY - NOT other archives */
+    body.page .rbs-archive .resbs-favorites-container .property-grid,
+    body .rbs-archive .resbs-favorites-container .property-grid,
+    .rbs-archive .resbs-favorites-container .property-grid,
+    .resbs-favorites-container .property-grid,
+    .rbs-archive:has(.resbs-favorites-container) .property-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
     }
 }
 
 @media (min-width: 1400px) {
-    .resbs-dashboard-section .rbs-archive .property-grid {
-        grid-template-columns: repeat(3, 1fr);
+    #propertyGrid.property-grid,
+    .resbs-dashboard-section .rbs-archive #propertyGrid.property-grid,
+    .resbs-dashboard-section .rbs-archive .property-grid,
+    .resbs-dashboard-section .rbs-archive .listings-container .property-grid,
+    .resbs-dashboard-section .rbs-archive .listings-container .properties-list .property-grid,
+    .resbs-dashboard-section .rbs-archive .listings-container #propertyGrid.property-grid,
+    .resbs-dashboard-section .rbs-archive .properties-list .property-grid,
+    .resbs-dashboard-section .rbs-archive .properties-list #propertyGrid.property-grid,
+    .resbs-dashboard-section .resbs-favorites-list .rbs-archive #propertyGrid.property-grid,
+    .resbs-dashboard-section .resbs-favorites-list .rbs-archive .property-grid,
+    .resbs-dashboard-widget .resbs-dashboard-section .rbs-archive #propertyGrid.property-grid,
+    .resbs-dashboard-widget .resbs-dashboard-section .rbs-archive .property-grid,
+    .resbs-dashboard-widget .resbs-dashboard-section .rbs-archive .listings-container .property-grid,
+    .resbs-dashboard-widget .resbs-dashboard-section .rbs-archive .listings-container .properties-list .property-grid,
+    .resbs-dashboard-widget .resbs-dashboard-section .rbs-archive .listings-container #propertyGrid.property-grid,
+    .resbs-dashboard-widget .resbs-dashboard-section .rbs-archive .properties-list .property-grid,
+    .resbs-dashboard-widget .resbs-dashboard-section .rbs-archive .properties-list #propertyGrid.property-grid,
+    .resbs-dashboard-widget .resbs-dashboard-section .resbs-favorites-list .rbs-archive #propertyGrid.property-grid,
+    .resbs-dashboard-widget .resbs-dashboard-section .resbs-favorites-list .rbs-archive .property-grid,
+    /* Saved Properties Page ONLY - NOT other archives - OVERRIDE rbs-archive.css 4-column rule */
+    body.page .rbs-archive .resbs-favorites-container .property-grid,
+    body .rbs-archive .resbs-favorites-container .property-grid,
+    .rbs-archive .resbs-favorites-container .property-grid,
+    .resbs-favorites-container .property-grid,
+    .rbs-archive:has(.resbs-favorites-container) .property-grid,
+    body.page .rbs-archive .resbs-favorites-container .property-grid.property-grid,
+    body .rbs-archive .resbs-favorites-container .property-grid.property-grid,
+    /* Maximum specificity to override rbs-archive.css */
+    body.page .rbs-archive.resbs-archive-wrapper .resbs-favorites-container .property-grid,
+    body.page .rbs-archive:not(.resbs-archive-wrapper#resbs-property-archive) .resbs-favorites-container .property-grid,
+    body.page:not(.archive):not(.post-type-archive-property) .rbs-archive .resbs-favorites-container .property-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
     }
 }
 
+/* IMPORTANT: Do NOT affect other archive pages - only dashboard */
+/* Other archive pages use archive.css - dashboard styles above only apply to .resbs-dashboard-section */
+
 /* Ensure property cards in favorites section have proper click handling */
+.resbs-dashboard-widget .resbs-dashboard-section .rbs-archive .property-card,
 .resbs-dashboard-section .rbs-archive .property-card {
-    position: relative;
+    position: relative !important;
 }
 
+.resbs-dashboard-widget .resbs-dashboard-section .rbs-archive .property-card .gradient-overlay,
 .resbs-dashboard-section .rbs-archive .property-card .gradient-overlay {
-    pointer-events: none;
+    pointer-events: none !important;
 }
 
+.resbs-dashboard-widget .resbs-dashboard-section .rbs-archive .property-card .property-info-overlay,
 .resbs-dashboard-section .rbs-archive .property-card .property-info-overlay {
-    pointer-events: none;
-    z-index: 2;
+    pointer-events: none !important;
+    z-index: 2 !important;
 }
 
+.resbs-dashboard-widget .resbs-dashboard-section .rbs-archive .property-card .property-image,
 .resbs-dashboard-section .rbs-archive .property-card .property-image {
-    cursor: pointer;
+    cursor: pointer !important;
 }
 
+.resbs-dashboard-widget .resbs-dashboard-section .rbs-archive .property-card .view-details-btn,
 .resbs-dashboard-section .rbs-archive .property-card .view-details-btn {
-    position: relative;
-    z-index: 10;
-    pointer-events: auto;
-    text-decoration: none;
-    display: inline-block;
+    position: relative !important;
+    z-index: 10 !important;
+    pointer-events: auto !important;
+    text-decoration: none !important;
+    display: inline-block !important;
 }
 
+.resbs-dashboard-widget .resbs-dashboard-section .rbs-archive .property-card .favorite-btn,
 .resbs-dashboard-section .rbs-archive .property-card .favorite-btn {
-    position: relative;
-    z-index: 20;
-    pointer-events: auto;
+    position: relative !important;
+    z-index: 20 !important;
+    pointer-events: auto !important;
 }
 
+.resbs-dashboard-widget .resbs-favorites-empty,
 .resbs-favorites-empty {
-    text-align: center;
-    padding: 40px 20px;
-    color: #666;
+    text-align: center !important;
+    padding: 40px 20px !important;
+    color: #666 !important;
 }
 
+.resbs-dashboard-widget .resbs-favorites-empty p,
 .resbs-favorites-empty p {
-    margin: 0 0 20px 0;
-    font-size: 16px;
+    margin: 0 0 20px 0 !important;
+    font-size: 16px !important;
 }
 
+.resbs-dashboard-widget .resbs-browse-btn,
 .resbs-browse-btn {
-    display: inline-block;
-    padding: 10px 20px;
-    background: #0073aa;
-    color: #fff;
-    text-decoration: none;
-    border-radius: 4px;
-    font-weight: 600;
-    transition: background-color 0.3s ease;
+    display: inline-block !important;
+    padding: 10px 20px !important;
+    background: #0073aa !important;
+    color: #fff !important;
+    text-decoration: none !important;
+    border-radius: 4px !important;
+    font-weight: 600 !important;
+    transition: background-color 0.3s ease !important;
 }
 
+.resbs-dashboard-widget .resbs-browse-btn:hover,
 .resbs-browse-btn:hover {
-    background: #005a87;
-    color: #fff;
+    background: #005a87 !important;
+    color: #fff !important;
 }
 
 /* Login Required Messages */
+.resbs-dashboard-widget .resbs-dashboard-login-required,
+.resbs-dashboard-widget .resbs-submit-login-required,
+.resbs-dashboard-widget .resbs-favorites-login-required,
 .resbs-dashboard-login-required,
 .resbs-submit-login-required,
 .resbs-favorites-login-required {
-    text-align: center;
-    padding: 40px 20px;
-    background: #f8f9fa;
-    border-radius: 8px;
-    border: 1px solid #dee2e6;
+    text-align: center !important;
+    padding: 40px 20px !important;
+    background: #f8f9fa !important;
+    border-radius: 8px !important;
+    border: 1px solid #dee2e6 !important;
 }
 
+.resbs-dashboard-widget .resbs-dashboard-login-required p,
+.resbs-dashboard-widget .resbs-submit-login-required p,
+.resbs-dashboard-widget .resbs-favorites-login-required p,
 .resbs-dashboard-login-required p,
 .resbs-submit-login-required p,
 .resbs-favorites-login-required p {
-    margin: 0 0 20px 0;
-    color: #666;
-    font-size: 16px;
+    margin: 0 0 20px 0 !important;
+    color: #666 !important;
+    font-size: 16px !important;
 }
 
 .resbs-login-btn {
@@ -1858,34 +2115,45 @@ input[type="submit"].resbs-login-submit-btn:active {
 @media (max-width: 768px) {
     .resbs-filter-row,
     .resbs-search-row {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr !important;
     }
     
     .resbs-tab-nav {
-        flex-direction: column;
+        flex-direction: column !important;
     }
     
     .resbs-tab-btn {
-        border-bottom: 1px solid #eee;
-        border-right: none;
+        border-bottom: 1px solid #eee !important;
+        border-right: none !important;
     }
     
     .resbs-form-row {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr !important;
     }
     
     .resbs-form-actions {
-        flex-direction: column;
+        flex-direction: column !important;
     }
     
     .resbs-results-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 10px !important;
     }
     
     .resbs-results-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr !important;
+    }
+    
+    .resbs-dashboard-widget {
+        max-width: 100% !important;
+        margin: 20px auto !important;
+        padding: 0 15px !important;
+        box-sizing: border-box !important;
+    }
+    
+    .resbs-dashboard-section .rbs-archive .property-grid {
+        grid-template-columns: repeat(1, 1fr) !important;
     }
 }
 
@@ -2251,5 +2519,129 @@ input[type="submit"].resbs-login-submit-btn:active {
     
     .resbs-registration-title {
         font-size: 1.75rem !important;
+    }
+}
+
+/* ============================================
+   MAXIMUM PRIORITY DASHBOARD CONTAINER WIDTH
+   Override all theme styles - 1536px width
+   ============================================ */
+.resbs-dashboard-widget,
+body .resbs-dashboard-widget,
+body.page .resbs-dashboard-widget,
+body.single .resbs-dashboard-widget,
+body.archive .resbs-dashboard-widget,
+#content .resbs-dashboard-widget,
+.main-content .resbs-dashboard-widget,
+.container .resbs-dashboard-widget,
+.wp-block-group .resbs-dashboard-widget,
+.entry-content .resbs-dashboard-widget,
+.site-content .resbs-dashboard-widget,
+.content-area .resbs-dashboard-widget,
+.wrapper .resbs-dashboard-widget,
+div .resbs-dashboard-widget,
+* .resbs-dashboard-widget,
+[class*="container"] .resbs-dashboard-widget,
+[class*="wrapper"] .resbs-dashboard-widget,
+[class*="content"] .resbs-dashboard-widget {
+    max-width: 1536px !important;
+    width: 100% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    box-sizing: border-box !important;
+    position: relative !important;
+}
+
+/* Ensure dashboard tabs and content respect container width */
+.resbs-dashboard-tabs,
+.resbs-tab-nav,
+.resbs-tab-content,
+.resbs-tab-panel,
+.resbs-dashboard-section {
+    max-width: 100% !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* Responsive container width */
+@media (max-width: 1600px) {
+    .resbs-dashboard-widget,
+    body .resbs-dashboard-widget,
+    * .resbs-dashboard-widget {
+        max-width: 1536px !important;
+        padding: 0 20px !important;
+    }
+}
+
+@media (max-width: 1536px) {
+    .resbs-dashboard-widget,
+    body .resbs-dashboard-widget,
+    * .resbs-dashboard-widget {
+        max-width: 100% !important;
+        padding: 0 20px !important;
+    }
+}
+
+/* Dashboard Property Grid - 3 Columns Responsive (DASHBOARD ONLY) */
+/* Applies to both Properties and Favorites tabs AND saved-properties page */
+@media (max-width: 1024px) {
+    #propertyGrid.property-grid,
+    .resbs-dashboard-section .rbs-archive #propertyGrid.property-grid,
+    .resbs-dashboard-section .rbs-archive .property-grid,
+    .resbs-dashboard-section .rbs-archive .listings-container .property-grid,
+    .resbs-dashboard-section .rbs-archive .listings-container .properties-list .property-grid,
+    .resbs-dashboard-section .rbs-archive .listings-container #propertyGrid.property-grid,
+    .resbs-dashboard-section .rbs-archive .properties-list .property-grid,
+    .resbs-dashboard-section .rbs-archive .properties-list #propertyGrid.property-grid,
+    .resbs-dashboard-section .resbs-favorites-list .rbs-archive .property-grid,
+    .resbs-dashboard-section .resbs-favorites-list .rbs-archive #propertyGrid.property-grid,
+    .resbs-dashboard-widget .resbs-dashboard-section .rbs-archive #propertyGrid.property-grid,
+    .resbs-dashboard-widget .resbs-dashboard-section .rbs-archive .property-grid,
+    .resbs-dashboard-widget .resbs-dashboard-section .rbs-archive .listings-container .property-grid,
+    .resbs-dashboard-widget .resbs-dashboard-section .rbs-archive .listings-container .properties-list .property-grid,
+    .resbs-dashboard-widget .resbs-dashboard-section .rbs-archive .listings-container #propertyGrid.property-grid,
+    .resbs-dashboard-widget .resbs-dashboard-section .rbs-archive .properties-list .property-grid,
+    .resbs-dashboard-widget .resbs-dashboard-section .rbs-archive .properties-list #propertyGrid.property-grid,
+    .resbs-dashboard-widget .resbs-dashboard-section .resbs-favorites-list .rbs-archive .property-grid,
+    .resbs-dashboard-widget .resbs-dashboard-section .resbs-favorites-list .rbs-archive #propertyGrid.property-grid,
+    /* Saved Properties Page ONLY - NOT other archives */
+    body.page .rbs-archive .resbs-favorites-container .property-grid,
+    body .rbs-archive .resbs-favorites-container .property-grid,
+    .rbs-archive .resbs-favorites-container .property-grid,
+    .resbs-favorites-container .property-grid,
+    .rbs-archive:has(.resbs-favorites-container) .property-grid,
+    body.page:has(.resbs-favorites-container) .rbs-archive .property-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+}
+
+@media (max-width: 768px) {
+    #propertyGrid.property-grid,
+    .resbs-dashboard-section .rbs-archive #propertyGrid.property-grid,
+    .resbs-dashboard-section .rbs-archive .property-grid,
+    .resbs-dashboard-section .rbs-archive .listings-container .property-grid,
+    .resbs-dashboard-section .rbs-archive .listings-container .properties-list .property-grid,
+    .resbs-dashboard-section .rbs-archive .listings-container #propertyGrid.property-grid,
+    .resbs-dashboard-section .rbs-archive .properties-list .property-grid,
+    .resbs-dashboard-section .rbs-archive .properties-list #propertyGrid.property-grid,
+    .resbs-dashboard-section .resbs-favorites-list .rbs-archive .property-grid,
+    .resbs-dashboard-section .resbs-favorites-list .rbs-archive #propertyGrid.property-grid,
+    .resbs-dashboard-widget .resbs-dashboard-section .rbs-archive #propertyGrid.property-grid,
+    .resbs-dashboard-widget .resbs-dashboard-section .rbs-archive .property-grid,
+    .resbs-dashboard-widget .resbs-dashboard-section .rbs-archive .listings-container .property-grid,
+    .resbs-dashboard-widget .resbs-dashboard-section .rbs-archive .listings-container .properties-list .property-grid,
+    .resbs-dashboard-widget .resbs-dashboard-section .rbs-archive .listings-container #propertyGrid.property-grid,
+    .resbs-dashboard-widget .resbs-dashboard-section .rbs-archive .properties-list .property-grid,
+    .resbs-dashboard-widget .resbs-dashboard-section .rbs-archive .properties-list #propertyGrid.property-grid,
+    .resbs-dashboard-widget .resbs-dashboard-section .resbs-favorites-list .rbs-archive .property-grid,
+    .resbs-dashboard-widget .resbs-dashboard-section .resbs-favorites-list .rbs-archive #propertyGrid.property-grid,
+    /* Saved Properties Page ONLY - NOT other archives */
+    body.page .rbs-archive .resbs-favorites-container .property-grid,
+    body .rbs-archive .resbs-favorites-container .property-grid,
+    .rbs-archive .resbs-favorites-container .property-grid,
+    .resbs-favorites-container .property-grid,
+    .rbs-archive:has(.resbs-favorites-container) .property-grid,
+    body.page:has(.resbs-favorites-container) .rbs-archive .property-grid {
+        grid-template-columns: repeat(1, 1fr) !important;
     }
 }

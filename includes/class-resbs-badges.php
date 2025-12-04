@@ -116,7 +116,7 @@ class RESBS_Badge_Manager {
             'resbs-badges',
             RESBS_URL . 'assets/css/badges.css',
             array(),
-            '1.0.0'
+            resbs_get_css_version('assets/css/badges.css')
         );
     }
 

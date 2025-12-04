@@ -1971,7 +1971,6 @@
                                             })
                                             .catch(function(error) {
                                                 alert('Error: Unable to submit booking. Please try again.');
-                                                console.error('Booking error:', error);
                                             })
                                             .finally(function() {
                                                 if (btn) {
@@ -2166,7 +2165,7 @@
                             <span><?php echo esc_html__('Call Agent', 'realestate-booking-suite'); ?></span>
                         </a>
                         <?php endif; ?>
-                        <button onclick="openContactModal()" class="agent-action agent-action-secondary">
+                        <button onclick="openContactForm()" class="agent-action agent-action-secondary">
                             <i class="fas fa-envelope mr-2"></i>
                             <span><?php echo esc_html($agent_send_message_text ? $agent_send_message_text : __('Send Message', 'realestate-booking-suite')); ?></span>
                         </button>
@@ -2262,38 +2261,68 @@
         <img id="viewerImage" src="" alt="<?php echo esc_attr__('Property', 'realestate-booking-suite'); ?>">
     </div>
 
-    <!-- Contact Modal -->
-    <div id="contactModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title"><?php echo esc_html(!empty($contact_form_title) ? $contact_form_title : __('Contact Agent', 'realestate-booking-suite')); ?></h3>
-                <button onclick="closeContactModal()" class="modal-close">
+    <!-- Contact Form Popup Modal -->
+    <div id="contactFormSection" class="resbs-contact-popup" style="display: none;">
+        <div class="resbs-contact-popup-overlay" onclick="closeContactForm()"></div>
+        <div class="resbs-contact-popup-content">
+            <div class="resbs-contact-popup-header">
+                <h3 class="resbs-contact-popup-title">
+                    <i class="fas fa-envelope"></i>
+                    <?php echo esc_html(!empty($contact_form_title) ? $contact_form_title : __('Contact Agent', 'realestate-booking-suite')); ?>
+                </h3>
+                <button onclick="closeContactForm()" class="resbs-contact-popup-close" aria-label="<?php echo esc_attr__('Close', 'realestate-booking-suite'); ?>">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            <form onsubmit="return submitContactForm(event); return false;" class="space-y-4">
-                <?php wp_nonce_field('resbs_contact_form', 'resbs_contact_form_nonce'); ?>
-                <input type="hidden" name="property_id" value="<?php echo esc_attr($post->ID); ?>">
-                <div class="form-group">
-                    <label class="form-label"><?php echo esc_html($contact_name_label ? $contact_name_label : __('Your Name', 'realestate-booking-suite')); ?></label>
-                    <input type="text" required class="form-input" name="contact_name">
-                </div>
-                <div class="form-group">
-                    <label class="form-label"><?php echo esc_html($contact_email_label ? $contact_email_label : __('Email', 'realestate-booking-suite')); ?></label>
-                    <input type="email" required class="form-input" name="contact_email">
-                </div>
-                <div class="form-group">
-                    <label class="form-label"><?php echo esc_html($contact_phone_label ? $contact_phone_label : __('Phone', 'realestate-booking-suite')); ?></label>
-                    <input type="tel" required class="form-input" name="contact_phone">
-                </div>
-                <div class="form-group">
-                    <label class="form-label"><?php echo esc_html($contact_message_label ? $contact_message_label : __('Message', 'realestate-booking-suite')); ?></label>
-                    <textarea rows="4" required class="form-input form-textarea" name="contact_message"></textarea>
-                </div>
-                <button type="submit" class="form-submit">
-                    <?php echo esc_html($contact_submit_text ? $contact_submit_text : __('Send Message', 'realestate-booking-suite')); ?>
-                </button>
-            </form>
+            <div class="resbs-contact-popup-body">
+                <form id="resbsContactFormPopup" onsubmit="return submitContactForm(event); return false;" class="resbs-contact-popup-form">
+                    <?php wp_nonce_field('resbs_contact_form', 'resbs_contact_form_nonce'); ?>
+                    <input type="hidden" name="property_id" value="<?php echo esc_attr($post->ID); ?>">
+                    <div class="resbs-popup-form-row">
+                        <div class="resbs-popup-form-group">
+                            <label class="resbs-popup-form-label">
+                                <i class="fas fa-user"></i>
+                                <?php echo esc_html($contact_name_label ? $contact_name_label : __('Your Name', 'realestate-booking-suite')); ?>
+                                <span class="resbs-required">*</span>
+                            </label>
+                            <input type="text" name="contact_name" class="resbs-popup-form-input" required placeholder="<?php echo esc_attr__('Enter your full name', 'realestate-booking-suite'); ?>">
+                        </div>
+                        <div class="resbs-popup-form-group">
+                            <label class="resbs-popup-form-label">
+                                <i class="fas fa-envelope"></i>
+                                <?php echo esc_html($contact_email_label ? $contact_email_label : __('Email', 'realestate-booking-suite')); ?>
+                                <span class="resbs-required">*</span>
+                            </label>
+                            <input type="email" name="contact_email" class="resbs-popup-form-input" required placeholder="<?php echo esc_attr__('your.email@example.com', 'realestate-booking-suite'); ?>">
+                        </div>
+                    </div>
+                    <div class="resbs-popup-form-group">
+                        <label class="resbs-popup-form-label">
+                            <i class="fas fa-phone"></i>
+                            <?php echo esc_html($contact_phone_label ? $contact_phone_label : __('Phone', 'realestate-booking-suite')); ?>
+                            <span class="resbs-required">*</span>
+                        </label>
+                        <input type="tel" name="contact_phone" class="resbs-popup-form-input" required placeholder="<?php echo esc_attr__('+1 (555) 123-4567', 'realestate-booking-suite'); ?>">
+                    </div>
+                    <div class="resbs-popup-form-group">
+                        <label class="resbs-popup-form-label">
+                            <i class="fas fa-comment"></i>
+                            <?php echo esc_html($contact_message_label ? $contact_message_label : __('Message', 'realestate-booking-suite')); ?>
+                            <span class="resbs-required">*</span>
+                        </label>
+                        <textarea name="contact_message" rows="4" class="resbs-popup-form-textarea" required placeholder="<?php echo esc_attr__('Tell us about your inquiry...', 'realestate-booking-suite'); ?>"></textarea>
+                    </div>
+                    <div class="resbs-popup-form-actions">
+                        <button type="submit" class="resbs-popup-form-submit">
+                            <i class="fas fa-paper-plane"></i>
+                            <?php echo esc_html($contact_submit_text ? $contact_submit_text : __('Send Message', 'realestate-booking-suite')); ?>
+                        </button>
+                        <button type="button" onclick="closeContactForm()" class="resbs-popup-form-cancel">
+                            <?php echo esc_html__('Cancel', 'realestate-booking-suite'); ?>
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 

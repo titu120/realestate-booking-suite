@@ -153,7 +153,7 @@ class RESBS_Maps_Manager {
                 'resbs-maps',
                 RESBS_URL . 'assets/css/maps.css',
                 array(),
-                '1.0.0'
+                resbs_get_css_version('assets/css/maps.css')
             );
 
             // Enqueue map scripts
@@ -208,7 +208,7 @@ class RESBS_Maps_Manager {
                 'resbs-maps-admin',
                 RESBS_URL . 'assets/css/maps-admin.css',
                 array(),
-                '1.0.0'
+                resbs_get_css_version('assets/css/maps-admin.css')
             );
         }
     }

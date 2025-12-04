@@ -3342,6 +3342,302 @@ body.single.single-property .single-property.resbs-single-property-wrapper#resbs
     min-width: 0 !important;
 }
 
+p.property-price {
+    margin: 0;
+}
+
+/* ========================================
+   CONTACT FORM POPUP MODAL
+   ======================================== */
+.resbs-contact-popup {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    min-height: 100vh !important;
+    max-height: 100vh !important;
+    z-index: 99999 !important;
+    display: none !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 20px !important;
+    box-sizing: border-box !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    margin: 0 !important;
+}
+
+.resbs-contact-popup[style*="display: flex"],
+.resbs-contact-popup[style*="display:flex"] {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    animation: fadeIn 0.3s ease-out !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0 !important;
+    }
+    to {
+        opacity: 1 !important;
+    }
+}
+
+.resbs-contact-popup-overlay {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    background: rgba(0, 0, 0, 0.5) !important;
+    backdrop-filter: blur(2px) !important;
+    z-index: 99999 !important;
+    order: 1 !important;
+}
+
+.resbs-contact-popup-content {
+    position: relative !important;
+    background: #fff !important;
+    border-radius: 12px !important;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2) !important;
+    max-width: 600px !important;
+    width: 90% !important;
+    max-height: 90vh !important;
+    overflow-y: auto !important;
+    z-index: 100000 !important;
+    animation: slideDown 0.3s ease-out !important;
+    margin: 0 auto !important;
+    align-self: center !important;
+    flex-shrink: 0 !important;
+    transform: none !important;
+    order: 2 !important;
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-30px) scale(0.95) !important;
+        opacity: 0 !important;
+    }
+    to {
+        transform: translateY(0) scale(1) !important;
+        opacity: 1 !important;
+    }
+}
+
+.resbs-contact-popup-header {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 20px 25px !important;
+    border-bottom: 2px solid #e5e7eb !important;
+    background: linear-gradient(135deg, var(--resbs-main-color, #0073aa) 0%, var(--resbs-primary-dark, #005a87) 100%) !important;
+    border-radius: 12px 12px 0 0 !important;
+}
+
+.resbs-contact-popup-title {
+    font-size: 22px !important;
+    font-weight: 700 !important;
+    color: #fff !important;
+    margin: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+}
+
+.resbs-contact-popup-title i {
+    font-size: 20px !important;
+}
+
+.resbs-contact-popup-close {
+    background: rgba(255, 255, 255, 0.2) !important;
+    border: none !important;
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    color: #fff !important;
+    font-size: 18px !important;
+}
+
+.resbs-contact-popup-close:hover {
+    background: rgba(255, 255, 255, 0.3) !important;
+    transform: rotate(90deg) !important;
+}
+
+.resbs-contact-popup-body {
+    padding: 25px !important;
+}
+
+.resbs-contact-popup-form {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 20px !important;
+}
+
+.resbs-popup-form-row {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 15px !important;
+}
+
+.resbs-popup-form-group {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+}
+
+.resbs-popup-form-label {
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    color: #374151 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+}
+
+.resbs-popup-form-label i {
+    color: var(--resbs-main-color, #0073aa) !important;
+    font-size: 14px !important;
+    width: 18px !important;
+}
+
+.resbs-required {
+    color: #ef4444 !important;
+    font-weight: 700 !important;
+    margin-left: 2px !important;
+}
+
+.resbs-popup-form-input,
+.resbs-popup-form-textarea {
+    width: 100% !important;
+    padding: 12px 16px !important;
+    border: 2px solid #e5e7eb !important;
+    border-radius: 8px !important;
+    font-size: 15px !important;
+    color: #1f2937 !important;
+    background: #fff !important;
+    transition: all 0.3s ease !important;
+    box-sizing: border-box !important;
+    font-family: inherit !important;
+}
+
+.resbs-popup-form-input:focus,
+.resbs-popup-form-textarea:focus {
+    outline: none !important;
+    border-color: var(--resbs-main-color, #0073aa) !important;
+    box-shadow: 0 0 0 3px rgba(0, 115, 170, 0.1) !important;
+}
+
+.resbs-popup-form-textarea {
+    resize: vertical !important;
+    min-height: 100px !important;
+}
+
+.resbs-popup-form-actions {
+    display: flex !important;
+    gap: 12px !important;
+    margin-top: 10px !important;
+    justify-content: flex-end !important;
+}
+
+.resbs-popup-form-submit {
+    background: var(--resbs-main-color, #0073aa) !important;
+    color: #fff !important;
+    border: none !important;
+    padding: 12px 28px !important;
+    border-radius: 8px !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+}
+
+.resbs-popup-form-submit:hover {
+    background: var(--resbs-primary-dark, #005a87) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(0, 115, 170, 0.3) !important;
+}
+
+.resbs-popup-form-submit:active {
+    transform: translateY(0) !important;
+}
+
+.resbs-popup-form-submit:disabled {
+    opacity: 0.6 !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+}
+
+.resbs-popup-form-cancel {
+    background: #f3f4f6 !important;
+    color: #374151 !important;
+    border: 2px solid #e5e7eb !important;
+    padding: 12px 28px !important;
+    border-radius: 8px !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+}
+
+.resbs-popup-form-cancel:hover {
+    background: #e5e7eb !important;
+    border-color: #d1d5db !important;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .resbs-contact-popup-content {
+        width: 95% !important;
+        margin: auto !important;
+        max-height: 95vh !important;
+    }
+    
+    .resbs-contact-popup-header {
+        padding: 18px 20px !important;
+    }
+    
+    .resbs-contact-popup-title {
+        font-size: 20px !important;
+    }
+    
+    .resbs-contact-popup-body {
+        padding: 20px !important;
+    }
+    
+    .resbs-popup-form-row {
+        grid-template-columns: 1fr !important;
+        gap: 15px !important;
+    }
+    
+    .resbs-popup-form-actions {
+        flex-direction: column !important;
+    }
+    
+    .resbs-popup-form-submit,
+    .resbs-popup-form-cancel {
+        width: 100% !important;
+    }
+}
+
 /* ============================================================================ 
    END OF COMPLETE ISOLATION CSS
    ==================================================

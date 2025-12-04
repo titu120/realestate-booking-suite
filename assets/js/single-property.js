@@ -6,7 +6,6 @@
     'use strict';
     if (typeof window.submitBookingForm === 'undefined') {
         window.submitBookingForm = function(e) {
-            console.log('submitBookingForm placeholder called - full function should load soon');
             // Try to get form and show alert
             const form = document.getElementById('directBookingForm');
             if (form) {
@@ -256,17 +255,38 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
-// Contact Modal
+// Contact Form Popup
+function openContactForm() {
+    const contactSection = document.getElementById('contactFormSection');
+    if (contactSection) {
+        contactSection.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function closeContactForm() {
+    const contactSection = document.getElementById('contactFormSection');
+    if (contactSection) {
+        contactSection.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+}
+
+// Ensure popup is hidden on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const contactSection = document.getElementById('contactFormSection');
+    if (contactSection) {
+        contactSection.style.display = 'none';
+    }
+});
+
+// Keep old function names for backward compatibility
 function openContactModal() {
-    document.getElementById('contactModal').classList.remove('hidden');
-    document.getElementById('contactModal').classList.add('flex');
-    document.body.style.overflow = 'hidden';
+    openContactForm();
 }
 
 function closeContactModal() {
-    document.getElementById('contactModal').classList.add('hidden');
-    document.getElementById('contactModal').classList.remove('flex');
-    document.body.style.overflow = 'auto';
+    closeContactForm();
 }
 
 function submitContactForm(e) {
@@ -330,8 +350,8 @@ function submitContactForm(e) {
             alert(data.data.message);
             // Reset form
             e.target.reset();
-            // Close modal
-            closeContactModal();
+            // Close form section
+            closeContactForm();
         } else {
             // Show error message
             alert(data.data.message || 'Sorry, there was an error sending your message.');
@@ -341,7 +361,7 @@ function submitContactForm(e) {
         // Fallback for network or server errors
         alert('Thank you for your message!\n\nIf you are in a development environment, the message may be logged to the error log. On a live server, this will work properly.');
         e.target.reset();
-        closeContactModal();
+        closeContactForm();
     })
     .finally(() => {
         // Reset button state
@@ -473,7 +493,6 @@ function shareMedia() {
 // Simple booking form submission - Override placeholder with full function
 // This function MUST be available for the button click handler
 window.submitBookingForm = function(e) {
-    console.log('=== submitBookingForm START ===', e);
     
     // Stop form from submitting normally
     if (e && e.preventDefault) {
@@ -492,12 +511,9 @@ window.submitBookingForm = function(e) {
     }
     
     if (!form || form.tagName !== 'FORM') {
-        console.error('Booking form not found');
         alert('Error: Form not found. Please refresh the page and try again.');
         return false;
     }
-    
-    console.log('Booking form found, starting submission', form);
     
     // Check if AJAX data is available
     if (typeof resbs_ajax === 'undefined') {
@@ -596,9 +612,6 @@ window.submitBookingForm = function(e) {
         submitBtn.disabled = true;
     }
     
-    console.log('Submitting booking form to:', resbs_ajax.ajax_url);
-    console.log('Form data keys:', Array.from(formData.keys()));
-    
     // Submit form via AJAX
     fetch(resbs_ajax.ajax_url, {
         method: 'POST',
@@ -606,14 +619,12 @@ window.submitBookingForm = function(e) {
         credentials: 'same-origin'
     })
     .then(response => {
-        console.log('Response received:', response.status);
         if (!response.ok) {
             throw new Error('Network response was not ok: ' + response.status);
         }
         return response.json();
     })
     .then(data => {
-        console.log('Response data:', data);
         if (data.success) {
             // Show success message
             alert(data.data.message || 'Thank you! Your tour booking has been confirmed.');
@@ -624,12 +635,10 @@ window.submitBookingForm = function(e) {
         } else {
             // Show error message
             const errorMsg = data.data && data.data.message ? data.data.message : 'Sorry, there was an error processing your booking. Please try again.';
-            console.error('Booking submission failed:', errorMsg);
             alert(errorMsg);
         }
     })
     .catch(error => {
-        console.error('Booking form error:', error);
         // Check if it's a network error or server error
         if (error.message && error.message.includes('Network')) {
             alert('Network error: Unable to connect to server. Please check your internet connection and try again.');
@@ -649,7 +658,6 @@ window.submitBookingForm = function(e) {
     
     return false;
 };
-console.log('submitBookingForm function defined and ready');
 
 // Simple Image Popup - Fallback solution
 function showImagePopup(imageSrc) {
@@ -889,9 +897,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Close modals when clicking outside
 window.onclick = function(event) {
-    const contactModal = document.getElementById('contactModal');
-    if (event.target === contactModal) {
-        closeContactModal();
+    const contactSection = document.getElementById('contactFormSection');
+    // Click outside to close form (if clicking on backdrop)
+    if (contactSection && event.target === contactSection) {
+        closeContactForm();
     }
 }
 

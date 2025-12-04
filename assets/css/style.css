@@ -1,5 +1,9 @@
 ﻿/* RealEstate Booking Suite - Frontend Styles */
 
+.single-property .card p.property-price {
+    margin: 0 !important;
+}
+
 /* Property Submission Form */
 .resbs-submit-property-form {
     max-width: 600px !important;

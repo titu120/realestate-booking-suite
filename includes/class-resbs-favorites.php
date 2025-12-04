@@ -52,38 +52,73 @@ class RESBS_Favorites_Manager {
     public function enqueue_assets() {
         global $post;
         
+        // Check if we're on saved-properties page or if shortcode is present
+        $is_saved_properties_page = false;
+        if (is_page()) {
+            $current_page = get_queried_object();
+            if ($current_page && isset($current_page->post_name) && $current_page->post_name === 'saved-properties') {
+                $is_saved_properties_page = true;
+            }
+            // Also check by page ID (fallback)
+            if (!$is_saved_properties_page) {
+                $wishlist_page_id = get_option('resbs_wishlist_page_id');
+                if ($wishlist_page_id && is_page($wishlist_page_id)) {
+                    $is_saved_properties_page = true;
+                }
+            }
+            // Also check by URL (fallback)
+            if (!$is_saved_properties_page && isset($_SERVER['REQUEST_URI'])) {
+                if (strpos($_SERVER['REQUEST_URI'], 'saved-properties') !== false) {
+                    $is_saved_properties_page = true;
+                }
+            }
+        }
+        
+        $has_favorites_shortcode = is_a($post, 'WP_Post') && has_shortcode($post->post_content ?? '', 'resbs_favorites');
+        
         // Always enqueue - the shortcode will be on the saved properties page
         // This ensures CSS is loaded regardless of detection method
         
-        // Enqueue archive CSS files (needed for property card styling)
+        // Enqueue archive CSS files (needed for property card styling) with cache busting
         wp_enqueue_style(
             'resbs-archive',
             RESBS_URL . 'assets/css/archive.css',
             array(),
-            '1.0.0'
+            resbs_get_css_version('assets/css/archive.css')
         );
         
         wp_enqueue_style(
             'resbs-rbs-archive',
             RESBS_URL . 'assets/css/rbs-archive.css',
             array('resbs-archive'),
-            '1.0.0'
+            resbs_get_css_version('assets/css/rbs-archive.css')
         );
         
-        // Enqueue main style.css for general styles
+        // Enqueue main style.css for general styles with cache busting
         wp_enqueue_style(
             'resbs-style',
             RESBS_URL . 'assets/css/style.css',
             array('resbs-archive', 'resbs-rbs-archive'),
-            '1.0.0'
+            resbs_get_css_version('assets/css/style.css')
         );
         
-        // Enqueue favorites styles
+        // Enqueue shortcodes.css - CRITICAL for saved-properties page 3-column layout
+        // Always enqueue on saved-properties page or if shortcode is detected
+        if ($is_saved_properties_page || $has_favorites_shortcode || !wp_style_is('resbs-shortcodes', 'enqueued')) {
+            wp_enqueue_style(
+                'resbs-shortcodes',
+                RESBS_URL . 'assets/css/shortcodes.css',
+                array('resbs-rbs-archive', 'resbs-style'),
+                resbs_get_css_version('assets/css/shortcodes.css')
+            );
+        }
+        
+        // Enqueue favorites styles with cache busting
         wp_enqueue_style(
             'resbs-favorites',
             RESBS_URL . 'assets/css/favorites.css',
             array('resbs-archive', 'resbs-rbs-archive', 'resbs-style'),
-            '1.0.0'
+            resbs_get_css_version('assets/css/favorites.css')
         );
 
         // Enqueue favorites scripts
@@ -96,12 +131,12 @@ class RESBS_Favorites_Manager {
         );
         
         // Enqueue archive JS for wishlist button functionality
-        // Enqueue toast notification CSS
+        // Enqueue toast notification CSS with cache busting
         wp_enqueue_style(
             'resbs-toast-notification',
             RESBS_URL . 'assets/css/toast-notification.css',
             array(),
-            '1.0.0'
+            resbs_get_css_version('assets/css/toast-notification.css')
         );
         
         // Enqueue toast notification JS
@@ -592,12 +627,64 @@ class RESBS_Favorites_Manager {
         }
 
         // Ensure CSS is loaded when shortcode is rendered
-        wp_enqueue_style('resbs-archive', RESBS_URL . 'assets/css/archive.css', array(), '1.0.0');
-        wp_enqueue_style('resbs-rbs-archive', RESBS_URL . 'assets/css/rbs-archive.css', array('resbs-archive'), '1.0.0');
-        wp_enqueue_style('resbs-style', RESBS_URL . 'assets/css/style.css', array('resbs-archive', 'resbs-rbs-archive'), '1.0.0');
+        // Use cache busting function to ensure fresh CSS on updates
+        wp_enqueue_style('resbs-archive', RESBS_URL . 'assets/css/archive.css', array(), resbs_get_css_version('assets/css/archive.css'));
+        wp_enqueue_style('resbs-rbs-archive', RESBS_URL . 'assets/css/rbs-archive.css', array('resbs-archive'), resbs_get_css_version('assets/css/rbs-archive.css'));
+        wp_enqueue_style('resbs-style', RESBS_URL . 'assets/css/style.css', array('resbs-archive', 'resbs-rbs-archive'), resbs_get_css_version('assets/css/style.css'));
+        // Enqueue shortcodes.css AFTER archive.css to override with 3-column layout
+        wp_enqueue_style('resbs-shortcodes', RESBS_URL . 'assets/css/shortcodes.css', array('resbs-rbs-archive', 'resbs-style'), resbs_get_css_version('assets/css/shortcodes.css'));
         
         // Enqueue Font Awesome (needed for icons)
         wp_enqueue_style('resbs-font-awesome', esc_url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'), array(), '6.4.0');
+        
+        // Add inline style override with maximum priority to ensure 3 columns - SAVED PROPERTIES ONLY
+        add_action('wp_head', function() {
+            echo '<style id="resbs-saved-properties-override">
+            /* MAXIMUM PRIORITY - Saved Properties Page 3 Columns - Override ALL styles including rbs-archive.css */
+            /* ONLY targets .resbs-favorites-container to NOT affect other archive pages */
+            body.page .rbs-archive .resbs-favorites-container .property-grid,
+            body .rbs-archive .resbs-favorites-container .property-grid,
+            .rbs-archive .resbs-favorites-container .property-grid,
+            .resbs-favorites-container .property-grid,
+            .rbs-archive:has(.resbs-favorites-container) .property-grid,
+            body.page .rbs-archive.resbs-archive-wrapper .resbs-favorites-container .property-grid,
+            body.page:not(.archive):not(.post-type-archive-property) .rbs-archive .resbs-favorites-container .property-grid {
+                grid-template-columns: repeat(3, 1fr) !important;
+                display: grid !important;
+                gap: 20px !important;
+            }
+            /* Override rbs-archive.css 4-column rule at 1400px breakpoint */
+            @media (min-width: 1400px) {
+                body.page .rbs-archive .resbs-favorites-container .property-grid,
+                body .rbs-archive .resbs-favorites-container .property-grid,
+                .rbs-archive .resbs-favorites-container .property-grid,
+                .resbs-favorites-container .property-grid,
+                .rbs-archive:has(.resbs-favorites-container) .property-grid,
+                body.page .rbs-archive.resbs-archive-wrapper .resbs-favorites-container .property-grid,
+                body.page:not(.archive):not(.post-type-archive-property) .rbs-archive .resbs-favorites-container .property-grid {
+                    grid-template-columns: repeat(3, 1fr) !important;
+                }
+            }
+            @media (max-width: 1024px) {
+                body.page .rbs-archive .resbs-favorites-container .property-grid,
+                body .rbs-archive .resbs-favorites-container .property-grid,
+                .rbs-archive .resbs-favorites-container .property-grid,
+                .resbs-favorites-container .property-grid,
+                .rbs-archive:has(.resbs-favorites-container) .property-grid {
+                    grid-template-columns: repeat(2, 1fr) !important;
+                }
+            }
+            @media (max-width: 768px) {
+                body.page .rbs-archive .resbs-favorites-container .property-grid,
+                body .rbs-archive .resbs-favorites-container .property-grid,
+                .rbs-archive .resbs-favorites-container .property-grid,
+                .resbs-favorites-container .property-grid,
+                .rbs-archive:has(.resbs-favorites-container) .property-grid {
+                    grid-template-columns: repeat(1, 1fr) !important;
+                }
+            }
+            </style>' . "\n";
+        }, 99999);
         
         ob_start();
         ?>
@@ -617,7 +704,7 @@ class RESBS_Favorites_Manager {
                     <?php endif; ?>
                 </div>
 
-                <div class="property-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;">
+                <div class="property-grid" style="display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 20px !important;">
                 <?php while ($properties_query->have_posts()): $properties_query->the_post(); ?>
                     <?php $this->render_favorite_property_card(get_the_ID(), $show_image, $show_price, $show_details, $show_actions); ?>
                 <?php endwhile; ?>

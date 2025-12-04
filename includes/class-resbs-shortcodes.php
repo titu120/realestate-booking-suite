@@ -285,12 +285,22 @@ Best regards,
         global $post;
         
         if (is_a($post, 'WP_Post') && has_shortcode($post->post_content, 'resbs_property_grid')) {
+            // Register layouts CSS if not already registered
+            if (!wp_style_is('resbs-layouts', 'registered')) {
+                wp_register_style(
+                    'resbs-layouts',
+                    RESBS_URL . 'assets/css/layouts.css',
+                    array(),
+                    resbs_get_css_version('assets/css/layouts.css')
+                );
+            }
             wp_enqueue_style('resbs-layouts');
             // layouts.js is disabled to prevent conflicts - functionality moved to elementor.js
             // wp_enqueue_script('resbs-layouts');
         }
         
         if (is_a($post, 'WP_Post') && has_shortcode($post->post_content, 'resbs_search')) {
+            // Maps CSS is registered in class-resbs-maps.php, just enqueue it
             wp_enqueue_style('resbs-maps');
             wp_enqueue_script('resbs-maps');
         }
@@ -302,7 +312,7 @@ Best regards,
                     'resbs-shortcodes',
                     RESBS_URL . 'assets/css/shortcodes.css',
                     array(),
-                    '1.0.0'
+                    resbs_get_css_version('assets/css/shortcodes.css')
                 );
             }
             
@@ -312,7 +322,7 @@ Best regards,
                     'resbs-rbs-archive',
                     RESBS_URL . 'assets/css/rbs-archive.css',
                     array(),
-                    '1.0.0'
+                    resbs_get_css_version('assets/css/rbs-archive.css')
                 );
             }
             
@@ -368,7 +378,7 @@ Best regards,
                     'resbs-registration-form',
                     RESBS_URL . 'assets/css/registration-form.css',
                     array('resbs-shortcodes'),
-                    '1.0.0'
+                    resbs_get_css_version('assets/css/registration-form.css')
                 );
             }
         }

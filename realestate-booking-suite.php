@@ -22,6 +22,107 @@ if (!defined('ABSPATH')) {
 define('RESBS_PATH', plugin_dir_path(__FILE__));
 define('RESBS_URL', plugin_dir_url(__FILE__));
 
+/**
+ * Get CSS file version for cache busting
+ * Uses file modification time to ensure fresh CSS on updates
+ * 
+ * @param string $file_path Relative path from plugin root (e.g., 'assets/css/shortcodes.css')
+ * @return string Version string based on file modification time
+ */
+function resbs_get_css_version($file_path) {
+    $full_path = RESBS_PATH . $file_path;
+    if (file_exists($full_path)) {
+        // Use file modification time as version - ensures cache busting on file changes
+        $version = filemtime($full_path);
+        // If filemtime fails, use current timestamp as fallback
+        return $version ? $version : time();
+    }
+    // Fallback to current timestamp if file doesn't exist (forces reload)
+    return time();
+}
+
+/**
+ * Debug function to check if CSS files exist and are accessible
+ * Add ?resbs_debug_css=1 to any page URL to see diagnostic info
+ */
+function resbs_debug_css_files() {
+    if (!isset($_GET['resbs_debug_css']) || !current_user_can('manage_options')) {
+        return;
+    }
+    
+    $css_files = array(
+        'shortcodes.css' => 'assets/css/shortcodes.css',
+        'archive.css' => 'assets/css/archive.css',
+        'rbs-archive.css' => 'assets/css/rbs-archive.css',
+        'style.css' => 'assets/css/style.css',
+        'favorites.css' => 'assets/css/favorites.css',
+        'single-property.css' => 'assets/css/single-property.css',
+        'single-property-responsive.css' => 'assets/css/single-property-responsive.css',
+        'single-property-amenities.css' => 'assets/css/single-property-amenities.css',
+    );
+    
+    echo '<div style="background: #fff; padding: 20px; margin: 20px; border: 2px solid #0073aa; font-family: monospace;">';
+    echo '<h2>RESBS CSS Files Diagnostic</h2>';
+    echo '<p><strong>Plugin Path:</strong> ' . RESBS_PATH . '</p>';
+    echo '<p><strong>Plugin URL:</strong> ' . RESBS_URL . '</p>';
+    echo '<hr>';
+    
+    foreach ($css_files as $name => $path) {
+        $full_path = RESBS_PATH . $path;
+        $url = RESBS_URL . $path;
+        $exists = file_exists($full_path);
+        $readable = $exists && is_readable($full_path);
+        $version = $exists ? resbs_get_css_version($path) : 'N/A';
+        $size = $exists ? filesize($full_path) : 0;
+        $modified = $exists ? date('Y-m-d H:i:s', filemtime($full_path)) : 'N/A';
+        
+        echo '<div style="margin: 10px 0; padding: 10px; background: #f0f0f0;">';
+        echo '<strong>' . $name . '</strong><br>';
+        echo 'Path: ' . $full_path . '<br>';
+        echo 'URL: <a href="' . $url . '?ver=' . $version . '" target="_blank">' . $url . '</a><br>';
+        echo 'Exists: ' . ($exists ? '<span style="color: green;">YES</span>' : '<span style="color: red;">NO</span>') . '<br>';
+        echo 'Readable: ' . ($readable ? '<span style="color: green;">YES</span>' : '<span style="color: red;">NO</span>') . '<br>';
+        echo 'Version: ' . $version . '<br>';
+        echo 'Size: ' . number_format($size) . ' bytes<br>';
+        echo 'Modified: ' . $modified . '<br>';
+        echo '</div>';
+    }
+    
+    echo '<hr>';
+    echo '<h3>Current Page Info</h3>';
+    global $post;
+    echo 'Is Page: ' . (is_page() ? 'YES' : 'NO') . '<br>';
+    if (is_page()) {
+        $current_page = get_queried_object();
+        echo 'Page Slug: ' . (isset($current_page->post_name) ? $current_page->post_name : 'N/A') . '<br>';
+        echo 'Is Saved Properties: ' . (isset($current_page->post_name) && $current_page->post_name === 'saved-properties' ? 'YES' : 'NO') . '<br>';
+    }
+    if ($post) {
+        echo 'Post Content Has Shortcode: ' . (has_shortcode($post->post_content ?? '', 'resbs_favorites') ? 'YES' : 'NO') . '<br>';
+    }
+    
+    echo '<hr>';
+    echo '<h3>Enqueued Styles</h3>';
+    global $wp_styles;
+    if (isset($wp_styles->queue)) {
+        foreach ($wp_styles->queue as $handle) {
+            if (strpos($handle, 'resbs') !== false) {
+                $style = $wp_styles->registered[$handle] ?? null;
+                if ($style) {
+                    echo '<div style="margin: 5px 0;">';
+                    echo '<strong>' . $handle . '</strong><br>';
+                    echo 'URL: ' . ($style->src ?? 'N/A') . '<br>';
+                    echo 'Version: ' . ($style->ver ?? 'N/A') . '<br>';
+                    echo '</div>';
+                }
+            }
+        }
+    }
+    
+    echo '</div>';
+}
+add_action('wp_footer', 'resbs_debug_css_files');
+
 // Force flush rewrite rules on activation
 function resbs_flush_rewrite_rules() {
     flush_rewrite_rules();
@@ -37,6 +138,7 @@ function resbs_create_wishlist_page() {
     $existing_page = get_page_by_path($page_slug);
     
     // Also check if we stored the page ID in options
+    
     $stored_page_id = get_option('resbs_wishlist_page_id');
     
     if ($stored_page_id) {
@@ -583,6 +685,33 @@ function resbs_enqueue_assets() {
                         is_tax('property_tag') ||
                         $has_shortcode;
     
+    // Check if we're on saved-properties page
+    $is_saved_properties_page = false;
+    if (is_page()) {
+        $current_page = get_queried_object();
+        if ($current_page && isset($current_page->post_name) && $current_page->post_name === 'saved-properties') {
+            $is_saved_properties_page = true;
+        }
+    }
+    
+    // Check if dashboard or favorites shortcode is present
+    $has_dashboard_shortcode = $post && has_shortcode($post->post_content ?? '', 'resbs_dashboard');
+    $has_favorites_shortcode = $post && has_shortcode($post->post_content ?? '', 'resbs_favorites');
+    
+    // Enqueue Shortcodes CSS - CRITICAL for dashboard and saved-properties pages
+    // Load on property pages, saved-properties page, or if shortcodes are detected
+    // MUST be outside $is_property_page condition to load on saved-properties page
+    if ($is_property_page || $is_saved_properties_page || $has_dashboard_shortcode || $has_favorites_shortcode) {
+        if (!wp_style_is('resbs-shortcodes', 'enqueued')) {
+            wp_enqueue_style(
+                'resbs-shortcodes',
+                RESBS_URL . 'assets/css/shortcodes.css',
+                array(),
+                resbs_get_css_version('assets/css/shortcodes.css')
+            );
+        }
+    }
+    
     // Enqueue Font Awesome only on property pages
     if ($is_property_page) {
         wp_enqueue_style(
@@ -593,28 +722,28 @@ function resbs_enqueue_assets() {
             'all'
         );
         
-        // Enqueue CSS only on property pages
+        // Enqueue CSS only on property pages with cache busting
         wp_enqueue_style(
             'resbs-style',
             RESBS_URL . 'assets/css/style.css',
             array('font-awesome'),
-            '1.0.0'
+            resbs_get_css_version('assets/css/style.css')
         );
         
-        // Enqueue Contact Widget CSS
+        // Enqueue Contact Widget CSS with cache busting
         wp_enqueue_style(
             'resbs-contact-widget',
             RESBS_URL . 'assets/css/contact-widget.css',
             array(),
-            '1.0.0'
+            resbs_get_css_version('assets/css/contact-widget.css')
         );
         
-        // Enqueue Layout CSS
+        // Enqueue Layout CSS with cache busting
         wp_enqueue_style(
             'resbs-layouts',
             RESBS_URL . 'assets/css/layouts.css',
             array(),
-            '1.0.0'
+            resbs_get_css_version('assets/css/layouts.css')
         );
         
         // Enqueue Single Property Responsive CSS only on single property pages
@@ -624,7 +753,7 @@ function resbs_enqueue_assets() {
                 'resbs-single-property-responsive',
                 RESBS_URL . 'assets/css/single-property-responsive.css',
                 array(), // No dependencies
-                '2.0.0' // Version bump
+                resbs_get_css_version('assets/css/single-property-responsive.css') // Cache busting version
             );
             // Force load after all other styles with maximum priority
             add_action('wp_head', function() {
@@ -632,13 +761,111 @@ function resbs_enqueue_assets() {
             }, 99999);
         }
         
-        // Enqueue Shortcodes CSS
-        wp_enqueue_style(
-            'resbs-shortcodes',
-            RESBS_URL . 'assets/css/shortcodes.css',
-            array(),
-            '1.0.0'
-        );
+        // Force load dashboard container width override with maximum priority
+        if ($has_dashboard_shortcode) {
+            add_action('wp_head', function() {
+                echo '<style id="resbs-dashboard-override">
+                /* MAXIMUM PRIORITY DASHBOARD CONTAINER WIDTH - 1536px - OVERRIDE ALL THEME STYLES */
+                .resbs-dashboard-widget,
+                body .resbs-dashboard-widget,
+                body.page .resbs-dashboard-widget,
+                body.single .resbs-dashboard-widget,
+                body.archive .resbs-dashboard-widget,
+                #content .resbs-dashboard-widget,
+                .main-content .resbs-dashboard-widget,
+                .container .resbs-dashboard-widget,
+                .wp-block-group .resbs-dashboard-widget,
+                .entry-content .resbs-dashboard-widget,
+                .site-content .resbs-dashboard-widget,
+                .content-area .resbs-dashboard-widget,
+                .wrapper .resbs-dashboard-widget,
+                div .resbs-dashboard-widget,
+                * .resbs-dashboard-widget,
+                [class*="container"] .resbs-dashboard-widget,
+                [class*="wrapper"] .resbs-dashboard-widget,
+                [class*="content"] .resbs-dashboard-widget {
+                    max-width: 1536px !important;
+                    width: 100% !important;
+                    margin-left: auto !important;
+                    margin-right: auto !important;
+                    box-sizing: border-box !important;
+                    position: relative !important;
+                }
+                /* Dashboard Property Grid - 3 Columns Only (NOT affecting other archives) - MAXIMUM PRIORITY */
+                #propertyGrid.property-grid,
+                .resbs-dashboard-section .rbs-archive #propertyGrid.property-grid,
+                .resbs-dashboard-section .rbs-archive .property-grid,
+                .resbs-dashboard-section .rbs-archive .listings-container .property-grid,
+                .resbs-dashboard-section .rbs-archive .listings-container .properties-list .property-grid,
+                .resbs-dashboard-section .rbs-archive .listings-container #propertyGrid.property-grid,
+                .resbs-dashboard-section .rbs-archive .properties-list .property-grid,
+                .resbs-dashboard-section .rbs-archive .properties-list #propertyGrid.property-grid,
+                .resbs-dashboard-widget .resbs-dashboard-section .rbs-archive #propertyGrid.property-grid,
+                .resbs-dashboard-widget .resbs-dashboard-section .rbs-archive .property-grid,
+                .resbs-dashboard-widget .resbs-dashboard-section .rbs-archive .listings-container .property-grid,
+                .resbs-dashboard-widget .resbs-dashboard-section .rbs-archive .listings-container .properties-list .property-grid,
+                .resbs-dashboard-widget .resbs-dashboard-section .rbs-archive .listings-container #propertyGrid.property-grid,
+                .resbs-dashboard-widget .resbs-dashboard-section .rbs-archive .properties-list .property-grid,
+                .resbs-dashboard-widget .resbs-dashboard-section .rbs-archive .properties-list #propertyGrid.property-grid,
+                .resbs-tab-panel .resbs-dashboard-section .rbs-archive #propertyGrid.property-grid,
+                .resbs-tab-panel .resbs-dashboard-section .rbs-archive .property-grid,
+                .resbs-tab-panel .resbs-dashboard-section .rbs-archive .listings-container .property-grid,
+                .resbs-tab-panel .resbs-dashboard-section .rbs-archive .listings-container .properties-list .property-grid,
+                .resbs-tab-panel .resbs-dashboard-section .rbs-archive .listings-container #propertyGrid.property-grid,
+                .resbs-tab-panel .resbs-dashboard-section .rbs-archive .properties-list .property-grid,
+                .resbs-tab-panel .resbs-dashboard-section .rbs-archive .properties-list #propertyGrid.property-grid,
+                #properties .resbs-dashboard-section .rbs-archive #propertyGrid.property-grid,
+                #properties .resbs-dashboard-section .rbs-archive .property-grid,
+                #properties .resbs-dashboard-section .rbs-archive .listings-container .property-grid,
+                #properties .resbs-dashboard-section .rbs-archive .listings-container .properties-list .property-grid,
+                #properties .resbs-dashboard-section .rbs-archive .listings-container #propertyGrid.property-grid,
+                #properties .resbs-dashboard-section .rbs-archive .properties-list .property-grid,
+                #properties .resbs-dashboard-section .rbs-archive .properties-list #propertyGrid.property-grid {
+                    grid-template-columns: repeat(3, 1fr) !important;
+                    display: grid !important;
+                    max-width: 100% !important;
+                }
+                @media (max-width: 1024px) {
+                    #propertyGrid.property-grid,
+                    .resbs-dashboard-section .rbs-archive #propertyGrid.property-grid,
+                    .resbs-dashboard-section .rbs-archive .property-grid,
+                    .resbs-dashboard-section .rbs-archive .listings-container .property-grid,
+                    .resbs-dashboard-section .rbs-archive .listings-container .properties-list .property-grid,
+                    .resbs-dashboard-section .rbs-archive .listings-container #propertyGrid.property-grid,
+                    .resbs-dashboard-section .rbs-archive .properties-list .property-grid,
+                    .resbs-dashboard-section .rbs-archive .properties-list #propertyGrid.property-grid,
+                    .resbs-dashboard-widget .resbs-dashboard-section .rbs-archive #propertyGrid.property-grid,
+                    .resbs-dashboard-widget .resbs-dashboard-section .rbs-archive .property-grid,
+                    .resbs-dashboard-widget .resbs-dashboard-section .rbs-archive .listings-container .property-grid,
+                    .resbs-dashboard-widget .resbs-dashboard-section .rbs-archive .listings-container .properties-list .property-grid,
+                    .resbs-dashboard-widget .resbs-dashboard-section .rbs-archive .listings-container #propertyGrid.property-grid,
+                    .resbs-dashboard-widget .resbs-dashboard-section .rbs-archive .properties-list .property-grid,
+                    .resbs-dashboard-widget .resbs-dashboard-section .rbs-archive .properties-list #propertyGrid.property-grid {
+                        grid-template-columns: repeat(2, 1fr) !important;
+                    }
+                }
+                @media (max-width: 768px) {
+                    #propertyGrid.property-grid,
+                    .resbs-dashboard-section .rbs-archive #propertyGrid.property-grid,
+                    .resbs-dashboard-section .rbs-archive .property-grid,
+                    .resbs-dashboard-section .rbs-archive .listings-container .property-grid,
+                    .resbs-dashboard-section .rbs-archive .listings-container .properties-list .property-grid,
+                    .resbs-dashboard-section .rbs-archive .listings-container #propertyGrid.property-grid,
+                    .resbs-dashboard-section .rbs-archive .properties-list .property-grid,
+                    .resbs-dashboard-section .rbs-archive .properties-list #propertyGrid.property-grid,
+                    .resbs-dashboard-widget .resbs-dashboard-section .rbs-archive #propertyGrid.property-grid,
+                    .resbs-dashboard-widget .resbs-dashboard-section .rbs-archive .property-grid,
+                    .resbs-dashboard-widget .resbs-dashboard-section .rbs-archive .listings-container .property-grid,
+                    .resbs-dashboard-widget .resbs-dashboard-section .rbs-archive .listings-container .properties-list .property-grid,
+                    .resbs-dashboard-widget .resbs-dashboard-section .rbs-archive .listings-container #propertyGrid.property-grid,
+                    .resbs-dashboard-widget .resbs-dashboard-section .rbs-archive .properties-list .property-grid,
+                    .resbs-dashboard-widget .resbs-dashboard-section .rbs-archive .properties-list #propertyGrid.property-grid {
+                        grid-template-columns: repeat(1, 1fr) !important;
+                    }
+                }
+                </style>' . "\n";
+            }, 99999);
+        }
     }
         
         // Enqueue Modern Dashboard CSS (Admin Only)
@@ -647,25 +874,25 @@ function resbs_enqueue_assets() {
                 'resbs-modern-dashboard',
                 RESBS_URL . 'assets/css/modern-dashboard.css',
                 array(),
-                '1.0.0'
+                resbs_get_css_version('assets/css/modern-dashboard.css')
             );
         }
         
         // Only load archive CSS on property archive pages, not on all pages
         if (is_post_type_archive('property') || is_tax('property_type') || is_tax('property_status') || is_tax('property_location') || is_tax('property_tag')) {
-            // Load fallback CSS first (simple selectors)
+            // Load fallback CSS first (simple selectors) with cache busting
             wp_enqueue_style(
                 'resbs-archive-fallback',
                 RESBS_URL . 'assets/css/rbs-archive-fallback.css',
                 array(), // No dependencies
-                '2.0.0'
+                resbs_get_css_version('assets/css/rbs-archive-fallback.css')
             );
-            // Load with HIGHEST priority - after all theme styles
+            // Load with HIGHEST priority - after all theme styles with cache busting
             wp_enqueue_style(
                 'resbs-archive',
                 RESBS_URL . 'assets/css/rbs-archive.css',
                 array('resbs-archive-fallback'), // Load after fallback
-                '2.0.0' // Version bump
+                resbs_get_css_version('assets/css/rbs-archive.css') // Cache busting version
             );
             // Force load after all other styles with maximum priority - CRITICAL CONTAINER WIDTH OVERRIDE
             add_action('wp_head', function() {

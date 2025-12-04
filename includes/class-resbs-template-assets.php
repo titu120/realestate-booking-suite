@@ -55,19 +55,20 @@ class RESBS_Template_Assets {
         
         // Enqueue single property CSS
         // Load with HIGHEST priority - after all theme styles
+        // Use cache busting to ensure fresh CSS on updates
         wp_enqueue_style(
             'resbs-single-property',
             RESBS_URL . 'assets/css/single-property.css',
             array('resbs-font-awesome', 'resbs-leaflet', 'resbs-google-fonts'), // Dependencies
-            '2.0.0' // Version bump for maximum priority
+            resbs_get_css_version('assets/css/single-property.css') // Cache busting version
         );
         
-        // Enqueue amenities CSS
+        // Enqueue amenities CSS with cache busting
         wp_enqueue_style(
             'resbs-single-property-amenities',
             RESBS_URL . 'assets/css/single-property-amenities.css',
             array('resbs-single-property'),
-            '1.0.0'
+            resbs_get_css_version('assets/css/single-property-amenities.css')
         );
         
         // Add dynamic inline styles for color customization
@@ -394,7 +395,7 @@ class RESBS_Template_Assets {
             'resbs-simple-archive-layout',
             RESBS_URL . 'assets/css/simple-archive-layout.css',
             array(),
-            '1.0.0'
+            resbs_get_css_version('assets/css/simple-archive-layout.css')
         );
         
         // Add dynamic inline styles for colors

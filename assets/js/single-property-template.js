@@ -192,27 +192,52 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
-// Contact Modal - Make them global
-window.openContactModal = function() {
-    const contactModal = document.getElementById('contactModal');
-    if (contactModal) {
-        contactModal.classList.add('active');
+// Contact Form Popup - Make them global
+window.openContactForm = function() {
+    const contactSection = document.getElementById('contactFormSection');
+    if (contactSection) {
+        contactSection.style.display = 'flex';
         document.body.style.overflow = 'hidden';
     }
 }
 
-window.closeContactModal = function() {
-    const contactModal = document.getElementById('contactModal');
-    if (contactModal) {
-        contactModal.classList.remove('active');
+window.closeContactForm = function() {
+    const contactSection = document.getElementById('contactFormSection');
+    if (contactSection) {
+        contactSection.style.display = 'none';
         document.body.style.overflow = 'auto';
     }
+}
+
+// Ensure popup is hidden on page load
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+        const contactSection = document.getElementById('contactFormSection');
+        if (contactSection) {
+            contactSection.style.display = 'none';
+        }
+    });
+} else {
+    // DOM already loaded
+    const contactSection = document.getElementById('contactFormSection');
+    if (contactSection) {
+        contactSection.style.display = 'none';
+    }
+}
+
+// Keep old function names for backward compatibility
+window.openContactModal = function() {
+    openContactForm();
+}
+
+window.closeContactModal = function() {
+    closeContactForm();
 }
 
 window.submitContactForm = function(e) {
     e.preventDefault();
     alert('Thank you for your message! Our agent will contact you shortly.');
-    closeContactModal();
+    closeContactForm();
 }
 
 // Mortgage Calculator - Make them global
@@ -526,10 +551,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Close modals when clicking outside
 window.onclick = function(event) {
-    const contactModal = document.getElementById('contactModal');
+    const contactSection = document.getElementById('contactFormSection');
+    const contactOverlay = contactSection ? contactSection.querySelector('.resbs-contact-popup-overlay') : null;
     const tourModal = document.getElementById('tourModal');
-    if (event.target === contactModal) {
-        closeContactModal();
+    // Click on overlay to close form
+    if (contactOverlay && event.target === contactOverlay) {
+        closeContactForm();
     }
     if (event.target === tourModal) {
         closeTourModal();

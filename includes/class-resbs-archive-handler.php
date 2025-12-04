@@ -280,7 +280,7 @@ class RESBS_Archive_Handler {
                 'resbs-archive',
                 RESBS_URL . 'assets/css/archive.css',
                 array(),
-                '1.0.0'
+                resbs_get_css_version('assets/css/archive.css')
             );
             
             wp_enqueue_script(

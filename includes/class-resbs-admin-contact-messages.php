@@ -28,7 +28,7 @@ class RESBS_Admin_Contact_Messages {
                 'resbs-admin-contact-messages',
                 RESBS_URL . 'assets/css/admin-contact-messages.css',
                 array(),
-                '1.0.0'
+                resbs_get_css_version('assets/css/admin-contact-messages.css')
             );
             
             wp_enqueue_script(
