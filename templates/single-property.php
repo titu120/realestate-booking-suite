@@ -1823,7 +1823,7 @@
                                 <p class="text-gray-600 mb-8"><?php echo esc_html($booking_form_subtitle); ?></p>
                                 <?php endif; ?>
                                 
-                                <form id="directBookingForm" method="post" action="#">
+                                <form id="directBookingForm" method="post" action="javascript:void(0);">
                                     <?php wp_nonce_field('resbs_booking_form', 'resbs_booking_form_nonce'); ?>
                                     <input type="hidden" name="property_id" value="<?php echo esc_attr($post->ID); ?>">
                                     <div class="space-y-6">
@@ -1865,10 +1865,124 @@
                                         </div>
                                         
                                         <div class="pt-4">
-                                            <button type="submit" id="resbs-booking-submit-btn" class="w-full bg-white hover:bg-green-700  font-bold py-4 px-6 rounded-lg transition duration-200 flex items-center justify-center  transform ">
+                                            <button type="button" id="resbs-booking-submit-btn" onclick="resbsHandleBookingClick(event); return false;" class="w-full bg-white hover:bg-green-700  font-bold py-4 px-6 rounded-lg transition duration-200 flex items-center justify-center  transform ">
                                                 <i class="fas fa-calendar-check mr-3 text-lg"></i><?php echo esc_html($booking_submit_text ? $booking_submit_text : __('Schedule Property Viewing', 'realestate-booking-suite')); ?>
                                             </button>
                                         </div>
+                                        <script>
+                                        // Inline handler - works immediately, no dependencies
+                                        function resbsHandleBookingClick(e) {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            
+                                            var form = document.getElementById('directBookingForm');
+                                            if (!form) {
+                                                alert('Error: Form not found. Please refresh the page.');
+                                                return false;
+                                            }
+                                            
+                                            // Try to use the main function if available
+                                            if (typeof window.submitBookingForm === 'function') {
+                                                var syntheticEvent = {
+                                                    preventDefault: function() {},
+                                                    stopPropagation: function() {},
+                                                    target: form
+                                                };
+                                                window.submitBookingForm(syntheticEvent);
+                                                return false;
+                                            }
+                                            
+                                            // Fallback: Direct AJAX submission
+                                            var formData = new FormData(form);
+                                            var nonceField = form.querySelector('input[name="resbs_booking_form_nonce"]');
+                                            
+                                            if (!nonceField || !nonceField.value) {
+                                                alert('Error: Security token missing. Please refresh the page.');
+                                                return false;
+                                            }
+                                            
+                                            // Get AJAX URL
+                                            var ajaxUrl = '<?php echo esc_js(admin_url("admin-ajax.php")); ?>';
+                                            
+                                            // Map form fields
+                                            var bookingName = formData.get('bookingName');
+                                            if (bookingName) {
+                                                var nameParts = bookingName.trim().split(/\s+/);
+                                                var firstName = nameParts[0] || '';
+                                                var lastName = nameParts.slice(1).join(' ') || firstName;
+                                                formData.append('first_name', firstName);
+                                                formData.append('last_name', lastName);
+                                            }
+                                            
+                                            var bookingEmail = formData.get('bookingEmail');
+                                            if (bookingEmail) {
+                                                formData.append('email', bookingEmail);
+                                            }
+                                            
+                                            var bookingPhone = formData.get('bookingPhone');
+                                            if (bookingPhone) {
+                                                formData.append('phone', bookingPhone);
+                                            }
+                                            
+                                            var bookingDate = formData.get('bookingDate');
+                                            if (bookingDate) {
+                                                formData.append('preferred_date', bookingDate);
+                                            }
+                                            
+                                            var bookingMessage = formData.get('bookingMessage');
+                                            if (bookingMessage) {
+                                                formData.append('message', bookingMessage);
+                                            }
+                                            
+                                            // Validation
+                                            if (!bookingName || !bookingEmail) {
+                                                alert('Error: Please fill in Name and Email (required fields).');
+                                                return false;
+                                            }
+                                            
+                                            formData.append('action', 'resbs_submit_booking');
+                                            formData.append('_wpnonce', nonceField.value);
+                                            formData.append('resbs_booking_form_nonce', nonceField.value);
+                                            
+                                            // Show loading
+                                            var btn = document.getElementById('resbs-booking-submit-btn');
+                                            var originalText = btn ? btn.innerHTML : '';
+                                            if (btn) {
+                                                btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Booking...';
+                                                btn.disabled = true;
+                                            }
+                                            
+                                            // Submit
+                                            fetch(ajaxUrl, {
+                                                method: 'POST',
+                                                body: formData,
+                                                credentials: 'same-origin'
+                                            })
+                                            .then(function(response) {
+                                                return response.json();
+                                            })
+                                            .then(function(data) {
+                                                if (data.success) {
+                                                    alert(data.data.message || 'Thank you! Your tour booking has been confirmed.');
+                                                    form.reset();
+                                                } else {
+                                                    alert(data.data.message || 'Sorry, there was an error processing your booking. Please try again.');
+                                                }
+                                            })
+                                            .catch(function(error) {
+                                                alert('Error: Unable to submit booking. Please try again.');
+                                                console.error('Booking error:', error);
+                                            })
+                                            .finally(function() {
+                                                if (btn) {
+                                                    btn.innerHTML = originalText;
+                                                    btn.disabled = false;
+                                                }
+                                            });
+                                            
+                                            return false;
+                                        }
+                                        </script>
                                     </div>
                                 </form>
                             </div>

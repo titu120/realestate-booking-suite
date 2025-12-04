@@ -1,5 +1,23 @@
 // Single Property JavaScript Functions
 
+// Make submitBookingForm available immediately (before DOMContentLoaded)
+// This ensures it's available for inline onclick handlers
+(function() {
+    'use strict';
+    if (typeof window.submitBookingForm === 'undefined') {
+        window.submitBookingForm = function(e) {
+            console.log('submitBookingForm placeholder called - full function should load soon');
+            // Try to get form and show alert
+            const form = document.getElementById('directBookingForm');
+            if (form) {
+                alert('Form handler is loading. Please wait a moment and try again.');
+            } else {
+                alert('Form not found. Please refresh the page.');
+            }
+        };
+    }
+})();
+
 // Gallery images from PHP - will be populated by PHP
 let galleryImages = [];
 let currentImageIndex = 0;
@@ -452,21 +470,34 @@ function shareMedia() {
     }
 }
 
-// Simple booking form submission
+// Simple booking form submission - Override placeholder with full function
+// This function MUST be available for the button click handler
 window.submitBookingForm = function(e) {
+    console.log('=== submitBookingForm START ===', e);
+    
     // Stop form from submitting normally
     if (e && e.preventDefault) {
         e.preventDefault();
         e.stopPropagation();
     }
     
-    // Get the form
-    const form = e ? e.target : document.getElementById('directBookingForm');
+    // Get the form - try multiple methods
+    let form = null;
+    if (e && e.target && e.target.tagName === 'FORM') {
+        form = e.target;
+    } else if (e && e.target && e.target.closest) {
+        form = e.target.closest('form');
+    } else {
+        form = document.getElementById('directBookingForm');
+    }
     
     if (!form || form.tagName !== 'FORM') {
-        alert('Error: Form not found');
+        console.error('Booking form not found');
+        alert('Error: Form not found. Please refresh the page and try again.');
         return false;
     }
+    
+    console.log('Booking form found, starting submission', form);
     
     // Check if AJAX data is available
     if (typeof resbs_ajax === 'undefined') {
@@ -498,6 +529,8 @@ window.submitBookingForm = function(e) {
     
     formData.append('action', 'resbs_submit_booking');
     formData.append('_wpnonce', nonceField.value);
+    // Also append with the field name for compatibility
+    formData.append('resbs_booking_form_nonce', nonceField.value);
     
     // Property ID should already be in form data, but ensure it's set
     if (!formData.has('property_id')) {
@@ -508,9 +541,12 @@ window.submitBookingForm = function(e) {
     const bookingName = formData.get('bookingName');
     if (bookingName) {
         // Split name into first and last name
+        // If only one word, use it for both first and last name
         const nameParts = bookingName.trim().split(/\s+/);
-        formData.append('first_name', nameParts[0] || '');
-        formData.append('last_name', nameParts.slice(1).join(' ') || '');
+        const firstName = nameParts[0] || '';
+        const lastName = nameParts.slice(1).join(' ') || firstName; // Use first name as last name if no last name provided
+        formData.append('first_name', firstName);
+        formData.append('last_name', lastName);
     }
     
     // Map bookingEmail to email
@@ -553,44 +589,55 @@ window.submitBookingForm = function(e) {
     }
     
     // Show loading state
-    const submitBtn = form.querySelector('button[type="submit"]');
+    const submitBtn = form.querySelector('#resbs-booking-submit-btn') || form.querySelector('button[type="submit"]') || form.querySelector('button[type="button"]');
     if (submitBtn) {
         const originalText = submitBtn.innerHTML;
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Booking...';
         submitBtn.disabled = true;
     }
     
+    console.log('Submitting booking form to:', resbs_ajax.ajax_url);
+    console.log('Form data keys:', Array.from(formData.keys()));
+    
     // Submit form via AJAX
     fetch(resbs_ajax.ajax_url, {
         method: 'POST',
-        body: formData
+        body: formData,
+        credentials: 'same-origin'
     })
     .then(response => {
+        console.log('Response received:', response.status);
         if (!response.ok) {
             throw new Error('Network response was not ok: ' + response.status);
         }
         return response.json();
     })
     .then(data => {
+        console.log('Response data:', data);
         if (data.success) {
             // Show success message
-            alert(data.data.message || 'Thank you for your booking request! Your booking has been submitted successfully.');
+            alert(data.data.message || 'Thank you! Your tour booking has been confirmed.');
             // Reset form
             form.reset();
+            // Stay on the same tab (don't switch to overview)
+            // The form is already on the booking tab, so no need to switch
         } else {
             // Show error message
-            alert(data.data.message || 'Sorry, there was an error processing your booking. Please try again.');
+            const errorMsg = data.data && data.data.message ? data.data.message : 'Sorry, there was an error processing your booking. Please try again.';
+            console.error('Booking submission failed:', errorMsg);
+            alert(errorMsg);
         }
     })
     .catch(error => {
+        console.error('Booking form error:', error);
         // Check if it's a network error or server error
         if (error.message && error.message.includes('Network')) {
             alert('Network error: Unable to connect to server. Please check your internet connection and try again.');
         } else {
             // Generic error message for development/production
-            alert('Thank you for your booking request!\n\nIf you are in a development environment, the booking may be logged to the error log. On a live server, this will work properly.');
+            alert('Error: Unable to submit booking. Please try again or contact support if the problem persists.\n\nError details: ' + (error.message || 'Unknown error'));
         }
-        form.reset();
+        // Don't reset form on error so user can try again
     })
     .finally(() => {
         // Reset button state
@@ -601,7 +648,8 @@ window.submitBookingForm = function(e) {
     });
     
     return false;
-}
+};
+console.log('submitBookingForm function defined and ready');
 
 // Simple Image Popup - Fallback solution
 function showImagePopup(imageSrc) {
@@ -759,7 +807,69 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Add event listener for booking form
+    // Add event listener for booking form - use event delegation for dynamic forms
+    // This works even if the form is inside a hidden tab
+    document.addEventListener('submit', function(e) {
+        const form = e.target;
+        if (form && form.id === 'directBookingForm') {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            if (typeof window.submitBookingForm === 'function') {
+                window.submitBookingForm(e);
+            } else {
+                alert('Error: Form handler not loaded. Please refresh the page.');
+            }
+            
+            return false;
+        }
+    }, true); // Use capture phase to catch early
+    
+    // Add direct click handler on submit button - PRIMARY METHOD
+    // This MUST work because button is type="button" not type="submit"
+    document.addEventListener('click', function(e) {
+        const clickedElement = e.target;
+        
+        // Check if clicked on the button or any element inside it (like the icon)
+        let submitBtn = null;
+        if (clickedElement.id === 'resbs-booking-submit-btn') {
+            submitBtn = clickedElement;
+        } else if (clickedElement.closest && clickedElement.closest('#resbs-booking-submit-btn')) {
+            submitBtn = clickedElement.closest('#resbs-booking-submit-btn');
+        }
+        
+        if (submitBtn) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Check if button is disabled (already submitting)
+            if (submitBtn.disabled) {
+                return false;
+            }
+            
+            const form = document.getElementById('directBookingForm');
+            if (!form) {
+                alert('Error: Booking form not found. Please refresh the page.');
+                return false;
+            }
+            
+            if (typeof window.submitBookingForm === 'function') {
+                // Create a synthetic event object
+                const syntheticEvent = {
+                    preventDefault: function() {},
+                    stopPropagation: function() {},
+                    target: form
+                };
+                window.submitBookingForm(syntheticEvent);
+            } else {
+                alert('Error: Form handler not loaded. Please refresh the page.');
+            }
+            
+            return false;
+        }
+    }, true);
+    
+    // Also try to attach directly if form exists (for immediate availability)
     const bookingForm = document.getElementById('directBookingForm');
     if (bookingForm) {
         bookingForm.addEventListener('submit', function(e) {
@@ -774,8 +884,6 @@ document.addEventListener('DOMContentLoaded', function() {
             
             return false;
         });
-    } else {
-        // Booking form not found - will be handled by form submission
     }
 });
 

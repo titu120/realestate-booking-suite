@@ -3269,33 +3269,6 @@ body.page .single-property.resbs-single-property-wrapper#resbs-single-property-p
     display: block !important;
 }
 
-/* CRITICAL: Override ALL button styles with maximum specificity */
-body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page button,
-body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .button,
-body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page input[type="button"],
-body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page input[type="submit"],
-body.single.single-property .single-property.resbs-single-property-wrapper#resbs-single-property-page a.button,
-body.singular.post-type-property .single-property.resbs-single-property-wrapper#resbs-single-property-page button,
-body.singular.post-type-property .single-property.resbs-single-property-wrapper#resbs-single-property-page .button {
-    appearance: none !important;
-    -webkit-appearance: none !important;
-    -moz-appearance: none !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    border: none !important;
-    background: transparent !important;
-    font-family: inherit !important;
-    font-size: inherit !important;
-    line-height: inherit !important;
-    text-transform: none !important;
-    letter-spacing: normal !important;
-    text-decoration: none !important;
-    box-shadow: none !important;
-    border-radius: 0 !important;
-    cursor: pointer !important;
-    display: inline-block !important;
-    transition: all 0.3s ease !important;
-}
 
 /* ========================================
    COMPREHENSIVE OVERRIDE - ALL SELECTORS
